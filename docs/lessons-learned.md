@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 11% (6 of 54 slices; 9 of 83 days)
+**% complete:** 13% (7 of 54 slices; 11 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -285,3 +285,57 @@ worked when applied. Newest entries go at the bottom.
   `preventDefault`, the email pattern, the trim, and an `[innerHTML]` greeting.
 - "A gate in a fixture handler" (2.1) was not needed: every refusal is a single answer, and the
   specs await the response with `submitAndAwaitAnswer`.
+
+## Slice 3.1: Sign in and sign out
+
+**What slowed it**
+
+- "Ends the session on the server" (L2-004 AC5) is not what cookie sign-out does: the cookie
+  held the whole ticket, so a copy kept from before sign-out stayed valid. A replay test caught
+  it, and sessions moved to a `Sessions` table behind an `ITicketStore`.
+- `AutoValidateAntiforgeryTokenAttribute` is silently inert with `AddControllers`: its filter
+  needs MVC's view services. Our own `IAsyncAuthorizationFilter` calling `IsRequestValidAsync`
+  replaced it, and every test sent without a token turned red at once, as it should.
+- Antiforgery with `SecurePolicy = Always` throws on a plain-HTTP request, which the in-memory
+  test server (and a TLS-ending proxy) sends; a `CookieBuilder` that always sets `Secure` kept
+  the `__Host-` cookies valid without refusing to run.
+- The mocks' sign-in `invalid` state marked the password field with "That email and password
+  don't match", against the requirement's words and leaking that the email exists; the mock was
+  corrected before any code.
+- A 1,024-character password limit on sign-in was planned, then dropped: Join has no maximum, so
+  such a member could never have signed in. A rule in one endpoint must be checked against the
+  endpoint that created the data.
+- Angular 22's Beasties swaps the critical stylesheet in with an inline `<script>`, not an
+  `onload` attribute: a grep for `onload` found nothing and nearly let the change go; reading the
+  built `index.html` found it.
+- With a guard on the first navigation, `router.url` is still `/` when the guard's request
+  fails, so the server-error screen's "Try again" pointed at `/`. The interceptor now reads the
+  navigation in flight.
+- An unquoted Git Bash heredoc expanded a template literal's `${…}` and the whole command
+  failed to parse; specs go through the editor tool.
+
+**New lessons**
+
+- A guard on a parent route changes every spec that opens a child: the shared fixture now
+  answers `GET /api/session` as signed in and `GET /api/antiforgery` with a token by default, and
+  the one spec that asserted a 401 on Home now asserts the redirect.
+- A handler in the API tests that fetches the antiforgery token the way the browser does keeps
+  older tests honest without each one knowing about the token.
+- Set `HttpContext.User` when signing in or out, so a token issued in the same response belongs
+  to the new identity; a test that signs out with the sign-in response's token proves it.
+- HSTS is never sent to `localhost`; test it with a base address on another host.
+- Security headers written in `Response.OnStarting` survive the exception handler, which clears
+  headers set before it.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1, 2.1, 2.2):
+  the base stats were saved before the first change; the diff named the interceptor, the guard
+  and rxjs `last` (0.15 kB). The total went from 256.21 kB to 258.23 kB, under the 260 kB warning.
+- "Prove a rule red by breaking it alone" (1.1, 30.1, 2.1, 2.2) found that the always-Secure
+  builder and the identity change each guard a different test, and that the guard's 401 check is
+  what keeps a 5xx off the sign-in screen.
+- "A gate in a fixture handler" (2.1) gave the submitting and signing-out states a held answer
+  with no clock and no sleep.
+- "Write edit scripts to files, not heredocs" (1.2, 2.1, 2.2) applied again: the one heredoc used
+  for a spec failed.
