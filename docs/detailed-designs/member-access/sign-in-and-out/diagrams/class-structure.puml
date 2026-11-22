@@ -30,7 +30,10 @@ package "Member web app and libraries" {
   class memberAuthGuard <<domain, CanActivateFn>>
   class antiforgeryInterceptor <<domain, HttpInterceptorFn>>
   class signInRefusalOf <<domain>> {
-    +(error): 'invalid-credentials'|'failed'
+    +(error): 'invalid-credentials'|'too-many-attempts'|'suspended'|'failed'
+  }
+  class returnPathOf <<domain>> {
+    +(value): string
   }
   interface SessionApi <<api>> {
     +current(): Observable<SessionDto>
@@ -69,10 +72,12 @@ package "Christian Fitness API, Application and Domain" {
   interface IPasswordHasherService {
     +Verify(hash: string, password: string): bool
   }
-  class SignInAttempt <<slice 3.2>> {
-    +string NormalizedEmail
-    +DateTimeOffset AttemptedAt
+  class SignInFailure {
+    +Guid Id
+    +string EmailKey
+    +DateTimeOffset FailedAt
   }
+  class TimeProvider
   class Member {
     +Guid Id
     +string NormalizedEmail
@@ -88,6 +93,7 @@ package "Christian Fitness API, Application and Domain" {
 HttpSessionService ..|> SessionApi
 SignInPage ..> SessionApi : injects SESSION_SERVICE
 SignInPage ..> signInRefusalOf
+SignInPage ..> returnPathOf : returnUrl
 MemberShell --> AppHeader
 MemberShell ..> SessionApi : signOut()
 memberAuthGuard ..> SessionApi : current()
@@ -101,6 +107,7 @@ SignInHandler ..> IPasswordHasherService : verifies
 SignInHandler ..> ISessionSignIn : signs in
 SignOutHandler ..> ISessionSignIn : signs out
 SignInHandler ..> Member : loads by NormalizedEmail
-SignInHandler ..> SignInAttempt : counts last 15 min (slice 3.2)
+SignInHandler ..> SignInFailure : counts last 15 min, records, clears
+SignInHandler ..> TimeProvider : now
 Member --> MemberStatus
 @enduml

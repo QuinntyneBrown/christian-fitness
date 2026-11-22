@@ -222,6 +222,12 @@ def _():
         "Check your details", "Some of your details weren't accepted. Check each field and try again.") + "</div>"))
 
 
+@s("limited", "Too many profiles from one network in an hour (L2-034 AC2): a message above the form (focused); everything typed is kept.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Too many new profiles", "Too many profiles were made from this network in the last hour. Try again later.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+
+
 @s("submitting", "Create profile pressed: button busy and disabled, fields read-only, no layout shift.")
 def _():
     return auth(join_form(busy=True))
@@ -234,7 +240,7 @@ def _():
 
 
 # --- Sign in -----------------------------------------------------------------
-def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False) -> str:
+def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False, suspended: bool = False) -> str:
     alert = ""
     if invalid:
         # L2-004 AC2: one generic message that names neither field, so no field is marked invalid.
@@ -244,11 +250,16 @@ def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
         alert = '<div class="auth__alert">' + form_alert(
             "We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
     if locked:
+        # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0011).
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
             f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a> to get back in now.') + "</div>"
+    if suspended:
+        # L2-004 AC4: shown only once the right password was given (ADR 0011).
+        alert = '<div class="auth__alert">' + form_alert(
+            "Your account is suspended", "Contact the Christian Fitness team to talk it through.") + "</div>"
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
-              if busy else f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit"{" disabled" if locked else ""}>Sign in</button>')
+              if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign in</button>')
     return f"""    <form class="auth__form" action="{href("home")}" novalidate>
       <h1 class="display auth__title">Welcome back</h1>
       <p class="auth__lead">Sign in to see your events and messages.</p>
@@ -285,9 +296,14 @@ def _():
     return auth(signin_form(busy=True))
 
 
-@s("error", "Too many attempts: sign-in paused, with a reset link to get back in now.")
+@s("error", "Too many attempts (L2-004 AC3): sign-in paused for 15 minutes, a message above the form (focused) with a reset link to get back in now.")
 def _():
-    return auth(signin_form(locked=True))
+    return auth(signin_form(locked=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+
+
+@s("suspended", "A suspended member gave the right password (L2-004 AC4): a message above the form (focused) to contact the team.")
+def _():
+    return auth(signin_form(suspended=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
 
 
 @s("failed", "The server failed or did not answer: a message above the form; what was typed stays.")
