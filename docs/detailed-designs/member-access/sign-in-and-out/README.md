@@ -66,7 +66,7 @@ route first asked for ([ADR 0011](../../../adr/0011-sign-in-protections.md)).
   2. it counts the email's `SignInFailure` rows of the last 15 minutes, read from
      `TimeProvider`; at 5 or more the attempt is refused with `too_many_attempts` and
      HTTP 429 before the password is checked, right or wrong, and is not recorded, so
-     the pause ends 15 minutes after the fifth failure (L2-004 AC3);
+     the pause ends when the oldest of the five is 15 minutes old (L2-004 AC3);
   3. it looks the member up by the email's lookup key and verifies the password
      through `IPasswordHasherService`; an unknown email is verified against a fixed
      hash, so the answer takes as long as for a wrong password. Either failure records

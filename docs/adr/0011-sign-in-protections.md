@@ -33,9 +33,9 @@ accounts. Staff suspend members in slice 27.1; until then only the tests make a 
   the right password is `account_suspended` (403); anything else clears the email's failures
   and signs in. An unknown email's failures count like a known one's, so the pause never says
   whether an account exists; a suspended member is told only once the right password is given.
-  A refused 429 is not recorded, so the pause ends 15 minutes after the fifth failure, as AC3
-  says ("until the window passes"), and nobody can keep a member out longer by trying on. The
-  window slides: each failure leaves it 15 minutes after it was made.
+  The window slides: each failure leaves it 15 minutes after it was made, so the pause ends when
+  the oldest of the five does, as AC3 says ("until the window passes"). A refused 429 is not
+  recorded, so nobody can keep a member out longer by trying on.
 - **The table stays small**: recording a failure deletes every row older than the window, so
   it holds at most the last 15 minutes' failures. Two attempts at the same instant may both pass
   the count of four; the sixth then meets five. The window is a brake on guessing, not an exact
