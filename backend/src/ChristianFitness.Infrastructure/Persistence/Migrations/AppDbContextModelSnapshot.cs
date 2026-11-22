@@ -114,6 +114,29 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("StaffRoles");
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Sessions.SignInFailure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EmailKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset>("FailedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FailedAt");
+
+                    b.HasIndex("EmailKey", "FailedAt");
+
+                    b.ToTable("SignInFailures", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Infrastructure.Persistence.SessionRecord", b =>
                 {
                     b.Property<string>("Id")

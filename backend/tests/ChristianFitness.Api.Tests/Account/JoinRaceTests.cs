@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Sessions;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,7 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
         public DbSet<StaffRole> StaffRoles => db.StaffRoles;
 
         public DbSet<PasswordReset> PasswordResets => db.PasswordResets;
+        public DbSet<SignInFailure> SignInFailures => db.SignInFailures;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 
