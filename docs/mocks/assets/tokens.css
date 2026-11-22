@@ -1,0 +1,419 @@
+/* ==========================================================================
+   Christian Fitness — design tokens. The only place colours, type, sizes,
+   radii, shadows, durations and z-order live.
+
+   Light values are taken 1:1 from the Magic Patterns prototype
+   (os/rCJdLHom5zs5XuG3YFh2Pu, prototype "Christian Fitness" index.css @theme):
+     ink #111111 · bordeaux #6c1d36 · bordeaux-deep #521427 · borealis #9cc3e8
+     blush #f6ebee · canvas #f7f5f4 · surface #ffffff · line #e6e1df · muted #5c5a5e
+   Dark values are derived for these mocks (the prototype has no dark theme).
+
+   Three tiers: primitives (--palette-*, --font-family-*, --font-size-*),
+   semantic (--color-*, --space-*, --radius-*, --shadow-*, --duration-*, --z-*,
+   --layout-*), and component tokens in ui.css that alias semantic ones.
+   ========================================================================== */
+
+/* ---------- Self-hosted fonts (Barlow, Barlow Condensed; SIL OFL) -------- */
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/Barlow-400.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/Barlow-500.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/Barlow-600.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/Barlow-700.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/BarlowCondensed-500.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/BarlowCondensed-600.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/BarlowCondensed-700.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: italic; font-weight: 400; font-display: swap; src: url("fonts/BarlowCondensed-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: italic; font-weight: 500; font-display: swap; src: url("fonts/BarlowCondensed-500-italic.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: italic; font-weight: 600; font-display: swap; src: url("fonts/BarlowCondensed-600-italic.woff2") format("woff2"); }
+
+:root {
+  /* ---------- Primitives: colour --------------------------------------- */
+  --palette-white: #ffffff;
+  --palette-ink: #111111;
+  --palette-bordeaux: #6c1d36;
+  --palette-bordeaux-deep: #521427;
+  --palette-bordeaux-bright: #8f2a4a;
+  --palette-bordeaux-bright-hover: #a3345a;
+  --palette-rose: #f0a8bf;
+  --palette-rose-light: #f7c9d7;
+  --palette-borealis: #9cc3e8;
+  --palette-blush: #f6ebee;
+  --palette-canvas: #f7f5f4;
+  --palette-line: #e6e1df;
+  --palette-muted: #5c5a5e;
+  --palette-skeleton: #ece8e6;
+
+  --palette-night-950: #121011;
+  --palette-night-900: #1c191a;
+  --palette-night-850: #252122;
+  --palette-night-800: #2c2729;
+  --palette-night-700: #3a3335;
+  --palette-night-600: #4a4245;
+  --palette-night-300: #b8b0b2;
+  --palette-night-100: #f5f2f1;
+  --palette-wine-950: #3a1d27;
+  --palette-wine-900: #4a2432;
+
+  --palette-sky-50: #eaf3fb;
+  --palette-sky-800: #17406b;
+  --palette-sky-950: #13283d;
+  --palette-amber-50: #fbf1de;
+  --palette-amber-300: #f2c26b;
+  --palette-amber-800: #6b4400;
+  --palette-amber-950: #33240a;
+  --palette-green-50: #e8f4ec;
+  --palette-green-300: #8fd3a7;
+  --palette-green-800: #1d5b34;
+  --palette-green-950: #13291b;
+
+  /* ---------- Primitives: typography ----------------------------------- */
+  --font-family-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans: "Barlow", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --font-size-2xs: 0.6875rem;  /* 11px  tab bar labels, date badge month (prototype parity) */
+  --font-size-xs: 0.75rem;     /* 12px  captions, status badges */
+  --font-size-sm: 0.875rem;    /* 14px  secondary text */
+  --font-size-ui: 0.9375rem;   /* 15px  nav, table cells, chat bubbles */
+  --font-size-md: 1rem;        /* 16px  body */
+  --font-size-list: 1.0625rem; /* 17px  goals list */
+  --font-size-lg: 1.125rem;    /* 18px  lead paragraphs */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-lockup: 1.375rem;/* 22px  header wordmark */
+  --font-size-2xl: 1.5rem;     /* 24px  section titles */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+  --font-size-5xl: 3rem;       /* 48px  page titles */
+  --font-size-6xl: 3.75rem;    /* 60px */
+  --font-size-7xl: 4.5rem;     /* 72px */
+  --font-size-8xl: 6rem;       /* 96px  landing hero */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-none: 1;
+  --line-height-display: 0.9;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  --letter-spacing-normal: 0;
+  --letter-spacing-display: 0.02em;  /* display headings */
+  --letter-spacing-lockup: 0.03em;   /* wordmark */
+  --letter-spacing-wide: 0.025em;    /* uppercase overlines */
+  --letter-spacing-wider: 0.14em;    /* "Admin console" eyebrow */
+
+  /* ---------- Semantic: colour (light) --------------------------------- */
+  --color-bg-canvas: var(--palette-canvas);
+  --color-bg-surface: var(--palette-white);
+  --color-bg-surface-raised: var(--palette-white);
+  --color-bg-subtle: var(--palette-canvas);          /* hover on surface rows */
+  --color-bg-inverse: var(--palette-ink);            /* selected chip, group avatar, toasts */
+  --color-bg-backdrop: rgb(17 17 17 / 0.4);          /* scrim, ink/40 */
+  --color-bg-skeleton: var(--palette-skeleton);
+  --color-bg-chrome: var(--palette-ink);             /* admin sidebar */
+  --color-bg-brand: var(--palette-bordeaux);         /* brand panels: verse, join aside, member count */
+
+  --color-fg-default: var(--palette-ink);
+  --color-fg-muted: var(--palette-muted);
+  --color-fg-inverse: var(--palette-white);
+  --color-fg-on-brand: var(--palette-white);
+  --color-fg-on-brand-muted: rgb(255 255 255 / 0.8);
+  --color-fg-on-brand-highlight: var(--palette-borealis);
+  --color-fg-on-chrome: var(--palette-white);
+  --color-fg-on-chrome-muted: rgb(255 255 255 / 0.7);
+  --color-fg-on-chrome-subtle: rgb(255 255 255 / 0.6);
+  --color-fg-link: var(--palette-bordeaux);
+
+  --color-border-default: var(--palette-line);       /* dividers, rings, control edges */
+  --color-border-strong: rgb(17 17 17 / 0.4);        /* hovered outlined buttons, ink/40 */
+  --color-border-hover: rgb(17 17 17 / 0.3);         /* hovered chips, ink/30 */
+  --color-border-on-brand: rgb(255 255 255 / 0.4);
+  --color-border-on-chrome: rgb(255 255 255 / 0.1);
+  --color-bg-on-chrome-hover: rgb(255 255 255 / 0.1);
+
+  --color-accent: var(--palette-bordeaux);           /* primary buttons, badges */
+  --color-accent-hover: var(--palette-bordeaux-deep);
+  --color-accent-subtle: var(--palette-blush);       /* selected rows, "you're registered", tags */
+  --color-fg-on-accent: var(--palette-white);
+  --color-fg-accent: var(--palette-bordeaux);        /* accent text on surfaces */
+  --color-accent-ring: rgb(108 29 54 / 0.15);        /* input focus halo, bordeaux/15 */
+  --color-highlight: var(--palette-borealis);        /* the second brand colour */
+
+  --color-focus-ring: var(--palette-bordeaux);
+  --color-focus-ring-on-dark: var(--palette-borealis);
+
+  --color-info-bg: var(--palette-sky-50);
+  --color-info-fg: var(--palette-sky-800);
+  --color-success-bg: var(--palette-green-50);
+  --color-success-fg: var(--palette-green-800);
+  --color-warning-bg: var(--palette-amber-50);
+  --color-warning-fg: var(--palette-amber-800);
+  --color-warning-border: var(--palette-amber-300);
+  --color-danger-bg: var(--palette-blush);
+  --color-danger-fg: var(--palette-bordeaux);        /* the prototype marks errors in bordeaux */
+  --color-danger-solid: var(--palette-bordeaux);
+
+  --color-toast-bg: var(--palette-ink);
+  --color-toast-fg: var(--palette-white);
+  --color-toast-muted: rgb(255 255 255 / 0.72);
+  --color-toast-accent: var(--palette-borealis);
+  --color-toast-warning: var(--palette-amber-300);
+  --color-toast-danger-bg: var(--palette-bordeaux);
+
+  /* ---------- Semantic: spacing (Tailwind 0.25rem scale) ---------------- */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;
+  --space-1: 0.25rem;
+  --space-1-5: 0.375rem;
+  --space-2: 0.5rem;
+  --space-2-5: 0.625rem;
+  --space-3: 0.75rem;
+  --space-3-5: 0.875rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-9: 2.25rem;
+  --space-10: 2.5rem;
+  --space-11: 2.75rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-18: 4.5rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ---------- Semantic: layout ----------------------------------------- */
+  --layout-breakpoint-sm: 40rem;  /* 640px  */
+  --layout-breakpoint-md: 48rem;  /* 768px  bottom tabs → top nav */
+  --layout-breakpoint-lg: 64rem;  /* 1024px two columns, admin sidebar */
+  --layout-breakpoint-xl: 80rem;  /* 1280px */
+  --layout-container-max: 80rem;  /* member app, max-w-7xl */
+  --layout-admin-max: 72rem;      /* admin console, max-w-6xl */
+  --layout-form-max: 28rem;       /* auth forms, max-w-md */
+  --layout-drawer-max: 32rem;     /* drawers and dialogs, max-w-lg */
+  --layout-measure: 42rem;        /* prose, max-w-2xl */
+  --layout-measure-narrow: 36rem; /* max-w-xl */
+  --layout-measure-tight: 24rem;  /* max-w-sm */
+  --layout-topbar-height: 4rem;
+  --layout-landing-header-height: 4.5rem;
+  --layout-tabbar-height: 4rem;
+  --layout-sidebar-width: 16rem;
+  --layout-conversations-width: 20rem;
+  --layout-search-width: 18rem;
+  --layout-meter-width: 14rem;
+  --layout-sticky-offset: 6rem;   /* top-24 */
+
+  /* ---------- Semantic: sizes ------------------------------------------ */
+  --size-icon-xs: 0.875rem;  /* 14px */
+  --size-icon-sm: 1rem;      /* 16px */
+  --size-icon-md: 1.125rem;  /* 18px */
+  --size-icon-lg: 1.25rem;   /* 20px */
+  --size-avatar-sm: 2.25rem; /* 36px */
+  --size-avatar-table: 2.375rem; /* 38px */
+  --size-avatar-md: 2.5rem;  /* 40px */
+  --size-avatar-lg: 2.75rem; /* 44px */
+  --size-avatar-xl: 3rem;    /* 48px */
+  --size-avatar-2xl: 6rem;   /* 96px */
+  --size-avatar-profile: 7rem; /* 112px */
+  --size-seal-lockup: 2.125rem; /* 34px */
+  --size-seal-signin: 2.75rem;  /* 44px */
+  --size-seal-verse: 8.75rem;   /* 140px */
+  --size-seal-hero: 11.25rem;   /* 180px */
+  --size-dot: 0.5rem;
+  --size-dot-lg: 0.625rem;
+  --size-control: 2.75rem;      /* send button, icon tiles */
+  --size-date-badge: 3.5rem;
+  --size-date-col: 3rem;
+  --size-date-col-lg: 3.5rem;
+  --size-thumb-w: 5rem;
+  --size-thumb-h: 4rem;
+  --size-meter: 0.375rem;
+  --size-divider-h: 1.5rem;
+
+  /* ---------- Semantic: shape ------------------------------------------ */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;    /* inputs, date badges, group avatars */
+  --radius-2xl: 1rem;      /* rows, small cards */
+  --radius-3xl: 1.5rem;    /* cards, images, panels */
+  --radius-full: 9999px;   /* buttons, chips, avatars */
+
+  --border-width-hairline: 1px;
+  --border-width-thick: 2px;
+
+  /* ---------- Semantic: elevation -------------------------------------- */
+  --shadow-1: 0 1px 0 rgb(17 17 17 / 0.04);                /* resting cards */
+  --shadow-2: 0 8px 24px rgb(17 17 17 / 0.08);             /* hovered list cards */
+  --shadow-3: 0 12px 32px rgb(17 17 17 / 0.10);            /* hovered event cards, menus */
+  --shadow-4: 0 12px 40px rgb(17 17 17 / 0.14);            /* floating cards, toasts */
+  --shadow-5: 0 24px 64px rgb(17 17 17 / 0.24);            /* dialogs, drawers */
+
+  /* ---------- Semantic: motion ----------------------------------------- */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;      /* hover, colour */
+  --duration-base: 180ms;      /* register panel swap */
+  --duration-moderate: 200ms;  /* card shadow, scrim */
+  --duration-slow: 260ms;      /* drawer slide */
+  --duration-deliberate: 1400ms; /* skeleton shimmer cycle */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);  /* prototype --ease-out-strong */
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+
+  /* ---------- Semantic: z-order ---------------------------------------- */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 20;      /* app header, tab bar, admin sidebar */
+  --z-overlay: 30;     /* scrim */
+  --z-modal: 40;       /* dialogs, drawers */
+  --z-toast: 50;
+  --z-tooltip: 60;
+
+  /* ---------- Semantic: interaction ------------------------------------ */
+  --target-min: 1.5rem;          /* 24px WCAG 2.2 AA */
+  --target-comfortable: 2.75rem; /* 44px touch target (AGENTS.md) */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* ---------- Skill compatibility aliases (mock.css) ------------------- */
+  --text-caption: var(--font-weight-regular) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans);
+  --radius-pill: var(--radius-full);
+
+  color-scheme: light;
+}
+
+/* ---------- Dark theme ----------------------------------------------------- */
+[data-theme="dark"] {
+  --color-bg-canvas: var(--palette-night-950);
+  --color-bg-surface: var(--palette-night-900);
+  --color-bg-surface-raised: var(--palette-night-850);
+  --color-bg-subtle: var(--palette-night-850);
+  --color-bg-inverse: var(--palette-night-100);
+  --color-bg-backdrop: rgb(0 0 0 / 0.6);
+  --color-bg-skeleton: var(--palette-night-800);
+  --color-bg-chrome: #0b0a0a;
+  --color-bg-brand: var(--palette-bordeaux);
+
+  --color-fg-default: var(--palette-night-100);
+  --color-fg-muted: var(--palette-night-300);
+  --color-fg-inverse: var(--palette-night-950);
+  --color-fg-link: var(--palette-rose);
+
+  --color-border-default: var(--palette-night-700);
+  --color-border-strong: rgb(245 242 241 / 0.45);
+  --color-border-hover: rgb(245 242 241 / 0.35);
+
+  --color-accent: var(--palette-bordeaux-bright);
+  --color-accent-hover: var(--palette-bordeaux-bright-hover);
+  --color-accent-subtle: var(--palette-wine-950);
+  --color-fg-on-accent: var(--palette-white);
+  --color-fg-accent: var(--palette-rose);
+  --color-accent-ring: rgb(240 168 191 / 0.25);
+
+  --color-focus-ring: var(--palette-borealis);
+
+  --color-info-bg: var(--palette-sky-950);
+  --color-info-fg: var(--palette-borealis);
+  --color-success-bg: var(--palette-green-950);
+  --color-success-fg: var(--palette-green-300);
+  --color-warning-bg: var(--palette-amber-950);
+  --color-warning-fg: var(--palette-amber-300);
+  --color-warning-border: var(--palette-amber-800);
+  --color-danger-bg: var(--palette-wine-950);
+  --color-danger-fg: var(--palette-rose-light);
+  --color-danger-solid: var(--palette-bordeaux-bright);
+
+  --color-toast-bg: var(--palette-night-100);
+  --color-toast-fg: var(--palette-night-950);
+  --color-toast-muted: rgb(18 16 17 / 0.72);
+  --color-toast-accent: var(--palette-bordeaux);
+  --color-toast-warning: var(--palette-amber-800);
+  --color-toast-danger-bg: var(--palette-bordeaux-bright);
+
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.3);
+  --shadow-2: 0 8px 24px rgb(0 0 0 / 0.4);
+  --shadow-3: 0 12px 32px rgb(0 0 0 / 0.45);
+  --shadow-4: 0 12px 40px rgb(0 0 0 / 0.5);
+  --shadow-5: 0 24px 64px rgb(0 0 0 / 0.6);
+
+  color-scheme: dark;
+}
+
+/* Follow the OS preference unless the page has explicitly chosen light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-canvas: var(--palette-night-950);
+    --color-bg-surface: var(--palette-night-900);
+    --color-bg-surface-raised: var(--palette-night-850);
+    --color-bg-subtle: var(--palette-night-850);
+    --color-bg-inverse: var(--palette-night-100);
+    --color-bg-backdrop: rgb(0 0 0 / 0.6);
+    --color-bg-skeleton: var(--palette-night-800);
+    --color-bg-chrome: #0b0a0a;
+    --color-fg-default: var(--palette-night-100);
+    --color-fg-muted: var(--palette-night-300);
+    --color-fg-inverse: var(--palette-night-950);
+    --color-fg-link: var(--palette-rose);
+    --color-border-default: var(--palette-night-700);
+    --color-border-strong: rgb(245 242 241 / 0.45);
+    --color-border-hover: rgb(245 242 241 / 0.35);
+    --color-accent: var(--palette-bordeaux-bright);
+    --color-accent-hover: var(--palette-bordeaux-bright-hover);
+    --color-accent-subtle: var(--palette-wine-950);
+    --color-fg-accent: var(--palette-rose);
+    --color-accent-ring: rgb(240 168 191 / 0.25);
+    --color-focus-ring: var(--palette-borealis);
+    --color-info-bg: var(--palette-sky-950);
+    --color-info-fg: var(--palette-borealis);
+    --color-success-bg: var(--palette-green-950);
+    --color-success-fg: var(--palette-green-300);
+    --color-warning-bg: var(--palette-amber-950);
+    --color-warning-fg: var(--palette-amber-300);
+    --color-warning-border: var(--palette-amber-800);
+    --color-danger-bg: var(--palette-wine-950);
+    --color-danger-fg: var(--palette-rose-light);
+    --color-danger-solid: var(--palette-bordeaux-bright);
+    --color-toast-bg: var(--palette-night-100);
+    --color-toast-fg: var(--palette-night-950);
+    --color-toast-muted: rgb(18 16 17 / 0.72);
+    --color-toast-accent: var(--palette-bordeaux);
+    --color-toast-warning: var(--palette-amber-800);
+    --color-toast-danger-bg: var(--palette-bordeaux-bright);
+    --shadow-1: 0 1px 0 rgb(0 0 0 / 0.3);
+    --shadow-2: 0 8px 24px rgb(0 0 0 / 0.4);
+    --shadow-3: 0 12px 32px rgb(0 0 0 / 0.45);
+    --shadow-4: 0 12px 40px rgb(0 0 0 / 0.5);
+    --shadow-5: 0 24px 64px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Preference overrides ------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0.01ms;
+    --duration-base: 0.01ms;
+    --duration-moderate: 0.01ms;
+    --duration-slow: 0.01ms;
+    --duration-deliberate: 0.01ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-border-default: var(--color-border-strong);
+    --color-fg-muted: var(--color-fg-default);
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --color-focus-ring: Highlight;
+    --color-border-default: CanvasText;
+  }
+}

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landing · error — Christian Fitness mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="landing">
+<meta name="mock:state" content="error">
+<meta name="mock:source" content="Magic Patterns · prototype Christian Fitness · frame Landing (m6TmegBz1WUe34iTU1vouC)">
+<meta name="description" content="Landing when upcoming events fail to load: the rest of the page works; the list offers a retry.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="site">
+  <header class="site-header">
+    <a class="lockup" href="../../pages/landing/default.html"><svg class="seal seal--lockup" viewBox="0 0 200 200" aria-hidden="true"><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7"/><rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2"/><rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2"/></svg><span class="lockup__name">Christian Fitness</span></a>
+    <div class="site-header__actions">
+      <a class="btn btn--ghost site-header__signin" href="../../pages/sign-in/default.html">Sign in</a>
+      <a class="btn btn--primary" href="../../pages/join/default.html">Join free</a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <h1 class="display hero__title" id="hero-title">Life to the full.</h1>
+        <p class="hero__lead">A Christian community for health in body and spirit. Find events, train with friends, and meet professionals who share your faith.</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary btn--lg" href="../../pages/join/default.html">Join the community <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          <p class="hero__proof"><strong>2,400+</strong> members across the GTA</p>
+        </div>
+      </div>
+      <div class="hero__media">
+        <img class="hero__image" src="../../assets/images/run.jpg" alt="A group running together along the Toronto waterfront at sunrise" width="1376" height="768">
+        <div class="hero__float">
+          <div class="date-tile" aria-hidden="true"><span class="date-tile__month">Apr</span><span class="date-tile__day">18</span></div>
+          <div>
+            <p class="hero__float-title">Easter Sunrise 5K</p>
+            <p class="hero__float-meta"><span class="visually-hidden">Sat, Apr 18 · </span>142 going · Free</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="coming-title">
+      <div class="band__inner">
+        <div>
+          <h2 class="display band__title" id="coming-title">Coming up</h2>
+          <p class="subtitle">Runs, workouts and gatherings posted by our team every week.</p>
+          <div class="inline-error landing-list" role="alert">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            <div class="inline-error__body"><p class="inline-error__title">Upcoming events didn't load.</p><p>Check your connection, then try again.</p>
+            <button type="button" data-mock-href="default.html">Try again</button></div>
+          </div>
+        </div>
+        <div class="band__aside">
+          <div>
+            <h3 class="display band__point-title">Train together</h3>
+            <p class="band__point-text">Build a profile, find people at your pace, and keep each other going in group chats for every event.</p>
+          </div>
+          <div>
+            <h3 class="display band__point-title">Trusted professionals</h3>
+            <p class="band__point-text">Trainers, dietitians, physios and counsellors, each one vetted and listed by our team.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="verse" aria-label="Scripture">
+      <div class="verse__inner">
+        <svg class="seal seal--verse seal--light" viewBox="0 0 200 200" role="img" aria-label="Christian Fitness"><defs><path id="landing-seal" d="M100,100 m-76.5,0 a76.5,76.5 0 1,1 153,0 a76.5,76.5 0 1,1 -153,0"/></defs><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="3"/><circle class="seal__ring" cx="100" cy="100" r="66" stroke-width="1.5"/><text class="seal__text"><textPath href="#landing-seal" startOffset="0" textLength="478" lengthAdjust="spacing">CHRISTIAN FITNESS · HEALTH · ENERGY · ABUNDANT LIFE · </textPath></text><rect class="seal__cross" x="92" y="54" width="16" height="96" rx="1.5"/><rect class="seal__cross" x="68" y="78" width="64" height="15" rx="1.5"/></svg>
+        <blockquote>
+          <p class="verse__quote">“I came that they may have life and have it abundantly.”</p>
+          <cite class="verse__cite">John 10:10</cite>
+        </blockquote>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>© 2026 Christian Fitness · Toronto</p>
+    <p>Health · Energy · Abundant life</p>
+  </footer>
+</div>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Landing</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html" aria-current="page">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

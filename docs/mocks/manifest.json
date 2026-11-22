@@ -1,0 +1,512 @@
+{
+  "project": "Christian Fitness",
+  "source": "https://www.magicpatterns.com/os/rCJdLHom5zs5XuG3YFh2Pu (canvas Web App)",
+  "required_states": {
+    "page": [
+      "default",
+      "loading",
+      "empty",
+      "error"
+    ],
+    "dialog": [
+      "default",
+      "busy",
+      "invalid"
+    ],
+    "notification": [
+      "info",
+      "success",
+      "warning",
+      "danger"
+    ]
+  },
+  "screens": [
+    {
+      "id": "landing",
+      "kind": "page",
+      "title": "Landing",
+      "group": "Public",
+      "route": "/",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Landing (m6TmegBz1WUe34iTU1vouC)",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "join",
+      "kind": "page",
+      "title": "Join",
+      "group": "Public",
+      "route": "/join",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Join (owKTeNTEtw5hx1TDVR7CTy)",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Static form; nothing loads before it renders.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "sign-in",
+      "kind": "page",
+      "title": "Sign in",
+      "group": "Public",
+      "route": "/sign-in",
+      "source": "Derived: the prototype's Sign in links go straight to Home; this screen uses the Join layout.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Static form.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "forgot-password",
+      "kind": "page",
+      "title": "Forgot password",
+      "group": "Public",
+      "route": "/forgot-password",
+      "source": "Derived from the Join layout.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Static form.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "reset-password",
+      "kind": "page",
+      "title": "Reset password",
+      "group": "Public",
+      "route": "/reset-password",
+      "source": "Derived from the Join layout.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Static form.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "home",
+      "kind": "page",
+      "title": "Home",
+      "group": "Member app",
+      "route": "/home",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Home (crjWXYxkk9Vzfuqk7tYafn)",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "partial",
+        "offline"
+      ]
+    },
+    {
+      "id": "events",
+      "kind": "page",
+      "title": "Events",
+      "group": "Member app",
+      "route": "/events",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Events (uawpB3NVofSGDh6DhtRnY1)",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "filtered",
+        "going"
+      ]
+    },
+    {
+      "id": "event-detail",
+      "kind": "page",
+      "title": "Event detail",
+      "group": "Member app",
+      "route": "/events/:id",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Event Detail (bMot5Cj5p1yCN4wNfWDvdc)",
+      "requirements": [],
+      "states": [
+        "default",
+        "unregistered",
+        "registering",
+        "full",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One event, not a collection; a missing event is the not-found page."
+      }
+    },
+    {
+      "id": "services",
+      "kind": "page",
+      "title": "Services",
+      "group": "Member app",
+      "route": "/services",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Services (ahxe4g3aviYzxvXrWbnCHB)",
+      "requirements": [],
+      "states": [
+        "default",
+        "selected",
+        "filtered",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "messages",
+      "kind": "page",
+      "title": "Messages",
+      "group": "Member app",
+      "route": "/messages",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Messages (4oNENb1MqEPprMu7oidNUV)",
+      "requirements": [],
+      "states": [
+        "default",
+        "list",
+        "direct",
+        "draft",
+        "send-failed",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "profile",
+      "kind": "page",
+      "title": "Profile",
+      "group": "Member app",
+      "route": "/profile",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Profile (mcTAGhbYY6BhJ9YfwMksWP)",
+      "requirements": [],
+      "states": [
+        "default",
+        "member",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "not-found",
+      "kind": "page",
+      "title": "Page not found",
+      "group": "System",
+      "route": "/**",
+      "source": "Derived: system page in the member shell.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A system page renders without loading data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "server-error",
+      "kind": "page",
+      "title": "Something went wrong",
+      "group": "System",
+      "route": "(any, on a 500)",
+      "source": "Derived: system page in the member shell.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A system page renders without loading data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "offline",
+      "kind": "page",
+      "title": "Offline",
+      "group": "System",
+      "route": "(any, no connection and nothing cached)",
+      "source": "Derived: system page in the member shell.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A system page renders without loading data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "admin-sign-in",
+      "kind": "page",
+      "title": "Staff sign in",
+      "group": "Admin console",
+      "route": "/admin/sign-in",
+      "source": "Magic Patterns · prototype Admin Console · frame Sign In (x7rTtnFLo7JruWBh3LepjD)",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Static form.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "admin-two-step",
+      "kind": "page",
+      "title": "Two-step verification",
+      "group": "Admin console",
+      "route": "/admin/sign-in/verify",
+      "source": "Derived from the Sign In frame (its \"Two-step verification required\" notice).",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting"
+      ],
+      "not_applicable": {
+        "loading": "Static form.",
+        "empty": "A form, not a collection.",
+        "error": "Server failures show as the invalid state's message pattern; a locked account goes back to sign in."
+      }
+    },
+    {
+      "id": "admin-forbidden",
+      "kind": "page",
+      "title": "Staff only",
+      "group": "Admin console",
+      "route": "/admin (signed in as a member)",
+      "source": "Derived from the Sign In frame layout.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Renders without data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the refusal."
+      }
+    },
+    {
+      "id": "admin-dashboard",
+      "kind": "page",
+      "title": "Dashboard",
+      "group": "Admin console",
+      "route": "/admin",
+      "source": "Magic Patterns · prototype Admin Console · frame Dashboard (r8vPpenwCG88cBh4QH43ce)",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "partial"
+      ]
+    },
+    {
+      "id": "admin-events",
+      "kind": "page",
+      "title": "Manage events",
+      "group": "Admin console",
+      "route": "/admin/events",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Events (3Gt51yvnjf2gmVsCj7JPsC)",
+      "requirements": [],
+      "states": [
+        "default",
+        "published",
+        "draft",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "admin-services",
+      "kind": "page",
+      "title": "Manage services",
+      "group": "Admin console",
+      "route": "/admin/services",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Services (jKqAWK6384okr35PyGC6Le)",
+      "requirements": [],
+      "states": [
+        "default",
+        "decided",
+        "no-applications",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "admin-members",
+      "kind": "page",
+      "title": "Members",
+      "group": "Admin console",
+      "route": "/admin/members",
+      "source": "Magic Patterns · prototype Admin Console · frame Members (tPxu6npHD6a6sbs4ZYxPji)",
+      "requirements": [],
+      "states": [
+        "default",
+        "active",
+        "flagged",
+        "suspended",
+        "no-results",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "request-booking",
+      "kind": "dialog",
+      "title": "Request a booking",
+      "group": "Member app",
+      "opens_from": "services",
+      "source": "Derived: the Services frame's \"Request a booking\" button.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ]
+    },
+    {
+      "id": "edit-profile",
+      "kind": "dialog",
+      "title": "Edit profile",
+      "group": "Member app",
+      "opens_from": "profile",
+      "source": "Derived: the Profile frame's \"Edit profile\" button.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "event-editor",
+      "kind": "dialog",
+      "title": "Event editor",
+      "group": "Member app",
+      "opens_from": "admin-events",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Events (state composing: the New event drawer)",
+      "requirements": [],
+      "states": [
+        "default",
+        "edit",
+        "invalid",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "listing-editor",
+      "kind": "dialog",
+      "title": "Listing editor",
+      "group": "Member app",
+      "opens_from": "admin-services",
+      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "toast",
+      "kind": "notification",
+      "title": "Toast",
+      "group": "Member app",
+      "opens_from": "event-detail",
+      "source": "Derived: confirmations for the Event Detail frame's Register, Calendar and Can't make it actions.",
+      "requirements": [],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "with-action",
+        "stacked"
+      ]
+    },
+    {
+      "id": "banner",
+      "kind": "notification",
+      "title": "Banner",
+      "group": "Member app",
+      "opens_from": "home",
+      "source": "Derived: page-level notices under the AppShell header.",
+      "requirements": [],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "persistent"
+      ]
+    },
+    {
+      "id": "admin-toast",
+      "kind": "notification",
+      "title": "Admin toast",
+      "group": "Admin console",
+      "opens_from": "admin-events",
+      "source": "Derived: confirmations for the admin console's Publish, Save draft, Suspend and Dismiss actions.",
+      "requirements": [],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "with-action",
+        "stacked"
+      ]
+    }
+  ]
+}
