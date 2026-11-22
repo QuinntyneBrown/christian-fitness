@@ -6,6 +6,9 @@
   altHref="/sign-in"
   (submitted)="submit()"
 >
+  @if (summary().length) {
+    <cf-form-alert slot="alert" heading="Check your details" [items]="summary()" />
+  }
   <cf-text-field
     slot="fields"
     fieldId="f-name"
@@ -13,8 +16,9 @@
     name="name"
     autocomplete="name"
     [value]="fullName()"
+    [error]="fieldErrors().fullName"
     [readonly]="submitting()"
-    (valueChange)="fullName.set($event)"
+    (valueChange)="edit('fullName', $event)"
   />
   <cf-text-field
     slot="fields"
@@ -24,8 +28,9 @@
     type="email"
     autocomplete="email"
     [value]="email()"
+    [error]="fieldErrors().email"
     [readonly]="submitting()"
-    (valueChange)="email.set($event)"
+    (valueChange)="edit('email', $event)"
   />
   <cf-text-field
     slot="fields"
@@ -36,8 +41,9 @@
     autocomplete="new-password"
     hint="At least 8 characters"
     [value]="password()"
+    [error]="fieldErrors().password"
     [readonly]="submitting()"
-    (valueChange)="password.set($event)"
+    (valueChange)="edit('password', $event)"
   />
   <cf-text-field
     slot="fields"
@@ -46,8 +52,9 @@
     name="church"
     hint="Optional — helps you find people nearby"
     [value]="homeChurch()"
+    [error]="fieldErrors().homeChurch"
     [readonly]="submitting()"
-    (valueChange)="homeChurch.set($event)"
+    (valueChange)="edit('homeChurch', $event)"
   />
   <cf-interest-picker
     slot="fields"

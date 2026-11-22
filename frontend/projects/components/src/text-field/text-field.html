@@ -6,12 +6,20 @@
     [name]="name()"
     [type]="type()"
     [attr.autocomplete]="autocomplete() ?? null"
-    [attr.aria-describedby]="hint() ? fieldId() + '-hint' : null"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="error() ? 'true' : null"
     [value]="value()"
     [readOnly]="readonly()"
     (input)="onInput($event)"
   />
-  @if (hint(); as text) {
+  @if (error(); as message) {
+    <span class="field__error" [id]="fieldId() + '-error'"
+      >{{ message }}
+      @if (errorLink(); as link) {
+        <a class="inline-link" [href]="errorHref()">{{ link }}</a>
+      }
+    </span>
+  } @else if (hint(); as text) {
     <span class="field__hint" [id]="fieldId() + '-hint'">{{ text }}</span>
   }
 </div>

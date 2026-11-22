@@ -46,6 +46,15 @@
   color: var(--color-fg-muted);
 }
 
+// The alert above the fields; empty, it takes no room.
+.auth__alert {
+  margin-top: var(--space-6);
+
+  &:empty {
+    display: none;
+  }
+}
+
 // The projected fields stack with the mock's rhythm; a gap reaches them, a child selector would not.
 .auth__fields {
   margin-top: var(--space-8);
