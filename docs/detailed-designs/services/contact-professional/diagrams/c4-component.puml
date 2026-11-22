@@ -10,7 +10,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(lh, "GetContactLinkHandler", "MediatR handler", "Return published contact link on demand")
   Component(ctx, "IAppDbContext", "Application abstraction", "ServiceListings, Conversations")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Listings, conversations")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Listings, conversations")
 Rel(web, ctrl, "Contact requests", "JSON/HTTPS")
 Rel(ctrl, sh, "Sends StartProfessionalConversationCommand")
 Rel(ctrl, lh, "Sends GetContactLinkQuery")

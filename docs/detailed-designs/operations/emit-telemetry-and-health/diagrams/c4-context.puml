@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System Context — Emit telemetry and health
 
 Person(member, "Member", "Registers for events, chats and books professionals")
-Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+Person(operator, "Operator", "Maintainer who deploys and monitors Christian Fitness")
 System(cf, "Christian Fitness", "Christian community for health in body and spirit")
 System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
 

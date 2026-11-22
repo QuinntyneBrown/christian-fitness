@@ -3,14 +3,14 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Emit telemetry and health
 
-Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+Person(operator, "Operator", "Maintainer who deploys and monitors Christian Fitness")
 System_Boundary(cf, "Christian Fitness") {
   Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
-  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Members, events, conversations, listings")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, events, conversations, listings")
 }
 System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
 
 Rel(api, db, "Readiness check", "EF Core")
 Rel(api, otel, "Exports traces and metrics", "OTLP")
-Rel(operator, api, "GET /health/live, /health/ready", "HTTPS")
+Rel(operator, api, "GET /health, /health/live, /health/ready", "HTTPS")
 @enduml

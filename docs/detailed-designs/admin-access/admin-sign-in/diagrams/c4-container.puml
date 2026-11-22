@@ -8,7 +8,7 @@ System_Boundary(cf, "Christian Fitness") {
   Container(admin, "Admin web app", "Angular (standalone, signals, zoneless), projects/admin", "Staff console")
   Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, StaffOnly policy, ProblemDetails with code")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
-  ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Members, staff roles, events, audit entries")
+  ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members, staff roles, events, audit entries")
 }
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 

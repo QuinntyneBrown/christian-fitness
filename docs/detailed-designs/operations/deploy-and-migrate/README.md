@@ -14,11 +14,13 @@ change that adds it.
 
 ## Description
 
-- **`ChristianFitness.Cli`** — .NET console with two commands: `cf migrate` calls `Database.MigrateAsync()` on `AppDbContext`; `cf seed` runs `SeedRunner`. Both read the connection string from `ConnectionStrings__Default`.
-- **`SeedRunner`** — inserts each seed row only when its natural key is absent (upsert by key), so a second run changes nothing. Seed contents are `<TO SUPPLY>`; initial staff credentials come from configuration, never from source.
+- **`ChristianFitness.Cli`** — .NET console, built as `cf`, with two commands: `cf migrate` calls `Database.MigrateAsync()` on `AppDbContext`; `cf seed` runs `SeedRunner`. Both read the connection string from `ConnectionStrings__Default`. An unknown or missing command prints the usage and exits with code 1.
+- **Database** — PostgreSQL through Npgsql (ADR 0004). Migrations live in `ChristianFitness.Infrastructure/Persistence/Migrations`; the first, `InitialCreate`, creates `Members` and `StaffRoles`. Entity keys are `Guid.CreateVersion7()`.
+- **`SeedRunner`** — in `ChristianFitness.Application`. It runs each `ISeed` and inserts its rows only when its natural key is absent, so a second run changes nothing; it returns the number of seeds applied.
+- **`StaffAccountSeed`** — the only seed so far: the first staff account, a `Member` with a `StaffRole` of `Admin`, keyed by its normalised email. The email, password and name come from `Seed__StaffEmail`, `Seed__StaffPassword` and `Seed__StaffName`, never from source; the password is stored only as an ASP.NET Core Identity PBKDF2 hash through `IPasswordHasherService` (`L2-030` AC1). A missing setting stops `cf seed` with exit code 2, naming the setting, before anything is written. An existing account is left as it is, password included.
 - **API startup** — `Program.cs` in `ChristianFitness.Api` does not call `Migrate` or `EnsureCreated`.
-- **Settings documentation** — `docs/operations/settings.md` `<TO SUPPLY: confirm path>` lists each setting (name, purpose, example, required or optional). A change that adds a setting edits it in the same change.
-- **Release order** — the pipeline runs `cf migrate`, then `cf seed`, then deploys the API and the two web apps. The hosting platform and pipeline are `<TO SUPPLY>`.
+- **Settings documentation** — [`docs/operations/settings.md`](../../../operations/settings.md) lists each setting (name, purpose, example, required or optional). A change that adds a setting edits it in the same change.
+- **Release order** — run `cf migrate`, then `cf seed`, then start the API and serve the two web apps. Any host that runs .NET 10 and reaches PostgreSQL will do; these three steps are the whole contract, and the pipeline that runs them is added with the first deployment, in its own ADR.
 
 ## Requirements
 

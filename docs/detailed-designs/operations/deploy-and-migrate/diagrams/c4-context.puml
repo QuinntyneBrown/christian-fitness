@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Deploy and migrate
 
-Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+Person(operator, "Operator", "Maintainer who deploys and monitors Christian Fitness")
 System(cf, "Christian Fitness", "Christian community for health in body and spirit")
 
 Rel(operator, cf, "Deploys and migrates")

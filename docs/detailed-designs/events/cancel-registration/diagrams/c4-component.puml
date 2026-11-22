@@ -11,7 +11,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(ev, "Event", "Domain entity", "Cancel(registration)")
   Component(ctx, "IAppDbContext", "Application abstraction", "Unit of work")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Registrations, participants")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Registrations, participants")
 Rel(web, ctrl, "DELETE registration", "JSON/HTTPS")
 Rel(ctrl, h, "Sends CancelRegistrationCommand")
 Rel(h, clock, "Reads now")

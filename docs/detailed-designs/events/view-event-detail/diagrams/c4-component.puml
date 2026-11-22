@@ -10,7 +10,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(user, "ICurrentMember", "Application abstraction", "Signed-in member id")
   Component(ctx, "IAppDbContext", "Application abstraction", "Events, Registrations, Conversations")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Events, registrations, conversations")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events, registrations, conversations")
 Rel(web, ctrl, "GET /api/events/{id}", "JSON/HTTPS")
 Rel(ctrl, h, "Sends GetEventQuery")
 Rel(h, user, "Reads member id")

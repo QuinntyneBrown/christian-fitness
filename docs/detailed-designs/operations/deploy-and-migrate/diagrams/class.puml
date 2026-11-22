@@ -18,16 +18,30 @@ class SeedCommand {
   +ExecuteAsync(): Task<int>
 }
 class SeedRunner {
-  +RunAsync(): Task<int> changes
+  +RunAsync(ct): Task<int> changes
 }
+class StaffAccountSeed {
+  +Key = normalised staff email
+}
+class StaffSeedOptions {
+  +StaffEmail: string
+  +StaffPassword: string
+  +StaffName: string
+}
+interface IAppDbContext <<Application>>
+interface IPasswordHasherService <<Application>>
 interface ISeed {
   +Key: string
-  +ExistsAsync(db): Task<bool>
+  +ExistsAsync(db, ct): Task<bool>
   +Apply(db): void
 }
 class AppDbContext <<Infrastructure>>
+AppDbContext ..|> IAppDbContext
+ISeed <|.. StaffAccountSeed
+StaffAccountSeed ..> StaffSeedOptions
+StaffAccountSeed ..> IPasswordHasherService
 MigrateCommand ..> AppDbContext
 SeedCommand ..> SeedRunner
 SeedRunner "1" o-- "*" ISeed
-SeedRunner ..> AppDbContext
+SeedRunner ..> IAppDbContext
 @enduml

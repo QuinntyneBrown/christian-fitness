@@ -3,15 +3,15 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Deploy and migrate
 
-Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+Person(operator, "Operator", "Maintainer who deploys and monitors Christian Fitness")
 System_Boundary(cf, "Christian Fitness") {
-  Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
+  Container(cli, "Christian Fitness CLI", ".NET console", "cf migrate, cf seed")
   Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
-  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Members, events, conversations, listings")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, events, conversations, listings")
 }
 
-Rel(operator, cli, "Runs cf migrate, cf seed", "shell")
+Rel(operator, cli, "Runs migrate, then seed", "shell")
 Rel(cli, db, "Applies migrations and seed", "EF Core")
-Rel(operator, api, "Deploys", "<TO SUPPLY>")
+Rel(operator, api, "Starts after migrate and seed", "dotnet")
 Rel(api, db, "Reads and writes (no migration)", "EF Core")
 @enduml

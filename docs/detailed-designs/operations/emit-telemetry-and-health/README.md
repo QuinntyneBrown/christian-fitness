@@ -14,11 +14,11 @@ that report liveness and readiness.
 
 ## Description
 
-- **OpenTelemetry setup** — `ChristianFitness.Api` registers `AddOpenTelemetry().WithTracing(...).WithMetrics(...)` with ASP.NET Core and EF Core instrumentation and an OTLP exporter. The collector endpoint is configuration `OTEL_EXPORTER_OTLP_ENDPOINT` (`<TO SUPPLY: deployed value>`), documented with the deployment settings.
-- **Recorded attributes** — spans and the `http.server.request.duration` histogram carry `http.route` (template), `http.request.method`, `http.response.status_code` and duration only.
-- **`TelemetryRedactionProcessor`** — removes `url.full`, `url.query`, `db.statement` parameters, request and response bodies and any user or claim attribute before export (`L2-033` AC2). SignalR hub invocations record the method name only, never message text.
-- **Logging** — structured logs use templates without personal fields; the log level and sink are `<TO SUPPLY>`.
-- **`HealthController` / health checks** — `MapHealthChecks("/health/live")` returns the process status; `MapHealthChecks("/health/ready")` includes `DbContextHealthCheck<AppDbContext>`. Both are `[AllowAnonymous]` and write only `Healthy`/`Unhealthy` with no exception detail.
+- **OpenTelemetry setup** — `ChristianFitness.Api` registers `AddOpenTelemetry().WithTracing(...).WithMetrics(...).WithLogging(...)` with ASP.NET Core instrumentation, service name `christian-fitness-api` (`OTEL_SERVICE_NAME` overrides it). The OTLP exporter is added only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set to the operator's collector; without it nothing leaves the process. Both settings are in [`docs/operations/settings.md`](../../../operations/settings.md). EF Core instrumentation is added by the first slice that queries the database from a request, once a stable package exists.
+- **Recorded attributes** — spans and the `http.server.request.duration` histogram carry `http.route` (template), `http.request.method`, `http.response.status_code`, `error.type` and duration only. A metric view keeps those tag keys on the histogram.
+- **`TelemetryRedactionProcessor`** — keeps only the allowed tags on every span and drops the rest, among them `url.full`, `url.path`, `url.query`, `db.statement`, client and user-agent attributes and any user or claim attribute, and clears the status description (`L2-033` AC2). A request no route matched keeps only its method and status. SignalR hub invocations record the method name only, never message text.
+- **Logging** — structured logs use templates without personal fields, to the console and, with an endpoint set, OTLP. The default level is `Information`; `Microsoft.AspNetCore` is held at `Warning` in code, because its request logs print the full URL with its query string.
+- **Health checks** — `MapHealthChecks("/health/live")` runs no check and reports the process; `MapHealthChecks("/health/ready")` and `MapHealthChecks("/health")` run `DatabaseHealthCheck`, which asks `IAppDbContext.CanConnectAsync`, so a test injects an unreachable database through `IAppDbContext`. All three allow anonymous callers and write only `Healthy` or `Unhealthy` (HTTP 200 or 503) with no exception detail.
 
 ## Requirements
 
