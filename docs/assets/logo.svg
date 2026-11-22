@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Christian Fitness">
+  <style>
+    .ring { fill: none; stroke: #111111; }
+    .cross { fill: #6c1d36; }
+    @media (prefers-color-scheme: dark) { .ring { stroke: #ffffff; } .cross { fill: #f0a8bf; } }
+  </style>
+  <circle class="ring" cx="100" cy="100" r="96" stroke-width="7"/>
+  <rect class="cross" x="88" y="38" width="24" height="128" rx="2"/>
+  <rect class="cross" x="56" y="70" width="88" height="22" rx="2"/>
+</svg>
