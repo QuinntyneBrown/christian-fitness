@@ -15,8 +15,10 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Operator" as actor
-box "Backend — Christian Fitness Infrastructure" #FFF4E5
+box "Backend — Christian Fitness Application" #ECFDF3
   participant "SeedRunner" as r
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> r : cf seed (second run)

@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import type { Locator, Page } from '@playwright/test';
 
@@ -11,6 +11,8 @@ import type { Locator, Page } from '@playwright/test';
 /** Where the apps run while shots are taken: the member app and the admin app. */
 export const WEB_URL = 'http://localhost:4310';
 export const ADMIN_URL = 'http://localhost:4311';
+/** Where the API runs when `record.mjs --backend` films a slice with no screen. */
+export const API_URL = 'http://localhost:4312';
 
 /** Where the pictures go: `<video folder>/shots`. */
 export const shotsDir = path.resolve(process.env['CF_VIDEO_DIR'] ?? '.', 'shots');
@@ -79,4 +81,22 @@ export async function bringToTop(region: Locator, offset = 96): Promise<void> {
     const top = el.getBoundingClientRect().top + window.scrollY - by;
     window.scrollTo({ top, behavior: 'instant' as ScrollBehavior });
   }, offset);
+}
+
+/**
+ * Saves what the running backend said (a response, a command's output) for `film.js` to draw:
+ * `shots/captures.js` sets `window.FILM_CAPTURES[name] = value`. For a slice with no screen, the
+ * captures are its pictures: the film sets the real words in a terminal, never typed-in copies.
+ * `slides.html` loads `shots/captures.js` before `film.js`.
+ */
+export function capture(name: string, value: unknown): void {
+  mkdirSync(shotsDir, { recursive: true });
+  const target = path.join(shotsDir, 'captures.js');
+  const prefix = 'window.FILM_CAPTURES = ';
+  const all: Record<string, unknown> = existsSync(target)
+    ? JSON.parse(readFileSync(target, 'utf8').slice(prefix.length).replace(/;\s*$/, ''))
+    : {};
+  all[name] = value;
+  writeFileSync(target, `${prefix}${JSON.stringify(all, null, 2)};
+`);
 }

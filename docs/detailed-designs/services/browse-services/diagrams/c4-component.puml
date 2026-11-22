@@ -10,7 +10,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(gh, "GetServiceHandler", "MediatR handler", "One published listing")
   Component(ctx, "IAppDbContext", "Application abstraction", "ServiceListings")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Service listings")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Service listings")
 Rel(web, ctrl, "GET listings", "JSON/HTTPS")
 Rel(ctrl, lh, "Sends ListServicesQuery")
 Rel(ctrl, gh, "Sends GetServiceQuery")

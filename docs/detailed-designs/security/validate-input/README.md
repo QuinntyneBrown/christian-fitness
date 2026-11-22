@@ -15,8 +15,9 @@ never interpreted as HTML.
 ## Description
 
 - **`XxxValidator`** — one FluentValidation validator per command in `ChristianFitness.Application` (for example `CreateAccountValidator`, `SendMessageValidator`, `SaveEventValidator`).
-- **`ValidationBehavior<TRequest,TResponse>`** — MediatR pipeline behaviour that runs every validator for a request before its handler and throws `ValidationException` with the failures.
-- **`ProblemDetailsExceptionHandler`** — `IExceptionHandler` in the API. It maps `ValidationException` to 400 with `code` (`validation_failed` by default, or a command-specific code such as `message_invalid`) and `errors`; known domain exceptions to their status and `code`; any other exception to 500 with title only. Stack traces and exception messages are never written to the response in any environment.
+- **`ValidationBehavior<TRequest,TResponse>`** — MediatR pipeline behaviour that runs every validator for a request before its handler and throws `ValidationException` with the failures. It arrives with the first request body (slice 2.1); slice 1.2 registers MediatR and the validators of `ChristianFitness.Application`.
+- **`ProblemDetailsExceptionHandler`** — `IExceptionHandler` in the API. It maps `ValidationException` to 400 with `code` (`validation_failed` by default, or a command-specific code such as `message_invalid`) and `errors`; known domain exceptions to their status and `code`; any other exception to 500 with title only and code `server_error`. Stack traces and exception messages are never written to the response in any environment. Slice 1.2 builds the 500 branch; the 400 branch comes with `ValidationBehavior`.
+- **Status-code ProblemDetails** — `AddProblemDetails` with `UseStatusCodePages` gives every bodiless error a ProblemDetails body, and `ProblemCodes.ForStatus` adds its `code`: 401 `unauthenticated`, 403 `forbidden`, 404 `not_found`, 500 `server_error` (`L2-032` AC4).
 - **`ApiError`** — DTO in the frontend `api` library: `{ status, code, errors? }`. `HttpXxxService` implementations convert `HttpErrorResponse` to `ApiError`.
 - **`errorMessage(code)`** — pure helper in the `domain` library that maps a `code` to the screen's generic message; unknown codes fall back to "Something went wrong. Please try again." `<TO SUPPLY: final copy per mocks>`.
 - **Text rendering** — templates bind user text with interpolation (`{{ }}`) or `[textContent]`, never `[innerHTML]`. The Admin and Member web apps lint against `innerHTML` bindings <TO SUPPLY: lint rule choice>. Field errors from `errors` are shown beside fields with `aria-invalid` and `aria-describedby`.
@@ -31,7 +32,7 @@ sentence, so the criteria are quoted.
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-032` | `L1-013` | 1. Given any request body, when it fails validation, then the API returns 400 ProblemDetails with a `code` and field errors, and the screen shows a generic message. 2. Given an unexpected server error, when it occurs, then the response is a 500 ProblemDetails with no stack trace or internal detail. 3. Given user-supplied text, when rendered anywhere, then it is shown as text, never as HTML. |
+| `L2-032` | `L1-013` | 1. Given any request body, when it fails validation, then the API returns 400 ProblemDetails with a `code` and field errors, and the screen shows a generic message. 2. Given an unexpected server error, when it occurs, then the response is a 500 ProblemDetails with no stack trace or internal detail. 3. Given user-supplied text, when rendered anywhere, then it is shown as text, never as HTML. 4. Given any error response (401, 403, 404, 500), when served, then its body is ProblemDetails with a `code` a client can branch on. |
 
 ## Diagrams
 

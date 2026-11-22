@@ -13,7 +13,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "HomeController", "ASP.NET Core controller", "GET /api/home")
   Component(h, "GetHomeSummaryHandler", "MediatR handler", "Next event, suggestions, unread")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
 Rel(page, store, "Reads signals")
 Rel(page, ui, "Renders")

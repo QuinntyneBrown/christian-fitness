@@ -2,3 +2,9 @@
 .cache/
 *.wav
 *.partial.mp4
+
+# .NET build output (backend/)
+bin/
+obj/
+*.user
+TestResults/

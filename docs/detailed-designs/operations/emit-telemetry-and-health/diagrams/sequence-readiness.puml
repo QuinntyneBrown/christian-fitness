@@ -23,8 +23,8 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 actor -> hc : GET /health/live (anonymous)
 hc --> actor : 200 Healthy
-actor -> hc : GET /health/ready (anonymous)
-hc -> db : CanConnectAsync
+actor -> hc : GET /health or /health/ready (anonymous)
+hc -> db : IAppDbContext.CanConnectAsync
 alt reachable
   hc --> actor : 200 Healthy (L2-040 AC2)
 else unreachable

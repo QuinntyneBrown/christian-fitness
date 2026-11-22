@@ -262,7 +262,8 @@ void main(){
     if (started) throw new Error('Film.scene and Film.overlay are called before Film.start()');
     const el = stage.appendChild(document.createElement('section'));
     el.className = 'scene';
-    el.id = id;
+    // Prefixed, so a scene named like the runtime's own elements (stage, captions, errors) keeps its look.
+    el.id = `scene-${id}`;
     el.style.zIndex = layer;
     scenes.push({ id, el, start, length, from: start - before, to: start + length + after, update: makeScene(el, build, start, length) });
   }

@@ -11,7 +11,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(ctx, "IAppDbContext", "Application abstraction", "Events set")
   Component(ent, "Event", "Domain entity", "Status, StartsAt, Category, Capacity, GoingCount")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Events")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events")
 Rel(web, ctrl, "GET /api/events", "JSON/HTTPS")
 Rel(ctrl, h, "Sends ListEventsQuery")
 Rel(h, val, "Validated by")

@@ -14,7 +14,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(h1, "GetOwnProfileHandler", "MediatR handler", "Own fields and registrations")
   Component(h2, "GetPublicProfileHandler", "MediatR handler", "Public fields only")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
 Rel(page, ui, "Renders")
 Rel(mpage, ui, "Renders")

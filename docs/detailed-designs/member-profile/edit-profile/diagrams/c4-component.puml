@@ -13,7 +13,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(v, "UpdateProfileValidator", "FluentValidation", "Bio, goals limits")
   Component(h, "UpdateProfileHandler", "MediatR handler", "Owner-only update")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
 Rel(page, dlg, "Opens with current values", "CDK Dialog")
 Rel(dlg, svc, "Saves")

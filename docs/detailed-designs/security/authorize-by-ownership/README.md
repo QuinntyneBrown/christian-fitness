@@ -18,13 +18,14 @@ handler there applies it, and this design names the shared parts.
 
 ## Description
 
-- **Fallback policy** — `AuthorizationOptions.FallbackPolicy = RequireAuthenticatedUser()`, set in `ChristianFitness.Api`. A request without a session returns 401.
+- **Fallback policy** — `AuthorizationOptions.FallbackPolicy = RequireAuthenticatedUser()`, set in `ChristianFitness.Api`. A request without a session returns 401 ProblemDetails with code `unauthenticated`, also for a path no endpoint matches, so an anonymous caller cannot discover which endpoints exist.
+- **Cookie scheme** — slice 1.2 registers the default cookie scheme with the cookie `__Host-cf-session` (`Secure`, `HttpOnly`, `SameSite=Lax`) and answers a challenge with 401 and a forbidden request with 403 instead of a redirect. Sign-in (slice 3.1) issues the cookie; `L2-030` holds its rules.
 - **`[AllowAnonymous]` endpoints** — `LandingController` (landing data, `L2-001`), `AuthController.Join` and `AuthController.SignIn`, the health endpoints (`L2-040`). No other endpoint carries the attribute.
 - **`StaffOnly` policy** — admin console endpoints require a staff role; role rules belong to `L2-019`.
 - **`ICurrentUser`** — Application-layer abstraction exposing `MemberId` from the session principal; implemented by `HttpCurrentUser` in Infrastructure. Handlers take the caller from it, never from a request body.
 - **Ownership filters in handlers** — each query handler filters by `ICurrentUser.MemberId`: `GetRegistrationsQuery` by `Registration.MemberId`, `GetConversationQuery` and `GetMessagesQuery` by `ConversationParticipant`, `GetMyProfileQuery` by `Member.Id`. A row outside the filter is reported as not found.
 - **`NotFoundException` → 404** — the ProblemDetails mapper returns one uniform 404 body (code `not_found`) for both missing and not-owned rows, so a guessed id reveals nothing. Chat hub refusals return `not_a_participant` as an answer (`L2-016`).
-- **Opaque ids** — entities use `Guid` keys generated with `Guid.CreateVersion7()` or random v4 (`<TO SUPPLY>`); URLs carry no sequential numbers.
+- **Opaque ids** — entities use `Guid` keys generated with `Guid.CreateVersion7()`: ordered for the index, with 74 random bits, so they cannot be guessed; URLs carry no sequential numbers.
 - **Public profile projection** — viewing another member returns `PublicMemberDto` only; private fields (email, home church) are never projected.
 
 ## Requirements

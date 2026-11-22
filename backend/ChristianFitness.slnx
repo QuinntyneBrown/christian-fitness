@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ChristianFitness.Api/ChristianFitness.Api.csproj" />
+    <Project Path="src/ChristianFitness.Application/ChristianFitness.Application.csproj" />
+    <Project Path="src/ChristianFitness.Cli/ChristianFitness.Cli.csproj" />
+    <Project Path="src/ChristianFitness.Domain/ChristianFitness.Domain.csproj" />
+    <Project Path="src/ChristianFitness.Infrastructure/ChristianFitness.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ChristianFitness.Api.Tests/ChristianFitness.Api.Tests.csproj" />
+    <Project Path="tests/ChristianFitness.Application.Tests/ChristianFitness.Application.Tests.csproj" />
+  </Folder>
+</Solution>

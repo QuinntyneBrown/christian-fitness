@@ -16,7 +16,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(img, "UploadEventImageHandler", "MediatR handler", "image_invalid")
   Component(store, "IImageStore", "Infrastructure", "Storage <TO SUPPLY>")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
 
 Rel(page, dlg, "Opens")
 Rel(dlg, rules, "Uses")

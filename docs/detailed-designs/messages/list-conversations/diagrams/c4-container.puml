@@ -8,7 +8,7 @@ System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular, standalone, signals, zoneless", "projects/web: Messages screen")
   Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
-  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Conversations, participants, messages, reports")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Conversations, participants, messages, reports")
 }
 System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
 Rel(member, web, "Uses", "HTTPS")

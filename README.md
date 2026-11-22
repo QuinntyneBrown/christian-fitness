@@ -99,14 +99,22 @@ npm run e2e                       # Playwright behaviour specs; serves both apps
 CF_SWEEPS=1 npx playwright test --grep @sweep   # visual, responsive, a11y and heap sweeps, on request
 ```
 
-### Backend (once `backend/` lands)
+### Backend
+
+Settings are environment variables, all listed in
+[`docs/operations/settings.md`](docs/operations/settings.md). The database is PostgreSQL
+([ADR 0004](docs/adr/0004-postgresql-and-the-backend-packages.md)); the tests need none.
 
 ```sh
 cd backend
-dotnet build
-dotnet test
-dotnet run --project src/ChristianFitness.Cli -- migrate   # the API never migrates on startup
-dotnet run --project src/ChristianFitness.Api
+dotnet tool restore                                       # dotnet-ef, for adding migrations
+dotnet build                                              # analysers on, warnings are errors
+dotnet test                                               # Application and Api tests, EF Core InMemory
+export ConnectionStrings__Default="Host=localhost;Database=christian_fitness;Username=cf;Password=..."
+dotnet run --project src/ChristianFitness.Cli -- migrate  # the API never migrates on startup
+Seed__StaffEmail=admin@example.org Seed__StaffPassword=... Seed__StaffName="Community Admin"   dotnet run --project src/ChristianFitness.Cli -- seed   # idempotent: a second run changes nothing
+dotnet run --project src/ChristianFitness.Api             # http://localhost:5240/health
+dotnet ef migrations add <Name> --project src/ChristianFitness.Infrastructure   --startup-project src/ChristianFitness.Infrastructure --output-dir Persistence/Migrations
 ```
 
 ## Documentation

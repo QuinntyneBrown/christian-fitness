@@ -12,7 +12,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(cp, "ConversationParticipant", "Domain entity", "Group chat membership")
   Component(ctx, "IAppDbContext", "Application abstraction", "Unit of work")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Unique (EventId, MemberId)")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Unique (EventId, MemberId)")
 Rel(web, ctrl, "POST registration", "JSON/HTTPS")
 Rel(ctrl, h, "Sends RegisterForEventCommand")
 Rel(h, ev, "Register")

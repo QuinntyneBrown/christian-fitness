@@ -16,7 +16,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(hub, "ChatHub", "SignalR hub", "Pushes message events")
   Component(h, "GetUnreadCountHandler", "MediatR handler", "Counts unread")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
 Rel(shell, nav, "Renders at MD+")
 Rel(shell, tab, "Renders at XS/SM")

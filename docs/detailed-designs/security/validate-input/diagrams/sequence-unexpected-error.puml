@@ -33,6 +33,6 @@ ctrl -> h : Send request
 h --> eh : unhandled exception
 eh -> eh : Record exception type in span, not message text (L2-033 AC2)
 eh --> http : 500 ProblemDetails, no stack trace or detail (L2-032 AC2)
-http --> page : ApiError code server_error <TO SUPPLY: code>
+http --> page : ApiError code server_error
 page --> actor : Generic error (pages/server-error)
 @enduml

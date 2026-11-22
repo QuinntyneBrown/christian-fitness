@@ -14,7 +14,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(h, "GetUpcomingEventsHandler", "MediatR handler", "Published, upcoming, ordered, take 3")
   Component(ctx, "AppDbContext", "EF Core (IAppDbContext)", "Event set")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
 Rel(guard, page, "Allows visitors to")
 Rel(page, ui, "Renders")

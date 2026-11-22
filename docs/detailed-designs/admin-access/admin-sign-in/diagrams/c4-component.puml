@@ -15,7 +15,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(hasher, "IPasswordHasher", "Infrastructure service", "Verifies password hashes")
   Component(cookie, "StaffCookieAuthentication", "Cookie scheme", "__Host-cf-admin, 30 min sliding")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
 
 Rel(page, svc, "Calls signIn")
 Rel(guard, svc, "Calls me")

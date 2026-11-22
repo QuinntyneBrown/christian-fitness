@@ -12,18 +12,23 @@ skinparam class {
 title Class structure — Emit telemetry and health
 
 class TelemetryRedactionProcessor {
-  +AllowedTags = [http.route, http.request.method, http.response.status_code]
+  +AllowedTags = [http.route, http.request.method, http.response.status_code, error.type]
   +OnEnd(activity: Activity): void
 }
 class "BaseProcessor<Activity>" as BP <<OpenTelemetry>>
-class "DbContextHealthCheck<AppDbContext>" as DbHc {
+class DatabaseHealthCheck as DbHc {
   +CheckHealthAsync(): Task<HealthCheckResult>
 }
+interface IAppDbContext <<Application>> {
+  +CanConnectAsync(ct): Task<bool>
+}
 class HealthEndpoints {
+  +Health = "/health" (ready)
   +Live = "/health/live"
   +Ready = "/health/ready"
   +ResponseWriter: status only
 }
 BP <|-- TelemetryRedactionProcessor
 HealthEndpoints ..> DbHc : ready tag
+DbHc ..> IAppDbContext
 @enduml
