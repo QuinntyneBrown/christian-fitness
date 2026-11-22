@@ -49,7 +49,8 @@ deployment journey (L2-041) chooses it. The API sets the same protections on its
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains`                                                                                                   |
 
 Scripts come only from the app's own files: the production build turns off Angular's inline
-critical CSS, whose `onload` handler `script-src 'self'` would block. Angular sets component
+critical CSS (`optimization.styles.inlineCritical: false` in `angular.json`), whose inline
+`<script>` that swaps the stylesheet in `script-src 'self'` would block. Angular sets component
 styles at run time, hence `'unsafe-inline'` for styles only. `/api/` is served from the same
 origin as the app (a reverse proxy in front of both), so the session and antiforgery cookies,
 which are `SameSite` and `__Host-` prefixed, reach the API.
