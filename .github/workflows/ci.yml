@@ -66,10 +66,11 @@ jobs:
         run: npx playwright install --only-shell chromium
 
       - name: Behaviour specs
+        id: specs
         run: npm run e2e
 
-      - name: Keep the Playwright report
-        if: failure()
+      - name: Keep the Playwright traces
+        if: failure() && steps.specs.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
