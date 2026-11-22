@@ -87,6 +87,11 @@ are kept out `<TO SUPPLY>`. The mocks drew the taken email (`invalid`) and the s
   escapes; no lint rule is added for `[innerHTML]` (angular-eslint has none, and a home-made
   structural check is what AGENTS.md rules out). A behaviour spec proves a name holding markup
   is greeted as characters (L2-032 AC3).
+- **No budget changes.** The member app's initial total went from 255.10 kB to 256.21 kB raw
+  (66.67 kB to 67.05 kB to transfer): `apiErrorOf`, which `HttpAccountService` (bound in
+  `app.config.ts`) uses, and Angular's `computed` signal code, 0.85 kB; `FormAlert`,
+  `validateJoin` and `joinRefusalOf` stay in the lazy Join chunk. The admin app is unchanged at
+  224.70 kB.
 - **"Sign in instead?" opens `/sign-in`,** which the not-found screen answers until slice 3.1
   builds sign-in, like the form's "Sign in" link since slice 2.1.
 

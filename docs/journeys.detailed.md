@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 10% (5 of 54 slices; 8 of 83 days)
+**% complete:** 11% (6 of 54 slices; 9 of 83 days)
 
 | #   | Slice | Root journey                        | Name                          | Description                                                                          | Effort (days) |
 | --- | ----- | ----------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ | ------------- |
@@ -14,7 +14,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 3   | 1.3   | 1 Scaffold the apps                 | ✅ CI pipeline                | Lint, build and acceptance specs run on every push.                                  | 1             |
 | 4   | 30.1  | 30 Recover from errors and offline  | ✅ Not found and server error | Unknown routes and server failures show a screen with a way back.                    | 1             |
 | 5   | 2.1   | 2 Join the community                | ✅ Join with valid details    | A visitor creates an account and lands signed in.                                    | 2             |
-| 6   | 2.2   | 2 Join the community                | Join refusals                 | Invalid fields and a taken email are refused with clear messages.                    | 1             |
+| 6   | 2.2   | 2 Join the community                | ✅ Join refusals              | Invalid fields and a taken email are refused with clear messages.                    | 1             |
 | 7   | 3.1   | 3 Sign in and out                   | Sign in and sign out          | Members sign in with a secure session cookie and sign out.                           | 2             |
 | 8   | 3.2   | 3 Sign in and out                   | Sign-in protections           | Lockout after failures, suspended refusal, redirect back after sign-in.              | 1             |
 | 9   | 9.1   | 9 Staff sign-in with two-step       | Staff sign-in and admin shell | Staff sign in to the admin layout; members are refused.                              | 2             |
