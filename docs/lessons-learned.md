@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 5% (2 of 54 slices; 4 of 83 days)
+**% complete:** 6% (3 of 54 slices; 5 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -96,3 +96,47 @@ worked when applied. Newest entries go at the bottom.
   is written with CRLF on Windows.
 - The frontend checks (lint, format, build with budgets, e2e) stayed green untouched, as expected
   for a backend-only slice.
+
+## Slice 1.3: CI pipeline
+
+**What slowed it**
+
+- A workflow cannot be proved before it exists, and `pull_request` runs only for a pull request:
+  the draft pull request was opened at the first commit of the workflow, so every later push ran
+  CI and the red runs could be watched on it.
+- `git revert -q` is not an option; the command printed its usage and reverted nothing, so the
+  next push carried the lint error again and a second red run went by before it was noticed.
+  Read the commit a revert makes (`git log -1`) before pushing.
+- `git add` of a file already removed with `git rm` fails the whole command, and the commit after
+  it then never ran; a chained `&&` hid that until the run list showed the old run.
+- The Playwright traces were uploaded on any failure, lint included; the upload now runs only when
+  the behaviour-spec step itself failed.
+- PlantUML wrote the em dash of a diagram title as mojibake until it was given `-charset UTF-8`.
+
+**New lessons**
+
+- Prove a CI check red with a throwaway commit on the pull request that breaks exactly that check
+  (an unused constant for lint, an unused local for warnings as errors, a changed title for a
+  spec, an endpoint closed for an API test), watch the run fail at that step for that reason, then
+  revert it and check the tree equals the last green commit (`git diff <green> --stat` is empty).
+- Sparse checkout (`actions/checkout` with `sparse-checkout: frontend`) keeps each job to its own
+  folder, so a spec or a test that reads a file outside its project fails in CI, as AGENTS.md
+  warns, instead of passing by luck.
+- The ubuntu runner already has Chromium's system libraries: `npx playwright install --only-shell
+  chromium` without `--with-deps` is enough, and with the browser cached by the Playwright
+  version the step is skipped.
+- With warm caches a run is under 40 s (frontend 36 s, backend 34 s, side by side); the cold
+  first run was 91 s, most of it `npm ci`. A five-minute `timeout-minutes` on each job makes the
+  five-minute rule fail loudly instead of drifting.
+- A film for a slice whose system is GitHub Actions captures `gh run view` with
+  `record.mjs --commands` (no app, no API), so the jobs, steps, seconds and log lines on screen are
+  GitHub's own.
+
+**How earlier lessons worked**
+
+- "Prove a lint or budget rule red with a throwaway file, then restore it; never commit the
+  throwaway" (1.1) had to bend: CI only sees what is pushed, so the throwaway was committed to the
+  branch and reverted there; the squash merge leaves no trace of it on `main`.
+- "`.gitattributes` with `eol=lf`" (1.1) kept the workflow and the rendered docs LF on Windows.
+- "A slice with no screen still films the running system" (1.2) carried over: the film's
+  terminals hold what the CI runs said, not typed-in copies.

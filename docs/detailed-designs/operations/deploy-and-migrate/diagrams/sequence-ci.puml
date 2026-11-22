@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Continuous integration on a pull request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Contributor" as dev
+participant "GitHub" as gh
+box "GitHub Actions: .github/workflows/ci.yml" #EEF4FF
+  participant "Job frontend" as fe
+  participant "Job backend" as be
+end box
+database "Actions cache" as cache
+dev -> gh : Push to main, or open or update a pull request against main
+gh -> fe : Start (in parallel with backend)
+gh -> be : Start
+fe -> cache : Restore npm packages and the Playwright Chromium (L2-042 AC3)
+cache --> fe : hit or miss
+fe -> fe : npm ci, lint, format check
+fe -> fe : Build web and admin within their budgets
+fe -> fe : Playwright behaviour specs, Chromium, shared fixture, no backend (L2-042 AC4)
+be -> cache : Restore NuGet packages (L2-042 AC3)
+cache --> be : hit or miss
+be -> be : dotnet restore, build with warnings as errors
+be -> be : dotnet test: acceptance tests through the API, EF Core InMemory (L2-042 AC4)
+alt every step passes
+  fe --> gh : success
+  be --> gh : success
+  gh --> dev : Checks green, under five minutes (L2-042 AC1, AC3)
+else a step fails
+  fe --> gh : failure at the step that broke, no retry
+  be --> gh : (or) failure at the step that broke, no retry
+  gh --> dev : Checks red, naming the job and step (L2-042 AC2)
+end
+@enduml

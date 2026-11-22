@@ -12,6 +12,7 @@ skill (edge-tts, burned-in captions, slide decks of bullets), this page wins
 | --- | ------------------------------------------------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 01  | [Slice 1.1: Frontend workspace](01-slice-1-1-frontend-workspace/README.md) | 1:34    | One Angular workspace with the member app and the admin app and three libraries; the dependency direction ESLint enforces; both apps booting with their titles; 212 kB of 250; the e2e fixture that refuses what it does not answer. |
 | 02  | [Slice 1.2: Backend skeleton](02-slice-1-2-backend-skeleton/README.md)     | 1:34    | Five clean-architecture projects; the API closed by default with 401 ProblemDetails and a code for every error; anonymous health that says only its status; spans kept to route, method and status; `cf migrate` and an idempotent `cf seed`. |
+| 03  | [Slice 1.3: CI pipeline](03-slice-1-3-ci-pipeline/README.md)               | 1:30    | GitHub Actions on every push and pull request to `main`: two sparse jobs side by side, lint to behaviour specs and a backend built with warnings as errors; under 40 s warm against a five-minute timeout; four runs broken on purpose, each failing at the step that broke. |
 
 ## What every video is
 
@@ -84,7 +85,7 @@ of a test run or of CI.
 
 | Tool                  | What it does                                                                                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `tools/video-record/` | Opens the apps in Chromium (or, with `--backend`, starts the API) and runs a folder's `shots.ts`, saving `shots/`.                                      |
+| `tools/video-record/` | Opens the apps in Chromium (or, with `--backend`, starts the API; with `--commands`, starts nothing) and runs a folder's `shots.ts`, saving `shots/`. |
 | `tools/video-audio/`  | Speaks `narration.json` with Kokoro, fits each line to its scene, mixes the music under it, writes the MP3, `captions.vtt` and the timing the film reads. |
 | `tools/video-build/`  | Opens `slides.html`, seeks it frame by frame, and encodes the MP4 with ffmpeg. `--check` prints the schedule, `--frame <seconds> <png>` saves one frame, `--captions` burns captions in. |
 
@@ -93,7 +94,7 @@ Python 3.10 or later with `kokoro-onnx` and `numpy`, and ffmpeg with libx264 (`F
 overrides). From the repository root:
 
 ```shell
-node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic             # add --backend for a slice with no screen
+node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic             # --backend or --commands for a slice with no screen
 python tools/video-audio/film_audio.py docs/videos/NN-slice-S-S-topic
 node tools/video-build/build.mjs docs/videos/NN-slice-S-S-topic --check
 node tools/video-build/build.mjs docs/videos/NN-slice-S-S-topic --crf 24
@@ -110,6 +111,10 @@ node tools/video-build/build.mjs docs/videos/NN-slice-S-S-topic --crf 24
   saves it with `capture(name, value)` to `shots/captures.js`, which `slides.html` loads before
   `film.js`. The film sets those words in its terminals as they were said, never typed-in copies,
   and draws the rest (slice 1.2).
+- **A slice whose system is neither an app nor the API films what its commands say.**
+  `record.mjs --commands` starts nothing; `shots.ts` runs `gh`, `git` or `dotnet` with `spawnSync`,
+  checks what they said and saves it with `capture(name, value)` (slice 1.3 reads its own CI runs
+  with `gh run view`).
 - **It is not a test and not a sweep.** `tools/video-record/` only borrows Playwright to drive
   Chromium. It never sets `CF_SWEEPS`, compares nothing and is not run by `npm run e2e` or CI.
 - **Every form factor the slice changes.** Take each key state at 390 px (XS), 768 px (M),

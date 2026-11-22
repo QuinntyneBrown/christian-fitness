@@ -7,12 +7,18 @@ writes PNGs at double density into the folder's `shots/`. Standard: `docs/videos
 ```
 node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic
 node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic --backend   # a slice with no screen
+node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic --commands  # nothing started: commands only
 ```
 
 With `--backend` the Angular apps are not started; the API is, as built, on `:4312`
 (`dotnet run --project backend/src/ChristianFitness.Api`) with a connection string to port 1, so
 no database runs and readiness says so. `shots.ts` then uses Playwright's `request` against
 `API_URL`, may run `cf` with `dotnet run`, and saves what was said with `capture(name, value)`.
+
+With `--commands` nothing is started. `shots.ts` runs commands with `spawnSync` (`git`, `gh`,
+`dotnet`), checks what they said and saves it with `capture(name, value)`: for a slice whose
+system is neither an app nor the API, such as the CI pipeline of slice 1.3, which films the
+GitHub Actions runs of its own pull request through `gh run view`.
 
 It is not a test and not a sweep. It has its own Playwright config (`playwright.config.ts` here,
 matching only `shots.ts` in the given folder), compares nothing, clears `CF_SWEEPS`, and is not
