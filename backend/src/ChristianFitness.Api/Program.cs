@@ -1,10 +1,12 @@
 using ChristianFitness.Api.Errors;
 using ChristianFitness.Api.Security;
+using ChristianFitness.Api.Telemetry;
 using ChristianFitness.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddTelemetry();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSessionAuthentication();
 builder.Services.AddProblemDetails(options =>
