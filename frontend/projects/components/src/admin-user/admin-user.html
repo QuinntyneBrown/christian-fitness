@@ -1,0 +1,19 @@
+<span class="admin__user-avatar" aria-hidden="true">{{ initials() }}</span>
+<div class="admin__user-body">
+  <p class="admin__user-name">{{ name() }}</p>
+  <p class="admin__user-role">{{ role() }}</p>
+</div>
+<button
+  class="admin__signout"
+  type="button"
+  aria-label="Sign out"
+  [disabled]="signingOut()"
+  [attr.aria-busy]="signingOut() ? 'true' : null"
+  (click)="signOut.emit()"
+>
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" x2="9" y1="12" y2="12" />
+  </svg>
+</button>

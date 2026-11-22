@@ -12,3 +12,7 @@ export * from './account/reset-request-refusal';
 export * from './errors/api-error';
 export * from './security/antiforgery-interceptor';
 export * from './security/member-auth-guard';
+export * from './security/staff-auth-guard';
+export * from './admin/admin-areas';
+export * from './admin/initials';
+export * from './admin/staff-sign-in-refusal';

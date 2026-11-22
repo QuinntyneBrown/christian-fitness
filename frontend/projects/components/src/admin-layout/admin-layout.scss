@@ -1,0 +1,135 @@
+// The design system's admin block and the brand's light seal
+// (docs/design-system/assets/components.css: "Admin shell", "Brand: seal and lockup").
+// Mobile first: below LG the sidebar is a band, the brand and Sign out on one row and the links
+// in a row under them; from LG, a sticky column with the staff member at its foot.
+:host {
+  display: block;
+}
+
+.admin {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-default);
+
+  @media (min-width: 64rem) {
+    flex-direction: row;
+  }
+}
+
+.admin__sidebar {
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome);
+
+  @media (min-width: 64rem) {
+    position: sticky;
+    top: 0;
+    display: flex;
+    height: 100dvh;
+    width: var(--layout-sidebar-width);
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+:host-context([data-theme='dark']) .admin__sidebar {
+  border-right: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.admin__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+
+  @media (min-width: 64rem) {
+    padding: var(--space-6);
+  }
+}
+
+.admin__brand-name {
+  white-space: nowrap;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-style: italic;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-none);
+}
+
+.admin__brand-sub {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  line-height: var(--line-height-xs);
+  color: var(--color-highlight);
+}
+
+// The navigation spans the band's width below LG.
+.admin__nav {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+// The staff member (AdminUser) sits at the end of the brand row below LG, at the foot from LG.
+.admin__user {
+  grid-row: 1;
+  grid-column: 2;
+  padding: var(--space-4);
+
+  @media (min-width: 64rem) {
+    margin-top: auto;
+    border-top: var(--border-width-hairline) solid var(--color-border-on-chrome);
+    padding: var(--space-5) var(--space-6);
+  }
+}
+
+.admin__main {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.admin__page {
+  max-width: var(--layout-admin-max);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-8);
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-10);
+  }
+}
+
+.seal {
+  flex-shrink: 0;
+}
+
+.seal__ring {
+  fill: none;
+  stroke: currentColor;
+}
+
+.seal--light {
+  color: var(--color-fg-on-brand);
+
+  .seal__cross {
+    fill: var(--color-highlight);
+  }
+}
+
+.seal--lockup {
+  width: var(--size-seal-lockup);
+  height: var(--size-seal-lockup);
+}

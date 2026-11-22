@@ -48,7 +48,10 @@
               "outputHashing": "all",
               "optimization": {
                 "scripts": true,
-                "styles": { "minify": true, "inlineCritical": false },
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
                 "fonts": true
               }
             },
@@ -105,8 +108,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "225kB",
-                  "maximumError": "250kB"
+                  "maximumWarning": "260kB",
+                  "maximumError": "275kB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -117,7 +120,10 @@
               "outputHashing": "all",
               "optimization": {
                 "scripts": true,
-                "styles": { "minify": true, "inlineCritical": false },
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
                 "fonts": true
               }
             },
@@ -136,7 +142,8 @@
               "buildTarget": "admin:build:production"
             },
             "development": {
-              "buildTarget": "admin:build:development"
+              "buildTarget": "admin:build:development",
+              "proxyConfig": "projects/admin/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

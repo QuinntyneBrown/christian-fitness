@@ -1,6 +1,6 @@
 import { expect, test } from '../fixtures/test';
 import { AdminServerErrorPage } from '../page-objects/admin/server-error.page';
-import { AdminStartPage } from '../page-objects/admin/start.page';
+import { AdminShell } from '../page-objects/admin/admin-shell.page';
 
 const OWNED = "That's on us, not you, and we've been notified. Try again in a moment.";
 
@@ -40,7 +40,7 @@ test.describe('Admin app, server error', () => {
 
   test('the keyboard follows "Try again" back to the screen that failed', async ({ page }) => {
     const serverError = new AdminServerErrorPage(page);
-    const start = new AdminStartPage(page);
+    const shell = new AdminShell(page);
 
     await serverError.open({ from: '/' });
 
@@ -49,7 +49,34 @@ test.describe('Admin app, server error', () => {
     await expect(serverError.action('Try again')).toBeFocused();
     await serverError.pressEnter();
 
-    await expect.poll(() => start.title()).toBe('Christian Fitness Admin');
+    await expect(shell.heading).toHaveText('Dashboard');
     await expect(serverError.heading).toHaveCount(0);
+  });
+});
+
+// L2-043 AC4 in the admin app (ADR 0006, 0010): the admin app's client opens the server-error
+// screen when a GET to the API fails with a 5xx, here the staff guard's request for the session.
+test.describe('Admin app, a server failure opens the server-error screen', () => {
+  test('the staff session request answering 500 shows "Something went wrong"', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/session', () => ({
+      status: 500,
+      headers: { 'content-type': 'application/problem+json' },
+      json: { status: 500, code: 'server_error', reference: 'CF-4BF92F35' },
+    }));
+    const serverError = new AdminServerErrorPage(page);
+    const shell = new AdminShell(page);
+
+    await shell.open('/events');
+
+    await expect(serverError.heading).toHaveText('Something went wrong');
+    await expect(serverError.text).toHaveText(
+      `${OWNED} If it keeps happening, quote reference CF-4BF92F35.`,
+    );
+    await expect(serverError.action('Try again')).toHaveAttribute('href', '/events');
+    expect(serverError.location()).toBe('/events');
+    await expect(shell.nav).toHaveCount(0);
   });
 });

@@ -1,6 +1,6 @@
 import { expect, test } from '../fixtures/test';
 import { AdminNotFoundPage } from '../page-objects/admin/not-found.page';
-import { AdminStartPage } from '../page-objects/admin/start.page';
+import { AdminShell } from '../page-objects/admin/admin-shell.page';
 
 // L2-043 AC1, AC2, AC7: a URL no route matches shows the not-found screen with two ways back.
 test.describe('Admin app, not found', () => {
@@ -22,7 +22,7 @@ test.describe('Admin app, not found', () => {
     page,
   }) => {
     const notFound = new AdminNotFoundPage(page);
-    const start = new AdminStartPage(page);
+    const shell = new AdminShell(page);
 
     await notFound.open();
 
@@ -35,8 +35,8 @@ test.describe('Admin app, not found', () => {
     await expect(notFound.action('Go to dashboard')).toBeFocused();
     await notFound.pressEnter();
 
-    await expect.poll(() => start.title()).toBe('Christian Fitness Admin');
-    await expect(start.main).toHaveCount(1);
+    await expect(shell.heading).toHaveText('Dashboard');
+    await expect(shell.main).toHaveCount(1);
     await expect(notFound.heading).toHaveCount(0);
   });
 });

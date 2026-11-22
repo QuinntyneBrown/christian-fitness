@@ -5,4 +5,5 @@
 export * from './account/account';
 export * from './account/interests';
 export * from './account/session';
+export * from './admin/staff-session';
 export * from './errors/api-error';

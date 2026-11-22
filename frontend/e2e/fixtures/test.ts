@@ -3,7 +3,7 @@ import { ApiHandlers } from './api-handlers';
 
 export { expect };
 export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
-export { SIGNED_IN, XSRF_TOKEN } from './api-handlers';
+export { SIGNED_IN, STAFF_SIGNED_IN, XSRF_TOKEN } from './api-handlers';
 
 /** Requests to these path prefixes go to the backend, which never runs in a spec. */
 const BACKEND = ['/api/', '/hubs/'];
