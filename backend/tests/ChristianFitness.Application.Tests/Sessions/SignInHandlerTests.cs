@@ -90,5 +90,7 @@ public sealed class SignInHandlerTests : IAsyncDisposable
             SignedIn.Add(member.Id);
             return Task.CompletedTask;
         }
+
+        public Task SignOutAsync() => Task.CompletedTask;
     }
 }

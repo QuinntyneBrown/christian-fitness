@@ -11,6 +11,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<StaffRole> StaffRoles => Set<StaffRole>();
 
+    /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
+    public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
+
     public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
         Database.CanConnectAsync(cancellationToken);
 

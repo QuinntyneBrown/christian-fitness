@@ -16,6 +16,14 @@ public sealed class SessionController(ISender sender) : ControllerBase
     public async Task<IActionResult> SignIn(SignInCommand command, CancellationToken cancellationToken) =>
         Ok(await sender.Send(command, cancellationToken).ConfigureAwait(false));
 
+    /// <summary>Signs the member out: the session ends on the server and its cookie expires.</summary>
+    [HttpDelete]
+    public async Task<IActionResult> SignOut(CancellationToken cancellationToken)
+    {
+        await sender.Send(new SignOutCommand(), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
     /// <summary>Who is signed in; a visitor is refused 401 by the fallback policy.</summary>
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>

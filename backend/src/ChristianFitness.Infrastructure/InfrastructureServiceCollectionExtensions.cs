@@ -2,6 +2,7 @@ using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Infrastructure.Health;
 using ChristianFitness.Infrastructure.Persistence;
 using ChristianFitness.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,12 +28,16 @@ public static class InfrastructureServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Signing a member in with the session cookie and reading the signed-in member back. Only the
-    /// API, which configures the cookie scheme, adds these (ADR 0007).
+    /// Signing a member in and out with the session cookie, keeping each session on the server, and
+    /// reading the signed-in member back. Only the API, which configures the cookie scheme, adds
+    /// these (ADR 0007, ADR 0009).
     /// </summary>
     public static IServiceCollection AddSessions(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+        services.AddSingleton<ITicketStore, DatabaseTicketStore>();
+        services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+            .Configure<ITicketStore>((options, store) => options.SessionStore = store);
         services.AddScoped<ISessionSignIn, CookieSessionSignIn>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         return services;

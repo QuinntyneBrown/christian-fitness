@@ -85,11 +85,43 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("StaffRoles");
                 });
 
+            modelBuilder.Entity("ChristianFitness.Infrastructure.Persistence.SessionRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Ticket")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("Sessions", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.StaffRole", b =>
                 {
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithOne()
                         .HasForeignKey("ChristianFitness.Domain.Members.StaffRole", "MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Infrastructure.Persistence.SessionRecord", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
