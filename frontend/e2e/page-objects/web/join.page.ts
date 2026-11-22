@@ -23,6 +23,8 @@ export class WebJoinPage {
   /** The text inputs, in the order the form shows them. */
   readonly inputs: Locator;
   readonly interestLegend: Locator;
+  /** The interests' fieldset: the legend and every toggle. */
+  readonly interestPicker: Locator;
   readonly interests: Locator;
   readonly submitButton: Locator;
   readonly signInLink: Locator;
@@ -38,6 +40,9 @@ export class WebJoinPage {
     this.inputs = this.form.locator('.field .input');
     this.interestLegend = this.form.locator('.field__legend');
     this.interests = this.form.locator('.interest-list .interest');
+    this.interestPicker = this.form
+      .locator('fieldset')
+      .filter({ has: page.locator('.field__legend') });
     this.submitButton = this.form.locator('.auth__submit .btn');
     this.signInLink = this.form.locator('.auth__alt').getByRole('link', { name: 'Sign in' });
   }
@@ -48,6 +53,13 @@ export class WebJoinPage {
 
   title(): Promise<string> {
     return this.page.title();
+  }
+
+  /** The `field` block labelled `label`: the label, its input and its hint. */
+  field(label: string): Locator {
+    return this.form
+      .locator('.field')
+      .filter({ has: this.page.getByLabel(label, { exact: true }) });
   }
 
   /** The interest toggle with this label. */

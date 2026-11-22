@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Joining should take about a minute, and end with you signed in."] },
+    { "id": "join", "bars": 5, "lines": ["Open Join and the member app shows the form from the mock: name, email, password, home church and what you are into."] },
+    { "id": "optional", "bars": 4, "lines": ["Home church is optional. Leave it blank, and the account has none."] },
+    { "id": "submitting", "bars": 4, "lines": ["Press Create profile, and the button says Creating your profile until the answer arrives."] },
+    { "id": "home", "bars": 4, "lines": ["Then you land on Home, signed in, greeted by your first name."] },
+    { "id": "api", "bars": 5, "lines": ["One request creates the account, keeps only a hash of the password, and sets a secure session cookie."] },
+    { "id": "servererror", "bars": 5, "lines": ["This is the first screen that calls the API, so a failing load now shows Something went wrong, and keeps the address."] },
+    { "id": "budget", "bars": 4, "lines": ["The HTTP client and the first form bring the first load to two hundred and fifty-five kilobytes."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice two point two refuses invalid details."] },
+    { "id": "close", "bars": 4, "lines": ["That's slice two point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
