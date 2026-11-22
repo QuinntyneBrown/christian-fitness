@@ -15,18 +15,36 @@ public sealed class JoinTelemetryTests(TelemetryTests.Factory factory) : IClassF
     private static readonly string[] Personal = ["Grace", "Thompson", "grace.telemetry", "example.org", "abundantlife", "Fellowship", "Scarborough"];
 
     [Fact]
-    public async Task Given_a_visitor_joins_When_the_request_is_traced_and_logged_Then_nothing_personal_is_recorded()
+    public Task Given_a_visitor_joins_When_the_request_is_traced_and_logged_Then_nothing_personal_is_recorded() =>
+        AssertNothingPersonalAsync(JoinTests.Details("grace.telemetry@example.org"), HttpStatusCode.Created);
+
+    // L2-033 AC2 for the refusals of slice 2.2: a refused body is not repeated in a span or a log.
+    [Fact]
+    public Task Given_an_invalid_join_When_it_is_refused_Then_nothing_personal_is_recorded() =>
+        AssertNothingPersonalAsync(JoinTests.Details("grace.telemetry@example") with { HomeChurch = "Grace Fellowship, Scarborough " + new string('x', 120) }, HttpStatusCode.BadRequest);
+
+    [Fact]
+    public async Task Given_a_taken_email_When_the_join_is_refused_Then_nothing_personal_is_recorded()
+    {
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
+        using var first = await client.PostAsJsonAsync(new Uri("/api/account/join", UriKind.Relative), JoinTests.Details("grace.telemetry.taken@example.org"), TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Created, first.StatusCode);
+
+        await AssertNothingPersonalAsync(JoinTests.Details("grace.telemetry.taken@example.org"), HttpStatusCode.Conflict);
+    }
+
+    private async Task AssertNothingPersonalAsync(JoinTests.JoinBody body, HttpStatusCode status)
     {
         var traceId = ActivityTraceId.CreateRandom();
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri("/api/account/join", UriKind.Relative))
         {
-            Content = JsonContent.Create(JoinTests.Details("grace.telemetry@example.org")),
+            Content = JsonContent.Create(body),
         };
         request.Headers.Add("traceparent", $"00-{traceId}-{ActivitySpanId.CreateRandom()}-01");
 
         using var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(status, response.StatusCode);
 
         // The span ends after the response is written: await it, never sleep.
         var span = await factory.Spans.WaitForAsync(

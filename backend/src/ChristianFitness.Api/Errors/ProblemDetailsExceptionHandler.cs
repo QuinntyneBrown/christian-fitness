@@ -1,12 +1,14 @@
 using ChristianFitness.Application.Errors;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Errors;
 
 /// <summary>
-/// Turns an exception into a ProblemDetails with a <c>code</c> (L2-032 AC4). A handler's refusal
-/// answers its kind's status and code (L2-003 AC2). Anything else is a 500 with code
+/// Turns an exception into a ProblemDetails with a <c>code</c> (L2-032 AC4). A body that failed
+/// validation answers 400 with its field errors (L2-032 AC1); a handler's refusal answers its
+/// kind's status and code (L2-003 AC2). Anything else is a 500 with code
 /// <c>server_error</c> and nothing more (L2-032 AC2): no message, type or stack trace, in any
 /// environment. Only the 500 is logged, by the exception's type alone, since a message can carry
 /// personal data (L2-033 AC2); a refusal is the client's, not an incident.
@@ -18,6 +20,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(IProblemDetailsServ
     {
         var problem = exception switch
         {
+            ValidationException invalid => ProblemCodes.Invalid(invalid.Errors),
             RefusalException refusal => Refused(refusal),
             _ => Unexpected(exception),
         };
