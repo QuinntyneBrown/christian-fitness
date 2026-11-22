@@ -27,20 +27,20 @@ box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "CreateAccountHandler" as h
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
-  participant "IPasswordHasher" as hash
+  participant "IPasswordHasherService" as hash
   participant "CookieSessionSignIn" as sess
   database "Christian Fitness database" as db
 end box
 actor -> page : Fill name, email, password, optional church and interests
 actor -> page : Submit Join
-alt Client validation fails (L2-003 AC3)
+alt Client validation fails (L2-003 AC3, slice 2.2)
   page --> actor : Name each invalid field, aria-invalid="true"
 else Valid
   page --> actor : Button "Creating your profile…", disabled (L2-003 AC5)
   page -> client : join(JoinRequestDto)
   client -> ctrl : POST /api/account/join
   ctrl -> v : Validate CreateAccountCommand
-  alt Name > 100 or home church > 120 (L2-003 AC6)
+  alt Name > 100 or home church > 120 (L2-003 AC6, slice 2.2)
     v --> ctrl : field_too_long
     ctrl --> client : 400 ProblemDetails code field_too_long
     client --> page : Error code
@@ -49,7 +49,7 @@ else Valid
     ctrl -> h : Send CreateAccountCommand
     h -> db : Find Member by NormalizedEmail
     db --> h : Result
-    alt Email already registered (L2-003 AC2)
+    alt Email already registered (L2-003 AC2, slice 2.2)
       h --> ctrl : email_taken
       ctrl --> client : 409 ProblemDetails code email_taken
       client --> page : Error code
@@ -59,12 +59,13 @@ else Valid
       hash --> h : Hash
       h -> db : Insert Member (HomeChurch null when blank, L2-003 AC4)
       db --> h : Saved
-      h --> ctrl : MemberId
-      ctrl -> sess : Sign in member
-      sess --> ctrl : Secure HTTP-only SameSite cookie
+      h -> sess : Sign in member (ISessionSignIn)
+      sess --> h : __Host-cf-session, Secure, HttpOnly, SameSite=Lax
+      h --> ctrl : SessionDto
       ctrl --> client : 201 SessionDto + Set-Cookie
       client --> page : Session
-      page --> actor : Navigate to Home (L2-003 AC1)
+      page --> actor : Navigate to /home (L2-003 AC1)
+      note over page, ctrl : Home stand-in (ADR 0007): GET /api/session with the cookie greets "Welcome, Grace"
     end
   end
 end

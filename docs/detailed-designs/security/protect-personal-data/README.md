@@ -14,7 +14,7 @@ across the accounts, profile, messages and telemetry parts of the system.
 
 ## Description
 
-- **Optional faith fields** — `Member.HomeChurch` and other faith fields are nullable; `CreateAccountValidator` and `UpdateProfileValidator` impose length limits only (`<TO SUPPLY>`), never presence. The `pages/join/` and `dialogs/edit-profile/` mocks mark them optional.
+- **Optional faith fields** — `Member.HomeChurch` and other faith fields are nullable; `CreateAccountValidator` and `UpdateProfileValidator` impose length limits only, never presence: `HomeChurch` holds at most 120 characters (`L2-003` AC6) and a blank one is stored as null (slice 2.1); the limits of the profile's other faith fields are set by `member-profile/edit-profile`. The `pages/join/` and `dialogs/edit-profile/` mocks mark them optional.
 - **Telemetry redaction** — logging uses structured templates with no personal fields; `TelemetryRedactionProcessor` drops request/response bodies, query strings and headers; the HTTP instrumentation records `http.route` (template) rather than the URL. See `operations/emit-telemetry-and-health`.
 - **`RequestDataExportCommand` / `RequestDataExportHandler`** — assembles `DataExportDto` (profile, registrations, authored messages) for the caller only and returns it as a JSON download. Delivery format beyond JSON is `<TO SUPPLY>`.
 - **`RequestAccountDeletionCommand` / `RequestAccountDeletionHandler`** — records `Member.DeletionRequestedAt`, ends every session of the member and signs them out.

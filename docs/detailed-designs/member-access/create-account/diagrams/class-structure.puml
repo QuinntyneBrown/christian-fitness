@@ -11,7 +11,11 @@ skinparam class {
 }
 title Class structure — Create a member account
 class JoinPage {
-  +form: FormGroup
+  +fullName: Signal<string>
+  +email: Signal<string>
+  +password: Signal<string>
+  +homeChurch: Signal<string>
+  +interests: Signal<string[]>
   +submitting: Signal<boolean>
   +submit(): void
 }
@@ -23,8 +27,12 @@ class JoinRequestDto {
   +fullName: string
   +email: string
   +password: string
-  +homeChurch?: string
+  +homeChurch: string | null
   +interests: string[]
+}
+class SessionDto {
+  +memberId: string
+  +name: string
 }
 class AccountController {
   +Join(cmd: CreateAccountCommand): Task<IActionResult>
@@ -36,17 +44,18 @@ class CreateAccountCommand {
   +string? HomeChurch
   +IReadOnlyList<string> Interests
 }
-class CreateAccountValidator
+class CreateAccountValidator <<slice 2.2>>
 class CreateAccountHandler {
-  +Handle(c: CreateAccountCommand): Task<Result<MemberId>>
+  +Handle(c: CreateAccountCommand): Task<SessionDto>
 }
 class Member {
   +Guid Id
-  +string FullName
+  +string Name
   +string Email
   +string NormalizedEmail
   +string PasswordHash
   +string? HomeChurch
+  +IReadOnlyList<string> Interests
   +MemberStatus Status
   +DateTimeOffset JoinedAt
 }
@@ -55,16 +64,23 @@ enum MemberStatus {
   Flagged
   Suspended
 }
-interface IPasswordHasher {
+interface IPasswordHasherService {
   +Hash(password: string): string
 }
+interface ISessionSignIn {
+  +SignInAsync(member: Member): Task
+}
+class CookieSessionSignIn
 HttpAccountService ..|> AccountApi
+CookieSessionSignIn ..|> ISessionSignIn
 JoinPage ..> AccountApi : injects ACCOUNT_SERVICE
 JoinPage ..> JoinRequestDto
+AccountApi ..> SessionDto
 AccountController ..> CreateAccountCommand : sends
 CreateAccountValidator ..> CreateAccountCommand : validates
 CreateAccountHandler ..> CreateAccountCommand : handles
-CreateAccountHandler ..> IPasswordHasher
+CreateAccountHandler ..> IPasswordHasherService
+CreateAccountHandler ..> ISessionSignIn
 CreateAccountHandler --> Member : creates
 Member --> MemberStatus
 @enduml
