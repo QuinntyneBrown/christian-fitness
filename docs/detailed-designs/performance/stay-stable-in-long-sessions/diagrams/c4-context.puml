@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Stay stable in long sessions
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+Person(staff, "Staff member", "Admin or Moderator")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+
+Rel(member, cf, "Keeps the Member web app open for long sessions")
+Rel(staff, cf, "Keeps the Admin web app open for long sessions")
+@enduml

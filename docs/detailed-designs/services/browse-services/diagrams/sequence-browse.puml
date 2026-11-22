@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — browse, filter and select a listing
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ServicesPage" as page
+  participant "ServicesApi (SERVICES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ServicesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListServicesHandler / GetServiceHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Services
+page -> client : listServices(null)
+client -> ctrl : GET /api/services
+ctrl -> h : Send ListServicesQuery
+h -> db : Status = Published (removed excluded, L2-013)
+db --> h : Rows
+h --> ctrl : ServiceSummaryDto[]
+ctrl --> client : 200 JSON
+client --> page : Listings
+page --> actor : service-row list
+actor -> page : Select category chip
+page -> client : listServices(category)
+client -> ctrl : GET /api/services?category=Physio
+ctrl -> h : Send ListServicesQuery
+h -> db : Published and category
+db --> h : Rows
+h --> ctrl : ServiceSummaryDto[]
+ctrl --> client : 200 JSON
+client --> page : Listings
+page --> actor : Filtered list, chip aria-pressed="true"
+actor -> page : Select a listing
+page -> client : getService(id)
+client -> ctrl : GET /api/services/{id}
+ctrl -> h : Send GetServiceQuery
+h -> db : Published listing by id
+db --> h : Row
+h --> ctrl : ServiceDetailDto
+ctrl --> client : 200 JSON
+client --> page : Detail
+alt viewport LG or wider
+  page --> actor : service-detail beside list, row aria-current="true"
+else below LG
+  page --> actor : Navigate to /services/{id} with back action
+end
+@enduml

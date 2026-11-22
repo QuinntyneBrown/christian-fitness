@@ -1,0 +1,51 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Secure sessions
+
+class Member {
+  +Guid Id
+  +string Email
+  +string PasswordHash
+  +MemberStatus Status
+}
+interface IPasswordHasherService {
+  +Hash(member: Member, password: string): string
+  +Verify(member: Member, hash: string, password: string): bool
+}
+class IdentityPasswordHasherService {
+  -PasswordHasher<Member> inner
+}
+class SignInHandler {
+  +Handle(c: SignInCommand): Task<SignInResult>
+}
+class CreateAccountHandler {
+  +Handle(c: CreateAccountCommand): Task<AccountDto>
+}
+class AccountDto {
+  +Guid Id
+  +string DisplayName
+}
+class SecurityHeadersMiddleware {
+  +InvokeAsync(ctx: HttpContext): Task
+}
+class CookieAuthenticationSetup {
+  +CookieName = "__Host-cf-session"
+  +SameSite = Lax
+  +SecurePolicy = Always
+  +HttpOnly = true
+}
+IdentityPasswordHasherService ..|> IPasswordHasherService
+SignInHandler ..> IPasswordHasherService : verifies
+CreateAccountHandler ..> IPasswordHasherService : hashes
+CreateAccountHandler ..> AccountDto : returns
+SignInHandler --> Member : loads
+@enduml

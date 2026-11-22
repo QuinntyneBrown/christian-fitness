@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Edit own profile
+class ProfilePage {
+  +openEdit(): void
+}
+class EditProfileDialog {
+  +form: FormGroup
+  +saving: Signal<boolean>
+  +errorCode: Signal<string|null>
+  +save(): void
+}
+class UpdateProfileDto {
+  +fullName: string
+  +city: string
+  +bio: string
+  +homeChurch?: string
+  +showHomeChurch: boolean
+  +goals: string[]
+  +interests: string[]
+}
+interface ProfileApi {
+  +update(dto: UpdateProfileDto): Observable<OwnProfileDto>
+}
+class UpdateProfileCommand {
+  +Guid CallerId
+  +string Bio
+  +IReadOnlyList<string> Goals
+  +bool ShowHomeChurch
+}
+class UpdateProfileValidator
+class UpdateProfileHandler {
+  +Handle(c: UpdateProfileCommand): Task<Result<OwnProfileDto>>
+}
+class Member {
+  +string Bio
+  +string? HomeChurch
+  +bool ShowHomeChurch = false
+  +List<string> Goals
+  +UpdateProfile(...): void
+}
+ProfilePage ..> EditProfileDialog : opens
+EditProfileDialog ..> ProfileApi : injects PROFILE_SERVICE
+EditProfileDialog ..> UpdateProfileDto
+UpdateProfileValidator ..> UpdateProfileCommand : validates
+UpdateProfileHandler ..> UpdateProfileCommand : handles
+UpdateProfileHandler --> Member : mutates
+@enduml

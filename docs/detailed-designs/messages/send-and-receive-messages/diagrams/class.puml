@@ -1,0 +1,97 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Send and receive messages
+
+class Message {
+  +Guid Id
+  +Guid ConversationId
+  +Guid SenderId
+  +string Text
+  +DateTimeOffset SentAt
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+  +Guid? LastReadMessageId
+}
+class SendMessageCommand {
+  +Guid ConversationId
+  +string Text
+}
+class SendMessageValidator {
+  Text length 1..2000
+}
+class SendMessageHandler {
+  +Handle(cmd: SendMessageCommand): Task<SendResult>
+}
+class SendResult {
+  +MessageDto? Message
+  +string? Code
+}
+class GetMessagesQuery {
+  +Guid ConversationId
+  +Guid? Before
+  +Guid? After
+  +int Take = 50
+}
+class GetMessagesHandler
+class MarkConversationReadCommand {
+  +Guid ConversationId
+  +Guid LastReadMessageId
+}
+class MarkConversationReadHandler
+class ChatHub {
+  +JoinConversation(id: Guid): Task<HubAnswer>
+  +SendMessage(id: Guid, text: string): Task<HubAnswer>
+}
+class MessagesController {
+  +List(id, before, after): Task<IActionResult>
+  +MarkRead(id, body): Task<IActionResult>
+}
+interface ChatConnection <<api>> {
+  +state: Signal<'connected' | 'reconnecting'>
+  +send(id: string, text: string): Promise<HubAnswer>
+  +messages(id: string): Observable<MessageDto>
+}
+class SignalRChatConnection
+interface MessagesApi <<api>> {
+  +page(id, before?, after?): Observable<MessageDto[]>
+  +markRead(id, lastId): Observable<void>
+}
+class HttpMessagesService
+class MessageWindow <<domain>> {
+  +capacity = 200
+  +append(m): void
+  +prepend(page): void
+}
+class ConversationThreadStore {
+  +messages: Signal<MessageDto[]>
+  +status: Signal<string>
+  +draft: Signal<string>
+}
+
+ChatHub ..> SendMessageCommand : sends
+MessagesController ..> GetMessagesQuery : sends
+MessagesController ..> MarkConversationReadCommand : sends
+SendMessageHandler ..> SendMessageCommand : handles
+SendMessageHandler ..> SendMessageValidator : validates
+SendMessageHandler ..> SendResult : returns
+SendMessageHandler ..> ConversationParticipant : checks membership
+SendMessageHandler ..> Message : creates
+GetMessagesHandler ..> GetMessagesQuery : handles
+MarkConversationReadHandler ..> ConversationParticipant : updates
+SignalRChatConnection ..|> ChatConnection
+HttpMessagesService ..|> MessagesApi
+ConversationThreadStore ..> ChatConnection : CHAT_CONNECTION
+ConversationThreadStore ..> MessagesApi : MESSAGES_SERVICE
+ConversationThreadStore *-- MessageWindow
+@enduml

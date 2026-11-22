@@ -1,0 +1,51 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Protect personal data
+
+class Member {
+  +Guid Id
+  +string Email
+  +string DisplayName
+  +string? HomeChurch
+  +DateTimeOffset? DeletionRequestedAt
+  +RequestDeletion(now: DateTimeOffset): void
+  +Anonymise(): void
+}
+class Message {
+  +Guid Id
+  +Guid? AuthorId
+  +string Text
+  +Anonymise(): void
+}
+class DataExportDto {
+  +ProfileDto Profile
+  +RegistrationDto[] Registrations
+  +MessageDto[] Messages
+}
+class RequestDataExportHandler {
+  +Handle(q): Task<DataExportDto>
+}
+class RequestAccountDeletionHandler {
+  +Handle(c): Task
+}
+class AccountErasureService {
+  -TimeProvider clock
+  +EraseDueAsync(): Task<int>
+}
+class TelemetryRedactionProcessor {
+  +OnEnd(activity: Activity): void
+}
+RequestDataExportHandler ..> DataExportDto
+RequestAccountDeletionHandler --> Member
+AccountErasureService --> Member
+AccountErasureService --> Message
+@enduml

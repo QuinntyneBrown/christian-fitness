@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit and remove listings
+
+Container_Boundary(fe, "Admin web app") {
+  Component(page, "ManageServicesPage", "Routed Angular page", "Live listings table; opens the editor")
+  Component(dlg, "ListingEditorDialog", "CDK Dialog in projects/admin", "Edits listing fields; offers removal")
+  Component(svc, "ADMIN_SERVICES_SERVICE / AdminServicesApi", "Injection token and contract", "Typed listing calls")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminListingsController", "ASP.NET Core controller, policy AdminOnly", "One MediatR send per action")
+  Component(up, "UpdateListingHandler", "MediatR command handler", "Applies field changes")
+  Component(rm, "RemoveListingHandler", "MediatR command handler", "Unpublishes the listing")
+  Component(ent, "ServiceListing", "Domain entity", "Published listing")
+  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Listings, conversations")
+}
+Rel(page, dlg, "Opens")
+Rel(page, svc, "Depends on")
+Rel(dlg, svc, "Depends on")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, up, "Sends UpdateListingCommand")
+Rel(ctrl, rm, "Sends RemoveListingCommand")
+Rel(up, ent, "Updates")
+Rel(rm, ent, "Removes")
+Rel(up, db, "Writes", "EF Core")
+Rel(rm, db, "Writes", "EF Core")
+@enduml

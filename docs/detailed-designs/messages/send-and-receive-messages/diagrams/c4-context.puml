@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send and receive messages
+
+Person(member, "Member", "Signed-in member of the Christian Fitness community")
+System(cf, "Christian Fitness", "Events, group chats, direct messages and vetted professionals")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without message text or contact details")
+Rel(member, cf, "Sends and receives messages in real time in")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

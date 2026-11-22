@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse services
+
+Container(web, "Member web app", "Angular", "ServicesPage, ServiceDetailPage, ServiceRow, ServiceDetail, HttpServicesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ServicesController", "ASP.NET Core controller", "GET /api/services, GET /api/services/{id}")
+  Component(lh, "ListServicesHandler", "MediatR handler", "Published listings by category")
+  Component(gh, "GetServiceHandler", "MediatR handler", "One published listing")
+  Component(ctx, "IAppDbContext", "Application abstraction", "ServiceListings")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Service listings")
+Rel(web, ctrl, "GET listings", "JSON/HTTPS")
+Rel(ctrl, lh, "Sends ListServicesQuery")
+Rel(ctrl, gh, "Sends GetServiceQuery")
+Rel(lh, ctx, "Queries")
+Rel(gh, ctx, "Queries")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

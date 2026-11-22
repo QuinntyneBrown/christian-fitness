@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — Open a conversation below and above LG
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "MessagesPage" as page
+  participant "BreakpointService" as bp
+  participant "Router" as router
+end box
+actor -> page : Select a conversation
+page -> bp : isLg()
+alt below LG
+  page -> router : navigate /messages/{id} (L2-039 AC2)
+  router --> actor : Detail as its own screen with back control
+else LG and above
+  page --> actor : Detail beside list (L2-039 AC2)
+end
+@enduml

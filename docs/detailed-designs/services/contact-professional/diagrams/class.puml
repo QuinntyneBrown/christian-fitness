@@ -1,0 +1,61 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Contact a professional
+
+enum ConversationKind {
+  EventGroup
+  Direct
+}
+class ServiceListing {
+  +Guid Id
+  +Guid? ProfessionalMemberId
+  +string? ContactUrl
+  +ListingStatus Status
+}
+class Conversation {
+  +Guid Id
+  +ConversationKind Kind
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+}
+class StartProfessionalConversationCommand {
+  +Guid ListingId
+}
+class StartProfessionalConversationHandler {
+  +Handle(cmd): Task<Guid>
+}
+class GetContactLinkQuery {
+  +Guid ListingId
+}
+class GetContactLinkHandler {
+  +Handle(q): Task<ContactLinkDto>
+}
+class ContactLinkDto {
+  +string Url
+}
+interface ServicesApi {
+  +startConversation(listingId): Observable<string>
+  +getContactLink(listingId): Observable<ContactLinkDto>
+}
+class HttpServicesService
+HttpServicesService ..|> ServicesApi
+Conversation "1" *-- "2..*" ConversationParticipant
+Conversation --> ConversationKind
+StartProfessionalConversationHandler ..> StartProfessionalConversationCommand : handles
+StartProfessionalConversationHandler ..> ServiceListing : reads
+StartProfessionalConversationHandler ..> Conversation : finds or creates
+GetContactLinkHandler ..> GetContactLinkQuery : handles
+GetContactLinkHandler ..> ServiceListing : reads
+GetContactLinkHandler ..> ContactLinkDto : returns
+@enduml

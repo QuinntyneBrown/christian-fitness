@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Staff roles
+
+Container_Boundary(admin, "Admin web app") {
+  Component(nav, "AdminShell", "Angular layout", "Hides areas by role")
+  Component(canm, "canManage", "domain helper", "Role to area rule")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(pol, "AdminOnly / StaffOnly", "Authorization policies", "Gate controllers")
+  Component(claims, "StaffRoleClaimsTransformation", "Infrastructure", "Adds role claim")
+  Component(ctrl, "Staff controllers", "ASP.NET Core", "One MediatR send each")
+  Component(audit, "AuditBehavior", "MediatR pipeline behaviour", "Writes AuditEntry")
+  Component(handler, "Auditable handlers", "MediatR handlers", "Change data")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(nav, canm, "Uses")
+Rel(nav, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, pol, "Protected by")
+Rel(pol, claims, "Reads role claim from")
+Rel(ctrl, audit, "Sends command through")
+Rel(audit, handler, "Invokes")
+Rel(audit, db, "Adds AuditEntry", "EF Core")
+Rel(claims, db, "Reads StaffRole", "EF Core")
+@enduml

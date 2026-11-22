@@ -1,0 +1,26 @@
+@startuml
+title UML sequence behaviour — Check overflow at five widths
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Playwright responsive spec" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Page object" as po
+end box
+loop widths 375, 576, 768, 992, 1440 x each screen
+  actor -> po : setViewport; open()
+  po --> actor : scrollWidth, clientWidth
+  actor -> actor : expect(scrollWidth <= clientWidth) (L2-039 AC1)
+end
+@enduml

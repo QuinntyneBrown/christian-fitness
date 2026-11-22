@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Create a member account
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "JoinPage", "Angular routed component", "Join form, client validation")
+  Component(ui, "InterestPicker", "components library", "Interest toggles")
+  Component(svc, "HttpAccountService", "ACCOUNT_SERVICE", "HTTP client")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AccountController", "ASP.NET Core controller", "[AllowAnonymous] POST /api/account/join")
+  Component(v, "CreateAccountValidator", "FluentValidation", "Lengths, email, password")
+  Component(h, "CreateAccountHandler", "MediatR handler", "Duplicate check, hash, persist")
+  Component(hash, "IPasswordHasher", "Infrastructure", "Password hashing")
+  Component(sess, "CookieSessionSignIn", "Infrastructure", "Issues session cookie")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+
+Rel(page, ui, "Renders")
+Rel(page, svc, "Submits join")
+Rel(svc, ctrl, "POST join", "JSON/HTTPS")
+Rel(ctrl, h, "Sends CreateAccountCommand")
+Rel(v, h, "Validates before")
+Rel(h, hash, "Hashes password")
+Rel(h, db, "Writes Member", "EF Core")
+Rel(ctrl, sess, "Signs in on success")
+@enduml

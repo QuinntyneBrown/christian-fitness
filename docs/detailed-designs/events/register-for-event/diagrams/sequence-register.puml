@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — register for an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventDetailPage" as page
+  participant "EventsApi (EVENTS_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RegisterForEventHandler" as h
+  participant "Event" as ev
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Register
+page -> page : Show registering state
+page -> client : register(eventId)
+client -> ctrl : POST /api/events/{id}/registrations
+ctrl -> h : Send RegisterForEventCommand
+h -> db : Load Member, Event, existing Registration
+db --> h : State
+alt member suspended
+  h --> ctrl : Refuse account_suspended (L2-011)
+  ctrl --> client : 403 ProblemDetails code=account_suspended
+  client --> page : Error code
+  page --> actor : Generic refusal message
+else already registered
+  h --> ctrl : Existing RegistrationResultDto (no second row, L2-011)
+  ctrl --> client : 200 JSON
+  client --> page : Result
+  page --> actor : "You're going"
+else event full
+  h --> ctrl : Refuse event_full (L2-011)
+  ctrl --> client : 409 ProblemDetails code=event_full
+  client --> page : Error code
+  page --> actor : "This event is full"
+else places left
+  h -> ev : Register(member)
+  ev --> h : Registration (Confirmed if free, Reserved if paid)
+  h -> h : Add ConversationParticipant to event Conversation
+  h -> db : Save in one unit of work
+  db --> h : Committed
+  h --> ctrl : RegistrationResultDto
+  ctrl --> client : 201 JSON
+  client --> page : Result
+  alt Reserved
+    page --> actor : Reserved, with how to pay
+  else Confirmed
+    page --> actor : going + 1, "You're going", group chat link
+  end
+end
+@enduml

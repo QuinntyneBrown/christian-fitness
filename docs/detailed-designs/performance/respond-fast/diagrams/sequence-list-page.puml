@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Fetch one page of events
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventsPage" as page
+  participant "HttpEventsService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "PageRequestValidator" as v
+  participant "ListEventsHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Events
+page -> http : list({ size: 20 })
+http -> ctrl : GET /api/events?size=20
+ctrl -> v : Validate size <= 50 (L2-036 AC2)
+v --> ctrl : ok
+ctrl -> h : Send ListEventsQuery
+h -> db : AsNoTracking projection, ORDER BY indexed key, LIMIT 20
+db --> h : rows
+h --> ctrl : Page<EventSummaryDto>
+ctrl --> http : 200 within 300 ms at p95 (L2-036 AC1)
+http --> page : items, nextCursor
+page --> actor : List; next page on scroll
+@enduml

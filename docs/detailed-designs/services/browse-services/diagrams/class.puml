@@ -1,0 +1,86 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse services
+
+enum ServiceCategory {
+  Training
+  Nutrition
+  Physio
+  Coaching
+  Counselling
+}
+enum ListingStatus {
+  Published
+  Removed
+}
+class ServiceListing {
+  +Guid Id
+  +string Name
+  +string Role
+  +ServiceCategory Category
+  +string Where
+  +string Price
+  +string? PhotoUrl
+  +string Credentials
+  +string About
+  +bool IsVerified
+  +ListingStatus Status
+  +Guid? ProfessionalMemberId
+}
+class ListServicesQuery {
+  +ServiceCategory? Category
+}
+class GetServiceQuery {
+  +Guid ListingId
+}
+class ListServicesHandler {
+  +Handle(q: ListServicesQuery): Task<ServiceSummaryDto[]>
+}
+class GetServiceHandler {
+  +Handle(q: GetServiceQuery): Task<ServiceDetailDto>
+}
+class ServiceSummaryDto {
+  +Guid Id
+  +string Name
+  +string Role
+  +string Where
+  +string Price
+  +string? PhotoUrl
+}
+class ServiceDetailDto {
+  +string Credentials
+  +string About
+  +bool IsVerified
+  +bool HasLinkedAccount
+}
+class ServicesPage {
+  +category: Signal<ServiceCategory | null>
+  +selectedId: Signal<string | null>
+}
+class ServiceRow {
+  +listing: input<ServiceSummaryDto>
+  +current: input<boolean>
+}
+class ServiceDetail {
+  +listing: input<ServiceDetailDto>
+  +contact: output<void>
+}
+ServiceSummaryDto <|-- ServiceDetailDto
+ServiceListing --> ServiceCategory
+ServiceListing --> ListingStatus
+ListServicesHandler ..> ListServicesQuery : handles
+GetServiceHandler ..> GetServiceQuery : handles
+ListServicesHandler ..> ServiceListing : reads
+GetServiceHandler ..> ServiceListing : reads
+ServicesPage *-- ServiceRow
+ServicesPage *-- ServiceDetail
+@enduml

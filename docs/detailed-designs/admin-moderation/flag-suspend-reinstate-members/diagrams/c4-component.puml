@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Flag, suspend and reinstate members
+
+Container_Boundary(fe, "Admin web app") {
+  Component(page, "MembersPage", "Routed Angular page", "Offers flag, suspend and reinstate per row")
+  Component(dlg, "Moderation dialog <TO SUPPLY>", "CDK Dialog", "Collects note and confirmation")
+  Component(svc, "ADMIN_MEMBERS_SERVICE / AdminMembersApi", "Injection token and contract", "Typed moderation calls")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminMembersController", "ASP.NET Core controller, policy StaffOnly", "One MediatR send per action")
+  Component(h, "FlagMember / SuspendMember / ReinstateMember handlers", "MediatR command handlers", "Apply status transitions")
+  Component(ent, "Member", "Domain entity", "Owns MemberStatus transitions")
+  Component(sess, "Session store", "Infrastructure (cookie auth)", "Ends a suspended member's sessions")
+  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Members")
+}
+Rel(page, dlg, "Opens")
+Rel(page, svc, "Depends on")
+Rel(dlg, svc, "Depends on")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, h, "Sends one command")
+Rel(h, ent, "Transitions")
+Rel(h, sess, "Revokes sessions through")
+Rel(h, db, "Writes", "EF Core")
+@enduml

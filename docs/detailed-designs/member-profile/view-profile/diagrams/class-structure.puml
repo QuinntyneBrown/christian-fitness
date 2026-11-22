@@ -1,0 +1,68 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View a profile
+class ProfilePage {
+  +profile: Signal<OwnProfileDto|null>
+  +state: Signal<'loading'|'loaded'|'error'>
+}
+class MemberProfilePage {
+  +profile: Signal<PublicProfileDto|null>
+}
+interface ProfileApi {
+  +own(): Observable<OwnProfileDto>
+  +publicProfile(id: string): Observable<PublicProfileDto>
+}
+class HttpProfileService
+class OwnProfileDto {
+  +fullName: string
+  +city: string
+  +joinedAt: string
+  +bio: string
+  +homeChurch?: string
+  +goals: string[]
+  +interests: string[]
+  +upcomingEvents: UpcomingEventDto[]
+}
+class PublicProfileDto {
+  +fullName: string
+  +initials: string
+  +bio: string
+  +interests: string[]
+  +homeChurch?: string
+}
+class GetOwnProfileHandler
+class GetPublicProfileHandler
+class Member {
+  +Guid Id
+  +string FullName
+  +string City
+  +string Bio
+  +string? HomeChurch
+  +bool ShowHomeChurch
+  +List<string> Goals
+  +List<string> Interests
+  +DateTimeOffset JoinedAt
+}
+class Registration {
+  +Guid MemberId
+  +Guid EventId
+}
+HttpProfileService ..|> ProfileApi
+ProfilePage ..> ProfileApi : injects PROFILE_SERVICE
+MemberProfilePage ..> ProfileApi : injects PROFILE_SERVICE
+GetOwnProfileHandler ..> Member
+GetOwnProfileHandler ..> Registration
+GetOwnProfileHandler ..> OwnProfileDto : returns
+GetPublicProfileHandler ..> Member
+GetPublicProfileHandler ..> PublicProfileDto : returns
+Member "1" --> "*" Registration
+@enduml

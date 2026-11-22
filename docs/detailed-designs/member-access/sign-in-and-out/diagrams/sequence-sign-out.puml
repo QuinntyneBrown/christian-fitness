@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Member signs out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "AppHeader" as page
+  participant "HttpSessionService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SessionController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SignOutHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "CookieSessionSignIn" as sess
+end box
+actor -> page : Choose Sign out
+page -> client : signOut()
+client -> ctrl : DELETE /api/session
+ctrl -> h : Send SignOutCommand
+h -> sess : End server session (L2-004 AC5)
+sess --> h : Cookie cleared
+h --> ctrl : Done
+ctrl --> client : 204 + expired cookie
+client --> page : Session signal set to null
+page --> actor : Navigate to landing page /
+@enduml

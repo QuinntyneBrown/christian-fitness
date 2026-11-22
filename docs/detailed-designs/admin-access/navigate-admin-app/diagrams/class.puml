@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Navigate the admin app
+
+class AdminShell {
+  -menuOpen: WritableSignal<boolean>
+  -currentPath: Signal<string>
+  -items: Signal<AdminNavItem[]>
+  +toggleMenu(): void
+}
+class AdminNav {
+  +items: InputSignal<AdminNavItem[]>
+  +currentPath: InputSignal<string>
+}
+class MenuButton {
+  +expanded: InputSignal<boolean>
+  +toggled: OutputEmitterRef<void>
+}
+class DataTable {
+  +columns: InputSignal<Column[]>
+  +rows: InputSignal<Row[]>
+}
+class AdminNavItem {
+  +label: string
+  +path: string
+  +area: AdminArea
+  +count?: number
+}
+enum AdminArea {
+  Dashboard
+  Events
+  Services
+  Members
+}
+interface StaffAuthApi
+AdminShell *-- AdminNav
+AdminShell *-- MenuButton
+AdminShell ..> StaffAuthApi : injects STAFF_AUTH_SERVICE
+AdminNav --> AdminNavItem
+AdminNavItem --> AdminArea
+@enduml

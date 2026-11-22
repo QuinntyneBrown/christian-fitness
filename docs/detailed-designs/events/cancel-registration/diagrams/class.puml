@@ -1,0 +1,55 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Cancel a registration
+
+class Event {
+  +Guid Id
+  +DateTimeOffset StartsAt
+  +int GoingCount
+  +Cancel(registration: Registration): void
+  +HasStarted(now: DateTimeOffset): bool
+}
+class Registration {
+  +Guid Id
+  +Guid EventId
+  +Guid MemberId
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+}
+class CancelRegistrationCommand {
+  +Guid EventId
+}
+class CancelRegistrationHandler {
+  +Handle(cmd: CancelRegistrationCommand): Task<CancelResultDto>
+}
+class CancelResultDto {
+  +int Going
+  +int Capacity
+}
+class TimeProvider
+class EventDetailPage {
+  +openCancelDialog(): void
+}
+class CancelRegistrationDialog {
+  +confirm(): void
+  +dismiss(): void
+}
+Event "1" *-- "*" Registration
+CancelRegistrationHandler ..> CancelRegistrationCommand : handles
+CancelRegistrationHandler ..> TimeProvider : now
+CancelRegistrationHandler ..> Event : Cancel
+CancelRegistrationHandler ..> ConversationParticipant : removes
+CancelRegistrationHandler ..> CancelResultDto : returns
+EventDetailPage ..> CancelRegistrationDialog : opens via CDK Dialog
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Sign in and sign out
+class SignInPage {
+  +form: FormGroup
+  +submitting: Signal<boolean>
+  +errorCode: Signal<string|null>
+  +submit(): void
+}
+interface SessionApi {
+  +current: Signal<SessionDto|null>
+  +signIn(email: string, password: string): Observable<SessionDto>
+  +signOut(): Observable<void>
+}
+class HttpSessionService
+class SessionDto {
+  +memberId: string
+  +firstName: string
+}
+class SessionController {
+  +SignIn(cmd: SignInCommand): Task<IActionResult>
+  +SignOut(): Task<IActionResult>
+  +Current(): Task<SessionDto>
+}
+class SignInCommand {
+  +string Email
+  +string Password
+}
+class SignInHandler {
+  +Handle(c: SignInCommand): Task<Result<SessionDto>>
+}
+class SignOutHandler
+class SignInAttempt {
+  +string NormalizedEmail
+  +DateTimeOffset AttemptedAt
+}
+class Member {
+  +Guid Id
+  +string NormalizedEmail
+  +string PasswordHash
+  +MemberStatus Status
+}
+enum MemberStatus {
+  Active
+  Flagged
+  Suspended
+}
+HttpSessionService ..|> SessionApi
+SignInPage ..> SessionApi : injects SESSION_SERVICE
+SessionController ..> SignInCommand : sends
+SignInHandler ..> SignInCommand : handles
+SignInHandler ..> SignInAttempt : counts last 15 min
+SignInHandler ..> Member : verifies
+SignInHandler ..> TimeProvider
+Member --> MemberStatus
+@enduml

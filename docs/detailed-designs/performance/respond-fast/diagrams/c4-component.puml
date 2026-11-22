@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Respond fast
+
+Container(web, "Member web app", "Angular", "Events, Services, Messages lists")
+Container(admin, "Admin web app", "Angular", "Members, Events, Services tables")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "EventsController / ServicesController / ConversationsController / MembersController", "Controllers", "One MediatR send")
+  Component(v, "PageRequestValidator", "FluentValidation", "size <= 50")
+  Component(h, "ListXxxHandler", "MediatR", "AsNoTracking projection, indexed order")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Indexed tables")
+}
+Rel(web, ctrl, "GET ?size=&cursor=")
+Rel(admin, ctrl, "GET ?size=&page=")
+Rel(ctrl, v, "Validated via pipeline")
+Rel(ctrl, h, "Sends ListXxxQuery")
+Rel(h, db, "SELECT ... LIMIT size")
+@enduml

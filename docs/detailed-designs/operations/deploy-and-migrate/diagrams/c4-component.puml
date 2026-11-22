@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Deploy and migrate
+
+Person(operator, "Operator", "")
+Container_Boundary(cli, "Christian Fitness CLI") {
+  Component(mig, "MigrateCommand", "cf migrate", "Database.MigrateAsync")
+  Component(seed, "SeedCommand", "cf seed", "Runs SeedRunner")
+  Component(runner, "SeedRunner", "Infrastructure", "Insert when natural key absent")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "")
+Container(api, "Christian Fitness API", "ASP.NET Core", "Starts without migrating")
+Rel(operator, mig, "Runs")
+Rel(operator, seed, "Runs")
+Rel(mig, db, "Applies pending migrations")
+Rel(seed, runner, "Invokes")
+Rel(runner, db, "Upserts by key")
+Rel(api, db, "Reads and writes")
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+title UML sequence behaviour — Check every screen with axe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Playwright accessibility spec" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Page object" as po
+  participant "axe" as axe
+end box
+loop each screen and dialog in both apps
+  actor -> po : open()
+  actor -> axe : analyze(tags wcag2a, wcag2aa, wcag22aa)
+  axe --> actor : violations
+  actor -> actor : expect(violations).toEqual([]) (L2-038 AC1)
+end
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Protect personal data
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Members, events, conversations, listings")
+}
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Erases due accounts", "EF Core")
+Rel(api, otel, "Exports redacted telemetry", "OTLP")
+@enduml

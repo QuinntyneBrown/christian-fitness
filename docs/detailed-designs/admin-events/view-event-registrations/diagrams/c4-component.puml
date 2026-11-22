@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View event registrations
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "EventRegistrationsPage", "Angular page", "List and Export CSV, mock <TO SUPPLY>")
+  Component(table, "DataTable", "components", "Rows or stacked cards")
+  Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "registrations, exportRegistrations")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AdminOnly")
+  Component(list, "GetEventRegistrationsHandler", "MediatR handler", "Rows and total")
+  Component(exp, "ExportEventRegistrationsHandler", "MediatR handler", "CSV export")
+  Component(csv, "RegistrationsCsvWriter", "Application service", "Name and date only")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(page, table, "Renders")
+Rel(page, svc, "Calls")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS, text/csv")
+Rel(ctrl, list, "Sends GetEventRegistrationsQuery")
+Rel(ctrl, exp, "Sends ExportEventRegistrationsQuery")
+Rel(exp, csv, "Writes with")
+Rel(list, db, "Reads registrations", "EF Core")
+Rel(exp, db, "Reads registrations", "EF Core")
+@enduml

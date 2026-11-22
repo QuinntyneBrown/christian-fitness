@@ -1,0 +1,63 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View the admin dashboard
+
+interface DashboardApi {
+  +getSummary(): Promise<DashboardSummaryDto>
+}
+class HttpDashboardService
+class AdminDashboardPage {
+  -state: Signal<'loading'|'ready'|'error'>
+  -summary: Signal<DashboardSummaryDto | null>
+  +retry(): void
+}
+class GetDashboardSummaryQuery
+class GetDashboardSummaryHandler {
+  +Handle(q: GetDashboardSummaryQuery): Task<DashboardSummaryDto>
+}
+class DashboardSummaryDto {
+  +int TotalMembers
+  +int NewMembers7d
+  +int UpcomingEvents
+  +int Registrations7d
+  +int PendingApplications
+  +int FlaggedMembers
+  +AttentionItemDto[] Attention
+  +UpcomingEventDto[] Upcoming
+}
+class AttentionItemDto {
+  +AttentionKind Kind
+  +Guid RecordId
+  +string Name
+}
+enum AttentionKind {
+  PendingApplication
+  FlaggedMember
+}
+class Member
+class Event
+class Registration
+class ProfessionalApplication
+interface IAppDbContext
+
+HttpDashboardService ..|> DashboardApi
+AdminDashboardPage ..> DashboardApi : injects DASHBOARD_SERVICE
+GetDashboardSummaryHandler ..> GetDashboardSummaryQuery : handles
+GetDashboardSummaryHandler ..> IAppDbContext
+GetDashboardSummaryHandler ..> DashboardSummaryDto : returns
+DashboardSummaryDto *-- AttentionItemDto
+AttentionItemDto --> AttentionKind
+IAppDbContext ..> Member
+IAppDbContext ..> Event
+IAppDbContext ..> Registration
+IAppDbContext ..> ProfessionalApplication
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+title UML sequence behaviour — Render user text safely
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "MessagesPage" as page
+  participant "message component" as cmp
+end box
+page -> cmp : [text] = "<img src=x onerror=...>"
+cmp -> cmp : {{ text }} interpolation, no innerHTML (L2-032 AC3)
+cmp --> actor : Literal characters shown as text
+@enduml

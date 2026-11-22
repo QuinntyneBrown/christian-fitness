@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — message a linked professional
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ServicesPage" as page
+  participant "ServicesApi (SERVICES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ServicesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "StartProfessionalConversationHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Message
+page -> client : startConversation(listingId)
+client -> ctrl : POST /api/services/{id}/conversation
+ctrl -> h : Send StartProfessionalConversationCommand
+h -> db : Published listing and ProfessionalMemberId
+db --> h : Listing
+alt no linked account
+  h --> ctrl : Refuse code <TO SUPPLY>
+  ctrl --> client : ProblemDetails
+  client --> page : Error code
+  page --> actor : Generic message
+else linked
+  h -> db : Direct Conversation for member and professional
+  db --> h : Existing or none
+  opt none
+    h -> db : Create Conversation and two participants
+    db --> h : Committed
+  end
+  h --> ctrl : ConversationId
+  ctrl --> client : 200 JSON
+  client --> page : ConversationId
+  page --> actor : Navigate to /messages/{id} (L2-014)
+end
+@enduml

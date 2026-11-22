@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Admin sign-in
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "StaffSignInPage", "Angular page", "Staff sign in form")
+  Component(svc, "HttpStaffAuthService", "STAFF_AUTH_SERVICE", "Implements StaffAuthApi")
+  Component(guard, "staffGuard", "Route guard", "Protects admin routes")
+  Component(icpt, "sessionExpiredInterceptor", "HTTP interceptor", "Routes to sign-in on 401")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "POST/GET/DELETE /api/admin/session")
+  Component(handler, "StaffSignInHandler", "MediatR handler", "Lockout, credentials, staff role")
+  Component(hasher, "IPasswordHasher", "Infrastructure service", "Verifies password hashes")
+  Component(cookie, "StaffCookieAuthentication", "Cookie scheme", "__Host-cf-admin, 30 min sliding")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(page, svc, "Calls signIn")
+Rel(guard, svc, "Calls me")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(icpt, page, "Redirects on 401")
+Rel(ctrl, handler, "Sends StaffSignInCommand")
+Rel(handler, hasher, "Verifies password")
+Rel(ctrl, cookie, "Issues session through")
+Rel(handler, db, "Reads members, roles, attempts", "EF Core")
+@enduml

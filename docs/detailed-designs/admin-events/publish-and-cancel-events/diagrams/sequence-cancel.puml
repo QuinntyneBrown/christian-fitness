@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Cancel an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminEventsPage" as page
+  participant "ConfirmCancelEventDialog" as confirm
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+  participant "SignalRChatNotifier" as notify
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CancelEventHandler" as handler
+  participant "Event" as entity
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Cancel event
+page -> confirm : Open
+actor -> confirm : Confirm cancellation (L2-023 AC2)
+confirm -> client : cancel(id)
+client -> ctrl : POST /api/admin/events/{id}/cancel
+ctrl -> handler : Send CancelEventCommand
+handler -> db : Load Event with Conversation
+handler -> entity : Cancel(now)
+entity --> handler : Status Cancelled
+handler -> db : Add system Message (cancellation notice) and AuditEntry, SaveChanges
+db --> handler : Committed
+handler -> notify : SendToConversationAsync(conversationId, notice)
+notify -> notify : ChatHub group send to member web apps
+handler --> ctrl : EventDto
+ctrl --> client : 200
+client --> confirm : Done
+confirm --> page : Close by ref
+page --> actor : Row shows Cancelled
+note over db : Member lists exclude it; Profile shows it as cancelled
+@enduml

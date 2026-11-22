@@ -1,0 +1,32 @@
+@startuml
+title UML sequence behaviour — open an unlinked professional's contact link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ServicesPage" as page
+  participant "ServicesApi (SERVICES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ServicesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetContactLinkHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Contact
+page -> client : getContactLink(listingId)
+client -> ctrl : GET /api/services/{id}/contact-link
+ctrl -> h : Send GetContactLinkQuery
+h -> db : Published listing ContactUrl
+db --> h : ContactUrl
+h --> ctrl : ContactLinkDto
+ctrl --> client : 200 JSON
+client --> page : Url
+page --> actor : Open link in new context, noopener (L2-014)
+@enduml

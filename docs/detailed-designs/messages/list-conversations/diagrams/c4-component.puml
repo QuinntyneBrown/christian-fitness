@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — List conversations
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "MessagesPage", "Routed page (loadComponent)", "Hosts the inbox list and the thread panel")
+  Component(list, "ConversationList", "components library", "Renders .inbox__list rows of .conversation")
+  Component(empty, "EmptyState", "components library", "No messages yet, links to Events")
+  Component(store, "ConversationListStore", "Signal store on page providers", "Holds the ordered list and selection")
+  Component(sort, "orderConversations", "domain library", "Pure newest-first ordering and initials")
+  Component(svc, "HttpConversationsService", "api library contract ConversationsApi / CONVERSATIONS_SERVICE", "Calls the conversations endpoint")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ConversationsController", "ASP.NET Core controller", "One MediatR send per action")
+  Component(h, "ListConversationsHandler", "MediatR handler", "Projects the caller's conversations")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Conversation, ConversationParticipant, Message")
+}
+Rel(page, store, "Reads signals from")
+Rel(page, list, "Binds inputs and selection output")
+Rel(page, empty, "Shows when the list is empty")
+Rel(store, sort, "Orders with")
+Rel(store, svc, "Loads through CONVERSATIONS_SERVICE")
+Rel(svc, ctrl, "GET /api/conversations", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ListConversationsQuery")
+Rel(h, db, "Queries via IAppDbContext", "EF Core")
+@enduml

@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Admin sign-in
+
+interface StaffAuthApi {
+  +signIn(email: string, password: string): Promise<StaffSignInResult>
+  +signOut(): Promise<void>
+  +me(): Promise<StaffSessionDto>
+}
+class HttpStaffAuthService
+class StaffSignInPage {
+  -email: Signal<string>
+  -state: Signal<'idle'|'submitting'|'error'>
+  +submit(): void
+}
+class StaffSignInCommand {
+  +string Email
+  +string Password
+}
+class StaffSignInValidator
+class StaffSignInHandler {
+  +Handle(cmd: StaffSignInCommand): Task<Result<StaffSessionDto>>
+}
+class StaffSessionDto {
+  +Guid MemberId
+  +string DisplayName
+  +StaffRoleName Role
+}
+class Member {
+  +Guid Id
+  +string Email
+  +string PasswordHash
+  +MemberStatus Status
+}
+class StaffRole {
+  +Guid MemberId
+  +StaffRoleName Name
+}
+enum StaffRoleName {
+  Admin
+  Moderator
+}
+class SignInAttempt {
+  +string NormalisedEmail
+  +DateTimeOffset At
+}
+interface IPasswordHasher {
+  +Verify(hash: string, password: string): bool
+}
+interface IAppDbContext
+
+HttpStaffAuthService ..|> StaffAuthApi
+StaffSignInPage ..> StaffAuthApi : injects STAFF_AUTH_SERVICE
+StaffSignInValidator ..> StaffSignInCommand : validates
+StaffSignInHandler ..> StaffSignInCommand : handles
+StaffSignInHandler ..> IAppDbContext
+StaffSignInHandler ..> IPasswordHasher
+StaffSignInHandler ..> StaffSessionDto : returns
+Member "1" --> "0..1" StaffRole
+StaffRole --> StaffRoleName
+StaffSignInHandler ..> SignInAttempt : counts / records
+@enduml

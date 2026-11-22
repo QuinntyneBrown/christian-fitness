@@ -340,6 +340,7 @@
   --duration-slow: 260ms;        /* drawer and sheet slide */
   --duration-deliberate: 1400ms; /* skeleton shimmer cycle */
   --duration-spin: 900ms;        /* spinner revolution (a loop, removed under reduced motion) */
+  --delay-tooltip: 300ms;        /* hover intent before a tooltip shows; hiding is immediate */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-enter: cubic-bezier(0.23, 1, 0.32, 1);  /* the prototype's ease-out-strong */
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);

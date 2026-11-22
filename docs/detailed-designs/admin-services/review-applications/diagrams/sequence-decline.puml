@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Decline an application
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member (Admin)" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageServicesPage" as page
+  participant "HttpAdminServicesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminApplicationsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "DeclineApplicationValidator" as val
+  participant "DeclineApplicationHandler" as h
+  participant "ProfessionalApplication" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Decline with a reason
+page -> client : decline(id, reason)
+client -> ctrl : POST /api/admin/applications/{id}/decline
+ctrl -> ctrl : Authenticate and apply AdminOnly policy
+ctrl -> val : Validate DeclineApplicationCommand
+alt reason missing
+  val --> ctrl : 400 ProblemDetails with code and field errors
+  ctrl --> client : 400
+  client --> page : Error code
+  page --> actor : Generic message
+else valid
+  ctrl -> h : Send DeclineApplicationCommand
+  h -> db : Load application
+  db --> h : Application
+  h -> ent : Decline(reason, now)
+  ent --> h : Status Declined; no listing created (L2-025 AC3)
+  h -> db : Save changes
+  db --> h : Committed
+  h --> ctrl : Success
+  ctrl --> client : 204 No Content
+  client --> page : Done
+  page --> actor : Row shows "Declined"; application leaves the queue
+end
+@enduml

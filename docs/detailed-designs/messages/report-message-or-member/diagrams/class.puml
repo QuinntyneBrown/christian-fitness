@@ -1,0 +1,69 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Report a message or member
+
+enum MemberStatus {
+  Active
+  Flagged
+  Suspended
+}
+class Member {
+  +Guid Id
+  +string DisplayName
+  +MemberStatus Status
+  +Flag(): void
+}
+class Message {
+  +Guid Id
+  +Guid ConversationId
+  +Guid SenderId
+}
+class Report {
+  +Guid Id
+  +Guid ReporterId
+  +Guid MessageId
+  +Guid ReportedMemberId
+  +string Reason
+  +DateTimeOffset CreatedAt
+}
+note right of Report : Unique (ReporterId, MessageId)
+class ReportMessageCommand {
+  +Guid MessageId
+  +string Reason
+}
+class ReportMessageValidator {
+  Reason required, length <TO SUPPLY>
+}
+class ReportMessageHandler {
+  +Handle(cmd: ReportMessageCommand): Task<ReportResult>
+}
+class ReportsController {
+  +Report(messageId, body): Task<IActionResult>
+}
+interface ReportsApi <<api>> {
+  +reportMessage(id: string, reason: string): Observable<void>
+}
+class HttpReportsService
+class ReportMessageDialog
+
+Member --> MemberStatus
+Report --> Message : about
+Report --> Member : reported member
+Message --> Member : sender
+ReportsController ..> ReportMessageCommand : sends
+ReportMessageHandler ..> ReportMessageCommand : handles
+ReportMessageHandler ..> ReportMessageValidator : validates
+ReportMessageHandler ..> Report : creates once
+ReportMessageHandler ..> Member : Flag()
+HttpReportsService ..|> ReportsApi
+ReportMessageDialog ..> ReportsApi : REPORTS_SERVICE
+@enduml

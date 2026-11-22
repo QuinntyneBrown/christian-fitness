@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Emit telemetry and health
+
+Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+System_Boundary(cf, "Christian Fitness") {
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Members, events, conversations, listings")
+}
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+
+Rel(api, db, "Readiness check", "EF Core")
+Rel(api, otel, "Exports traces and metrics", "OTLP")
+Rel(operator, api, "GET /health/live, /health/ready", "HTTPS")
+@enduml

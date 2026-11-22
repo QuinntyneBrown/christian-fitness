@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Meet WCAG
+
+Container_Boundary(fe, "Member web app and Admin web app") {
+  Component(pages, "Pages and dialogs", "Angular", "Orchestrate; CDK Dialog focus trap")
+  Component(cmp, "components library", "Angular presentation", "44 x 44 px targets; ARIA state attributes; BEM")
+  Component(tok, "Design tokens", "CSS custom properties", "Colour roles >= 4.5:1; motion tokens")
+  Component(found, "Global foundations", "SCSS", ":focus-visible; prefers-reduced-motion")
+}
+Person(member, "Member", "")
+Rel(member, pages, "Operates by keyboard, touch, screen reader")
+Rel(pages, cmp, "Composes")
+Rel(cmp, tok, "Reads roles")
+Rel(found, tok, "Overrides motion when reduced")
+@enduml

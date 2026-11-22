@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Limit request rates
+
+Container(web, "Member web app", "Angular", "ChatStore, JoinPage")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(hub, "ChatHub", "SignalR hub", "SendMessage -> one MediatR send")
+  Component(h, "SendMessageHandler", "MediatR", "Participant check, rate check, save")
+  Component(rl, "MessageRateLimiter", "Domain service", "30 per member per minute")
+  Component(mw, "Rate limiting middleware", "ASP.NET Core", "account-creation: 5 per IP per hour")
+  Component(ctrl, "AuthController.Join", "Controller", "One MediatR send")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Messages")
+}
+Rel(web, hub, "SendMessage", "SignalR")
+Rel(hub, h, "Sends command")
+Rel(h, rl, "Checks")
+Rel(rl, db, "Counts recent messages")
+Rel(web, mw, "POST /api/auth/join")
+Rel(mw, ctrl, "Within limit")
+@enduml

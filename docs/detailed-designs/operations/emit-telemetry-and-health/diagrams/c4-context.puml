@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Emit telemetry and health
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+
+Rel(member, cf, "Uses")
+Rel(operator, otel, "Views traces and metrics in")
+Rel(operator, cf, "Probes health of")
+Rel(cf, otel, "Exports telemetry to")
+@enduml

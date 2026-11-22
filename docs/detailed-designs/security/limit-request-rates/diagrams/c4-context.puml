@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Limit request rates
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+Person(visitor, "Visitor", "Not signed in")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+
+Rel(member, cf, "Sends messages through")
+Rel(visitor, cf, "Creates an account through")
+@enduml

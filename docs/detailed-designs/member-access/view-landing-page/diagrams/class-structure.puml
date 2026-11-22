@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View the landing page
+class LandingPage {
+  +events: Signal<UpcomingEventDto[]>
+  +state: Signal<'loading'|'loaded'|'empty'|'error'>
+  +ngOnInit(): void
+}
+interface PublicEventsApi {
+  +upcoming(take: number): Observable<UpcomingEventDto[]>
+}
+class HttpPublicEventsService
+class UpcomingEventDto {
+  +id: string
+  +title: string
+  +startsAt: string
+  +place: string
+  +category: string
+}
+class PublicEventsController {
+  +Upcoming(take: int): Task<IReadOnlyList<UpcomingEventDto>>
+}
+class GetUpcomingEventsQuery {
+  +Take: int
+}
+class GetUpcomingEventsHandler {
+  +Handle(q: GetUpcomingEventsQuery): Task<IReadOnlyList<UpcomingEventDto>>
+}
+class Event {
+  +Guid Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +bool IsPublished
+}
+interface IAppDbContext {
+  +Events: DbSet<Event>
+}
+HttpPublicEventsService ..|> PublicEventsApi
+LandingPage ..> PublicEventsApi : injects PUBLIC_EVENTS_SERVICE
+LandingPage --> "0..3" UpcomingEventDto
+PublicEventsController ..> GetUpcomingEventsQuery : sends
+GetUpcomingEventsHandler ..> GetUpcomingEventsQuery : handles
+GetUpcomingEventsHandler ..> IAppDbContext : reads
+IAppDbContext --> "*" Event
+@enduml

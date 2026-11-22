@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Export own data
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ProfilePage" as page
+  participant "HttpProfileService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ProfileController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RequestDataExportHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose "Download my data"
+page -> http : exportData()
+http -> ctrl : GET /api/me/export
+ctrl -> h : Send RequestDataExportQuery
+h -> db : Profile, registrations, messages for caller (L2-031)
+db --> h : rows
+h --> ctrl : DataExportDto (L2-033 AC4)
+ctrl --> http : 200 application/json attachment
+http --> page : Blob
+page -> page : Create object URL, download, revoke URL (L2-037 AC2)
+@enduml

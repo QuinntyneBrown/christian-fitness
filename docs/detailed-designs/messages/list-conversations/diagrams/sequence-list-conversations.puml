@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — List conversations
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "MessagesPage" as page
+  participant "ConversationListStore" as store
+  participant "HttpConversationsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ConversationsController" as controller
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListConversationsHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Messages
+page -> store : load()
+store -> client : list()
+client -> controller : GET /api/conversations
+controller -> controller : Authenticate (fallback policy)
+controller -> handler : Send ListConversationsQuery
+handler -> db : Conversations where caller is a participant
+db --> handler : Conversations, last messages, read markers
+handler -> handler : Compute UnreadCount, MemberCount for event groups
+handler --> controller : ConversationSummaryDto[] newest first (L2-015)
+controller --> client : 200 OK
+client --> store : ConversationSummary[]
+store -> store : orderConversations (newest first)
+alt list has conversations
+  store --> page : conversations signal
+  page --> actor : Rows with name, initials, last message, time, unread count (L2-015)
+else no conversations
+  page --> actor : Empty state "No messages yet" with link to Events (L2-015)
+end
+actor -> page : Select a conversation
+alt viewport LG or wider
+  page --> actor : Thread shows in .inbox__panel beside the list (L2-015)
+else below LG
+  page --> actor : Navigate to the conversation as its own screen (L2-015)
+end
+@enduml

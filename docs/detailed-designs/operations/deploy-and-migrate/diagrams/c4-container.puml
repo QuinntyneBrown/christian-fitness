@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Deploy and migrate
+
+Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+System_Boundary(cf, "Christian Fitness") {
+  Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Members, events, conversations, listings")
+}
+
+Rel(operator, cli, "Runs cf migrate, cf seed", "shell")
+Rel(cli, db, "Applies migrations and seed", "EF Core")
+Rel(operator, api, "Deploys", "<TO SUPPLY>")
+Rel(api, db, "Reads and writes (no migration)", "EF Core")
+@enduml

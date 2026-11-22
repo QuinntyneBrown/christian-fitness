@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Edit and remove listings
+
+Person(user, "Staff member (Admin)", "Edits and removes published listings")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+Person(member, "Member", "Sees listings on Services")
+Rel(member, cf, "Browses Services in")
+Rel(user, cf, "Manages listings using", "HTTPS")
+Rel(cf, otel, "Exports route-template telemetry to", "OTLP")
+@enduml

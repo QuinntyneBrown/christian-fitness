@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Staff roles
+
+class Member {
+  +Guid Id
+}
+class StaffRole {
+  +Guid MemberId
+  +StaffRoleName Name
+}
+enum StaffRoleName {
+  Admin
+  Moderator
+}
+interface IAuditableCommand {
+  +string AuditAction
+  +string RecordType
+  +Guid RecordId
+}
+class "AuditBehavior<TRequest,TResponse>" as AuditBehavior {
+  +Handle(req, next, ct): Task<TResponse>
+}
+class AuditEntry {
+  +Guid Id
+  +Guid ActorMemberId
+  +string Action
+  +string RecordType
+  +Guid RecordId
+  +DateTimeOffset OccurredAt
+}
+class ICurrentStaff {
+  +Guid MemberId
+  +StaffRoleName Role
+}
+class StaffRoleClaimsTransformation
+interface IAppDbContext
+
+Member "1" --> "0..1" StaffRole
+StaffRole --> StaffRoleName
+AuditBehavior ..> IAuditableCommand : audits
+AuditBehavior ..> ICurrentStaff : reads actor
+AuditBehavior ..> AuditEntry : creates
+AuditBehavior ..> IAppDbContext
+StaffRoleClaimsTransformation ..> StaffRole : reads
+AuditEntry --> Member : actor
+@enduml

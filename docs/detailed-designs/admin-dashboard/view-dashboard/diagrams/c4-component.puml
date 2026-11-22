@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View the admin dashboard
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "AdminDashboardPage", "Angular page", "Loading, default, empty, partial, error")
+  Component(tile, "StatTile", "components", "One count")
+  Component(queue, "AttentionQueue", "components", "queue block with Review links")
+  Component(svc, "HttpDashboardService", "DASHBOARD_SERVICE", "Implements DashboardApi")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminDashboardController", "ASP.NET Core controller", "GET /api/admin/dashboard, StaffOnly")
+  Component(handler, "GetDashboardSummaryHandler", "MediatR handler", "Six counts and two lists")
+  Component(clock, "TimeProvider", ".NET", "Defines the 7-day window")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(page, tile, "Renders")
+Rel(page, queue, "Renders")
+Rel(page, svc, "Calls getSummary")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, handler, "Sends GetDashboardSummaryQuery")
+Rel(handler, clock, "Reads now")
+Rel(handler, db, "Counts rows", "EF Core")
+@enduml

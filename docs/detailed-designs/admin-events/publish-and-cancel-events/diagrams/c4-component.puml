@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Publish and cancel events
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "AdminEventsPage", "Angular page", "Publish and Cancel actions")
+  Component(confirm, "ConfirmCancelEventDialog", "CDK Dialog", "Confirmation, mock <TO SUPPLY>")
+  Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "publish, cancel")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AdminOnly")
+  Component(pub, "PublishEventHandler", "MediatR handler", "Draft to Published")
+  Component(can, "CancelEventHandler", "MediatR handler", "Published to Cancelled, notice")
+  Component(notify, "SignalRChatNotifier", "IChatNotifier", "Sends to ChatHub group")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(page, confirm, "Opens")
+Rel(page, svc, "Calls publish")
+Rel(confirm, svc, "Calls cancel")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, pub, "Sends PublishEventCommand")
+Rel(ctrl, can, "Sends CancelEventCommand")
+Rel(can, notify, "Notifies")
+Rel(pub, db, "Saves", "EF Core")
+Rel(can, db, "Saves event and message", "EF Core")
+@enduml

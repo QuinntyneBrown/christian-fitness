@@ -1,0 +1,29 @@
+@startuml
+title UML sequence behaviour — Measure heap over 50 visits
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Playwright heap spec" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Member web app" as app
+  participant "Chrome DevTools Protocol" as cdp
+end box
+actor -> app : Visit each screen once
+actor -> cdp : HeapProfiler.collectGarbage; read baseline
+loop 50 times
+  actor -> app : Navigate between screens
+end
+actor -> cdp : collectGarbage; read heap
+actor -> actor : Assert heap <= baseline x 1.10 (L2-037 AC1)
+@enduml

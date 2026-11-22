@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Report a message or member
+
+Person(member, "Member", "Signed-in member of the Christian Fitness community")
+System(cf, "Christian Fitness", "Events, group chats, direct messages and vetted professionals")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without message text or contact details")
+Person(staff, "Staff member", "Moderates members")
+Rel(member, cf, "Reports a message in")
+Rel(staff, cf, "Reviews Flagged members in")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

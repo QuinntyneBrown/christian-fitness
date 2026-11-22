@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Load the application queue
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member (Admin)" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageServicesPage" as page
+  participant "HttpAdminServicesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminApplicationsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListPendingApplicationsHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Manage Services
+page -> client : pendingApplications()
+client -> ctrl : GET /api/admin/applications
+ctrl -> ctrl : Authenticate and apply AdminOnly policy (L2-019)
+ctrl -> h : Send ListPendingApplicationsQuery
+h -> db : Select Status = Pending ORDER BY SubmittedAt ascending
+db --> h : Pending applications
+h --> ctrl : PendingApplicationDto list
+ctrl --> client : 200 OK
+client --> page : Applications
+alt one or more pending
+  page --> actor : Show name, role, credentials, submitted time, oldest first (L2-025 AC1)
+else none pending
+  page --> actor : Show empty state: nothing to review (L2-025 AC4)
+end
+@enduml

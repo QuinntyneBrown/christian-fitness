@@ -1,0 +1,72 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Register for an event
+
+enum MemberStatus {
+  Active
+  Flagged
+  Suspended
+}
+enum RegistrationStatus {
+  Confirmed
+  Reserved
+}
+class Member {
+  +Guid Id
+  +MemberStatus Status
+}
+class Event {
+  +Guid Id
+  +decimal Price
+  +int Capacity
+  +int GoingCount
+  +byte[] ConcurrencyToken
+  +Register(member: Member): Registration
+  +IsFull(): bool
+}
+class Registration {
+  +Guid Id
+  +Guid EventId
+  +Guid MemberId
+  +RegistrationStatus Status
+  +DateTimeOffset CreatedAt
+}
+class Conversation {
+  +Guid Id
+  +Guid? EventId
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+}
+class RegisterForEventCommand {
+  +Guid EventId
+}
+class RegisterForEventHandler {
+  +Handle(cmd: RegisterForEventCommand): Task<RegistrationResultDto>
+}
+class RegistrationResultDto {
+  +RegistrationStatus Status
+  +int Going
+  +int Capacity
+  +Guid GroupChatId
+}
+RegisterForEventHandler ..> RegisterForEventCommand : handles
+RegisterForEventHandler ..> Member : checks status
+RegisterForEventHandler ..> Event : Register
+RegisterForEventHandler ..> ConversationParticipant : adds
+RegisterForEventHandler ..> RegistrationResultDto : returns
+Event "1" *-- "*" Registration
+Conversation "1" *-- "*" ConversationParticipant
+Member --> MemberStatus
+Registration --> RegistrationStatus
+@enduml

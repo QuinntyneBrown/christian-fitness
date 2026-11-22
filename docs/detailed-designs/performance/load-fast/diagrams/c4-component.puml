@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Load fast
+
+Person(visitor, "Visitor", "")
+Container_Boundary(web, "Member web app") {
+  Component(main, "main chunk", "Angular bootstrap", "app.config.ts, router, shell")
+  Component(routes, "app.routes.ts", "Angular router", "loadComponent / loadChildren for every route")
+  Component(landing, "LandingPage chunk", "Lazy chunk", "Hero, next events (@defer below the fold)")
+  Component(other, "Other page chunks", "Lazy chunks", "Home, Events, Services, Messages, Profile")
+}
+Container(api, "Christian Fitness API", "ASP.NET Core", "Landing data")
+Rel(visitor, main, "Downloads (<= 250 kB raw)")
+Rel(main, routes, "Registers")
+Rel(routes, landing, "Dynamic import on /")
+Rel(routes, other, "Dynamic import on navigation")
+Rel(landing, api, "GET landing data")
+@enduml

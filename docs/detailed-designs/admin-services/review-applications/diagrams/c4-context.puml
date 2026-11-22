@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Review professional applications
+
+Person(user, "Staff member (Admin)", "Approves or declines professionals' applications")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+Person(pro, "Professional", "Applies to be listed and, once approved, appears on Services")
+Rel(pro, cf, "Submits an application to")
+Rel(user, cf, "Reviews applications using", "HTTPS")
+Rel(cf, otel, "Exports route-template telemetry to", "OTLP")
+@enduml

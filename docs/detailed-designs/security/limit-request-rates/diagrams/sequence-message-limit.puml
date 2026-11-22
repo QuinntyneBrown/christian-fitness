@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Refuse the 31st message in a minute
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ChatStore" as store
+  participant "SignalRChatConnection" as conn
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ChatHub" as hub
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SendMessageHandler" as h
+  participant "MessageRateLimiter" as rl
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> store : Send message
+store -> conn : sendMessage(conversationId, text)
+conn -> hub : invoke SendMessage
+hub -> h : Send SendMessageCommand
+h -> rl : IsAllowed(memberId)
+rl -> db : Count messages since now - 1 min
+db --> rl : 30
+rl --> h : false
+h --> hub : SendResult code rate_limited (L2-034 AC1)
+hub --> conn : answer
+conn --> store : refusal
+store --> actor : Generic message; composer keeps text
+@enduml

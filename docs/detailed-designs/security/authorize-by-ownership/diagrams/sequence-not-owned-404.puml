@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Read a conversation the caller is not part of
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "MessagesPage" as page
+  participant "HttpMessagesService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ConversationsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetMessagesHandler" as h
+  participant "ICurrentUser" as cu
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /messages/{guessed id}
+page -> http : getMessages(id)
+http -> ctrl : GET /api/conversations/{id}/messages
+ctrl -> h : Send GetMessagesQuery
+h -> cu : MemberId
+cu --> h : caller id
+h -> db : Messages where participant = caller (L2-031 AC2)
+db --> h : no rows
+h --> ctrl : NotFoundException
+ctrl --> http : 404 ProblemDetails code not_found, same body as missing id (L2-031 AC3)
+http --> page : error code not_found
+page --> actor : Generic "not found" message, no data
+@enduml

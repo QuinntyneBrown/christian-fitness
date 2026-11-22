@@ -1,0 +1,33 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Deploy and migrate
+
+class MigrateCommand {
+  +ExecuteAsync(): Task<int>
+}
+class SeedCommand {
+  +ExecuteAsync(): Task<int>
+}
+class SeedRunner {
+  +RunAsync(): Task<int> changes
+}
+interface ISeed {
+  +Key: string
+  +ExistsAsync(db): Task<bool>
+  +Apply(db): void
+}
+class AppDbContext <<Infrastructure>>
+MigrateCommand ..> AppDbContext
+SeedCommand ..> SeedRunner
+SeedRunner "1" o-- "*" ISeed
+SeedRunner ..> AppDbContext
+@enduml

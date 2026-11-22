@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — list, filter and page events
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventsPage" as page
+  participant "EventsApi (EVENTS_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListEventsHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Events
+page -> client : listEvents(null, null)
+client -> ctrl : GET /api/events
+ctrl -> h : Send ListEventsQuery
+h -> db : Published, StartsAt > now, order by StartsAt, take 21 (L2-009)
+db --> h : Rows
+h --> ctrl : EventPageDto (20 items, NextCursor)
+ctrl --> client : 200 JSON
+client --> page : EventPageDto
+page --> actor : event-card list with going/capacity
+actor -> page : Select category chip
+page -> page : Reset EventFeed; chip aria-pressed="true"
+page -> client : listEvents(category, null)
+client -> ctrl : GET /api/events?category=Run
+ctrl -> h : Send ListEventsQuery
+h -> db : Same filter plus category
+db --> h : Rows
+h --> ctrl : EventPageDto
+ctrl --> client : 200 JSON
+client --> page : EventPageDto
+alt no matching events
+  page --> actor : No-results message with Clear filter
+else matches
+  page --> actor : Filtered event-card list
+end
+opt member scrolls to the end and NextCursor is set
+  page -> client : listEvents(category, NextCursor)
+  client -> ctrl : GET /api/events?cursor=...
+  ctrl -> h : Send ListEventsQuery
+  h -> db : Next 20 after cursor
+  db --> h : Rows
+  h --> ctrl : EventPageDto
+  ctrl --> client : 200 JSON
+  client --> page : Append to bounded EventFeed
+end
+@enduml

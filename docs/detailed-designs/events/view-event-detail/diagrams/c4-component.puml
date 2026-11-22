@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View event detail
+
+Container(web, "Member web app", "Angular", "EventDetailPage, EventRegisterPanel, HttpEventsService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "EventsController", "ASP.NET Core controller", "GET /api/events/{id}")
+  Component(h, "GetEventHandler", "MediatR handler", "Published check, IsGoing, GroupChatId")
+  Component(user, "ICurrentMember", "Application abstraction", "Signed-in member id")
+  Component(ctx, "IAppDbContext", "Application abstraction", "Events, Registrations, Conversations")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Events, registrations, conversations")
+Rel(web, ctrl, "GET /api/events/{id}", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetEventQuery")
+Rel(h, user, "Reads member id")
+Rel(h, ctx, "Queries")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

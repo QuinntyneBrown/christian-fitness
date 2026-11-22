@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Request deletion and erase within 30 days
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ProfilePage" as page
+  participant "Confirm dialog (CDK)" as dlg
+  participant "HttpProfileService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ProfileController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RequestAccountDeletionHandler" as h
+  participant "AccountErasureService" as er
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose "Delete my account"
+page -> dlg : Open confirmation
+dlg --> page : Confirmed
+page -> http : requestDeletion()
+http -> ctrl : POST /api/me/deletion
+ctrl -> h : Send RequestAccountDeletionCommand
+h -> db : Set DeletionRequestedAt; end sessions
+h --> ctrl : done
+ctrl --> http : 204 and sign-out (L2-033 AC3)
+http --> page : Navigate to landing
+== Scheduled CLI run (cf erase-accounts) ==
+er -> db : Members with DeletionRequestedAt due
+er -> db : Delete profile and registrations; anonymise messages (within 30 days, L2-033 AC3)
+@enduml

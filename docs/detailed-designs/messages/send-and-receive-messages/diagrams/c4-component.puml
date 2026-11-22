@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send and receive messages
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "ConversationPage", "Routed page / inbox panel", "Orchestrates thread and composer")
+  Component(thread, "MessageThread", "components library", "Renders .thread and .message as text")
+  Component(composer, "Composer", "components library", "Renders .composer, keeps text on refusal")
+  Component(store, "ConversationThreadStore", "Signal store on page providers", "Windowed buffer, max 200 messages")
+  Component(rules, "validateMessage / MessageWindow", "domain library", "1 to 2,000 chars; window of 200")
+  Component(conn, "SignalRChatConnection", "contract ChatConnection / CHAT_CONNECTION", "Single app-wide hub connection")
+  Component(svc, "HttpMessagesService", "contract MessagesApi / MESSAGES_SERVICE", "History and catch-up pages")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(hub, "ChatHub", "SignalR hub", "SendMessage, JoinConversation; one MediatR send each")
+  Component(ctrl, "MessagesController", "ASP.NET Core controller", "History and mark-read")
+  Component(send, "SendMessageHandler", "MediatR + SendMessageValidator", "Participant check, length rule, persist, broadcast")
+  Component(get, "GetMessagesHandler", "MediatR handler", "Pages of 50, catch-up after a message id")
+  Component(read, "MarkConversationReadHandler", "MediatR handler", "Sets LastReadMessageId")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Message, ConversationParticipant")
+}
+Rel(page, thread, "Binds messages")
+Rel(page, composer, "Binds draft and send output")
+Rel(page, store, "Reads signals from")
+Rel(store, rules, "Validates and windows with")
+Rel(store, conn, "Sends and subscribes through CHAT_CONNECTION")
+Rel(store, svc, "Loads pages through MESSAGES_SERVICE")
+Rel(conn, hub, "SendMessage / MessageReceived", "SignalR")
+Rel(svc, ctrl, "GET messages, POST read", "JSON/HTTPS")
+Rel(hub, send, "Sends SendMessageCommand")
+Rel(ctrl, get, "Sends GetMessagesQuery")
+Rel(ctrl, read, "Sends MarkConversationReadCommand")
+Rel(send, db, "Writes via IAppDbContext")
+Rel(get, db, "Reads via IAppDbContext")
+Rel(read, db, "Writes via IAppDbContext")
+@enduml

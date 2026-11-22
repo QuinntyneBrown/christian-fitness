@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Reconnect and catch up
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ConversationPage" as page
+  participant "ConversationThreadStore" as store
+  participant "SignalRChatConnection" as conn
+  participant "HttpMessagesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ChatHub" as hub
+  participant "MessagesController" as controller
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetMessagesHandler" as get
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+conn -> conn : Connection drops
+conn --> store : state = reconnecting
+store --> page : status signal
+page --> actor : "Reconnecting…" status (L2-016)
+conn -> hub : Automatic reconnect
+hub --> conn : Connected
+conn -> hub : JoinConversation(id)
+conn --> store : state = connected
+store -> client : page(id, after = newest held id)
+client -> controller : GET ...?after={newestId}
+controller -> get : Send GetMessagesQuery
+get -> db : Messages after newestId (participant only)
+db --> get : Missed messages
+controller --> client : 200 OK
+client --> store : Missed messages
+store -> store : MessageWindow.append, de-duplicate by id, cap 200
+page --> actor : Missed messages appear; status clears (L2-016)
+@enduml

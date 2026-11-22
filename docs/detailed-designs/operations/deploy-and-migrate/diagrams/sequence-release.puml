@@ -1,0 +1,34 @@
+@startuml
+title UML sequence behaviour — Release with migrations
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator" as actor
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Christian Fitness API" as api
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "Christian Fitness CLI" as cli
+  database "Christian Fitness database" as db
+end box
+actor -> cli : cf migrate
+cli -> db : Apply pending migrations (L2-041 AC1)
+db --> cli : done
+actor -> cli : cf seed
+cli -> db : For each seed: exists by key?
+db --> cli : yes/no
+cli -> db : Insert only missing rows (L2-041 AC2)
+actor -> api : Deploy and start
+api -> api : No Migrate/EnsureCreated at startup (L2-041 AC1)
+@enduml

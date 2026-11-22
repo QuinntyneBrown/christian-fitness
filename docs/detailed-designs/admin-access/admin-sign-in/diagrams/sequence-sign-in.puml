@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Staff sign-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "StaffSignInPage" as page
+  participant "HttpStaffAuthService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "StaffSessionController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "StaffSignInHandler" as handler
+  participant "Member / StaffRole" as entity
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "IPasswordHasher" as hasher
+  database "Christian Fitness database" as db
+end box
+actor -> page : Enter work email and password, Sign in
+page -> client : signIn(email, password)
+client -> ctrl : POST /api/admin/session
+ctrl -> handler : Send StaffSignInCommand
+handler -> db : Count SignInAttempt in last 15 min
+db --> handler : Count
+alt 5 or more failures (L2-004 AC3)
+  handler --> ctrl : too_many_attempts
+  ctrl --> client : 429 ProblemDetails code too_many_attempts
+  client --> page : Refusal
+  page --> actor : Show locked message
+else under the limit
+  handler -> db : Load Member by email with StaffRole
+  db --> handler : Member or none
+  handler -> hasher : Verify password
+  hasher --> handler : Result
+  alt unknown email or wrong password (L2-018 AC3)
+    handler -> db : Record SignInAttempt
+    handler --> ctrl : invalid_credentials
+    ctrl --> client : 401 ProblemDetails
+    page --> actor : One generic message
+  else no StaffRole (L2-018 AC2)
+    handler --> ctrl : not_staff
+    ctrl --> client : 403 ProblemDetails code not_staff
+    page --> actor : Staff only message
+  else staff (L2-018 AC1)
+    handler --> ctrl : StaffSessionDto
+    ctrl -> ctrl : Sign in with __Host-cf-admin cookie
+    ctrl --> client : 200 StaffSessionDto
+    client --> page : Session
+    page --> actor : Navigate to Dashboard
+  end
+end
+@enduml

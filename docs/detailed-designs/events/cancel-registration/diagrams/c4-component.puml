@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Cancel a registration
+
+Container(web, "Member web app", "Angular", "EventDetailPage, CancelRegistrationDialog, HttpEventsService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "EventsController", "ASP.NET Core controller", "DELETE /api/events/{id}/registrations/me")
+  Component(h, "CancelRegistrationHandler", "MediatR handler", "Start-time rule, removal, leave group chat")
+  Component(clock, "TimeProvider", ".NET abstraction", "Current instant")
+  Component(ev, "Event", "Domain entity", "Cancel(registration)")
+  Component(ctx, "IAppDbContext", "Application abstraction", "Unit of work")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Registrations, participants")
+Rel(web, ctrl, "DELETE registration", "JSON/HTTPS")
+Rel(ctrl, h, "Sends CancelRegistrationCommand")
+Rel(h, clock, "Reads now")
+Rel(h, ev, "Cancel")
+Rel(h, ctx, "Saves changes")
+Rel(ctx, db, "Writes", "EF Core")
+@enduml

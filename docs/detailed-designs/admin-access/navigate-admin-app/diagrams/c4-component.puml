@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Navigate the admin app
+
+Container_Boundary(admin, "Admin web app") {
+  Component(shell, "AdminShell", "Angular layout", "Hosts child routes")
+  Component(nav, "AdminNav", "components", "admin-nav block")
+  Component(menu, "MenuButton", "components", "Accessible menu toggle")
+  Component(table, "DataTable", "components", "Rows to stacked cards below LG")
+  Component(svc, "HttpStaffAuthService", "STAFF_AUTH_SERVICE", "Session and role")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "GET /api/admin/session")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(shell, nav, "Renders")
+Rel(shell, menu, "Renders below LG")
+Rel(shell, table, "Pages render")
+Rel(shell, svc, "Reads session")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, db, "Reads staff role", "EF Core")
+@enduml

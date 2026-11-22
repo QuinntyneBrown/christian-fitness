@@ -1,0 +1,86 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse and filter events
+
+enum EventCategory {
+  Run
+  Workout
+  Basketball
+  Mobility
+  Workshop
+  Retreat
+}
+enum EventStatus {
+  Draft
+  Published
+  Cancelled
+}
+class Event {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +DateTimeOffset StartsAt
+  +string Place
+  +string Area
+  +decimal Price
+  +int Capacity
+  +int GoingCount
+  +EventStatus Status
+}
+class ListEventsQuery {
+  +EventCategory? Category
+  +string? Cursor
+}
+class ListEventsHandler {
+  +Handle(query: ListEventsQuery): Task<EventPageDto>
+}
+class EventPageDto {
+  +EventSummaryDto[] Items
+  +string? NextCursor
+}
+class EventSummaryDto {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +DateTimeOffset StartsAt
+  +string Place
+  +decimal Price
+  +int Going
+  +int Capacity
+  +bool IsGoing
+}
+interface EventsApi {
+  +listEvents(category?, cursor?): Observable<EventPageDto>
+}
+class HttpEventsService
+class EventsPage {
+  +category: Signal<EventCategory | null>
+  +selectCategory(c): void
+  +clearFilter(): void
+  +loadMore(): void
+}
+class EventFeed {
+  +items: EventSummaryDto[]
+  +nextCursor: string | null
+  +append(page: EventPageDto): EventFeed
+  +reset(): EventFeed
+}
+HttpEventsService ..|> EventsApi
+EventsPage ..> EventsApi : EVENTS_SERVICE
+EventsPage *-- EventFeed
+ListEventsHandler ..> ListEventsQuery : handles
+ListEventsHandler ..> Event : reads
+ListEventsHandler ..> EventPageDto : returns
+EventPageDto "1" *-- "0..20" EventSummaryDto
+Event --> EventCategory
+Event --> EventStatus
+@enduml

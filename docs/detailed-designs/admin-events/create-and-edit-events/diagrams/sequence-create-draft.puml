@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Create a draft event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "EventEditorDialog" as dlg
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "EventFieldsValidator" as val
+  participant "CreateEventHandler" as handler
+  participant "Event" as entity
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> dlg : Fill fields, Save draft
+dlg -> client : create(input)
+client -> ctrl : POST /api/admin/events
+ctrl -> ctrl : Apply AdminOnly policy (L2-019)
+ctrl -> val : Validate CreateEventCommand
+alt invalid field (L2-022 AC2)
+  val --> ctrl : Field-specific code
+  ctrl --> client : 400 ProblemDetails with code
+  client --> dlg : Refusal
+  dlg --> actor : aria-invalid on the field, nothing saved
+else valid
+  val -> handler : Continue
+  handler -> entity : CreateDraft(fields) (L2-022 AC1)
+  entity --> handler : Event with Status Draft
+  handler -> db : Add Event and AuditEntry, SaveChanges
+  db --> handler : Committed
+  handler --> ctrl : EventDto
+  ctrl --> client : 201 EventDto
+  client --> dlg : Created
+  dlg --> actor : Close dialog, Draft row and success toast
+end
+@enduml

@@ -1,0 +1,91 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Create and edit events
+
+interface AdminEventsApi {
+  +create(input: EventInput): Promise<EventResult>
+  +update(id: string, input: EventInput): Promise<EventResult>
+  +uploadImage(file: File): Promise<ImageResult>
+}
+class HttpAdminEventsService
+class EventEditorDialog {
+  -fieldErrors: Signal<Record<string, string>>
+  -busy: Signal<boolean>
+  +save(): void
+}
+class CreateEventCommand {
+  +EventFields Fields
+}
+class UpdateEventCommand {
+  +Guid EventId
+  +EventFields Fields
+}
+class EventFieldsValidator
+class CreateEventHandler
+class UpdateEventHandler {
+  +Handle(cmd): Task<Result<EventDto>>
+}
+class UploadEventImageCommand {
+  +Stream Content
+  +long Length
+}
+interface IImageStore {
+  +SaveAsync(content: Stream): Task<string>
+}
+interface IAuditableCommand
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+  +DateTimeOffset RegisteredAt
+}
+class Event {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +DateTimeOffset StartsAt
+  +string Place
+  +string Area
+  +decimal? Price
+  +int Capacity
+  +string? ImageKey
+  +string Summary
+  +EventStatus Status
+  +Guid? ConversationId
+}
+enum EventStatus {
+  Draft
+  Published
+  Cancelled
+}
+enum EventCategory {
+  Run
+  Workout
+  Basketball
+  Mobility
+  Workshop
+  Retreat
+}
+Event --> EventStatus
+Event --> EventCategory
+
+HttpAdminEventsService ..|> AdminEventsApi
+EventEditorDialog ..> AdminEventsApi : injects ADMIN_EVENTS_SERVICE
+EventFieldsValidator ..> CreateEventCommand
+EventFieldsValidator ..> UpdateEventCommand
+CreateEventHandler ..> Event : CreateDraft
+UpdateEventHandler ..> Event : Edit
+UpdateEventHandler ..> Registration : counts going
+CreateEventCommand ..|> IAuditableCommand
+UpdateEventCommand ..|> IAuditableCommand
+UploadEventImageCommand ..> IImageStore
+Event "1" --> "*" Registration
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+title UML sequence behaviour — Open a conversation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ConversationPage" as page
+  participant "ConversationThreadStore" as store
+  participant "SignalRChatConnection" as conn
+  participant "HttpMessagesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ChatHub" as hub
+  participant "MessagesController" as controller
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetMessagesHandler" as get
+  participant "MarkConversationReadHandler" as read
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open a conversation
+page -> store : open(conversationId)
+store -> client : page(id) latest 50
+client -> controller : GET /api/conversations/{id}/messages?take=50
+controller -> get : Send GetMessagesQuery
+get -> db : Is caller a ConversationParticipant?
+alt not a participant
+  get --> controller : code not_a_participant (L2-016)
+  controller --> client : 403 ProblemDetails code not_a_participant
+  client --> page : Error with code
+  page --> actor : Generic "can't open this conversation" message
+else participant
+  db --> get : Latest 50 messages
+  get --> controller : MessageDto[]
+  controller --> client : 200 OK
+  client --> store : Messages
+  store -> store : MessageWindow.prepend (L2-016 latest 50)
+  store -> conn : join(id) and subscribe MessageReceived
+  page --> actor : Thread shows; text rendered by interpolation, never innerHTML (L2-016)
+  store -> client : markRead(id, newest id)
+  client -> controller : POST /api/conversations/{id}/read
+  controller -> read : Send MarkConversationReadCommand
+  read -> db : Set LastReadMessageId
+  controller --> client : 204
+  store --> page : Unread count becomes zero (L2-016)
+end
+actor -> page : Scroll to top of thread
+page -> store : loadEarlier()
+store -> client : page(id, before = oldest id)
+client -> controller : GET ...?before={oldestId}&take=50
+controller -> get : Send GetMessagesQuery
+get -> db : 50 earlier messages
+controller --> client : 200 OK
+store -> store : MessageWindow.prepend, drop newest beyond 200 (L2-016)
+page --> actor : Earlier messages appear
+@enduml

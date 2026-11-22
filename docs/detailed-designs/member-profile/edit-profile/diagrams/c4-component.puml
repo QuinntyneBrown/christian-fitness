@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit own profile
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "ProfilePage", "Angular routed component", "Opens the dialog")
+  Component(dlg, "EditProfileDialog", "CDK Dialog component", "Edit form")
+  Component(svc, "HttpProfileService", "PROFILE_SERVICE", "HTTP client")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ProfileController", "ASP.NET Core controller", "PUT /api/profile/me")
+  Component(v, "UpdateProfileValidator", "FluentValidation", "Bio, goals limits")
+  Component(h, "UpdateProfileHandler", "MediatR handler", "Owner-only update")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+
+Rel(page, dlg, "Opens with current values", "CDK Dialog")
+Rel(dlg, svc, "Saves")
+Rel(svc, ctrl, "PUT", "JSON/HTTPS")
+Rel(ctrl, h, "Sends UpdateProfileCommand")
+Rel(v, h, "Validates before")
+Rel(h, db, "Updates Member", "EF Core")
+@enduml

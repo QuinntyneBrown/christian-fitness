@@ -1,0 +1,80 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View event detail
+
+class Event {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string Place
+  +string Area
+  +decimal Price
+  +string Summary
+  +string ImageUrl
+  +int Capacity
+  +int GoingCount
+  +EventStatus Status
+}
+class Registration {
+  +Guid Id
+  +Guid EventId
+  +Guid MemberId
+  +RegistrationStatus Status
+}
+class Conversation {
+  +Guid Id
+  +ConversationKind Kind
+  +Guid? EventId
+}
+class GetEventQuery {
+  +Guid EventId
+}
+class GetEventHandler {
+  +Handle(query: GetEventQuery): Task<EventDetailDto>
+}
+class EventDetailDto {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string Place
+  +string Area
+  +decimal Price
+  +string Summary
+  +string ImageUrl
+  +int Going
+  +int Capacity
+  +bool IsGoing
+  +Guid? GroupChatId
+}
+class EventDetailPage {
+  +event: Signal<EventDetailDto | null>
+  +notFound: Signal<boolean>
+}
+class EventRegisterPanel {
+  +going: input<number>
+  +capacity: input<number>
+  +isGoing: input<boolean>
+  +groupChatId: input<string | null>
+  +register: output<void>
+  +cancel: output<void>
+}
+Event "1" --> "*" Registration
+Event "1" --> "0..1" Conversation : group chat
+GetEventHandler ..> GetEventQuery : handles
+GetEventHandler ..> EventDetailDto : returns
+EventDetailPage *-- EventRegisterPanel
+EventDetailPage ..> EventDetailDto
+@enduml

@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Edit a listing
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member (Admin)" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageServicesPage" as page
+  participant "ListingEditorDialog" as dlg
+  participant "HttpAdminServicesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminListingsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "UpdateListingValidator" as val
+  participant "UpdateListingHandler" as h
+  participant "ServiceListing" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Edit on a live listing row
+page -> dlg : Open CDK Dialog with the listing
+actor -> dlg : Change fields and save
+dlg -> client : updateListing(id, request)
+client -> ctrl : PUT /api/admin/listings/{id}
+ctrl -> ctrl : Authenticate and apply AdminOnly policy
+ctrl -> val : Validate UpdateListingCommand
+alt invalid
+  val --> ctrl : 400 ProblemDetails with code and field errors
+  ctrl --> client : 400
+  client --> dlg : Error code
+  dlg --> actor : Invalid state: form-alert and aria-invalid fields
+else valid
+  ctrl -> h : Send UpdateListingCommand
+  h -> db : Load published listing
+  db --> h : Listing
+  h -> ent : Update(fields)
+  h -> db : Save changes
+  db --> h : Committed
+  h --> ctrl : Success
+  ctrl --> client : 204 No Content
+  client --> dlg : Done
+  dlg -> dlg : Close by its ref
+  dlg --> page : Updated listing
+  page --> actor : Row shows new values; members see them on Services (L2-027 AC1)
+end
+@enduml

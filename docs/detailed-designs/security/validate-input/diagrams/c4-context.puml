@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Validate input
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+Person(staff, "Staff member", "Admin or Moderator")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+
+Rel(member, cf, "Uses the Member web app")
+Rel(staff, cf, "Uses the Admin web app")
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Professional application intake
+
+Container_Boundary(fe, "Member web app") {
+  Component(page, "Application screen <TO SUPPLY>", "Routed Angular page or CDK Dialog", "Collects the application fields")
+  Component(svc, "PROFESSIONAL_APPLICATIONS_SERVICE / ProfessionalApplicationsApi", "Injection token and contract (api library)", "Typed submit call")
+  Component(http, "HttpProfessionalApplicationsService", "HTTP implementation", "Bound in app.config.ts")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ProfessionalApplicationsController", "ASP.NET Core controller, authenticated", "One MediatR send")
+  Component(val, "SubmitApplicationValidator", "FluentValidation validator", "Checks required fields")
+  Component(h, "SubmitApplicationHandler", "MediatR command handler", "Refuses a second pending application")
+  Component(ent, "ProfessionalApplication", "Domain entity", "Created in the Pending state")
+  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Applications")
+}
+Rel(page, svc, "Depends on")
+Rel(http, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, h, "Sends SubmitApplicationCommand")
+Rel(val, h, "Validates the command for")
+Rel(h, ent, "Creates")
+Rel(h, db, "Reads and writes", "EF Core")
+@enduml

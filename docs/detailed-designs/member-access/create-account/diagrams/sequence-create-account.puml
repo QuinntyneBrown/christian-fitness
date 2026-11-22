@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Visitor creates a member account
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "JoinPage" as page
+  participant "HttpAccountService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AccountController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CreateAccountValidator" as v
+  participant "CreateAccountHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "IPasswordHasher" as hash
+  participant "CookieSessionSignIn" as sess
+  database "Christian Fitness database" as db
+end box
+actor -> page : Fill name, email, password, optional church and interests
+actor -> page : Submit Join
+alt Client validation fails (L2-003 AC3)
+  page --> actor : Name each invalid field, aria-invalid="true"
+else Valid
+  page --> actor : Button "Creating your profile…", disabled (L2-003 AC5)
+  page -> client : join(JoinRequestDto)
+  client -> ctrl : POST /api/account/join
+  ctrl -> v : Validate CreateAccountCommand
+  alt Name > 100 or home church > 120 (L2-003 AC6)
+    v --> ctrl : field_too_long
+    ctrl --> client : 400 ProblemDetails code field_too_long
+    client --> page : Error code
+    page --> actor : Name the field, create nothing
+  else Valid
+    ctrl -> h : Send CreateAccountCommand
+    h -> db : Find Member by NormalizedEmail
+    db --> h : Result
+    alt Email already registered (L2-003 AC2)
+      h --> ctrl : email_taken
+      ctrl --> client : 409 ProblemDetails code email_taken
+      client --> page : Error code
+      page --> actor : "An account with this email already exists. Sign in instead?"
+    else New email
+      h -> hash : Hash password
+      hash --> h : Hash
+      h -> db : Insert Member (HomeChurch null when blank, L2-003 AC4)
+      db --> h : Saved
+      h --> ctrl : MemberId
+      ctrl -> sess : Sign in member
+      sess --> ctrl : Secure HTTP-only SameSite cookie
+      ctrl --> client : 201 SessionDto + Set-Cookie
+      client --> page : Session
+      page --> actor : Navigate to Home (L2-003 AC1)
+    end
+  end
+end
+@enduml

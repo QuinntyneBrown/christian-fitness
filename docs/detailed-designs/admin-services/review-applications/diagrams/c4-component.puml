@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Review professional applications
+
+Container_Boundary(fe, "Admin web app") {
+  Component(page, "ManageServicesPage", "Routed Angular page", "Orchestrates the queue, approve and decline")
+  Component(svc, "ADMIN_SERVICES_SERVICE / AdminServicesApi", "Injection token and contract (api library)", "Typed calls to the services endpoints")
+  Component(http, "HttpAdminServicesService", "HTTP implementation", "Bound in app.config.ts")
+  Component(card, "ApplicationCard", "Presentation component (components library)", "BEM block application; inputs and outputs only")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminApplicationsController", "ASP.NET Core controller, policy AdminOnly", "One MediatR send per action")
+  Component(q, "ListPendingApplicationsHandler", "MediatR query handler", "Pending applications, oldest first")
+  Component(ap, "ApproveApplicationHandler", "MediatR command handler", "Creates a published ServiceListing")
+  Component(de, "DeclineApplicationHandler", "MediatR command handler", "Records the reason; creates no listing")
+  Component(ent, "ProfessionalApplication", "Domain entity", "Owns Pending, Approved and Declined transitions")
+  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Applications and listings")
+}
+Rel(page, card, "Renders each application with")
+Rel(page, svc, "Depends on")
+Rel(http, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, q, "Sends ListPendingApplicationsQuery")
+Rel(ctrl, ap, "Sends ApproveApplicationCommand")
+Rel(ctrl, de, "Sends DeclineApplicationCommand")
+Rel(ap, ent, "Approves")
+Rel(de, ent, "Declines")
+Rel(q, db, "Reads", "EF Core")
+Rel(ap, db, "Writes", "EF Core")
+Rel(de, db, "Writes", "EF Core")
+@enduml

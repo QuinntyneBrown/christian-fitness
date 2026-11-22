@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse and filter events
+
+Container(web, "Member web app", "Angular", "EventsPage, EventCard, ChipBar, EventFeed, HttpEventsService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "EventsController", "ASP.NET Core controller", "GET /api/events")
+  Component(val, "ListEventsValidator", "FluentValidation", "Category and cursor shape")
+  Component(h, "ListEventsHandler", "MediatR handler", "Published, upcoming, category, page of 20")
+  Component(ctx, "IAppDbContext", "Application abstraction", "Events set")
+  Component(ent, "Event", "Domain entity", "Status, StartsAt, Category, Capacity, GoingCount")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Events")
+Rel(web, ctrl, "GET /api/events", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ListEventsQuery")
+Rel(h, val, "Validated by")
+Rel(h, ctx, "Queries")
+Rel(ctx, ent, "Materializes")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

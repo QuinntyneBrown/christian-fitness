@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Upload an event image
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "EventEditorDialog" as dlg
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "UploadEventImageHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "IImageStore" as store
+end box
+actor -> dlg : Choose image file
+dlg -> client : uploadImage(file)
+client -> ctrl : POST /api/admin/events/images (multipart)
+ctrl -> handler : Send UploadEventImageCommand
+handler -> handler : Check signature JPEG/PNG/WebP and size <= 5 MB
+alt not allowed (L2-022 AC4)
+  handler --> ctrl : image_invalid
+  ctrl --> client : 400 ProblemDetails code image_invalid
+  dlg --> actor : Image field error
+else allowed
+  handler -> store : SaveAsync(content)
+  store --> handler : ImageKey
+  handler --> ctrl : ImageKey
+  ctrl --> client : 201 ImageKey
+  dlg --> actor : Preview with object URL, revoked on close
+end
+@enduml

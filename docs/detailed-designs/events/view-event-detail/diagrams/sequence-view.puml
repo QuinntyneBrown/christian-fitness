@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — view an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventDetailPage" as page
+  participant "EventsApi (EVENTS_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetEventHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /events/{id}
+page -> client : getEvent(id)
+client -> ctrl : GET /api/events/{id}
+ctrl -> h : Send GetEventQuery
+h -> db : Event by id where Status = Published
+db --> h : Event or none
+alt missing or not published
+  h --> ctrl : NotFound
+  ctrl --> client : 404 ProblemDetails code=event_not_found
+  client --> page : Error code
+  page --> actor : Not-found view (L2-010)
+else published
+  h -> db : Member's Registration and event Conversation
+  db --> h : Registration?, ConversationId
+  h --> ctrl : EventDetailDto
+  ctrl --> client : 200 JSON
+  client --> page : EventDetailDto
+  alt IsGoing
+    page --> actor : "You're going" and group chat link (L2-010)
+  else not registered
+    page --> actor : Detail with registration action
+  end
+end
+@enduml

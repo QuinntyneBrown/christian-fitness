@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Refuse an invalid body
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "JoinPage" as page
+  participant "HttpAccountService" as http
+  participant "errorMessage()" as msg
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AuthController" as ctrl
+  participant "ProblemDetailsExceptionHandler" as eh
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ValidationBehavior" as vb
+  participant "CreateAccountValidator" as v
+end box
+actor -> page : Submit form with an invalid email
+page -> http : join(dto)
+http -> ctrl : POST /api/auth/join
+ctrl -> vb : Send CreateAccountCommand
+vb -> v : Validate
+v --> vb : failures { email }
+vb --> eh : ValidationException
+eh --> http : 400 ProblemDetails code validation_failed, errors (L2-032 AC1)
+http --> page : ApiError
+page -> msg : errorMessage(code)
+msg --> page : generic message
+page --> actor : Message plus aria-invalid field error
+@enduml

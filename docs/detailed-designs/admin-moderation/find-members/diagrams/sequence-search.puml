@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Find members
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "MembersPage" as page
+  participant "HttpAdminMembersService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminMembersController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SearchMembersHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Members, type a search term or pick a status tab
+page -> client : search(term, status, page)
+client -> ctrl : GET /api/admin/members?search&status&page
+ctrl -> ctrl : Authenticate and apply StaffOnly policy (Admin or Moderator, L2-019)
+ctrl -> h : Send SearchMembersQuery
+opt search term present
+  h -> h : Name or email contains term, case-insensitive (L2-028 AC2)
+end
+opt status selected
+  h -> h : Status equals Active, Flagged or Suspended (L2-028 AC3)
+end
+h -> db : Filtered, ordered query; 25 per page; count registrations
+db --> h : Rows and total
+h --> ctrl : PagedResult of MemberRowDto (L2-028 AC1)
+ctrl --> client : 200 OK
+client --> page : Page of members
+alt rows returned
+  page --> actor : Name, initials, email, church, joined, events, status
+else no match for the term
+  page --> actor : No-results state naming the term as text
+else no members at all
+  page --> actor : Empty state
+end
+@enduml

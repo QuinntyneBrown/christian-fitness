@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — List registrations
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "EventRegistrationsPage" as page
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetEventRegistrationsHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open registrations for an event
+page -> client : registrations(id, 1)
+client -> ctrl : GET /api/admin/events/{id}/registrations
+ctrl -> handler : Send GetEventRegistrationsQuery
+handler -> db : Count going and read one page of Registration joined to Member
+db --> handler : Total, rows
+handler --> ctrl : RegistrationPageDto
+ctrl --> client : 200 JSON
+client --> page : Rows and total
+page --> actor : Names, registration dates, total equal to going (L2-024 AC1)
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — cancel a registration
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventDetailPage" as page
+  participant "CancelRegistrationDialog" as dlg
+  participant "EventsApi (EVENTS_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CancelRegistrationHandler" as h
+  participant "Event" as ev
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Cancel registration
+page -> dlg : Open via CDK Dialog
+actor -> dlg : Confirm
+dlg --> page : Closed with confirm
+page -> client : cancelRegistration(eventId)
+client -> ctrl : DELETE /api/events/{id}/registrations/me
+ctrl -> h : Send CancelRegistrationCommand
+h -> db : Load Event and member's Registration
+db --> h : State
+alt now >= StartsAt
+  h --> ctrl : Refuse event_started (L2-012)
+  ctrl --> client : 409 ProblemDetails code=event_started
+  client --> page : Error code
+  page --> actor : Generic refusal message
+else before start
+  h -> ev : Cancel(registration)
+  ev --> h : GoingCount - 1
+  h -> h : Remove ConversationParticipant from event Conversation
+  h -> db : Save in one unit of work
+  db --> h : Committed
+  h --> ctrl : CancelResultDto
+  ctrl --> client : 200 JSON
+  client --> page : Result
+  page --> actor : Unregistered state, going - 1 (L2-012)
+end
+@enduml

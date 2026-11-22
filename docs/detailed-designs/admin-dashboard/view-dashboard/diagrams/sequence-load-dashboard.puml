@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Load the dashboard
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminDashboardPage" as page
+  participant "HttpDashboardService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDashboardController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetDashboardSummaryHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Dashboard
+page --> actor : Skeleton tiles (loading)
+page -> client : getSummary()
+client -> ctrl : GET /api/admin/dashboard
+ctrl -> ctrl : Apply StaffOnly policy
+ctrl -> handler : Send GetDashboardSummaryQuery
+handler -> db : Count members, new in 7 days, upcoming events, registrations in 7 days, pending applications, flagged members
+db --> handler : Counts and lists
+alt success
+  handler --> ctrl : DashboardSummaryDto
+  ctrl --> client : 200 JSON
+  client --> page : Summary
+  page --> actor : Six counts (L2-020 AC1) and Review links to Services and Members (L2-020 AC2)
+else request fails
+  ctrl --> client : 5xx ProblemDetails or network error
+  client --> page : Failure
+  page --> actor : Generic error with Try again (L2-020 AC3)
+  actor -> page : Try again
+  page -> client : getSummary()
+end
+@enduml

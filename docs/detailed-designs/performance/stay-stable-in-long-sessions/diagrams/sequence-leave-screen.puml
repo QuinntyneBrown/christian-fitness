@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — Leave a screen and release its resources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Router" as router
+  participant "MessagesPage" as page
+  participant "ChatStore" as store
+  participant "SignalRChatConnection" as conn
+end box
+actor -> router : Navigate Messages -> Events
+router -> page : Destroy
+page -> store : DestroyRef.onDestroy
+store -> conn : dispose() each handler (L2-037 AC2)
+store -> store : Clear timers, listeners, subscriptions (takeUntilDestroyed)
+conn -> conn : subscribers == 0 ? stop()
+router --> actor : Events screen
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Adapt to viewports
+
+interface BreakpointApi {
+  +isLg: Signal<boolean>
+}
+class BreakpointService {
+  -observer: BreakpointObserver
+}
+class MessagesPage {
+  +showDetailBeside: Signal<boolean>
+}
+class ServicesPage {
+  +showDetailBeside: Signal<boolean>
+}
+BreakpointService ..|> BreakpointApi
+MessagesPage ..> BreakpointApi : BREAKPOINT_SERVICE
+ServicesPage ..> BreakpointApi : BREAKPOINT_SERVICE
+@enduml

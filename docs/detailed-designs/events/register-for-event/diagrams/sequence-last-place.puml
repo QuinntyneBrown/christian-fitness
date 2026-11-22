@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — two members race for the last place
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Member web app (A and B)" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RegisterForEventHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : A and B choose Register together
+page -> ctrl : POST registration (A)
+page -> ctrl : POST registration (B)
+ctrl -> h : RegisterForEventCommand (A)
+ctrl -> h : RegisterForEventCommand (B)
+h -> db : Save A with concurrency token v1
+db --> h : Committed, token v2
+h -> db : Save B with concurrency token v1
+db --> h : Concurrency conflict
+h -> db : Reload Event
+db --> h : GoingCount = Capacity
+h --> ctrl : B refused event_full (L2-011)
+ctrl --> page : A 201, B 409 code=event_full
+page --> actor : A going; B sees "This event is full"
+@enduml

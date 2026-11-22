@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Publish an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "EventEditorDialog" as dlg
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "PublishEventHandler" as handler
+  participant "Event" as entity
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> dlg : Publish
+dlg -> client : publish(id)
+client -> ctrl : POST /api/admin/events/{id}/publish
+ctrl -> handler : Send PublishEventCommand
+handler -> db : Load Event
+handler -> entity : Publish()
+alt not a draft
+  entity --> handler : Refused
+  handler --> ctrl : event_not_draft <TO SUPPLY>
+  ctrl --> client : 409 ProblemDetails
+  dlg --> actor : Generic message
+else draft
+  entity --> handler : Status Published
+  handler -> db : SaveChanges with AuditEntry
+  handler --> ctrl : EventDto
+  ctrl --> client : 200
+  dlg --> actor : Row shows Published
+  note over db : Member Events and landing queries now include it (L2-023 AC1)
+end
+@enduml

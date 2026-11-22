@@ -1,0 +1,32 @@
+@startuml
+title UML sequence behaviour — Fail the build over budget
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer or CI" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ng build" as ng
+  participant "angular.json budgets" as bud
+end box
+actor -> ng : ng build --configuration production
+ng -> ng : Emit main + route chunks (L2-035 AC2)
+ng -> bud : Check initial size
+alt initial <= 250 kB raw
+  bud --> ng : pass
+  ng --> actor : exit 0
+else over budget
+  bud --> ng : error (L2-035 AC1)
+  ng --> actor : exit 1, CI fails
+end
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+title UML sequence behaviour — Refuse a cross-origin state change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Attacker page in member's browser" as actor
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SecurityHeadersMiddleware" as hdr
+  participant "AutoValidateAntiforgeryToken filter" as af
+  participant "Controller" as ctrl
+end box
+actor -> hdr : POST /api/... from another origin (no X-XSRF-TOKEN)
+hdr -> af : Pass request
+af -> af : Validate antiforgery token (L2-030 AC3)
+af --> hdr : 400 ProblemDetails code antiforgery_invalid <TO SUPPLY: code>
+note right of ctrl : Controller never runs; no state changes
+hdr --> actor : Refusal with security headers
+@enduml

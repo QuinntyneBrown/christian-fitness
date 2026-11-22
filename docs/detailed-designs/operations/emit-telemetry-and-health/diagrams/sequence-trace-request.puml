@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — Trace a request without personal data
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ASP.NET Core instrumentation" as inst
+  participant "EventsController" as ctrl
+  participant "TelemetryRedactionProcessor" as red
+  participant "OTLP exporter" as exp
+end box
+actor -> inst : GET /api/events/{id}?q=...
+inst -> ctrl : Start span (http.route = /api/events/{id})
+ctrl --> inst : 200
+inst -> red : OnEnd(activity)
+red -> red : Drop url.query, bodies, user attributes (L2-033 AC2)
+red -> exp : route template, method, status, duration (L2-040 AC1)
+exp -> exp : OTLP export to collector
+@enduml

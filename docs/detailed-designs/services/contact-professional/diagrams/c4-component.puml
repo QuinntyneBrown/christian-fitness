@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Contact a professional
+
+Container(web, "Member web app", "Angular", "ServicesPage, ServiceDetail, HttpServicesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ServicesController", "ASP.NET Core controller", "POST /api/services/{id}/conversation, GET /api/services/{id}/contact-link")
+  Component(sh, "StartProfessionalConversationHandler", "MediatR handler", "Find or create direct conversation")
+  Component(lh, "GetContactLinkHandler", "MediatR handler", "Return published contact link on demand")
+  Component(ctx, "IAppDbContext", "Application abstraction", "ServiceListings, Conversations")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Listings, conversations")
+Rel(web, ctrl, "Contact requests", "JSON/HTTPS")
+Rel(ctrl, sh, "Sends StartProfessionalConversationCommand")
+Rel(ctrl, lh, "Sends GetContactLinkQuery")
+Rel(sh, ctx, "Reads and writes")
+Rel(lh, ctx, "Reads")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

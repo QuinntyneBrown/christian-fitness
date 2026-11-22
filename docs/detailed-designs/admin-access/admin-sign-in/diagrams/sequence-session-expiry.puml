@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — Idle staff session expires
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "Admin screen" as page
+  participant "sessionExpiredInterceptor" as icpt
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Cookie authentication and StaffOnly" as auth
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Any staff handler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Act after 30 idle minutes
+page -> icpt : HTTP request to /api/admin/...
+icpt -> auth : Request with __Host-cf-admin cookie
+auth -> auth : Sliding expiry passed (L2-018 AC5)
+auth --> icpt : 401, no data returned (L2-018 AC4)
+note right of handler : Handler is never reached
+icpt --> page : Redirect to sign-in with session expired notice
+page --> actor : Staff sign in screen
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Limit request rates
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+Person(visitor, "Visitor", "Not signed in")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Members, events, conversations, listings")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(visitor, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS, SignalR")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

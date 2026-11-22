@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Professional application intake
+
+Person(user, "Member", "Uses the Member web app")
+
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "Application form for professionals")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, MediatR handlers, ProblemDetails")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persists members, applications and listings")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+
+Rel(user, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS, session cookie")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+
+@enduml

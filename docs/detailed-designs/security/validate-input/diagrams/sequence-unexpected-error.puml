@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — Answer an unexpected error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Screen" as page
+  participant "HttpXxxService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "XxxController" as ctrl
+  participant "ProblemDetailsExceptionHandler" as eh
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "XxxHandler" as h
+end box
+actor -> page : Act
+page -> http : call
+http -> ctrl : HTTPS request
+ctrl -> h : Send request
+h --> eh : unhandled exception
+eh -> eh : Record exception type in span, not message text (L2-033 AC2)
+eh --> http : 500 ProblemDetails, no stack trace or detail (L2-032 AC2)
+http --> page : ApiError code server_error <TO SUPPLY: code>
+page --> actor : Generic error (pages/server-error)
+@enduml

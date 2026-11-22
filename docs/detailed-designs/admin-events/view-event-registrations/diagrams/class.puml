@@ -1,0 +1,62 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View event registrations
+
+class EventRegistrationsPage {
+  -rows: Signal<RegistrationRowDto[]>
+  -total: Signal<number>
+  +export(): void
+}
+interface AdminEventsApi {
+  +registrations(id: string, page: number): Promise<RegistrationPageDto>
+  +exportRegistrations(id: string): Promise<Blob>
+}
+class GetEventRegistrationsQuery {
+  +Guid EventId
+  +int Page
+}
+class ExportEventRegistrationsQuery {
+  +Guid EventId
+}
+class GetEventRegistrationsHandler
+class ExportEventRegistrationsHandler
+class RegistrationsCsvWriter {
+  +Write(rows: IEnumerable<RegistrationRowDto>): byte[]
+}
+class RegistrationPageDto {
+  +int Total
+  +RegistrationRowDto[] Items
+}
+class RegistrationRowDto {
+  +string MemberName
+  +DateTimeOffset RegisteredAt
+}
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+  +DateTimeOffset RegisteredAt
+}
+class Member {
+  +Guid Id
+  +string DisplayName
+}
+
+EventRegistrationsPage ..> AdminEventsApi : injects ADMIN_EVENTS_SERVICE
+GetEventRegistrationsHandler ..> GetEventRegistrationsQuery : handles
+ExportEventRegistrationsHandler ..> ExportEventRegistrationsQuery : handles
+ExportEventRegistrationsHandler ..> RegistrationsCsvWriter
+GetEventRegistrationsHandler ..> RegistrationPageDto : returns
+RegistrationPageDto *-- RegistrationRowDto
+Registration --> Member
+GetEventRegistrationsHandler ..> Registration
+ExportEventRegistrationsHandler ..> Registration
+@enduml

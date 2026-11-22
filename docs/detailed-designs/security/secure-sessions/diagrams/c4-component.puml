@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Secure sessions
+
+Container(web, "Member web app", "Angular", "HttpClient with XSRF configuration")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(hdr, "SecurityHeadersMiddleware", "ASP.NET Core middleware", "CSP, nosniff, Referrer-Policy; HSTS in production")
+  Component(af, "AutoValidateAntiforgeryToken filter", "MVC filter", "Refuses unsafe methods without a valid token")
+  Component(ctrl, "AuthController", "Controller", "One MediatR send per action")
+  Component(h, "SignInHandler / CreateAccountHandler", "MediatR handlers", "Verify or hash the password")
+  Component(hasher, "PasswordHasher<Member>", "ASP.NET Core Identity", "PBKDF2 hashing")
+  Component(cookie, "Cookie authentication", "ASP.NET Core", "__Host-cf-session; Secure, HttpOnly, SameSite=Lax")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Member.PasswordHash")
+}
+Rel(web, hdr, "HTTPS request")
+Rel(hdr, af, "Passes request")
+Rel(af, ctrl, "Passes validated request")
+Rel(ctrl, h, "Sends command")
+Rel(h, hasher, "Hashes or verifies")
+Rel(h, db, "Reads and writes hash")
+Rel(ctrl, cookie, "Signs in principal")
+@enduml

@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Submit a professional application
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ApplyPage <TO SUPPLY>" as page
+  participant "HttpProfessionalApplicationsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ProfessionalApplicationsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SubmitApplicationValidator" as val
+  participant "SubmitApplicationHandler" as h
+  participant "ProfessionalApplication" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Enter role, category, credentials, where, price, about and submit
+page -> client : submit(request)
+client -> ctrl : POST /api/professional-applications
+ctrl -> ctrl : Authenticate (fallback policy)
+ctrl -> val : Validate SubmitApplicationCommand
+alt invalid fields
+  val --> ctrl : 400 ProblemDetails with code and field errors
+  ctrl --> client : 400
+  client --> page : Error code
+  page --> actor : Generic message; fields marked aria-invalid
+else valid
+  ctrl -> h : Send SubmitApplicationCommand for the caller
+  h -> db : Any Pending application for this member
+  db --> h : Result
+  alt pending application exists
+    h --> ctrl : Refusal application_pending (L2-026 AC2)
+    ctrl --> client : 409 ProblemDetails, code application_pending
+    client --> page : application_pending
+    page --> actor : Generic message that an application is already under review
+  else none pending
+    h -> ent : Submit(memberId, fields, now)
+    ent --> h : Pending application (L2-026 AC1)
+    h -> db : Save changes
+    db --> h : Committed
+    h --> ctrl : Created
+    ctrl --> client : 201 Created
+    client --> page : Done
+    page --> actor : Confirmation
+  end
+end
+@enduml

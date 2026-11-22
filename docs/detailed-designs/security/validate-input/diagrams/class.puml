@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Validate input
+
+class ValidationBehavior<TRequest,TResponse> {
+  -IEnumerable<IValidator<TRequest>> validators
+  +Handle(req, next): Task<TResponse>
+}
+class ValidationException {
+  +string Code
+  +IDictionary<string,string[]> Errors
+}
+class ProblemDetailsExceptionHandler {
+  +TryHandleAsync(ctx, ex): ValueTask<bool>
+}
+class DomainException {
+  +string Code
+  +int Status
+}
+class ApiError <<TypeScript>> {
+  +status: number
+  +code: string
+  +errors?: Record<string,string[]>
+}
+class errorMessage <<domain helper>> {
+  +errorMessage(code: string): string
+}
+ValidationBehavior ..> ValidationException : throws
+ProblemDetailsExceptionHandler ..> ValidationException : maps 400
+ProblemDetailsExceptionHandler ..> DomainException : maps status
+errorMessage ..> ApiError : reads code
+@enduml

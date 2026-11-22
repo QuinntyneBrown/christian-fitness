@@ -1,0 +1,72 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Edit and remove listings
+
+class ServiceListing {
+  +Guid Id
+  +Guid ProfessionalMemberId
+  +string Name
+  +string Role
+  +string Category
+  +string Price
+  +string Where
+  +string About
+  +bool IsPublished
+  +DateTimeOffset VerifiedAt
+  +DateTimeOffset? RemovedAt
+  +Update(fields): void
+  +Remove(at: DateTimeOffset): void
+}
+class Conversation {
+  +Guid Id
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+}
+class UpdateListingCommand {
+  +Guid ListingId
+  +string Name
+  +string Role
+  +string Category
+  +string Price
+  +string Where
+  +string About
+}
+class UpdateListingValidator
+class RemoveListingCommand {
+  +Guid ListingId
+}
+class UpdateListingHandler {
+  +Handle(cmd: UpdateListingCommand): Task<Result>
+}
+class RemoveListingHandler {
+  +Handle(cmd: RemoveListingCommand): Task<Result>
+}
+interface IAppDbContext {
+  +ServiceListings: DbSet<ServiceListing>
+  +SaveChangesAsync(ct): Task<int>
+}
+interface AdminServicesApi {
+  +updateListing(id: string, req: UpdateListingRequest): Observable<void>
+  +removeListing(id: string): Observable<void>
+}
+class ListingEditorDialog
+Conversation "1" *-- "*" ConversationParticipant
+ServiceListing ..> ConversationParticipant : professional may participate (unchanged on removal)
+UpdateListingValidator ..> UpdateListingCommand : validates
+UpdateListingHandler ..> UpdateListingCommand : handles
+RemoveListingHandler ..> RemoveListingCommand : handles
+UpdateListingHandler --> IAppDbContext
+RemoveListingHandler --> IAppDbContext
+ListingEditorDialog --> AdminServicesApi : ADMIN_SERVICES_SERVICE
+@enduml

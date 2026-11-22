@@ -1,0 +1,28 @@
+@startuml
+title UML sequence behaviour — Run the seed command twice
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator" as actor
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "SeedRunner" as r
+  database "Christian Fitness database" as db
+end box
+actor -> r : cf seed (second run)
+loop each ISeed
+  r -> db : ExistsAsync(key)
+  db --> r : true
+end
+r --> actor : 0 changes (L2-041 AC2)
+@enduml

@@ -59,10 +59,10 @@ APPLY     Hannah Bergstrom (RMT) · Samuel Osei (strength coach) · Lena Park, R
 
 ## Assets
 
-- `assets/tokens.css`: the only place colours, type, sizes, radii, shadows, durations and z-order
-  live. Light values are the prototype's `@theme` 1:1; dark values are derived.
-- `assets/ui.css`: the component kit (BEM), one block per prototype component.
-- `assets/fonts/`: Barlow and Barlow Condensed, self-hosted woff2 (latin subset, SIL OFL).
+- `assets/tokens.css`, `assets/ui.css`: forward (`@import`) to the design system's
+  [`tokens/tokens.css`](../design-system/tokens/tokens.css) and
+  [`assets/components.css`](../design-system/assets/components.css), the single source of truth
+  for tokens and components; fonts are self-hosted there. See [the design system](../design-system/README.md).
 - `assets/images/`: the prototype's five photos, downloaded so nothing loads from a CDN.
 - `assets/mock.css`, `assets/mock.js`: the mock bar, notes, theme switch and click-through; not product UI.
 

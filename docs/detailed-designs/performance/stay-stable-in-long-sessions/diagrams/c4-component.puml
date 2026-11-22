@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Stay stable in long sessions
+
+Container_Boundary(web, "Member web app") {
+  Component(parent, "Messages parent route", "Angular route", "Provides CHAT_CONNECTION")
+  Component(page, "MessagesPage", "Routed component", "providers: [ChatStore]")
+  Component(store, "ChatStore", "Signal store", "Registers handlers; BoundedBuffer(200)")
+  Component(conn, "SignalRChatConnection", "CHAT_CONNECTION", "Single hub connection; on() returns disposer")
+  Component(buf, "BoundedBuffer", "domain helper", "Drops oldest beyond capacity")
+}
+Container(api, "Christian Fitness API", "ASP.NET Core", "ChatHub")
+Rel(parent, conn, "Provides")
+Rel(page, store, "Owns")
+Rel(store, conn, "on() / dispose()")
+Rel(store, buf, "Appends messages")
+Rel(conn, api, "WebSocket", "SignalR")
+@enduml

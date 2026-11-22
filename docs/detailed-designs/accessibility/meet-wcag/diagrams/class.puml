@@ -1,0 +1,40 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Meet WCAG
+
+class ButtonComponent <<components>> {
+  +pressed: InputSignal<boolean>
+  +disabled: InputSignal<boolean>
+  min-size 44 x 44 px
+}
+class MiniRowComponent <<components>> {
+  +unreadCount: InputSignal<number>
+  +current: InputSignal<boolean>
+}
+class StatusChipComponent <<components>> {
+  +status: InputSignal<MemberStatus>
+  label text + icon
+}
+class Tokens <<design system>> {
+  --color-text-*
+  --focus-ring
+  --motion-duration-*
+}
+class Foundations <<global styles>> {
+  :focus-visible
+  @media prefers-reduced-motion
+}
+ButtonComponent ..> Tokens
+MiniRowComponent ..> Tokens
+StatusChipComponent ..> Tokens
+Foundations ..> Tokens
+@enduml

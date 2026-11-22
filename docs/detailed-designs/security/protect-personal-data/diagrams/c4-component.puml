@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Protect personal data
+
+Container(web, "Member web app", "Angular", "ProfilePage export and delete actions")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ProfileController", "Controller", "One MediatR send")
+  Component(exp, "RequestDataExportHandler", "MediatR", "Builds DataExportDto")
+  Component(del, "RequestAccountDeletionHandler", "MediatR", "Marks deletion, ends sessions")
+  Component(red, "TelemetryRedactionProcessor", "OpenTelemetry processor", "Drops bodies, queries, personal attributes")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Member, Registration, Message")
+}
+Container(cli, "Christian Fitness CLI", ".NET", "AccountErasureService")
+System_Ext(otel, "OpenTelemetry collector", "")
+Rel(web, ctrl, "JSON/HTTPS")
+Rel(ctrl, exp, "Sends query")
+Rel(ctrl, del, "Sends command")
+Rel(exp, db, "Reads caller's rows")
+Rel(del, db, "Sets DeletionRequestedAt")
+Rel(cli, db, "Erases or anonymises")
+Rel(red, otel, "Exports", "OTLP")
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Create a member account
+class JoinPage {
+  +form: FormGroup
+  +submitting: Signal<boolean>
+  +submit(): void
+}
+interface AccountApi {
+  +join(req: JoinRequestDto): Observable<SessionDto>
+}
+class HttpAccountService
+class JoinRequestDto {
+  +fullName: string
+  +email: string
+  +password: string
+  +homeChurch?: string
+  +interests: string[]
+}
+class AccountController {
+  +Join(cmd: CreateAccountCommand): Task<IActionResult>
+}
+class CreateAccountCommand {
+  +string FullName
+  +string Email
+  +string Password
+  +string? HomeChurch
+  +IReadOnlyList<string> Interests
+}
+class CreateAccountValidator
+class CreateAccountHandler {
+  +Handle(c: CreateAccountCommand): Task<Result<MemberId>>
+}
+class Member {
+  +Guid Id
+  +string FullName
+  +string Email
+  +string NormalizedEmail
+  +string PasswordHash
+  +string? HomeChurch
+  +MemberStatus Status
+  +DateTimeOffset JoinedAt
+}
+enum MemberStatus {
+  Active
+  Flagged
+  Suspended
+}
+interface IPasswordHasher {
+  +Hash(password: string): string
+}
+HttpAccountService ..|> AccountApi
+JoinPage ..> AccountApi : injects ACCOUNT_SERVICE
+JoinPage ..> JoinRequestDto
+AccountController ..> CreateAccountCommand : sends
+CreateAccountValidator ..> CreateAccountCommand : validates
+CreateAccountHandler ..> CreateAccountCommand : handles
+CreateAccountHandler ..> IPasswordHasher
+CreateAccountHandler --> Member : creates
+Member --> MemberStatus
+@enduml

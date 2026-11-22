@@ -1,0 +1,76 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — List conversations
+
+class Conversation {
+  +Guid Id
+  +ConversationKind Kind
+  +Guid? EventId
+  +string Name
+  +DateTimeOffset LastMessageAt
+}
+enum ConversationKind {
+  EventGroup
+  Direct
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+  +Guid? LastReadMessageId
+}
+class Message {
+  +Guid Id
+  +Guid ConversationId
+  +Guid SenderId
+  +string Text
+  +DateTimeOffset SentAt
+}
+class ListConversationsQuery {
+}
+class ListConversationsHandler {
+  +Handle(query: ListConversationsQuery): Task<IReadOnlyList<ConversationSummaryDto>>
+}
+class ConversationSummaryDto {
+  +Guid Id
+  +string Name
+  +string Initials
+  +string LastMessage
+  +DateTimeOffset LastMessageAt
+  +int UnreadCount
+  +int? MemberCount
+}
+class ConversationsController {
+  +List(): Task<IActionResult>
+}
+interface ConversationsApi <<api>> {
+  +list(): Observable<ConversationSummary[]>
+}
+class HttpConversationsService
+class ConversationListStore {
+  +conversations: Signal<ConversationSummary[]>
+  +selectedId: Signal<string | null>
+  +load(): void
+  +select(id: string): void
+}
+class MessagesPage
+
+Conversation "1" *-- "*" ConversationParticipant
+Conversation "1" *-- "*" Message
+Conversation --> ConversationKind
+ConversationsController ..> ListConversationsQuery : sends
+ListConversationsHandler ..> ListConversationsQuery : handles
+ListConversationsHandler ..> ConversationSummaryDto : returns
+ListConversationsHandler ..> Conversation : reads
+HttpConversationsService ..|> ConversationsApi
+ConversationListStore ..> ConversationsApi : CONVERSATIONS_SERVICE
+MessagesPage --> ConversationListStore : provides
+@enduml

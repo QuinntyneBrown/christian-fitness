@@ -1,0 +1,35 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Limit request rates
+
+class MessageRateLimiter {
+  +Limit = 30
+  +Window = 1 minute
+  -TimeProvider clock
+  +IsAllowedAsync(memberId: Guid): Task<bool>
+}
+class SendMessageHandler {
+  +Handle(c: SendMessageCommand): Task<SendResult>
+}
+class SendResult {
+  +bool Ok
+  +string? Code
+  +MessageDto? Message
+}
+class AccountCreationRateLimitPolicy {
+  +PermitLimit = 5
+  +Window = 1 hour
+  +Partition = remote IP
+}
+SendMessageHandler ..> MessageRateLimiter
+SendMessageHandler ..> SendResult
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Member opens Home
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "HomePage" as page
+  participant "HomeStore" as store
+  participant "HttpHomeService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "HomeController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetHomeSummaryHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /home
+page -> store : load()
+store --> page : loading (skeleton)
+store -> client : summary()
+client -> ctrl : GET /api/home
+alt Request succeeds
+  ctrl -> h : Send GetHomeSummaryQuery(caller id)
+  h -> db : Caller Member, earliest upcoming Registration
+  h -> db : Up to 3 published upcoming Events matching interests
+  h -> db : Unread count across caller's conversations
+  db --> h : Rows
+  h --> ctrl : HomeSummaryDto
+  ctrl --> client : 200 JSON
+  client --> store : Summary
+  alt Has next event (L2-007 AC1)
+    page --> actor : Greeting by first name, next event, suggestions, unread count
+  else No registration (L2-007 AC2)
+    page --> actor : Invitation to browse Events
+  end
+else Request fails (L2-007 AC3)
+  client --> store : Error
+  store --> page : error
+  page --> actor : Generic error with Try again
+  actor -> page : Try again
+  page -> store : retry() reloads summary
+end
+@enduml

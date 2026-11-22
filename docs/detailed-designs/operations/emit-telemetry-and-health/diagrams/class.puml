@@ -1,0 +1,29 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Emit telemetry and health
+
+class TelemetryRedactionProcessor {
+  +AllowedTags = [http.route, http.request.method, http.response.status_code]
+  +OnEnd(activity: Activity): void
+}
+class "BaseProcessor<Activity>" as BP <<OpenTelemetry>>
+class "DbContextHealthCheck<AppDbContext>" as DbHc {
+  +CheckHealthAsync(): Task<HealthCheckResult>
+}
+class HealthEndpoints {
+  +Live = "/health/live"
+  +Ready = "/health/ready"
+  +ResponseWriter: status only
+}
+BP <|-- TelemetryRedactionProcessor
+HealthEndpoints ..> DbHc : ready tag
+@enduml

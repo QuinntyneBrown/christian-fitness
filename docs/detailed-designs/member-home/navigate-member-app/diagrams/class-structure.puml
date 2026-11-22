@@ -1,0 +1,46 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Navigate the member app
+class MemberShell {
+  +unread: Signal<number>
+  +current: Signal<string>
+}
+class AppNav {
+  +destinations: input<NavDestination[]>
+  +current: input<string>
+  +unreadCount: input<number>
+}
+class TabBar {
+  +destinations: input<NavDestination[]>
+  +current: input<string>
+  +unreadCount: input<number>
+}
+class CountBadge {
+  +count: input<number>
+}
+class NavDestination {
+  +id: 'home'|'events'|'services'|'messages'|'profile'
+  +label: string
+  +href: string
+}
+interface UnreadCountApi {
+  +count: Signal<number>
+}
+interface ChatConnection
+MemberShell --> AppNav
+MemberShell --> TabBar
+AppNav --> CountBadge
+TabBar --> CountBadge
+AppNav --> "5" NavDestination
+MemberShell ..> UnreadCountApi : injects UNREAD_COUNT_SERVICE
+UnreadCountApi ..> ChatConnection : CHAT_CONNECTION
+@enduml

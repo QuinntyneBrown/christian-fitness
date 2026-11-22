@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Report a message or member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ConversationPage" as page
+  participant "ReportMessageDialog" as dlg
+  participant "HttpReportsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ReportsController" as controller
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ReportMessageHandler" as handler
+  participant "Member" as sender
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Report on another member's message
+page -> dlg : Open CDK Dialog with message id
+actor -> dlg : Enter reason and submit
+dlg -> client : reportMessage(id, reason)
+client -> controller : POST /api/messages/{id}/reports
+controller -> controller : Authenticate (fallback policy)
+controller -> handler : Send ReportMessageCommand
+handler -> db : Load message; caller must be a participant
+alt caller not a participant
+  handler --> controller : code not_a_participant
+  controller --> client : 403 ProblemDetails
+  client --> dlg : Error with code
+  dlg --> actor : Generic error message
+else report by same reporter for this message exists
+  db --> handler : Existing Report
+  handler --> controller : Success, no new Report (L2-017)
+  controller --> client : 200 OK
+  client --> dlg : Done
+  dlg -> dlg : Close by its ref
+  page --> actor : Confirmation toast
+else first report
+  handler -> db : Insert Report (ReporterId, MessageId, Reason)
+  handler -> sender : Flag() — Active to Flagged for staff review (L2-017)
+  handler -> db : Save changes in one unit of work
+  db --> handler : Commit result
+  handler --> controller : Success
+  controller --> client : 201 Created
+  client --> dlg : Done
+  dlg -> dlg : Close by its ref
+  page --> actor : Confirmation toast (L2-017)
+end
+@enduml

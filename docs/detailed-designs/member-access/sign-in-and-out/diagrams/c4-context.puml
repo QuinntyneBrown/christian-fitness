@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Sign in and sign out
+
+Person(user, "Member", "Person with a member account")
+
+System(cf, "Christian Fitness", "Christian community for health in body and spirit in the Greater Toronto Area")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces, metrics and logs")
+
+Rel(user, cf, "Signs in and out using", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

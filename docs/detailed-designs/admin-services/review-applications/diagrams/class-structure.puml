@@ -1,0 +1,96 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Review professional applications
+
+enum ApplicationStatus {
+  Pending
+  Approved
+  Declined
+}
+class ProfessionalApplication {
+  +Guid Id
+  +Guid MemberId
+  +string Name
+  +string Role
+  +string Category
+  +string Credentials
+  +string Where
+  +string Price
+  +string About
+  +DateTimeOffset SubmittedAt
+  +ApplicationStatus Status
+  +string? DeclineReason
+  +Approve(at: DateTimeOffset): ServiceListing
+  +Decline(reason: string, at: DateTimeOffset): void
+}
+class ServiceListing {
+  +Guid Id
+  +Guid ProfessionalMemberId
+  +string Name
+  +string Role
+  +string Category
+  +string Price
+  +bool IsPublished
+  +DateTimeOffset VerifiedAt
+}
+class ListPendingApplicationsQuery
+class PendingApplicationDto {
+  +Guid Id
+  +string Name
+  +string Role
+  +string Credentials
+  +DateTimeOffset SubmittedAt
+}
+class ApproveApplicationCommand {
+  +Guid ApplicationId
+}
+class DeclineApplicationCommand {
+  +Guid ApplicationId
+  +string Reason
+}
+class DeclineApplicationValidator
+class ApproveApplicationHandler {
+  +Handle(cmd: ApproveApplicationCommand): Task<Result>
+}
+class DeclineApplicationHandler {
+  +Handle(cmd: DeclineApplicationCommand): Task<Result>
+}
+class ListPendingApplicationsHandler {
+  +Handle(q: ListPendingApplicationsQuery): Task<IReadOnlyList<PendingApplicationDto>>
+}
+interface IAppDbContext {
+  +ProfessionalApplications: DbSet<ProfessionalApplication>
+  +ServiceListings: DbSet<ServiceListing>
+  +SaveChangesAsync(ct): Task<int>
+}
+interface AdminServicesApi {
+  +pendingApplications(): Observable<PendingApplicationDto[]>
+  +approve(id: string): Observable<void>
+  +decline(id: string, reason: string): Observable<void>
+}
+class HttpAdminServicesService
+class ManageServicesPage {
+  +applications: Signal<PendingApplicationDto[]>
+}
+ProfessionalApplication --> ApplicationStatus : has
+ProfessionalApplication ..> ServiceListing : creates on approval
+ListPendingApplicationsHandler ..> ListPendingApplicationsQuery : handles
+ListPendingApplicationsHandler ..> PendingApplicationDto : returns
+ApproveApplicationHandler ..> ApproveApplicationCommand : handles
+DeclineApplicationHandler ..> DeclineApplicationCommand : handles
+DeclineApplicationValidator ..> DeclineApplicationCommand : validates
+ApproveApplicationHandler --> IAppDbContext
+DeclineApplicationHandler --> IAppDbContext
+ListPendingApplicationsHandler --> IAppDbContext
+HttpAdminServicesService ..|> AdminServicesApi
+ManageServicesPage --> AdminServicesApi : ADMIN_SERVICES_SERVICE
+@enduml

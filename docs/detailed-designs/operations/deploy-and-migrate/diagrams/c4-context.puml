@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Deploy and migrate
+
+Person(operator, "Operator", "Deploys and monitors Christian Fitness <TO SUPPLY: role owner>")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+
+Rel(operator, cf, "Deploys and migrates")
+@enduml

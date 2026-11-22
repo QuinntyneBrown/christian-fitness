@@ -1,0 +1,32 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Load fast
+
+class AngularJsonBudget {
+  +type = "initial"
+  +maximumError = "250kB"
+  +maximumWarning = "<TO SUPPLY>"
+}
+class Route <<Angular>> {
+  +path: string
+  +loadComponent(): Promise<Type>
+  +loadChildren(): Promise<Routes>
+}
+class AppRoutes {
+  +routes: Route[]
+}
+class LandingPage {
+  +events: Signal<EventSummaryDto[]>
+}
+AppRoutes "1" *-- "*" Route
+Route ..> LandingPage : lazy import
+@enduml

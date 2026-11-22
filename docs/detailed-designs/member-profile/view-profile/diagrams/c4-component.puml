@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a profile
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "ProfilePage", "Angular routed component", "Own profile")
+  Component(mpage, "MemberProfilePage", "Angular routed component", "Public profile")
+  Component(ui, "ProfileHero, TagList, GoingList", "components library", "Presentation")
+  Component(svc, "HttpProfileService", "PROFILE_SERVICE", "HTTP client")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ProfileController", "ASP.NET Core controller", "GET own and public profile")
+  Component(h1, "GetOwnProfileHandler", "MediatR handler", "Own fields and registrations")
+  Component(h2, "GetPublicProfileHandler", "MediatR handler", "Public fields only")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+
+Rel(page, ui, "Renders")
+Rel(mpage, ui, "Renders")
+Rel(page, svc, "Loads own profile")
+Rel(mpage, svc, "Loads public profile")
+Rel(svc, ctrl, "GET", "JSON/HTTPS")
+Rel(ctrl, h1, "Sends GetOwnProfileQuery")
+Rel(ctrl, h2, "Sends GetPublicProfileQuery")
+Rel(h1, db, "Reads Member, Registration, Event", "EF Core")
+Rel(h2, db, "Reads Member", "EF Core")
+@enduml

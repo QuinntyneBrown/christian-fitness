@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Register for an event
+
+Container(web, "Member web app", "Angular", "EventDetailPage, HttpEventsService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "EventsController", "ASP.NET Core controller", "POST /api/events/{id}/registrations")
+  Component(h, "RegisterForEventHandler", "MediatR handler", "Suspension, idempotency, capacity, group chat")
+  Component(ev, "Event", "Domain entity", "Register(member); concurrency token")
+  Component(reg, "Registration", "Domain entity", "Confirmed or Reserved")
+  Component(cp, "ConversationParticipant", "Domain entity", "Group chat membership")
+  Component(ctx, "IAppDbContext", "Application abstraction", "Unit of work")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Unique (EventId, MemberId)")
+Rel(web, ctrl, "POST registration", "JSON/HTTPS")
+Rel(ctrl, h, "Sends RegisterForEventCommand")
+Rel(h, ev, "Register")
+Rel(ev, reg, "Creates")
+Rel(h, cp, "Adds to event Conversation")
+Rel(h, ctx, "Saves changes")
+Rel(ctx, db, "Writes", "EF Core")
+@enduml

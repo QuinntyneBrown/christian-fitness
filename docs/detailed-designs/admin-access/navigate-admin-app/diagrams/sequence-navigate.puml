@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Navigate below LG
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminShell" as shell
+  participant "MenuButton" as menu
+  participant "AdminNav" as nav
+  participant "Angular Router" as router
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "StaffSessionController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetStaffSessionHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+shell -> ctrl : GET /api/admin/session (once per shell)
+ctrl -> handler : Send GetStaffSessionQuery
+handler -> db : Read StaffRole
+handler --> ctrl : StaffSessionDto
+ctrl --> shell : Role filters ADMIN_NAV_ITEMS
+actor -> menu : Tap or press Enter on "Menu" (L2-021 AC2)
+menu --> shell : toggled
+shell -> nav : Open in overlay, focus first item
+actor -> nav : Choose Events
+nav -> router : navigate('/events')
+router -> router : loadChildren for events area
+router --> shell : Navigation end
+shell -> shell : Close menu, return focus
+shell -> nav : currentPath = /events
+nav --> actor : aria-current="page" on Events (L2-021 AC1)
+@enduml

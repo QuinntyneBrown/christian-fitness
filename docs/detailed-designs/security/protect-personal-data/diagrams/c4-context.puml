@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Protect personal data
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+
+Rel(member, cf, "Shares profile and faith details with")
+Rel(cf, otel, "Sends redacted telemetry to")
+@enduml

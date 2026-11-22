@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Emit telemetry and health
+
+Container_Boundary(api, "Christian Fitness API") {
+  Component(inst, "ASP.NET Core and EF Core instrumentation", "OpenTelemetry", "Spans, http.server.request.duration")
+  Component(red, "TelemetryRedactionProcessor", "OpenTelemetry processor", "Keeps route, method, status, duration")
+  Component(exp, "OTLP exporter", "OpenTelemetry", "Sends to collector")
+  Component(hc, "Health checks", "ASP.NET Core", "/health/live, /health/ready (anonymous)")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Readiness probe")
+}
+System_Ext(otel, "OpenTelemetry collector", "")
+Person(operator, "Operator", "")
+Rel(inst, red, "Activities")
+Rel(red, exp, "Redacted activities")
+Rel(exp, otel, "OTLP")
+Rel(operator, hc, "Probes")
+Rel(hc, db, "CanConnect")
+@enduml

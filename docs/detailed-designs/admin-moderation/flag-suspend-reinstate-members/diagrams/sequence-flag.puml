@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Flag a member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "MembersPage" as page
+  participant "ModerationDialog <TO SUPPLY>" as dlg
+  participant "HttpAdminMembersService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminMembersController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "FlagMemberHandler" as h
+  participant "Member" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Flag on an Active member's row
+page -> dlg : Open CDK Dialog
+actor -> dlg : Enter note and submit
+dlg -> client : flag(id, note)
+client -> ctrl : POST /api/admin/members/{id}/flag
+ctrl -> ctrl : Authenticate and apply StaffOnly policy
+ctrl -> h : Send FlagMemberCommand (validated: note required)
+h -> db : Load member
+db --> h : Member
+h -> ent : Flag(note)
+alt status is not Active
+  ent --> h : Refusal with code <TO SUPPLY>
+  h --> ctrl : Refusal
+  ctrl --> client : ProblemDetails with code
+  client --> dlg : Error code
+  dlg --> actor : Generic message
+else Active
+  ent --> h : Status Flagged, note stored (L2-029 AC1)
+  h -> db : Save changes
+  db --> h : Committed
+  h --> ctrl : Success
+  ctrl --> client : 204 No Content
+  client --> dlg : Done
+  dlg -> dlg : Close by its ref
+  page --> actor : Row shows Flagged status and the note as text
+end
+@enduml

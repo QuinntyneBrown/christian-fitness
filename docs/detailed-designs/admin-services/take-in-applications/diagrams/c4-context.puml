@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Professional application intake
+
+Person(user, "Member", "Signed-in member who applies to be listed as a professional")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+Person(staff, "Staff member (Admin)", "Reviews the resulting application")
+Rel(staff, cf, "Reviews applications in")
+Rel(user, cf, "Applies to be listed using", "HTTPS")
+Rel(cf, otel, "Exports route-template telemetry to", "OTLP")
+@enduml

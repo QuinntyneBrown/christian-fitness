@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Flag, suspend and reinstate members
+
+enum MemberStatus {
+  Active
+  Flagged
+  Suspended
+}
+class Member {
+  +Guid Id
+  +MemberStatus Status
+  +string? ModerationNote
+  +Flag(note: string): void
+  +Suspend(note: string): void
+  +Reinstate(): void
+}
+class FlagMemberCommand {
+  +Guid MemberId
+  +string Note
+}
+class SuspendMemberCommand {
+  +Guid MemberId
+  +string Note
+  +bool Confirmed
+}
+class ReinstateMemberCommand {
+  +Guid MemberId
+}
+class FlagMemberValidator
+class SuspendMemberValidator
+class FlagMemberHandler
+class SuspendMemberHandler
+class ReinstateMemberHandler
+interface ICurrentUser {
+  +Guid MemberId
+  +StaffRole? Role
+}
+interface ISessionRevoker {
+  +RevokeAllAsync(memberId: Guid): Task
+}
+interface IAppDbContext {
+  +Members: DbSet<Member>
+  +SaveChangesAsync(ct): Task<int>
+}
+enum StaffRole {
+  Admin
+  Moderator
+}
+Member --> MemberStatus : has
+FlagMemberValidator ..> FlagMemberCommand : validates
+SuspendMemberValidator ..> SuspendMemberCommand : validates
+FlagMemberHandler ..> FlagMemberCommand : handles
+SuspendMemberHandler ..> SuspendMemberCommand : handles
+ReinstateMemberHandler ..> ReinstateMemberCommand : handles
+SuspendMemberHandler --> ICurrentUser : refuses self
+SuspendMemberHandler --> ISessionRevoker : ends sessions
+FlagMemberHandler --> IAppDbContext
+SuspendMemberHandler --> IAppDbContext
+ReinstateMemberHandler --> IAppDbContext
+ICurrentUser --> StaffRole
+@enduml

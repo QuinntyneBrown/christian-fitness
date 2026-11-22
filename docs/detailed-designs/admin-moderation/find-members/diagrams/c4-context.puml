@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Find members
+
+Person(user, "Staff member", "Staff member with the Admin or Moderator role")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+
+Rel(user, cf, "Finds members using", "HTTPS")
+Rel(cf, otel, "Exports route-template telemetry to", "OTLP")
+@enduml

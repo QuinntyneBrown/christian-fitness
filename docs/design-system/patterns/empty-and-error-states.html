@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty and error states — Christian Fitness design system</title>
+<meta name="description" content="When there&#x27;s nothing to show, or something broke, say why in one sentence and offer the one thing that helps.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">Christian Fitness DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul><li><a href="../foundations/color.html">Color</a></li><li><a href="../foundations/typography.html">Typography</a></li><li><a href="../foundations/spacing.html">Spacing</a></li><li><a href="../foundations/layout.html">Layout</a></li><li><a href="../foundations/elevation.html">Elevation</a></li><li><a href="../foundations/shape.html">Shape</a></li><li><a href="../foundations/motion.html">Motion</a></li><li><a href="../foundations/iconography.html">Iconography</a></li><li><a href="../foundations/theming.html">Theming</a></li><li><a href="../foundations/responsive.html">Responsive</a></li><li><a href="../foundations/accessibility.html">Accessibility</a></li><li><a href="../foundations/content.html">Content</a></li></ul></details>
+    <details open><summary>Components</summary><ul><li class="ds-nav__group">Actions</li><li><a href="../components/button.html">Button</a></li><li><a href="../components/link.html">Link</a></li><li><a href="../components/menu.html">Menu</a></li><li class="ds-nav__group">Inputs</li><li><a href="../components/text-field.html">Text field</a></li><li><a href="../components/textarea.html">Textarea</a></li><li><a href="../components/select.html">Select</a></li><li><a href="../components/checkbox.html">Checkbox</a></li><li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/switch.html">Switch</a></li><li><a href="../components/form-field.html">Form field</a></li><li><a href="../components/form-layout.html">Form layout</a></li><li class="ds-nav__group">Navigation</li><li><a href="../components/top-bar.html">Top bar</a></li><li><a href="../components/tab-bar.html">Tab bar</a></li><li><a href="../components/sidebar-navigation.html">Sidebar navigation</a></li><li><a href="../components/tabs.html">Tabs</a></li><li><a href="../components/breadcrumb.html">Breadcrumb</a></li><li><a href="../components/pagination.html">Pagination</a></li><li><a href="../components/skip-link.html">Skip link</a></li><li><a href="../components/footer.html">Footer</a></li><li class="ds-nav__group">Containers and overlays</li><li><a href="../components/card.html">Card</a></li><li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/drawer.html">Drawer</a></li><li><a href="../components/tooltip.html">Tooltip</a></li><li><a href="../components/accordion.html">Accordion</a></li><li><a href="../components/divider.html">Divider</a></li><li><a href="../components/layout.html">Layout primitives</a></li><li class="ds-nav__group">Data display</li><li><a href="../components/table.html">Table</a></li><li><a href="../components/list.html">List</a></li><li><a href="../components/description-list.html">Description list</a></li><li><a href="../components/avatar.html">Avatar</a></li><li><a href="../components/badge.html">Badge</a></li><li><a href="../components/chip.html">Chip</a></li><li><a href="../components/stat.html">Stat</a></li><li><a href="../components/event-card.html">Event card</a></li><li><a href="../components/message.html">Message</a></li><li><a href="../components/date-badge.html">Date badge</a></li><li class="ds-nav__group">Feedback</li><li><a href="../components/toast.html">Toast</a></li><li><a href="../components/alert.html">Alert</a></li><li><a href="../components/banner.html">Banner</a></li><li><a href="../components/inline-message.html">Inline message</a></li><li><a href="../components/progress-bar.html">Progress bar</a></li><li><a href="../components/spinner.html">Spinner</a></li><li><a href="../components/skeleton.html">Skeleton</a></li><li><a href="../components/empty-state.html">Empty state</a></li><li><a href="../components/error-page.html">Error page</a></li><li class="ds-nav__group">Brand</li><li><a href="../components/brand-lockup.html">Brand lockup</a></li></ul></details>
+    <details open><summary>Patterns</summary><ul><li><a href="../patterns/forms.html">Forms</a></li><li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li><li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li><li><a href="../patterns/navigation.html">Navigation and page structure</a></li><li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li><li><a href="../patterns/tables-and-lists.html">Tables and lists</a></li><li><a href="../patterns/notifications.html">Notifications</a></li><li><a href="../patterns/content-and-tone.html">Content and tone</a></li></ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern</p>
+      <h1>Empty and error states</h1>
+      <p class="ds-lead">When there's nothing to show, or something broke, say why in one sentence and offer the one thing that helps.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+<p>Empty and error states replace content inside the page, never the whole shell: the header, tabs, filters and search stay so people can change course. Each has a title, one or two sentences, and one primary action.</p>
+<ul>
+<li><b>First run</b>: nothing exists yet ("No events yet"). Explain what will appear and how.</li>
+<li><b>No results</b>: filters or search hide everything ("Nothing here yet", "No members match “Jessica”"). Offer to clear them.</li>
+<li><b>Load error</b>: the request failed ("Events didn't load"). Offer Try again, and a way elsewhere.</li>
+<li><b>Partial</b>: some panels loaded, one failed; that panel shows an <a href="../components/inline-message.html">inline error</a>, the rest stay.</li>
+<li><b>System</b>: 404, 403, 500 and offline get a full <a href="../components/error-page.html">error page</a>.</li>
+</ul>
+    </section>
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+<table class="ds-table"><thead><tr><th scope="col">Cause</th><th scope="col">Component</th><th scope="col">Primary action</th></tr></thead><tbody>
+<tr><td>Nothing created yet</td><td><a href="../components/empty-state.html">Empty state</a></td><td>Create or browse ("New event", "Browse events")</td></tr>
+<tr><td>Filter or search hides all</td><td>Empty state, tight</td><td>"Show all events" / "Clear search"</td></tr>
+<tr><td>Region failed to load</td><td>Error state (<code>.error-state</code>)</td><td>"Try again", plus a back link</td></tr>
+<tr><td>One panel of many failed</td><td>Inline error</td><td>"Try again" link</td></tr>
+<tr><td>Page missing, forbidden, server down, offline</td><td>Error page</td><td>Home, or Try again</td></tr>
+</tbody></table>
+    </section>
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+<p>Title (display face), text (muted, 1–2 sentences, max 60ch), actions. Errors add an icon and a reference code people can quote to the team.</p><div class="ds-example"><div class="ds-example__canvas"><div class="empty-state empty-state--tight">
+  <h3 class="display empty-state__title">No messages yet</h3>
+  <p class="empty-state__text">Register for an event and you'll join its group chat. You can also message a professional from Services.</p>
+  <div class="empty-state__actions"><a class="btn btn--primary btn--sm" href="#">Browse events</a></div>
+</div></div><div class="ds-example__caption"><span>First run: what will appear, and how to get there.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="empty-state empty-state--tight"&gt;
+  &lt;h3 class="display empty-state__title"&gt;No messages yet&lt;/h3&gt;
+  &lt;p class="empty-state__text"&gt;Register for an event and you'll join its group chat. You can also message a professional from Services.&lt;/p&gt;
+  &lt;div class="empty-state__actions"&gt;&lt;a class="btn btn--primary btn--sm" href="#"&gt;Browse events&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre></details></div><div class="ds-example"><div class="ds-example__canvas"><div class="empty-state empty-state--tight">
+  <h3 class="display empty-state__title">No members match “Jessica”</h3>
+  <p class="empty-state__text">Check the spelling, or search by email or home church instead.</p>
+  <div class="empty-state__actions"><button class="btn btn--secondary btn--sm" type="button">Clear search</button></div>
+</div></div><div class="ds-example__caption"><span>No results: echo the query, suggest a fix, offer to clear.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="empty-state empty-state--tight"&gt;
+  &lt;h3 class="display empty-state__title"&gt;No members match “Jessica”&lt;/h3&gt;
+  &lt;p class="empty-state__text"&gt;Check the spelling, or search by email or home church instead.&lt;/p&gt;
+  &lt;div class="empty-state__actions"&gt;&lt;button class="btn btn--secondary btn--sm" type="button"&gt;Clear search&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre></details></div><div class="ds-example"><div class="ds-example__canvas"><div class="error-state" role="alert">
+  <span class="error-state__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></span>
+  <div>
+    <h3 class="display empty-state__title">Events didn't load</h3>
+    <p class="empty-state__text">We couldn't reach Christian Fitness. Check your connection and try again.</p>
+    <div class="empty-state__actions">
+      <a class="btn btn--primary btn--sm" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>Try again</a>
+      <a class="btn btn--secondary btn--sm" href="#">Back to home</a>
+    </div>
+    <p class="error-state__ref">Reference CF-E3K9</p>
+  </div>
+</div></div><div class="ds-example__caption"><span>Load error: icon, what failed, reassurance, Try again, a way out, and a reference.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="error-state" role="alert"&gt;
+  &lt;span class="error-state__icon"&gt;&lt;svg class="icon" viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;circle cx="12" cy="12" r="10"/&gt;&lt;line x1="12" x2="12" y1="8" y2="12"/&gt;&lt;line x1="12" x2="12.01" y1="16" y2="16"/&gt;&lt;/svg&gt;&lt;/span&gt;
+  &lt;div&gt;
+    &lt;h3 class="display empty-state__title"&gt;Events didn't load&lt;/h3&gt;
+    &lt;p class="empty-state__text"&gt;We couldn't reach Christian Fitness. Check your connection and try again.&lt;/p&gt;
+    &lt;div class="empty-state__actions"&gt;
+      &lt;a class="btn btn--primary btn--sm" href="#"&gt;&lt;svg class="icon" viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/&gt;&lt;path d="M21 3v5h-5"/&gt;&lt;/svg&gt;Try again&lt;/a&gt;
+      &lt;a class="btn btn--secondary btn--sm" href="#"&gt;Back to home&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;p class="error-state__ref"&gt;Reference CF-E3K9&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details></div>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+<p>A list region moves between <b>loading</b>, <b>loaded</b>, <b>empty</b>, <b>no results</b> and <b>error</b>. Keep filters visible in no-results and error so the person can change them. "Try again" returns the region to loading, not the whole page.</p>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+<p>The block is centred with a max width and stacks its actions on phones (full width below 30rem). Error pages keep the brand seal and shrink it on phones. Empty states inside cards (<code>.empty-card</code>) or lists (<code>.empty-inline</code>) use the tight size.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+<ul>
+<li>Error states are <code>role="alert"</code> so the failure is announced when it replaces the skeleton.</li>
+<li>The title is a real heading at the right level for where it sits (h1 when it replaces the whole main content, as in Messages).</li>
+<li>After "Clear search", focus returns to the search field; after "Try again", to the region.</li>
+<li>Icons are decorative; the title carries the meaning.</li>
+</ul>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+<ul>
+<li><b>Empty</b>: "No [things] yet." + what will make them appear + the action.</li>
+<li><b>No results</b>: "No [things] match “query”." + one suggestion.</li>
+<li><b>Error</b>: "[Thing] didn't load." + "We couldn't reach Christian Fitness." + reassurance about what's safe + what to do.</li>
+<li>Never blame the person; never show raw codes or stack traces. The reference ("CF-E3K9") is for support only.</li>
+</ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+<div class="ds-dodont"><figure class="ds-do"><div class="ds-example__canvas"><div class="empty-state empty-state--tight">
+  <h3 class="display empty-state__title">No events yet</h3>
+  <p class="empty-state__text">Register for an event and you'll join its group chat. You can also message a professional from Services.</p>
+  <div class="empty-state__actions"><a class="btn btn--primary btn--sm" href="#">Browse events</a></div>
+</div></div><figcaption>Explain what will appear and offer a way forward.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><p class="muted">No data.</p></div><figcaption>Don't leave a bare "No data".</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas"><div class="error-state" role="alert">
+  <span class="error-state__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></span>
+  <div>
+    <h3 class="display empty-state__title">Messages didn't load</h3>
+    <p class="empty-state__text">New messages are safe and will appear when you're reconnected.</p>
+    <div class="empty-state__actions">
+      <a class="btn btn--primary btn--sm" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>Try again</a>
+      
+    </div>
+    
+  </div>
+</div></div><figcaption>Reassure about what's safe and offer Try again.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><p class="muted">Error 503: upstream connect error.</p></div><figcaption>Don't show server errors or codes as the message.</figcaption></figure></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+<p>Extracted from these mocks:</p><ul><li><a href="../../mocks/pages/events/empty.html">pages/events/empty</a> (first run)</li><li><a href="../../mocks/pages/events/no-results.html">pages/events/no-results</a> (filter hides all)</li><li><a href="../../mocks/pages/events/error.html">pages/events/error</a> (load error with reference)</li><li><a href="../../mocks/pages/admin-members/no-results.html">pages/admin-members/no-results</a> (search echoes the query)</li><li><a href="../../mocks/pages/messages/empty.html">pages/messages/empty</a> (empty state as h1)</li><li><a href="../../mocks/pages/home/partial.html">pages/home/partial</a> (one panel failed)</li><li><a href="../../mocks/pages/not-found/default.html">pages/not-found/default</a> (404 page)</li><li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a> (offline page)</li></ul><p><b>Drift fixed during extraction:</b> <ul>
+<li>Admin load errors say "Try again in a moment" while member ones say "Check your connection and try again". Staff errors are more often server-side, so the difference may be intended; record it in content guidance or align.</li>
+<li>Events no-results uses "Nothing here yet" (the prototype's copy) while admin no-results uses "No members match “Jessica”". Prefer the "No [things] match" formula.</li>
+<li>Some error states offer a back link and some don't (admin errors have none).</li>
+</ul></p>
+    </section>
+    <footer class="ds-footer"><span>Christian Fitness design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-22</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

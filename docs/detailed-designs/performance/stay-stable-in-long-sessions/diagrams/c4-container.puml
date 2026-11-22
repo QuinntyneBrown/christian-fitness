@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Stay stable in long sessions
+
+Person(member, "Member", "Registers for events, chats and books professionals")
+Person(staff, "Staff member", "Admin or Moderator")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web")
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless)", "projects/admin")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(staff, admin, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(admin, api, "Calls", "JSON/HTTPS")
+@enduml

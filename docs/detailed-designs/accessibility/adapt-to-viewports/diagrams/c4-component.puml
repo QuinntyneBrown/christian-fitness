@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Adapt to viewports
+
+Container_Boundary(web, "Member web app") {
+  Component(bp, "BreakpointService", "BREAKPOINT_SERVICE; CDK BreakpointObserver", "isLg signal")
+  Component(parent, "MessagesPage", "Routed component", "Side by side at LG+")
+  Component(list, "Conversation list", "components", "mini-row items")
+  Component(detail, "Conversation detail", "components", "message thread, composer")
+  Component(router, "Router", "Angular", "/messages and /messages/:id")
+}
+Rel(parent, bp, "Reads isLg")
+Rel(parent, list, "Renders")
+Rel(parent, detail, "Renders at LG+")
+Rel(list, router, "Navigates to detail below LG")
+@enduml

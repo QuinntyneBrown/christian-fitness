@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Admin sign-in
+
+Person(staff, "Staff member", "Admin or Moderator on the Christian Fitness team")
+Person(member, "Member", "Uses the member web app")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives telemetry without personal data")
+
+Rel(staff, cf, "Signs in to the admin web app of")
+Rel(member, cf, "Uses the member web app of")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

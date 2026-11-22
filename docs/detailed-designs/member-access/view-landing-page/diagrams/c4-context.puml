@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View the landing page
+
+Person(user, "Visitor", "Person who is not signed in")
+
+System(cf, "Christian Fitness", "Christian community for health in body and spirit in the Greater Toronto Area")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces, metrics and logs")
+
+Rel(user, cf, "Reads about the community and upcoming events using", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

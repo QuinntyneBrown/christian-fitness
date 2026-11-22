@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View member home
+class HomePage {
+  +store: HomeStore
+}
+class HomeStore {
+  +state: Signal<'loading'|'loaded'|'error'>
+  +summary: Signal<HomeSummaryDto|null>
+  +load(): void
+  +retry(): void
+}
+interface HomeApi {
+  +summary(): Observable<HomeSummaryDto>
+}
+class HttpHomeService
+class HomeSummaryDto {
+  +firstName: string
+  +nextEvent?: UpcomingEventDto
+  +suggested: UpcomingEventDto[]
+  +unreadCount: number
+}
+class GetHomeSummaryHandler {
+  +Handle(q: GetHomeSummaryQuery): Task<HomeSummaryDto>
+}
+class Member
+class Registration
+class Event
+class ConversationParticipant {
+  +Guid MemberId
+  +DateTimeOffset? LastReadAt
+}
+HttpHomeService ..|> HomeApi
+HomePage --> HomeStore
+HomeStore ..> HomeApi : injects HOME_SERVICE
+HomeStore --> HomeSummaryDto
+GetHomeSummaryHandler ..> Member
+GetHomeSummaryHandler ..> Registration
+GetHomeSummaryHandler ..> Event
+GetHomeSummaryHandler ..> ConversationParticipant
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Load the landing page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Browser" as br
+  participant "Router" as router
+  participant "LandingPage" as page
+  participant "HttpLandingService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "LandingController" as ctrl
+end box
+actor -> br : Open /
+br -> br : Download main chunk and preloaded fonts
+br -> router : Bootstrap
+router -> page : loadComponent() dynamic import
+page -> http : getNextEvents()
+http -> ctrl : GET /api/landing (anonymous)
+ctrl --> http : next three events
+page --> actor : Hero (sized, fetchpriority=high); LCP < 2.5 s, CLS < 0.1 (L2-035 AC3)
+@enduml

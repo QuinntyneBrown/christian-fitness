@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Find members
+
+Container_Boundary(fe, "Admin web app") {
+  Component(page, "MembersPage", "Routed Angular page", "Holds search term, status filter and page as signals")
+  Component(svc, "ADMIN_MEMBERS_SERVICE / AdminMembersApi", "Injection token and contract", "Typed member search")
+  Component(table, "MemberTable", "Presentation component", "BEM block table with status and avatar")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminMembersController", "ASP.NET Core controller, policy StaffOnly", "One MediatR send")
+  Component(h, "SearchMembersHandler", "MediatR query handler", "Filters, orders and pages members")
+  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Members and registrations")
+}
+Rel(page, svc, "Depends on")
+Rel(page, table, "Renders rows with")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, h, "Sends SearchMembersQuery")
+Rel(h, db, "Reads", "EF Core")
+@enduml

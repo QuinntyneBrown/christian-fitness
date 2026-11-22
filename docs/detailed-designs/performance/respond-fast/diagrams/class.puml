@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Respond fast
+
+class PageRequest {
+  +int Size
+  +string? Cursor
+}
+class PageRequestValidator {
+  +MaxSize = 50
+}
+class "Page<T>" as Page {
+  +T[] Items
+  +string? NextCursor
+}
+class ListEventsQuery
+class ListServicesQuery
+class ListConversationsQuery
+class ListMembersQuery
+PageRequest <|-- ListEventsQuery
+PageRequest <|-- ListServicesQuery
+PageRequest <|-- ListConversationsQuery
+PageRequest <|-- ListMembersQuery
+PageRequestValidator ..> PageRequest : validates
+@enduml

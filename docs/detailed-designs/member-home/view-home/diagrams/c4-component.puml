@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View member home
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "HomePage", "Angular routed component", "Greeting, next event, suggestions")
+  Component(store, "HomeStore", "Signal store (route-scoped)", "load, retry")
+  Component(ui, "NextEventCard, EventRow, ErrorState", "components library", "Presentation")
+  Component(svc, "HttpHomeService", "HOME_SERVICE", "HTTP client")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "HomeController", "ASP.NET Core controller", "GET /api/home")
+  Component(h, "GetHomeSummaryHandler", "MediatR handler", "Next event, suggestions, unread")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persistent store")
+
+Rel(page, store, "Reads signals")
+Rel(page, ui, "Renders")
+Rel(store, svc, "Loads summary")
+Rel(svc, ctrl, "GET", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetHomeSummaryQuery")
+Rel(h, db, "Reads Member, Registration, Event, ConversationParticipant, Message", "EF Core")
+@enduml

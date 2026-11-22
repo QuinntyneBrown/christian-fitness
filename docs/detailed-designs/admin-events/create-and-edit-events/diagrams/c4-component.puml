@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Create and edit events
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "AdminEventsPage", "Angular page", "Events table and tabs")
+  Component(dlg, "EventEditorDialog", "CDK Dialog", "New event / Edit event")
+  Component(rules, "eventEditorRules", "domain", "Client hints")
+  Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "Implements AdminEventsApi")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AdminOnly")
+  Component(val, "EventFieldsValidator", "FluentValidation", "Field codes")
+  Component(handler, "Create/UpdateEventHandler", "MediatR handlers", "Draft, capacity_below_going")
+  Component(img, "UploadEventImageHandler", "MediatR handler", "image_invalid")
+  Component(store, "IImageStore", "Infrastructure", "Storage <TO SUPPLY>")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, engine <TO SUPPLY>", "Persistent state")
+
+Rel(page, dlg, "Opens")
+Rel(dlg, rules, "Uses")
+Rel(dlg, svc, "Calls create/update/uploadImage")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS, multipart")
+Rel(ctrl, val, "Validates through pipeline")
+Rel(ctrl, handler, "Sends commands")
+Rel(ctrl, img, "Sends UploadEventImageCommand")
+Rel(img, store, "Stores image")
+Rel(handler, db, "Reads and writes events", "EF Core")
+@enduml

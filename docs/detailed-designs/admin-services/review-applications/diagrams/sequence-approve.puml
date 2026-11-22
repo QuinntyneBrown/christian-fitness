@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Approve an application
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member (Admin)" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageServicesPage" as page
+  participant "HttpAdminServicesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminApplicationsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ApproveApplicationHandler" as h
+  participant "ProfessionalApplication" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Approve
+page -> client : approve(id)
+client -> ctrl : POST /api/admin/applications/{id}/approve
+ctrl -> ctrl : Authenticate and apply AdminOnly policy
+ctrl -> h : Send ApproveApplicationCommand
+h -> db : Load application
+db --> h : Application
+alt not found or not Pending
+  h --> ctrl : Refusal with code <TO SUPPLY>
+  ctrl --> client : ProblemDetails with code
+  client --> page : Error code
+  page --> actor : Generic message
+else Pending
+  h -> ent : Approve(now)
+  ent --> h : New published ServiceListing (L2-025 AC2)
+  h -> db : Add listing and save application in one unit of work
+  db --> h : Committed
+  h --> ctrl : Success
+  ctrl --> client : 204 No Content
+  client --> page : Done
+  page --> actor : Row shows "Approved, now listed"; application leaves the queue
+end
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send and receive messages
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular, standalone, signals, zoneless", "projects/web: Messages screen")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Conversations, participants, messages, reports")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/conversations/{id}/messages", "JSON/HTTPS")
+Rel(web, api, "Sends and receives on ChatHub", "SignalR/WebSocket")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry to", "OTLP")
+@enduml

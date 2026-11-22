@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Send a message
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ConversationPage" as page
+  participant "ConversationThreadStore" as store
+  participant "SignalRChatConnection" as conn
+  participant "HttpMessagesService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ChatHub" as hub
+  participant "MessagesController" as controller
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SendMessageHandler" as send
+  participant "SendMessageValidator" as val
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Type text and press Send
+page -> store : send(text)
+store -> store : validateMessage 1..2,000 chars
+store -> conn : send(conversationId, text)
+conn -> hub : SendMessage(conversationId, text)
+hub -> send : Send SendMessageCommand
+send -> val : Validate Text length 1..2,000
+alt empty or over 2,000 characters
+  val --> send : invalid
+  send --> hub : Answer code message_invalid (L2-016)
+  hub --> conn : HubAnswer { code: message_invalid }
+  conn --> store : Refused
+  store --> page : Composer keeps the text (L2-016)
+  page --> actor : Generic invalid-message notice
+else valid
+  send -> db : Is caller a ConversationParticipant?
+  alt not a participant
+    send --> hub : Answer code not_a_participant (L2-016)
+    hub --> conn : HubAnswer { code: not_a_participant }
+    conn --> page : Generic refusal
+  else participant
+    send -> db : Insert Message, update LastMessageAt
+    db --> send : Saved
+    send -> hub : Broadcast MessageReceived to conversation group
+    hub --> conn : MessageReceived to every connected participant within 1 s (L2-016)
+    send --> hub : Answer with MessageDto
+    hub --> conn : HubAnswer { message }
+    conn --> store : MessageWindow.append; drop oldest beyond 200
+    store --> page : Clear draft
+    page --> actor : Message shows as plain text (L2-016)
+  end
+end
+@enduml

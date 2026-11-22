@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Report a message or member
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "ConversationPage", "Routed page", "Offers Report on another member's message")
+  Component(dlg, "ReportMessageDialog", "CDK Dialog in projects/web", "Collects the reason")
+  Component(toast, "Toast", "components library", "Confirmation (toast block)")
+  Component(svc, "HttpReportsService", "contract ReportsApi / REPORTS_SERVICE", "Calls the reports endpoint")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ReportsController", "ASP.NET Core controller", "One MediatR send")
+  Component(h, "ReportMessageHandler", "MediatR + ReportMessageValidator", "Creates one Report per reporter and message; flags sender")
+  Component(member, "Member", "Domain entity", "Flag() moves Active to Flagged")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Report, Member, Message")
+}
+Rel(page, dlg, "Opens with the message id")
+Rel(dlg, svc, "Submits through REPORTS_SERVICE")
+Rel(page, toast, "Shows confirmation")
+Rel(svc, ctrl, "POST /api/messages/{id}/reports", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ReportMessageCommand")
+Rel(h, member, "Calls Flag() on the sender")
+Rel(h, db, "Reads and writes via IAppDbContext")
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Stay stable in long sessions
+
+interface ChatConnection {
+  +on(event: string, handler): Disposer
+  +start(): Promise<void>
+  +stop(): Promise<void>
+}
+class SignalRChatConnection {
+  -hub: HubConnection
+  -subscribers: number
+}
+class ChatStore {
+  -disposers: Disposer[]
+  +messages: Signal<MessageDto[]>
+}
+class "BoundedBuffer<T>" as BB {
+  +capacity: number
+  +push(item: T): void
+  +items(): T[]
+}
+class DestroyRef <<Angular>> {
+  +onDestroy(fn): void
+}
+SignalRChatConnection ..|> ChatConnection
+ChatStore ..> ChatConnection : CHAT_CONNECTION
+ChatStore *-- BB
+ChatStore ..> DestroyRef
+@enduml

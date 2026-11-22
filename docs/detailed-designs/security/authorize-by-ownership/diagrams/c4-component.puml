@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Authorize by ownership
+
+Container(web, "Member web app", "Angular", "Calls member endpoints")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(authz, "Authorization middleware", "ASP.NET Core", "Fallback policy: authenticated user; [AllowAnonymous] exceptions")
+  Component(ctrl, "RegistrationsController / ConversationsController", "Controllers", "One MediatR send")
+  Component(h, "Query handlers", "MediatR", "Apply ownership filter")
+  Component(cu, "ICurrentUser", "Application abstraction", "Caller's MemberId")
+  Component(pd, "ProblemDetails mapper", "Middleware", "NotFoundException -> uniform 404")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "Registrations, conversations, participants")
+}
+Rel(web, authz, "HTTPS with session cookie")
+Rel(authz, ctrl, "Authenticated request")
+Rel(ctrl, h, "Sends query")
+Rel(h, cu, "Reads caller")
+Rel(h, db, "Filtered query")
+Rel(h, pd, "Throws NotFoundException")
+@enduml

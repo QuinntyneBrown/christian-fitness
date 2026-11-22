@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Load fast
+
+Person(visitor, "Visitor", "Not signed in")
+Person(member, "Member", "Registers for events, chats and books professionals")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+
+Rel(visitor, cf, "Opens the landing page of")
+Rel(member, cf, "Uses")
+@enduml

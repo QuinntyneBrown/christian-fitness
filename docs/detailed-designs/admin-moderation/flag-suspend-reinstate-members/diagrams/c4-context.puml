@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Flag, suspend and reinstate members
+
+Person(user, "Staff member", "Staff member with the Admin or Moderator role")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+Person(member, "Member", "Subject of moderation")
+Rel(member, cf, "Signs in to and registers for events in")
+Rel(user, cf, "Moderates members using", "HTTPS")
+Rel(cf, otel, "Exports route-template telemetry to", "OTLP")
+@enduml

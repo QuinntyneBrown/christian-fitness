@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Authorize by ownership
+
+interface ICurrentUser {
+  +Guid MemberId
+  +bool IsStaff
+}
+interface IAppDbContext {
+  +DbSet<Registration> Registrations
+  +DbSet<ConversationParticipant> ConversationParticipants
+  +DbSet<Message> Messages
+}
+class GetMessagesHandler {
+  +Handle(q: GetMessagesQuery): Task<Page<MessageDto>>
+}
+class GetRegistrationsHandler {
+  +Handle(q: GetRegistrationsQuery): Task<Page<RegistrationDto>>
+}
+class NotFoundException {
+  +Code = "not_found"
+}
+class Conversation {
+  +Guid Id
+}
+class ConversationParticipant {
+  +Guid ConversationId
+  +Guid MemberId
+}
+class Registration {
+  +Guid Id
+  +Guid MemberId
+  +Guid EventId
+}
+GetMessagesHandler ..> ICurrentUser
+GetMessagesHandler ..> IAppDbContext
+GetRegistrationsHandler ..> ICurrentUser
+GetRegistrationsHandler ..> IAppDbContext
+GetMessagesHandler ..> NotFoundException : throws
+Conversation "1" *-- "*" ConversationParticipant
+@enduml

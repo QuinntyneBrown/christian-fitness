@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Flag, suspend and reinstate members
+
+Person(user, "Staff member", "Uses the Admin web app")
+
+System_Boundary(cf, "Christian Fitness") {
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless)", "Members screen and moderation actions")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, MediatR handlers, ProblemDetails")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
+  ContainerDb(db, "Christian Fitness database", "EF Core; engine <TO SUPPLY>", "Persists members, applications and listings")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+
+Rel(user, admin, "Uses", "HTTPS")
+Rel(admin, api, "Calls", "JSON/HTTPS, session cookie")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+
+@enduml

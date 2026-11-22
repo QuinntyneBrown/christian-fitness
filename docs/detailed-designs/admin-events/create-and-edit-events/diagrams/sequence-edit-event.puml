@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Edit an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "EventEditorDialog" as dlg
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "UpdateEventHandler" as handler
+  participant "Event" as entity
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> dlg : Change capacity, Save changes
+dlg -> client : update(id, input)
+client -> ctrl : PUT /api/admin/events/{id}
+ctrl -> handler : Send UpdateEventCommand (validated as on create)
+handler -> db : Load Event and count going Registrations
+db --> handler : Event, going
+alt capacity < going (L2-022 AC3)
+  handler --> ctrl : capacity_below_going
+  ctrl --> client : 409 ProblemDetails code capacity_below_going
+  client --> dlg : Refusal
+  dlg --> actor : Capacity field error
+else allowed
+  handler -> entity : Edit(fields)
+  handler -> db : SaveChanges with AuditEntry
+  handler --> ctrl : EventDto
+  ctrl --> client : 200 EventDto
+  dlg --> actor : Close dialog, updated row
+end
+@enduml

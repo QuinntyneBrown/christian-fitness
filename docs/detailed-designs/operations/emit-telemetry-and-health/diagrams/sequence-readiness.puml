@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Probe liveness and readiness
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator" as actor
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Health checks" as hc
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> hc : GET /health/live (anonymous)
+hc --> actor : 200 Healthy
+actor -> hc : GET /health/ready (anonymous)
+hc -> db : CanConnectAsync
+alt reachable
+  hc --> actor : 200 Healthy (L2-040 AC2)
+else unreachable
+  hc --> actor : 503 Unhealthy, no exception detail (L2-040 AC2)
+end
+@enduml

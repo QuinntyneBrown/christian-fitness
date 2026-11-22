@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Validate input
+
+Container(web, "Member web app", "Angular", "Screens map code to generic message")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "XxxController", "Controller", "One MediatR send")
+  Component(vb, "ValidationBehavior", "MediatR pipeline", "Runs validators")
+  Component(v, "XxxValidator", "FluentValidation", "Field rules per command")
+  Component(h, "XxxHandler", "MediatR handler", "Business rules")
+  Component(eh, "ProblemDetailsExceptionHandler", "IExceptionHandler", "400/4xx with code; 500 without detail")
+}
+Rel(web, ctrl, "JSON/HTTPS")
+Rel(ctrl, vb, "Sends request")
+Rel(vb, v, "Validates")
+Rel(vb, h, "Invokes when valid")
+Rel(vb, eh, "Throws ValidationException")
+Rel(eh, web, "ProblemDetails")
+@enduml

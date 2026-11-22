@@ -1,0 +1,64 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Professional application intake
+
+enum ApplicationStatus {
+  Pending
+  Approved
+  Declined
+}
+class ProfessionalApplication {
+  +Guid Id
+  +Guid MemberId
+  +string Role
+  +string Category
+  +string Credentials
+  +string Where
+  +string Price
+  +string About
+  +DateTimeOffset SubmittedAt
+  +ApplicationStatus Status
+  +{static} Submit(memberId, fields, at): ProfessionalApplication
+}
+class Member {
+  +Guid Id
+  +string Name
+  +MemberStatus Status
+}
+class SubmitApplicationCommand {
+  +string Role
+  +string Category
+  +string Credentials
+  +string Where
+  +string Price
+  +string About
+}
+class SubmitApplicationValidator
+class SubmitApplicationHandler {
+  +Handle(cmd: SubmitApplicationCommand): Task<Result<Guid>>
+}
+interface IAppDbContext {
+  +ProfessionalApplications: DbSet<ProfessionalApplication>
+  +SaveChangesAsync(ct): Task<int>
+}
+interface ProfessionalApplicationsApi {
+  +submit(req: SubmitApplicationRequest): Observable<void>
+}
+class HttpProfessionalApplicationsService
+Member "1" --> "*" ProfessionalApplication : applies
+ProfessionalApplication --> ApplicationStatus : has
+SubmitApplicationValidator ..> SubmitApplicationCommand : validates
+SubmitApplicationHandler ..> SubmitApplicationCommand : handles
+SubmitApplicationHandler --> IAppDbContext
+SubmitApplicationHandler ..> ProfessionalApplication : creates
+HttpProfessionalApplicationsService ..|> ProfessionalApplicationsApi
+@enduml

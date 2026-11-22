@@ -1,0 +1,78 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Find members
+
+enum MemberStatus {
+  Active
+  Flagged
+  Suspended
+}
+class Member {
+  +Guid Id
+  +string Name
+  +string Email
+  +string? HomeChurch
+  +DateTimeOffset JoinedAt
+  +MemberStatus Status
+  +string? ModerationNote
+}
+class Registration {
+  +Guid MemberId
+  +Guid EventId
+}
+class SearchMembersQuery {
+  +string? Search
+  +MemberStatus? Status
+  +int Page
+}
+class MemberRowDto {
+  +Guid Id
+  +string Name
+  +string Initials
+  +string Email
+  +string? Church
+  +DateTimeOffset Joined
+  +int EventsAttended
+  +MemberStatus Status
+  +string? Note
+}
+class PagedResult<T> {
+  +IReadOnlyList<T> Items
+  +int Page
+  +int PageSize = 25
+  +int Total
+}
+class SearchMembersHandler {
+  +Handle(q: SearchMembersQuery): Task<PagedResult<MemberRowDto>>
+}
+interface IAppDbContext {
+  +Members: DbSet<Member>
+  +Registrations: DbSet<Registration>
+}
+interface AdminMembersApi {
+  +search(term, status, page): Observable<PagedResult<MemberRowDto>>
+}
+class HttpAdminMembersService
+class MembersPage {
+  +search: Signal<string>
+  +status: Signal<MemberStatus | null>
+  +page: Signal<number>
+}
+Member --> MemberStatus : has
+Member "1" --> "*" Registration
+SearchMembersHandler ..> SearchMembersQuery : handles
+SearchMembersHandler ..> PagedResult : returns
+PagedResult o-- MemberRowDto
+SearchMembersHandler --> IAppDbContext
+HttpAdminMembersService ..|> AdminMembersApi
+MembersPage --> AdminMembersApi : ADMIN_MEMBERS_SERVICE
+@enduml
