@@ -131,7 +131,7 @@ slice, refactor green and run the regression checks. No bulk implementation, no 
 afterwards, no weakening tests. Keep requirement, design, mock, tests and code aligned. Never
 write architecture tests (structure, naming, banned APIs, traceability); tests prove behaviour.
 
-Before a slice of `docs/detailed-journeys.md`, read `docs/lessons-learned.md` and apply what
+Before a slice of `docs/journeys.detailed.md`, read `docs/lessons-learned.md` and apply what
 fits; before it merges, add its entry (what slowed it, new lessons, how earlier ones worked) and
 update **% complete** there and in `docs/journeys.md`.
 
