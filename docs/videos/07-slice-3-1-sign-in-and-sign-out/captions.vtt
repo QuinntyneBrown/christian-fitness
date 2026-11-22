@@ -1,0 +1,49 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.337
+Welcome back. Members can now sign in, and sign out, on any device.
+
+00:00:08.000 --> 00:00:12.463
+Enter your email and password, and you land on Home, greeted by name. While it
+
+00:00:12.463 --> 00:00:14.765
+works, the button says, signing in.
+
+00:00:18.000 --> 00:00:23.391
+A wrong password, or an email we don't know, gets one message: email or password is
+
+00:00:23.391 --> 00:00:25.704
+incorrect. It never says which.
+
+00:00:28.000 --> 00:00:32.340
+If the server fails, a message says so, and what you typed stays, ready to try
+
+00:00:32.340 --> 00:00:32.974
+again.
+
+00:00:36.000 --> 00:00:41.117
+Signed in, the header offers Sign out, a full-size target on phone and desktop. It
+
+00:00:41.117 --> 00:00:43.788
+ends the session on the server itself.
+
+00:00:46.000 --> 00:00:49.912
+Open a member page without a session, and you are taken to sign in.
+
+00:00:54.000 --> 00:00:58.916
+Every change carries an antiforgery token, so another site cannot act for you, and
+
+00:00:58.916 --> 00:01:01.914
+every answer carries strict security headers.
+
+00:01:04.000 --> 00:01:06.922
+Every test failed first. Now they all pass.
+
+00:01:10.000 --> 00:01:13.223
+Next, slice three point two: sign-in protections.
+
+00:01:16.000 --> 00:01:21.023
+That's slice three point one. Christian Fitness: a Christian community for health in
+
+00:01:21.023 --> 00:01:22.280
+body and spirit.
