@@ -36,7 +36,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "220kB",
+                  "maximumWarning": "225kB",
                   "maximumError": "250kB"
                 },
                 {
@@ -99,7 +99,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "220kB",
+                  "maximumWarning": "225kB",
                   "maximumError": "250kB"
                 },
                 {
@@ -142,7 +142,17 @@
       "projectType": "library",
       "root": "projects/domain",
       "sourceRoot": "projects/domain",
-      "prefix": "cf"
+      "prefix": "cf",
+      "architect": {
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "web:build:development",
+            "tsConfig": "projects/domain/tsconfig.spec.json",
+            "runner": "vitest"
+          }
+        }
+      }
     },
     "api": {
       "projectType": "library",

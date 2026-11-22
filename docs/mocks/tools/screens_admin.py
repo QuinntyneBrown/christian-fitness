@@ -123,6 +123,42 @@ def _():
 
 
 # ===========================================================================
+# System pages in the admin shell (L2-043)
+# ===========================================================================
+from screens_member import NA_SYSTEM, REFERENCE, server_error_text, system  # noqa: E402
+
+s = screen("admin-not-found", "page", "Page not found (admin)", route="/** (admin)", group=G,
+           source="Derived: the member not-found page in the admin shell.", not_applicable=NA_SYSTEM)
+
+
+@s("default", "404 in the admin console: ways to the dashboard and to events.")
+def _():
+    return admin_shell("", system("404", "Page not found", "That link may be old, or the page has moved. Everything else is right where you left it.",
+                                  f'<a class="btn btn--primary btn--sm" href="{href("admin-dashboard")}">Go to dashboard</a><a class="btn btn--secondary btn--sm" href="{href("admin-events")}">Manage events</a>',
+                                  ic="compass", container=False))
+
+
+s = screen("admin-server-error", "page", "Something went wrong (admin)", route="(any admin route, on a 5xx)", group=G,
+           source="Derived: the member server-error page in the admin shell.", not_applicable=NA_SYSTEM)
+
+
+def admin_server_error(reference: str | None) -> str:
+    return admin_shell("", system("500", "Something went wrong", server_error_text(reference),
+                                  f'<a class="btn btn--primary btn--sm" href="{href("admin-dashboard")}">{icon("rotate-cw")}Try again</a><a class="btn btn--secondary btn--sm" href="{href("admin-dashboard")}">Go to dashboard</a>',
+                                  ic="alert-circle", container=False))
+
+
+@s("default", "500 in the admin console: our fault, try again, with a reference code.")
+def _():
+    return admin_server_error(REFERENCE)
+
+
+@s("no-reference", "500 in the admin console without a reference.")
+def _():
+    return admin_server_error(None)
+
+
+# ===========================================================================
 # Dashboard
 # ===========================================================================
 def queue_items(include=True) -> str:

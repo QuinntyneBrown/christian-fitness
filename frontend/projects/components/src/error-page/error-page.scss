@@ -1,0 +1,56 @@
+// The design system's error page (docs/design-system/assets/components.css: empty-state,
+// system__code, system__title, display, page-title).
+:host {
+  display: block;
+}
+
+.empty-state {
+  max-width: var(--layout-form-max);
+}
+
+.empty-state--system {
+  margin-top: var(--space-12);
+}
+
+.system__code {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-8xl);
+  font-weight: var(--font-weight-semibold);
+  font-style: italic;
+  line-height: var(--line-height-none);
+  color: var(--color-fg-accent);
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.system__title {
+  margin-top: var(--space-4);
+
+  // The heading takes focus only so a screen reader starts here; it is not a control.
+  &:focus {
+    outline: none;
+  }
+}
+
+.empty-state__text {
+  margin-top: var(--space-2);
+  color: var(--color-fg-muted);
+}
+
+.empty-state__actions {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

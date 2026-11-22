@@ -14,7 +14,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSessionAuthentication();
 builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = context =>
-        context.ProblemDetails.Extensions.TryAdd("code", ProblemCodes.ForStatus(context.ProblemDetails.Status ?? context.HttpContext.Response.StatusCode)));
+    {
+        context.ProblemDetails.Extensions.TryAdd("code", ProblemCodes.ForStatus(context.ProblemDetails.Status ?? context.HttpContext.Response.StatusCode));
+        ProblemReference.AddTo(context);
+    });
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 
 var app = builder.Build();

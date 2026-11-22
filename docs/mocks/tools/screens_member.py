@@ -1095,15 +1095,26 @@ def _():
 # ===========================================================================
 # System pages
 # ===========================================================================
-def system(code: str, title: str, text: str, actions: str, *, ic: str) -> str:
-    return f"""    <div class="container page">
-      <div class="empty-state empty-state--system">
+def system(code: str, title: str, text: str, actions: str, *, ic: str, container: bool = True) -> str:
+    block = f"""      <div class="empty-state empty-state--system">
         <p class="system__code" aria-hidden="true">{code}</p>
-        <h1 class="display page-title system__title">{title}</h1>
+        <h1 class="display page-title system__title" tabindex="-1">{title}</h1>
         <p class="empty-state__text">{text}</p>
         <div class="empty-state__actions">{actions}</div>
-      </div>
-    </div>"""
+      </div>"""
+    # The admin shell's page area already pads the content; the member shell needs the container.
+    return f"""    <div class="container page">
+{block}
+    </div>""" if container else block
+
+
+# The server-error reference: CF- and the first eight hex digits of the request's trace id (L2-043 AC3).
+REFERENCE = "CF-4BF92F35"
+SERVER_ERROR_TEXT = "That's on us, not you, and we've been notified. Try again in a moment."
+
+
+def server_error_text(reference: str | None) -> str:
+    return SERVER_ERROR_TEXT + (f" If it keeps happening, quote reference {reference}." if reference else "")
 
 
 NA_SYSTEM = {"loading": "A system page renders without loading data.", "empty": "Not a collection.", "error": "This page is itself the error state."}
@@ -1120,10 +1131,20 @@ def _():
 s = screen("server-error", "page", "Something went wrong", route="(any, on a 500)", group="System", source="Derived: system page in the member shell.", not_applicable=NA_SYSTEM)
 
 
+def member_server_error(reference: str | None) -> str:
+    # Try again is a link: it loads the URL that failed again from the server (L2-043 AC6).
+    return member_shell("", system("500", "Something went wrong", server_error_text(reference),
+                                   f'<a class="btn btn--primary btn--sm" href="{href("home")}">{icon("rotate-cw")}Try again</a><a class="btn btn--secondary btn--sm" href="{href("home")}">Go to home</a>', ic="alert-circle"))
+
+
 @s("default", "500: our fault, we've been told, try again; with a reference code for support.")
 def _():
-    return member_shell("", system("500", "Something went wrong", "That's on us, not you, and we've been notified. Try again in a moment. If it keeps happening, quote reference CF-5H2Q.",
-                                   f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("home")}">{icon("rotate-cw")}Try again</button><a class="btn btn--secondary btn--sm" href="{href("home")}">Go to home</a>', ic="alert-circle"))
+    return member_server_error(REFERENCE)
+
+
+@s("no-reference", "500 without a reference (the response carried none): the same page without the reference sentence.")
+def _():
+    return member_server_error(None)
 
 
 s = screen("offline", "page", "Offline", route="(any, no connection and nothing cached)", group="System", source="Derived: system page in the member shell.", not_applicable=NA_SYSTEM)

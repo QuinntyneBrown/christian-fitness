@@ -1,5 +1,5 @@
 /*
- * Public API of @cf/domain: pure rules and helpers, each with unit tests. Empty until a slice
- * needs one.
+ * Public API of @cf/domain: pure rules and helpers with unit tests (npm test).
  */
-export {};
+export * from './errors/server-error';
+export * from './errors/server-error-interceptor';

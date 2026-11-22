@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Show error screens
+
+Person(member, "Member", "Community member or visitor")
+Person(staff, "Staff", "Christian Fitness team")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; not-found and server-error routes")
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless)", "projects/admin; not-found and server-error routes")
+  Container(lib, "Shared libraries", "Angular source libraries", "components: Button, ErrorPage; domain: reference, return path, interceptor")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "ProblemDetails with code and, on a 5xx, reference")
+}
+System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
+
+Rel(member, web, "Opens a URL", "HTTPS")
+Rel(staff, admin, "Opens a URL", "HTTPS")
+Rel(web, lib, "Composes screens from")
+Rel(admin, lib, "Composes screens from")
+Rel(web, api, "Reads data, from the first data-loading slice", "JSON/HTTPS")
+Rel(admin, api, "Reads data, from the first data-loading slice", "JSON/HTTPS")
+Rel(api, otel, "Exports the span whose trace id the reference quotes", "OTLP")
+@enduml

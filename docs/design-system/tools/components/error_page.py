@@ -12,7 +12,7 @@ def system(code, title, text, actions):
 
 NOT_FOUND = system("404", "Page not found", "That link may be old, or the page has moved. Everything else is right where you left it.",
                    f'<a class="btn btn--primary btn--sm" href="#">{HOME}Go to home</a><a class="btn btn--secondary btn--sm" href="#">Browse events</a>')
-SERVER = system("500", "Something went wrong", "That's on us, not you, and we've been notified. Try again in a moment. If it keeps happening, quote reference CF-5H2Q.",
+SERVER = system("500", "Something went wrong", "That's on us, not you, and we've been notified. Try again in a moment. If it keeps happening, quote reference CF-4BF92F35.",
                 f'<a class="btn btn--primary btn--sm" href="#">{RETRY}Try again</a><a class="btn btn--secondary btn--sm" href="#">Go to home</a>')
 OFFLINE = system("Offline", "You're offline", "Check your Wi-Fi or data. Messages you write and registrations you make will send when you're back online.",
                  f'<button class="btn btn--primary btn--sm" type="button">{RETRY}Try again</button>')
@@ -80,7 +80,7 @@ SPEC = {
 <li>Give a reference code only for server errors.</li>
 </ul>""",
     "dodont": [
-        ("do", SERVER.replace("CF-5H2Q", "CF-5H2R"), "Own the failure, offer a retry and a reference."),
+        ("do", SERVER.replace("CF-4BF92F35", "CF-4BF92F35"), "Own the failure, offer a retry and a reference."),
         ("dont", system("500", "Internal server error", "An unexpected exception occurred.", ""), "Technical, cold and with no way forward."),
         ("do", FORBIDDEN, "Explain who the area is for and how to get access."),
         ("dont", system("403", "Forbidden", "Access denied.", ""), "A bare code feels like a punishment and gives no next step."),

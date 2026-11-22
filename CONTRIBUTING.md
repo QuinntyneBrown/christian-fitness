@@ -46,12 +46,13 @@ Documentation, mocks and test-only changes are exempt from this flow.
 3. Make sure lint, build and tests pass locally:
 
    ```sh
-   cd frontend && npm ci && npm run lint && npm run format:check && npm run build && npm run e2e
+   cd frontend && npm ci && npm run lint && npm run format:check && npm run build && npm test && npm run e2e
    cd backend && dotnet build && dotnet test
    ```
 
    `dotnet test` here runs every backend test, the direct handler and domain tests included;
-   CI runs only the acceptance tests through the API (see below).
+   CI runs only the acceptance tests through the API (see below). `npm test` runs the unit tests
+   of the `domain` library once, with Vitest; CI does not run them.
 
 4. Write clear commit messages in the imperative mood (`Add event registration endpoint`).
 5. Open the pull request against `main`, link the related issue and describe what changed

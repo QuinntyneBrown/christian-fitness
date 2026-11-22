@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["A wrong link or a failing server should never leave anyone stranded."] },
+    { "id": "notfound", "bars": 5, "lines": ["Open a link that no longer exists, and the member app says Page not found, keeps the address, and moves focus to the heading."] },
+    { "id": "waysback", "bars": 4, "lines": ["Two links lead back, Go to home and Browse events, by touch or by keyboard."] },
+    { "id": "admin", "bars": 4, "lines": ["Staff see the same screen in the admin console, with Go to dashboard and Manage events."] },
+    { "id": "servererror", "bars": 5, "lines": ["When the server fails while a screen loads, the app says Something went wrong, owns the failure, and offers Try again."] },
+    { "id": "reference", "bars": 5, "lines": ["Every server error from the API now carries a reference, built from the request's trace, so a member can quote it and an operator can find it."] },
+    { "id": "guard", "bars": 4, "lines": ["A crafted link cannot put its own words there, and Try again only returns to a page inside the app."] },
+    { "id": "budget", "bars": 4, "lines": ["Both screens load only when needed. The first load is two hundred and twenty kilobytes, under the limit of two hundred and fifty."] },
+    { "id": "proof", "bars": 4, "lines": ["Every test failed first. Now fourteen browser specs, forty-three unit tests and the API tests pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, the first screen that loads data switches on the interceptor."] },
+    { "id": "close", "bars": 4, "lines": ["That's slice thirty point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
