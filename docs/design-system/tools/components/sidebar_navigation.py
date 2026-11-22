@@ -21,7 +21,7 @@ def sidebar(cur="Dashboard", label="Admin example"):
             f'{nav(cur, label)}'
             '<div class="admin__user"><span class="admin__user-avatar" aria-hidden="true">RA</span>'
             '<div class="admin__user-body"><p class="admin__user-name">Rachel Adeyemi</p><p class="admin__user-role">Community lead</p></div>'
-            f'<a class="admin__signout" href="#top" aria-label="Sign out">{icon("log-out")}</a></div></aside>')
+            f'<button class="admin__signout" type="button" aria-label="Sign out">{icon("log-out")}</button></div></aside>')
 
 
 ROW = ('<div class="admin__sidebar" style="padding-top: var(--space-3);"><div class="admin-nav">'
@@ -44,12 +44,12 @@ SPEC = {
             ("Brand", "Light seal and \"Christian Fitness\" with the gold \"Admin console\" eyebrow."),
             ("Item", "<code>.admin-nav__item</code>: 20px icon and label, 15px semibold, <code>--radius-md</code>."),
             ("Count", "<code>.admin-nav__count</code> pill with its own <code>aria-label</code> (\"3 applications waiting\")."),
-            ("Signed-in user", "<code>.admin__user</code>: initials, name, role and the Sign out icon link; desktop only."),
+            ("Signed-in user", "<code>.admin__user</code>: initials, name, role and the Sign out icon button (44 × 44 px); below 1024px only Sign out shows, at the end of the brand row."),
         ],
     },
     "variants": "<h3>Desktop column</h3>" + ex(sidebar(label="Admin example 1"), "From 1024px: a 256px column, sticky and full height.", True)
     + "<h3>Phone and tablet row</h3>" + ex('<div class="admin__sidebar">' + nav("Members", "Admin example 2").replace('class="admin-nav"', 'class="admin-nav" style="flex-direction: row; overflow-x: auto; padding-top: var(--space-3);"') + "</div>",
-        "Below 1024px the items become a horizontal, scrollable row under the brand; the user block hides.", mod="stack"),
+        "Below 1024px the items become a horizontal, scrollable row under the brand; Sign out stays at the end of the brand row.", mod="stack"),
     "sizes": "<p>One size: <code>--layout-sidebar-width</code> (256px) wide on desktop. Items are 44px tall.</p>",
     "states": {
         "intro": "<p>Items are links on the dark chrome. Current is <code>aria-current=\"page\"</code>: a filled bordeaux-chrome background, white label, and the count turns white with bordeaux text.</p>",
@@ -65,7 +65,7 @@ SPEC = {
     },
     "responsive": """<ul>
 <li>From 1024px (<code>--layout-breakpoint-lg</code>): a sticky 256px column, full viewport height, user block at the bottom.</li>
-<li>Below 1024px: the sidebar becomes a top band; items scroll horizontally with hidden scrollbars and the user block hides (Sign out moves to the dashboard).</li>
+<li>Below 1024px: the sidebar becomes a top band; items scroll horizontally with hidden scrollbars within the band, never the page; the name and role hide and Sign out stays at the end of the brand row.</li>
 <li>Labels never truncate.</li>
 </ul>""",
     "theming": "<p>The chrome tokens do the work: <code>--color-bg-chrome</code>, <code>--color-fg-on-chrome</code>, <code>--color-fg-on-chrome-muted</code>, <code>--color-bg-on-chrome-hover</code>, <code>--color-bg-chrome-current</code>, <code>--color-bg-chrome-badge</code>. In dark theme the chrome stays dark and gains a hairline right border so it separates from the canvas.</p>",
@@ -115,7 +115,7 @@ SPEC = {
     <a class="admin-nav__item" href="/admin" aria-current="page">…Dashboard</a>
     <a class="admin-nav__item" href="/admin/services">…Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a>
   </nav>
-  <div class="admin__user">…<a class="admin__signout" href="/admin/sign-in" aria-label="Sign out">…</a></div>
+  <div class="admin__user">…<button class="admin__signout" type="button" aria-label="Sign out">…</button></div>
 </aside>''',
         "classes": [
             ("<code>.admin__sidebar</code>", "Chrome column (desktop) or band (phones)."),

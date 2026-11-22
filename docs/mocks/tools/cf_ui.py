@@ -257,7 +257,7 @@ def admin_shell(active: str, content: str, *, after: str = "", inert: bool = Fal
         <p class="admin__user-name">{ADMIN["name"]}</p>
         <p class="admin__user-role">{ADMIN["role"]}</p>
       </div>
-      <a class="admin__signout" href="{href("admin-sign-in")}" aria-label="Sign out">{icon("log-out")}</a>
+      <button class="admin__signout" type="button" aria-label="Sign out">{icon("log-out")}</button>
     </div>
   </aside>
   <main id="main" class="admin__main">

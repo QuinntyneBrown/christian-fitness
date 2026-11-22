@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — Navigate below LG
+title UML sequence behaviour — Navigate the admin app
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -17,7 +17,6 @@ skinparam package {
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
   participant "AdminShell" as shell
-  participant "MenuButton" as menu
   participant "AdminNav" as nav
   participant "Angular Router" as router
 end box
@@ -32,17 +31,17 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 shell -> ctrl : GET /api/admin/session (once per shell)
 ctrl -> handler : Send GetStaffSessionQuery
-handler -> db : Read StaffRole
+handler -> db : Read StaffRole and name
 handler --> ctrl : StaffSessionDto
-ctrl --> shell : Role filters ADMIN_NAV_ITEMS
-actor -> menu : Tap or press Enter on "Menu" (L2-021 AC2)
-menu --> shell : toggled
-shell -> nav : Open in overlay, focus first item
-actor -> nav : Choose Events
-nav -> router : navigate('/events')
-router -> router : loadChildren for events area
-router --> shell : Navigation end
-shell -> shell : Close menu, return focus
-shell -> nav : currentPath = /events
+ctrl --> shell : Name, role and initials in the sidebar
+note over nav : Below LG the links sit in one row under the brand,\nscrolling within the band (L2-021 AC2)
+actor -> nav : Click or press Enter on Events
+nav -> nav : Plain click: prevent the page load
+nav --> shell : navigate('/events')
+shell -> router : navigateByUrl('/events')
+router -> router : loadComponent for the area
+router --> shell : NavigationEnd
+shell -> shell : current = currentAdminArea(url)
+shell -> nav : current = events
 nav --> actor : aria-current="page" on Events (L2-021 AC1)
 @enduml
