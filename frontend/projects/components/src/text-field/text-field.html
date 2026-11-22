@@ -1,0 +1,17 @@
+<div class="field">
+  <label class="field__label" [for]="fieldId()">{{ label() }}</label>
+  <input
+    class="input"
+    [id]="fieldId()"
+    [name]="name()"
+    [type]="type()"
+    [attr.autocomplete]="autocomplete() ?? null"
+    [attr.aria-describedby]="hint() ? fieldId() + '-hint' : null"
+    [value]="value()"
+    [readOnly]="readonly()"
+    (input)="onInput($event)"
+  />
+  @if (hint(); as text) {
+    <span class="field__hint" [id]="fieldId() + '-hint'">{{ text }}</span>
+  }
+</div>

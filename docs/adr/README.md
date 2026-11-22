@@ -11,3 +11,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0004](0004-postgresql-and-the-backend-packages.md)            | PostgreSQL, and the packages of the backend skeleton                              | Accepted |
 | [0005](0005-github-actions-ci.md)                              | GitHub Actions CI: two sparse jobs, five-minute timeouts, no retries              | Accepted |
 | [0006](0006-error-screens.md)                                  | Error screens: lazy routes, links that reload, an interceptor waiting for its client | Accepted |
+| [0007](0007-join-session-and-home-stand-in.md)                 | Join: a session from the first request, a Home stand-in and the member app's HTTP client | Accepted |

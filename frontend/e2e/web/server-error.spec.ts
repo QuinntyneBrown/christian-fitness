@@ -1,4 +1,6 @@
 import { expect, test } from '../fixtures/test';
+import { WebHomePage } from '../page-objects/web/home.page';
+import { WebJoinPage } from '../page-objects/web/join.page';
 import { WebServerErrorPage } from '../page-objects/web/server-error.page';
 import { WebStartPage } from '../page-objects/web/start.page';
 
@@ -63,5 +65,72 @@ test.describe('Member app, server error', () => {
 
     await expect.poll(() => start.title()).toBe('Christian Fitness');
     await expect(serverError.heading).toHaveCount(0);
+  });
+});
+
+// L2-043 AC4 and AC5, through serverErrorInterceptor: the first screens that call the API.
+test.describe('Member app, server error from the API', () => {
+  test('a 5xx while loading shows the server-error screen and keeps the URL', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/session', () => ({
+      status: 500,
+      json: { status: 500, code: 'server_error', reference: 'CF-4BF92F35' },
+    }));
+    const home = new WebHomePage(page);
+    const serverError = new WebServerErrorPage(page);
+
+    await home.open();
+
+    await expect(serverError.heading).toHaveText('Something went wrong');
+    await expect(serverError.text).toHaveText(
+      `${OWNED} If it keeps happening, quote reference CF-4BF92F35.`,
+    );
+    await expect.poll(() => serverError.title()).toBe('Something went wrong · Christian Fitness');
+    expect(serverError.location()).toBe('/home');
+    await expect(serverError.action('Try again')).toHaveAttribute('href', '/home');
+    await expect(home.greeting).toHaveCount(0);
+  });
+
+  test('a 4xx while loading leaves the screen to handle it', async ({ page, api }) => {
+    api.on('GET', '/api/session', () => ({
+      status: 401,
+      json: { status: 401, code: 'unauthenticated' },
+    }));
+    const home = new WebHomePage(page);
+    const serverError = new WebServerErrorPage(page);
+
+    await home.open();
+    await home.sessionAnswered();
+
+    await expect(home.greeting).toHaveText('Welcome');
+    await expect(serverError.heading).toHaveCount(0);
+  });
+
+  test('a 5xx to a write leaves the screen that sent it in place', async ({ page, api }) => {
+    api.on('POST', '/api/account/join', () => ({
+      status: 500,
+      json: { status: 500, code: 'server_error', reference: 'CF-4BF92F35' },
+    }));
+    const join = new WebJoinPage(page);
+    const serverError = new WebServerErrorPage(page);
+
+    await join.open();
+    await join.fill({
+      fullName: 'Grace Thompson',
+      email: 'grace@example.org',
+      password: 'abundantlife',
+    });
+    await join.submitAndAwaitAnswer();
+
+    await expect(join.heading).toHaveText('Create your profile');
+    await expect(serverError.heading).toHaveCount(0);
+    expect(serverError.location()).toBe('/join');
+    // The form comes back as it was; the message is slice 2.2's (the mock's error state).
+    await expect(join.submitButton).toHaveText('Create profile');
+    await expect(join.submitButton).toBeEnabled();
+    await expect(join.fullName).toHaveValue('Grace Thompson');
+    await expect(join.fullName).not.toHaveAttribute('readonly');
   });
 });

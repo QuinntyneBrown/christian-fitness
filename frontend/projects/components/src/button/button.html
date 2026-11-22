@@ -1,1 +1,13 @@
-<a [attr.class]="classes()" [href]="href()"><ng-content /></a>
+<ng-template #label><ng-content /></ng-template>
+@if (href(); as link) {
+  <a [attr.class]="classes()" [href]="link"><ng-container [ngTemplateOutlet]="label" /></a>
+} @else {
+  <button
+    [attr.class]="classes()"
+    [type]="type()"
+    [disabled]="disabled()"
+    [attr.aria-busy]="busy() ? 'true' : null"
+  >
+    <ng-container [ngTemplateOutlet]="label" />
+  </button>
+}

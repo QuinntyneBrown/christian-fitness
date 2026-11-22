@@ -1,12 +1,26 @@
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, type ConsoleMessage } from '@playwright/test';
 import { ApiHandlers } from './api-handlers';
 
 export { expect };
-export type { ApiHandler, ApiReply } from './api-handlers';
+export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
 
 /** Requests to these path prefixes go to the backend, which never runs in a spec. */
 const BACKEND = ['/api/', '/hubs/'];
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/**
+ * Chromium logs every 4xx or 5xx response as a console error. For a backend request that is the
+ * status a handler chose to answer, not a fault of the page; an unanswered one is reported above.
+ */
+function isAnsweredBackendStatus(message: ConsoleMessage): boolean {
+  if (
+    !message.text().startsWith('Failed to load resource: the server responded with a status of')
+  ) {
+    return false;
+  }
+  const { url } = message.location();
+  return !!url && BACKEND.some((prefix) => new URL(url).pathname.startsWith(prefix));
+}
 
 interface Fixtures {
   /** The answers to the app's API requests; register them before the app sends the request. */
@@ -18,7 +32,8 @@ interface Fixtures {
  *
  * - answers each backend request (`/api/**`, `/hubs/**`) from the `api` handlers;
  * - fails the spec on an unanswered backend request, on any request off localhost (blocked) and
- *   on a page error (an uncaught exception, or an error the app logs to the console).
+ *   on a page error (an uncaught exception, or an error the app logs to the console); the
+ *   browser's own log of a status a handler answered is not one.
  *
  * A failure names what happened, never a body or a query string.
  */
@@ -31,7 +46,8 @@ export const test = base.extend<Fixtures>({
     const problems: string[] = [];
     page.on('pageerror', (error) => problems.push(`page error: ${error.message}`));
     page.on('console', (message) => {
-      if (message.type() === 'error') problems.push(`console error: ${message.text()}`);
+      if (message.type() !== 'error' || isAnsweredBackendStatus(message)) return;
+      problems.push(`console error: ${message.text()}`);
     });
 
     await page.context().route('**/*', async (route) => {

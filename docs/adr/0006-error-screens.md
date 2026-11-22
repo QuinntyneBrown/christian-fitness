@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted, 22 November 2026 (slice 30.1).
+Accepted, 22 November 2026 (slice 30.1). Updated by slice 2.1: the member app registers the
+interceptor ([ADR 0007](0007-join-session-and-home-stand-in.md)).
 
 ## Context
 
@@ -34,15 +35,16 @@ budget, for a client nothing calls.
   again" loads the URL that failed again from the server, which also picks up a new deployment
   and drops whatever state failed; the components library stays free of the router. The
   `Button` component renders the link; the `ErrorPage` component renders the block.
-- **`serverErrorInterceptor` lives in `domain`, with unit tests, and is not registered yet.** It
-  shows the server-error screen for a GET to `/api/` that answers 5xx and passes every other
-  failure to the caller (writes show their own failed state; offline is slice 30.2). The first
-  slice that loads data provides the client with
-  `provideHttpClient(withInterceptors([serverErrorInterceptor]))` in both apps' `app.config.ts`
-  and adds the end-to-end spec "a 5xx while loading shows the server-error screen" through this
-  slice's `ServerErrorPage` page object. Until then the screen is proven end to end by opening
-  its route with the query parameters the interceptor sends, and the interceptor by its unit
-  tests.
+- **`serverErrorInterceptor` lives in `domain`, with unit tests.** It shows the server-error
+  screen for a GET to `/api/` that answers 5xx and passes every other failure to the caller
+  (writes show their own failed state; offline is slice 30.2). Slice 30.1 left it unregistered,
+  since no screen called the API. Slice 2.1, the first slice that loads data, provides the
+  member app's client with `provideHttpClient(withInterceptors([serverErrorInterceptor]))` in
+  its `app.config.ts` and adds the end-to-end specs: "a 5xx while loading shows the server-error
+  screen and keeps the URL" (Home's `GET /api/session`), "a 4xx while loading leaves the screen
+  to handle it" and "a 5xx to a write leaves the screen that sent it in place" (the join POST),
+  through this slice's `ServerErrorPage` page object. The admin app provides its client, with
+  the interceptor, in slice 9.1 (staff sign-in), the first admin screen that calls the API.
 - **The reference comes from the API.** Every 5xx ProblemDetails carries `reference`, `CF-` and
   the first eight hexadecimal digits of the request's W3C trace id in upper case, so an operator
   finds the trace from what the member quotes. A 4xx carries none.
@@ -66,5 +68,5 @@ budget, for a client nothing calls.
   for recovery from an error.
 - The `server-error` route can be opened directly; it then shows the screen without a reference
   and returns to `/`.
-- Until the first data-loading slice registers the interceptor, a 5xx from the API does not show
-  the screen, because no screen sends a request.
+- The member app shows the screen for a 5xx from slice 2.1 on. Until slice 9.1 the admin app
+  sends no request, so it has nothing to show the screen for.

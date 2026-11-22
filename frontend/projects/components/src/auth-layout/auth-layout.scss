@@ -1,0 +1,84 @@
+// The design system's auth block: the page's main and its form
+// (docs/design-system/assets/components.css: "Auth", display). The brand panel is AuthBrand.
+:host {
+  display: block;
+}
+
+.auth {
+  display: grid;
+  min-height: 100dvh;
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+
+  @media (min-width: 64rem) {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+}
+
+.auth__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-10) var(--space-6);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-10);
+  }
+
+  @media (min-width: 64rem) {
+    align-items: center;
+    padding-block: var(--space-12);
+  }
+}
+
+.auth__form {
+  width: 100%;
+  max-width: var(--layout-form-max);
+}
+
+.auth__title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.auth__lead {
+  margin-top: var(--space-2);
+  color: var(--color-fg-muted);
+}
+
+// The projected fields stack with the mock's rhythm; a gap reaches them, a child selector would not.
+.auth__fields {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.auth__submit {
+  margin-top: var(--space-8);
+}
+
+.auth__alt {
+  margin-top: var(--space-4);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  a {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-accent);
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: var(--space-0-5);
+    }
+  }
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
