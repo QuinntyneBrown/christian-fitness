@@ -15,9 +15,19 @@ host's secret store. No setting is logged.
 | `ASPNETCORE_ENVIRONMENT`      | No       | `Production` (the default when unset) or `Development`.                                                   | `Production`                                                                |
 | `ASPNETCORE_URLS`             | No       | Where the API listens.                                                                                    | `http://+:8080`                                                             |
 | `DataProtection__KeysPath`   | Yes, with more than one instance or across restarts | The folder that keeps the ASP.NET Core Data Protection keys protecting the member session cookie (ADR 0007). Shared, persistent storage, readable and writable by every API instance. The same keys protect the antiforgery tokens (ADR 0009). Unset, the keys live in memory and every restart signs every member out. | `/var/lib/christian-fitness/keys` |
+| `MemberApp__BaseUrl`         | Yes, outside Development | The member app's public address. Every link in an email starts with it (the reset link is `{MemberApp__BaseUrl}/reset-password#token=…`); it is never taken from a request's `Host` header (ADR 0010). Defaults to `http://localhost:4200` in Development. | `https://members.christianfitness.ca` |
+| `Email__Smtp__Host`           | Yes, outside Development | The SMTP relay that delivers email (ADR 0010). Mail is queued in the API and delivered after the answer. Unset in Development, no mail is sent: messages are kept in memory only. To see them locally, run a mail catcher such as Mailpit and point this at it. | `smtp.sendgrid.net` |
+| `Email__Smtp__Port`           | No       | The relay's port. Defaults to `587` (STARTTLS); `465` uses TLS from the start.                             | `587`                                                                       |
+| `Email__Smtp__UseTls`         | No       | Whether TLS is required. Defaults to `true`; set `false` only for a local mail catcher.                    | `true`                                                                      |
+| `Email__Smtp__UserName`       | If the relay asks | The relay's user name. Unset, the API sends without authenticating.                                | `apikey`                                                                    |
+| `Email__Smtp__Password`       | If the relay asks | The relay's password or API key, from the secret store.                                           | from the secret store                                                       |
+| `Email__From`                 | Yes, outside Development | The sender of every email, a mailbox the relay may send as.                                      | `Christian Fitness <hello@christianfitness.ca>`                             |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | No       | The OpenTelemetry collector. When set, traces, metrics and logs are exported to it by OTLP; when unset, nothing leaves the process and logs go to the console only. | `http://otel-collector:4317`                                                |
 | `OTEL_SERVICE_NAME`           | No       | The service name on every span, metric and log. Defaults to `christian-fitness-api`.                      | `christian-fitness-api`                                                     |
 | `Logging__LogLevel__Default`  | No       | The lowest log level written. Defaults to `Information`. `Microsoft.AspNetCore` stays at `Warning` whatever this says, because its request logs carry query strings. | `Warning`                                                                   |
+
+Outside Development the API refuses to start, naming each one, while `Email__Smtp__Host`,
+`Email__From` or `MemberApp__BaseUrl` is missing, so a deployed system never drops mail silently.
 
 ## CLI (`ChristianFitness.Cli`, built as `cf`)
 

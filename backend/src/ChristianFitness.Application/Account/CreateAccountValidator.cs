@@ -49,5 +49,5 @@ public sealed partial class CreateAccountValidator : AbstractValidator<CreateAcc
 
     /// <summary>One <c>@</c>, something on both sides, a dot in the domain and no white space.</summary>
     [GeneratedRegex(@"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.CultureInvariant)]
-    private static partial Regex EmailPattern();
+    internal static partial Regex EmailPattern();
 }

@@ -9,7 +9,8 @@ namespace ChristianFitness.Application.Account;
 /// <summary>
 /// Sends a reset link to a registered member (L2-044 AC2; ADR 0010). The caller learns nothing:
 /// whether the email has an account or not, the request completes the same way and the API answers
-/// 202 (L2-044 AC3). Only the hash of the link's token is stored.
+/// 202 (L2-044 AC3). Only the hash of the link's token is stored, and one account is sent at most
+/// 3 links an hour (L2-044 AC6); the body was validated before this runs.
 /// </summary>
 internal sealed class RequestPasswordResetHandler(IAppDbContext db, IEmailSender email, MemberAppAddress app, TimeProvider time)
     : IRequestHandler<RequestPasswordResetCommand>
@@ -27,7 +28,17 @@ internal sealed class RequestPasswordResetHandler(IAppDbContext db, IEmailSender
             return;
         }
 
+        // At most 3 emails an hour to one account (L2-044 AC6); over it, the same answer and no mail.
         var now = time.GetUtcNow();
+        var since = PasswordReset.RequestWindow.Since(now);
+        var recent = await db.PasswordResets
+            .CountAsync(r => r.MemberId == member.Id && r.RequestedAt > since, cancellationToken)
+            .ConfigureAwait(false);
+        if (PasswordReset.RequestWindow.IsFull(recent))
+        {
+            return;
+        }
+
         var (reset, token) = PasswordReset.Issue(member.Id, now);
         db.PasswordResets.Add(reset);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
