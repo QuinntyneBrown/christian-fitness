@@ -6,11 +6,13 @@ A Christian Fitness release changes code and, sometimes, the database schema.
 This feature defines how a release is deployed: the API starts without touching
 the schema, a documented CLI command applies migrations and seed data, seeding is
 idempotent, and every setting a deployed system needs is documented with the
-change that adds it.
+change that adds it. Before any of that, continuous integration checks every
+change on its way to `main`.
 
 - **migration** — versioned EF Core schema change in `ChristianFitness.Infrastructure`
 - **seed data** — reference rows a fresh system needs, such as event categories and the first staff account
 - **idempotent** — producing no further change when run again
+- **CI** — continuous integration: the GitHub Actions workflow that checks every push to `main` and every pull request against it
 
 ## Description
 
@@ -21,6 +23,10 @@ change that adds it.
 - **API startup** — `Program.cs` in `ChristianFitness.Api` does not call `Migrate` or `EnsureCreated`.
 - **Settings documentation** — [`docs/operations/settings.md`](../../../operations/settings.md) lists each setting (name, purpose, example, required or optional). A change that adds a setting edits it in the same change.
 - **Release order** — run `cf migrate`, then `cf seed`, then start the API and serve the two web apps. Any host that runs .NET 10 and reaches PostgreSQL will do; these three steps are the whole contract, and the pipeline that runs them is added with the first deployment, in its own ADR.
+- **Continuous integration** — `.github/workflows/ci.yml`, workflow `CI`, runs on every push to `main` and every pull request against it (and by hand, `workflow_dispatch`). A newer run for the same branch cancels the older one. It has read-only repository permissions and uses no secret. Two jobs run side by side on `ubuntu-latest`, each with a five-minute timeout, so a run that would break the five-minute rule fails instead:
+  - **`frontend`** (working directory `frontend/`) — Node 24 with the npm cache keyed by `package-lock.json`; `npm ci`; `npm run lint`; `npm run format:check`; `npm run build` (both apps, within the `angular.json` budgets); then the Playwright Chromium, restored from the Actions cache keyed by the installed `@playwright/test` version and installed only on a miss; then `npm run e2e`, the behaviour specs only (`@sweep` specs stay off), on Chromium, against `ng serve` with the shared fixture answering every request. On a failure the Playwright report and traces are uploaded as the `playwright-report` artifact for seven days.
+  - **`backend`** (working directory `backend/`) — the .NET SDK named by `global.json`; NuGet packages restored from the Actions cache keyed by `Directory.Packages.props` and every `*.csproj`; `dotnet restore`; `dotnet build -c Release --no-restore` (warnings are errors through `Directory.Build.props`); `dotnet test -c Release --no-build`, the API acceptance tests and the application tests, on EF Core InMemory with no database.
+  - Each check is its own named step, so a failure names it (`Lint`, `Format check`, `Build`, `Behaviour specs`, `Build (warnings as errors)`, `Test`). Nothing is retried: `retries: 0` in `playwright.config.ts`, and no step re-runs. Unit tests run locally, not in CI (AGENTS.md).
 
 ## Requirements
 
@@ -32,6 +38,7 @@ sentence, so the criteria are quoted.
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-041` | `L1-016` | 1. Given a new release, when the API starts, then it does not apply migrations; a documented CLI command applies them. 2. Given seed data, when the seed command runs twice, then the second run changes nothing. 3. Given a setting a deployed system needs, when it is added, then it is documented in the same change. |
+| `L2-042` | `L1-016` | 1. Given a push to `main` or a pull request against it, when CI runs, then it runs the frontend's lint, format check, build of both apps and Playwright behaviour specs on Chromium, and the backend's build with warnings as errors and `dotnet test`. 2. Given a change that breaks any of those checks, when CI runs, then the run fails at that check and names it; nothing is retried. 3. Given a change that passes every check, when CI runs, then the run is green in under five minutes, using cached npm packages, NuGet packages and the Playwright browser. 4. Given CI, when it runs, then it needs no secret and no real backend or database. |
 
 ## Diagrams
 
@@ -70,3 +77,9 @@ The pipeline migrates and seeds through the CLI before the API starts; the API n
 The second run finds every natural key present and reports zero changes.
 
 ![Sequence diagram: run the seed command twice](diagrams/sequence-seed-twice.png)
+
+### Behaviour — continuous integration on a pull request
+
+The two jobs start together; each restores its cache, runs its checks in order and stops at the first that fails, which the pull request names.
+
+![Sequence diagram: continuous integration on a pull request](diagrams/sequence-ci.png)
