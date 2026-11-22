@@ -13,6 +13,7 @@ skill (edge-tts, burned-in captions, slide decks of bullets), this page wins
 | 01  | [Slice 1.1: Frontend workspace](01-slice-1-1-frontend-workspace/README.md) | 1:34    | One Angular workspace with the member app and the admin app and three libraries; the dependency direction ESLint enforces; both apps booting with their titles; 212 kB of 250; the e2e fixture that refuses what it does not answer. |
 | 02  | [Slice 1.2: Backend skeleton](02-slice-1-2-backend-skeleton/README.md)     | 1:34    | Five clean-architecture projects; the API closed by default with 401 ProblemDetails and a code for every error; anonymous health that says only its status; spans kept to route, method and status; `cf migrate` and an idempotent `cf seed`. |
 | 03  | [Slice 1.3: CI pipeline](03-slice-1-3-ci-pipeline/README.md)               | 1:30    | GitHub Actions on every push and pull request to `main`: two sparse jobs side by side, lint to behaviour specs and a backend built with warnings as errors; under 40 s warm against a five-minute timeout; four runs broken on purpose, each failing at the step that broke. |
+| 04  | [Slice 30.1: Not found and server error](04-slice-30-1-not-found-and-server-error/README.md) | 1:32    | Both apps' lazy "Page not found" and "Something went wrong" screens with their ways back, by touch and keyboard; a 5xx reference built from the trace id; crafted links refused; 220 kB of 250; the interceptor ready for the first screen that loads data. |
 
 ## What every video is
 

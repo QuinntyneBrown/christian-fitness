@@ -1,0 +1,58 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:05.903
+A wrong link or a failing server should never leave anyone stranded.
+
+00:00:08.000 --> 00:00:12.916
+Open a link that no longer exists, and the member app says Page not found, keeps the
+
+00:00:12.916 --> 00:00:15.557
+address, and moves focus to the heading.
+
+00:00:18.000 --> 00:00:22.582
+Two links lead back, Go to home and Browse events, by touch or by keyboard.
+
+00:00:26.000 --> 00:00:30.509
+Staff see the same screen in the admin console, with Go to dashboard and Manage
+
+00:00:30.509 --> 00:00:31.208
+events.
+
+00:00:34.000 --> 00:00:38.439
+When the server fails while a screen loads, the app says Something went wrong, owns
+
+00:00:38.439 --> 00:00:40.558
+the failure, and offers Try again.
+
+00:00:44.000 --> 00:00:48.807
+Every server error from the API now carries a reference, built from the request's
+
+00:00:48.807 --> 00:00:52.668
+trace, so a member can quote it and an operator can find it.
+
+00:00:54.000 --> 00:00:59.119
+A crafted link cannot put its own words there, and Try again only returns to a page
+
+00:00:59.119 --> 00:01:00.344
+inside the app.
+
+00:01:02.000 --> 00:01:06.349
+Both screens load only when needed. The first load is two hundred and twenty
+
+00:01:06.349 --> 00:01:09.625
+kilobytes, under the limit of two hundred and fifty.
+
+00:01:10.000 --> 00:01:15.641
+Every test failed first. Now fourteen browser specs, forty-three unit tests and the
+
+00:01:15.641 --> 00:01:16.960
+API tests pass.
+
+00:01:18.000 --> 00:01:22.123
+Next, the first screen that loads data switches on the interceptor.
+
+00:01:24.000 --> 00:01:28.052
+That's slice thirty point one. Christian Fitness: a Christian community for health
+
+00:01:28.052 --> 00:01:29.291
+in body and spirit.
