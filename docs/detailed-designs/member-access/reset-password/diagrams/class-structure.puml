@@ -1,0 +1,112 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Request a reset link
+package "Member web app and libraries" {
+  class ForgotPasswordPage {
+    +email: Signal<string>
+    +emailError: Signal<string|null>
+    +submitting: Signal<boolean>
+    +failed: Signal<boolean>
+    +sentTo: Signal<string|null>
+    +submit(): void
+    +sendAgain(): void
+  }
+  class AuthLayout <<components>> {
+    +heading, lead, altText, altLink, altHref, altEnd: input
+    +notice: input<boolean>
+    +submitted: output<void>
+    +altChosen: output<void>
+  }
+  class TextLink <<components>> {
+    +href: input<string>
+  }
+  class emailErrorOf <<domain>> {
+    +(value: string): string|null
+  }
+  class resetRequestRefusalOf <<domain>> {
+    +(error): invalid|failed
+  }
+  interface AccountApi <<api>> {
+    +join(request: JoinRequestDto): Observable<SessionDto>
+    +requestPasswordReset(request: PasswordResetRequestDto): Observable<void>
+  }
+  class PasswordResetRequestDto <<api>> {
+    +email: string
+  }
+  class HttpAccountService
+}
+package "Christian Fitness API, Application and Domain" {
+  class AccountController {
+    +RequestPasswordReset(c): Task<IActionResult>
+  }
+  class RequestPasswordResetCommand {
+    +string Email
+  }
+  class RequestPasswordResetValidator
+  class RequestPasswordResetHandler {
+    +Handle(c): Task
+  }
+  interface IEmailSender {
+    +SendAsync(message: EmailMessage, ct): Task
+  }
+  class EmailMessage {
+    +string To
+    +string Subject
+    +string Text
+  }
+  class PasswordReset {
+    +Guid Id
+    +Guid MemberId
+    +string TokenHash
+    +DateTimeOffset RequestedAt
+    +DateTimeOffset ExpiresAt
+    +{static} Issue(memberId, now): IssuedPasswordReset
+    +{static} HashOf(token): string
+  }
+  class AttemptWindow <<record>> {
+    +int Limit
+    +TimeSpan Period
+    +Since(now): DateTimeOffset
+    +IsFull(countSince): bool
+  }
+  class Member {
+    +Guid Id
+    +string NormalizedEmail
+    +string Email
+  }
+}
+package "Infrastructure" {
+  class QueuedEmailSender
+  class EmailDispatcher <<BackgroundService>>
+  class SmtpEmailTransport <<MailKit>>
+  class RecordingEmailSender
+}
+ForgotPasswordPage --> AuthLayout
+ForgotPasswordPage ..> emailErrorOf
+ForgotPasswordPage ..> resetRequestRefusalOf
+ForgotPasswordPage ..> AccountApi : injects ACCOUNT_SERVICE
+AccountApi ..> PasswordResetRequestDto
+HttpAccountService ..|> AccountApi
+AccountController ..> RequestPasswordResetCommand : sends
+RequestPasswordResetValidator ..> RequestPasswordResetCommand : validates
+RequestPasswordResetHandler ..> RequestPasswordResetCommand : handles
+RequestPasswordResetHandler ..> Member : loads by NormalizedEmail
+RequestPasswordResetHandler ..> PasswordReset : counts, issues
+RequestPasswordResetHandler ..> AttemptWindow
+RequestPasswordResetHandler ..> IEmailSender
+IEmailSender ..> EmailMessage
+QueuedEmailSender ..|> IEmailSender
+RecordingEmailSender ..|> IEmailSender
+QueuedEmailSender --> EmailDispatcher : channel
+EmailDispatcher --> SmtpEmailTransport
+PasswordReset --> Member
+@enduml
