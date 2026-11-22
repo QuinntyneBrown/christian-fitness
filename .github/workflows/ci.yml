@@ -79,3 +79,41 @@ jobs:
             frontend/test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DOTNET_NOLOGO: 'true'
+      DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: backend/global.json
+
+      # Versions are pinned centrally (Directory.Packages.props), so it and the projects key the cache.
+      - name: Restore the NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ChristianFitness.slnx
+
+      # TreatWarningsAsErrors is set for every project in Directory.Build.props.
+      - name: Build (warnings as errors)
+        run: dotnet build ChristianFitness.slnx -c Release --no-restore
+
+      # The API acceptance tests and the application tests, on EF Core InMemory: no database.
+      - name: Test
+        run: dotnet test ChristianFitness.slnx -c Release --no-build
