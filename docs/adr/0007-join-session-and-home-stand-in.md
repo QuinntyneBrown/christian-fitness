@@ -53,14 +53,24 @@ it needs do not exist yet:
   about 21 kB of the initial bundle; slice 9.1 (staff sign-in) provides it there.
   `HttpAccountService` and `HttpSessionService` live in the member app and are bound to
   `ACCOUNT_SERVICE` and `SESSION_SERVICE` in `app.config.ts`; they hold no state.
-- **The member app's initial warning budget rises from 225 kB to 245 kB,** and the error budget
-  stays at 250 kB. The client and its interceptor measured 21.1 kB raw (5.5 kB to transfer). It
-  is not lazy-loaded behind a route group: the landing page (slice 8.1), Home and almost every
-  screen after them load data on arrival, so a lazy client would be one more request in series
-  before the first screen's data, not a saving. The admin app keeps 225 kB.
-- **The Join form holds its values in signals, not `@angular/forms`.** `TextField` and
-  `InterestPicker` are presentation components with a `value` (or `selected`) input and a
-  change output; `JoinPage` keeps one signal per field and builds the `JoinRequestDto` from them.
+- **The member app's initial budget rises from 225 kB to 260 kB (warning) and from 250 kB to
+  275 kB (error).** The initial total went from 220.40 kB to 255.10 kB raw (57.41 kB to 66.67 kB
+  to transfer). Diffing `--stats-json` inputs against `main` put the cost in framework code:
+  `HttpClient` and its interceptor 21.1 kB; the first `@for` (the interest toggles) 5.4 kB; the
+  `ng-template` and `ngTemplateOutlet` that AGENTS.md asks of a component rendering `<a>` or
+  `<button>` 3.3 kB; and the property bindings, listeners and boolean inputs of the first form
+  about 3.6 kB. Each is paid once for every later screen. The client is not lazy-loaded behind a
+  route group: the landing page (slice 8.1), Home and almost every screen after them load data on
+  arrival, so a lazy client would be one more request before the first screen's data, not a
+  saving. The admin app keeps 225 kB; its total is 224.70 kB, the `<button>` branch included.
+- **Component styles warn at 3 kB instead of 2 kB** in both apps (the error stays 4 kB).
+  Emulated encapsulation adds an attribute to every selector, so the `btn` block with its sizes
+  and states and the brand panel with its seal measure 2.05 kB and 2.16 kB; the brand panel is
+  already its own component (`AuthBrand`), apart from the form (`AuthLayout`).
+- **The Join form holds its values in signals, not `@angular/forms`.** `TextField` (a `value`
+  input and a `valueChange` output) and `InterestPicker` (a `selected` input and a `toggled`
+  output) are presentation components; `JoinPage` keeps one signal per field and builds the
+  `JoinRequestDto` with `joinRequestOf`, and the selection with `toggleInterest`, both in `domain`.
   The client-side rules of slice 2.2 go into a pure helper in `domain` with a unit test per row,
   where the platform's validators would scatter them across the page. No form module is loaded.
 - **Interests are keys:** `running`, `strength`, `basketball`, `walking-groups`, `mobility`,
@@ -77,6 +87,7 @@ it needs do not exist yet:
 - Until slice 13.1, Home is only a greeting, and until slice 3.1 a visitor who opens `/home`
   sees "Welcome" with no name instead of being sent to sign in.
 - Until slice 2.2, the API stores what the form sends without validating it, and a failed join
-  leaves the button busy: the refusals and the failed state are that slice's.
+  gives the form back as it was with no message: the refusals and the mock's error state are
+  that slice's.
 - The antiforgery filter and the security headers of L2-030 AC3 and AC4 arrive with sign-in in
   slice 3.1; join is anonymous and changes no signed-in member's data.

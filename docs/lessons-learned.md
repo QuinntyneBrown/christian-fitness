@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 7% (4 of 54 slices; 6 of 83 days)
+**% complete:** 10% (5 of 54 slices; 8 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -188,3 +188,52 @@ worked when applied. Newest entries go at the bottom.
   `--stats-json` diffs to find where the bytes went; reading the total alone only said that they
   had gone.
 - "CI only sees what is pushed" (1.3) did not apply: every red here was local.
+
+## Slice 2.1: Join with valid details
+
+**What slowed it**
+
+- The first screen that calls the API grew the initial bundle by 33 kB, past the error budget,
+  not only the warning. Diffing `--stats-json` inputs of `main` against a build of `origin/main`
+  (a second, throwaway worktree with its own `npm ci`) named each part: `HttpClient` 21 kB, the
+  first `@for` 5.4 kB, `ngTemplateOutlet` 3.3 kB, the form's bindings about 3.6 kB. A failing
+  error budget writes no stats file: raise the error budget in a scratch copy of `angular.json`
+  to measure, then restore it.
+- Chromium logs every 4xx and 5xx response as a console error ("Failed to load resource"), and
+  the shared fixture counted it as a page error, so a spec that answers 500 on purpose failed for
+  the wrong reason. The fixture now skips that log for a backend request a handler answered.
+- An HTTP error with no `error` callback reaches Angular's global error handler as "ERROR
+  HttpErrorResponse", which the fixture rightly fails; the write that fails needs its own error
+  path even before its failed state is designed.
+- `dotnet ef migrations add` wrote `new string[0]` for a primitive collection's default, which
+  CA1825 refuses with warnings as errors; and adding `FrameworkReference Microsoft.AspNetCore.App`
+  to Infrastructure made two package references redundant (NU1510, also an error).
+- A Git Bash heredoc holding Python with an apostrophe in a string ("scheme's") failed to parse
+  and ran nothing, as slice 1.2 warned; edits with prose went into a script file instead.
+
+**New lessons**
+
+- A record's generated `ToString` prints every property: a command that carries a password or a
+  faith detail is a class, so nothing personal can reach a log by accident.
+- Test a `Secure` cookie through `WebApplicationFactory` with an `https://localhost` base address
+  and `HandleCookies = false`, reading `Set-Cookie` and sending `Cookie` by hand; the assertions
+  then see exactly what the API set.
+- `__Host-` cookies need `Secure`, path `/` and no domain; a test that lists the attributes
+  catches a scheme option that drops one.
+- Emulated encapsulation does not reach projected content: lay out projected fields with `gap` on
+  the slot's wrapper, and put a style a projected node needs (a spinning icon) in the global
+  utilities.
+- Split a component whose stylesheet passes the 2 kB warning along a real seam (the brand panel
+  apart from the form) before raising the budget; raise it only for what is left.
+- A gate (`new Promise` resolved by the test) in a fixture handler holds a request in flight, so
+  a busy state is asserted without any clock or sleep.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1) found the
+  cost in minutes; reading the total alone would have said only that 33 kB had gone.
+- "Prove a rule red by breaking it alone" (1.1, 30.1) was applied to the submitting state (the
+  disabled, busy and read-only bindings each removed in turn), the cookie's persistence, the
+  blank home church, the distinct interests and a span event carrying the email.
+- "Correlate a server span by its `traceparent`" (1.2) carried over to the join's telemetry test.
+- "Always pass `encoding='utf-8', newline='\n'`" (30.1) kept the "…" and "—" of the copy intact.

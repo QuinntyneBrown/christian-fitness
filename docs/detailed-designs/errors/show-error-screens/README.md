@@ -42,8 +42,8 @@ state that failed ([ADR 0006](../../../adr/0006-error-screens.md)).
   `size` (`sm`, `md`), content projected once. One `[attr.class]` binding to a `classes()`
   method sets `btn btn--{variant}` and `btn--sm`, rather than class bindings, which cost about
   4.6 kB of the initial bundle. On a coarse pointer a `btn--sm` target extends to
-  44 × 44 px (`L2-043` AC2, `L2-038` AC4). A `<button>` branch arrives with the first slice that
-  needs one.
+  44 × 44 px (`L2-043` AC2, `L2-038` AC4). Slice 2.1 added a `<button>` branch (see
+  `member-access/create-account`).
 - **`NotFoundPage`** — routed page in each app. It puts `ErrorPage` in the page's one
   `<main id="main">` with code `404`, heading "Page not found" and the text "That link may be
   old, or the page has moved. Everything else is right where you left it." The member app's
@@ -67,8 +67,10 @@ state that failed ([ADR 0006](../../../adr/0006-error-screens.md)).
   `skipLocationChange` and the query parameters `reference` (read from the ProblemDetails body
   with `referenceOf`) and `from` (the router's current URL), then passes the error on. A write,
   a 4xx, a status of 0 (no answer) or a request outside `/api/` passes on without navigating
-  (`L2-043` AC4, AC5). It is registered by the first slice that provides `HttpClient`
-  ([ADR 0006](../../../adr/0006-error-screens.md)).
+  (`L2-043` AC4, AC5). The member app registers it with its `HttpClient` from slice 2.1, whose
+  Home stand-in is the first screen to load data; the admin app registers it with its client in
+  slice 9.1 ([ADR 0006](../../../adr/0006-error-screens.md),
+  [ADR 0007](../../../adr/0007-join-session-and-home-stand-in.md)).
 - **ProblemDetails reference** — the API's `CustomizeProblemDetails` adds `reference` to every
   ProblemDetails whose status is 500 or more, computed by `ProblemReference.For` from
   `Activity.Current`'s trace id (or the request's trace identifier when no activity runs). A 4xx

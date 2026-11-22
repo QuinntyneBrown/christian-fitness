@@ -90,7 +90,7 @@ npx http-server docs -p 8080
 cd frontend
 npm ci
 npx playwright install chromium   # once, for the end-to-end specs
-npm start                         # the member app on http://localhost:4200
+npm start                         # the member app on http://localhost:4200; /api goes to the API on 5240
 npm run start:admin               # the admin app on http://localhost:4201
 npm run lint                      # ESLint, including the dependency direction (docs/adr/0002)
 npm run format:check              # Prettier

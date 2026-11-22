@@ -27,24 +27,35 @@ AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-se
   lead and "Already a member? Sign in"), `TextField` (`field`, `field__label`, `input`,
   `field__hint`) for Full name, Email, Password ("At least 8 characters") and Home church
   ("Optional — helps you find people nearby"), `InterestPicker` and `Button`. On submit it sends
-  the `JoinRequestDto` and navigates to `/home` when the answer arrives (L2-003 AC1). While
+  `joinRequestOf(form)` and navigates to `/home` when the answer arrives (L2-003 AC1); a failed
+  request gives the form back as it was, and a 5xx to this write never opens the server-error
+  screen (`L2-043` AC5). While
   submitting, the button reads "Creating your profile…" with a spinner, is `disabled` and
   `aria-busy="true"`, the inputs are `readonly` and the interests `disabled`, as the mock's
   `submitting` state shows (L2-003 AC5). Client validation that names each invalid field with
   `aria-invalid="true"` (L2-003 AC3) is slice 2.2's, as a pure helper in `domain`.
-- **`AuthLayout`** — presentation component (`cf-auth-layout`): the `auth` block with its brand
-  panel, the page's one `main` and the `auth__form`; inputs `heading`, `lead`, `altText`,
-  `altLink`, `altHref`; the fields and the submit button are projected through `[slot=fields]`
-  and `[slot=submit]`; output `submitted` when the form is submitted. Sign-in (slice 3.1) reuses it.
+- **`AuthLayout`** — presentation component (`cf-auth-layout`): the `auth` block with the page's
+  one `main` and the `auth__form`; inputs `heading`, `lead`, `altText`, `altLink`, `altHref`; the
+  fields and the submit button are projected through `[slot=fields]` and `[slot=submit]`;
+  output `submitted` when the form is submitted, by the button or by Enter. Sign-in (slice 3.1)
+  reuses it.
+- **`AuthBrand`** — presentation component (`cf-auth-brand`) with no inputs: the `auth__brand`
+  panel, its lockup back to `/` and, from 1024 px, the seal, the claim "Health in body and spirit,
+  together." and the three points.
 - **`TextField`** — presentation component (`cf-text-field`): one `field` with its label, input
   and optional hint; inputs `fieldId`, `label`, `type`, `name`, `autocomplete`, `hint`, `value`,
   `readonly`; output `valueChange`.
 - **`InterestPicker`** — presentation component (`cf-interest-picker`) rendering the fieldset,
   the legend "What are you into?" and one `interest` toggle per option with `aria-pressed`;
-  inputs `legend`, `options`, `selected`, `disabled`; output `selectedChange`.
+  inputs `legend`, `options`, `selected`, `disabled`; output `toggled` with the pressed key. On a
+  coarse pointer each toggle's target extends to 44 × 44 px.
+- **`joinRequestOf`, `toggleInterest`, `welcomeOf`** — pure helpers in `domain/src/account/join.ts`
+  with a unit test per row: the request (a blank or white-space home church is `null`, the
+  password as typed), the selection after one press (kept in the form's order) and the Home
+  stand-in's greeting ("Welcome, " and the first name, or "Welcome").
 - **`Button`** — gains a `<button>` branch: without `href` it renders `<button>` with `type`,
-  `disabled` and `busy` (`aria-busy`) and sizes `lg` and `block`; both branches show the same
-  projected content through one `ng-template`.
+  `disabled` and `busy` (`aria-busy`), the size `lg` and the `block` modifier; both branches show
+  the same projected content through one `ng-template` and `ngTemplateOutlet`.
 - **`AccountApi` / `ACCOUNT_SERVICE`** — contract and token in `api`: `join(request:
   JoinRequestDto): Observable<SessionDto>`. `JoinRequestDto` is `fullName`, `email`, `password`,
   `homeChurch` (`null` when blank) and `interests` (keys). `INTERESTS` lists the eight interests
@@ -76,7 +87,8 @@ AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-se
   with this email already exists. Sign in instead?" on the email field; other codes show a
   generic `form-alert`. The code for a duplicate email is `email_taken`, answered with 409.
 - **Telemetry** — no span or log carries the name, the email, the password, the home church or
-  the request body; the request's span records the route template `account/join` (L2-033 AC2).
+  the request body; the request's span records the route template `api/account/join`, the
+  method and the status only (L2-033 AC2).
 
 ## Requirements
 
