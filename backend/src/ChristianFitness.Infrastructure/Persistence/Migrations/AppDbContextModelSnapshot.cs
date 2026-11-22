@@ -70,6 +70,35 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("Members");
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Members.PasswordReset", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("MemberId", "RequestedAt");
+
+                    b.ToTable("PasswordResets", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.StaffRole", b =>
                 {
                     b.Property<Guid>("MemberId")
@@ -106,6 +135,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("Sessions", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Members.PasswordReset", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Members.StaffRole", b =>

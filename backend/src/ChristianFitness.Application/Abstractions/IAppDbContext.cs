@@ -13,6 +13,9 @@ public interface IAppDbContext
 
     DbSet<StaffRole> StaffRoles { get; }
 
+    /// <summary>The reset links issued, by the hash of their token (L2-044; ADR 0010).</summary>
+    DbSet<PasswordReset> PasswordResets { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

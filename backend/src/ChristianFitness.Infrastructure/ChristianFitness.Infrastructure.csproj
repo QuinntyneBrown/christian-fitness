@@ -9,5 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <!-- SMTP delivery of email (ADR 0010). -->
+    <PackageReference Include="MailKit" />
   </ItemGroup>
 </Project>
