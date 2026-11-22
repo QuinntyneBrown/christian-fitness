@@ -210,6 +210,7 @@ def member_shell(active: str, content: str, *, unread: int = 4, fill: bool = Fal
         {''.join(links)}
       </nav>
       <a class="profile-button" href="{href("profile")}" aria-label="Your profile"{cur("profile")}>{ME["initials"]}</a>
+      <button class="btn btn--ghost app-header__signout" type="button">Sign out</button>
     </div>
   </header>
   {banner}

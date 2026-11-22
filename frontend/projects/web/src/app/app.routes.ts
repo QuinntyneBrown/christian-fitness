@@ -1,4 +1,5 @@
 import type { Routes } from '@angular/router';
+import { memberAuthGuard } from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -17,10 +18,23 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/join/join-page').then((m) => m.JoinPage),
   },
   {
-    // A stand-in until slice 13.1 (ADR 0007).
-    path: 'home',
-    title: 'Home · Christian Fitness',
-    loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
+    path: 'sign-in',
+    title: 'Sign in · Christian Fitness',
+    loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
+  },
+  {
+    // Every member route is a child of the shell, which opens only with a session (ADR 0009).
+    path: '',
+    canActivate: [memberAuthGuard],
+    loadComponent: () => import('./shell/member-shell').then((m) => m.MemberShell),
+    children: [
+      {
+        // A stand-in until slice 13.1 (ADR 0007).
+        path: 'home',
+        title: 'Home · Christian Fitness',
+        loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
+      },
+    ],
   },
   {
     path: 'server-error',

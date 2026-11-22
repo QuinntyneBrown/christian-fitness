@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="sign-in">
 <meta name="mock:state" content="invalid">
 <meta name="mock:source" content="Derived: the prototype&#x27;s Sign in links go straight to Home; this screen uses the Join layout.">
-<meta name="description" content="Wrong password: summary at the top (focused) and the error under the field.">
+<meta name="description" content="Wrong email or password: one generic message above the form (focused) that names neither field.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -28,14 +28,14 @@
     <form class="auth__form" action="../../pages/home/default.html" novalidate>
       <h1 class="display auth__title">Welcome back</h1>
       <p class="auth__lead">Sign in to see your events and messages.</p>
-      <div class="auth__alert"><div class="form-alert" id="error-summary" role="alert" tabindex="-1" autofocus aria-labelledby="error-summary-title">
+      <div class="auth__alert"><div class="form-alert" role="alert" tabindex="-1" autofocus>
   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-  <div><p class="form-alert__title" id="error-summary-title">Check your details</p><ul class="form-alert__list"><li><a href="#f-password">Email and password don't match</a></li></ul></div>
+  <div><p class="form-alert__title">Email or password is incorrect</p><p>Check both and try again.</p></div>
 </div></div>
       <div class="auth__fields">
         <div class="field"><label class="field__label" for="f-email">Email</label><input class="input" id="f-email" name="email" type="email" value="grace.thompson@gmail.com" autocomplete="email"></div>
         <div>
-          <div class="field"><label class="field__label" for="f-password">Password</label><input class="input" id="f-password" name="password" type="password" value="abundantlife" autocomplete="current-password" aria-describedby="f-password-error" aria-invalid="true"><span class="field__error" id="f-password-error">That email and password don't match. Try again or <a class="inline-link" href="../../pages/forgot-password/default.html">reset your password</a>.</span></div>
+          <div class="field"><label class="field__label" for="f-password">Password</label><input class="input" id="f-password" name="password" type="password" value="abundantlife" autocomplete="current-password"></div>
           <p class="field__hint"><a class="text-link" href="../../pages/forgot-password/default.html">Forgot your password?</a></p>
         </div>
       </div>
@@ -52,6 +52,7 @@
     <li><a href="invalid.html" aria-current="page">invalid</a></li>
     <li><a href="submitting.html">submitting</a></li>
     <li><a href="error.html">error</a></li>
+    <li><a href="failed.html">failed</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

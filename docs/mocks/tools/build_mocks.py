@@ -43,7 +43,8 @@ def main() -> int:
         folder.mkdir(parents=True, exist_ok=True)
         for state, st in s["states"].items():
             html = cf_ui.document(sid, state, st["render"]())
-            (folder / f"{state}.html").write_text(html, encoding="utf-8")
+            # LF on every platform: Windows would otherwise write CRLF and change every mock.
+            (folder / f"{state}.html").write_text(html, encoding="utf-8", newline="\n")
             count += 1
         entry = {"id": sid, "kind": s["kind"], "title": s["title"], "group": s["group"]}
         if s.get("route"):
@@ -62,7 +63,7 @@ def main() -> int:
         "required_states": REQUIRED,
         "screens": screens,
     }
-    (ROOT / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (ROOT / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     kinds = {k: sum(1 for x in screens if x["kind"] == k) for k in REQUIRED}
     print(f"wrote {count} mocks for {len(screens)} screens ({kinds})")
     return 0

@@ -9,22 +9,36 @@ using Microsoft.AspNetCore.Http;
 namespace ChristianFitness.Infrastructure.Security;
 
 /// <summary>
-/// Issues the session cookie for a member (L2-030 AC2; ADR 0007). The principal holds the member
-/// id only: no name, email or faith detail travels in the cookie. The session is persistent and
-/// lasts as long as the cookie scheme says.
+/// Issues and ends the session cookie (L2-030 AC2, L2-004 AC5; ADR 0007, ADR 0009). The principal
+/// holds the member id only: no name, email or faith detail travels in the session. The session is
+/// kept on the server (<see cref="DatabaseTicketStore"/>), so signing out ends it there. The
+/// request's user becomes the new identity at once, so the response's antiforgery token is issued
+/// for it.
 /// </summary>
 internal sealed class CookieSessionSignIn(IHttpContextAccessor accessor) : ISessionSignIn
 {
-    public Task SignInAsync(Member member)
+    public async Task SignInAsync(Member member)
     {
         ArgumentNullException.ThrowIfNull(member);
-        var context = accessor.HttpContext ?? throw new InvalidOperationException("A session is issued only during a request.");
+        var context = Current();
         var identity = new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, member.Id.ToString("D", CultureInfo.InvariantCulture))],
             CookieAuthenticationDefaults.AuthenticationScheme);
-        return context.SignInAsync(
+        var principal = new ClaimsPrincipal(identity);
+        await context.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity),
-            new AuthenticationProperties { IsPersistent = true });
+            principal,
+            new AuthenticationProperties { IsPersistent = true }).ConfigureAwait(false);
+        context.User = principal;
     }
+
+    public async Task SignOutAsync()
+    {
+        var context = Current();
+        await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+    }
+
+    private HttpContext Current() =>
+        accessor.HttpContext ?? throw new InvalidOperationException("A session is issued or ended only during a request.");
 }

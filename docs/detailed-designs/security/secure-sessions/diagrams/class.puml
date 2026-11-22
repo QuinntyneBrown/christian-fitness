@@ -18,34 +18,74 @@ class Member {
   +MemberStatus Status
 }
 interface IPasswordHasherService {
-  +Hash(member: Member, password: string): string
-  +Verify(member: Member, hash: string, password: string): bool
+  +Hash(password: string): string
+  +Verify(passwordHash: string, password: string): bool
 }
-class IdentityPasswordHasherService {
-  -PasswordHasher<Member> inner
+class IdentityPasswordHasher {
+  -PasswordHasher<Member> hasher
+}
+interface ISessionSignIn {
+  +SignInAsync(member: Member): Task
+  +SignOutAsync(): Task
+}
+class CookieSessionSignIn {
+  sets HttpContext.User to the new identity
+}
+class DatabaseTicketStore {
+  +StoreAsync(ticket): Task<string>
+  +RenewAsync(key, ticket): Task
+  +RetrieveAsync(key): Task<AuthenticationTicket?>
+  +RemoveAsync(key): Task
+}
+class SessionRecord {
+  +string Id
+  +Guid MemberId
+  +DateTimeOffset? ExpiresAt
+  +byte[] Ticket
 }
 class SignInHandler {
-  +Handle(c: SignInCommand): Task<SignInResult>
+  +Handle(c: SignInCommand): Task<SessionDto>
 }
 class CreateAccountHandler {
-  +Handle(c: CreateAccountCommand): Task<AccountDto>
+  +Handle(c: CreateAccountCommand): Task<SessionDto>
 }
-class AccountDto {
-  +Guid Id
-  +string DisplayName
+class SessionDto {
+  +Guid MemberId
+  +string Name
 }
-class SecurityHeadersMiddleware {
-  +InvokeAsync(ctx: HttpContext): Task
-}
-class CookieAuthenticationSetup {
-  +CookieName = "__Host-cf-session"
+class AuthenticationSetup {
+  +SessionCookie = "__Host-cf-session"
   +SameSite = Lax
   +SecurePolicy = Always
   +HttpOnly = true
 }
-IdentityPasswordHasherService ..|> IPasswordHasherService
+class AntiforgerySetup {
+  +Cookie = "__Host-cf-antiforgery"
+  +TokenCookie = "__Host-cf-xsrf"
+  +Header = "X-XSRF-TOKEN"
+}
+class UseAntiforgeryTokens <<middleware>> {
+  sets __Host-cf-xsrf on /api/ responses
+}
+class AntiforgeryValidationFilter {
+  400 code antiforgery_failed
+}
+class SecurityHeaders <<middleware>> {
+  +ContentSecurityPolicy
+  CSP, nosniff, Referrer-Policy; HSTS
+}
+IdentityPasswordHasher ..|> IPasswordHasherService
+CookieSessionSignIn ..|> ISessionSignIn
 SignInHandler ..> IPasswordHasherService : verifies
 CreateAccountHandler ..> IPasswordHasherService : hashes
-CreateAccountHandler ..> AccountDto : returns
+SignInHandler ..> ISessionSignIn
+CreateAccountHandler ..> ISessionSignIn
+SignInHandler ..> SessionDto : returns
+CreateAccountHandler ..> SessionDto : returns
 SignInHandler --> Member : loads
+AntiforgerySetup ..> UseAntiforgeryTokens : registers
+AntiforgerySetup ..> AntiforgeryValidationFilter : registers
+CookieSessionSignIn ..> DatabaseTicketStore : session store
+DatabaseTicketStore --> SessionRecord : stores
+SessionRecord --> Member
 @enduml

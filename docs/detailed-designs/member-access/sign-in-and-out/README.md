@@ -18,34 +18,60 @@ error codes the screen branches on. Sign out ends the session on the server.
 
 ## Description
 
-- **`SignInPage`** — routed page at `/sign-in` using the mock's `auth`, `field`,
-  `input` and `form-alert` blocks. It reads a `returnUrl` query parameter set by the
-  guard and navigates there, or to `/home`, after success (L2-004 AC1, AC6). It
-  shows "Email or password is incorrect" for code `invalid_credentials`, a
-  wait message for `too_many_attempts` and a contact-the-team message for
-  `account_suspended`.
-- **`memberAuthGuard`** — `CanActivateFn` on the member route tree. It asks
-  `SESSION_SERVICE` for the current session and redirects a visitor to
-  `/sign-in?returnUrl=…` (L2-004 AC6).
-- **`SessionApi` / `SESSION_SERVICE`** — contract and token in `api`;
-  `HttpSessionService` implements `signIn`, `signOut` and `current`, and is bound in
-  `app.config.ts`. The session state is a signal shared app-wide in `root`.
-- **`SessionController`** — `POST /api/session` (`[AllowAnonymous]`),
-  `DELETE /api/session` and `GET /api/session`. Each sends one MediatR request.
-- **`SignInHandler`** — reads failed attempts for the normalized email inside the
-  last 15 minutes from `TimeProvider`; at 5 it returns `too_many_attempts`, mapped to
-  HTTP 429 (L2-004 AC3). It verifies the password through `IPasswordHasher`; a
-  mismatch or unknown email records a failed attempt and returns
-  `invalid_credentials` (L2-004 AC2). A `Suspended` status returns
-  `account_suspended` (L2-004 AC4).
-- **`SignInAttempt`** — record of one failed sign-in (`NormalizedEmail`,
-  `AttemptedAt`). The specification names no storage for it; persisting it in the
-  database versus an in-memory store is `<TO SUPPLY>`.
-- **`CookieSessionSignIn`** — infrastructure service that issues the cookie on
-  success and calls `SignOutAsync` on sign-out (L2-004 AC5).
-- **`SignOutHandler`** — ends the server session; the page then navigates to `/`.
-- **Telemetry** — the sign-in route is recorded as its template; no span carries the
-  email, the password or the cookie.
+Slice 3.1 builds sign-in with the generic refusal, sign-out and the guard's
+redirect ([ADR 0009](../../../adr/0009-sign-in-sign-out-and-request-protections.md));
+slice 3.2 adds the failure window, the suspension refusal and the return to the
+route first asked for.
+
+- **`SignInPage`** — routed, lazy page at `/sign-in` using the mock's `auth`,
+  `field`, `input` and `form-alert` blocks, with one signal per field. While the
+  request is on its way the button reads "Signing in…", is disabled and busy, and the
+  fields are read-only. Success navigates to `/home` (L2-004 AC1); slice 3.2 reads a
+  `returnUrl` set by the guard and navigates there instead (L2-004 AC6).
+  `signInRefusalOf` (`domain`) turns the `ApiError` into what the screen shows: the
+  `form-alert` "Email or password is incorrect" for code `invalid_credentials`, with
+  no field marked invalid (L2-004 AC2, mock `invalid`), and "We couldn't sign you in"
+  for anything else (mock `failed`). Slice 3.2 adds a wait message for
+  `too_many_attempts` and a contact-the-team message for `account_suspended`. The
+  mock's "Forgot your password?" link waits for the screen it opens (journey 20).
+- **`memberAuthGuard`** — `CanActivateFn` in `domain` on `MemberShell`, the parent of
+  every member route. It asks `SESSION_SERVICE.current()`: a session opens the route,
+  a 401 redirects to `/sign-in` (slice 3.2 adds `?returnUrl=…`), and any other failure
+  keeps the visitor where they are, since a 5xx already opens the server-error screen.
+- **`MemberShell`** — routed layout in the member app; it renders `AppHeader` with
+  the Sign out button ([navigate the member app](../../member-home/navigate-member-app/README.md)).
+  Choosing it calls `signOut()` and, on a 204 or a 401 (already signed out), navigates
+  to `/` (L2-004 AC5). Any other failure keeps the member where they are with the
+  button enabled.
+- **`SessionApi` / `SESSION_SERVICE`** — contract and token in `api`; `signIn` takes a
+  `SignInRequestDto` (`email`, `password`) and answers the `SessionDto`; `signOut`
+  completes once the session has ended, a 401 included; `current` answers the
+  session. `HttpSessionService` implements it over HTTP, holds no state and is bound
+  in `app.config.ts`.
+- **`SessionController`** — `POST /api/session` (`[AllowAnonymous]`, 200 with the
+  `SessionDto`), `DELETE /api/session` (204) and `GET /api/session`. Each sends one
+  MediatR request. Both writes need the antiforgery token
+  ([secure sessions](../../security/secure-sessions/README.md)).
+- **`SignInHandler`** — looks the member up by the email's lookup key and verifies the
+  password through `IPasswordHasherService`. An unknown email is verified against a
+  fixed hash, so the answer takes as long as for a wrong password. Either failure or a
+  blank field throws `RefusalException` with code
+  `invalid_credentials`, answered 401 (L2-004 AC2). Success signs the member in
+  through `ISessionSignIn`. Slice 3.2 first reads failed attempts for the email inside
+  the last 15 minutes from `TimeProvider` and refuses the sixth with
+  `too_many_attempts` and HTTP 429 (L2-004 AC3), and refuses a `Suspended` member
+  with `account_suspended` (L2-004 AC4).
+- **`SignInAttempt`** (slice 3.2) — record of one failed sign-in (`NormalizedEmail`,
+  `AttemptedAt`). Where it is stored is slice 3.2's decision.
+- **`CookieSessionSignIn`** — infrastructure implementation of `ISessionSignIn`: it
+  issues the cookie on success and calls `SignOutAsync` on sign-out (L2-004 AC5), and
+  sets the request's user to the new identity, so the response carries an antiforgery
+  token for it.
+- **`SignOutHandler`** — ends the session on the server: `DatabaseTicketStore` deletes its
+  row and the cookie expires, so a replayed copy of the cookie is refused 401
+  ([secure sessions](../../security/secure-sessions/README.md)).
+- **Telemetry** — the sign-in route is recorded as its template; no span or log
+  carries the email, the password or the cookie, on success or refusal.
 
 ## Requirements
 
@@ -84,12 +110,12 @@ The class diagram shows the frontend contract and its HTTP implementation, the r
 
 ### Behaviour — sign in
 
-The guard sends a visitor to sign-in with a return URL. The handler applies the 15-minute failure window, the generic credential refusal and the suspension refusal before the cookie is issued (`L2-004`).
+The guard sends a visitor to sign-in, and the interceptor fetches an antiforgery token first when there is none. The handler gives one generic refusal for an unknown email or a wrong password before the cookie is issued; slice 3.2 adds the 15-minute failure window, the suspension refusal and the return URL (`L2-004`).
 
 ![Sequence diagram for member signs in](diagrams/sequence-sign-in.png)
 
 ### Behaviour — sign out
 
-Sign out ends the session on the server, clears the session signal and returns the member to the landing page (`L2-004` AC5).
+Sign out, from the app header, ends the session on the server and returns the member to the landing page; a session that had already ended counts as signed out (`L2-004` AC5, `L2-008` AC4).
 
 ![Sequence diagram for member signs out](diagrams/sequence-sign-out.png)

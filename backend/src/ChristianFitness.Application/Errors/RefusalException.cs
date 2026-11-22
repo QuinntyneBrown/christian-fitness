@@ -5,6 +5,9 @@ public enum RefusalKind
 {
     /// <summary>The request clashes with what is already stored (409).</summary>
     Conflict,
+
+    /// <summary>The caller could not be identified, such as by a wrong password (401).</summary>
+    Unauthenticated,
 }
 
 /// <summary>

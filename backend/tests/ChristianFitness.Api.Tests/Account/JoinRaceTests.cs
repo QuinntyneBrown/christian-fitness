@@ -4,7 +4,6 @@ using System.Text.Json;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -72,7 +71,7 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal("email_taken", problem.GetProperty("code").GetString());
-        Assert.False(response.Headers.TryGetValues("Set-Cookie", out _));
+        Assert.Null(Browser.SessionSetCookie(response));
         Assert.Equal(["Other Visitor"], await NamesWithAsync(RacedTaken));
     }
 
@@ -90,7 +89,7 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
     }
 
     private HttpClient CreateClient() =>
-        factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
+        Browser.CreateClient(factory);
 
     private static Task<HttpResponseMessage> JoinAsync(HttpClient client, JoinTests.JoinBody body) =>
         client.PostAsJsonAsync(new Uri("/api/account/join", UriKind.Relative), body, TestContext.Current.CancellationToken);

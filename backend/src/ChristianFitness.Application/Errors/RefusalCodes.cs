@@ -9,6 +9,9 @@ public static class RefusalCodes
     /// <summary>A field is longer than its limit (L2-003 AC6).</summary>
     public const string FieldTooLong = "field_too_long";
 
+    /// <summary>No account has this email and password (L2-004 AC2): one code for both.</summary>
+    public const string InvalidCredentials = "invalid_credentials";
+
     /// <summary>A body failed validation for any other reason (L2-032 AC1).</summary>
     public const string ValidationFailed = "validation_failed";
 }

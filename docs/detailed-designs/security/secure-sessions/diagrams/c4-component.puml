@@ -5,8 +5,8 @@ title Components — Secure sessions
 
 Container(web, "Member web app", "Angular", "HttpClient with XSRF configuration")
 Container_Boundary(api, "Christian Fitness API") {
-  Component(hdr, "SecurityHeadersMiddleware", "ASP.NET Core middleware", "CSP, nosniff, Referrer-Policy; HSTS in production")
-  Component(af, "AutoValidateAntiforgeryToken filter", "MVC filter", "Refuses unsafe methods without a valid token")
+  Component(hdr, "SecurityHeaders", "ASP.NET Core middleware", "CSP, nosniff, Referrer-Policy; HSTS in production")
+  Component(af, "AntiforgeryValidationFilter", "MVC filter", "Refuses unsafe methods without a valid token")
   Component(ctrl, "AuthController", "Controller", "One MediatR send per action")
   Component(h, "SignInHandler / CreateAccountHandler", "MediatR handlers", "Verify or hash the password")
   Component(hasher, "PasswordHasher<Member>", "ASP.NET Core Identity", "PBKDF2 hashing")

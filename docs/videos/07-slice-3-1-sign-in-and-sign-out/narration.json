@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Welcome back. Members can now sign in, and sign out, on any device."] },
+    { "id": "signin", "bars": 5, "lines": ["Enter your email and password, and you land on Home, greeted by name. While it works, the button says, signing in."] },
+    { "id": "wrong", "bars": 5, "lines": ["A wrong password, or an email we don't know, gets one message: email or password is incorrect. It never says which."] },
+    { "id": "failed", "bars": 4, "lines": ["If the server fails, a message says so, and what you typed stays, ready to try again."] },
+    { "id": "signout", "bars": 5, "lines": ["Signed in, the header offers Sign out, a full-size target on phone and desktop. It ends the session on the server itself."] },
+    { "id": "guard", "bars": 4, "lines": ["Open a member page without a session, and you are taken to sign in."] },
+    { "id": "protect", "bars": 5, "lines": ["Every change carries an antiforgery token, so another site cannot act for you, and every answer carries strict security headers."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice three point two: sign-in protections."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice three point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

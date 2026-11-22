@@ -2,6 +2,7 @@ import { expect, test } from '../fixtures/test';
 import { WebHomePage } from '../page-objects/web/home.page';
 import { WebJoinPage } from '../page-objects/web/join.page';
 import { WebServerErrorPage } from '../page-objects/web/server-error.page';
+import { WebSignInPage } from '../page-objects/web/sign-in.page';
 import { WebStartPage } from '../page-objects/web/start.page';
 
 const OWNED = "That's on us, not you, and we've been notified. Try again in a moment.";
@@ -93,18 +94,21 @@ test.describe('Member app, server error from the API', () => {
     await expect(home.greeting).toHaveCount(0);
   });
 
-  test('a 4xx while loading leaves the screen to handle it', async ({ page, api }) => {
+  test('a 4xx while loading leaves the app to handle it: a 401 goes to sign in', async ({
+    page,
+    api,
+  }) => {
     api.on('GET', '/api/session', () => ({
       status: 401,
       json: { status: 401, code: 'unauthenticated' },
     }));
     const home = new WebHomePage(page);
+    const signIn = new WebSignInPage(page);
     const serverError = new WebServerErrorPage(page);
 
     await home.open();
-    await home.sessionAnswered();
 
-    await expect(home.greeting).toHaveText('Welcome');
+    await expect(signIn.heading).toHaveText('Welcome back');
     await expect(serverError.heading).toHaveCount(0);
   });
 

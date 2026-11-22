@@ -382,7 +382,7 @@ def write_readme(root: Path, coverage: dict, manifest: dict) -> None:
     else:
         title = manifest.get("project", "Project")
         text = f"# {title} mocks\n\nStatic HTML mocks for every page, dialog and notification, in every state. Open [index.html](index.html) locally to browse them.\n\n## Coverage\n\n{block}\n"
-    readme.write_text(text, encoding="utf-8")
+    readme.write_text(text, encoding="utf-8", newline="\n")
 
 
 def write_index(root: Path, coverage: dict, manifest: dict) -> None:
@@ -457,7 +457,7 @@ def write_index(root: Path, coverage: dict, manifest: dict) -> None:
 </body>
 </html>
 """
-    (root / "index.html").write_text(html, encoding="utf-8")
+    (root / "index.html").write_text(html, encoding="utf-8", newline="\n")
 
 
 def main(argv: list[str] | None = None) -> int:
