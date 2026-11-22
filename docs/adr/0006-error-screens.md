@@ -26,7 +26,10 @@ budget, for a client nothing calls.
   `skipLocationChange`, so the address bar keeps the URL that failed. Its query parameters carry
   the `reference` and the URL to return to (`from`); the screen shows a reference only when it is
   well formed (`CF-` and eight upper-case hexadecimal digits) and returns only to a path inside
-  the app (otherwise `/`). Both rules are helpers in `domain` with unit tests.
+  the app (otherwise `/`). Both rules are helpers in `domain` with unit tests. The page reads the
+  parameters once from the route snapshot; binding them to inputs with
+  `withComponentInputBinding()` was measured at +2.4 kB initial. The interceptor does not open
+  the screen again while it is showing, so the snapshot cannot go stale.
 - **The actions are plain links that load a document** (`<a href>`), not router links. "Try
   again" loads the URL that failed again from the server, which also picks up a new deployment
   and drops whatever state failed; the components library stays free of the router. The
@@ -43,12 +46,21 @@ budget, for a client nothing calls.
 - **The reference comes from the API.** Every 5xx ProblemDetails carries `reference`, `CF-` and
   the first eight hexadecimal digits of the request's W3C trace id in upper case, so an operator
   finds the trace from what the member quotes. A 4xx carries none.
+- **The initial warning budget rises from 220 kB to 225 kB** in both apps; the error budget stays
+  at 250 kB. The screens' rendering (text, content projection, a sanitised link, signal inputs)
+  added about 5 kB of `@angular/core` instructions that any screen with content needs; a view
+  query (about 8 kB) and class bindings (about 4.6 kB) were measured and avoided. The third lazy
+  route then turned on Angular's chunk optimizer, which folds the shared initial chunk into `main`:
+  about 2 kB more raw, 1 kB less to transfer and one request fewer. Each app measures 220.4 kB raw
+  (57.4 kB to transfer, against 56.7 kB before the slice).
 - **Unit tests run with Vitest** through the CLI's unit-test builder, as ADR 0001 planned: a
-  `test` target on `domain` and `npm test`. They run locally, not in CI.
+  `test` target on `domain`, `npm test`, and `happy-dom`, which the builder needs for a test run
+  without a browser. They run locally, not in CI.
 
 ## Consequences
 
-- The not-found and server-error screens add nothing to either app's initial bundle; the
+- The two pages are lazy chunks of 1 to 2 kB, and `Button` and `ErrorPage` share a lazy chunk of
+  about 4.6 kB; the initial bundle grows only by the framework instructions above. The
   interceptor costs nothing until it is registered.
 - Choosing an action reloads the app. That is slower than an in-app navigation, and is accepted
   for recovery from an error.

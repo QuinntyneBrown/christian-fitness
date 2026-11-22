@@ -12,6 +12,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/start/start-page').then((m) => m.StartPage),
   },
   {
+    path: 'server-error',
+    title: 'Something went wrong · Christian Fitness Admin',
+    loadComponent: () =>
+      import('./pages/server-error/server-error-page').then((m) => m.ServerErrorPage),
+  },
+  {
     path: '**',
     title: 'Page not found · Christian Fitness Admin',
     loadComponent: () => import('./pages/not-found/not-found-page').then((m) => m.NotFoundPage),

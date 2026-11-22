@@ -14,7 +14,7 @@ title Class structure — Load fast
 class AngularJsonBudget {
   +type = "initial"
   +maximumError = "250kB"
-  +maximumWarning = "220kB"
+  +maximumWarning = "225kB"
 }
 class Route <<Angular>> {
   +path: string

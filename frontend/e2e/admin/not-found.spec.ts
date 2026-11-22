@@ -30,6 +30,7 @@ test.describe('Admin app, not found', () => {
     await expect(notFound.action('Go to dashboard')).toHaveAttribute('href', '/');
     await expect(notFound.action('Manage events')).toHaveAttribute('href', '/events');
 
+    await expect(notFound.heading).toBeFocused();
     await notFound.tab();
     await expect(notFound.action('Go to dashboard')).toBeFocused();
     await notFound.pressEnter();

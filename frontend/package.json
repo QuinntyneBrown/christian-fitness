@@ -7,6 +7,7 @@
     "start:admin": "ng serve admin --port 4201",
     "build": "ng build web && ng build admin",
     "lint": "eslint .",
+    "test": "ng test domain --watch=false",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "playwright test"
@@ -34,8 +35,10 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-boundaries": "^7.4.4",
+    "happy-dom": "^21.0.4",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
-    "typescript-eslint": "8.72.2"
+    "typescript-eslint": "8.72.2",
+    "vitest": "^4.1.12"
   }
 }
