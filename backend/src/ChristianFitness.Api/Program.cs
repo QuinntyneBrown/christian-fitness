@@ -10,9 +10,11 @@ builder.Services.AddSessionAuthentication();
 builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = context =>
         context.ProblemDetails.Extensions.TryAdd("code", ProblemCodes.ForStatus(context.ProblemDetails.Status ?? context.HttpContext.Response.StatusCode)));
+builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
