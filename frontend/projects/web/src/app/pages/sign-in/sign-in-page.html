@@ -12,6 +12,19 @@
       heading="Email or password is incorrect"
       text="Check both and try again."
     />
+  } @else if (refusal() === 'too-many-attempts') {
+    <!-- "Reset your password" waits for the screen it opens (journey 20, ADR 0010). -->
+    <cf-form-alert
+      slot="alert"
+      heading="Sign-in paused for 15 minutes"
+      text="Too many attempts, so we paused sign-in to keep your account safe."
+    />
+  } @else if (refusal() === 'suspended') {
+    <cf-form-alert
+      slot="alert"
+      heading="Your account is suspended"
+      text="Contact the Christian Fitness team to talk it through."
+    />
   } @else if (refusal() === 'failed') {
     <cf-form-alert
       slot="alert"
