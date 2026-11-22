@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ChristianFitness.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,12 +30,12 @@ public sealed class JoinRefusalTests(ApiFactory factory) : IClassFixture<ApiFact
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal("email_taken", problem.GetProperty("code").GetString());
         Assert.Equal(409, problem.GetProperty("status").GetInt32());
-        Assert.False(response.Headers.TryGetValues("Set-Cookie", out _));
+        Assert.Null(Browser.SessionSetCookie(response));
         Assert.Equal(["Grace Thompson"], await NamesWithAsync(registered));
     }
 
     private HttpClient CreateClient() =>
-        factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
+        Browser.CreateClient(factory);
 
     private static Task<HttpResponseMessage> JoinAsync(HttpClient client, JoinTests.JoinBody body) =>
         client.PostAsJsonAsync(new Uri("/api/account/join", UriKind.Relative), body, TestContext.Current.CancellationToken);

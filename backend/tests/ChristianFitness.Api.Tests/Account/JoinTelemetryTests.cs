@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using ChristianFitness.Api.Tests.Telemetry;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace ChristianFitness.Api.Tests.Account;
 
@@ -26,7 +25,7 @@ public sealed class JoinTelemetryTests(TelemetryTests.Factory factory) : IClassF
     [Fact]
     public async Task Given_a_taken_email_When_the_join_is_refused_Then_nothing_personal_is_recorded()
     {
-        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
+        using var client = Browser.CreateClient(factory);
         using var first = await client.PostAsJsonAsync(new Uri("/api/account/join", UriKind.Relative), JoinTests.Details("grace.telemetry.taken@example.org"), TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Created, first.StatusCode);
 
@@ -36,7 +35,7 @@ public sealed class JoinTelemetryTests(TelemetryTests.Factory factory) : IClassF
     private async Task AssertNothingPersonalAsync(JoinTests.JoinBody body, HttpStatusCode status)
     {
         var traceId = ActivityTraceId.CreateRandom();
-        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
+        using var client = Browser.CreateClient(factory);
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri("/api/account/join", UriKind.Relative))
         {
             Content = JsonContent.Create(body),

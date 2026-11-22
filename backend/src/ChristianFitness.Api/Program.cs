@@ -14,9 +14,14 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSessionAuthentication(builder.Configuration);
 builder.Services.AddSessions();
+builder.Services.AddRequestAntiforgery();
 // Missing fields reach the validators, which name them (L2-032 AC1); a body that cannot be read at
 // all is refused without repeating any of it.
-builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+builder.Services.AddControllers(options =>
+    {
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+        options.AddAntiforgeryFilters();
+    })
     .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ => new BadRequestObjectResult(ProblemCodes.Unreadable())
     {
         ContentTypes = { "application/problem+json" },
@@ -35,8 +40,10 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseAntiforgeryTokens();
 
 app.MapControllers();
+app.MapAntiforgeryToken();
 
 // Liveness runs no check; readiness (and /health) checks the database. Status only (L2-040 AC2).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();

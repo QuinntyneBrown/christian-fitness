@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -139,7 +138,7 @@ public sealed class JoinTests(ApiFactory factory) : IClassFixture<ApiFactory>
     // The cookie is Secure: the client speaks HTTPS so it would keep it, but the tests read and send
     // it themselves, to see exactly what the API set.
     private HttpClient CreateClient() =>
-        factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = false });
+        Browser.CreateClient(factory);
 
     private static Task<HttpResponseMessage> JoinAsync(HttpClient client, JoinBody body) =>
         client.PostAsJsonAsync(new Uri("/api/account/join", UriKind.Relative), body, TestContext.Current.CancellationToken);
