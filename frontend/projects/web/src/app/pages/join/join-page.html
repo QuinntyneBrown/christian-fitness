@@ -8,6 +8,18 @@
 >
   @if (summary().length) {
     <cf-form-alert slot="alert" heading="Check your details" [items]="summary()" />
+  } @else if (refusal() === 'refused') {
+    <cf-form-alert
+      slot="alert"
+      heading="Check your details"
+      text="Some of your details weren't accepted. Check each field and try again."
+    />
+  } @else if (refusal() === 'failed') {
+    <cf-form-alert
+      slot="alert"
+      heading="We couldn't create your profile"
+      text="Our servers didn't respond. Everything you typed is still here, so try again in a moment."
+    />
   }
   <cf-text-field
     slot="fields"
@@ -28,7 +40,12 @@
     type="email"
     autocomplete="email"
     [value]="email()"
-    [error]="fieldErrors().email"
+    [error]="
+      fieldErrors().email ??
+      (refusal() === 'email-taken' ? 'An account with this email already exists.' : null)
+    "
+    [errorLink]="refusal() === 'email-taken' ? 'Sign in instead?' : undefined"
+    errorHref="/sign-in"
     [readonly]="submitting()"
     (valueChange)="edit('email', $event)"
   />
