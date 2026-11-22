@@ -6,6 +6,19 @@
   altHref="/join"
   (submitted)="submit()"
 >
+  @if (refusal() === 'invalid-credentials') {
+    <cf-form-alert
+      slot="alert"
+      heading="Email or password is incorrect"
+      text="Check both and try again."
+    />
+  } @else if (refusal() === 'failed') {
+    <cf-form-alert
+      slot="alert"
+      heading="We couldn't sign you in"
+      text="Something went wrong on our side. Try again in a moment."
+    />
+  }
   <cf-text-field
     slot="fields"
     fieldId="f-email"
