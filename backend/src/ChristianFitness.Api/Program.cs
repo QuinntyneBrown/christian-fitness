@@ -24,6 +24,7 @@ builder.Services.AddControllers(options =>
     {
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
         options.AddAntiforgeryFilters();
+        options.AddStaffAreaConvention();
     })
     .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ => new BadRequestObjectResult(ProblemCodes.Unreadable())
     {
