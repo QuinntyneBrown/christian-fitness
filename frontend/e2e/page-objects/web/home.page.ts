@@ -17,6 +17,13 @@ export class WebHomePage {
     await this.page.goto('/home');
   }
 
+  /** Waits until the API has answered the session the greeting is read from. */
+  async sessionAnswered(): Promise<void> {
+    await this.page.waitForResponse(
+      (response) => new URL(response.url()).pathname === '/api/session',
+    );
+  }
+
   title(): Promise<string> {
     return this.page.title();
   }

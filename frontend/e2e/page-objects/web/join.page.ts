@@ -72,6 +72,15 @@ export class WebJoinPage {
     await this.submitButton.click();
   }
 
+  /** Submits and waits until the API has answered the join request. */
+  async submitAndAwaitAnswer(): Promise<void> {
+    const answered = this.page.waitForResponse(
+      (response) => new URL(response.url()).pathname === '/api/account/join',
+    );
+    await this.submit();
+    await answered;
+  }
+
   /** Fills the form and chooses interests with the keyboard alone, then submits with Enter. */
   async joinByKeyboard(details: JoinDetails, interests: string[]): Promise<void> {
     await this.fullName.focus();

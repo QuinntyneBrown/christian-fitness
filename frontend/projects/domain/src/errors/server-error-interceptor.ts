@@ -11,8 +11,9 @@ import { referenceOf, SERVER_ERROR_PATH } from './server-error';
  * no answer or a request outside the API passes on to the caller, which shows its own failed
  * state (L2-043 AC5). The error always passes on, so no caller waits forever.
  *
- * Registered with `provideHttpClient(withInterceptors([serverErrorInterceptor]))` by the first
- * slice that provides the client (ADR 0006).
+ * Registered with `provideHttpClient(withInterceptors([serverErrorInterceptor]))` in the member
+ * app's `app.config.ts` (slice 2.1, ADR 0007); the admin app registers it with its client in
+ * slice 9.1.
  */
 export const serverErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const router = inject(Router);

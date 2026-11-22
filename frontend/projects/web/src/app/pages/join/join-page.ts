@@ -8,8 +8,8 @@ import { joinRequestOf, toggleInterest } from '@cf/domain';
 /**
  * The Join screen (mock docs/mocks/pages/join/): a visitor creates an account and lands on Home,
  * signed in (L2-003 AC1). One signal per field; while the request is on its way the button reads
- * "Creating your profile…" and is disabled, and the fields hold still (L2-003 AC5). The refusals
- * and the failed state are slice 2.2's.
+ * "Creating your profile…" and is disabled, and the fields hold still (L2-003 AC5). A failed
+ * request gives the form back as it was; the refusals and their messages are slice 2.2's.
  */
 @Component({
   selector: 'cf-join-page',
@@ -47,6 +47,10 @@ export class JoinPage {
     this.account
       .join(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => void this.router.navigateByUrl('/home'));
+      .subscribe({
+        next: () => void this.router.navigateByUrl('/home'),
+        // The form comes back as it was, so the visitor can try again; slice 2.2 adds the message.
+        error: () => this.submitting.set(false),
+      });
   }
 }
