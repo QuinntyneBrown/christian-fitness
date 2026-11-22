@@ -1,0 +1,55 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.248
+A typo should not cost you the form. Now Join tells you what to fix.
+
+00:00:08.000 --> 00:00:12.552
+Leave out your name, mistype your email, or choose a short password, and the form
+
+00:00:12.552 --> 00:00:14.875
+names each field, and sends nothing.
+
+00:00:18.000 --> 00:00:22.901
+The summary takes focus, and each link moves you to its field. Fix one, and its
+
+00:00:22.901 --> 00:00:24.132
+message clears.
+
+00:00:26.000 --> 00:00:30.900
+If that email already has an account, in any mix of capitals, the email field says
+
+00:00:30.900 --> 00:00:33.232
+so, with a way to sign in instead.
+
+00:00:36.000 --> 00:00:40.778
+If the server refuses, or does not answer, a message says so, and everything you
+
+00:00:40.778 --> 00:00:41.795
+typed stays.
+
+00:00:44.000 --> 00:00:49.054
+The API checks the same rules again. It answers four hundred with a code and each
+
+00:00:49.054 --> 00:00:51.912
+field, or four oh nine for a taken email.
+
+00:00:54.000 --> 00:00:59.429
+One table of rules runs in both stacks, row for row, and two joins racing for one
+
+00:00:59.429 --> 00:01:01.472
+email get the same answer.
+
+00:01:02.000 --> 00:01:07.535
+And a name that holds markup is shown as the characters you typed, never as HTML.
+
+00:01:10.000 --> 00:01:12.922
+Every test failed first. Now they all pass.
+
+00:01:16.000 --> 00:01:19.238
+Next, slice three point one: sign in and sign out.
+
+00:01:22.000 --> 00:01:26.897
+That's slice two point two. Christian Fitness: a Christian community for health in
+
+00:01:26.897 --> 00:01:28.153
+body and spirit.

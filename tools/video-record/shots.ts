@@ -8,9 +8,15 @@ import type { Locator, Page } from '@playwright/test';
  * around it. See docs/videos/README.md, "Screenshots".
  */
 
-/** Where the apps run while shots are taken: the member app and the admin app. */
-export const WEB_URL = 'http://localhost:4310';
-export const ADMIN_URL = 'http://localhost:4311';
+/**
+ * Where the apps run while shots are taken: the member app and the admin app. `CF_WEB_PORT` and
+ * `CF_ADMIN_PORT` move them, as in the e2e config, so a take in one worktree never reuses another
+ * session's server.
+ */
+export const WEB_PORT = Number(process.env['CF_WEB_PORT'] ?? 4310);
+export const ADMIN_PORT = Number(process.env['CF_ADMIN_PORT'] ?? 4311);
+export const WEB_URL = `http://localhost:${WEB_PORT}`;
+export const ADMIN_URL = `http://localhost:${ADMIN_PORT}`;
 /** Where the API runs when `record.mjs --backend` films a slice with no screen. */
 export const API_URL = 'http://localhost:4312';
 

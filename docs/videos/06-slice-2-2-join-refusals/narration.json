@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["A typo should not cost you the form. Now Join tells you what to fix."] },
+    { "id": "fields", "bars": 5, "lines": ["Leave out your name, mistype your email, or choose a short password, and the form names each field, and sends nothing."] },
+    { "id": "summary", "bars": 4, "lines": ["The summary takes focus, and each link moves you to its field. Fix one, and its message clears."] },
+    { "id": "taken", "bars": 5, "lines": ["If that email already has an account, in any mix of capitals, the email field says so, with a way to sign in instead."] },
+    { "id": "failed", "bars": 4, "lines": ["If the server refuses, or does not answer, a message says so, and everything you typed stays."] },
+    { "id": "api", "bars": 5, "lines": ["The API checks the same rules again. It answers four hundred with a code and each field, or four oh nine for a taken email."] },
+    { "id": "rules", "bars": 4, "lines": ["One table of rules runs in both stacks, row for row, and two joins racing for one email get the same answer."] },
+    { "id": "text", "bars": 4, "lines": ["And a name that holds markup is shown as the characters you typed, never as HTML."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice three point one: sign in and sign out."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice two point two. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
