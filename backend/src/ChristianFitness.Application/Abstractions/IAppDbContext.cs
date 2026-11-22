@@ -1,3 +1,6 @@
+using ChristianFitness.Domain.Members;
+using Microsoft.EntityFrameworkCore;
+
 namespace ChristianFitness.Application.Abstractions;
 
 /// <summary>
@@ -6,6 +9,10 @@ namespace ChristianFitness.Application.Abstractions;
 /// </summary>
 public interface IAppDbContext
 {
+    DbSet<Member> Members { get; }
+
+    DbSet<StaffRole> StaffRoles { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

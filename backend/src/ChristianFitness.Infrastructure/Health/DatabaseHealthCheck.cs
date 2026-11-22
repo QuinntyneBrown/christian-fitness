@@ -6,8 +6,6 @@ namespace ChristianFitness.Infrastructure.Health;
 /// <summary>Readiness: the database is reachable (L2-040 AC2). Reports status only, never why.</summary>
 internal sealed class DatabaseHealthCheck(IAppDbContext db) : IHealthCheck
 {
-    public const string ReadyTag = "ready";
-
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         try

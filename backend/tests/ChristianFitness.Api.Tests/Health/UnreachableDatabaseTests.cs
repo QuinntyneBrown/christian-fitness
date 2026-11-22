@@ -1,5 +1,7 @@
 using System.Net;
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Domain.Members;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -21,6 +23,10 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
 
     private sealed class UnreachableDatabase : IAppDbContext
     {
+        public DbSet<Member> Members => throw new InvalidOperationException(Secret);
+
+        public DbSet<StaffRole> StaffRoles => throw new InvalidOperationException(Secret);
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
             throw new InvalidOperationException(Secret);
 

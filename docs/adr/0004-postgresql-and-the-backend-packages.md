@@ -30,7 +30,7 @@ licence key, and the OpenTelemetry EF Core instrumentation is still a pre-releas
   packages, and `OpenTelemetry.Exporter.InMemory` in the API tests. The pre-release EF Core
   instrumentation is left out until a slice queries the database from a request.
 - **Versions** are pinned once, in `backend/Directory.Packages.props` (central package
-  management), and `dotnet-ef` is a local tool in `backend/.config/dotnet-tools.json`.
+  management), and `dotnet-ef` is a local tool in `backend/dotnet-tools.json` (`dotnet tool restore`).
 
 ## Consequences
 
