@@ -69,7 +69,8 @@
         "default",
         "invalid",
         "submitting",
-        "error"
+        "error",
+        "failed"
       ],
       "not_applicable": {
         "loading": "Static form.",

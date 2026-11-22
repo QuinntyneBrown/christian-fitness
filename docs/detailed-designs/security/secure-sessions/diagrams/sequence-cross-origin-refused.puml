@@ -23,7 +23,7 @@ end box
 actor -> hdr : POST /api/... from another origin (no X-XSRF-TOKEN)
 hdr -> af : Pass request
 af -> af : Validate antiforgery token (L2-030 AC3)
-af --> hdr : 400 ProblemDetails code antiforgery_invalid <TO SUPPLY: code>
+af --> hdr : 400 ProblemDetails code antiforgery_failed
 note right of ctrl : Controller never runs; no state changes
 hdr --> actor : Refusal with security headers
 @enduml

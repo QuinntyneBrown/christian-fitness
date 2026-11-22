@@ -13,6 +13,13 @@ title Class structure — Navigate the member app
 class MemberShell {
   +unread: Signal<number>
   +current: Signal<string>
+  +signingOut: Signal<boolean>
+  +signOut(): void
+}
+class AppHeader {
+  +homeHref: input<string>
+  +signingOut: input<boolean>
+  +signOut: output<void>
 }
 class AppNav {
   +destinations: input<NavDestination[]>
@@ -35,12 +42,17 @@ class NavDestination {
 interface UnreadCountApi {
   +count: Signal<number>
 }
+interface SessionApi {
+  +signOut(): Observable<void>
+}
 interface ChatConnection
-MemberShell --> AppNav
+MemberShell --> AppHeader
+AppHeader --> AppNav
 MemberShell --> TabBar
 AppNav --> CountBadge
 TabBar --> CountBadge
 AppNav --> "5" NavDestination
 MemberShell ..> UnreadCountApi : injects UNREAD_COUNT_SERVICE
+MemberShell ..> SessionApi : injects SESSION_SERVICE
 UnreadCountApi ..> ChatConnection : CHAT_CONNECTION
 @enduml

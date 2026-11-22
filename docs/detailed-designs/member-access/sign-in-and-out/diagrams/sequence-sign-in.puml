@@ -19,6 +19,7 @@ box "Frontend — Member web app" #E0F2FE
   participant "memberAuthGuard" as guard
   participant "SignInPage" as page
   participant "HttpSessionService" as client
+  participant "antiforgeryInterceptor" as xsrf
 end box
 box "Backend — Christian Fitness API" #D1FADF
   participant "SessionController" as ctrl
@@ -27,48 +28,42 @@ box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SignInHandler" as h
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
-  participant "IPasswordHasher" as hash
+  participant "IPasswordHasherService" as hash
   participant "CookieSessionSignIn" as sess
   database "Christian Fitness database" as db
 end box
 actor -> guard : Open a member route
 guard -> client : current()
-client --> guard : No session
-guard --> actor : Redirect to /sign-in?returnUrl (L2-004 AC6)
+client --> guard : 401 unauthenticated
+guard --> actor : Redirect to /sign-in (returnUrl: slice 3.2, L2-004 AC6)
 actor -> page : Submit email and password
-page -> client : signIn(email, password)
-client -> ctrl : POST /api/session
+page -> client : signIn({ email, password })
+client -> xsrf : POST /api/session
+opt No __Host-cf-xsrf cookie yet
+  xsrf -> ctrl : GET /api/antiforgery
+  ctrl --> xsrf : 204 + __Host-cf-antiforgery and __Host-cf-xsrf
+end
+xsrf -> ctrl : POST /api/session with X-XSRF-TOKEN
 ctrl -> h : Send SignInCommand
-h -> db : Count SignInAttempt for email in last 15 min
-db --> h : Count
-alt 5 or more failures (L2-004 AC3)
-  h --> ctrl : too_many_attempts
-  ctrl --> client : 429 ProblemDetails code too_many_attempts
-  client --> page : Error code
-  page --> actor : Try again later
-else Under the limit
-  h -> db : Load Member by NormalizedEmail
-  db --> h : Member or none
-  h -> hash : Verify password
-  hash --> h : Match result
-  alt Unknown email or wrong password (L2-004 AC2)
-    h -> db : Record SignInAttempt
-    h --> ctrl : invalid_credentials
-    ctrl --> client : 401 ProblemDetails code invalid_credentials
-    client --> page : Error code
-    page --> actor : "Email or password is incorrect"
-  else Member suspended (L2-004 AC4)
-    h --> ctrl : account_suspended
-    ctrl --> client : 403 ProblemDetails code account_suspended
-    client --> page : Error code
-    page --> actor : Contact the team
-  else Valid
-    h --> ctrl : SessionDto
-    ctrl -> sess : Sign in
-    sess --> ctrl : Secure HTTP-only SameSite cookie (L2-004 AC1)
-    ctrl --> client : 200 SessionDto + Set-Cookie
-    client --> page : Session
-    page --> actor : Navigate to returnUrl or Home
-  end
+note over h : Slice 3.2 first counts SignInAttempt\nin the last 15 min (429 too_many_attempts)
+h -> db : Load Member by NormalizedEmail
+db --> h : Member or none
+h -> hash : Verify password (a fixed hash when none)
+hash --> h : Match result
+alt Unknown email or wrong password (L2-004 AC2)
+  h --> ctrl : RefusalException invalid_credentials
+  ctrl --> client : 401 ProblemDetails code invalid_credentials
+  client --> page : ApiError
+  page --> actor : "Email or password is incorrect"
+else Member suspended (slice 3.2, L2-004 AC4)
+  h --> ctrl : account_suspended
+  ctrl --> client : 403 ProblemDetails code account_suspended
+else Valid
+  h -> sess : SignInAsync(member)
+  sess --> h : __Host-cf-session, Secure, HttpOnly, SameSite=Lax (L2-004 AC1)
+  h --> ctrl : SessionDto
+  ctrl --> client : 200 SessionDto + Set-Cookie (session and a fresh token)
+  client --> page : Session
+  page --> actor : Navigate to Home
 end
 @enduml

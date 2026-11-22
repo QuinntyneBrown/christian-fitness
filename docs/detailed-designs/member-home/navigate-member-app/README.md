@@ -21,6 +21,14 @@ targets measure at least 44 × 44 px.
   (behind `memberAuthGuard`). It hosts `<router-outlet>` and both navigation bars, and
   provides the unread count to them. It is the parent through which sibling routes
   share one chat connection.
+- **`AppHeader`** (slice 3.1) — presentation component in `components` that renders
+  the mock's `app-header` block: the lockup linking to `homeHref`, room for `AppNav`
+  and the profile avatar, and at its end a ghost **Sign out** button, 44 px tall, at
+  every viewport (L2-008 AC4). It emits `signOut`; with `signingOut` the button is
+  disabled and busy. `MemberShell` signs the member out
+  ([sign in and sign out](../../member-access/sign-in-and-out/README.md)). Until the
+  screens they open exist, the shell shows no destinations, avatar or bottom bar;
+  each journey that builds a destination adds it ([ADR 0009](../../../adr/0009-sign-in-sign-out-and-request-protections.md)).
 - **`AppNav`** — presentation component in `components` that renders the mock's
   `app-header` and `app-nav` blocks with `routerLink`-free anchors: it takes
   `destinations`, `current` and `unreadCount` inputs and keeps `aria-current="page"`
@@ -46,7 +54,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-008` | `L1-004` | Given viewport MD or wider, a header shows Home, Events, Services, Messages and Profile with `aria-current="page"` on the current one; given viewport XS or SM, the same destinations appear in a bottom bar with targets of at least 44 × 44 px; given unread messages, Messages shows the unread count as text, not colour alone (acceptance criteria 1–3). |
+| `L2-008` | `L1-004` | Given viewport MD or wider, a header shows Home, Events, Services, Messages and Profile with `aria-current="page"` on the current one; given viewport XS or SM, the same destinations appear in a bottom bar with targets of at least 44 × 44 px; given unread messages, Messages shows the unread count as text, not colour alone; given a signed-in member at any viewport, the app header offers a Sign out button with a target of at least 44 × 44 px (acceptance criteria 1–4). |
 
 ## Diagrams
 

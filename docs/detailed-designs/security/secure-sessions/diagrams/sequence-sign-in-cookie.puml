@@ -21,28 +21,33 @@ box "Frontend — Member web app" #E0F2FE
 end box
 box "Backend — Christian Fitness API" #D1FADF
   participant "SecurityHeadersMiddleware" as hdr
-  participant "AuthController" as ctrl
+  participant "AntiforgeryTokenMiddleware" as tok
+  participant "SessionController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SignInHandler" as h
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
-  participant "PasswordHasher<Member>" as hash
+  participant "IdentityPasswordHasher" as hash
+  participant "CookieSessionSignIn" as sess
   database "Christian Fitness database" as db
 end box
 actor -> page : Submit email and password
-page -> http : POST /api/auth/sign-in
+page -> http : POST /api/session
 http -> hdr : HTTPS request with X-XSRF-TOKEN
-hdr -> ctrl : Antiforgery token valid (L2-030 AC3)
+hdr -> tok : Pass request
+tok -> ctrl : Antiforgery token valid (L2-030 AC3)
 ctrl -> h : Send SignInCommand
-h -> db : Load Member by email
+h -> db : Load Member by NormalizedEmail
 db --> h : Member with PasswordHash
-h -> hash : VerifyHashedPassword (PBKDF2, L2-030 AC1)
+h -> hash : Verify (PBKDF2, L2-030 AC1)
 hash --> h : Success
-h --> ctrl : SignInResult (no password field)
-ctrl -> ctrl : SignInAsync: __Host-cf-session, Secure, HttpOnly, SameSite=Lax (L2-030 AC2)
-ctrl --> hdr : 200 with Set-Cookie
-hdr --> http : Add CSP, nosniff, Referrer-Policy, HSTS in production (L2-030 AC4)
+h -> sess : SignInAsync(member)
+sess --> h : __Host-cf-session, Secure, HttpOnly, SameSite=Lax (L2-030 AC2)
+h --> ctrl : SessionDto (no password field)
+ctrl --> tok : 200
+tok --> hdr : Set-Cookie __Host-cf-xsrf for the signed-in member
+hdr --> http : Add CSP, nosniff, Referrer-Policy, HSTS outside Development (L2-030 AC4)
 http --> page : Signed in
 page --> actor : Navigate to Home
 @enduml

@@ -16,7 +16,8 @@ skinparam package {
 }
 actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
-  participant "AppHeader" as page
+  participant "AppHeader" as header
+  participant "MemberShell" as shell
   participant "HttpSessionService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
@@ -28,14 +29,20 @@ end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "CookieSessionSignIn" as sess
 end box
-actor -> page : Choose Sign out
-page -> client : signOut()
-client -> ctrl : DELETE /api/session
+actor -> header : Choose Sign out (L2-008 AC4)
+header -> shell : signOut
+shell -> client : signOut()
+client -> ctrl : DELETE /api/session with X-XSRF-TOKEN
 ctrl -> h : Send SignOutCommand
-h -> sess : End server session (L2-004 AC5)
-sess --> h : Cookie cleared
+h -> sess : SignOutAsync (L2-004 AC5)
+sess --> h : Session cookie expired
 h --> ctrl : Done
-ctrl --> client : 204 + expired cookie
-client --> page : Session signal set to null
-page --> actor : Navigate to landing page /
+ctrl --> client : 204 + expired cookie and a visitor's token
+alt 204, or 401 (the session had already ended)
+  client --> shell : Signed out
+  shell --> actor : Navigate to the landing page /
+else Any other failure
+  client --> shell : ApiError
+  shell --> actor : Stay; Sign out can be chosen again
+end
 @enduml

@@ -234,12 +234,15 @@ def _():
 
 
 # --- Sign in -----------------------------------------------------------------
-def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = False) -> str:
+def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False) -> str:
     alert = ""
-    pw_err = ""
     if invalid:
-        alert = '<div class="auth__alert">' + error_summary("Check your details", [("Email and password don't match", "f-password")]) + "</div>"
-        pw_err = f'That email and password don\'t match. Try again or <a class="inline-link" href="{href("forgot-password")}">reset your password</a>.'
+        # L2-004 AC2: one generic message that names neither field, so no field is marked invalid.
+        alert = '<div class="auth__alert">' + form_alert(
+            "Email or password is incorrect", "Check both and try again.") + "</div>"
+    if failed:
+        alert = '<div class="auth__alert">' + form_alert(
+            "We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
     if locked:
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
@@ -253,7 +256,7 @@ def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
       <div class="auth__fields">
         {field("Email", "email", ME["email"], type_="email", autocomplete="email", readonly=busy)}
         <div>
-          {field("Password", "password", "abundantlife", type_="password", autocomplete="current-password", error=pw_err, readonly=busy)}
+          {field("Password", "password", "abundantlife", type_="password", autocomplete="current-password", readonly=busy)}
           <p class="field__hint"><a class="text-link" href="{href("forgot-password")}">Forgot your password?</a></p>
         </div>
       </div>
@@ -272,7 +275,7 @@ def _():
     return auth(signin_form())
 
 
-@s("invalid", "Wrong password: summary at the top (focused) and the error under the field.")
+@s("invalid", "Wrong email or password: one generic message above the form (focused) that names neither field.")
 def _():
     return auth(signin_form(invalid=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
 
@@ -285,6 +288,11 @@ def _():
 @s("error", "Too many attempts: sign-in paused, with a reset link to get back in now.")
 def _():
     return auth(signin_form(locked=True))
+
+
+@s("failed", "The server failed or did not answer: a message above the form; what was typed stays.")
+def _():
+    return auth(signin_form(failed=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
 
 
 # --- Forgot password -----------------------------------------------------------

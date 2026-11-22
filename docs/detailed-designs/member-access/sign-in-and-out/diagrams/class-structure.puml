@@ -10,56 +10,97 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Sign in and sign out
-class SignInPage {
-  +form: FormGroup
-  +submitting: Signal<boolean>
-  +errorCode: Signal<string|null>
-  +submit(): void
+package "Member web app and libraries" {
+  class SignInPage {
+    +email: Signal<string>
+    +password: Signal<string>
+    +submitting: Signal<boolean>
+    +refusal: Signal<SignInRefusal|null>
+    +submit(): void
+  }
+  class MemberShell {
+    +signingOut: Signal<boolean>
+    +signOut(): void
+  }
+  class AppHeader <<components>> {
+    +homeHref: input<string>
+    +signingOut: input<boolean>
+    +signOut: output<void>
+  }
+  class memberAuthGuard <<domain, CanActivateFn>>
+  class antiforgeryInterceptor <<domain, HttpInterceptorFn>>
+  class signInRefusalOf <<domain>> {
+    +(error): 'invalid-credentials'|'failed'
+  }
+  interface SessionApi <<api>> {
+    +current(): Observable<SessionDto>
+    +signIn(request: SignInRequestDto): Observable<SessionDto>
+    +signOut(): Observable<void>
+  }
+  class HttpSessionService
+  class SignInRequestDto <<api>> {
+    +email: string
+    +password: string
+  }
+  class SessionDto <<api>> {
+    +memberId: string
+    +name: string
+  }
 }
-interface SessionApi {
-  +current: Signal<SessionDto|null>
-  +signIn(email: string, password: string): Observable<SessionDto>
-  +signOut(): Observable<void>
-}
-class HttpSessionService
-class SessionDto {
-  +memberId: string
-  +firstName: string
-}
-class SessionController {
-  +SignIn(cmd: SignInCommand): Task<IActionResult>
-  +SignOut(): Task<IActionResult>
-  +Current(): Task<SessionDto>
-}
-class SignInCommand {
-  +string Email
-  +string Password
-}
-class SignInHandler {
-  +Handle(c: SignInCommand): Task<Result<SessionDto>>
-}
-class SignOutHandler
-class SignInAttempt {
-  +string NormalizedEmail
-  +DateTimeOffset AttemptedAt
-}
-class Member {
-  +Guid Id
-  +string NormalizedEmail
-  +string PasswordHash
-  +MemberStatus Status
-}
-enum MemberStatus {
-  Active
-  Flagged
-  Suspended
+package "Christian Fitness API, Application and Domain" {
+  class SessionController {
+    +SignIn(c: SignInCommand): Task<IActionResult>
+    +SignOut(): Task<IActionResult>
+    +Get(): Task<IActionResult>
+  }
+  class SignInCommand {
+    +string Email
+    +string Password
+  }
+  class SignInHandler {
+    +Handle(c: SignInCommand): Task<SessionDto>
+  }
+  class SignOutCommand
+  class SignOutHandler
+  interface ISessionSignIn {
+    +SignInAsync(member: Member): Task
+    +SignOutAsync(): Task
+  }
+  interface IPasswordHasherService {
+    +Verify(hash: string, password: string): bool
+  }
+  class SignInAttempt <<slice 3.2>> {
+    +string NormalizedEmail
+    +DateTimeOffset AttemptedAt
+  }
+  class Member {
+    +Guid Id
+    +string NormalizedEmail
+    +string PasswordHash
+    +MemberStatus Status
+  }
+  enum MemberStatus {
+    Active
+    Flagged
+    Suspended
+  }
 }
 HttpSessionService ..|> SessionApi
 SignInPage ..> SessionApi : injects SESSION_SERVICE
+SignInPage ..> signInRefusalOf
+MemberShell --> AppHeader
+MemberShell ..> SessionApi : signOut()
+memberAuthGuard ..> SessionApi : current()
+SessionApi ..> SignInRequestDto
+SessionApi ..> SessionDto
 SessionController ..> SignInCommand : sends
+SessionController ..> SignOutCommand : sends
 SignInHandler ..> SignInCommand : handles
-SignInHandler ..> SignInAttempt : counts last 15 min
-SignInHandler ..> Member : verifies
-SignInHandler ..> TimeProvider
+SignOutHandler ..> SignOutCommand : handles
+SignInHandler ..> IPasswordHasherService : verifies
+SignInHandler ..> ISessionSignIn : signs in
+SignOutHandler ..> ISessionSignIn : signs out
+SignInHandler ..> Member : loads by NormalizedEmail
+SignInHandler ..> SignInAttempt : counts last 15 min (slice 3.2)
 Member --> MemberStatus
 @enduml
