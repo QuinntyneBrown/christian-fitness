@@ -54,8 +54,8 @@ route first asked for.
   ([secure sessions](../../security/secure-sessions/README.md)).
 - **`SignInHandler`** — looks the member up by the email's lookup key and verifies the
   password through `IPasswordHasherService`. An unknown email is verified against a
-  fixed hash, so the answer takes as long as for a wrong password. Either failure, a
-  blank field or a password over 1,024 characters throws `RefusalException` with code
+  fixed hash, so the answer takes as long as for a wrong password. Either failure or a
+  blank field throws `RefusalException` with code
   `invalid_credentials`, answered 401 (L2-004 AC2). Success signs the member in
   through `ISessionSignIn`. Slice 3.2 first reads failed attempts for the email inside
   the last 15 minutes from `TimeProvider` and refuses the sixth with
@@ -67,7 +67,9 @@ route first asked for.
   issues the cookie on success and calls `SignOutAsync` on sign-out (L2-004 AC5), and
   sets the request's user to the new identity, so the response carries an antiforgery
   token for it.
-- **`SignOutHandler`** — ends the server session by expiring the cookie.
+- **`SignOutHandler`** — ends the session on the server: `DatabaseTicketStore` deletes its
+  row and the cookie expires, so a replayed copy of the cookie is refused 401
+  ([secure sessions](../../security/secure-sessions/README.md)).
 - **Telemetry** — the sign-in route is recorded as its template; no span or log
   carries the email, the password or the cookie, on success or refusal.
 

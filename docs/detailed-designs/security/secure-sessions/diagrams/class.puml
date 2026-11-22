@@ -31,6 +31,18 @@ interface ISessionSignIn {
 class CookieSessionSignIn {
   sets HttpContext.User to the new identity
 }
+class DatabaseTicketStore {
+  +StoreAsync(ticket): Task<string>
+  +RenewAsync(key, ticket): Task
+  +RetrieveAsync(key): Task<AuthenticationTicket?>
+  +RemoveAsync(key): Task
+}
+class SessionRecord {
+  +string Id
+  +Guid MemberId
+  +DateTimeOffset? ExpiresAt
+  +byte[] Ticket
+}
 class SignInHandler {
   +Handle(c: SignInCommand): Task<SessionDto>
 }
@@ -52,14 +64,15 @@ class AntiforgerySetup {
   +TokenCookie = "__Host-cf-xsrf"
   +Header = "X-XSRF-TOKEN"
 }
-class AntiforgeryTokenMiddleware {
-  +InvokeAsync(ctx: HttpContext): Task
+class UseAntiforgeryTokens <<middleware>> {
+  sets __Host-cf-xsrf on /api/ responses
 }
-class AntiforgeryRefusalFilter {
+class AntiforgeryValidationFilter {
   400 code antiforgery_failed
 }
-class SecurityHeadersMiddleware {
-  +InvokeAsync(ctx: HttpContext): Task
+class SecurityHeaders <<middleware>> {
+  +ContentSecurityPolicy
+  CSP, nosniff, Referrer-Policy; HSTS
 }
 IdentityPasswordHasher ..|> IPasswordHasherService
 CookieSessionSignIn ..|> ISessionSignIn
@@ -70,6 +83,9 @@ CreateAccountHandler ..> ISessionSignIn
 SignInHandler ..> SessionDto : returns
 CreateAccountHandler ..> SessionDto : returns
 SignInHandler --> Member : loads
-AntiforgerySetup ..> AntiforgeryTokenMiddleware : registers
-AntiforgerySetup ..> AntiforgeryRefusalFilter : registers
+AntiforgerySetup ..> UseAntiforgeryTokens : registers
+AntiforgerySetup ..> AntiforgeryValidationFilter : registers
+CookieSessionSignIn ..> DatabaseTicketStore : session store
+DatabaseTicketStore --> SessionRecord : stores
+SessionRecord --> Member
 @enduml

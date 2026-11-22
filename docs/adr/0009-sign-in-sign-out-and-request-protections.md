@@ -32,11 +32,17 @@ design left the readable antiforgery cookie's name and the static host `<TO SUPP
   with code `invalid_credentials` and the new kind `Unauthenticated`, answered 401. Success signs
   the member in through `ISessionSignIn` and answers 200 with the `SessionDto` (`memberId`,
   `name`). `DELETE` requires the session: `SignOutHandler` calls `ISessionSignIn.SignOutAsync`,
-  which expires the cookie, and the answer is 204.
-- **No validator on sign-in.** A blank or over-long email or password is simply wrong
-  credentials: the answer is the same 401, so the form shows the one generic message, and a
-  password over 1,024 characters is refused before it is hashed. A sign-in body that cannot be
-  read is refused 400 as every other body is.
+  which ends the session on the server and expires the cookie, and the answer is 204.
+- **Sessions live on the server** (L2-004 AC5: "ends the session on the server"). The cookie
+  carries only a random key: `DatabaseTicketStore`, the cookie handler's `ITicketStore`, keeps
+  each authentication ticket in a new `Sessions` table (migration `AddSessions`, cascade-deleted
+  with its member). Sign-out deletes the row, so a copy of the old cookie replayed afterwards is
+  refused 401; the member's sessions on other devices stay open. A row past its expiry is deleted
+  when it is next read, and a member's expired rows when they next sign in.
+- **No validator on sign-in.** A blank email or password is simply wrong credentials: the answer
+  is the same 401, so the form shows the one generic message. No maximum length is applied, since
+  Join applies none and a member must be able to sign in with the password they chose. A sign-in
+  body that cannot be read is refused 400 as every other body is.
 - **The screen says one generic thing for wrong credentials** (L2-004 AC2): the `form-alert`
   "Email or password is incorrect" / "Check both and try again.", which takes focus. No field is
   marked invalid, since marking the password would say the email is right. The `invalid` mock
@@ -48,12 +54,16 @@ design left the readable antiforgery cookie's name and the static host `<TO SUPP
   the not-found screen would be a dead end. The mock keeps it.
 - **Antiforgery (L2-030 AC3).** ASP.NET Core antiforgery is registered with an HttpOnly,
   `Secure`, `SameSite=Strict` cookie `__Host-cf-antiforgery` and the header `X-XSRF-TOKEN`.
-  `AutoValidateAntiforgeryTokenAttribute` is a global MVC filter, so every `POST`, `PUT`, `PATCH`
-  and `DELETE` to a controller is refused without a valid token, anonymous ones (join, sign-in)
-  included, which also stops a forged sign-in into an attacker's account. A refusal is 400
-  ProblemDetails with code `antiforgery_failed`.
+  A global filter, `AntiforgeryValidationFilter`, refuses every `POST`, `PUT`, `PATCH` and
+  `DELETE` to a controller without a valid token, anonymous ones (join, sign-in) included, which
+  also stops a forged sign-in into an attacker's account. A refusal is 400 ProblemDetails with
+  code `antiforgery_failed`. The filter is our own because `AutoValidateAntiforgeryTokenAttribute`
+  needs the MVC view services, which an API registered with `AddControllers` does not have. Both
+  cookies are marked `Secure` whatever the scheme the API sees, as the `__Host-` prefix requires;
+  behind a proxy that ends TLS the API sees plain HTTP, where `SecurePolicy = Always` would
+  refuse to issue a token.
 - **The readable token is the cookie `__Host-cf-xsrf`** (`Secure`, not HttpOnly,
-  `SameSite=Strict`, path `/`). `AntiforgeryTokenMiddleware` issues a fresh one on every `/api/`
+  `SameSite=Strict`, path `/`). `UseAntiforgeryTokens` issues a fresh one on every `/api/`
   response for whoever the request ends as: `CookieSessionSignIn` sets the request's user when it
   signs a member in or out, so the response to join, sign-in and sign-out already carries a token
   for the new identity. `GET /api/antiforgery` (anonymous, 204) gives a visitor their first one.
@@ -62,17 +72,19 @@ design left the readable antiforgery cookie's name and the static host `<TO SUPP
   `antiforgeryInterceptor` (`domain`) fetches `GET /api/antiforgery` first when an unsafe request
   to the API finds no token cookie to read, then sends the request with the header. No component
   handles the token. The admin app gets the same when it gets its client (slice 9.1).
-- **Security headers (L2-030 AC4).** `SecurityHeadersMiddleware` adds to every API response
+- **Security headers (L2-030 AC4).** `UseSecurityHeaders` adds to every API response
   `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; base-uri 'none';
   form-action 'none'` (an API serves no script at all), `X-Content-Type-Options: nosniff` and
-  `Referrer-Policy: strict-origin-when-cross-origin`. `UseHsts` adds
+  `Referrer-Policy: strict-origin-when-cross-origin`, as the response starts, so refusals and
+  errors carry them too. `UseHsts` adds
   `Strict-Transport-Security: max-age=31536000; includeSubDomains` outside the Development
   environment.
 - **The static host sends the apps' headers.** The built apps are static files, so the host that
   serves them sets the headers, listed in `docs/operations/settings.md` ("Static host"): the same
   `nosniff`, `Referrer-Policy` and HSTS, and a CSP whose `script-src 'self'` has no
   `unsafe-inline`. The production build turns off Angular's inline critical CSS
-  (`optimization.styles.inlineCritical: false`), whose `onload` attribute such a policy blocks.
+  (`optimization.styles.inlineCritical: false`), whose inline `<script>` that swaps the
+  stylesheet in such a policy blocks.
   Which platform hosts the files is the deployment journey's choice (L2-041); any host that can
   set response headers will do.
 - **`memberAuthGuard` (`domain`) protects the member routes** (the first half of L2-004 AC6): it
@@ -91,6 +103,12 @@ design left the readable antiforgery cookie's name and the static host `<TO SUPP
   already ended, so the member is signed out either way). Any other failure leaves the member
   where they are with the button enabled to try again; no mock draws a message for it, so a
   toast for it waits for the member toast (no slice yet).
+- **`serverErrorInterceptor` records the URL being opened.** When the guard's request fails with a
+  5xx, the first navigation has not finished, so "Try again" must load where the visitor was
+  going (the navigation in flight), not the router's previous URL.
+- **The e2e fixture answers two requests by default:** `GET /api/antiforgery` sets the token
+  cookie and `GET /api/session` answers a signed-in member, so every spec that opens a member
+  route passes the guard; a spec about visitors overrides the session with a 401.
 - **Home asks for the session itself,** as in slice 2.1, so arriving on Home makes two
   `GET /api/session` requests (guard and page) until slice 13.1 replaces the page with one that
   loads its own summary.
@@ -100,5 +118,11 @@ design left the readable antiforgery cookie's name and the static host `<TO SUPP
 - Every state-changing endpoint, now and later, needs the token; a test or a client that skips
   `GET /api/antiforgery` is refused 400 `antiforgery_failed`. The API tests send it through a
   handler that does what the browser does.
-- A member who signs out in one tab is signed out in all; the cookie is gone.
+- A member who signs out in one tab is signed out in all tabs of that browser; other devices stay
+  signed in until they sign out or their session expires.
+- Every request with a session reads its row from the database; the cookie handler renews the
+  row with the sliding expiry.
+- The initial bundle of the member app grew from 256.21 kB to 258.23 kB (budget warning 260 kB):
+  the antiforgery interceptor, the guard, the session service's new methods and the parent route.
+  The sign-in screen (2.85 kB) and the shell (3.73 kB) load lazily.
 - Until slice 3.2, there is no limit on failed sign-ins and a suspended member can sign in.

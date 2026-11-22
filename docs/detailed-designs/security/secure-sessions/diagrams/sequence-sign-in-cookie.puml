@@ -20,8 +20,8 @@ box "Frontend — Member web app" #E0F2FE
   participant "HttpClient (XSRF)" as http
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "SecurityHeadersMiddleware" as hdr
-  participant "AntiforgeryTokenMiddleware" as tok
+  participant "SecurityHeaders" as hdr
+  participant "UseAntiforgeryTokens" as tok
   participant "SessionController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3

@@ -16,7 +16,7 @@ skinparam package {
 }
 actor "Attacker page in member's browser" as actor
 box "Backend — Christian Fitness API" #D1FADF
-  participant "SecurityHeadersMiddleware" as hdr
+  participant "SecurityHeaders" as hdr
   participant "AutoValidateAntiforgeryToken filter" as af
   participant "Controller" as ctrl
 end box
