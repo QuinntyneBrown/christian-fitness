@@ -24,7 +24,8 @@ Toronto Area, delivered as two web apps:
 ├── backend/
 │   ├── src/                 *.Domain, *.Application, *.Infrastructure, *.Api, *.Cli
 │   └── tests/               *.Application.Tests, *.Api.Tests (* = ChristianFitness)
-└── docs/                    specs/, detailed-designs/, mocks/, design-system/, adr/
+├── tools/                   video-record/, video-audio/, video-build/: make the slice films
+└── docs/                    specs/, detailed-designs/, mocks/, design-system/, adr/, videos/
 ```
 
 Apps use `components`, `domain` and `api`; the other two use only `api`. New folders go here.

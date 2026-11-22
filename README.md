@@ -55,7 +55,8 @@ Toronto Area. It is delivered as two web apps:
 ├── backend/
 │   ├── src/           ChristianFitness.{Domain,Application,Infrastructure,Api,Cli}
 │   └── tests/         ChristianFitness.{Application,Api}.Tests
-└── docs/              specs, detailed designs, mocks, design system, ADRs
+├── tools/             video-record, video-audio, video-build: the slice films
+└── docs/              specs, detailed designs, mocks, design system, ADRs, videos
 ```
 
 ## Getting started
@@ -117,6 +118,7 @@ dotnet run --project src/ChristianFitness.Api
 | `docs/mocks/`            | HTML mocks for every screen and state        |
 | `docs/design-system/`    | Tokens, foundations, components and patterns |
 | `docs/adr/`              | Architecture decision records                |
+| `docs/videos/`           | One narrated film per slice, and their standard |
 | `AGENTS.md`              | Engineering rules for people and AI agents   |
 
 ## Contributing

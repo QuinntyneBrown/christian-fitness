@@ -1,0 +1,55 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.168
+Christian Fitness starts here: one Angular workspace for both apps.
+
+00:00:08.000 --> 00:00:13.344
+Two apps side by side, one for members and one for staff, with three libraries:
+
+00:00:13.344 --> 00:00:18.649
+components for presentation, domain for pure rules, and api for contracts.
+
+00:00:20.000 --> 00:00:25.520
+Dependencies point one way. The apps use the libraries, components see only api
+
+00:00:25.520 --> 00:00:28.406
+types, and no library imports an app.
+
+00:00:28.606 --> 00:00:30.549
+Break the rule, and lint fails.
+
+00:00:32.000 --> 00:00:37.066
+Both apps boot to one empty main landmark, titled Christian Fitness, and Christian
+
+00:00:37.066 --> 00:00:38.231
+Fitness Admin.
+
+00:00:38.431 --> 00:00:41.801
+Light or dark, the canvas comes from the design system.
+
+00:00:44.000 --> 00:00:48.938
+Each app carries its own copy of the tokens, and of Barlow and Barlow Condensed,
+
+00:00:48.938 --> 00:00:52.015
+self-hosted, never fetched from another site.
+
+00:00:54.000 --> 00:00:58.969
+Every route loads lazily. The first load is two hundred and twelve kilobytes, under
+
+00:00:58.969 --> 00:01:01.305
+a budget of two hundred and fifty.
+
+00:01:04.000 --> 00:01:09.772
+No backend runs in a spec. The shared fixture answers the API itself, and fails on
+
+00:01:09.772 --> 00:01:14.577
+an unanswered request, a request off localhost, or a page error.
+
+00:01:16.000 --> 00:01:20.354
+Both boot specs failed first, reading Web and Admin. Then they passed.
+
+00:01:24.000 --> 00:01:28.979
+That's slice one point one. Christian Fitness: a Christian community for health in
+
+00:01:28.979 --> 00:01:30.250
+body and spirit.

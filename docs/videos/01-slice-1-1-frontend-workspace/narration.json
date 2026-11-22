@@ -1,0 +1,19 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Christian Fitness starts here: one Angular workspace for both apps."] },
+    { "id": "tree", "bars": 6, "lines": ["Two apps side by side, one for members and one for staff, with three libraries: components for presentation, domain for pure rules, and api for contracts."] },
+    { "id": "direction", "bars": 6, "lines": ["Dependencies point one way. The apps use the libraries, components see only api types, and no library imports an app.", "Break the rule, and lint fails."] },
+    { "id": "boot", "bars": 6, "lines": ["Both apps boot to one empty main landmark, titled Christian Fitness, and Christian Fitness Admin.", "Light or dark, the canvas comes from the design system."] },
+    { "id": "foundations", "bars": 5, "lines": ["Each app carries its own copy of the tokens, and of Barlow and Barlow Condensed, self-hosted, never fetched from another site."] },
+    { "id": "budget", "bars": 5, "lines": ["Every route loads lazily. The first load is two hundred and twelve kilobytes, under a budget of two hundred and fifty."] },
+    { "id": "fixture", "bars": 6, "lines": ["No backend runs in a spec. The shared fixture answers the API itself, and fails on an unanswered request, a request off localhost, or a page error."] },
+    { "id": "proof", "bars": 4, "lines": ["Both boot specs failed first, reading Web and Admin. Then they passed."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice one point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
