@@ -1,0 +1,19 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Slice one point three checks every change to Christian Fitness before it reaches main."] },
+    { "id": "trigger", "bars": 5, "lines": ["Push to main, or open a pull request, and GitHub Actions starts two jobs side by side. Each checks out only its own folder, and needs no secret."] },
+    { "id": "frontend", "bars": 6, "lines": ["The frontend job installs, lints, checks the format and builds both apps within their budgets.", "Then the Playwright behaviour specs run in Chromium, with the shared fixture answering every request."] },
+    { "id": "backend", "bars": 5, "lines": ["The backend job builds with warnings as errors, then runs the acceptance tests through the API, on an in-memory database."] },
+    { "id": "fast", "bars": 5, "lines": ["Caches keep npm, NuGet and the browser between runs. Warm, the whole run takes under forty seconds, and each job stops at five minutes."] },
+    { "id": "lint", "bars": 5, "lines": ["To prove it, lint was broken on purpose. The run failed at the lint step, naming the line, and stopped there."] },
+    { "id": "more", "bars": 6, "lines": ["Then a compiler warning, a wrong page title and a closed health check. Each failed at its own step, and nothing was retried."] },
+    { "id": "green", "bars": 4, "lines": ["Put back, both jobs are green again."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice one point three. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

@@ -16,6 +16,8 @@ const root = path.resolve(__dirname, '..', '..');
 const frontend = path.resolve(root, 'frontend');
 // `record.mjs --backend`: a slice with no screen films the running API instead of the apps.
 const backend = process.env['CF_VIDEO_BACKEND'] === '1';
+// `record.mjs --commands`: nothing runs; shots.ts captures what commands (git, gh) say.
+const commands = process.env['CF_VIDEO_COMMANDS'] === '1';
 
 export default defineConfig({
   testDir: path.resolve(root, folder),
@@ -43,7 +45,9 @@ export default defineConfig({
       },
     },
   ],
-  webServer: backend
+  webServer: commands
+    ? []
+    : backend
     ? [
         {
           // The API as built, with no database: port 1 refuses at once, so readiness says so.

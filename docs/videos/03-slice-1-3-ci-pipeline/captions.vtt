@@ -1,0 +1,58 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.979
+Slice one point three checks every change to Christian Fitness before it reaches
+
+00:00:06.979 --> 00:00:07.590
+main.
+
+00:00:08.000 --> 00:00:13.232
+Push to main, or open a pull request, and GitHub Actions starts two jobs side by
+
+00:00:13.232 --> 00:00:17.652
+side. Each checks out only its own folder, and needs no secret.
+
+00:00:18.000 --> 00:00:22.444
+The frontend job installs, lints, checks the format and builds both apps within
+
+00:00:22.444 --> 00:00:23.531
+their budgets.
+
+00:00:23.731 --> 00:00:27.957
+Then the Playwright behaviour specs run in Chromium, with the shared fixture
+
+00:00:27.957 --> 00:00:29.591
+answering every request.
+
+00:00:30.000 --> 00:00:35.090
+The backend job builds with warnings as errors, then runs the acceptance tests
+
+00:00:35.090 --> 00:00:38.131
+through the API, on an in-memory database.
+
+00:00:40.000 --> 00:00:45.716
+Caches keep npm, NuGet and the browser between runs. Warm, the whole run takes under
+
+00:00:45.716 --> 00:00:49.418
+forty seconds, and each job stops at five minutes.
+
+00:00:50.000 --> 00:00:54.650
+To prove it, lint was broken on purpose. The run failed at the lint step, naming the
+
+00:00:54.650 --> 00:00:56.279
+line, and stopped there.
+
+00:01:00.000 --> 00:01:04.823
+Then a compiler warning, a wrong page title and a closed health check. Each failed
+
+00:01:04.823 --> 00:01:07.534
+at its own step, and nothing was retried.
+
+00:01:12.000 --> 00:01:14.290
+Put back, both jobs are green again.
+
+00:01:20.000 --> 00:01:24.980
+That's slice one point three. Christian Fitness: a Christian community for health in
+
+00:01:24.980 --> 00:01:26.229
+body and spirit.
