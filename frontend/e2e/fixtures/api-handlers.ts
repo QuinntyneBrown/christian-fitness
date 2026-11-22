@@ -16,13 +16,35 @@ interface Registration {
   handler: ApiHandler;
 }
 
+/** The antiforgery token the fixture hands out, as the API's `__Host-cf-xsrf` cookie (ADR 0009). */
+export const XSRF_TOKEN = 'e2e-xsrf-token';
+
+/** The signed-in member the fixture answers `GET /api/session` with unless a spec says otherwise. */
+export const SIGNED_IN = {
+  memberId: '0190c0de-0000-7000-8000-000000000001',
+  name: 'Grace Thompson',
+};
+
 /**
  * The answers a spec gives to the app's API requests. A spec registers a handler with `on`; the
  * latest registration for a method and path wins, so a spec can override a default. A request
  * no handler matches is unanswered, and the shared fixture fails the spec for it.
+ *
+ * Defaults, which any spec can override: `GET /api/antiforgery` sets the token cookie, and
+ * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open.
  */
 export class ApiHandlers {
-  private readonly registrations: Registration[] = [];
+  private readonly registrations: Registration[] = [
+    {
+      method: 'GET',
+      path: '/api/antiforgery',
+      handler: () => ({
+        status: 204,
+        headers: { 'set-cookie': `__Host-cf-xsrf=${XSRF_TOKEN}; Path=/; Secure; SameSite=Strict` },
+      }),
+    },
+    { method: 'GET', path: '/api/session', handler: () => ({ json: SIGNED_IN }) },
+  ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */
   on(method: string, path: string | RegExp, handler: ApiHandler): void {

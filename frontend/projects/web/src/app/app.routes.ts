@@ -17,6 +17,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/join/join-page').then((m) => m.JoinPage),
   },
   {
+    path: 'sign-in',
+    title: 'Sign in · Christian Fitness',
+    loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
+  },
+  {
     // A stand-in until slice 13.1 (ADR 0007).
     path: 'home',
     title: 'Home · Christian Fitness',
