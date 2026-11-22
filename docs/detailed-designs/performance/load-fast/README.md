@@ -14,7 +14,8 @@ experience targets on the landing page.
 
 ## Description
 
-- **`angular.json` budgets** — for `web` and `admin`, an `initial` budget with `maximumError: 250kB` (raw); the warning threshold is `<TO SUPPLY>`. A breach fails `ng build` and CI.
+- **`angular.json` budgets** — for `web` and `admin`, an `initial` budget with `maximumError: 250kB` (raw) and `maximumWarning: 220kB`, about 4% above the initial total each app measured when the workspace was created (212.29 kB: 192.26 kB of JavaScript and 20.02 kB of foundation CSS). Each component stylesheet has an `anyComponentStyle` budget of `2kB` (warning) and `4kB` (error). A breach of an error budget fails `ng build` and CI; raising a budget needs a stated reason.
+- **Workspace** — one Angular workspace in `frontend/` holds the `web` and `admin` applications and the `components`, `domain` and `api` libraries, which are compiled from source into each app through the `@cf/components`, `@cf/domain` and `@cf/api` path aliases, so only what an app imports reaches its bundle (ADR 0001). ESLint enforces the dependency direction (ADR 0002).
 - **Lazy routes** — every entry in `projects/web/src/app/app.routes.ts` and `projects/admin/src/app/app.routes.ts` uses `loadComponent` or `loadChildren`; no page component is imported eagerly. Heavy below-the-fold UI uses `@defer`.
 - **Composition root** — `app.config.ts` binds tokens with lightweight providers; feature services are provided on routed components, not in `root`.
 - **Landing page** — the hero image has explicit `width`/`height` and `fetchpriority="high"`; fonts are self-hosted with `font-display: swap` and preloaded; event cards reserve space while loading (`skeleton` block in the mocks) to keep CLS under 0.1.

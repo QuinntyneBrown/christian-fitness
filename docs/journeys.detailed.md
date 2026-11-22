@@ -5,11 +5,11 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 0% (0 of 54 slices; 0 of 83 days)
+**% complete:** 2% (1 of 54 slices; 2 of 83 days)
 
 | #   | Slice | Root journey                        | Name                          | Description                                                                          | Effort (days) |
 | --- | ----- | ----------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ | ------------- |
-| 1   | 1.1   | 1 Scaffold the apps                 | Frontend workspace            | Web, admin and libraries with lint boundaries, budgets and Playwright fixture.       | 2             |
+| 1   | 1.1   | 1 Scaffold the apps                 | ✅ Frontend workspace         | Web, admin and libraries with lint boundaries, budgets and Playwright fixture.       | 2             |
 | 2   | 1.2   | 1 Scaffold the apps                 | Backend skeleton              | Clean-architecture projects, migrate CLI, auth fallback, telemetry, health endpoint. | 2             |
 | 3   | 1.3   | 1 Scaffold the apps                 | CI pipeline                   | Lint, build and acceptance specs run on every push.                                  | 1             |
 | 4   | 30.1  | 30 Recover from errors and offline  | Not found and server error    | Unknown routes and server failures show a screen with a way back.                    | 1             |

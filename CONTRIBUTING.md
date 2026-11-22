@@ -46,7 +46,7 @@ Documentation, mocks and test-only changes are exempt from this flow.
 3. Make sure lint, build and tests pass locally:
 
    ```sh
-   cd frontend && npm run lint && npm run build && npm test && npx playwright test
+   cd frontend && npm run lint && npm run format:check && npm run build && npm run e2e
    cd backend && dotnet build && dotnet test
    ```
 

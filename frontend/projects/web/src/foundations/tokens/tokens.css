@@ -1,0 +1,557 @@
+/* ==========================================================================
+   Christian Fitness design tokens: the single source of truth for colour,
+   type, space, shape, elevation, motion, layout, interaction and z-order.
+
+   Extracted from docs/mocks (whose light values are taken 1:1 from the
+   Magic Patterns prototype "Christian Fitness": ink #111111, bordeaux
+   #6c1d36, bordeaux-deep #521427, borealis #9cc3e8, blush #f6ebee, canvas
+   #f7f5f4, line #e6e1df, muted #5c5a5e). The dark theme is built from roles.
+
+   Three tiers:
+     1. Primitives  --palette-*, --font-family-*, --font-size-*, --font-weight-*,
+                    --line-height-*, --letter-spacing-*: raw values, read only
+                    by semantic tokens.
+     2. Semantic    --color-*, --text-*, --space-*, --radius-*, --border-width-*,
+                    --shadow-*, --duration-*, --ease-*, --z-*, --layout-*,
+                    --size-*, --target-*, --focus-ring-*, --control-height-*:
+                    what components read. Themes override this tier only.
+     3. Component   --btn-*, --field-*, --card-* ...: declared in
+                    assets/components.css, always aliasing a semantic token.
+
+   Themes: light is :root. Dark is [data-theme="dark"], or the OS preference
+   unless the page forces [data-theme="light"]; the two dark blocks are kept
+   identical. Drift corrected during extraction is logged in README.md.
+   ========================================================================== */
+
+/* ---------- Self-hosted fonts (Barlow, Barlow Condensed; SIL OFL) -------- */
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 400; font-display: swap; src: url("../assets/fonts/Barlow-400.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 500; font-display: swap; src: url("../assets/fonts/Barlow-500.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 600; font-display: swap; src: url("../assets/fonts/Barlow-600.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 700; font-display: swap; src: url("../assets/fonts/Barlow-700.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 500; font-display: swap; src: url("../assets/fonts/BarlowCondensed-500.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 600; font-display: swap; src: url("../assets/fonts/BarlowCondensed-600.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 700; font-display: swap; src: url("../assets/fonts/BarlowCondensed-700.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: italic; font-weight: 400; font-display: swap; src: url("../assets/fonts/BarlowCondensed-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: italic; font-weight: 500; font-display: swap; src: url("../assets/fonts/BarlowCondensed-500-italic.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: italic; font-weight: 600; font-display: swap; src: url("../assets/fonts/BarlowCondensed-600-italic.woff2") format("woff2"); }
+
+:root {
+  /* ---------- Primitives: colour --------------------------------------- */
+  /* Stone: the warm neutral ramp (light end from the prototype, dark end for the dark theme). */
+  --palette-stone-0: #ffffff;
+  --palette-stone-50: #f7f5f4;    /* canvas */
+  --palette-stone-150: #ece8e6;   /* skeleton */
+  --palette-stone-200: #e6e1df;   /* line */
+  --palette-stone-300: #b8b0b2;
+  --palette-stone-400: #9e9698;
+  --palette-stone-450: #858084;
+  --palette-stone-500: #6a676c;
+  --palette-stone-600: #5c5a5e;   /* muted */
+  --palette-stone-650: #4a4245;
+  --palette-stone-700: #3a3335;
+  --palette-stone-800: #2c2729;
+  --palette-stone-850: #252122;
+  --palette-stone-900: #1c191a;
+  --palette-stone-950: #111111;   /* ink */
+  --palette-stone-1000: #0b0a0a;
+
+  /* Bordeaux: the brand hue. 700 is the prototype's bordeaux, 800 its bordeaux-deep, 50 its blush. */
+  --palette-bordeaux-50: #f6ebee;
+  --palette-bordeaux-100: #efdde3;
+  --palette-bordeaux-200: #f7c9d7;
+  --palette-bordeaux-300: #f0a8bf;
+  --palette-bordeaux-400: #b8436c;
+  --palette-bordeaux-500: #a3345a;
+  --palette-bordeaux-600: #8f2a4a;
+  --palette-bordeaux-700: #6c1d36;
+  --palette-bordeaux-800: #521427;
+  --palette-bordeaux-900: #3f0f1e;
+  --palette-wine-900: #4a2432;
+  --palette-wine-950: #3a1d27;
+
+  /* Borealis: the second brand colour (300 is the prototype's borealis) and the info hue. */
+  --palette-borealis-50: #eaf3fb;
+  --palette-borealis-300: #9cc3e8;
+  --palette-borealis-800: #17406b;
+  --palette-borealis-950: #13283d;
+
+  --palette-green-50: #e8f4ec;
+  --palette-green-300: #8fd3a7;
+  --palette-green-800: #1d5b34;
+  --palette-green-950: #13291b;
+
+  --palette-amber-50: #fbf1de;
+  --palette-amber-300: #f2c26b;
+  --palette-amber-800: #6b4400;
+  --palette-amber-950: #33240a;
+
+  /* ---------- Primitives: typography ----------------------------------- */
+  --font-family-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans: "Barlow", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --font-size-xs: 0.75rem;     /* 12px  captions, badges, tab bar labels */
+  --font-size-sm: 0.875rem;    /* 14px  secondary text, small buttons */
+  --font-size-ui: 0.9375rem;   /* 15px  buttons, nav, table cells, chat (prototype's UI size) */
+  --font-size-md: 1rem;        /* 16px  body, inputs */
+  --font-size-lg: 1.125rem;    /* 18px  lead, list rows */
+  --font-size-xl: 1.25rem;     /* 20px  wordmark, hero lead */
+  --font-size-2xl: 1.5rem;     /* 24px  section titles, date numerals */
+  --font-size-3xl: 1.875rem;   /* 30px  dialog and card titles */
+  --font-size-4xl: 2.25rem;    /* 36px  mobile page titles */
+  --font-size-5xl: 3rem;       /* 48px  page titles */
+  --font-size-6xl: 3.75rem;    /* 60px  detail titles, stat hero */
+  --font-size-7xl: 4.5rem;     /* 72px  landing hero (sm) */
+  --font-size-8xl: 6rem;       /* 96px  landing hero (xl), error codes */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-display: 0.9;  /* condensed display headings */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  /* Fixed leading paired with a font size (the prototype's Tailwind text-* pairs). */
+  --line-height-xs: 1rem;      /* with --font-size-xs */
+  --line-height-sm: 1.25rem;   /* with --font-size-sm */
+  --line-height-lg: 1.75rem;   /* with --font-size-lg */
+  --line-height-2xl: 2rem;     /* with --font-size-2xl */
+  --line-height-3xl: 2.25rem;  /* with --font-size-3xl */
+  --line-height-4xl: 2.5rem;   /* with --font-size-4xl */
+
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;   /* display headings, wordmark, overlines */
+  --letter-spacing-wider: 0.14em;   /* "Admin console" eyebrow */
+  --letter-spacing-code: 0.4em;     /* one-time code input */
+
+  /* ---------- Semantic: colour (light) --------------------------------- */
+  --color-bg-canvas: var(--palette-stone-50);
+  --color-bg-surface: var(--palette-stone-0);
+  --color-bg-surface-raised: var(--palette-stone-0);
+  --color-bg-surface-sunken: var(--palette-stone-50);
+  --color-bg-subtle: var(--palette-stone-50);
+  --color-bg-subtle-hover: var(--palette-stone-150);
+  --color-bg-inverse: var(--palette-stone-950);
+  --color-bg-backdrop: rgb(17 17 17 / 0.4);
+  --color-bg-skeleton: var(--palette-stone-150);
+  --color-skeleton-shine: rgb(255 255 255 / 0.35);
+  --color-bg-brand: var(--palette-bordeaux-700);           /* verse, join aside, stat hero, report */
+  --color-bg-brand-inverse: var(--palette-stone-0);        /* white button on a brand panel */
+  --color-bg-brand-inverse-hover: var(--palette-bordeaux-50);
+  --color-bg-on-brand-hover: rgb(255 255 255 / 0.1);
+  --color-bg-chrome: var(--palette-stone-950);             /* admin sidebar, staff sign-in */
+  --color-bg-chrome-current: var(--palette-bordeaux-700);
+  --color-bg-chrome-badge: var(--palette-borealis-300);
+  --color-bg-on-chrome-hover: rgb(255 255 255 / 0.1);
+
+  --color-fg-default: var(--palette-stone-950);
+  --color-fg-muted: var(--palette-stone-600);
+  --color-fg-subtle: var(--palette-stone-500);
+  --color-fg-disabled: var(--palette-stone-300);
+  --color-fg-inverse: var(--palette-stone-0);
+  --color-fg-link: var(--palette-bordeaux-700);
+  --color-fg-link-hover: var(--palette-bordeaux-800);
+  --color-fg-accent: var(--palette-bordeaux-700);
+  --color-fg-on-accent: var(--palette-stone-0);
+  --color-fg-on-danger: var(--palette-stone-0);
+  --color-fg-on-brand: var(--palette-stone-0);
+  --color-fg-on-brand-strong: rgb(255 255 255 / 0.9);
+  --color-fg-on-brand-muted: rgb(255 255 255 / 0.8);
+  --color-fg-on-brand-highlight: var(--palette-borealis-300);
+  --color-fg-brand-inverse: var(--palette-bordeaux-700);
+  --color-fg-on-chrome: var(--palette-stone-0);
+  --color-fg-on-chrome-muted: rgb(255 255 255 / 0.7);
+  --color-fg-on-chrome-subtle: rgb(255 255 255 / 0.6);
+  --color-fg-on-chrome-badge: var(--palette-stone-950);
+
+  --color-border-default: var(--palette-stone-200);        /* dividers, card rings (decorative) */
+  --color-border-strong: var(--palette-stone-450);         /* input edges, hovered outlines (3:1) */
+  --color-border-hover: rgb(17 17 17 / 0.3);               /* hovered chips */
+  --color-border-inverse: var(--palette-stone-700);
+  --color-border-on-brand: rgb(255 255 255 / 0.4);
+  --color-border-on-chrome: rgb(255 255 255 / 0.1);
+
+  --color-accent: var(--palette-bordeaux-700);
+  --color-accent-hover: var(--palette-bordeaux-800);
+  --color-accent-active: var(--palette-bordeaux-900);
+  --color-accent-subtle: var(--palette-bordeaux-50);
+  --color-accent-subtle-hover: var(--palette-bordeaux-100);
+  --color-accent-ring: rgb(108 29 54 / 0.15);              /* input focus halo */
+  --color-highlight: var(--palette-borealis-300);
+
+  --color-focus-ring: var(--palette-bordeaux-700);
+  --color-focus-ring-on-dark: var(--palette-borealis-300);
+  --color-focus-ring-offset: var(--palette-stone-0);
+
+  --color-info-bg: var(--palette-borealis-50);
+  --color-info-fg: var(--palette-borealis-800);
+  --color-info-border: var(--palette-borealis-300);
+  --color-info-icon: var(--palette-borealis-800);
+  --color-info-solid: var(--palette-borealis-800);
+
+  --color-success-bg: var(--palette-green-50);
+  --color-success-fg: var(--palette-green-800);
+  --color-success-border: var(--palette-green-300);
+  --color-success-icon: var(--palette-green-800);
+  --color-success-solid: var(--palette-green-800);
+
+  --color-warning-bg: var(--palette-amber-50);
+  --color-warning-fg: var(--palette-amber-800);
+  --color-warning-border: var(--palette-amber-300);
+  --color-warning-icon: var(--palette-amber-800);
+  --color-warning-solid: var(--palette-amber-800);
+
+  --color-danger-bg: var(--palette-bordeaux-50);
+  --color-danger-fg: var(--palette-bordeaux-700);          /* the prototype marks errors in bordeaux */
+  --color-danger-border: var(--palette-bordeaux-300);
+  --color-danger-icon: var(--palette-bordeaux-700);
+  --color-danger-solid: var(--palette-bordeaux-700);
+  --color-danger-solid-hover: var(--palette-bordeaux-800);
+
+  --color-toast-bg: var(--palette-stone-950);
+  --color-toast-fg: var(--palette-stone-0);
+  --color-toast-muted: rgb(255 255 255 / 0.72);
+  --color-toast-accent: var(--palette-borealis-300);
+  --color-toast-warning: var(--palette-amber-300);
+  --color-toast-danger-bg: var(--palette-bordeaux-700);
+  --color-toast-danger-muted: rgb(255 255 255 / 0.85);
+  --color-toast-close-hover: rgb(127 127 127 / 0.2);
+
+  /* ---------- Semantic: typography roles ------------------------------- */
+  --text-display: italic var(--font-weight-medium) var(--font-size-6xl) / var(--line-height-display) var(--font-family-display);
+  --text-h1: italic var(--font-weight-medium) var(--font-size-5xl) / var(--line-height-none) var(--font-family-display);
+  --text-h2: italic var(--font-weight-medium) var(--font-size-3xl) / var(--line-height-3xl) var(--font-family-display);
+  --text-h3: var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-2xl) var(--font-family-sans);
+  --text-h4: var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-lg) var(--font-family-sans);
+  --text-body-lg: var(--font-weight-regular) var(--font-size-lg) / var(--line-height-relaxed) var(--font-family-sans);
+  --text-body: var(--font-weight-regular) var(--font-size-md) / var(--line-height-normal) var(--font-family-sans);
+  --text-body-sm: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-sm) var(--font-family-sans);
+  --text-caption: var(--font-weight-regular) var(--font-size-xs) / var(--line-height-xs) var(--font-family-sans);
+  --text-label: var(--font-weight-semibold) var(--font-size-sm) / var(--line-height-sm) var(--font-family-sans);
+  --text-overline: var(--font-weight-semibold) var(--font-size-xs) / var(--line-height-xs) var(--font-family-sans);
+  --text-code: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-mono);
+
+  /* ---------- Semantic: spacing (4px base; half steps inside components only) */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;  /* 2px  */
+  --space-1: 0.25rem;     /* 4px  icon to label */
+  --space-1-5: 0.375rem;  /* 6px  half step: label to input, chip padding */
+  --space-2: 0.5rem;      /* 8px  between inline items */
+  --space-2-5: 0.625rem;  /* 10px half step: button and input padding */
+  --space-3: 0.75rem;     /* 12px compact padding */
+  --space-3-5: 0.875rem;  /* 14px half step: nav link and tag padding */
+  --space-4: 1rem;        /* 16px default padding, page margin (phone) */
+  --space-5: 1.25rem;     /* 20px between form fields */
+  --space-6: 1.5rem;      /* 24px card padding */
+  --space-7: 1.75rem;     /* 28px roomy card padding */
+  --space-8: 2rem;        /* 32px between page blocks */
+  --space-10: 2.5rem;     /* 40px between page sections */
+  --space-12: 3rem;       /* 48px */
+  --space-14: 3.5rem;     /* 56px hero gap */
+  --space-16: 4rem;       /* 64px band padding */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+
+  /* ---------- Semantic: layout ----------------------------------------- */
+  --layout-breakpoint-sm: 40rem;   /* 640px  margins grow, two-column grids */
+  --layout-breakpoint-md: 48rem;   /* 768px  bottom tabs become top nav */
+  --layout-breakpoint-lg: 64rem;   /* 1024px two-column pages, admin sidebar */
+  --layout-breakpoint-xl: 80rem;   /* 1280px container max */
+  --layout-breakpoint-2xl: 96rem;  /* 1536px content stays at container max */
+
+  --layout-columns: 4;
+  --layout-gutter: var(--space-4);
+  --layout-margin: var(--space-4);
+  --layout-container-max: 80rem;      /* member app */
+  --layout-admin-max: 72rem;          /* admin console */
+  --layout-form-max: 28rem;           /* auth forms, empty states */
+  --layout-dialog-max: 32rem;         /* dialogs and drawers */
+  --layout-lead-max: 32rem;           /* landing lead paragraph */
+  --layout-measure: 42rem;            /* prose */
+  --layout-measure-narrow: 36rem;
+  --layout-measure-tight: 24rem;
+  --layout-table-min: 40rem;          /* tables scroll below this width */
+  --layout-table-min-wide: 45rem;
+  --layout-toast-width: 24rem;
+  --layout-topbar-height: 4rem;
+  --layout-landing-header-height: 4.5rem;
+  --layout-tabbar-height: 4rem;
+  --layout-sidebar-width: 16rem;
+  --layout-conversations-width: 20rem;
+  --layout-search-width: 18rem;
+  --layout-meter-width: 14rem;
+  --layout-schedule-time: 5.5rem;
+  --layout-sticky-offset: 6rem;
+
+  /* ---------- Semantic: sizes ------------------------------------------ */
+  --size-icon-xs: 0.875rem;  /* 14px */
+  --size-icon-sm: 1rem;      /* 16px default */
+  --size-icon-md: 1.125rem;  /* 18px */
+  --size-icon-lg: 1.25rem;   /* 20px */
+  --size-avatar-sm: 2.25rem; /* 36px */
+  --size-avatar-md: 2.5rem;  /* 40px */
+  --size-avatar-lg: 2.75rem; /* 44px default */
+  --size-avatar-xl: 3rem;    /* 48px */
+  --size-avatar-2xl: 6rem;   /* 96px */
+  --size-avatar-3xl: 7rem;   /* 112px profile hero */
+  --size-seal-lockup: 2.125rem;
+  --size-seal-signin: 2.75rem;
+  --size-seal-verse: 8.75rem;
+  --size-seal-hero: 11.25rem;
+  --size-dot: 0.5rem;
+  --size-dot-lg: 0.625rem;
+  --size-date-badge: 3.5rem;
+  --size-date-col: 3rem;
+  --size-date-col-lg: 3.5rem;
+  --size-thumb-w: 5rem;
+  --size-thumb-h: 4rem;
+  --size-meter: 0.375rem;
+  --size-divider-h: 1.5rem;
+  --size-switch-w: 2.75rem;
+  --size-switch-h: 1.5rem;
+
+  /* ---------- Semantic: shape ------------------------------------------ */
+  --radius-xs: 0.25rem;    /* 4px  keys, ticks */
+  --radius-sm: 0.5rem;     /* 8px  small controls, chat tail, skeleton titles */
+  --radius-md: 0.75rem;    /* 12px inputs, date badges, icon tiles, group avatars */
+  --radius-lg: 1rem;       /* 16px rows, alerts, toasts, small cards */
+  --radius-xl: 1.5rem;     /* 24px cards, images, panels, dialogs */
+  --radius-full: 9999px;   /* buttons, chips, avatars */
+
+  --border-width-hairline: 1px;
+  --border-width-thick: 2px;
+
+  /* ---------- Semantic: elevation -------------------------------------- */
+  --shadow-1: 0 1px 0 rgb(17 17 17 / 0.04);      /* resting cards */
+  --shadow-2: 0 12px 32px rgb(17 17 17 / 0.1);   /* hovered cards, menus, popovers */
+  --shadow-3: 0 12px 40px rgb(17 17 17 / 0.14);  /* floating cards, toasts */
+  --shadow-4: 0 24px 64px rgb(17 17 17 / 0.24);  /* dialogs, drawers */
+  --shadow-focus: 0 0 0 2px var(--color-focus-ring-offset), 0 0 0 4px var(--color-focus-ring);
+
+  /* ---------- Semantic: motion ----------------------------------------- */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;        /* hover, colour */
+  --duration-base: 200ms;        /* card shadow, scrim, dialog, toast */
+  --duration-slow: 260ms;        /* drawer and sheet slide */
+  --duration-deliberate: 1400ms; /* skeleton shimmer cycle */
+  --duration-spin: 900ms;        /* spinner revolution (a loop, removed under reduced motion) */
+  --delay-tooltip: 300ms;        /* hover intent before a tooltip shows; hiding is immediate */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.23, 1, 0.32, 1);  /* the prototype's ease-out-strong */
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---------- Semantic: z-order ---------------------------------------- */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 20;     /* app header, tab bar, admin sidebar */
+  --z-dropdown: 25;   /* menus */
+  --z-overlay: 30;    /* scrim */
+  --z-modal: 40;      /* dialogs, drawers */
+  --z-popover: 45;    /* popovers above dialogs */
+  --z-toast: 50;
+  --z-tooltip: 60;
+
+  /* ---------- Semantic: interaction ------------------------------------ */
+  --target-min: 1.5rem;           /* 24px WCAG 2.2 AA */
+  --target-comfortable: 2.75rem;  /* 44px touch target (AGENTS.md) */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --control-height-sm: 2.25rem;   /* 36px small buttons, chips (touch area extended to 44px) */
+  --control-height-md: 2.75rem;   /* 44px buttons, send button, icon tiles */
+  --control-height-lg: 3.25rem;   /* 52px auth and dialog primary actions */
+  --opacity-disabled: 0.7;
+  --opacity-busy: 0.7;
+  --opacity-unavailable: 0.4;
+
+  color-scheme: light;
+}
+
+/* Responsive layout tokens: columns, gutters and margins grow with the viewport. */
+@media (min-width: 40rem) {
+  :root {
+    --layout-margin: var(--space-6);
+  }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --layout-columns: 8;
+    --layout-gutter: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --layout-columns: 12;
+    --layout-gutter: var(--space-8);
+  }
+}
+
+/* ---------- Dark theme ----------------------------------------------------- */
+[data-theme="dark"] {
+  --color-bg-canvas: var(--palette-stone-950);
+  --color-bg-surface: var(--palette-stone-900);
+  --color-bg-surface-raised: var(--palette-stone-850);
+  --color-bg-surface-sunken: var(--palette-stone-1000);
+  --color-bg-subtle: var(--palette-stone-850);
+  --color-bg-subtle-hover: var(--palette-stone-800);
+  --color-bg-inverse: var(--palette-stone-50);
+  --color-bg-backdrop: rgb(0 0 0 / 0.6);
+  --color-bg-skeleton: var(--palette-stone-800);
+  --color-skeleton-shine: rgb(255 255 255 / 0.05);
+  --color-bg-chrome: var(--palette-stone-1000);
+  --color-fg-default: var(--palette-stone-50);
+  --color-fg-muted: var(--palette-stone-300);
+  --color-fg-subtle: var(--palette-stone-400);
+  --color-fg-disabled: var(--palette-stone-650);
+  --color-fg-inverse: var(--palette-stone-950);
+  --color-fg-link: var(--palette-bordeaux-300);
+  --color-fg-link-hover: var(--palette-bordeaux-200);
+  --color-fg-accent: var(--palette-bordeaux-300);
+  --color-border-default: var(--palette-stone-700);
+  --color-border-strong: var(--palette-stone-450);
+  --color-border-hover: rgb(247 245 244 / 0.35);
+  --color-border-inverse: var(--palette-stone-300);
+  --color-accent: var(--palette-bordeaux-600);
+  --color-accent-hover: var(--palette-bordeaux-500);
+  --color-accent-active: var(--palette-bordeaux-400);
+  --color-accent-subtle: var(--palette-wine-950);
+  --color-accent-subtle-hover: var(--palette-wine-900);
+  --color-accent-ring: rgb(240 168 191 / 0.25);
+  --color-focus-ring: var(--palette-borealis-300);
+  --color-focus-ring-offset: var(--palette-stone-900);
+  --color-info-bg: var(--palette-borealis-950);
+  --color-info-fg: var(--palette-borealis-300);
+  --color-info-border: var(--palette-borealis-800);
+  --color-info-icon: var(--palette-borealis-300);
+  --color-info-solid: var(--palette-borealis-300);
+  --color-success-bg: var(--palette-green-950);
+  --color-success-fg: var(--palette-green-300);
+  --color-success-border: var(--palette-green-800);
+  --color-success-icon: var(--palette-green-300);
+  --color-success-solid: var(--palette-green-300);
+  --color-warning-bg: var(--palette-amber-950);
+  --color-warning-fg: var(--palette-amber-300);
+  --color-warning-border: var(--palette-amber-800);
+  --color-warning-icon: var(--palette-amber-300);
+  --color-warning-solid: var(--palette-amber-300);
+  --color-danger-bg: var(--palette-wine-950);
+  --color-danger-fg: var(--palette-bordeaux-200);
+  --color-danger-border: var(--palette-bordeaux-700);
+  --color-danger-icon: var(--palette-bordeaux-200);
+  --color-danger-solid: var(--palette-bordeaux-600);
+  --color-danger-solid-hover: var(--palette-bordeaux-500);
+  --color-toast-bg: var(--palette-stone-50);
+  --color-toast-fg: var(--palette-stone-950);
+  --color-toast-muted: rgb(17 17 17 / 0.72);
+  --color-toast-accent: var(--palette-bordeaux-700);
+  --color-toast-warning: var(--palette-amber-800);
+  --color-toast-danger-bg: var(--palette-bordeaux-600);
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.3);
+  --shadow-2: 0 12px 32px rgb(0 0 0 / 0.45);
+  --shadow-3: 0 12px 40px rgb(0 0 0 / 0.5);
+  --shadow-4: 0 24px 64px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+/* Follow the OS preference unless the page has explicitly chosen light. Keep identical to the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-canvas: var(--palette-stone-950);
+    --color-bg-surface: var(--palette-stone-900);
+    --color-bg-surface-raised: var(--palette-stone-850);
+    --color-bg-surface-sunken: var(--palette-stone-1000);
+    --color-bg-subtle: var(--palette-stone-850);
+    --color-bg-subtle-hover: var(--palette-stone-800);
+    --color-bg-inverse: var(--palette-stone-50);
+    --color-bg-backdrop: rgb(0 0 0 / 0.6);
+    --color-bg-skeleton: var(--palette-stone-800);
+    --color-skeleton-shine: rgb(255 255 255 / 0.05);
+    --color-bg-chrome: var(--palette-stone-1000);
+    --color-fg-default: var(--palette-stone-50);
+    --color-fg-muted: var(--palette-stone-300);
+    --color-fg-subtle: var(--palette-stone-400);
+    --color-fg-disabled: var(--palette-stone-650);
+    --color-fg-inverse: var(--palette-stone-950);
+    --color-fg-link: var(--palette-bordeaux-300);
+    --color-fg-link-hover: var(--palette-bordeaux-200);
+    --color-fg-accent: var(--palette-bordeaux-300);
+    --color-border-default: var(--palette-stone-700);
+    --color-border-strong: var(--palette-stone-450);
+    --color-border-hover: rgb(247 245 244 / 0.35);
+    --color-border-inverse: var(--palette-stone-300);
+    --color-accent: var(--palette-bordeaux-600);
+    --color-accent-hover: var(--palette-bordeaux-500);
+    --color-accent-active: var(--palette-bordeaux-400);
+    --color-accent-subtle: var(--palette-wine-950);
+    --color-accent-subtle-hover: var(--palette-wine-900);
+    --color-accent-ring: rgb(240 168 191 / 0.25);
+    --color-focus-ring: var(--palette-borealis-300);
+    --color-focus-ring-offset: var(--palette-stone-900);
+    --color-info-bg: var(--palette-borealis-950);
+    --color-info-fg: var(--palette-borealis-300);
+    --color-info-border: var(--palette-borealis-800);
+    --color-info-icon: var(--palette-borealis-300);
+    --color-info-solid: var(--palette-borealis-300);
+    --color-success-bg: var(--palette-green-950);
+    --color-success-fg: var(--palette-green-300);
+    --color-success-border: var(--palette-green-800);
+    --color-success-icon: var(--palette-green-300);
+    --color-success-solid: var(--palette-green-300);
+    --color-warning-bg: var(--palette-amber-950);
+    --color-warning-fg: var(--palette-amber-300);
+    --color-warning-border: var(--palette-amber-800);
+    --color-warning-icon: var(--palette-amber-300);
+    --color-warning-solid: var(--palette-amber-300);
+    --color-danger-bg: var(--palette-wine-950);
+    --color-danger-fg: var(--palette-bordeaux-200);
+    --color-danger-border: var(--palette-bordeaux-700);
+    --color-danger-icon: var(--palette-bordeaux-200);
+    --color-danger-solid: var(--palette-bordeaux-600);
+    --color-danger-solid-hover: var(--palette-bordeaux-500);
+    --color-toast-bg: var(--palette-stone-50);
+    --color-toast-fg: var(--palette-stone-950);
+    --color-toast-muted: rgb(17 17 17 / 0.72);
+    --color-toast-accent: var(--palette-bordeaux-700);
+    --color-toast-warning: var(--palette-amber-800);
+    --color-toast-danger-bg: var(--palette-bordeaux-600);
+    --shadow-1: 0 1px 0 rgb(0 0 0 / 0.3);
+    --shadow-2: 0 12px 32px rgb(0 0 0 / 0.45);
+    --shadow-3: 0 12px 40px rgb(0 0 0 / 0.5);
+    --shadow-4: 0 24px 64px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Preference overrides ------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0.01ms;
+    --duration-base: 0.01ms;
+    --duration-slow: 0.01ms;
+    --duration-deliberate: 0.01ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-border-default: var(--color-border-strong);
+    --color-fg-muted: var(--color-fg-default);
+    --color-fg-subtle: var(--color-fg-muted);
+  }
+}
+
+/* Windows High Contrast / forced colours: hand control to system colours. */
+@media (forced-colors: active) {
+  :root {
+    --color-focus-ring: Highlight;
+    --color-border-default: CanvasText;
+    --color-border-strong: CanvasText;
+  }
+}

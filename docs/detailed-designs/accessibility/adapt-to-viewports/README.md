@@ -18,7 +18,7 @@ screens.
 - **Services and Messages routes** — below LG, `/services` and `/messages` show the list and `/services/:id` and `/messages/:id` show the detail as separate screens; at LG and above the parent component renders both side by side (mocks `pages/services`, `pages/messages` `list` and `default` states).
 - **Forms** — form layouts in the `dialogs/` mocks use a single full-width column at XS; the primary action sits in a sticky footer so it stays visible.
 - **Admin tables** — below LG, tables become stacked cards (`L2-021`).
-- **Responsive sweep** — a Playwright spec, run on request, opens each screen at 375, 576, 768, 992 and 1440 px and asserts `document.documentElement.scrollWidth <= clientWidth`.
+- **Responsive sweep** — a Playwright spec, tagged `@sweep` and run on request (`CF_SWEEPS=1`), opens each screen at 375, 576, 768, 992 and 1440 px and asserts `document.documentElement.scrollWidth <= clientWidth`.
 
 ## Requirements
 
