@@ -17,7 +17,20 @@ class JoinPage {
   +homeChurch: Signal<string>
   +interests: Signal<string[]>
   +submitting: Signal<boolean>
+  +fieldErrors: Signal<JoinFieldErrors>
+  +refusal: Signal<JoinRefusal | null>
   +submit(): void
+}
+class validateJoin <<domain helper>> {
+  +validateJoin(form: JoinForm): JoinFieldErrors
+}
+class joinRefusalOf <<domain helper>> {
+  +joinRefusalOf(error: ApiError): JoinRefusal
+}
+class ApiError {
+  +status: number
+  +code: string
+  +errors?: Record<string, string[]>
 }
 interface AccountApi {
   +join(req: JoinRequestDto): Observable<SessionDto>
@@ -44,7 +57,14 @@ class CreateAccountCommand {
   +string? HomeChurch
   +IReadOnlyList<string> Interests
 }
-class CreateAccountValidator <<slice 2.2>>
+class CreateAccountValidator {
+  +rules: name, email, password, home church, interests
+}
+class ValidationBehavior<TRequest,TResponse>
+class RefusalException {
+  +string Code
+  +RefusalKind Kind
+}
 class CreateAccountHandler {
   +Handle(c: CreateAccountCommand): Task<SessionDto>
 }
@@ -75,6 +95,12 @@ HttpAccountService ..|> AccountApi
 CookieSessionSignIn ..|> ISessionSignIn
 JoinPage ..> AccountApi : injects ACCOUNT_SERVICE
 JoinPage ..> JoinRequestDto
+JoinPage ..> validateJoin
+JoinPage ..> joinRefusalOf
+joinRefusalOf ..> ApiError
+HttpAccountService ..> ApiError : errors with
+ValidationBehavior ..> CreateAccountValidator : runs
+CreateAccountHandler ..> RefusalException : throws email_taken
 AccountApi ..> SessionDto
 AccountController ..> CreateAccountCommand : sends
 CreateAccountValidator ..> CreateAccountCommand : validates

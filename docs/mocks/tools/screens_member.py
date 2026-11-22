@@ -164,9 +164,12 @@ def interests(picked=("Running", "Strength"), disabled: bool = False) -> str:
     return f'<fieldset><legend class="field__legend">What are you into?</legend><div class="interest-list">{chips}</div></fieldset>'
 
 
-def join_form(*, email_error: str = "", busy: bool = False, alert: str = "") -> str:
+def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", errors: dict | None = None,
+              values: dict | None = None) -> str:
     ro = busy
-    email_err = email_error
+    errors = errors or {}
+    v = {"name": ME["name"], "email": ME["email"], "password": "abundantlife", "church": ME["church"], **(values or {})}
+    email_err = email_error or errors.get("email", "")
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Creating your profile…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Create profile</button>')
     return f"""    <form class="auth__form" action="{href("home")}" novalidate>
@@ -174,10 +177,10 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "") -> 
       <p class="auth__lead">Free for everyone. Takes about a minute.</p>
       {alert}
       <div class="auth__fields">
-        {field("Full name", "name", ME["name"], autocomplete="name", readonly=ro)}
-        {field("Email", "email", ME["email"], type_="email", autocomplete="email", error=email_err, readonly=ro)}
-        {field("Password", "password", "abundantlife", type_="password", autocomplete="new-password", hint="At least 8 characters", readonly=ro)}
-        {field("Home church", "church", ME["church"], hint="Optional — helps you find people nearby", readonly=ro)}
+        {field("Full name", "name", v["name"], autocomplete="name", error=errors.get("name", ""), readonly=ro)}
+        {field("Email", "email", v["email"], type_="email", autocomplete="email", error=email_err, readonly=ro)}
+        {field("Password", "password", v["password"], type_="password", autocomplete="new-password", hint="At least 8 characters", error=errors.get("password", ""), readonly=ro)}
+        {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}
         {interests(disabled=busy)}
       </div>
       {submit}
@@ -198,6 +201,25 @@ def _():
 @s("invalid", "The email already has an account: inline error under Email with a way to sign in.")
 def _():
     return auth(join_form(email_error=f'An account with this email already exists. <a class="inline-link" href="{href("sign-in")}">Sign in instead?</a>'))
+
+
+JOIN_FIELD_ERRORS = {"name": "Enter your full name", "email": "Enter an email address like name@example.com",
+                     "password": "Use at least 8 characters"}
+
+
+@s("invalid-fields", "Fields left empty or malformed: a summary above the form links to each one, and each field says what to fix. Nothing is sent.")
+def _():
+    summary = '<div class="auth__alert">' + error_summary("Check your details", [
+        (JOIN_FIELD_ERRORS["name"], "f-name"), (JOIN_FIELD_ERRORS["email"], "f-email"),
+        (JOIN_FIELD_ERRORS["password"], "f-password")]) + "</div>"
+    return auth(join_form(alert=summary, errors=JOIN_FIELD_ERRORS,
+                          values={"name": "", "email": "grace.thompson@gmail", "password": "abc"}))
+
+
+@s("refused", "The server refused the details (a field too long, say): a generic message above the form; everything typed is kept.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Check your details", "Some of your details weren't accepted. Check each field and try again.") + "</div>"))
 
 
 @s("submitting", "Create profile pressed: button busy and disabled, fields read-only, no layout shift.")

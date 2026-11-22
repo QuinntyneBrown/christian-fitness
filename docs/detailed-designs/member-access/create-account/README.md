@@ -19,7 +19,8 @@ case-insensitively) or invalid fields create nothing and are named on the form.
 ## Description
 
 Slice 2.1 builds the happy path (L2-003 AC1, AC4, AC5); slice 2.2 adds the refusals (AC2, AC3,
-AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-session-and-home-stand-in.md).
+AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-session-and-home-stand-in.md)
+and [ADR 0008](../../../adr/0008-join-refusals.md).
 
 - **`JoinPage`** — lazy routed page at `/join` in `projects/web`, titled "Join · Christian
   Fitness". It holds one signal per field and renders the mock's blocks through presentation
@@ -32,19 +33,33 @@ AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-se
   screen (`L2-043` AC5). While
   submitting, the button reads "Creating your profile…" with a spinner, is `disabled` and
   `aria-busy="true"`, the inputs are `readonly` and the interests `disabled`, as the mock's
-  `submitting` state shows (L2-003 AC5). Client validation that names each invalid field with
-  `aria-invalid="true"` (L2-003 AC3) is slice 2.2's, as a pure helper in `domain`.
+  `submitting` state shows (L2-003 AC5). On submit it first runs `validateJoin`: when a field is
+  invalid nothing is sent, the error summary (`FormAlert` "Check your details" with one link per
+  field) appears above the fields and takes focus, and each invalid field shows its
+  `field__error` with `aria-invalid="true"` (L2-003 AC3, mock `invalid-fields`). Editing a field
+  clears its error. A refusal from the API is shown through `joinRefusalOf`: `email_taken` on the
+  email field with "Sign in instead?" (AC2, mock `invalid`), any other 4xx as the generic
+  "Check your details" alert (L2-032 AC1, mock `refused`), a 5xx or no answer as "We couldn't
+  create your profile" (mock `error`); everything typed stays.
 - **`AuthLayout`** — presentation component (`cf-auth-layout`): the `auth` block with the page's
   one `main` and the `auth__form`; inputs `heading`, `lead`, `altText`, `altLink`, `altHref`; the
   fields and the submit button are projected through `[slot=fields]` and `[slot=submit]`;
-  output `submitted` when the form is submitted, by the button or by Enter. Sign-in (slice 3.1)
+  output `submitted` when the form is submitted, by the button or by Enter. An alert is projected
+  through `[slot=alert]` into `auth__alert`, between the lead and the fields. Sign-in (slice 3.1)
   reuses it.
+- **`FormAlert`** (slice 2.2) — presentation component (`cf-form-alert`): the `form-alert` block
+  with `role="alert"` and `tabindex="-1"`, the alert icon, the `form-alert__title` and either a
+  sentence (`text`) or the error summary's `form-alert__list` of links (`items`, each a message
+  and the id of its field). It takes focus when it appears; a link moves focus to its field.
 - **`AuthBrand`** — presentation component (`cf-auth-brand`) with no inputs: the `auth__brand`
   panel, its lockup back to `/` and, from 1024 px, the seal, the claim "Health in body and spirit,
   together." and the three points.
 - **`TextField`** — presentation component (`cf-text-field`): one `field` with its label, input
   and optional hint; inputs `fieldId`, `label`, `type`, `name`, `autocomplete`, `hint`, `value`,
-  `readonly`; output `valueChange`.
+  `readonly`; output `valueChange`. Slice 2.2 adds `error`, `errorLink` and `errorHref`: with an
+  error the input is `aria-invalid="true"` and described by the `field__error` (id
+  `{fieldId}-error`) in place of the hint, and the link, when given, follows the sentence as an
+  `inline-link`.
 - **`InterestPicker`** — presentation component (`cf-interest-picker`) rendering the fieldset,
   the legend "What are you into?" and one `interest` toggle per option with `aria-pressed`;
   inputs `legend`, `options`, `selected`, `disabled`; output `toggled` with the pressed key. On a
@@ -53,6 +68,12 @@ AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-se
   with a unit test per row: the request (a blank or white-space home church is `null`, the
   password as typed), the selection after one press (kept in the form's order) and the Home
   stand-in's greeting ("Welcome, " and the first name, or "Welcome").
+- **`validateJoin`, `joinRefusalOf`, `apiErrorOf`** (slice 2.2) — pure helpers in `domain` with a
+  unit test per row. `validateJoin(form)` gives each invalid field's message, in the form's order,
+  from the rule table of ADR 0008 (the API's validator carries the same table).
+  `joinRefusalOf(error)` turns an `ApiError` into what the screen shows: `email-taken`,
+  `refused` or `failed`. `apiErrorOf(status, body)` reads `code` and `errors` from a
+  ProblemDetails body, and gives code `network` for status 0.
 - **`Button`** — gains a `<button>` branch: without `href` it renders `<button>` with `type`,
   `disabled` and `busy` (`aria-busy`), the size `lg` and the `block` modifier; both branches show
   the same projected content through one `ng-template` and `ngTemplateOutlet`.
@@ -62,20 +83,26 @@ AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-se
   as `{ key, label }`: `running` Running, `strength` Strength, `basketball` Basketball,
   `walking-groups` Walking groups, `mobility` Mobility, `nutrition` Nutrition, `cycling` Cycling,
   `retreats` Retreats. `HttpAccountService` in the member app posts to `/api/account/join` and is
-  bound in `app.config.ts`.
+  bound in `app.config.ts`; a failed request errors with an `ApiError` (`status`, `code`,
+  `errors`), made with `apiErrorOf`, so the page never handles an `HttpErrorResponse`.
 - **`AccountController`** — `[AllowAnonymous]` `POST /api/account/join`. It sends one
   `CreateAccountCommand` and answers `201 Created` with the `SessionDto` (`memberId`, `name`) and
   the session cookie.
-- **`CreateAccountValidator`** (slice 2.2) — FluentValidation: name required and at most 100
-  characters, email well formed, password at least 8 characters, home church at most 120
-  characters, interests among `Interests.All`. Over-length fields return code `field_too_long`
-  (L2-003 AC6).
+- **`CreateAccountValidator`** (slice 2.2) — FluentValidation, run by `ValidationBehavior` before
+  the handler: name required and at most 100 characters trimmed, email required, matching
+  `^[^\s@]+@[^\s@]+\.[^\s@]+$` and at most 254 characters, password at least 8 characters,
+  home church at most 120 characters trimmed, interests among `Interests.All`. A failure answers
+  400 `ValidationProblemDetails` with `errors` keyed by field (fixed sentences, never the value)
+  and code `field_too_long` when any field is over its limit (L2-003 AC6), else
+  `validation_failed` (L2-032 AC1).
 - **`CreateAccountHandler`** — hashes the password through `IPasswordHasherService` (ASP.NET Core
   Identity's PBKDF2 hasher), stores a `Member` with `Status = Active`, `HomeChurch` null when
   blank or white space (L2-003 AC4) and the distinct interest keys, saves once, signs the member
-  in through `ISessionSignIn` and returns the `SessionDto`. Slice 2.2 adds the duplicate check:
-  the email's lookup key (`NormalizedEmail`, trimmed and lower case) already stored returns code
-  `email_taken` with HTTP 409 (L2-003 AC2).
+  in through `ISessionSignIn` and returns the `SessionDto`. Slice 2.2 adds the duplicate check
+  before anything is hashed: the email's lookup key (`NormalizedEmail`, trimmed and lower case)
+  already stored throws `RefusalException` with code `email_taken`, answered 409 (L2-003 AC2). A
+  second join with the same email at the same moment is refused by the unique index; the handler
+  answers that `DbUpdateException` with `email_taken` too.
 - **`CookieSessionSignIn`** — infrastructure implementation of `ISessionSignIn`: it signs the
   member in with the cookie scheme, a principal holding only the member id, persistent for 14
   days and sliding (`__Host-cf-session`, `Secure`, `HttpOnly`, `SameSite=Lax`; see
@@ -83,9 +110,12 @@ AC6) and the failed state. Decisions are in [ADR 0007](../../../adr/0007-join-se
 - **`Member`** — gains `HomeChurch` (nullable, at most 120 characters) and `Interests` (keys).
 - **Home** — the member lands on `/home`, a stand-in until slice 13.1: the greeting "Welcome,
   {first name}" from `GET /api/session` (ADR 0007).
-- **Error mapping** (slice 2.2) — `JoinPage` branches on `code`: `email_taken` shows "An account
-  with this email already exists. Sign in instead?" on the email field; other codes show a
-  generic `form-alert`. The code for a duplicate email is `email_taken`, answered with 409.
+- **Error mapping** (slice 2.2) — `ProblemDetailsExceptionHandler` answers
+  `ValidationException` 400 and `RefusalException` with its kind's status (`Conflict` 409), each
+  with its `code`; only a 500 is logged. `JoinPage` branches on `code` through `joinRefusalOf`:
+  `email_taken` shows "An account with this email already exists. Sign in instead?" on the email
+  field; any other 4xx shows the generic `form-alert`; a 5xx or no answer shows the failed
+  alert.
 - **Telemetry** — no span or log carries the name, the email, the password, the home church or
   the request body; the request's span records the route template `api/account/join`, the
   method and the status only (L2-033 AC2).
@@ -99,6 +129,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 |-------|--------------|-------------|
 | `L2-003` | `L1-002` | A visitor joins with full name, email, password, optional home church and optional interests. |
 | `L2-030` | `L1-013` | 1. Given any account, when its password is stored, then it is hashed with ASP.NET Core Identity's PBKDF2 hasher and never logged or returned. 2. Given session cookies, when set, then they are `Secure`, `HttpOnly`, `SameSite=Lax` or stricter, and use the `__Host-` prefix. |
+| `L2-032` | `L1-013` | 1. Given any request body, when it fails validation, then the API returns 400 ProblemDetails with a `code` and field errors, and the screen shows a generic message. 3. Given user-supplied text, when rendered anywhere, then it is shown as text, never as HTML. |
 | `L2-033` | `L1-013` | 1. Given home church and faith details, when a member joins, then they are optional. 2. Given any log, metric or span, when emitted, then it contains no email, name, home church, message text, token, query string or body. |
 
 ## Diagrams
@@ -129,6 +160,6 @@ The class diagram shows the frontend contract and its HTTP implementation, the r
 
 ### Behaviour — create an account
 
-The validator refuses over-length fields with `field_too_long`; the handler refuses a case-insensitive duplicate email; a valid join creates the member, signs them in and opens Home (`L2-003`).
+The form names each invalid field and sends nothing; the validator refuses an invalid body with 400 and `field_too_long` or `validation_failed`; the handler refuses a case-insensitive duplicate email with 409 `email_taken`, also when the unique index catches a race; a valid join creates the member, signs them in and opens Home (`L2-003`, `L2-032`).
 
 ![Sequence diagram for visitor creates a member account](diagrams/sequence-create-account.png)
