@@ -1,0 +1,62 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Show error screens
+
+package "components" {
+  class ErrorPage <<component>> {
+    +code: input.required<string>
+    +heading: input.required<string>
+    +text: input.required<string>
+    -headingRef: viewChild<ElementRef>
+    +ngAfterViewInit(): void
+  }
+  class Button <<component>> {
+    +href: input.required<string>
+    +variant: input<primary | secondary>
+    +size: input<sm | md>
+  }
+}
+package "domain" {
+  class ServerErrorRules <<helpers>> {
+    +SERVER_ERROR_PATH = /server-error
+    +referenceOf(value: unknown): string | null
+    +returnPathOf(value: unknown): string
+  }
+  class serverErrorInterceptor <<HttpInterceptorFn>> {
+    +(request, next): Observable<HttpEvent>
+  }
+}
+package "web, admin" {
+  class NotFoundPage <<routed page>>
+  class ServerErrorPage <<routed page>> {
+    +reference: input<string | undefined>
+    +from: input<string | undefined>
+    #text: computed<string>
+    #retry: computed<string>
+  }
+}
+package "ChristianFitness.Api" {
+  class ProblemReference <<static>> {
+    +For(traceId: ActivityTraceId): string
+  }
+  class ProblemCodes <<static>> {
+    +ForStatus(status: int): string
+  }
+}
+NotFoundPage ..> ErrorPage
+NotFoundPage ..> Button
+ServerErrorPage ..> ErrorPage
+ServerErrorPage ..> Button
+ServerErrorPage ..> ServerErrorRules
+serverErrorInterceptor ..> ServerErrorRules
+serverErrorInterceptor ..> ServerErrorPage : navigates to
+@enduml

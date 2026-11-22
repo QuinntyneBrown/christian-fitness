@@ -35,6 +35,7 @@ targets measure at least 44 × 44 px.
   /api/messages/unread-count` and updates it from `CHAT_CONNECTION` events; no
   component opens its own connection. The endpoint name is `<TO SUPPLY>` pending the
   messages designs.
+- **Error screens** — the not-found and server-error screens ([show error screens](../../errors/show-error-screens/README.md)) render inside `MemberShell`, with no destination current, as the mocks `pages/not-found/` and `pages/server-error/` show. Until the shell exists they render on their own in the app's outlet.
 - **Breakpoints** — XS, SM and MD come from `docs/design-system/tokens`; CSS media
   queries switch between header and bottom bar.
 

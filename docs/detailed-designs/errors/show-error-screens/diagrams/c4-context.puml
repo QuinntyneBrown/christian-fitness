@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Show error screens
+
+Person(member, "Member", "Community member or visitor")
+Person(staff, "Staff", "Christian Fitness team")
+Person(operator, "Operator", "Runs the deployed system")
+
+System(cf, "Christian Fitness", "Christian community for health in body and spirit in the Greater Toronto Area")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces, metrics and logs")
+
+Rel(member, cf, "Opens an unknown link or meets a server error", "HTTPS")
+Rel(staff, cf, "Opens an unknown link or meets a server error", "HTTPS")
+Rel(cf, otel, "Exports the failed request's trace to", "OTLP")
+Rel(operator, otel, "Finds the trace by the quoted reference in")
+@enduml

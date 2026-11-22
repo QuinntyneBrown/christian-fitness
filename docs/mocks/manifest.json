@@ -247,7 +247,8 @@
       "source": "Derived: system page in the member shell.",
       "requirements": [],
       "states": [
-        "default"
+        "default",
+        "no-reference"
       ],
       "not_applicable": {
         "loading": "A system page renders without loading data.",
@@ -325,6 +326,41 @@
         "loading": "Renders without data.",
         "empty": "Not a collection.",
         "error": "This page is itself the refusal."
+      }
+    },
+    {
+      "id": "admin-not-found",
+      "kind": "page",
+      "title": "Page not found (admin)",
+      "group": "Admin console",
+      "route": "/** (admin)",
+      "source": "Derived: the member not-found page in the admin shell.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A system page renders without loading data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "admin-server-error",
+      "kind": "page",
+      "title": "Something went wrong (admin)",
+      "group": "Admin console",
+      "route": "(any admin route, on a 5xx)",
+      "source": "Derived: the member server-error page in the admin shell.",
+      "requirements": [],
+      "states": [
+        "default",
+        "no-reference"
+      ],
+      "not_applicable": {
+        "loading": "A system page renders without loading data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the error state."
       }
     },
     {

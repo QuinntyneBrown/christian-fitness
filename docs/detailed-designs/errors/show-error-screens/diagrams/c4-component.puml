@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Show error screens
+
+Container_Boundary(app, "Member web app and Admin web app, each") {
+  Component(routes, "app.routes.ts", "Angular Router", "Empty path, server-error and the wildcard: each lazy, each with a title")
+  Component(nf, "NotFoundPage", "Routed page", "404 with the app's two ways back")
+  Component(se, "ServerErrorPage", "Routed page", "500 with Try again, the way home and the reference")
+}
+Container_Boundary(components, "components library") {
+  Component(ep, "ErrorPage", "Presentation component", "empty-state--system block; focuses its heading")
+  Component(btn, "Button", "Presentation component", "btn block rendered as a link")
+}
+Container_Boundary(domain, "domain library") {
+  Component(rules, "referenceOf, returnPathOf", "Pure helpers", "Well-formed reference; path inside the app")
+  Component(icpt, "serverErrorInterceptor", "HttpInterceptorFn", "GET to /api/ answering 5xx: navigate to server-error")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(pd, "ProblemDetails customisation", "ASP.NET Core", "code on every error; reference on a 5xx")
+}
+
+Rel(routes, nf, "Wildcard loads")
+Rel(routes, se, "server-error loads")
+Rel(nf, ep, "Renders")
+Rel(se, ep, "Renders")
+Rel(ep, btn, "Projects actions as")
+Rel(se, rules, "Checks query parameters with")
+Rel(icpt, rules, "Reads the reference with")
+Rel(icpt, routes, "Navigates to server-error, skipLocationChange")
+Rel(icpt, pd, "Reads 5xx ProblemDetails from", "JSON/HTTPS")
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+title UML sequence behaviour — A server error while a screen loads
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member or staff" as actor
+box "Frontend — Member web app or Admin web app" #E0F2FE
+  participant "Screen" as screen
+  participant "serverErrorInterceptor" as icpt
+  participant "Router" as router
+  participant "ServerErrorPage" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Exception handler and ProblemDetails" as pd
+end box
+actor -> screen : Open /events/42
+screen -> icpt : GET /api/events/42
+icpt -> pd : GET /api/events/42
+pd -> pd : Unexpected exception
+pd --> icpt : 500 ProblemDetails, code server_error, reference CF-4BF92F35 (L2-043 AC3)
+alt GET to /api/ answering 5xx (L2-043 AC4)
+  icpt -> router : navigate /server-error?reference=CF-4BF92F35&from=/events/42, skipLocationChange
+  router -> page : loadComponent, a lazy chunk
+  page --> actor : Something went wrong, quote reference CF-4BF92F35; the URL is still /events/42
+else write, 4xx or no answer (L2-043 AC5)
+  icpt --> screen : The error passes on; the screen shows its own failed state
+end
+actor -> page : Try again
+page --> actor : Document load of /events/42 (L2-043 AC6)
+@enduml
