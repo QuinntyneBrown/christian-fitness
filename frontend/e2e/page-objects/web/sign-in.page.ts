@@ -44,8 +44,11 @@ export class WebSignInPage {
     this.forgotLink = this.form.getByRole('link', { name: 'Forgot your password?' });
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/sign-in');
+  /** Opens the screen; with `returnUrl`, as a link that asks to return there after signing in. */
+  async open(returnUrl?: string): Promise<void> {
+    await this.page.goto(
+      returnUrl === undefined ? '/sign-in' : `/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`,
+    );
   }
 
   title(): Promise<string> {

@@ -37,7 +37,8 @@ test.describe('Member app, member routes need a session', () => {
     await home.open();
 
     await expect(signIn.heading).toHaveText('Welcome back');
-    expect(signIn.location()).toBe('/sign-in');
+    // L2-004 AC6: the guard records the route asked for, to return there after signing in.
+    expect(signIn.location()).toBe('/sign-in?returnUrl=%2Fhome');
     await expect(home.greeting).toHaveCount(0);
   });
 

@@ -13,7 +13,10 @@ import { memberAuthGuard } from './member-auth-guard';
 /** Runs the guard with a session service whose `current()` answers `answer`. */
 async function guard(answer: Observable<{ memberId: string; name: string }>): Promise<unknown> {
   const session: Partial<SessionApi> = { current: () => answer };
-  const router = { parseUrl: (url: string) => Object.assign(new UrlTree(), { asked: url }) };
+  const router = {
+    createUrlTree: (commands: unknown[], extras: unknown) =>
+      Object.assign(new UrlTree(), { asked: { commands, extras } }),
+  };
   const injector = Injector.create({
     providers: [
       { provide: SESSION_SERVICE, useValue: session },
@@ -21,7 +24,10 @@ async function guard(answer: Observable<{ memberId: string; name: string }>): Pr
     ],
   });
   const result = runInInjectionContext(injector, () =>
-    memberAuthGuard({} as ActivatedRouteSnapshot, { url: '/home' } as RouterStateSnapshot),
+    memberAuthGuard(
+      {} as ActivatedRouteSnapshot,
+      { url: '/home?welcome=back' } as RouterStateSnapshot,
+    ),
   );
   return isObservable(result) ? firstValueFrom(result) : result;
 }
@@ -36,11 +42,14 @@ describe('memberAuthGuard', () => {
     expect(await guard(of({ memberId: 'm-1', name: 'Grace Thompson' }))).toBe(true);
   });
 
-  it('a 401 sends the visitor to sign in', async () => {
+  it('a 401 sends the visitor to sign in, to return to the URL they asked for', async () => {
     const result = await guard(failure(401));
 
     expect(result).toBeInstanceOf(UrlTree);
-    expect((result as UrlTree & { asked: string }).asked).toBe('/sign-in');
+    expect((result as UrlTree & { asked: unknown }).asked).toEqual({
+      commands: ['/sign-in'],
+      extras: { queryParams: { returnUrl: '/home?welcome=back' } },
+    });
   });
 
   it.each([
