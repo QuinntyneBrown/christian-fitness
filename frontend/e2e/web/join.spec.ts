@@ -104,6 +104,43 @@ test.describe('Member app, join with valid details', () => {
     ]);
   });
 
+  // L2-003 AC5: the mock's submitting state until the answer arrives.
+  test('while the account is being created, the button reads "Creating your profile…" and is disabled', async ({
+    page,
+    api,
+  }) => {
+    let answer!: () => void;
+    const answered = new Promise<void>((resolve) => (answer = resolve));
+    api.on('POST', '/api/account/join', async () => {
+      await answered;
+      return { status: 201, json: SESSION };
+    });
+    api.on('GET', '/api/session', () => ({ json: SESSION }));
+    const join = new WebJoinPage(page);
+    const home = new WebHomePage(page);
+
+    await join.open();
+    await join.fill(GRACE);
+    await join.choose('Running');
+    await join.submit();
+
+    await expect(join.submitButton).toHaveText('Creating your profile…');
+    await expect(join.submitButton).toBeDisabled();
+    await expect(join.submitButton).toHaveAttribute('aria-busy', 'true');
+    for (const input of await join.inputs.all()) {
+      await expect(input).toHaveAttribute('readonly', '');
+    }
+    await expect(join.fullName).toHaveValue('Grace Thompson');
+    for (const interest of await join.interests.all()) {
+      await expect(interest).toBeDisabled();
+    }
+    await expect(join.interest('Running')).toHaveAttribute('aria-pressed', 'true');
+
+    answer();
+
+    await expect(home.greeting).toHaveText('Welcome, Grace');
+  });
+
   test('a visitor joins with the keyboard alone', async ({ page, api }) => {
     const sent = answerJoin(api);
     const join = new WebJoinPage(page);
