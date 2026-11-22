@@ -16,7 +16,7 @@ each screen acquires and bound what grows, so memory returns to its baseline.
 - **Screen-scoped providers** — a screen's store (for example `ChatStore`, `EventsStore`) is in its routed component's `providers`, so Angular destroys it with the component.
 - **`CHAT_CONNECTION` / `SignalRChatConnection`** — the single real-time client, shared through the Messages parent route. Each `on(...)` registration returns a disposer that the subscribing store calls on destroy; the connection stops when the last subscriber leaves.
 - **`BoundedBuffer<T>`** — pure helper in the `domain` library with unit tests; chat keeps at most 200 messages (`L2-016` AC6), and long lists keep a window sized `<TO SUPPLY>`.
-- **Heap sweep** — a Playwright spec, run on request, navigates between screens 50 times, forces garbage collection through the Chrome DevTools Protocol and asserts the heap is within 10% of the first-visit baseline.
+- **Heap sweep** — a Playwright spec, tagged `@sweep` and run on request (`CF_SWEEPS=1`), navigates between screens 50 times, forces garbage collection through the Chrome DevTools Protocol and asserts the heap is within 10% of the first-visit baseline.
 
 ## Requirements
 
