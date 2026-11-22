@@ -1,0 +1,79 @@
+// The design system's app-header block, with the brand's lockup and seal
+// (docs/design-system/assets/components.css: "App header", "Brand: seal and lockup").
+:host {
+  display: contents;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  flex-shrink: 0;
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-surface);
+}
+
+.app-header__inner {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  height: var(--layout-topbar-height);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding-inline: var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+}
+
+// Sign out sits at the header's end, where the profile avatar will precede it.
+.app-header__signout {
+  margin-left: auto;
+  display: flex;
+}
+
+.lockup {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2-5);
+  min-height: var(--target-comfortable);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-default);
+
+  &:focus-visible {
+    outline-color: var(--color-focus-ring);
+    outline-offset: var(--space-1);
+  }
+}
+
+.lockup__name {
+  white-space: nowrap;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  line-height: var(--line-height-none);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.seal {
+  flex-shrink: 0;
+  color: var(--color-fg-default);
+}
+
+.seal__ring {
+  fill: none;
+  stroke: currentColor;
+}
+
+.seal__cross {
+  fill: var(--color-fg-accent);
+}
+
+.seal--lockup {
+  width: var(--size-seal-lockup);
+  height: var(--size-seal-lockup);
+}

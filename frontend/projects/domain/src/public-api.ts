@@ -9,3 +9,4 @@ export * from './account/join-refusal';
 export * from './account/sign-in-refusal';
 export * from './errors/api-error';
 export * from './security/antiforgery-interceptor';
+export * from './security/member-auth-guard';

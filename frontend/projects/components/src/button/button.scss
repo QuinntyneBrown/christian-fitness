@@ -60,6 +60,15 @@
   padding-inline: calc(var(--space-4) - var(--border-width-hairline));
 }
 
+// A quiet action in a bar, such as Sign out in the app header; still 44 px tall.
+.btn--ghost {
+  --btn-bg-hover: var(--color-bg-subtle);
+  --btn-bg-active: var(--color-bg-subtle-hover);
+
+  padding: calc(var(--space-2) - var(--border-width-hairline))
+    calc(var(--space-4) - var(--border-width-hairline));
+}
+
 .btn--lg {
   min-height: var(--control-height-lg);
   font-size: var(--font-size-md);

@@ -1,0 +1,20 @@
+<header class="app-header">
+  <div class="app-header__inner">
+    <a class="lockup" [href]="homeHref()"
+      ><svg class="seal seal--lockup" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7" />
+        <rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2" />
+        <rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2" /></svg
+      ><span class="lockup__name">Christian Fitness</span></a
+    >
+    <span class="app-header__signout">
+      <cf-button
+        variant="ghost"
+        [disabled]="signingOut()"
+        [busy]="signingOut()"
+        (click)="signOut.emit()"
+        >Sign out</cf-button
+      >
+    </span>
+  </div>
+</header>

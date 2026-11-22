@@ -22,10 +22,15 @@ async function intercept(options: {
   status: number;
   body?: unknown;
   routerUrl?: string;
+  /** Where a navigation still in flight is going, as a guard holds it. */
+  navigatingTo?: string;
 }): Promise<{ navigations: Navigation[]; outcome: unknown }> {
   const navigations: Navigation[] = [];
   const router = {
     url: options.routerUrl ?? '/events/42',
+    currentNavigation: () =>
+      options.navigatingTo === undefined ? null : { finalUrl: options.navigatingTo },
+    serializeUrl: (url: unknown) => url,
     navigate: (commands: unknown[], extras: unknown) => {
       navigations.push({ commands, extras });
       return Promise.resolve(true);
@@ -125,6 +130,27 @@ describe('serverErrorInterceptor', () => {
     expect(navigations).toEqual([]);
     expect(outcome).toBeInstanceOf(HttpErrorResponse);
     expect((outcome as HttpErrorResponse).status).toBe(status);
+  });
+
+  it('while a guard holds a navigation, "from" is where it was going', async () => {
+    const { navigations } = await intercept({
+      method: 'GET',
+      url: '/api/session',
+      status: 500,
+      body: PROBLEM,
+      routerUrl: '/',
+      navigatingTo: '/home',
+    });
+
+    expect(navigations).toEqual([
+      {
+        commands: ['/server-error'],
+        extras: {
+          skipLocationChange: true,
+          queryParams: { reference: 'CF-4BF92F35', from: '/home' },
+        },
+      },
+    ]);
   });
 
   it('does not open the screen again while it is showing', async () => {

@@ -7,7 +7,8 @@ import { referenceOf, SERVER_ERROR_PATH } from './server-error';
 /**
  * Shows the server-error screen for an unrecoverable server error: a GET to the API (`/api/`)
  * answering 500 or more (L2-043 AC4). The address bar keeps the URL that failed
- * (`skipLocationChange`); the screen gets the response's reference and that URL. A write, a 4xx,
+ * (`skipLocationChange`); the screen gets the response's reference and that URL: where a navigation
+ * still in flight is going, as when a guard's request fails, or else the current URL. A write, a 4xx,
  * no answer or a request outside the API passes on to the caller, which shows its own failed
  * state (L2-043 AC5). The error always passes on, so no caller waits forever.
  *
@@ -27,15 +28,24 @@ export const serverErrorInterceptor: HttpInterceptorFn = (request, next) => {
         !isShowing(router.url)
       ) {
         const reference = referenceOf((error.error as { reference?: unknown } | null)?.reference);
+        const from = urlOf(router);
         void router.navigate([SERVER_ERROR_PATH], {
           skipLocationChange: true,
-          queryParams: reference ? { reference, from: router.url } : { from: router.url },
+          queryParams: reference ? { reference, from } : { from },
         });
       }
       return throwError(() => error);
     }),
   );
 };
+
+/** The URL that failed: where the navigation in flight is going, or else where the router is. */
+function urlOf(router: Router): string {
+  const navigation = router.currentNavigation();
+  return navigation
+    ? router.serializeUrl(navigation.finalUrl ?? navigation.extractedUrl)
+    : router.url;
+}
 
 function isApi(url: string): boolean {
   return new URL(url, 'http://app.invalid').pathname.startsWith('/api/');

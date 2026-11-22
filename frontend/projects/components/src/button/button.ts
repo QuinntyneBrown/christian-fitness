@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, input } from '@angular/core';
 
 /** The design system's button variants this component renders so far. */
-export type ButtonVariant = 'primary' | 'secondary';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
 /** The design system's button sizes this component renders so far. */
 export type ButtonSize = 'sm' | 'md' | 'lg';
