@@ -21,8 +21,10 @@ export class WebSignInPage {
   readonly alert: Locator;
   readonly alertTitle: Locator;
   readonly alertText: Locator;
-  /** Any link in the form, such as a "Forgot your password?" the mock draws. */
+  /** Every link in the form, in order. */
   readonly links: Locator;
+  /** "Forgot your password?" under the password field. */
+  readonly forgotLink: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -39,6 +41,7 @@ export class WebSignInPage {
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertText = this.alert.locator('.form-alert__title + p');
     this.links = this.form.getByRole('link');
+    this.forgotLink = this.form.getByRole('link', { name: 'Forgot your password?' });
   }
 
   async open(): Promise<void> {

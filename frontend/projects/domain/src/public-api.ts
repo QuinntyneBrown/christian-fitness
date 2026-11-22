@@ -7,6 +7,8 @@ export * from './account/join';
 export * from './account/join-rules';
 export * from './account/join-refusal';
 export * from './account/sign-in-refusal';
+export * from './account/email-rule';
+export * from './account/reset-request-refusal';
 export * from './errors/api-error';
 export * from './security/antiforgery-interceptor';
 export * from './security/member-auth-guard';

@@ -58,8 +58,8 @@ test.describe('Member app, sign in', () => {
     await expect(signIn.submitButton).toHaveText('Sign in');
     await expect(signIn.alt).toHaveText('New here? Create a profile');
     await expect(signIn.joinLink).toHaveAttribute('href', '/join');
-    // "Forgot your password?" waits for the screen it opens (journey 20, ADR 0009).
-    await expect(signIn.links).toHaveText(['Create a profile']);
+    await expect(signIn.links).toHaveText(['Forgot your password?', 'Create a profile']);
+    await expect(signIn.forgotLink).toHaveAttribute('href', '/forgot-password');
     await expect(signIn.alert).toHaveCount(0);
   });
 
