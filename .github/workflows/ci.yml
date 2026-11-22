@@ -28,7 +28,10 @@ jobs:
       run:
         working-directory: frontend
     steps:
+      # Sparse: the job reads nothing outside frontend/ (AGENTS.md, "Shared fixture").
       - uses: actions/checkout@v5
+        with:
+          sparse-checkout: frontend
 
       - uses: actions/setup-node@v5
         with:
@@ -93,7 +96,10 @@ jobs:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     steps:
+      # Sparse: the job reads nothing outside backend/.
       - uses: actions/checkout@v5
+        with:
+          sparse-checkout: backend
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -114,6 +120,8 @@ jobs:
       - name: Build (warnings as errors)
         run: dotnet build ChristianFitness.slnx -c Release --no-restore
 
-      # The API acceptance tests and the application tests, on EF Core InMemory: no database.
-      - name: Test
-        run: dotnet test ChristianFitness.slnx -c Release --no-build
+      # The acceptance tests through the API, on EF Core InMemory: no database. The direct
+      # handler and domain tests (ChristianFitness.Application.Tests) are built above and run
+      # locally (AGENTS.md: CI runs one acceptance path per feature; unit tests run locally).
+      - name: Acceptance tests
+        run: dotnet test tests/ChristianFitness.Api.Tests -c Release --no-build

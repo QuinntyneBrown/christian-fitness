@@ -32,7 +32,7 @@ fe -> fe : Playwright behaviour specs, Chromium, shared fixture, no backend (L2-
 be -> cache : Restore NuGet packages (L2-042 AC3)
 cache --> be : hit or miss
 be -> be : dotnet restore, build with warnings as errors
-be -> be : dotnet test: API acceptance and application tests on EF Core InMemory (L2-042 AC4)
+be -> be : dotnet test: acceptance tests through the API, EF Core InMemory (L2-042 AC4)
 alt every step passes
   fe --> gh : success
   be --> gh : success

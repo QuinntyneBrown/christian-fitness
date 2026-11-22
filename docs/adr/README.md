@@ -9,3 +9,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0002](0002-eslint-boundaries-for-the-dependency-direction.md) | eslint-plugin-boundaries enforces the dependency direction                        | Accepted |
 | [0003](0003-video-tooling.md)                                  | Narrated films made with local tools: Kokoro, a deck seeked frame by frame, ffmpeg | Accepted |
 | [0004](0004-postgresql-and-the-backend-packages.md)            | PostgreSQL, and the packages of the backend skeleton                              | Accepted |
+| [0005](0005-github-actions-ci.md)                              | GitHub Actions CI: two sparse jobs, five-minute timeouts, no retries              | Accepted |
