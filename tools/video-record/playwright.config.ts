@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
-import { ADMIN_URL, API_URL, WEB_URL } from './shots';
+import { ADMIN_PORT, ADMIN_URL, API_URL, WEB_PORT, WEB_URL } from './shots';
 
 /**
  * Saves the screenshots of a video (docs/videos/README.md, "Screenshots"). It is not a test run
@@ -64,14 +64,14 @@ export default defineConfig({
       ]
     : [
         {
-          command: 'npx ng serve web --port 4310',
+          command: `npx ng serve web --port ${WEB_PORT}`,
           cwd: frontend,
           url: WEB_URL,
           reuseExistingServer: true,
           timeout: 240_000,
         },
         {
-          command: 'npx ng serve admin --port 4311',
+          command: `npx ng serve admin --port ${ADMIN_PORT}`,
           cwd: frontend,
           url: ADMIN_URL,
           reuseExistingServer: true,

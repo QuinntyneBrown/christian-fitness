@@ -18,26 +18,26 @@ actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "JoinPage" as page
   participant "HttpAccountService" as http
-  participant "errorMessage()" as msg
+  participant "joinRefusalOf()" as msg
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "AuthController" as ctrl
+  participant "AccountController" as ctrl
   participant "ProblemDetailsExceptionHandler" as eh
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "ValidationBehavior" as vb
   participant "CreateAccountValidator" as v
 end box
-actor -> page : Submit form with an invalid email
+actor -> page : Submit a body the form's own checks let through (rules differ, or made by hand)
 page -> http : join(dto)
-http -> ctrl : POST /api/auth/join
+http -> ctrl : POST /api/account/join
 ctrl -> vb : Send CreateAccountCommand
 vb -> v : Validate
 v --> vb : failures { email }
 vb --> eh : ValidationException
-eh --> http : 400 ProblemDetails code validation_failed, errors (L2-032 AC1)
-http --> page : ApiError
-page -> msg : errorMessage(code)
-msg --> page : generic message
-page --> actor : Message plus aria-invalid field error
+eh --> http : 400 ProblemDetails code validation_failed or field_too_long, errors (L2-032 AC1)
+http --> page : ApiError (apiErrorOf)
+page -> msg : joinRefusalOf(error)
+msg --> page : refused
+page --> actor : Generic "Check your details" form-alert; everything typed stays
 @enduml

@@ -52,3 +52,17 @@
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);
 }
+
+.field__error {
+  margin-top: var(--space-1-5);
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-danger-fg);
+}
+
+.inline-link {
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+  font-weight: var(--font-weight-semibold);
+}

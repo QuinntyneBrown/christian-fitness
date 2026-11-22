@@ -28,6 +28,11 @@ export class WebJoinPage {
   readonly interests: Locator;
   readonly submitButton: Locator;
   readonly signInLink: Locator;
+  /** The `form-alert` above the fields: the error summary, the refusal or the failure. */
+  readonly alert: Locator;
+  readonly alertTitle: Locator;
+  /** The error summary's links, one per invalid field. */
+  readonly alertLinks: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -45,6 +50,9 @@ export class WebJoinPage {
       .filter({ has: page.locator('.field__legend') });
     this.submitButton = this.form.locator('.auth__submit .btn');
     this.signInLink = this.form.locator('.auth__alt').getByRole('link', { name: 'Sign in' });
+    this.alert = this.form.locator('.auth__alert .form-alert');
+    this.alertTitle = this.alert.locator('.form-alert__title');
+    this.alertLinks = this.alert.locator('.form-alert__list a');
   }
 
   async open(): Promise<void> {
@@ -60,6 +68,21 @@ export class WebJoinPage {
     return this.form
       .locator('.field')
       .filter({ has: this.page.getByLabel(label, { exact: true }) });
+  }
+
+  /** The `field__error` of the field labelled `label`. */
+  fieldError(label: string): Locator {
+    return this.field(label).locator('.field__error');
+  }
+
+  /** The link inside a field's error, such as "Sign in instead?". */
+  fieldErrorLink(label: string): Locator {
+    return this.fieldError(label).locator('.inline-link');
+  }
+
+  /** The error summary's link that names this message. */
+  alertLink(message: string): Locator {
+    return this.alertLinks.filter({ hasText: message });
   }
 
   /** The interest toggle with this label. */

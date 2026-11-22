@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 10% (5 of 54 slices; 8 of 83 days)
+**% complete:** 11% (6 of 54 slices; 9 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -237,3 +237,51 @@ worked when applied. Newest entries go at the bottom.
   blank home church, the distinct interests and a span event carrying the email.
 - "Correlate a server span by its `traceparent`" (1.2) carried over to the join's telemetry test.
 - "Always pass `encoding='utf-8', newline='\n'`" (30.1) kept the "…" and "—" of the copy intact.
+
+## Slice 2.2: Join refusals
+
+**What slowed it**
+
+- `[ApiController]` answered a body with `null` fields before any validator ran: MVC treats a
+  non-nullable `string` property as required and writes its own 400, with code `error` and
+  MVC's own sentences. `SuppressImplicitRequiredAttributeForNonNullableReferenceTypes` lets the
+  nulls reach the validator; `InvalidModelStateResponseFactory` refuses a body that cannot be read
+  at all without repeating any of it.
+- The mock generator rewrote every mock with CRLF on Windows, so `git status` listed 137 changed
+  files with no change in them; stripping `\r` from the regenerated files left only the eight
+  real changes.
+- A Git Bash heredoc holding Python with an apostrophe in a string failed again, as slices 1.2
+  and 2.1 warned; the edit scripts went into files written by the editor tool.
+- An error summary's `<a href="#f-name">` resolves against `<base href="/">`, so a plain click
+  would load `/` instead of moving to the field: the link prevents the default and focuses the
+  field by id.
+
+**New lessons**
+
+- A rule computed in both stacks is easiest to keep aligned as one table copied into both
+  suites with the same rows and the same `why`; breaking one guard in each stack (the trim, the
+  dot in the domain) proved each row honest.
+- EF Core InMemory has no unique index: a decorator of `IAppDbContext` that saves a rival row
+  from another scope and then throws `DbUpdateException` reproduces the race PostgreSQL would
+  refuse, with no sleeping.
+- A telemetry test for refusals shares the fixture's log snapshot with the other tests of its
+  class: logging an attempted value turned two of them red, which is the point; assert over the
+  whole snapshot, not one request's lines.
+- `:empty` ignores comment nodes, so a slot wrapper whose only child is an `@if` anchor collapses
+  with `display: none` and leaves no gap above the fields.
+- The first `computed` in a lazy component still costs `main` about 0.85 kB of signal code, and
+  a helper used by a service bound in `app.config.ts` is in `main` too (`apiErrorOf`, 0.45 kB):
+  both read from a `--stats-json` diff of `main`'s inputs against the base.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1, 2.1) named
+  the 1.1 kB at once: the base stats were saved before the first change, so no second worktree
+  was needed.
+- "A record's `ToString` prints every property" (2.1) carried over: the new `RefusalException`
+  carries only the code as its message, never a value from the request.
+- "Prove a rule red by breaking it alone" (1.1, 30.1, 2.1) was applied to the race catch, the
+  unreadable-body factory, the implicit-required switch, the alert's focus, the summary link's
+  `preventDefault`, the email pattern, the trim, and an `[innerHTML]` greeting.
+- "A gate in a fixture handler" (2.1) was not needed: every refusal is a single answer, and the
+  specs await the response with `submitAndAwaitAnswer`.

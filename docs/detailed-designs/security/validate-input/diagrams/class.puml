@@ -15,27 +15,30 @@ class ValidationBehavior<TRequest,TResponse> {
   -IEnumerable<IValidator<TRequest>> validators
   +Handle(req, next): Task<TResponse>
 }
-class ValidationException {
-  +string Code
-  +IDictionary<string,string[]> Errors
+class ValidationException <<FluentValidation>> {
+  +IEnumerable<ValidationFailure> Errors
 }
 class ProblemDetailsExceptionHandler {
   +TryHandleAsync(ctx, ex): ValueTask<bool>
 }
-class DomainException {
+class RefusalException {
   +string Code
-  +int Status
+  +RefusalKind Kind
 }
 class ApiError <<TypeScript>> {
   +status: number
   +code: string
   +errors?: Record<string,string[]>
 }
-class errorMessage <<domain helper>> {
-  +errorMessage(code: string): string
+class apiErrorOf <<domain helper>> {
+  +apiErrorOf(status: number, body: unknown): ApiError
+}
+class joinRefusalOf <<domain helper>> {
+  +joinRefusalOf(error: ApiError): JoinRefusal
 }
 ValidationBehavior ..> ValidationException : throws
-ProblemDetailsExceptionHandler ..> ValidationException : maps 400
-ProblemDetailsExceptionHandler ..> DomainException : maps status
-errorMessage ..> ApiError : reads code
+ProblemDetailsExceptionHandler ..> ValidationException : maps 400 validation_failed or field_too_long
+ProblemDetailsExceptionHandler ..> RefusalException : maps Conflict to 409
+apiErrorOf ..> ApiError : makes
+joinRefusalOf ..> ApiError : reads code
 @enduml

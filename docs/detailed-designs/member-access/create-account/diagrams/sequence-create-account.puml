@@ -33,38 +33,38 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 actor -> page : Fill name, email, password, optional church and interests
 actor -> page : Submit Join
-alt Client validation fails (L2-003 AC3, slice 2.2)
-  page --> actor : Name each invalid field, aria-invalid="true"
+alt validateJoin finds invalid fields (L2-003 AC3)
+  page --> actor : "Check your details" summary takes focus; each field's error, aria-invalid="true"; nothing sent
 else Valid
   page --> actor : Button "Creating your profile…", disabled (L2-003 AC5)
   page -> client : join(JoinRequestDto)
   client -> ctrl : POST /api/account/join
   ctrl -> v : Validate CreateAccountCommand
-  alt Name > 100 or home church > 120 (L2-003 AC6, slice 2.2)
-    v --> ctrl : field_too_long
-    ctrl --> client : 400 ProblemDetails code field_too_long
-    client --> page : Error code
-    page --> actor : Name the field, create nothing
+  alt Invalid body (L2-003 AC6, L2-032 AC1)
+    v --> ctrl : ValidationException (ValidationBehavior)
+    ctrl --> client : 400 ProblemDetails code field_too_long or validation_failed, errors
+    client --> page : ApiError (apiErrorOf)
+    page --> actor : Generic "Check your details" (joinRefusalOf); nothing created
   else Valid
     ctrl -> h : Send CreateAccountCommand
     h -> db : Find Member by NormalizedEmail
     db --> h : Result
-    alt Email already registered (L2-003 AC2, slice 2.2)
-      h --> ctrl : email_taken
+    alt Email already registered (L2-003 AC2)
+      h --> ctrl : RefusalException email_taken (Conflict)
       ctrl --> client : 409 ProblemDetails code email_taken
-      client --> page : Error code
-      page --> actor : "An account with this email already exists. Sign in instead?"
+      client --> page : ApiError (apiErrorOf)
+      page --> actor : Email field: "An account with this email already exists. Sign in instead?"
     else New email
       h -> hash : Hash password
       hash --> h : Hash
       h -> db : Insert Member (HomeChurch null when blank, L2-003 AC4)
-      db --> h : Saved
+      db --> h : Saved, or the unique index refuses a racing duplicate: email_taken
       h -> sess : Sign in member (ISessionSignIn)
       sess --> h : __Host-cf-session, Secure, HttpOnly, SameSite=Lax
       h --> ctrl : SessionDto
       ctrl --> client : 201 SessionDto + Set-Cookie
       client --> page : Session
-      page --> actor : Navigate to /home (L2-003 AC1)
+      page --> actor : Navigate to /home (L2-003 AC1); a 5xx or no answer shows "We couldn't create your profile"
       note over page, ctrl : Home stand-in (ADR 0007): GET /api/session with the cookie greets "Welcome, Grace"
     end
   end

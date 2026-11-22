@@ -6,12 +6,12 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 10% (1 of 30 journeys; 8 of 83 days: journey 1 is done, journey 2 has 2 of its 3 days, and journey 30 has 1 of its 2 days)
+**% complete:** 11% (2 of 30 journeys; 9 of 83 days: journeys 1 and 2 are done, and journey 30 has 1 of its 2 days)
 
 | #   | Journey                          | App    | Description                                                                   | Effort (days) |
 | --- | -------------------------------- | ------ | ----------------------------------------------------------------------------- | ------------- |
 | 1   | ✅ Scaffold the apps             | Both   | Workspace, clean-architecture backend, auth, telemetry, test fixtures and CI. | 5             |
-| 2   | Join the community               | Member | Create a member account with name, email and password.                        | 3             |
+| 2   | ✅ Join the community            | Member | Create a member account with name, email and password.                        | 3             |
 | 3   | Sign in and out                  | Member | Sign in securely, with lockout, suspension refusal and return-to-route.       | 3             |
 | 4   | Browse and filter events         | Member | Find upcoming events by type, date and location.                              | 3             |
 | 5   | View an event                    | Member | See an event's details, place, time and spots left.                           | 2             |

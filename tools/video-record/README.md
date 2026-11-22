@@ -23,7 +23,8 @@ GitHub Actions runs of its own pull request through `gh run view`.
 It is not a test and not a sweep. It has its own Playwright config (`playwright.config.ts` here,
 matching only `shots.ts` in the given folder), compares nothing, clears `CF_SWEEPS`, and is not
 run by `npm run e2e` or CI. The member app on `:4310` and the admin app on `:4311` are reused when
-they are running and started (then stopped) otherwise. Every `/api/**` request is answered by the
+they are running and started (then stopped) otherwise; `CF_WEB_PORT` and `CF_ADMIN_PORT` move
+them, as in the e2e config, so a take in a worktree can use free ports of its own. Every `/api/**` request is answered by the
 handlers of the shared fixture, `frontend/e2e/fixtures/test.ts`, as in every spec; it also fails
 the take on a page error or a request off localhost. Playwright is the copy in
 `frontend/node_modules` (`npm ci` there first).

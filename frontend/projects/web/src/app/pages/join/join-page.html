@@ -6,6 +6,21 @@
   altHref="/sign-in"
   (submitted)="submit()"
 >
+  @if (summary().length) {
+    <cf-form-alert slot="alert" heading="Check your details" [items]="summary()" />
+  } @else if (refusal() === 'refused') {
+    <cf-form-alert
+      slot="alert"
+      heading="Check your details"
+      text="Some of your details weren't accepted. Check each field and try again."
+    />
+  } @else if (refusal() === 'failed') {
+    <cf-form-alert
+      slot="alert"
+      heading="We couldn't create your profile"
+      text="Our servers didn't respond. Everything you typed is still here, so try again in a moment."
+    />
+  }
   <cf-text-field
     slot="fields"
     fieldId="f-name"
@@ -13,8 +28,9 @@
     name="name"
     autocomplete="name"
     [value]="fullName()"
+    [error]="fieldErrors().fullName"
     [readonly]="submitting()"
-    (valueChange)="fullName.set($event)"
+    (valueChange)="edit('fullName', $event)"
   />
   <cf-text-field
     slot="fields"
@@ -24,8 +40,14 @@
     type="email"
     autocomplete="email"
     [value]="email()"
+    [error]="
+      fieldErrors().email ??
+      (refusal() === 'email-taken' ? 'An account with this email already exists.' : null)
+    "
+    [errorLink]="refusal() === 'email-taken' ? 'Sign in instead?' : undefined"
+    errorHref="/sign-in"
     [readonly]="submitting()"
-    (valueChange)="email.set($event)"
+    (valueChange)="edit('email', $event)"
   />
   <cf-text-field
     slot="fields"
@@ -36,8 +58,9 @@
     autocomplete="new-password"
     hint="At least 8 characters"
     [value]="password()"
+    [error]="fieldErrors().password"
     [readonly]="submitting()"
-    (valueChange)="password.set($event)"
+    (valueChange)="edit('password', $event)"
   />
   <cf-text-field
     slot="fields"
@@ -46,8 +69,9 @@
     name="church"
     hint="Optional — helps you find people nearby"
     [value]="homeChurch()"
+    [error]="fieldErrors().homeChurch"
     [readonly]="submitting()"
-    (valueChange)="homeChurch.set($event)"
+    (valueChange)="edit('homeChurch', $event)"
   />
   <cf-interest-picker
     slot="fields"

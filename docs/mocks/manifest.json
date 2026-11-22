@@ -47,6 +47,8 @@
       "states": [
         "default",
         "invalid",
+        "invalid-fields",
+        "refused",
         "submitting",
         "error"
       ],
