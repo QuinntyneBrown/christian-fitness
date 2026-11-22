@@ -15,6 +15,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSessionAuthentication(builder.Configuration);
 builder.Services.AddSessions();
 builder.Services.AddRequestAntiforgery();
+builder.Services.AddSecurityHeaders();
 // Missing fields reach the validators, which name them (L2-032 AC1); a body that cannot be read at
 // all is refused without repeating any of it.
 builder.Services.AddControllers(options =>
@@ -36,6 +37,7 @@ builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 
 var app = builder.Build();
 
+app.UseSecurityHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
