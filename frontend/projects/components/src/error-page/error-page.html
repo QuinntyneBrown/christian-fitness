@@ -1,0 +1,6 @@
+<div class="empty-state empty-state--system">
+  <p class="system__code" aria-hidden="true">{{ code() }}</p>
+  <h1 class="display page-title system__title" tabindex="-1">{{ heading() }}</h1>
+  <p class="empty-state__text">{{ text() }}</p>
+  <div class="empty-state__actions"><ng-content select="[slot=actions]" /></div>
+</div>
