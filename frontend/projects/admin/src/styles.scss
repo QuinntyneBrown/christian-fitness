@@ -1,0 +1,6 @@
+// Global styles are foundations only (AGENTS.md): tokens and @font-face, the reset, utilities.
+// foundations/tokens/tokens.css and foundations/assets/fonts are byte-for-byte copies of
+// docs/design-system/tokens/tokens.css and docs/design-system/assets/fonts; refresh them together.
+@use 'foundations/tokens/tokens';
+@use 'foundations/reset';
+@use 'foundations/utilities';

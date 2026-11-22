@@ -51,7 +51,7 @@ Toronto Area. It is delivered as two web apps:
 │   │   ├── components/ presentation components
 │   │   ├── domain/    pure rules and helpers
 │   │   └── api/       contracts: DTOs, service interfaces, injection tokens
-│   └── e2e/           Playwright specs and page objects
+│   └── e2e/           Playwright specs, page objects and the shared fixture
 ├── backend/
 │   ├── src/           ChristianFitness.{Domain,Application,Infrastructure,Api,Cli}
 │   └── tests/         ChristianFitness.{Application,Api}.Tests
@@ -83,15 +83,19 @@ npx http-server docs -p 8080
 # then open http://localhost:8080/mocks/ or http://localhost:8080/design-system/
 ```
 
-### Frontend (once `frontend/` lands)
+### Frontend
 
 ```sh
 cd frontend
 npm ci
-npm start           # serve the member app
-npm run lint
-npm test
-npx playwright test
+npx playwright install chromium   # once, for the end-to-end specs
+npm start                         # the member app on http://localhost:4200
+npm run start:admin               # the admin app on http://localhost:4201
+npm run lint                      # ESLint, including the dependency direction (docs/adr/0002)
+npm run format:check              # Prettier
+npm run build                     # both apps, failing beyond the angular.json budgets
+npm run e2e                       # Playwright behaviour specs; serves both apps on 4310 and 4311
+CF_SWEEPS=1 npx playwright test --grep @sweep   # visual, responsive, a11y and heap sweeps, on request
 ```
 
 ### Backend (once `backend/` lands)
