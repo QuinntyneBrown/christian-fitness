@@ -11,7 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddTelemetry();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddSessionAuthentication();
+builder.Services.AddSessionAuthentication(builder.Configuration);
+builder.Services.AddSessions();
+builder.Services.AddControllers();
 builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = context =>
     {
@@ -26,6 +28,8 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 // Liveness runs no check; readiness (and /health) checks the database. Status only (L2-040 AC2).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();

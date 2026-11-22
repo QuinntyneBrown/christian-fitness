@@ -3,9 +3,11 @@
     <ProjectReference Include="..\ChristianFitness.Application\ChristianFitness.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Cookie sign-in and the current request's member (ADR 0007). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 </Project>

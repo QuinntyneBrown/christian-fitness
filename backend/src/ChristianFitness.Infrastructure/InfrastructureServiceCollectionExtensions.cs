@@ -25,4 +25,16 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database", tags: [HealthTags.Ready]);
         return services;
     }
+
+    /// <summary>
+    /// Signing a member in with the session cookie and reading the signed-in member back. Only the
+    /// API, which configures the cookie scheme, adds these (ADR 0007).
+    /// </summary>
+    public static IServiceCollection AddSessions(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ISessionSignIn, CookieSessionSignIn>();
+        services.AddScoped<ICurrentMember, HttpCurrentMember>();
+        return services;
+    }
 }
