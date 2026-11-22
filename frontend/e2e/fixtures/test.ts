@@ -2,7 +2,7 @@ import { test as base, expect } from '@playwright/test';
 import { ApiHandlers } from './api-handlers';
 
 export { expect };
-export type { ApiHandler, ApiReply } from './api-handlers';
+export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
 
 /** Requests to these path prefixes go to the backend, which never runs in a spec. */
 const BACKEND = ['/api/', '/hubs/'];

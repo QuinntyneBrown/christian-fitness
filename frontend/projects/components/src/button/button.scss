@@ -27,10 +27,9 @@
   font-size: var(--font-size-ui);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-normal);
-  transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard);
+  transition-property: background-color, border-color, color;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard);
 
   &:hover {
     background: var(--btn-bg-hover);
@@ -59,6 +58,30 @@
   min-height: var(--control-height-sm);
   font-size: var(--font-size-sm);
   padding-inline: calc(var(--space-4) - var(--border-width-hairline));
+}
+
+.btn--lg {
+  min-height: var(--control-height-lg);
+  font-size: var(--font-size-md);
+  padding: calc(var(--space-3-5) - var(--border-width-hairline))
+    calc(var(--space-6) - var(--border-width-hairline));
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  background: var(--btn-bg);
+  border-color: var(--btn-border);
+}
+
+// Busy reads stronger than disabled: the request is on its way (the mock's submitting state).
+.btn[aria-busy='true'] {
+  opacity: var(--opacity-busy);
+  cursor: progress;
 }
 
 // Touch: a small button's target extends to 44 × 44 px without changing its look (L2-038 AC4).

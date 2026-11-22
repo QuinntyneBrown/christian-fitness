@@ -1,0 +1,141 @@
+// The auth block's brand panel, with the brand's seal and lockup
+// (docs/design-system/assets/components.css: "Auth", "Brand: seal and lockup", display).
+:host {
+  display: block;
+}
+
+.auth__brand {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-10);
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+  padding: var(--space-8) var(--space-6);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-10);
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-12);
+  }
+}
+
+.auth__mark {
+  display: none;
+
+  @media (min-width: 64rem) {
+    display: block;
+  }
+}
+
+.auth__claim {
+  margin-top: var(--space-10);
+  max-width: var(--layout-measure-tight);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-display);
+}
+
+.auth__points {
+  display: none;
+  font-size: var(--font-size-ui);
+  color: var(--color-fg-on-brand-strong);
+
+  @media (min-width: 64rem) {
+    display: block;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  li + li {
+    margin-top: var(--space-3);
+  }
+
+  .icon {
+    color: var(--color-fg-on-brand-highlight);
+  }
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.seal {
+  flex-shrink: 0;
+  color: var(--color-fg-default);
+}
+
+.seal__ring {
+  fill: none;
+  stroke: currentColor;
+}
+
+// SVG user units inside the seal's viewBox.
+.seal__text {
+  fill: currentColor;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-bold);
+  font-size: 15px;
+}
+
+.seal__cross {
+  fill: var(--color-fg-accent);
+}
+
+.seal--light {
+  color: var(--color-fg-on-brand);
+
+  .seal__cross {
+    fill: var(--color-highlight);
+  }
+}
+
+.seal--lockup {
+  width: var(--size-seal-lockup);
+  height: var(--size-seal-lockup);
+}
+
+.seal--hero {
+  width: var(--size-seal-hero);
+  height: var(--size-seal-hero);
+}
+
+.lockup {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-2-5);
+  min-height: var(--target-comfortable);
+  border-radius: var(--radius-sm);
+}
+
+.lockup__name {
+  white-space: nowrap;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  line-height: var(--line-height-none);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.lockup--light {
+  color: var(--color-fg-on-brand);
+
+  &:focus-visible {
+    outline-color: var(--color-focus-ring-on-dark);
+    outline-offset: var(--space-1);
+  }
+}

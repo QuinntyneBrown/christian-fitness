@@ -26,3 +26,20 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+// A spinning icon: a busy button's spinner. It stands still under reduced motion.
+.icon--spin {
+  animation: spin var(--duration-spin) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon--spin {
+    animation: none;
+  }
+}
