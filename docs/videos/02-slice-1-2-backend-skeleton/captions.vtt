@@ -1,0 +1,55 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:07.341
+Slice one point two gives Christian Fitness its backend, closed until you sign in.
+
+00:00:08.000 --> 00:00:13.389
+Five projects, one direction. Domain holds the entities, Application the rules and
+
+00:00:13.389 --> 00:00:18.778
+the seeds, Infrastructure speaks to Postgres, and the API and the command line sit
+
+00:00:18.778 --> 00:00:19.538
+on top.
+
+00:00:20.000 --> 00:00:25.376
+Health answers anyone, in one word. Live means the process runs; ready means the
+
+00:00:25.376 --> 00:00:26.819
+database answers.
+
+00:00:27.019 --> 00:00:30.292
+Here there is none, so it says unhealthy, and nothing more.
+
+00:00:32.000 --> 00:00:37.470
+Everything else needs a session. Without one, the answer is a 401, as ProblemDetails
+
+00:00:37.470 --> 00:00:42.589
+with a code the screens can branch on, even for a path that doesn't exist.
+
+00:00:44.000 --> 00:00:49.737
+An unexpected error becomes a plain 500, code server_error: no message, no stack
+
+00:00:49.737 --> 00:00:50.467
+trace.
+
+00:00:52.000 --> 00:00:57.176
+Open Telemetry records each request by its route template, method and status.
+
+00:00:57.376 --> 00:01:01.752
+The path, the query string and anything personal are dropped before export.
+
+00:01:04.000 --> 00:01:09.982
+The API never migrates. cf migrate applies the schema, and cf seed adds the first
+
+00:01:09.982 --> 00:01:14.344
+admin from settings. Run it twice, and nothing changes.
+
+00:01:16.000 --> 00:01:21.031
+Every rule failed first, then passed: twenty-one tests, and no real database.
+
+00:01:24.000 --> 00:01:29.003
+That's slice one point two. Christian Fitness: a Christian community for health in
+
+00:01:29.003 --> 00:01:30.279
+body and spirit.

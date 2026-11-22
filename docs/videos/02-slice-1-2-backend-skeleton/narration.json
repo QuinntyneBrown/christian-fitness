@@ -1,0 +1,19 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Slice one point two gives Christian Fitness its backend, closed until you sign in."] },
+    { "id": "layers", "bars": 6, "lines": ["Five projects, one direction. Domain holds the entities, Application the rules and the seeds, Infrastructure speaks to Postgres, and the API and the command line sit on top."] },
+    { "id": "health", "bars": 6, "lines": ["Health answers anyone, in one word. Live means the process runs; ready means the database answers.", "Here there is none, so it says unhealthy, and nothing more."] },
+    { "id": "fallback", "bars": 6, "lines": [{ "text": "Everything else needs a session. Without one, the answer is a four oh one, as Problem Details with a code the screens can branch on, even for a path that doesn't exist.", "caption": "Everything else needs a session. Without one, the answer is a 401, as ProblemDetails with a code the screens can branch on, even for a path that doesn't exist." }] },
+    { "id": "errors", "bars": 4, "lines": [{ "text": "An unexpected error becomes a plain five hundred, code server error: no message, no stack trace.", "caption": "An unexpected error becomes a plain 500, code server_error: no message, no stack trace." }] },
+    { "id": "telemetry", "bars": 6, "lines": ["Open Telemetry records each request by its route template, method and status.", "The path, the query string and anything personal are dropped before export."] },
+    { "id": "migrate", "bars": 6, "lines": [{ "text": "The API never migrates. C F migrate applies the schema, and C F seed adds the first admin from settings. Run it twice, and nothing changes.", "caption": "The API never migrates. cf migrate applies the schema, and cf seed adds the first admin from settings. Run it twice, and nothing changes." }] },
+    { "id": "proof", "bars": 4, "lines": ["Every rule failed first, then passed: twenty-one tests, and no real database."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice one point two. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

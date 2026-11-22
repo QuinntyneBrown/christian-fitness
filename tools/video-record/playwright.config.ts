@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
-import { ADMIN_URL, WEB_URL } from './shots';
+import { ADMIN_URL, API_URL, WEB_URL } from './shots';
 
 /**
  * Saves the screenshots of a video (docs/videos/README.md, "Screenshots"). It is not a test run
@@ -14,6 +14,8 @@ const folder = process.env['CF_VIDEO_DIR'];
 if (!folder) throw new Error('Run this through tools/video-record/record.mjs <video folder>.');
 const root = path.resolve(__dirname, '..', '..');
 const frontend = path.resolve(root, 'frontend');
+// `record.mjs --backend`: a slice with no screen films the running API instead of the apps.
+const backend = process.env['CF_VIDEO_BACKEND'] === '1';
 
 export default defineConfig({
   testDir: path.resolve(root, folder),
@@ -41,20 +43,35 @@ export default defineConfig({
       },
     },
   ],
-  webServer: [
-    {
-      command: 'npx ng serve web --port 4310',
-      cwd: frontend,
-      url: WEB_URL,
-      reuseExistingServer: true,
-      timeout: 240_000,
-    },
-    {
-      command: 'npx ng serve admin --port 4311',
-      cwd: frontend,
-      url: ADMIN_URL,
-      reuseExistingServer: true,
-      timeout: 240_000,
-    },
-  ],
+  webServer: backend
+    ? [
+        {
+          // The API as built, with no database: port 1 refuses at once, so readiness says so.
+          command: 'dotnet run --project src/ChristianFitness.Api --no-launch-profile',
+          cwd: path.resolve(root, 'backend'),
+          url: `${API_URL}/health/live`,
+          reuseExistingServer: false,
+          timeout: 240_000,
+          env: {
+            ASPNETCORE_URLS: API_URL,
+            ConnectionStrings__Default: 'Host=127.0.0.1;Port=1;Database=none;Timeout=2',
+          },
+        },
+      ]
+    : [
+        {
+          command: 'npx ng serve web --port 4310',
+          cwd: frontend,
+          url: WEB_URL,
+          reuseExistingServer: true,
+          timeout: 240_000,
+        },
+        {
+          command: 'npx ng serve admin --port 4311',
+          cwd: frontend,
+          url: ADMIN_URL,
+          reuseExistingServer: true,
+          timeout: 240_000,
+        },
+      ],
 });

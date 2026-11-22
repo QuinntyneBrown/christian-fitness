@@ -6,7 +6,13 @@ writes PNGs at double density into the folder's `shots/`. Standard: `docs/videos
 
 ```
 node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic
+node tools/video-record/record.mjs docs/videos/NN-slice-S-S-topic --backend   # a slice with no screen
 ```
+
+With `--backend` the Angular apps are not started; the API is, as built, on `:4312`
+(`dotnet run --project backend/src/ChristianFitness.Api`) with a connection string to port 1, so
+no database runs and readiness says so. `shots.ts` then uses Playwright's `request` against
+`API_URL`, may run `cf` with `dotnet run`, and saves what was said with `capture(name, value)`.
 
 It is not a test and not a sweep. It has its own Playwright config (`playwright.config.ts` here,
 matching only `shots.ts` in the given folder), compares nothing, clears `CF_SWEEPS`, and is not
@@ -45,6 +51,8 @@ test.describe('admin app', () => {
 | `bringToTop(locator, offset = 96)`    | Scrolls a region to the top of the window before a shot.                                                                                        |
 | `SIZES`, `shotsDir`                   | The four windows, and where the pictures go.                                                                                                    |
 | `WEB_URL`, `ADMIN_URL`                | Where the two apps run while shots are taken.                                                                                                   |
+| `API_URL`                             | Where the API runs under `--backend`.                                                                                                           |
+| `capture(name, value)`                | Saves what the backend said as `window.FILM_CAPTURES[name]` in `shots/captures.js`, for `film.js` to set word for word.                         |
 
 Selectors stay in the page objects of `frontend/e2e/page-objects/`; `shots.ts` names regions, as a
 spec does.
