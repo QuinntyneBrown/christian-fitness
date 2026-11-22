@@ -16,13 +16,14 @@ package "components" {
     +code: input.required<string>
     +heading: input.required<string>
     +text: input.required<string>
-    -headingRef: viewChild<ElementRef>
+    -host: ElementRef
     +ngAfterViewInit(): void
   }
   class Button <<component>> {
     +href: input.required<string>
     +variant: input<primary | secondary>
     +size: input<sm | md>
+    #classes(): string
   }
 }
 package "domain" {
@@ -30,6 +31,7 @@ package "domain" {
     +SERVER_ERROR_PATH = /server-error
     +referenceOf(value: unknown): string | null
     +returnPathOf(value: unknown): string
+    +serverErrorText(reference: unknown): string
   }
   class serverErrorInterceptor <<HttpInterceptorFn>> {
     +(request, next): Observable<HttpEvent>
@@ -38,10 +40,9 @@ package "domain" {
 package "web, admin" {
   class NotFoundPage <<routed page>>
   class ServerErrorPage <<routed page>> {
-    +reference: input<string | undefined>
-    +from: input<string | undefined>
-    #text: computed<string>
-    #retry: computed<string>
+    -query: ParamMap (route snapshot)
+    #text: string
+    #retry: string
   }
 }
 package "ChristianFitness.Api" {

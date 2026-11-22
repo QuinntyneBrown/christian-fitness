@@ -11,6 +11,8 @@ export abstract class ErrorScreen {
   readonly code: Locator;
   readonly text: Locator;
   readonly actions: Locator;
+  /** The row that holds the actions. */
+  readonly actionBar: Locator;
 
   constructor(protected readonly page: Page) {
     this.main = page.getByRole('main');
@@ -18,7 +20,8 @@ export abstract class ErrorScreen {
     this.heading = block.getByRole('heading', { level: 1 });
     this.code = block.locator('.system__code');
     this.text = block.locator('.empty-state__text');
-    this.actions = block.locator('.empty-state__actions').getByRole('link');
+    this.actionBar = block.locator('.empty-state__actions');
+    this.actions = this.actionBar.getByRole('link');
   }
 
   /** The action link with this accessible name. */

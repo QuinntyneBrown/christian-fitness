@@ -34,11 +34,14 @@ state that failed ([ADR 0006](../../../adr/0006-error-screens.md)).
   design system's error-page block with the mock's classes: `empty-state empty-state--system`,
   `system__code` (`aria-hidden="true"`), `system__title` (the page's only `h1`, `tabindex="-1"`),
   `empty-state__text` and `empty-state__actions`. Inputs: `code`, `heading`, `text`; the actions
-  are projected through `[slot=actions]`. After its view renders it moves focus to the heading
-  (`L2-043` AC7). The text is an input rendered by interpolation, never as HTML (`L2-032` AC3).
+  are projected through `[slot=actions]`. After its view renders it finds the heading in its own
+  host element (`ElementRef`) and focuses it, with no view query, which would add about 8 kB to
+  the initial bundle (`L2-043` AC7, ADR 0006). The text is an input rendered by interpolation, never as HTML (`L2-032` AC3).
 - **`Button`** — presentation component in `components` (`cf-button`) that renders the
   design system's `btn` block as a link: inputs `href`, `variant` (`primary`, `secondary`) and
-  `size` (`sm`, `md`), content projected once. On a coarse pointer a `btn--sm` target extends to
+  `size` (`sm`, `md`), content projected once. One `[attr.class]` binding to a `classes()`
+  method sets `btn btn--{variant}` and `btn--sm`, rather than class bindings, which cost about
+  4.6 kB of the initial bundle. On a coarse pointer a `btn--sm` target extends to
   44 × 44 px (`L2-043` AC2, `L2-038` AC4). A `<button>` branch arrives with the first slice that
   needs one.
 - **`NotFoundPage`** — routed page in each app. It puts `ErrorPage` in the page's one
@@ -47,15 +50,18 @@ state that failed ([ADR 0006](../../../adr/0006-error-screens.md)).
   links are "Go to home" (`/`) and "Browse events" (`/events`); the admin app's are "Go to
   dashboard" (`/`) and "Manage events" (`/events`) (`L2-043` AC1, AC2).
 - **`ServerErrorPage`** — routed page in each app. Its query parameters `reference` and `from`
-  arrive as inputs through the router's component input binding. It shows code `500`, heading
+  are read once from the `ActivatedRoute` snapshot, since every arrival creates the page anew;
+  component input binding would add 2.4 kB to the initial bundle (ADR 0006). It shows code `500`, heading
   "Something went wrong" and "That's on us, not you, and we've been notified. Try again in a
   moment.", followed by "If it keeps happening, quote reference CF-…." only when `referenceOf`
   accepts the reference. "Try again" links to `returnPathOf(from)`; "Go to home" (member app)
   or "Go to dashboard" (admin app) links to `/` (`L2-043` AC4, AC6).
-- **`referenceOf`, `returnPathOf`** — pure helpers in `domain/src/errors/server-error.ts`, with
+- **`referenceOf`, `returnPathOf`, `serverErrorText`** — pure helpers in `domain/src/errors/server-error.ts`, with
   one unit test per row. `referenceOf` returns its argument only when it is a string matching
   `CF-` and eight upper-case hexadecimal digits, else `null`. `returnPathOf` returns its argument
-  only when it is a string that starts with one `/` (not `//` or `/\`), else `/`.
+  only when it is a string that starts with one `/` (not `//` or `/\`), has no white space or
+  control character and is not `/server-error` itself, else `/`. `serverErrorText` builds the
+  screen's sentence, with the reference sentence only when `referenceOf` accepts it.
 - **`serverErrorInterceptor`** — `HttpInterceptorFn` in `domain`. When a GET to a URL whose path
   starts with `/api/` answers with a status of 500 or more, it navigates to `server-error` with
   `skipLocationChange` and the query parameters `reference` (read from the ProblemDetails body

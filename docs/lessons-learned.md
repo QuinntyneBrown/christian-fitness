@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 6% (3 of 54 slices; 5 of 83 days)
+**% complete:** 7% (4 of 54 slices; 6 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -140,3 +140,51 @@ worked when applied. Newest entries go at the bottom.
 - "`.gitattributes` with `eol=lf`" (1.1) kept the workflow and the rendered docs LF on Windows.
 - "A slice with no screen still films the running system" (1.2) carried over: the film's
   terminals hold what the CI runs said, not typed-in copies.
+
+## Slice 30.1: Not found and server error
+
+**What slowed it**
+
+- The initial bundle grew past the 220 kB warning with a slice that adds only two lazy screens.
+  Diffing `--stats-json` inputs against the base showed the cost was in `main`, from the first
+  use of Angular features: a view query (about 8 kB), class bindings (about 4.6 kB) and
+  `withComponentInputBinding` (2.4 kB). Each was replaced (`ElementRef` and `querySelector`, one
+  `[attr.class]` binding, the route snapshot). What remained came from Angular's chunk optimizer,
+  which switches on with the third lazy route: about 2 kB more raw, about 1 kB less transferred.
+  The warning budget went to 225 kB with that reason (ADR 0006).
+- `provideHttpClient` costs about 20 kB of the initial bundle, and no screen calls the API yet,
+  so the interceptor could not be registered without paying for nothing. It lives tested but
+  unregistered in `domain`; the first data-loading slice registers it.
+- The unit-test builder needs a DOM even for pure helpers: it failed until `happy-dom` was
+  installed.
+- Python's `read_text`/`write_text` on Windows used cp1252 and CRLF: a "·" became mojibake, which
+  Prettier turned into U+FFFD. Always pass `encoding='utf-8', newline='\n'`.
+- The keyboard spec raced the first render: Tab was pressed before the heading had focus. Await
+  `toBeFocused()` on the heading before pressing a key.
+- No admin mock existed for the error screens; they were added to the mock generator before code.
+
+**New lessons**
+
+- Read the initial total after the first use of any Angular template feature, not just a new
+  API: a `viewChild`, a `[class.x]` binding or router input binding each grows `main` even when
+  only a lazy component uses it.
+- A screen reached with `skipLocationChange` can read its query parameters once from the
+  `ActivatedRoute` snapshot: every arrival creates the page anew.
+- Error-screen actions are plain `<a href>` links: a whole-document load is the right recovery
+  after a failure, and it costs no router code.
+- A reference a member can quote comes from the server (`CF-` and the first eight hex digits of
+  the trace id), so an operator finds the request by it; the client only checks its shape and
+  never shows a value it did not accept.
+- A pure helper with a table of cases is tested with `it.each`, one row per case, and each guard
+  is proved red by breaking that guard alone.
+
+**How earlier lessons worked**
+
+- "Prove a rule red with a throwaway change, then restore it" (1.1, 1.2) caught a weak test: the
+  404's exact-keys test was only honest after `>= 500` was broken to `>= 400` and it failed.
+- "Correlate a server span by sending a `traceparent` with a known trace id" (1.2) gave the
+  reference test a fixed expected value, `CF-4BF92F35`.
+- "Read the initial total after each new Angular API" (AGENTS.md) turned out to need
+  `--stats-json` diffs to find where the bytes went; reading the total alone only said that they
+  had gone.
+- "CI only sees what is pushed" (1.3) did not apply: every red here was local.
