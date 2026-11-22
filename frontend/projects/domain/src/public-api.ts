@@ -3,5 +3,3 @@
  * needs one.
  */
 export {};
-
-const unusedOnPurpose = 1;
