@@ -14,6 +14,12 @@
       heading="Check your details"
       text="Some of your details weren't accepted. Check each field and try again."
     />
+  } @else if (refusal() === 'rate-limited') {
+    <cf-form-alert
+      slot="alert"
+      heading="Too many new profiles"
+      text="Too many profiles were made from this network in the last hour. Try again later."
+    />
   } @else if (refusal() === 'failed') {
     <cf-form-alert
       slot="alert"

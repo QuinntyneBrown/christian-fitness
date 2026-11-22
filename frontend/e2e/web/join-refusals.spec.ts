@@ -205,6 +205,28 @@ test.describe('Member app, join refusals: what the API answers', () => {
     await expect(join.submitButton).toBeEnabled();
   });
 
+  // L2-034 AC2: the sixth account from one address in an hour (mock `limited`, ADR 0010).
+  test('too many new profiles from one network say so and keep the form', async ({ page, api }) => {
+    const sent = answerJoin(api, problem(429, 'rate_limited'));
+    const join = new WebJoinPage(page);
+
+    await join.open();
+    await join.fill(GRACE);
+    await join.submitAndAwaitAnswer();
+
+    await expect(join.alertTitle).toHaveText('Too many new profiles');
+    await expect(join.alert).toContainText(
+      'Too many profiles were made from this network in the last hour. Try again later.',
+    );
+    await expect(join.alert).toBeFocused();
+    await expect(join.alertLinks).toHaveCount(0);
+    await expect(join.fullName).toHaveValue('Grace Thompson');
+    await expect(join.password).toHaveValue('abundantlife');
+    await expect(join.submitButton).toBeEnabled();
+    expect(new URL(page.url()).pathname).toBe('/join');
+    expect(sent).toHaveLength(1);
+  });
+
   test('a server error keeps the form and says the servers did not respond', async ({
     page,
     api,
