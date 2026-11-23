@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-018 AC5 (ADR 0014): a staff session ends 30 minutes after its last request. Every request
+/// L2-018 AC5 (ADR 0016): a staff session ends 30 minutes after its last request. Every request
 /// within 30 minutes of the one before keeps it open; the first one after is refused with
 /// <c>session_expired</c> and 401, the cookie is expired and the session is gone from the server.
 /// The clock is a <see cref="Microsoft.Extensions.Time.Testing.FakeTimeProvider"/> shared by the

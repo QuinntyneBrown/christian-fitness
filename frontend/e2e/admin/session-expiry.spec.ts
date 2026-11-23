@@ -21,7 +21,7 @@ function sessionThatExpires(api: ApiHandlers): { expire: () => void; asked: () =
   return { expire: () => (expired = true), asked: () => asked };
 }
 
-// L2-018 AC5 (ADR 0014): a staff session ends 30 minutes after its last request; the next request
+// L2-018 AC5 (ADR 0016): a staff session ends 30 minutes after its last request; the next request
 // finds it expired and the admin app returns to Staff sign in, saying why.
 test.describe('Admin app, idle session expiry', () => {
   test('moving to another area checks the session each time', async ({ page, api }) => {

@@ -16,7 +16,7 @@ public static class ProblemCodes
     public const string ServerError = "server_error";
     public const string Error = "error";
 
-    /// <summary>The staff cookie named a session that had expired (L2-018 AC5; ADR 0014).</summary>
+    /// <summary>The staff cookie named a session that had expired (L2-018 AC5; ADR 0016).</summary>
     public const string SessionExpired = "session_expired";
 
     private static readonly object OverrideKey = new();

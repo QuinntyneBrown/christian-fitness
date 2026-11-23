@@ -8,7 +8,7 @@ namespace ChristianFitness.Application.Sessions;
 
 /// <summary>
 /// The credential check every sign-in makes, the member app's and the admin app's (L2-004 AC2 and
-/// AC3, L2-018 AC3; ADR 0009, ADR 0011, ADR 0012, ADR 0014). In order:
+/// AC3, L2-018 AC3; ADR 0009, ADR 0011, ADR 0012, ADR 0016). In order:
 /// <list type="number">
 /// <item>a blank field is refused <c>invalid_credentials</c> and not recorded;</item>
 /// <item>with <see cref="SignInFailure.Attempts"/> full, 5 failures for the email in the last 15

@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     // Every staff route is a child of the shell, which opens only with a staff session (ADR 0011).
-    // The guard runs for every child, so each move between areas checks the session (ADR 0014).
+    // The guard runs for every child, so each move between areas checks the session (ADR 0016).
     path: '',
     canActivateChild: [staffAuthGuard],
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
@@ -57,7 +57,7 @@ export const routes: Routes = [
     ],
   },
   {
-    // Opened by forbiddenInterceptor on a 403 to a read, the URL asked for kept (L2-047; ADR 0014).
+    // Opened by forbiddenInterceptor on a 403 to a read, the URL asked for kept (L2-047; ADR 0016).
     path: 'forbidden',
     title: 'Staff only · Christian Fitness Admin',
     loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),

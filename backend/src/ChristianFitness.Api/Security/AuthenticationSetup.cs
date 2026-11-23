@@ -27,7 +27,7 @@ internal static class AuthenticationSetup
     /// <summary>A member session lasts 14 days from the last request (ADR 0007).</summary>
     public static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(14);
 
-    /// <summary>A staff session ends 30 minutes after its last request (L2-018 AC5; ADR 0014).</summary>
+    /// <summary>A staff session ends 30 minutes after its last request (L2-018 AC5; ADR 0016).</summary>
     public static readonly TimeSpan StaffIdleTimeout = TimeSpan.FromMinutes(30);
 
     /// <summary>Picks the member or the staff session for whatever does not name a scheme.</summary>
@@ -65,7 +65,7 @@ internal static class AuthenticationSetup
                 options.Cookie.SameSite = SameSiteMode.Strict;
                 Refuse(options);
 
-                // Idle expiry (L2-018 AC5; ADR 0014): every request moves the end to 30 minutes
+                // Idle expiry (L2-018 AC5; ADR 0016): every request moves the end to 30 minutes
                 // later, not only one after half the lifetime as the handler would by default.
                 options.ExpireTimeSpan = StaffIdleTimeout;
                 options.SlidingExpiration = true;

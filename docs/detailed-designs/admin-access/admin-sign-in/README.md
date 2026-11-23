@@ -27,7 +27,7 @@ The slice runs from the Staff sign in screen (mock `docs/mocks/pages/admin-sign-
 the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
 ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md),
 [ADR 0013](../../../adr/0013-staff-two-step-verification.md),
-[ADR 0014](../../../adr/0014-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)).
+[ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`) with `TextField`, `FormAlert` and
@@ -79,7 +79,7 @@ the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
   too; `GET` and `DELETE` require the `Staff` policy. Each action sends one MediatR request:
   `StaffSignInCommand`, `VerifyTwoStepCommand`, `GetStaffSessionQuery`, `StaffSignOutCommand`.
 - **`MemberCredentials`** — the credential check both sign-ins share, with the sign-in pause of
-  `L2-004` AC3 (ADR 0014): with 5 `SignInFailures` for the email's key in the last 15 minutes
+  `L2-004` AC3 (ADR 0016): with 5 `SignInFailures` for the email's key in the last 15 minutes
   (`SignInFailure.Attempts`, the shared `AttemptWindow`) the attempt is refused
   `too_many_attempts` (429) before the password is checked and is not recorded; otherwise an
   unknown email, a wrong password (a failure recorded) or a blank field (none recorded) is refused
@@ -124,7 +124,7 @@ Error codes: `invalid_credentials` (401, one generic message), `not_staff` (403)
 `too_many_attempts` (429, for the password pause and for wrong codes) and `session_expired`
 (401). There is no "Trust this browser" and no backup code (ADR 0013). A reload of an admin URL
 after the session expired opens Staff sign in without the notice: no navigation has succeeded to
-tell it from a state the browser restored (ADR 0014). Telemetry records the route template and
+tell it from a state the browser restored (ADR 0016). Telemetry records the route template and
 outcome code, never the email, the code, the secret or the step cookie (L2-046 AC8).
 
 ## Requirements

@@ -63,7 +63,7 @@ test.describe('Admin app, staff sign-in refusals', () => {
     expect(signIn.location()).toBe('/sign-in');
   });
 
-  // L2-018 AC3 with L2-004 AC3 (ADR 0014): the member sign-in's pause, counted in both apps.
+  // L2-018 AC3 with L2-004 AC3 (ADR 0016): the member sign-in's pause, counted in both apps.
   test('5 failed sign-ins in 15 minutes pause sign-in, keep what was typed and leave Sign in enabled', async ({
     page,
     api,

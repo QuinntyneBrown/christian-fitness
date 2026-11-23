@@ -8,7 +8,7 @@ export const FORBIDDEN_PATH = '/forbidden';
 
 /**
  * Shows the "Staff only" screen when the API refuses a read: a GET to `/api/` answering 403
- * (L2-047 AC1; ADR 0014). The address bar shows the URL staff asked for (`browserUrl`): where a
+ * (L2-047 AC1; ADR 0016). The address bar shows the URL staff asked for (`browserUrl`): where a
  * navigation still in flight is going, as when the guard's request is refused, or else the current
  * URL, so a reload asks again. A write's 403 passes on to the screen that sent it (AC3), so Staff
  * sign in still shows `not_staff` itself. Not while the screen already shows. The error always passes on, so no

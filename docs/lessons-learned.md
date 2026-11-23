@@ -701,7 +701,7 @@ worked when applied. Newest entries go at the bottom.
 - The mock's forbidden screen sent staff "Back to the app", a link to another origin that left the
   admin session open, and named the signed-in email; the sign-in mock said the account was locked
   for 30 minutes until another admin unlocked it and disabled Sign in, which slice 3.2's pause does
-  not do. The mock and ADR 0014 were corrected before code: Sign out, and "Sign-in paused for 15
+  not do. The mock and ADR 0016 were corrected before code: Sign out, and "Sign-in paused for 15
   minutes".
 - Apostrophes in a quoted heredoc failed the parse twice more; edit specs written by the editor tool
   and applied by a script that asserts every match took every edit after that.
@@ -728,7 +728,7 @@ worked when applied. Newest entries go at the bottom.
   admin initial total went from 257.70 kB to 258.98 kB, all of it in the two interceptors and the
   route table; the forbidden screen is a 1.59 kB lazy chunk.
 - "Navigation state, read only from the navigation that set it" (9.2) carried "Your session
-  expired" to Staff sign in; a reload does not bring it back, which ADR 0014 records.
+  expired" to Staff sign in; a reload does not bring it back, which ADR 0016 records.
 - "`AttemptWindow` for any feature's own count" (20.1, 9.2) fitted the staff pause unchanged.
 - "Prove a rule red by breaking it alone" (1.1 to 9.2): the renewal, the expired mark, the staff
   handler forgetting failures, the window's count and each interceptor's registration turned the

@@ -12,7 +12,7 @@ import {
 
 /**
  * The alert Staff sign in shows: a refusal of its own, how the code screen ended (ADR 0013), or a
- * session that expired while idle (ADR 0014).
+ * session that expired while idle (ADR 0016).
  */
 type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked' | 'session-expired';
 
@@ -24,7 +24,7 @@ type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked' |
  * console is for the team (AC2), and anything else is a failure; the form stays as typed. The
  * note says a code comes next. Sent back from the code screen, it says why once: the pending
  * sign-in timed out or too many codes were tried (L2-046 AC4, AC5; ADR 0013). Sent here by
- * `sessionExpiredInterceptor`, it says the session expired (L2-018 AC5; ADR 0014).
+ * `sessionExpiredInterceptor`, it says the session expired (L2-018 AC5; ADR 0016).
  */
 @Component({
   selector: 'cf-sign-in-page',

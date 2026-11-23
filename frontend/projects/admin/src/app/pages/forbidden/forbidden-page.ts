@@ -7,7 +7,7 @@ import { Button, StaffLayout } from '@cf/components';
 /**
  * The "Staff only" screen (mock docs/mocks/pages/admin-forbidden/), opened by
  * `forbiddenInterceptor` in place of a screen whose read the API refused with 403, without
- * changing the URL (L2-047 AC1; ADR 0014). The heading takes focus. Sign out ends the staff
+ * changing the URL (L2-047 AC1; ADR 0016). The heading takes focus. Sign out ends the staff
  * session, whose role no longer opens anything, and opens Staff sign in; while it waits the button
  * reads "Signing out…" and is disabled, and a failure enables it again (AC2).
  */

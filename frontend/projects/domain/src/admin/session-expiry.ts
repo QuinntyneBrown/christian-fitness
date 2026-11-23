@@ -14,7 +14,7 @@ export const SESSION_EXPIRED_STATE = { session: 'expired' } as const;
 
 /**
  * True for an API refusal saying the staff session ran out: 401 with code `session_expired`
- * (L2-018 AC5; ADR 0014). Any other 401 means there was no session to run out.
+ * (L2-018 AC5; ADR 0016). Any other 401 means there was no session to run out.
  */
 export function isSessionExpired(error: unknown): boolean {
   if (!(error instanceof HttpErrorResponse) || error.status !== 401) return false;
@@ -38,7 +38,7 @@ export function sessionEndingOf(state: unknown): SessionEnding | null {
 
 /**
  * Returns staff to Staff sign in when a request to `/api/admin/` finds the session expired
- * (L2-018 AC5; ADR 0014), whichever screen or guard sent it and whatever its method, with
+ * (L2-018 AC5; ADR 0016), whichever screen or guard sent it and whatever its method, with
  * {@link SESSION_EXPIRED_STATE} so the screen says why. Not while Staff sign in already shows. The
  * error always passes on, so no caller waits forever. Registered in the admin `app.config.ts`.
  */

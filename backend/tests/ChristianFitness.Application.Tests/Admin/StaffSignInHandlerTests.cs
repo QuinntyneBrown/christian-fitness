@@ -135,7 +135,7 @@ public sealed class StaffSignInHandlerTests : IAsyncDisposable
         Assert.Equal(TwoStepChallenge.HashOf(_cookie.Issued[^1].Token), challenge.TokenHash);
     }
 
-    // L2-018 AC3 with L2-004 AC3 (ADR 0014): a paused email is refused before the password is
+    // L2-018 AC3 with L2-004 AC3 (ADR 0016): a paused email is refused before the password is
     // checked, the refusal is not counted, and no pending sign-in starts.
     [Fact]
     public async Task Given_5_recent_failures_for_a_staff_email_When_the_right_password_is_given_Then_it_is_refused_with_too_many_attempts_and_not_recorded()

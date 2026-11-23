@@ -64,7 +64,7 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
 
     /// <summary>
     /// True when this request's cookie named a session that had expired, so a challenge can say so
-    /// (<c>session_expired</c>, L2-018 AC5; ADR 0014). A session that was signed out, or a key no
+    /// (<c>session_expired</c>, L2-018 AC5; ADR 0016). A session that was signed out, or a key no
     /// session has, is not expired: nothing is known of it.
     /// </summary>
     public static bool FoundExpired(HttpContext context)

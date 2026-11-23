@@ -55,7 +55,7 @@ describe('staffAuthGuard', () => {
     expect(await guard(failure(status))).toBe(false);
   });
 
-  // L2-018 AC5 (ADR 0014): sessionExpiredInterceptor opens Staff sign in with the notice.
+  // L2-018 AC5 (ADR 0016): sessionExpiredInterceptor opens Staff sign in with the notice.
   it('a 401 session_expired is left to the interceptor', async () => {
     expect(await guard(failure(401, { status: 401, code: 'session_expired' }))).toBe(false);
   });

@@ -6,7 +6,7 @@ using MediatR;
 namespace ChristianFitness.Application.Sessions;
 
 /// <summary>
-/// Signs a member in with their email and password (L2-004 AC1; ADR 0009, ADR 0012, ADR 0014). In
+/// Signs a member in with their email and password (L2-004 AC1; ADR 0009, ADR 0012, ADR 0016). In
 /// order:
 /// <list type="number">
 /// <item>the credentials are checked by <see cref="MemberCredentials"/>, which the admin sign-in

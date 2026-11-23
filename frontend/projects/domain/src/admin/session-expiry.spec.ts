@@ -59,7 +59,7 @@ async function intercept(options: {
 
 const EXPIRED = { status: 401, code: 'session_expired' };
 
-// L2-018 AC5 (ADR 0014): which answers return staff to Staff sign in. One case per row.
+// L2-018 AC5 (ADR 0016): which answers return staff to Staff sign in. One case per row.
 describe('sessionExpiredInterceptor', () => {
   it.each([
     { why: 'a GET of the staff session', method: 'GET', url: '/api/admin/session' },

@@ -7,7 +7,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-018 AC3 with L2-004 AC3 (ADR 0014): 5 failed sign-ins for one email within 15 minutes, in
+/// L2-018 AC3 with L2-004 AC3 (ADR 0016): 5 failed sign-ins for one email within 15 minutes, in
 /// the admin app or the member app, refuse the next staff sign-in with <c>too_many_attempts</c>
 /// and 429, right password or not, until the window passes. The clock is a
 /// <see cref="Microsoft.Extensions.Time.Testing.FakeTimeProvider"/> shared by the class: each

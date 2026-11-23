@@ -56,7 +56,7 @@ async function intercept(options: {
   return { navigations, outcome };
 }
 
-// L2-047 AC1 and AC3 (ADR 0014): which refusals show "Staff only". One case per row.
+// L2-047 AC1 and AC3 (ADR 0016): which refusals show "Staff only". One case per row.
 describe('forbiddenInterceptor', () => {
   it.each([
     { why: 'a GET of the staff session', url: '/api/admin/session' },

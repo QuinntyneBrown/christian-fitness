@@ -36,13 +36,13 @@ def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, n
         "expired": ("Sign in again", "Your sign-in timed out before a code was entered. Sign in again to get a new code."),
         "locked": ("Too many codes tried", "For your security, wait 15 minutes, then sign in again."),
         "not-set-up": ("Two-step verification isn't set up", "Ask an Admin to set it up for your account, then sign in again."),
-        # L2-018 AC5: the staff session ended after 30 idle minutes (ADR 0014).
+        # L2-018 AC5: the staff session ended after 30 idle minutes (ADR 0016).
         "session-expired": ("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on."),
     }
     if step:
         alert = '<div class="auth__alert">' + form_alert(*step_alerts[step]) + "</div>"
     elif locked:
-        # L2-018 AC3 with L2-004 AC3: the member sign-in's pause, counted per email in both apps (ADR 0014).
+        # L2-018 AC3 with L2-004 AC3: the member sign-in's pause, counted per email in both apps (ADR 0016).
         alert = '<div class="auth__alert">' + form_alert("Sign-in paused for 15 minutes", "Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again.") + "</div>"
     elif invalid:
         # L2-018 AC3: one generic message that names neither field (ADR 0011).

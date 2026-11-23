@@ -20,7 +20,7 @@ function roleRemoved(api: ApiHandlers): void {
   api.on('GET', '/api/admin/session', () => problem(403, 'not_staff'));
 }
 
-// L2-047 (ADR 0014): a read refused 403 shows "Staff only" in place of the screen, with the URL
+// L2-047 (ADR 0016): a read refused 403 shows "Staff only" in place of the screen, with the URL
 // staff opened or were moving to in the address bar.
 test.describe('Admin app, forbidden screen', () => {
   test('a 403 to the session shows "Staff only" as the mock draws it, URL unchanged', async ({

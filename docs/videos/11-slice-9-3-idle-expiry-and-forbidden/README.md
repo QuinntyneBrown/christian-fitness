@@ -9,7 +9,7 @@ opens Staff sign in with "Your session expired". A read the API refuses 403 show
 place of the screen, its heading focused and the URL staff opened or were moving to in the address
 bar, with a Sign out button that reads "Signing out…" while it waits. Five wrong passwords in 15
 minutes now pause staff sign-in too, counted with the member app's failures in slice 3.2's
-`SignInFailures` table: "Sign-in paused for 15 minutes", 429 `too_many_attempts` (ADR 0014).
+`SignInFailures` table: "Sign-in paused for 15 minutes", 429 `too_many_attempts` (ADR 0016).
 
 - **Film:** [`11-slice-9-3-idle-expiry-and-forbidden.mp4`](11-slice-9-3-idle-expiry-and-forbidden.mp4),
   1920×1080, 30 fps, 1 min 30 s. Captions: [`captions.vtt`](captions.vtt), not burned in.
@@ -17,7 +17,7 @@ minutes now pause staff sign-in too, counted with the member app's failures in s
 - **Music:** _En La Playa – Trinidad and Tobago Soca_ by JuliusH, from Pixabay
   ([credits](../assets/music/CREDITS.md)). 120 BPM; a bar is two seconds and every scene is a
   whole number of bars.
-- **Requirements shown:** L2-018 (AC3, AC5), L2-004 (AC3), L2-047 (AC1, AC2); ADR 0014.
+- **Requirements shown:** L2-018 (AC3, AC5), L2-004 (AC3), L2-047 (AC1, AC2); ADR 0016.
 
 ## Run sheet
 
@@ -54,7 +54,7 @@ an act the cuts are hard.
 - It leaves out, though they are built: a failed sign-out leaving "Staff only" with Sign out
   enabled, Sign out by keyboard, a write's 403 left to its screen (L2-047 AC3), member failures
   pausing staff sign-in and the other way round, and the sliding 15-minute window. A reload after
-  the session expired shows Staff sign in without the notice (ADR 0014). Per-request role checks
+  the session expired shows Staff sign in without the notice (ADR 0016). Per-request role checks
   and the Moderator role are slice 29.1's.
 
 ## Build it again
