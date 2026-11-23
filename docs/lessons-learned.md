@@ -1588,6 +1588,8 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   unpublished event, so the Profile "Going to" row keeps the event, marked Cancelled and not a link.
 - `git checkout src` to undo one deliberate break reverted every tracked backend edit of the slice, not just
   the break; the edits were replayed from the script. Undo a mutation with the inverse edit, never a checkout.
+- CI caught a race local runs hid: a dialog opened after a dynamic import was not yet on screen when the spec
+  pressed Escape, so the Escape closed the editor beneath. Wait for the dialog to be visible before a key press.
 - A quoted shell command with an apostrophe inside `node -e` failed to parse and silently skipped the files
   written after it; large files go through the editor tool.
 
