@@ -1,0 +1,46 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.643
+Every staff change now leaves a record: who made it, what it was, which record it
+
+00:00:06.643 --> 00:00:07.975
+changed, and when.
+
+00:00:10.000 --> 00:00:14.553
+Starting a staff session is the first change on the books. When the code is right,
+
+00:00:14.553 --> 00:00:18.518
+one audit entry is written, with the time from the server's clock.
+
+00:00:20.000 --> 00:00:24.639
+Signing out is audited too. The staff member is read before the session ends.
+
+00:00:28.000 --> 00:00:32.768
+A wrong password, a wrong code, or a sign-in left halfway records nothing.
+
+00:00:36.000 --> 00:00:41.156
+Behind it is one step in the command pipeline. A staff command carries a marker, its
+
+00:00:41.156 --> 00:00:46.367
+handler names the person and the record, and the change is saved with its entry.
+
+00:00:48.000 --> 00:00:52.684
+Forget to name the record, and the command fails, so nothing changes unaudited.
+
+00:00:56.000 --> 00:01:01.166
+The entry keeps identifiers only. No name, no email, no field values.
+
+00:01:04.000 --> 00:01:08.108
+Telemetry hears the action's name, and never who, or which record.
+
+00:01:12.000 --> 00:01:14.922
+Every test failed first. Now they all pass.
+
+00:01:18.000 --> 00:01:20.600
+Next, creating an event joins the trail.
+
+00:01:24.000 --> 00:01:28.756
+That's slice twenty-nine point two. Christian Fitness: a Christian community for
+
+00:01:28.756 --> 00:01:30.602
+health in body and spirit.

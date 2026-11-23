@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 5, "lines": ["Every staff change now leaves a record: who made it, what it was, which record it changed, and when."] },
+    { "id": "signin", "bars": 5, "lines": ["Starting a staff session is the first change on the books. When the code is right, one audit entry is written, with the time from the server's clock."] },
+    { "id": "signout", "bars": 4, "lines": ["Signing out is audited too. The staff member is read before the session ends."] },
+    { "id": "refused", "bars": 4, "lines": ["A wrong password, a wrong code, or a sign-in left halfway records nothing."] },
+    { "id": "pipeline", "bars": 6, "lines": ["Behind it is one step in the command pipeline. A staff command carries a marker, its handler names the person and the record, and the change is saved with its entry."] },
+    { "id": "forget", "bars": 4, "lines": ["Forget to name the record, and the command fails, so nothing changes unaudited."] },
+    { "id": "table", "bars": 4, "lines": ["The entry keeps identifiers only. No name, no email, no field values."] },
+    { "id": "telemetry", "bars": 4, "lines": ["Telemetry hears the action's name, and never who, or which record."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, creating an event joins the trail."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice twenty-nine point two. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
