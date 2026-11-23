@@ -46,6 +46,13 @@ with best practice, say so and propose the correction; do not work around it sil
   standalone, signals for state, `OnPush`, zoneless. Selectors use one prefix; names omit it.
 - **Presentation lives in a components library**: inputs and outputs only, no app service, token
   or router. Pages and dialogs that orchestrate stay in the app.
+- **Every design-system component is built once and reused (mandatory).** Each component in
+  `docs/design-system/components/` is implemented in the components library under its
+  design-system name (`components/src/<name>/`), with that page's block name, anatomy, variants,
+  states and tokens. Screens compose those components. Before writing markup, find the
+  design-system component for it; if it is missing, build it in the library first. Never create
+  a component that duplicates or renames one (no `form-alert` for `alert`, no `app-header` for
+  `top-bar`). A composite with no design-system equivalent is built from library components.
 - **File per type**: `name.ts` + `name.html` + `name.scss` with `templateUrl`/`styleUrl`; no
   inline `template`, `styles` or `style` attribute.
 - **One encapsulated BEM stylesheet per component**, never `ViewEncapsulation.None`. The block is
