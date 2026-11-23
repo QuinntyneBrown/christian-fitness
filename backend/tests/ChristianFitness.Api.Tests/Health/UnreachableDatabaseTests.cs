@@ -37,6 +37,8 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
 
         public DbSet<TwoStepFailure> TwoStepFailures => throw new InvalidOperationException(Secret);
 
+        public DbSet<ChristianFitness.Domain.Events.Event> Events => throw new InvalidOperationException(Secret);
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
             throw new InvalidOperationException(Secret);
 

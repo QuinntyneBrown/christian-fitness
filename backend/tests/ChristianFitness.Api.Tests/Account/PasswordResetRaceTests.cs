@@ -48,6 +48,8 @@ public sealed class PasswordResetRaceTests(PasswordResetRaceTests.Factory factor
 
         public DbSet<TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
 
+        public DbSet<ChristianFitness.Domain.Events.Event> Events => db.Events;
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
