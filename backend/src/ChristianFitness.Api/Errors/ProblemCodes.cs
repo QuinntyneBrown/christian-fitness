@@ -16,6 +16,28 @@ public static class ProblemCodes
     public const string ServerError = "server_error";
     public const string Error = "error";
 
+    /// <summary>The staff cookie named a session that had expired (L2-018 AC5; ADR 0014).</summary>
+    public const string SessionExpired = "session_expired";
+
+    private static readonly object OverrideKey = new();
+
+    /// <summary>
+    /// Gives the ProblemDetails the status-code page writes for this request <paramref name="code"/>
+    /// instead of the status's own (<see cref="ForStatus"/>), as when a challenge knows why it refused.
+    /// </summary>
+    public static void Override(HttpContext context, string code)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Items[OverrideKey] = code;
+    }
+
+    /// <summary>The code of this request's ProblemDetails: an override, or the status's own.</summary>
+    public static string For(HttpContext context, int status)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return context.Items.TryGetValue(OverrideKey, out var code) && code is string text ? text : ForStatus(status);
+    }
+
     /// <summary>The code of an error that carries no more specific one.</summary>
     public static string ForStatus(int status) => status switch
     {

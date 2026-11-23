@@ -39,13 +39,14 @@ is the 15-minute sliding pause of L2-004 AC3. No mock drew an expired session.
   cookie. The cookie handler and the ticket store read the same `TimeProvider`, so the API tests
   move a `FakeTimeProvider` past 30 minutes and never sleep. An expired session's row is deleted
   when it is next read, so the session ends on the server.
-- **`session_expired` (401) when a staff cookie no longer opens a session.** The staff scheme's
-  challenge answers 401 as before; when the request carried `__Host-cf-admin`, the ProblemDetails
-  code is `session_expired` instead of `unauthenticated` and the response expires the cookie. An
-  ended session, a signed-out copy and a tampered cookie all read the same: staff must sign in
-  again. A request with no staff cookie still gets `unauthenticated`, so a first visit is not told
-  its session expired. `ProblemCodes.Override` puts a code on the request for the status-code
-  page to write.
+- **`session_expired` (401) when the staff cookie names an expired session.** The ticket store
+  implements `ITicketStore`'s `RetrieveAsync` with the `HttpContext`, and when the row it finds has
+  expired it deletes it and marks the request (`DatabaseTicketStore.FoundExpired`). The staff
+  scheme's challenge then answers 401 with the ProblemDetails code `session_expired` instead of
+  `unauthenticated` and expires the cookie. A request with no staff cookie, a copy of a cookie
+  that was signed out (its row is gone) or a key no session has still gets `unauthenticated`:
+  only a session known to have run out says so, and a first visit is not told its session
+  expired. `ProblemCodes.Override` puts a code on the request for the status-code page to write.
 - **The admin app checks the session on every screen change.** `staffAuthGuard` moves from
   `canActivate` to `canActivateChild` on the shell, so it runs on the first visit and on every
   move between areas, which makes moving around a request that keeps the session open or finds it

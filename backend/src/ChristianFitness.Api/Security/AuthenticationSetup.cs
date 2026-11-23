@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ChristianFitness.Api.Errors;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -25,6 +26,9 @@ internal static class AuthenticationSetup
 
     /// <summary>A member session lasts 14 days from the last request (ADR 0007).</summary>
     public static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(14);
+
+    /// <summary>A staff session ends 30 minutes after its last request (L2-018 AC5; ADR 0014).</summary>
+    public static readonly TimeSpan StaffIdleTimeout = TimeSpan.FromMinutes(30);
 
     /// <summary>Picks the member or the staff session for whatever does not name a scheme.</summary>
     private const string SelectorScheme = "Session";
@@ -57,10 +61,36 @@ internal static class AuthenticationSetup
             .AddCookie(SessionSchemes.Staff, options =>
             {
                 // Staff never arrive from a link in an email, so Strict costs nothing (ADR 0011).
-                // The idle expiry of L2-018 AC5 is slice 9.3's.
                 options.Cookie.Name = StaffCookie;
                 options.Cookie.SameSite = SameSiteMode.Strict;
                 Refuse(options);
+
+                // Idle expiry (L2-018 AC5; ADR 0014): every request moves the end to 30 minutes
+                // later, not only one after half the lifetime as the handler would by default.
+                options.ExpireTimeSpan = StaffIdleTimeout;
+                options.SlidingExpiration = true;
+                options.Events.OnCheckSlidingExpiration = context =>
+                {
+                    context.ShouldRenew = true;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    // A session the store found expired: staff must sign in again, and the cookie goes.
+                    if (DatabaseTicketStore.FoundExpired(context.HttpContext))
+                    {
+                        ProblemCodes.Override(context.HttpContext, ProblemCodes.SessionExpired);
+                        context.Response.Cookies.Delete(StaffCookie, new CookieOptions
+                        {
+                            Path = "/",
+                            Secure = true,
+                            HttpOnly = true,
+                            SameSite = SameSiteMode.Strict,
+                        });
+                    }
+
+                    return Refuse(context.Response, StatusCodes.Status401Unauthorized);
+                };
             });
 
         services.AddAuthorizationBuilder()

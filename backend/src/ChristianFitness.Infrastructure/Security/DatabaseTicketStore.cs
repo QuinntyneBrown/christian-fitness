@@ -2,6 +2,7 @@ using System.Security.Claims;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -59,26 +60,55 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    private static readonly object ExpiredKey = new();
+
+    /// <summary>
+    /// True when this request's cookie named a session that had expired, so a challenge can say so
+    /// (<c>session_expired</c>, L2-018 AC5; ADR 0014). A session that was signed out, or a key no
+    /// session has, is not expired: nothing is known of it.
+    /// </summary>
+    public static bool FoundExpired(HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return context.Items.ContainsKey(ExpiredKey);
+    }
+
     public Task<AuthenticationTicket?> RetrieveAsync(string key) => RetrieveAsync(key, CancellationToken.None);
 
-    public async Task<AuthenticationTicket?> RetrieveAsync(string key, CancellationToken cancellationToken)
+    public async Task<AuthenticationTicket?> RetrieveAsync(string key, HttpContext httpContext, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var (ticket, expired) = await FindAsync(key, cancellationToken).ConfigureAwait(false);
+        if (expired)
+        {
+            httpContext.Items[ExpiredKey] = true;
+        }
+
+        return ticket;
+    }
+
+    public async Task<AuthenticationTicket?> RetrieveAsync(string key, CancellationToken cancellationToken) =>
+        (await FindAsync(key, cancellationToken).ConfigureAwait(false)).Ticket;
+
+    /// <summary>The live session's ticket, or none; an expired session is deleted and reported.</summary>
+    private async Task<(AuthenticationTicket? Ticket, bool Expired)> FindAsync(string key, CancellationToken cancellationToken)
     {
         using var scope = scopes.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var record = await db.Sessions.FindAsync([key], cancellationToken).ConfigureAwait(false);
         if (record is null)
         {
-            return null;
+            return (null, false);
         }
 
         if (record.ExpiresAt is { } expiresAt && expiresAt <= time.GetUtcNow())
         {
             db.Sessions.Remove(record);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            return null;
+            return (null, true);
         }
 
-        return TicketSerializer.Default.Deserialize(record.Ticket);
+        return (TicketSerializer.Default.Deserialize(record.Ticket), false);
     }
 
     public Task RemoveAsync(string key) => RemoveAsync(key, CancellationToken.None);

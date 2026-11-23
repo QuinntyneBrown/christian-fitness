@@ -33,7 +33,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = context =>
     {
-        context.ProblemDetails.Extensions.TryAdd("code", ProblemCodes.ForStatus(context.ProblemDetails.Status ?? context.HttpContext.Response.StatusCode));
+        context.ProblemDetails.Extensions.TryAdd("code", ProblemCodes.For(context.HttpContext, context.ProblemDetails.Status ?? context.HttpContext.Response.StatusCode));
         ProblemReference.AddTo(context);
     });
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();

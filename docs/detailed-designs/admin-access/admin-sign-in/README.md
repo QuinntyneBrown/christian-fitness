@@ -111,9 +111,9 @@ the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
   (L2-018 AC6) ends it on the server. `ExpireTimeSpan` is 30 minutes (`StaffIdleTimeout`) with
   sliding expiration, and `OnCheckSlidingExpiration` renews on every authenticated request, so
   the session ends exactly 30 minutes after the last one (L2-018 AC5); the store deletes the
-  expired row when it is next read. When a request carried the staff cookie but it opened no
-  session, the challenge answers 401 with code `session_expired` (`ProblemCodes.Override`) and
-  expires the cookie; without the cookie the code stays `unauthenticated`.
+  expired row when it is next read and marks the request (`DatabaseTicketStore.FoundExpired`),
+  and the challenge then answers 401 with code `session_expired` (`ProblemCodes.Override`) and
+  expires the cookie; no cookie, a signed-out copy or an unknown key stays `unauthenticated`.
 - **`Staff` policy** — authenticates only the `Staff` scheme and requires a role claim; a
   convention adds it to every controller routed under `api/admin`. A visitor or a member session
   gets 401 with a ProblemDetails and nothing else (`L2-018` AC4).
