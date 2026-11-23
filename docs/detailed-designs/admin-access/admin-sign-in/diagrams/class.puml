@@ -34,6 +34,18 @@ class TwoStepPage {
 }
 class "twoStepRefusalOf()" as twoStepRefusalOf
 class "staffAuthGuard" as guard
+class "sessionExpiredInterceptor" as expiredIcpt
+class "sessionEndingOf()" as sessionEndingOf
+class "forbiddenInterceptor" as forbiddenIcpt
+class ForbiddenPage {
+  -signingOut: WritableSignal<boolean>
+  +signOut(): void
+}
+class SignInFailure {
+  +{static} Attempts: AttemptWindow(5, 15 minutes)
+  +string EmailKey
+  +DateTimeOffset FailedAt
+}
 class StaffSignInCommand {
   +string Email
   +string Password
@@ -79,6 +91,7 @@ class AttemptWindow {
 }
 class MemberCredentials {
   +VerifyAsync(email, password): Task<Member>
+  +ForgetFailuresAsync(email): Task
 }
 class StaffSessionDto {
   +Guid MemberId
@@ -113,6 +126,10 @@ HttpStaffSessionService ..|> StaffSessionApi
 SignInPage ..> StaffSessionApi : injects STAFF_SESSION_SERVICE
 SignInPage ..> refusalOf : chooses the alert
 guard ..> StaffSessionApi : current()
+expiredIcpt ..> SignInPage : opens with { session: 'expired' }
+SignInPage ..> sessionEndingOf : reads the notice once
+forbiddenIcpt ..> ForbiddenPage : opens on a 403 to a GET
+ForbiddenPage ..> StaffSessionApi : signOut()
 StaffSignInHandler ..> StaffSignInCommand : handles
 StaffSignInHandler ..> MemberCredentials : verifies
 StaffSignInHandler ..> IAppDbContext : reads StaffRole
@@ -130,6 +147,8 @@ TwoStepChallenge ..> AttemptWindow
 StaffTwoStep ..> totp
 CookieTwoStepCookie ..|> ITwoStepCookie
 MemberCredentials ..> IAppDbContext
+MemberCredentials ..> SignInFailure : counts, records, forgets
+SignInFailure ..> AttemptWindow
 MemberCredentials ..> IPasswordHasherService
 CookieStaffSessionSignIn ..|> IStaffSessionSignIn
 CookieStaffSessionSignIn ..> DatabaseTicketStore : session kept on the server

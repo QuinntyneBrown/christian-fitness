@@ -2,7 +2,7 @@
 Layout and copy follow the Magic Patterns prototype "Admin Console" frame for frame."""
 from __future__ import annotations
 
-from cf_data import ADMIN, APPLICATIONS, DRAFT_EVENT, EVENTS, ME, MEMBERS, SERVICES
+from cf_data import ADMIN, APPLICATIONS, DRAFT_EVENT, EVENTS, MEMBERS, SERVICES
 from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field,
                    form_alert, href, icon, loading_region, screen, seal, service_avatar)
 
@@ -36,11 +36,14 @@ def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, n
         "expired": ("Sign in again", "Your sign-in timed out before a code was entered. Sign in again to get a new code."),
         "locked": ("Too many codes tried", "For your security, wait 15 minutes, then sign in again."),
         "not-set-up": ("Two-step verification isn't set up", "Ask an Admin to set it up for your account, then sign in again."),
+        # L2-018 AC5: the staff session ended after 30 idle minutes (ADR 0014).
+        "session-expired": ("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on."),
     }
     if step:
         alert = '<div class="auth__alert">' + form_alert(*step_alerts[step]) + "</div>"
     elif locked:
-        alert = '<div class="auth__alert">' + form_alert("This account is locked", "Too many attempts. Ask another admin to unlock it, or wait 30 minutes and try again.") + "</div>"
+        # L2-018 AC3 with L2-004 AC3: the member sign-in's pause, counted per email in both apps (ADR 0014).
+        alert = '<div class="auth__alert">' + form_alert("Sign-in paused for 15 minutes", "Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again.") + "</div>"
     elif invalid:
         # L2-018 AC3: one generic message that names neither field (ADR 0011).
         alert = '<div class="auth__alert">' + form_alert("Email or password is incorrect", "Check both and try again.") + "</div>"
@@ -50,7 +53,7 @@ def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, n
         alert = '<div class="auth__alert">' + form_alert("We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
     err = ""
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
-              if busy else f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit"{" disabled" if locked else ""}>Sign in</button>')
+              if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign in</button>')
     return staff(f"""    <form action="{href("admin-two-step")}" novalidate>
       <h1 class="display staff__title">Staff sign in</h1>
       <p class="staff__lead">For the Christian Fitness team only.</p>
@@ -83,7 +86,7 @@ def _():
     return signin(busy=True)
 
 
-@s("error", "Account locked after too many attempts: who can unlock it and when to retry.")
+@s("error", "5 failed sign-ins for the email in 15 minutes (L2-018 AC3, L2-004 AC3): sign-in paused for 15 minutes; what was typed stays and Sign in stays enabled.")
 def _():
     return signin(locked=True)
 
@@ -111,6 +114,11 @@ def _():
 @s("two-step-not-set-up", "Staff whose two-step verification is not set up: who can set it up (L2-046 AC6).")
 def _():
     return signin(step="not-set-up")
+
+
+@s("session-expired", "The staff session ended after 30 minutes without a request: sign in again (L2-018 AC5).")
+def _():
+    return signin(step="session-expired")
 
 
 def two_step(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
@@ -155,17 +163,30 @@ def _():
     return two_step(failed=True)
 
 
-s = screen("admin-forbidden", "page", "Staff only", route="/admin (signed in as a member)", group=G,
+def forbidden(*, busy: bool = False) -> str:
+    submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing out…")}</button>'
+              if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign out</button>')
+    return staff(f"""    <form action="{href("admin-sign-in")}" novalidate>
+      <h1 class="display staff__title" tabindex="-1">Staff only</h1>
+      <p class="staff__lead">The admin console is for the Christian Fitness team, and this account doesn't have staff access right now.</p>
+      {submit}
+      <p class="staff__note">On the team? Ask a community director to give you staff access.</p>
+    </form>""")
+
+
+s = screen("admin-forbidden", "page", "Staff only", route="(any admin route, on a 403 to a read)", group=G,
            source="Derived from the Sign In frame layout.",
            not_applicable={"loading": "Renders without data.", "empty": "Not a collection.", "error": "This page is itself the refusal."})
 
 
-@s("default", "403: a member opened the admin console; explains and goes back to the app.")
+@s("default", "403 to a read (L2-047 AC1): staff without access now, such as a role taken away; the heading takes focus; Sign out.")
 def _():
-    return staff(f"""    <h1 class="display staff__title">Staff only</h1>
-    <p class="staff__lead">The admin console is for the Christian Fitness team. You're signed in as {ME["email"]}.</p>
-    <a class="btn btn--primary btn--lg btn--block auth__submit" href="{href("home")}">Back to the app</a>
-    <p class="staff__note">On the team? Ask a community director to give you staff access.</p>""")
+    return forbidden()
+
+
+@s("submitting", "Sign out pressed (L2-047 AC2): \"Signing out…\", button disabled; then Staff sign in.")
+def _():
+    return forbidden(busy=True)
 
 
 # ===========================================================================

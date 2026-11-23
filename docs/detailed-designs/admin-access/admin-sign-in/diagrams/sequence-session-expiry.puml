@@ -16,24 +16,40 @@ skinparam package {
 }
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
-  participant "Admin screen" as page
+  participant "staffAuthGuard (canActivateChild)" as guard
   participant "sessionExpiredInterceptor" as icpt
+  participant "SignInPage" as signin
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "Cookie authentication and StaffOnly" as auth
+  participant "Staff cookie scheme and Staff policy" as auth
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "Any staff handler" as handler
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "DatabaseTicketStore" as store
   database "Christian Fitness database" as db
 end box
-actor -> page : Act after 30 idle minutes
-page -> icpt : HTTP request to /api/admin/...
+actor -> guard : Open another area (or any screen's request)
+guard -> icpt : GET /api/admin/session
 icpt -> auth : Request with __Host-cf-admin cookie
-auth -> auth : Sliding expiry passed (L2-018 AC5)
-auth --> icpt : 401, no data returned (L2-018 AC4)
-note right of handler : Handler is never reached
-icpt --> page : Redirect to sign-in with session expired notice
-page --> actor : Staff sign in screen
+auth -> store : RetrieveAsync(session key)
+store -> db : Find the Sessions row
+alt last request 30 minutes ago or more (L2-018 AC5)
+  store -> db : Delete the expired row (the session ends on the server)
+  store --> auth : no ticket
+  auth --> icpt : 401 ProblemDetails code session_expired, cookie expired, no data (L2-018 AC4)
+  note right of handler : Handler is never reached
+  icpt -> signin : Navigate to /sign-in with state { session: 'expired' }
+  signin --> actor : "Your session expired", sign in again
+else within 30 minutes of the last request
+  store --> auth : ticket
+  auth -> handler : Send the request's MediatR request
+  handler --> auth : answer
+  auth -> store : RenewAsync: expires 30 minutes from now
+  store -> db : Update the row's ExpiresAt
+  auth --> icpt : 200 with the cookie sent again
+  icpt --> guard : session
+  guard --> actor : The area opens
+end
 @enduml
