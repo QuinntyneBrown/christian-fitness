@@ -17,6 +17,10 @@ export class WebEventDetailPage extends ErrorScreen {
   readonly price: Locator;
   readonly spots: Locator;
   readonly going: Locator;
+  readonly registerButton: Locator;
+  readonly confirmed: Locator;
+  readonly registerNote: Locator;
+  readonly registerError: Locator;
   readonly loading: Locator;
   readonly errorHeading: Locator;
   readonly retryButton: Locator;
@@ -32,6 +36,10 @@ export class WebEventDetailPage extends ErrorScreen {
     this.price = page.locator('.event-detail__price');
     this.spots = page.locator('.event-detail__spots');
     this.going = page.locator('.event-detail__going');
+    this.registerButton = page.getByRole('button', { name: /^Register/ });
+    this.confirmed = page.locator('.event-detail__confirmed');
+    this.registerNote = page.locator('.event-detail__note');
+    this.registerError = page.getByRole('alert');
     this.loading = page.locator('[aria-busy="true"]');
     this.errorHeading = page.getByRole('heading', { name: "This event didn't load" });
     this.retryButton = page.getByRole('button', { name: 'Try again' });

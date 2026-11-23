@@ -27,6 +27,7 @@ The feature is a vertical slice from the register action to the database.
 
 ### Open questions
 
+- Slice 6.1 (ADR 0032) registers and shows "You're going"; the group chat membership and link wait for slices 12.x, "This event is full" on the page and the last-place race for slice 6.2. Mock states `reserved` and `failed` now exist; the payment instructions are placeholder copy until the team supplies them.
 - Payment instructions shown for a reserved registration are not specified; `<TO SUPPLY>`.
 - The mock `docs/mocks/pages/event-detail/full.html` offers "Join the waitlist"; `L2-011` specifies only "This event is full" and no waitlist. The waitlist action is out of scope until a requirement states it.
 - The mocks show no reserved (paid) state; a mock state is needed before implementation.

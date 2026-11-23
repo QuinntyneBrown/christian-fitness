@@ -14,6 +14,7 @@ const BOOTCAMP: EventDetailDto = {
   going: 38,
   summary: 'Circuits for every level.',
   imageKey: null,
+  registration: null,
 };
 
 // ADR 0031: what the detail screen says of an event, read in Toronto whatever the browser's zone.
@@ -31,6 +32,8 @@ describe('eventDetailViewOf', () => {
       price: '$10',
       spots: '12 of 50 spots left',
       going: '38 going',
+      registered: false,
+      payNote: null,
     });
   });
 
@@ -57,5 +60,19 @@ describe('eventDetailViewOf', () => {
     expect(eventDetailViewOf({ ...BOOTCAMP, imageKey: 'k1.jpg' }).imageSrc).toBe(
       '/api/events/images/k1.jpg',
     );
+  });
+
+  // ADR 0032: a registration is "going"; a reserved one, for a paid event, says how to pay.
+  it.each([
+    { registration: null, registered: false, payNote: null },
+    { registration: 'confirmed' as const, registered: true, payNote: null },
+    {
+      registration: 'reserved' as const,
+      registered: true,
+      payNote:
+        'Your spot is reserved. Pay the Christian Fitness team at the event; online payment is not available yet.',
+    },
+  ])('reads registration $registration', ({ registration, registered, payNote }) => {
+    expect(eventDetailViewOf({ ...BOOTCAMP, registration })).toMatchObject({ registered, payNote });
   });
 });

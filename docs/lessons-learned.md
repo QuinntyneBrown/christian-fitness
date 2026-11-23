@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 53% (29 of 57 slices; 48 of 91 days)
+**% complete:** 55% (30 of 57 slices; 50 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1486,3 +1486,34 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   draft test red, and a 404 check changed to a status that never comes turned the not-found spec red.
 - "A screen's service goes on its routed component's providers" (4.1): `EVENTS_SERVICE` is provided on
   the detail page, so the client goes with the screen.
+
+## Slice 6.1: Register for an event
+
+**What slowed it**
+
+- The slice list gives the full event and the last-place race to slice 6.2 and chat membership to
+  slices 12.x, while L2-011 and L2-010 AC3 name them; ADR 0032 records what is left out (the chat link,
+  "This event is full" on the page, the race) and the paid-event wording, which no requirement gives.
+- Three test doubles of `IAppDbContext` (two race fixtures, one unreachable-database fixture) each
+  needed the new `Registrations` set before anything compiled.
+- `dotnet ef` refused the Api project as the startup project (no Design package); the Infrastructure
+  project works as both.
+- A quoted heredoc with an apostrophe failed to parse again (1.2, 5.1); the test file went through the
+  editor tool. A TypeScript string with "You're" in single quotes cost a run of a spec that did not parse.
+
+**New lessons**
+
+- Replacing a placeholder reader (`NoRegistrationsYet`) with a real one changes its lifetime: the real
+  reader needs the scoped `AppDbContext`, so the singleton registration became scoped; tests that
+  swap the reader with `RemoveAll` were unaffected.
+- A suspended member's session ends, so `account_suspended` is only reachable on register when the
+  stored status changes behind a live session; the test sets the status through the store and
+  keeps the cookie.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 5.1): removing the suspended check, the capacity
+  check, the idempotence check and the reserved status each turned exactly its own test red.
+- "Read the initial total after each new Angular API" (30.1): no new API was used; `main` grew 0.16 kB.
+- "A screen's service goes on its routed component's providers" (4.1): `register` joined the service
+  already provided on the detail page.

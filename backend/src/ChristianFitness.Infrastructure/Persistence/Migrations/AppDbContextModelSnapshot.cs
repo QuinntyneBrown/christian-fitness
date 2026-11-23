@@ -115,6 +115,35 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("Events", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Registration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId", "MemberId")
+                        .IsUnique();
+
+                    b.HasIndex("MemberId", "CreatedAt");
+
+                    b.ToTable("Registrations", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.Member", b =>
                 {
                     b.Property<Guid>("Id")

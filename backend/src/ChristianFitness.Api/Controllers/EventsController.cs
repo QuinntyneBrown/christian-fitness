@@ -24,4 +24,9 @@ public sealed class EventsController(ISender sender) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken) =>
         Ok(await sender.Send(new GetEventQuery(id), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>The signed-in member takes a place at the event (L2-011; ADR 0032).</summary>
+    [HttpPost("{id:guid}/registrations")]
+    public async Task<IActionResult> Register(Guid id, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new RegisterForEventCommand(id), cancellationToken).ConfigureAwait(false));
 }

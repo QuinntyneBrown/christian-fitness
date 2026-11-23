@@ -123,6 +123,45 @@
   color: var(--color-fg-muted);
 }
 
+.event-detail__register {
+  margin-top: var(--space-5);
+}
+
+.event-detail__confirmed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-subtle);
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.event-detail__check {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.event-detail__note {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.event-detail__error {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger-fg);
+}
+
 .event-detail__going {
   margin-top: var(--space-6);
   border-top: var(--border-width-hairline) solid var(--color-border-default);

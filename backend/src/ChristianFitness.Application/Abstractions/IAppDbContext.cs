@@ -32,6 +32,9 @@ public interface IAppDbContext
 
     /// <summary>The events staff create and members register for (L2-022; ADR 0021).</summary>
     DbSet<Event> Events { get; }
+
+    /// <summary>The places members hold at events (L2-011; ADR 0032).</summary>
+    DbSet<Registration> Registrations { get; }
     /// <summary>What staff changed: who, what, which record and when (L2-019 AC3; ADR 0023).</summary>
     DbSet<AuditEntry> AuditEntries { get; }
 

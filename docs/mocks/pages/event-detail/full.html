@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="event-detail">
 <meta name="mock:state" content="full">
 <meta name="mock:source" content="Magic Patterns · prototype Christian Fitness · frame Event Detail (bMot5Cj5p1yCN4wNfWDvdc)">
-<meta name="description" content="Saturday Park Bootcamp at capacity (50 of 50): waitlist open, Join the waitlist.">
+<meta name="description" content="Saturday Park Bootcamp at capacity (50 of 50): "This event is full" in place of the Register button; no waitlist.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -48,10 +48,9 @@
         </div>
         <aside class="sticky-aside" aria-label="Registration">
             <div class="card card--pad-sm">
-              <div class="register__head"><p class="register__price">$10</p><p class="register__spots">Waitlist open</p></div>
+              <div class="register__head"><p class="register__price">$10</p><p class="register__spots">0 of 50 spots left</p></div>
               <div class="register__state">
-                <button class="btn btn--primary btn--lg btn--block" type="button" data-mock-href="../../pages/event-detail/full.html">Join the waitlist</button>
-                <p class="register__note">We'll message you if a spot opens up.</p>
+                <p class="register__full" role="status">This event is full</p>
               </div>
               <div class="register__going">
                 <p class="register__count">50 going</p>
@@ -74,6 +73,8 @@
     <li><a href="default.html">default</a></li>
     <li><a href="unregistered.html">unregistered</a></li>
     <li><a href="registering.html">registering</a></li>
+    <li><a href="reserved.html">reserved</a></li>
+    <li><a href="failed.html">failed</a></li>
     <li><a href="full.html" aria-current="page">full</a></li>
     <li><a href="loading.html">loading</a></li>
     <li><a href="error.html">error</a></li>

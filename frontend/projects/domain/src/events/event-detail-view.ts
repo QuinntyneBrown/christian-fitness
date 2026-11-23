@@ -21,7 +21,14 @@ export interface EventDetailView {
   spots: string;
   /** "38 going". */
   going: string;
+  /** The member holds a place (ADR 0032). */
+  registered: boolean;
+  /** How to pay, for a reserved place of a paid event; otherwise none. */
+  payNote: string | null;
 }
+
+const PAY_NOTE =
+  'Your spot is reserved. Pay the Christian Fitness team at the event; online payment is not available yet.';
 
 // Made once on first use, not at import: the formatter is costly to create.
 let parts: Intl.DateTimeFormat | undefined;
@@ -52,5 +59,7 @@ export function eventDetailViewOf(event: EventDetailDto): EventDetailView {
     price: priceOf(event.priceCents),
     spots: `${left} of ${event.capacity} spots left`,
     going: `${event.going} going`,
+    registered: event.registration !== null,
+    payNote: event.registration === 'reserved' ? PAY_NOTE : null,
   };
 }
