@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 32% (18 of 57 slices; 29 of 91 days)
+**% complete:** 34% (19 of 57 slices; 31 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -25,7 +25,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 14  | 1.6   | 1 Scaffold the apps                 | ✅ Design-system layout, navigation and migration | Layout, top bar, footer, sidebar navigation, tab bar and breadcrumb, built once; every screen-specific duplicate replaced by the library component. | 2             |
 | 15  | 29.1  | 29 Staff roles and audit            | ✅ Admin and Moderator roles                      | Staff policies allow Admins everything and Moderators only moderation.                                                                              | 1             |
 | 16  | 29.2  | 29 Staff roles and audit            | Audit staff changes                               | Every staff change records who, what, which record and when.                                                                                        | 2             |
-| 17  | 10.1  | 10 Create and edit events           | Create a draft event                              | Staff list events and create a draft in the event editor.                                                                                           | 2             |
+| 17  | 10.1  | 10 Create and edit events           | ✅ Create a draft event                           | Staff list events and create a draft in the event editor.                                                                                           | 2             |
 | 18  | 10.2  | 10 Create and edit events           | Edit an event                                     | Staff edit an event, with invalid and failed save states.                                                                                           | 2             |
 | 19  | 11.1  | 11 Publish and cancel events        | Publish an event                                  | Staff publish a draft so members can find it.                                                                                                       | 1             |
 | 20  | 4.1   | 4 Browse and filter events          | Browse upcoming events                            | Members see published upcoming events, soonest first.                                                                                               | 2             |

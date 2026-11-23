@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 32% (18 of 57 slices; 29 of 91 days)
+**% complete:** 34% (19 of 57 slices; 31 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -942,3 +942,61 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   reads the role, so the whole Playwright suite ran again; the default Admin session kept every
   earlier spec green.
 - "Use free ports" (3.2, 18.1): the specs ran on 4520/4521 beside the two other sessions.
+
+## Slice 10.1: Create a draft event
+
+**What slowed it**
+
+- The first CDK Dialog cost the admin initial bundle 14 kB of `@angular/core` and 2 kB of rxjs
+  although the dialog, its fields and the CDK all load on first use: the parts of core that create
+  a component in a portal, and the async scheduler behind the overlay's scroll handling, sit in
+  modules `main` already holds, and esbuild cannot split a module between chunks. A build with the
+  dialog's import stubbed out showed the page alone cost 2.4 kB, so the rest was the CDK's. The
+  budget rose to 280/290 kB with that reason in ADR 0017.
+- Slices 18.1 and 9.3 merged while this one was open and took ADRs 0015 and 0016, so this slice's
+  ADR became 0017 in the record and 42 comment lines; a script renumbered only the lines this
+  branch added, since 18.1's files already said "ADR 0015" for their own record. The generated
+  mock index and coverage table conflicted and were rebuilt from the merged generator, and the
+  `AddEvents` migration was regenerated after 18.1's `AddMemberProfile`.
+- 9.3's 30-minute staff idle timeout signed out this slice's clock test, which moved the API's clock
+  an hour to turn an ahead start into a past one. It now starts 10 minutes ahead and moves 20.
+- 18.1 brought an `ErrorState` the events list could reuse, where this slice had drawn the same
+  block as a variant of its own `EmptyState`; the variant went, and `ErrorState`'s back link
+  became optional.
+- A quoted Git Bash heredoc with "Couldn't" in its Angular template failed to parse again and wrote
+  none of the files; they went through the editor tool.
+
+**New lessons**
+
+- CDK Overlay loads its own structural styles when the first overlay opens, so a lazy dialog needs
+  no global `@use` of `overlay-prebuilt.css`; only the scrim's look (`backdropClass`) is a global
+  utility, because the overlay renders it outside any component.
+- CDK Dialog's `aria-modal` is `false` unless `ariaModal: true` is set, and its `autoFocus` takes a
+  selector (`'#f-title'`), so focus can start on a form's first field instead of Close.
+- Setting `disableClose` on the dialog's ref while a save is on its way keeps Escape and the scrim
+  from losing the answer; only a spec that presses both during the gate proves it, since the happy
+  path passes either way.
+- Load a dialog by a dynamic `import()` of a file whose exported function calls
+  `injector.get(Dialog).open(...)`, passing the page's injector: the CDK stays out of the page's
+  chunk, and the dialog gets the screen-scoped tokens bound on the routed component.
+- An element's box is still moving during a slide-in, so a size check polls it
+  (`expect.poll(() => box()).toEqual(...)`) until it settles; a single `boundingBox()` read the
+  phone drawer at 31 px from the edge.
+- A store with timers (`ToastStore`) unit-tests with `vi.useFakeTimers()` and
+  `vi.getTimerCount()`: the count proves a dismissed or pushed-out toast cleared its timer and that
+  `ngOnDestroy` left none.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 9.3) found
+  the CDK's share at once; after the rebase a clean worktree of `origin/main` gave the new base,
+  258.98 kB, against this slice's 275.88 kB.
+- "Prove a rule red by breaking it alone" (1.1 to 9.3): on the backend, the gap offset, the
+  `fieldCodes` filter, the 100-event limit, the order, the draft filter, the `>` of `start_in_past`
+  and the title trim each turned the right test red. On the frontend, `restoreFocus`, the toast's
+  lifetime and the list reload after a save did; the `disableClose` break passed until the saving
+  spec pressed Escape and the scrim.
+- "A gate in a fixture handler" (2.1 to 9.3) gave "Saving…" and the list's skeleton rows with no
+  clock; Playwright's clock moved only the toast's 6 seconds.
+- "Rebase onto origin/main before the PR" (20.2, 9.3) brought two merged slices into the branch
+  before the docs and film were written, so they carry the final numbers.
