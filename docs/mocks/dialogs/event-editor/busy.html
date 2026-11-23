@@ -102,16 +102,16 @@
       <div class="field"><label class="field__label" for="f-date">Date</label><input class="input" id="f-date" name="date" type="date" value="2026-05-22" readonly></div>
       <div class="field"><label class="field__label" for="f-time">Start time</label><input class="input" id="f-time" name="time" type="time" value="16:00" readonly></div>
     </div>
-    <div class="field"><label class="field__label" for="f-location">Location</label><input class="input" id="f-location" name="location" type="text" value="Muskoka Woods, Rosseau" readonly></div>
+    <div class="field"><label class="field__label" for="f-place">Place</label><input class="input" id="f-place" name="place" type="text" value="Muskoka Woods, Rosseau" readonly></div>
+    <div class="field"><label class="field__label" for="f-area">Area</label><input class="input" id="f-area" name="area" type="text" value="Muskoka Lakes" aria-describedby="f-area-hint" readonly><span class="field__hint" id="f-area-hint">Neighbourhood and city, like Waterfront, Toronto</span></div>
     <div class="field-grid">
       <div class="field"><label class="field__label" for="f-price">Price</label><input class="input" id="f-price" name="price" type="text" value="$340" aria-describedby="f-price-hint" readonly><span class="field__hint" id="f-price-hint">Leave blank for free</span></div>
       <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="60" readonly min="1" inputmode="numeric"></div>
     </div>
-    <div class="field"><label class="field__label" for="f-description">Description</label><textarea class="textarea" id="f-description" name="description" rows="4" readonly>Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.</textarea></div>
-    <label class="check check--ui"><input class="check__box" type="checkbox" checked disabled> Create a group chat for people who register</label>
+    <div class="field"><label class="field__label" for="f-summary">Summary</label><textarea class="textarea" id="f-summary" name="summary" rows="4" aria-describedby="f-summary-hint" readonly>Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.</textarea><span class="field__hint" id="f-summary-hint">Up to 1,000 characters</span></div>
   </form>
   <div class="drawer__foot">
-    <button class="btn btn--secondary btn--grow" type="button" disabled data-mock-href="../../notifications/admin-toast/info.html">Save draft</button>
+    <button class="btn btn--secondary btn--grow" type="button" disabled data-mock-href="../../notifications/admin-toast/draft-saved.html">Save draft</button>
     <button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true"><svg class="icon icon--spin" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Publishing…</button>
   </div>
 </aside>
@@ -124,6 +124,7 @@
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="busy.html" aria-current="page">busy</a></li>
     <li><a href="failed.html">failed</a></li>
+    <li><a href="saving.html">saving</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

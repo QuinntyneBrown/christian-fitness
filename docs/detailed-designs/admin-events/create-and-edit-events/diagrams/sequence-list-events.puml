@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — List events
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminEventsPage" as page
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application" #ECFDF3
+  participant "ListAdminEventsHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Events, or a tab (?status=draft)
+page --> actor : Skeleton rows, aria-busy (loading)
+page -> client : list(tab)
+client -> ctrl : GET /api/admin/events?status=draft
+ctrl -> ctrl : Staff policy (ADR 0011)
+ctrl -> handler : ListAdminEventsQuery
+handler -> db : Count by status; the tab's events by start, at most 100
+db --> handler : Counts and rows
+handler --> ctrl : AdminEventListDto
+alt answered
+  ctrl --> client : 200 counts and events
+  client --> page : AdminEventListDto
+  alt no events at all
+    page --> actor : "No events yet" with New event (empty)
+  else none in this tab
+    page --> actor : "Nothing published yet" (tab-empty)
+  else events
+    page --> actor : Tab counts and rows, dates in Toronto (L2-022 AC5)
+  end
+else no answer or a 4xx
+  client --> page : ApiError
+  page --> actor : "Events didn't load" with Try again (L2-022 AC6)
+else 5xx
+  client --> page : ApiError, and the server-error screen opens (L2-043 AC4)
+end
+@enduml

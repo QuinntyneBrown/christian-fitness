@@ -174,13 +174,13 @@ def _():
 CATS = ["Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 
 
-def event_editor(*, edit=False, invalid=False, busy=False, failed=False) -> str:
+def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False) -> str:
     if edit:
         v = dict(title="Saturday Park Bootcamp", cat="Workout", date="2026-04-25", time="08:00", place="Trillium Park, Ontario Place",
-                 price="$10", cap="50", desc=EV["park-bootcamp"]["summary"])
+                 area="Waterfront, Toronto", price="$10", cap="50", desc=EV["park-bootcamp"]["summary"])
     else:
         v = dict(title="Whole Life Retreat", cat="Retreat", date="2026-05-22", time="16:00", place="Muskoka Woods, Rosseau",
-                 price="$340", cap="60", desc="Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.")
+                 area="Muskoka Lakes", price="$340", cap="60", desc="Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.")
     alert = ""
     title_err = date_err = ""
     if invalid:
@@ -190,7 +190,7 @@ def event_editor(*, edit=False, invalid=False, busy=False, failed=False) -> str:
         alert = error_summary("2 things to fix before publishing", [(title_err, "f-title"), (date_err, "f-date")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
     if failed:
         alert = form_alert("Couldn't publish", "The server didn't respond. Your changes are still here; try again, or save a draft.")
-    ro = busy
+    ro = busy or saving
     body = f"""    {alert}
     {field("Title", "title", v["title"], error=title_err, readonly=ro)}
     {select("Category", "category", CATS, v["cat"], disabled=ro)}
@@ -198,20 +198,24 @@ def event_editor(*, edit=False, invalid=False, busy=False, failed=False) -> str:
       {field("Date", "date", v["date"], type_="date", error=date_err, readonly=ro)}
       {field("Start time", "time", v["time"], type_="time", readonly=ro)}
     </div>
-    {field("Location", "location", v["place"], readonly=ro)}
+    {field("Place", "place", v["place"], readonly=ro)}
+    {field("Area", "area", v["area"], hint="Neighbourhood and city, like Waterfront, Toronto", readonly=ro)}
     <div class="field-grid">
       {field("Price", "price", v["price"], hint="Leave blank for free", readonly=ro)}
       {field("Capacity", "capacity", v["cap"], type_="number", extra='min="1" inputmode="numeric"', readonly=ro)}
     </div>
-    {textarea("Description", "description", v["desc"], rows=4, readonly=ro)}
-    <label class="check check--ui"><input class="check__box" type="checkbox" checked{" disabled" if ro else ""}> Create a group chat for people who register</label>"""
+    {textarea("Summary", "summary", v["desc"], rows=4, hint="Up to 1,000 characters", readonly=ro)}"""
     publish_label = "Save changes" if edit else "Publish"
     publish = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Publishing…")}</button>' if busy
+               else f'<button class="btn btn--primary btn--grow" type="button" disabled>{publish_label}</button>' if saving
                else f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("admin-toast", "success")}">{publish_label}</button>')
     second = "Move to drafts" if edit else "Save draft"
-    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("admin-toast", "info")}">{second}</button>\n    {publish}'
+    toast_state = "info" if edit else "draft-saved"
+    second_html = (f'<button class="btn btn--secondary btn--grow" type="button" disabled aria-busy="true">{busy_label("Saving…")}</button>' if saving
+                   else f'<button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("admin-toast", toast_state)}">{second}</button>')
+    foot = f'    {second_html}\n    {publish}'
     html = drawer("Edit event" if edit else "New event", body, foot)
-    if not invalid and not busy:
+    if not invalid and not busy and not saving:
         html = autofocus_first(html, 'id="f-title"')
     return over_admin("admin-events", A.manage_events(A.ev_table(A.ev_rows("All"))), html)
 
@@ -220,7 +224,7 @@ s = screen("event-editor", "dialog", "Event editor", opens_from="admin-events",
            source="Magic Patterns · prototype Admin Console · frame Manage Events (state composing: the New event drawer)")
 
 
-@s("default", "New event drawer from the right: title, category, date, time, location, price, capacity, description, group chat.")
+@s("default", "New event drawer from the right: title, category, date, time, place, area, price, capacity, summary.")
 def _():
     return event_editor() + note("Slides in from the right over 260 ms (fades under reduced motion); scrim click, Close and Escape dismiss; full width on phones.",
                                  "top: 1rem; left: 1rem;")
@@ -244,6 +248,11 @@ def _():
 @s("failed", "Publishing failed: message at the top of the drawer, everything kept.")
 def _():
     return event_editor(failed=True)
+
+
+@s("saving", "Save draft pressed: Saving…, fields read-only, Publish disabled.")
+def _():
+    return event_editor(saving=True)
 
 
 # ===========================================================================
@@ -417,6 +426,12 @@ def _():
 @s("success", "Event published: live in the member app, with a link to view it.")
 def _():
     t = toast("success", "Whole Life Retreat is live", "Members can register now. A group chat opens with the first registration.", action=("View in the app", href("events")))
+    return admin_shell("admin-events", events_admin_page(), after=toast_region(t, admin=True))
+
+
+@s("draft-saved", "Draft saved from the New event drawer: the draft is in the list; leaves after about 6 seconds.")
+def _():
+    t = toast("info", "Draft saved", "Whole Life Retreat isn't visible to members yet.")
     return admin_shell("admin-events", events_admin_page(), after=toast_region(t, admin=True))
 
 

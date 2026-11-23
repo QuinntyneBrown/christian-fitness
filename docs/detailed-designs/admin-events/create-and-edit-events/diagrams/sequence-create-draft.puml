@@ -14,8 +14,9 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Admin" as actor
+actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
+  participant "AdminEventsPage" as page
   participant "EventEditorDialog" as dlg
   participant "HttpAdminEventsService" as client
 end box
@@ -23,32 +24,36 @@ box "Backend — Christian Fitness API" #D1FADF
   participant "AdminEventsController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "EventFieldsValidator" as val
+  participant "CreateEventValidator" as val
   participant "CreateEventHandler" as handler
   participant "Event" as entity
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
+actor -> page : New event
+page -> dlg : import() on first use, Dialog.open
 actor -> dlg : Fill fields, Save draft
-dlg -> client : create(input)
+dlg -> dlg : Saving…, fields read-only
+dlg -> client : create(eventDraftOf(values))
 client -> ctrl : POST /api/admin/events
-ctrl -> ctrl : Apply AdminOnly policy (L2-019)
+ctrl -> ctrl : Staff policy (ADR 0011)
 ctrl -> val : Validate CreateEventCommand
 alt invalid field (L2-022 AC2)
-  val --> ctrl : Field-specific code
-  ctrl --> client : 400 ProblemDetails with code
-  client --> dlg : Refusal
-  dlg --> actor : aria-invalid on the field, nothing saved
+  val --> ctrl : Failures with field codes
+  ctrl --> client : 400 validation_failed, fieldCodes
+  client --> dlg : ApiError
+  dlg --> actor : Generic alert, fields editable again, nothing saved (field marks: slice 10.2)
 else valid
   val -> handler : Continue
   handler -> entity : CreateDraft(fields) (L2-022 AC1)
   entity --> handler : Event with Status Draft
-  handler -> db : Add Event and AuditEntry, SaveChanges
+  handler -> db : Add Event, SaveChanges
   db --> handler : Committed
-  handler --> ctrl : EventDto
-  ctrl --> client : 201 EventDto
+  handler --> ctrl : AdminEventDto
+  ctrl --> client : 201 AdminEventDto
   client --> dlg : Created
-  dlg --> actor : Close dialog, Draft row and success toast
+  dlg --> page : close(event) by its ref
+  page --> actor : Draft saved toast, list loaded again with the draft
 end
 @enduml

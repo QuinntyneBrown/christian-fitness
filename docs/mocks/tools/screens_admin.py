@@ -430,8 +430,14 @@ def _():
 @s("empty", "No events at all: explains publishing and offers New event.")
 def _():
     return admin_shell("admin-events", manage_events(empty_block(
-        "No events yet", "Create the first one. It appears in the member app as soon as you publish it, with a group chat if you want one.",
+        "No events yet", "Create the first one. It appears in the member app as soon as you publish it.",
         f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("event-editor")}">{icon("plus")}New event</button>'), counts=(0, 0, 0)))
+
+
+@s("tab-empty", "Published tab with none published yet: says so; the draft waits under Draft.")
+def _():
+    return admin_shell("admin-events", manage_events(empty_block(
+        "Nothing published yet", "Publish a draft and it appears here and in the member app.", "", tight=True), "Published", counts=(1, 0, 1)))
 
 
 @s("error", "Events failed to load: tabs stay; retry in place.")
