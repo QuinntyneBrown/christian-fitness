@@ -152,6 +152,9 @@
         "loading",
         "empty",
         "error",
+        "loading-more",
+        "more-error",
+        "capped",
         "no-results",
         "filtered",
         "going"

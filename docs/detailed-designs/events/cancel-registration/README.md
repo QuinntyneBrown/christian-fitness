@@ -2,7 +2,7 @@
 
 ## Overview
 
-Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. An *event* is a gathering staff publish for members: a run, workout, basketball game, mobility session, workshop or retreat. The events subsystem lets a member find events, read their detail, and register for or cancel a place within each event's capacity (`L1-005`).
+Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. An _event_ is a gathering staff publish for members: a run, workout, basketball game, mobility session, workshop or retreat. The events subsystem lets a member find events, read their detail, and register for or cancel a place within each event's capacity (`L1-005`).
 
 - **published event** — event staff have made visible to members, neither draft nor cancelled
 - **going** — count of current registrations for an event
@@ -34,9 +34,9 @@ The feature is a vertical slice from the cancel action to the database.
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. The L2 specification states its requirements as acceptance criteria; the text below condenses those criteria faithfully.
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-012` | `L1-005` | A registered member who confirms Cancel registration in a dialog before the event starts shall have the registration removed, going shall decrease by one and the member shall leave the group chat. Cancelling after the event has started shall be refused with code `event_started`. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                             |
+| -------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-012` | `L1-005`     | A registered member who confirms Cancel registration in a dialog before the event starts shall have the registration removed, going shall decrease by one and the member shall leave the group chat. Cancelling after the event has started shall be refused with code `event_started`. |
 
 ## Diagrams
 

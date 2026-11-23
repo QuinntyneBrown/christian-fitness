@@ -1,0 +1,62 @@
+// The member page head and the foot of a paged list (docs/design-system/assets/components.css:
+// "page-head", "page-title", "subtitle", display; docs/mocks/assets/ui.css: "feed-end"); the
+// layout, the grid and the cards are the library's.
+:host {
+  display: block;
+}
+
+.events-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.feed-end {
+  display: flex;
+  justify-content: center;
+  min-height: var(--space-8);
+  padding: var(--space-8) 0;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+// A stand-in card for the first page: the picture, then four lines (mock `events/loading`).
+.skeleton-card {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  border: var(--border-width-thin) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.skeleton-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}

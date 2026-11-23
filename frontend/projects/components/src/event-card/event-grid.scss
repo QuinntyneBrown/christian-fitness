@@ -1,0 +1,20 @@
+// The design system's event grid (docs/design-system/assets/components.css, ".event-grid").
+:host {
+  display: block;
+}
+
+.event-grid {
+  margin: var(--space-8) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-6);
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  > li {
+    display: flex;
+  }
+}

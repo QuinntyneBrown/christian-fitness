@@ -10,4 +10,5 @@ export * from './admin/admin-members';
 export * from './admin/staff-session';
 export * from './admin/toasts';
 export * from './errors/api-error';
+export * from './events/events';
 export * from './profile/profile';

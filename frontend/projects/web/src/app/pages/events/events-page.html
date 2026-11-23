@@ -1,0 +1,76 @@
+<main id="main" class="events-page">
+  <cf-container page="default">
+    <div class="page-head">
+      <div>
+        <h1 class="display page-title">Events</h1>
+        <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
+      </div>
+    </div>
+    @if (state() === 'loading') {
+      <cf-skeleton-region label="Loading events">
+        <cf-event-grid [items]="skeletons" [template]="skeletonCard" />
+      </cf-skeleton-region>
+    } @else if (state() === 'failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Events didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+      </cf-empty-state>
+    } @else if (cards().length === 0) {
+      <cf-empty-state
+        heading="No events yet"
+        text="The team posts runs, workouts and gatherings every week. They'll show up here as soon as they're live."
+      >
+        <cf-button slot="actions" size="sm" href="/home">Back to home</cf-button>
+      </cf-empty-state>
+    } @else {
+      <cf-event-grid [items]="cards()" [template]="eventCard" />
+      @if (watching()) {
+        <div class="feed-end" cfInView (inView)="loadMore()"></div>
+      } @else if (more() === 'loading') {
+        <div class="feed-end"><cf-spinner label="Loading more events…" /></div>
+      } @else if (more() === 'failed') {
+        <div class="feed-end">
+          <cf-inline-message
+            heading="More events didn't load."
+            text="The ones above are still here."
+            (retry)="loadMore()"
+          />
+        </div>
+      } @else if (capped()) {
+        <div class="feed-end">
+          <p>Showing the next 200 events. Choose a category to see others.</p>
+        </div>
+      }
+    }
+  </cf-container>
+</main>
+<ng-template #eventCard let-card>
+  <cf-event-card
+    [href]="card.href"
+    [imageSrc]="card.imageSrc"
+    [month]="card.month"
+    [day]="card.day"
+    [date]="card.date"
+    [type]="card.type"
+    [time]="card.time"
+    [heading]="card.heading"
+    [place]="card.place"
+    [going]="card.going"
+    [price]="card.price"
+    [spotsLeft]="card.spotsLeft"
+  />
+</ng-template>
+<ng-template #skeletonCard>
+  <div class="skeleton-card">
+    <cf-skeleton shape="image-16x9" />
+    <div class="skeleton-card__body">
+      <cf-skeleton shape="text-sm" width="40" />
+      <cf-skeleton shape="title" />
+      <cf-skeleton width="55" />
+      <cf-skeleton shape="text-sm" width="80" />
+    </div>
+  </div>
+</ng-template>

@@ -708,6 +708,27 @@ def _():
         "Events didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", ref="CF-E3K9")))
 
 
+@s("loading-more", "The end of the list reached: the next 20 are on their way, a spinner under the cards.")
+def _():
+    more = ('<div class="feed-end"><span class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span>'
+            '<span>Loading more events…</span></span></div>')
+    return member_shell("events", events_page(grid(EVENTS) + more))
+
+
+@s("more-error", "The next 20 did not load: the cards stay, with Try again under them.")
+def _():
+    more = ('<div class="feed-end"><div class="inline-error" role="alert">' + icon("alert-circle") +
+            '<div class="inline-error__body"><p class="inline-error__title">More events didn\'t load.</p>'
+            '<p>The ones above are still here.</p><button class="inline-error__retry" type="button">Try again</button></div></div></div>')
+    return member_shell("events", events_page(grid(EVENTS) + more))
+
+
+@s("capped", "200 events shown: the list stops with a note, since more would slow the page.")
+def _():
+    note = '<div class="feed-end"><p>Showing the next 200 events. Choose a category to see others.</p></div>'
+    return member_shell("events", events_page(grid(EVENTS) + note))
+
+
 @s("no-results", "Workshop filter with nothing posted: the prototype's \"Nothing here yet\" state, filters still visible.")
 def _():
     return member_shell("events", events_page(empty_block(

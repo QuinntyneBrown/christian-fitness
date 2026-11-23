@@ -2,7 +2,7 @@
 
 ## Overview
 
-Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. An *event* is a gathering staff publish for members: a run, workout, basketball game, mobility session, workshop or retreat. The events subsystem lets a member find events, read their detail, and register for or cancel a place within each event's capacity (`L1-005`).
+Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. An _event_ is a gathering staff publish for members: a run, workout, basketball game, mobility session, workshop or retreat. The events subsystem lets a member find events, read their detail, and register for or cancel a place within each event's capacity (`L1-005`).
 
 - **published event** — event staff have made visible to members, neither draft nor cancelled
 - **going** — count of current registrations for an event
@@ -35,9 +35,9 @@ The feature is a vertical slice from the register action to the database.
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. The L2 specification states its requirements as acceptance criteria; the text below condenses those criteria faithfully.
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-011` | `L1-005` | A member registering for a free event with places left shall be registered, going shall increase by one, and the member shall join the event's group chat. Registering for a full event shall be refused with code `event_full` and the page shall show "This event is full". When two members register for the last place at the same moment, exactly one shall succeed and the other shall receive `event_full`. Registering again shall not create a second registration. A paid event registration shall be recorded as reserved and the page shall state how to pay. A suspended member shall be refused with code `account_suspended`. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-011` | `L1-005`     | A member registering for a free event with places left shall be registered, going shall increase by one, and the member shall join the event's group chat. Registering for a full event shall be refused with code `event_full` and the page shall show "This event is full". When two members register for the last place at the same moment, exactly one shall succeed and the other shall receive `event_full`. Registering again shall not create a second registration. A paid event registration shall be recorded as reserved and the page shall state how to pay. A suspended member shall be refused with code `account_suspended`. |
 
 ## Diagrams
 

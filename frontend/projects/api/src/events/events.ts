@@ -1,0 +1,41 @@
+import { InjectionToken } from '@angular/core';
+import type { Observable } from 'rxjs';
+import type { EventCategory } from '../admin/admin-events';
+
+/**
+ * An event as a member's list shows it (`EventSummaryDto`, ADR 0027): the start as an ISO instant
+ * in UTC, which the screen words in Toronto; the price in cents (0 is free).
+ */
+export interface EventSummaryDto {
+  id: string;
+  title: string;
+  category: EventCategory;
+  startsAt: string;
+  place: string;
+  area: string;
+  priceCents: number;
+  capacity: number;
+  /** How many are going. */
+  going: number;
+  /** The key of its picture (`GET /api/events/images/{key}`), or none. */
+  imageKey: string | null;
+}
+
+/** One page of the member list and the cursor that asks for the next, or none on the last. */
+export interface EventPageDto {
+  events: EventSummaryDto[];
+  nextCursor: string | null;
+}
+
+/** The events a member browses (L2-009; ADR 0027). */
+export interface EventsApi {
+  /**
+   * One page of the published events that have not started, soonest first, 20 to a page, after
+   * `cursor` (`null` for the first). A 5xx to it opens the server-error screen; any failure errors
+   * with the `HttpErrorResponse`, so the screen shows its own failed state.
+   */
+  page(cursor: string | null): Observable<EventPageDto>;
+}
+
+/** Binds {@link EventsApi}; the Events screen provides it on its own route component. */
+export const EVENTS_SERVICE = new InjectionToken<EventsApi>('EVENTS_SERVICE');
