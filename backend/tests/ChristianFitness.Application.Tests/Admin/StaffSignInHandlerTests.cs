@@ -12,7 +12,7 @@ namespace ChristianFitness.Application.Tests.Admin;
 
 /// <summary>
 /// L2-018 AC1 to AC3: which admin sign-ins open a staff session and which are refused, and with
-/// which code, one case per row (ADR 0010).
+/// which code, one case per row (ADR 0011).
 /// </summary>
 public sealed class StaffSignInHandlerTests : IAsyncDisposable
 {

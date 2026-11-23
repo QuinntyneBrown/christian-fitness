@@ -9,7 +9,7 @@ page reload and carry `aria-current="page"`; below 1024 px the sidebar becomes a
 scroll within it, with a 44 px Sign out that ends the session on the server. A staff route opened
 without a session goes to sign in, and a 5xx opens the admin server-error screen. On the API,
 every endpoint under `api/admin` needs the `Staff` policy and its own `__Host-cf-admin` cookie
-(ADR 0010).
+(ADR 0011).
 
 - **Film:** [`09-slice-9-1-staff-sign-in-and-admin-shell.mp4`](09-slice-9-1-staff-sign-in-and-admin-shell.mp4),
   1920×1080, 30 fps, 1 min 28 s. Captions: [`captions.vtt`](captions.vtt), not burned in.
@@ -17,7 +17,7 @@ every endpoint under `api/admin` needs the `Staff` policy and its own `__Host-cf
 - **Music:** _En La Playa – Trinidad and Tobago Soca_ by JuliusH, from Pixabay
   ([credits](../assets/music/CREDITS.md)). 120 BPM; a bar is two seconds and every scene is a
   whole number of bars.
-- **Requirements shown:** L2-018 (AC1 to AC4, AC6), L2-021 (AC1, AC2), L2-043 (AC4); ADR 0010.
+- **Requirements shown:** L2-018 (AC1 to AC4, AC6), L2-021 (AC1, AC2), L2-043 (AC4); ADR 0011.
 
 ## Run sheet
 

@@ -5,7 +5,7 @@ import { STAFF_SESSION_SERVICE } from '@cf/api';
 import { catchError, map, of } from 'rxjs';
 
 /**
- * Lets a staff route of the admin app open only with a staff session (L2-018 AC4; ADR 0010): it
+ * Lets a staff route of the admin app open only with a staff session (L2-018 AC4; ADR 0011): it
  * asks `STAFF_SESSION_SERVICE` for the current session. A session opens the route; a 401 sends the
  * visitor to `/sign-in`; anything else keeps them where they are, since a 5xx already opens the
  * server-error screen.

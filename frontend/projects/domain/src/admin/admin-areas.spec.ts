@@ -1,6 +1,6 @@
 import { ADMIN_AREAS, currentAdminArea, type AdminAreaKey } from './admin-areas';
 
-// L2-021 AC1: the navigation lists four areas and marks the one the URL is in (ADR 0010).
+// L2-021 AC1: the navigation lists four areas and marks the one the URL is in (ADR 0011).
 describe('ADMIN_AREAS', () => {
   it('lists Dashboard, Events, Services and Members with their paths', () => {
     expect(ADMIN_AREAS.map((area) => [area.label, area.path])).toEqual([

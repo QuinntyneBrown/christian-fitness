@@ -81,7 +81,7 @@ test.describe('Admin app, staff sign in', () => {
     await expect(signIn.password).toHaveAttribute('autocomplete', 'current-password');
     await expect(signIn.submitButton).toHaveText('Sign in');
     await expect(signIn.alert).toHaveCount(0);
-    // "Two-step verification required" waits until slice 9.2 makes it true (ADR 0010).
+    // "Two-step verification required" waits until slice 9.2 makes it true (ADR 0011).
     await expect(signIn.note).toHaveCount(0);
   });
 
@@ -129,7 +129,7 @@ test.describe('Admin app, staff sign in', () => {
   });
 });
 
-// L2-018 AC4 in the app: a staff route opens only with a staff session (ADR 0010).
+// L2-018 AC4 in the app: a staff route opens only with a staff session (ADR 0011).
 test.describe('Admin app, staff routes need a staff session', () => {
   for (const path of ['/', '/members']) {
     test(`a visitor opening ${path} is sent to Staff sign in`, async ({ page, api }) => {

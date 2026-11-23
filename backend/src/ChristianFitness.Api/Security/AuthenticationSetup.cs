@@ -14,7 +14,7 @@ internal static class AuthenticationSetup
     /// <summary>The member session cookie. Join issues it (slice 2.1); L2-030 AC2 holds its rules.</summary>
     public const string SessionCookie = "__Host-cf-session";
 
-    /// <summary>The staff session cookie of the admin app (L2-018; ADR 0010).</summary>
+    /// <summary>The staff session cookie of the admin app (L2-018; ADR 0011).</summary>
     public const string StaffCookie = "__Host-cf-admin";
 
     /// <summary>The policy every admin endpoint requires: a staff session with a staff role (L2-018 AC4).</summary>
@@ -56,7 +56,7 @@ internal static class AuthenticationSetup
             })
             .AddCookie(SessionSchemes.Staff, options =>
             {
-                // Staff never arrive from a link in an email, so Strict costs nothing (ADR 0010).
+                // Staff never arrive from a link in an email, so Strict costs nothing (ADR 0011).
                 // The idle expiry of L2-018 AC5 is slice 9.3's.
                 options.Cookie.Name = StaffCookie;
                 options.Cookie.SameSite = SameSiteMode.Strict;

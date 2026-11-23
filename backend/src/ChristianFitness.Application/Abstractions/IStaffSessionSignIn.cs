@@ -4,7 +4,7 @@ namespace ChristianFitness.Application.Abstractions;
 
 /// <summary>
 /// Signs staff in to and out of the admin app: a session of its own, apart from the member
-/// session (L2-018; ADR 0010).
+/// session (L2-018; ADR 0011).
 /// </summary>
 public interface IStaffSessionSignIn
 {

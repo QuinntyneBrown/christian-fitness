@@ -33,7 +33,7 @@ def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, n
     if locked:
         alert = '<div class="auth__alert">' + form_alert("This account is locked", "Too many attempts. Ask another admin to unlock it, or wait 30 minutes and try again.") + "</div>"
     elif invalid:
-        # L2-018 AC3: one generic message that names neither field (ADR 0010).
+        # L2-018 AC3: one generic message that names neither field (ADR 0011).
         alert = '<div class="auth__alert">' + form_alert("Email or password is incorrect", "Check both and try again.") + "</div>"
     elif not_staff:
         alert = '<div class="auth__alert">' + form_alert("This account isn't on the team", "The admin console is for the Christian Fitness team. On the team? Ask a community director to give you staff access.") + "</div>"

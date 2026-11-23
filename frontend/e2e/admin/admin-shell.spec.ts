@@ -25,7 +25,7 @@ function answerSignOut(api: ApiHandlers, reply: ApiReply): (string | undefined)[
 }
 
 // L2-021 AC1: at LG and wider the side navigation shows the four areas, with aria-current on the
-// one showing. Each area is a stand-in with its heading until its slice (ADR 0010).
+// one showing. Each area is a stand-in with its heading until its slice (ADR 0011).
 test.describe('Admin app, navigation at LG and wider', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -88,7 +88,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
   }
 });
 
-// L2-021 AC2 (as corrected in ADR 0010): below LG the sidebar is a band; the links sit in one row
+// L2-021 AC2 (as corrected in ADR 0011): below LG the sidebar is a band; the links sit in one row
 // that scrolls within itself, the page never scrolls sideways, and Sign out stays reachable.
 test.describe('Admin app, navigation below LG', () => {
   test.use({ viewport: { width: 375, height: 740 } });

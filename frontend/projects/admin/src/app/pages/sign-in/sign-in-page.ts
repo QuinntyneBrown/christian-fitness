@@ -11,7 +11,7 @@ import { staffSignInRefusalOf, type StaffSignInRefusal } from '@cf/domain';
  * request is on its way the button reads "Signing in…" and is disabled, and the fields hold still.
  * A refusal shows one alert: wrong credentials name neither field (AC3), a member is told the
  * console is for the team (AC2), and anything else is a failure; the form stays as typed. The
- * mock's "Two-step verification required" note waits for slice 9.2 (ADR 0010).
+ * mock's "Two-step verification required" note waits for slice 9.2 (ADR 0011).
  */
 @Component({
   selector: 'cf-sign-in-page',

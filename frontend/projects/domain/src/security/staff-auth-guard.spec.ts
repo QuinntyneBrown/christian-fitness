@@ -32,7 +32,7 @@ function failure(status: number): Observable<never> {
   return throwError(() => new HttpErrorResponse({ status, url: '/api/admin/session' }));
 }
 
-// L2-018 AC4, ADR 0010: a staff route opens only with a staff session; one row per answer.
+// L2-018 AC4, ADR 0011: a staff route opens only with a staff session; one row per answer.
 describe('staffAuthGuard', () => {
   it('a session opens the route', async () => {
     expect(await guard(of({ memberId: 'm-1', name: 'Dana Reyes', role: 'Admin' }))).toBe(true);

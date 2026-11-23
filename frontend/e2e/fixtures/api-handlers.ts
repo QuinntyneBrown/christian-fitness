@@ -27,7 +27,7 @@ export const SIGNED_IN = {
 
 /**
  * The signed-in staff member the fixture answers `GET /api/admin/session` with unless a spec says
- * otherwise (ADR 0010).
+ * otherwise (ADR 0011).
  */
 export const STAFF_SIGNED_IN = {
   memberId: '0190c0de-0000-7000-8000-000000000002',

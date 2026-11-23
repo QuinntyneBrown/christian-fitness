@@ -20,15 +20,15 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 166
+    "passed": 187
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 74
+    "tests": 92
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 158,
+    "passed": 206,
     "access": [
       "Given staff signed in to the member app only When an admin endpoint is asked Then it is refused with 401",
       "Given staff whose role was removed When they ask for the staff session Then it is refused with not staff and 403",

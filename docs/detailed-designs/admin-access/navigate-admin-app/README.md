@@ -16,7 +16,7 @@ has no backend behaviour of its own; it calls only the session endpoint from `ad
   behind `staffAuthGuard`. It reads the staff session once for the name, role and initials
   (`initialsOf`), keeps the current area (`currentAdminArea` over the router's URL after each
   `NavigationEnd`), hands a plain click on a link to the router and signs out
-  ([ADR 0010](../../../adr/0010-staff-sign-in-and-admin-shell.md)).
+  ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
 - **`AdminLayout`** — presentation component in `components` for block `admin`: `admin__sidebar`,
   `admin__brand`, `admin__main`, `admin__page`, with the routed page projected. From 1024 px a
   sticky 256 px column; below, a band with the brand and Sign out on one row and the links under
@@ -37,7 +37,7 @@ has no backend behaviour of its own; it calls only the session endpoint from `ad
 
 The design system's LG is 1024 px (`64rem`), which the components follow; `docs/specs/L2.md`
 gives 992 px. A menu button was planned below LG; the design system and the mocks draw a band
-instead, and `L2-021` AC2 was corrected to it (ADR 0010).
+instead, and `L2-021` AC2 was corrected to it (ADR 0011).
 
 ## Requirements
 

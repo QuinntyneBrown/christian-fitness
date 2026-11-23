@@ -1,4 +1,4 @@
-# 0010. Staff sign-in and the admin shell: a staff cookie scheme, a shared credential check and a navigation band
+# 0011. Staff sign-in and the admin shell: a staff cookie scheme, a shared credential check and a navigation band
 
 ## Status
 

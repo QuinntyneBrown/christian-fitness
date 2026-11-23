@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-018 AC4 and AC6 (ADR 0010): an admin endpoint answers only a staff session; a visitor or a
+/// L2-018 AC4 and AC6 (ADR 0011): an admin endpoint answers only a staff session; a visitor or a
 /// member's session is refused with a status and no data. Staff who sign out end their session on
 /// the server.
 /// </summary>

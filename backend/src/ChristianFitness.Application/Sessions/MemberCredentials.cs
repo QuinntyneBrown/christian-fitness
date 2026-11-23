@@ -7,7 +7,7 @@ namespace ChristianFitness.Application.Sessions;
 
 /// <summary>
 /// The credential check every sign-in makes, the member app's and the admin app's (L2-004 AC2,
-/// L2-018 AC3; ADR 0009, ADR 0010). An unknown email, a wrong password and a blank field are all
+/// L2-018 AC3; ADR 0009, ADR 0011). An unknown email, a wrong password and a blank field are all
 /// refused with <c>invalid_credentials</c>, so the answer never says which was wrong. An unknown
 /// email is checked against a fixed hash, so it takes as long as a wrong password.
 /// </summary>

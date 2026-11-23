@@ -12,7 +12,7 @@ export interface StaffSessionDto {
   role: StaffRoleName;
 }
 
-/** The staff session of the admin app: who it is, signing in and signing out (ADR 0010). */
+/** The staff session of the admin app: who it is, signing in and signing out (ADR 0011). */
 export interface StaffSessionApi {
   /** The current staff session; anyone without one is refused with 401. */
   current(): Observable<StaffSessionDto>;

@@ -7,7 +7,7 @@ import { ADMIN_AREAS, currentAdminArea, initialsOf } from '@cf/domain';
 import { filter } from 'rxjs';
 
 /**
- * The routed layout around every staff route, behind `staffAuthGuard` (ADR 0010): the admin
+ * The routed layout around every staff route, behind `staffAuthGuard` (ADR 0011): the admin
  * layout with the four areas, `aria-current` on the one showing (L2-021 AC1), and the signed-in
  * staff member, read once from `STAFF_SESSION_SERVICE`. A plain click on an area moves the router;
  * Sign out ends the session on the server and returns to Staff sign in, a session that had already

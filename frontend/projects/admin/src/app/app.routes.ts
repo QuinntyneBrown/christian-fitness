@@ -1,7 +1,7 @@
 import type { Routes } from '@angular/router';
 import { staffAuthGuard } from '@cf/domain';
 
-/** An area's routed stand-in until its slice: the area's heading, nothing else (ADR 0010). */
+/** An area's routed stand-in until its slice: the area's heading, nothing else (ADR 0011). */
 const area = () => import('./pages/area/area-page').then((m) => m.AreaPage);
 
 /**
@@ -15,13 +15,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
   },
   {
-    // Every staff route is a child of the shell, which opens only with a staff session (ADR 0010).
+    // Every staff route is a child of the shell, which opens only with a staff session (ADR 0011).
     path: '',
     canActivate: [staffAuthGuard],
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {
-        // Stand-ins until slices 28.1, 10.1, 21.1 and 26.1 (ADR 0010).
+        // Stand-ins until slices 28.1, 10.1, 21.1 and 26.1 (ADR 0011).
         path: '',
         pathMatch: 'full',
         title: 'Dashboard · Christian Fitness Admin',

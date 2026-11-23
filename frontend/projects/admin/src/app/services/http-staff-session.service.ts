@@ -5,7 +5,7 @@ import { apiErrorOf } from '@cf/domain';
 import { catchError, map, of, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link StaffSessionApi} over HTTP: `GET`, `POST` and `DELETE /api/admin/session` (ADR 0010). A
+ * {@link StaffSessionApi} over HTTP: `GET`, `POST` and `DELETE /api/admin/session` (ADR 0011). A
  * failed write errors with an `ApiError` (`apiErrorOf`), so no screen handles an
  * `HttpErrorResponse`. It holds no state.
  */
@@ -26,7 +26,7 @@ export class HttpStaffSessionService implements StaffSessionApi {
   signOut(): Observable<void> {
     return this.http.delete<unknown>('/api/admin/session').pipe(
       map(() => undefined),
-      // A session that had already ended: staff are signed out either way (ADR 0010).
+      // A session that had already ended: staff are signed out either way (ADR 0011).
       catchError((error: unknown) =>
         error instanceof HttpErrorResponse && error.status === 401
           ? of(undefined)

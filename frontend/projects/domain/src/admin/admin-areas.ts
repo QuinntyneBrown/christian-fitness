@@ -8,7 +8,7 @@ export interface AdminArea {
   path: string;
 }
 
-/** Dashboard, Events, Services and Members (mock `admin-nav`; ADR 0010). */
+/** Dashboard, Events, Services and Members (mock `admin-nav`; ADR 0011). */
 export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/' },
   { key: 'events', label: 'Events', path: '/events' },

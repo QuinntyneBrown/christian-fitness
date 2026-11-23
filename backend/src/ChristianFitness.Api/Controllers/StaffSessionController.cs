@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// The staff session of the admin app: sign in, who is signed in, sign out (L2-018; ADR 0010).
+/// The staff session of the admin app: sign in, who is signed in, sign out (L2-018; ADR 0011).
 /// Routed under <c>api/admin</c>, so every action but the sign-in requires the Staff policy.
 /// </summary>
 [ApiController]

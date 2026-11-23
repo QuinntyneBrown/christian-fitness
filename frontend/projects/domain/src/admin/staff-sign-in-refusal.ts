@@ -1,7 +1,7 @@
 import { signInRefusalOf } from '../account/sign-in-refusal';
 
 /**
- * What the Staff sign in screen shows for a failed sign-in (L2-018 AC2, AC3, L2-032 AC1; ADR 0010):
+ * What the Staff sign in screen shows for a failed sign-in (L2-018 AC2, AC3, L2-032 AC1; ADR 0011):
  * `invalid-credentials` as "Email or password is incorrect", naming neither field (mock `invalid`),
  * `not-staff` as "This account isn't on the team" (mock `not-staff`), and `failed` as "We couldn't
  * sign you in" (mock `failed`) for anything else.

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace ChristianFitness.Infrastructure.Security;
 
-/// <summary>The cookie schemes of the two sessions (ADR 0007, ADR 0010).</summary>
+/// <summary>The cookie schemes of the two sessions (ADR 0007, ADR 0011).</summary>
 public static class SessionSchemes
 {
     /// <summary>The member session of the member app.</summary>
@@ -36,7 +36,7 @@ internal sealed class CookieSessionSignIn(IHttpContextAccessor accessor) : ISess
 }
 
 /// <summary>
-/// Issues and ends the staff session cookie of the admin app (L2-018; ADR 0010): the member id and
+/// Issues and ends the staff session cookie of the admin app (L2-018; ADR 0011): the member id and
 /// the staff role, nothing personal, kept on the server like the member session. It is not
 /// persistent: it ends with the browser.
 /// </summary>

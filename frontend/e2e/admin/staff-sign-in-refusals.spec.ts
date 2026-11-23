@@ -19,7 +19,7 @@ function refuseSignIn(api: ApiHandlers, reply: ApiReply): void {
 }
 
 // L2-018 AC2, AC3, L2-032 AC1: a refused staff sign-in shows one form alert, which takes focus;
-// no field is marked, what was typed stays, and the server's own words are never shown (ADR 0010).
+// no field is marked, what was typed stays, and the server's own words are never shown (ADR 0011).
 test.describe('Admin app, staff sign-in refusals', () => {
   test('wrong credentials show one generic message that names neither field', async ({
     page,

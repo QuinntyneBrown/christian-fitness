@@ -24,16 +24,16 @@ public sealed class StaffSignInCommand : IRequest<StaffSessionDto>
     public string Password { get; init; } = string.Empty;
 }
 
-/// <summary>Who is signed in to the admin app (L2-018 AC1; ADR 0010).</summary>
+/// <summary>Who is signed in to the admin app (L2-018 AC1; ADR 0011).</summary>
 public sealed record GetStaffSessionQuery : IRequest<StaffSessionDto>;
 
-/// <summary>Signing out of the admin app: the staff session ends on the server (L2-018 AC6; ADR 0010).</summary>
+/// <summary>Signing out of the admin app: the staff session ends on the server (L2-018 AC6; ADR 0011).</summary>
 public sealed record StaffSignOutCommand : IRequest;
 
 /// <summary>
 /// Checks the credentials as the member sign-in does (L2-018 AC3), then the staff role: a member
 /// without one is refused with <c>not_staff</c> and no session (L2-018 AC2); staff get the admin
-/// session (L2-018 AC1; ADR 0010).
+/// session (L2-018 AC1; ADR 0011).
 /// </summary>
 internal sealed class StaffSignInHandler(MemberCredentials credentials, IAppDbContext db, IStaffSessionSignIn session)
     : IRequestHandler<StaffSignInCommand, StaffSessionDto>

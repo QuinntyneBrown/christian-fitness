@@ -1,7 +1,7 @@
 import type { ApiError } from '@cf/api';
 import { staffSignInRefusalOf, type StaffSignInRefusal } from './staff-sign-in-refusal';
 
-// L2-018 AC2, AC3, L2-032 AC1 and the mock's `invalid`, `not-staff` and `failed` states (ADR 0010).
+// L2-018 AC2, AC3, L2-032 AC1 and the mock's `invalid`, `not-staff` and `failed` states (ADR 0011).
 describe('staffSignInRefusalOf', () => {
   it.each<{ error: ApiError; expected: StaffSignInRefusal }>([
     { error: { status: 401, code: 'invalid_credentials' }, expected: 'invalid-credentials' },

@@ -402,7 +402,7 @@ worked when applied. Newest entries go at the bottom.
 - The mocks and the requirement disagreed twice: the sign-in `invalid` state named the password
   (against L2-018 AC3), and L2-021 AC2 asked for a menu button while the design system and every
   admin mock draw a scrolling band that hid Sign out. Both were settled in the mock, the design
-  system and L2 before any code, with ADR 0010 saying why.
+  system and L2 before any code, with ADR 0011 saying why.
 - The first antiforgery selector also chose the staff scheme for every `/api/admin` path, which
   made the `Staff` policy convention impossible to see fail: with it removed, the member-session
   tests still passed. Dropping that branch left the selector on `/api/antiforgery` alone and gave
@@ -432,7 +432,7 @@ worked when applied. Newest entries go at the bottom.
 
 - "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1, 2.1, 2.2,
   3.1): the base was saved first; the diff put 24.2 kB in `@angular/common` (the client) and
-  11.5 kB in `@angular/core`, which justified the budget raise in ADR 0010 to 260/275 kB, as the
+  11.5 kB in `@angular/core`, which justified the budget raise in ADR 0011 to 260/275 kB, as the
   member app's was.
 - "A guard on a parent route changes every spec that opens a child" (3.1): the shared fixture
   answers `GET /api/admin/session` as signed in by default, and the boot, not-found and

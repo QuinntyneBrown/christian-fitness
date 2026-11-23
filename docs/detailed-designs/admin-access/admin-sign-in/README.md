@@ -19,7 +19,7 @@ email or the password was wrong.
 ## Description
 
 The slice runs from the Staff sign in screen (mock `docs/mocks/pages/admin-sign-in/`) to the
-member store ([ADR 0010](../../../adr/0010-staff-sign-in-and-admin-shell.md)).
+member store ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`) with `TextField`, `FormAlert` and
