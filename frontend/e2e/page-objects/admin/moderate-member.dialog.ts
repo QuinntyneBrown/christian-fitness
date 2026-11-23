@@ -2,8 +2,9 @@ import type { Locator, Page } from '@playwright/test';
 
 /**
  * The moderation dialog of the admin Members page (mock `docs/mocks/dialogs/moderate-member/`):
- * Flag or Suspend for an Active member, suspension only for a Flagged one, the note, the
- * confirmation, the error summary and the alert a refusal shows. Owns the selectors of that dialog.
+ * Flag or Suspend for an Active member, Reinstate or Suspend for a Flagged one, reinstating only
+ * for a Suspended one, the note, the confirmation, the error summary and the alert a refusal
+ * shows. Owns the selectors of that dialog.
  */
 export class ModerateMemberDialog {
   readonly dialog: Locator;
@@ -14,12 +15,14 @@ export class ModerateMemberDialog {
   readonly actions: Locator;
   readonly flagChoice: Locator;
   readonly suspendChoice: Locator;
+  readonly reinstateChoice: Locator;
   readonly note: Locator;
   readonly noteHint: Locator;
   readonly noteError: Locator;
   readonly confirmation: Locator;
   readonly confirmationError: Locator;
   readonly alert: Locator;
+  readonly info: Locator;
   readonly alertTitle: Locator;
   readonly alertLinks: Locator;
   readonly cancelButton: Locator;
@@ -34,12 +37,15 @@ export class ModerateMemberDialog {
     this.actions = this.dialog.getByRole('group', { name: 'What do you want to do?' });
     this.flagChoice = this.dialog.getByRole('radio', { name: /^Flag/ });
     this.suspendChoice = this.dialog.getByRole('radio', { name: /^Suspend/ });
+    this.reinstateChoice = this.dialog.getByRole('radio', { name: /^Reinstate/ });
     this.note = this.dialog.getByRole('textbox', { name: 'Note' });
     this.noteHint = this.dialog.locator('#f-note-hint');
     this.noteError = this.dialog.locator('#f-note-error');
     this.confirmation = this.dialog.getByRole('checkbox');
     this.confirmationError = this.dialog.locator('#f-confirm-error');
-    this.alert = this.dialog.locator('.form-alert');
+    // The error summary or a refusal; what a reinstatement means is `info`.
+    this.alert = this.dialog.locator('.form-alert:not(.form-alert--info)');
+    this.info = this.dialog.locator('.form-alert--info');
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertLinks = this.alert.getByRole('link');
     this.cancelButton = this.dialog.getByRole('button', { name: 'Cancel' });

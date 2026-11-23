@@ -23,18 +23,25 @@
       (valueChange)="choose($event)"
     />
   }
-  <cf-textarea
-    [fieldId]="noteId"
-    label="Note"
-    name="note"
-    hint="Staff see this on the member's row."
-    [rows]="3"
-    [maxLength]="noteMax"
-    [value]="note()"
-    [readonly]="saving()"
-    [error]="noteError()"
-    (valueChange)="setNote($event)"
-  />
+  @if (options.length === 0) {
+    <cf-alert tone="info" [heading]="reinstateHeading" [focusOnShow]="false">
+      Their status goes back to Active and the note on their row is cleared.
+    </cf-alert>
+  }
+  @if (needsNote()) {
+    <cf-textarea
+      [fieldId]="noteId"
+      label="Note"
+      name="note"
+      hint="Staff see this on the member's row."
+      [rows]="3"
+      [maxLength]="noteMax"
+      [value]="note()"
+      [readonly]="saving()"
+      [error]="noteError()"
+      (valueChange)="setNote($event)"
+    />
+  }
   @if (action() === 'suspend') {
     <cf-checkbox-group fieldId="f-confirm" legend="Confirm" [error]="confirmedError()">
       <cf-checkbox
