@@ -154,6 +154,6 @@ DRAFT_EVENT = {
 }
 
 INTERESTS = ["Running", "Strength", "Basketball", "Walking groups", "Mobility", "Nutrition", "Cycling", "Retreats"]
-EVENT_CATEGORIES = ["All", "Run", "Workout", "Basketball", "Mobility", "Workshop"]
+EVENT_CATEGORIES = ["All", "Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 SERVICE_CATEGORIES = ["All", "Training", "Nutrition", "Physio", "Coaching", "Counselling"]
 IMAGE_SIZES = {"run": (1376, 768), "bootcamp": (1200, 896), "hoops": (1200, 896), "stretch": (1200, 896), "trainer": (1024, 1024)}
