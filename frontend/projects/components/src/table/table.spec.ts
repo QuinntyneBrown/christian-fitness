@@ -88,6 +88,69 @@ describe('Table', () => {
     expect(cell.textContent?.trim()).toBe('0 / 60');
   });
 
+  it('draws a person cell as initials hidden from assistive technology beside the name and a muted second line', async () => {
+    const { el } = await render({
+      columns: [{ key: 'member', label: 'Member', kind: 'person' }],
+      rows: [
+        {
+          id: 'gt',
+          name: 'Grace Thompson',
+          cells: { member: { text: 'Grace Thompson', sub: 'grace.thompson@gmail.com' } },
+        },
+      ],
+    });
+
+    const person = el.querySelector('tbody td .table__person') as HTMLElement;
+    const avatar = person.querySelector('.avatar') as HTMLElement;
+    expect(avatar.textContent?.trim()).toBe('GT');
+    expect(avatar.getAttribute('aria-hidden')).toBe('true');
+    expect(person.querySelector('.table__strong')?.textContent).toBe('Grace Thompson');
+    expect(person.querySelector('.table__sub')?.textContent).toBe('grace.thompson@gmail.com');
+  });
+
+  it('renders a person cell as text', async () => {
+    const { el } = await render({
+      columns: [{ key: 'member', label: 'Member', kind: 'person' }],
+      rows: [
+        { id: 'x', name: 'x', cells: { member: { text: '<b>Grace</b>', sub: '<i>g@x</i>' } } },
+      ],
+    });
+
+    expect(el.querySelector('.table__strong')?.textContent).toBe('<b>Grace</b>');
+    expect(el.querySelector('.table__sub')?.textContent).toBe('<i>g@x</i>');
+    expect(el.querySelector('tbody b, tbody i')).toBeNull();
+  });
+
+  it('says what an empty cell means in words, beside a dash assistive technology skips', async () => {
+    const { el } = await render({
+      actionLabel: undefined,
+      columns: [{ key: 'church', label: 'Church', kind: 'muted', empty: 'Not given' }],
+      rows: [
+        { id: 'kb', name: 'Kevin Brooks', cells: { church: { text: '' } } },
+        { id: 'ts', name: 'Tyler Simmons', cells: {} },
+        { id: 'gt', name: 'Grace Thompson', cells: { church: { text: 'Grace Fellowship' } } },
+      ],
+    });
+
+    const cells = Array.from(el.querySelectorAll('tbody td'));
+    for (const cell of cells.slice(0, 2)) {
+      expect(cell.querySelector('[aria-hidden="true"]')?.textContent).toBe('—');
+      expect(cell.querySelector('.visually-hidden')?.textContent).toBe('Not given');
+    }
+    expect(cells[2]?.textContent?.trim()).toBe('Grace Fellowship');
+    expect(cells[2]?.querySelector('.visually-hidden')).toBeNull();
+    expect(cells.map((cell) => cell.className)).toEqual(['muted', 'muted', 'muted']);
+  });
+
+  it('leaves an empty cell blank when its column has no words for it', async () => {
+    const { el } = await render({
+      columns: [{ key: 'date', label: 'Date', kind: 'nowrap' }],
+      rows: [{ id: 'x', name: 'x', cells: {} }],
+    });
+
+    expect(el.querySelector('tbody td')?.textContent?.trim()).toBe('');
+  });
+
   it('renders cells as text', async () => {
     const { el } = await render({
       rows: [{ id: 'x', name: '<b>x</b>', cells: { event: { text: '<b>x</b>' } } }],

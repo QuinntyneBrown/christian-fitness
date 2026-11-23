@@ -7,23 +7,34 @@ import {
   output,
   type TemplateRef,
 } from '@angular/core';
+import { Avatar } from '../avatar/avatar';
 import { Skeleton } from '../skeleton/skeleton';
 
 /**
- * How a column's cells read (table.html, "Code"): plain `text`, a `primary` name with a muted
- * second line, tabular `num`bers, `nowrap` dates, a `count` out of a total (the count strong, " / 200"
- * muted, as the Registered column reads), or `custom` cells the screen draws with its `cell`
- * template (a status badge, a person with an avatar).
+ * How a column's cells read (table.html, "Code"): plain `text`, `muted` text, a `primary` name
+ * with a muted second line, a `person` (the avatar's initials, the name and a muted second line,
+ * as the Member column reads), tabular `num`bers, `nowrap` dates, a `count` out of a total (the
+ * count strong, " / 200" muted, as the Registered column reads), or `custom` cells the screen
+ * draws with its `cell` template (a status badge).
  */
-export type TableCellKind = 'text' | 'primary' | 'num' | 'nowrap' | 'count' | 'custom';
+export type TableCellKind =
+  'text' | 'muted' | 'primary' | 'person' | 'num' | 'nowrap' | 'count' | 'custom';
 
 export interface TableColumn {
   key: string;
   label: string;
   kind?: TableCellKind;
+  /**
+   * What a cell with no text means, such as "Not given": read by assistive technology beside an
+   * em dash it skips. Without it an empty cell is blank. For `text`, `muted`, `num` and `nowrap`.
+   */
+  empty?: string;
 }
 
-/** A cell's words: the text, a second line for a `primary` cell, the total of a `count` cell. */
+/**
+ * A cell's words: the text, a second line for a `primary` or `person` cell, the total of a
+ * `count` cell.
+ */
 export interface TableCell {
   text: string;
   sub?: string;
@@ -60,7 +71,7 @@ export type TableWidth = 'standard' | 'wide' | 'wider';
  */
 @Component({
   selector: 'cf-table',
-  imports: [NgTemplateOutlet, Skeleton],
+  imports: [Avatar, NgTemplateOutlet, Skeleton],
   templateUrl: './table.html',
   styleUrl: './table.scss',
 })
@@ -99,6 +110,8 @@ export class Table {
       case 'nowrap':
       case 'count':
         return 'table__nowrap';
+      case 'muted':
+        return 'muted';
       default:
         return null;
     }
