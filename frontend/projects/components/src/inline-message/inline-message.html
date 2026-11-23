@@ -1,0 +1,28 @@
+<div class="inline-error" role="alert">
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" x2="12" y1="8" y2="12" />
+    <line x1="12" x2="12.01" y1="16" y2="16" />
+  </svg>
+  <div class="inline-error__body">
+    <p class="inline-error__title">{{ heading() }}</p>
+    @if (text(); as reassurance) {
+      <p>{{ reassurance }}</p>
+    }
+    <button
+      class="inline-error__retry"
+      type="button"
+      [attr.aria-busy]="busy() ? 'true' : null"
+      (click)="press()"
+    >
+      @if (busy()) {
+        <svg class="icon icon--spin" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-6.22-8.56" />
+        </svg>
+        Loading…
+      } @else {
+        {{ retryLabel() }}
+      }
+    </button>
+  </div>
+</div>

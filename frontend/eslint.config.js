@@ -83,6 +83,12 @@ module.exports = defineConfig([
     },
   },
   {
+    // A unit test's host component exists only to project content into the component under test
+    // (ADR 0017); it is not product code, so its template stays inline beside the test.
+    files: ['projects/**/*.spec.ts'],
+    rules: { '@angular-eslint/component-max-inline-declarations': 'off' },
+  },
+  {
     // Playwright reads a fixture's dependencies from its destructuring; `{}` means none.
     files: ['e2e/fixtures/**/*.ts'],
     rules: { 'no-empty-pattern': 'off' },

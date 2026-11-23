@@ -1,0 +1,44 @@
+<div
+  [attr.class]="classes()"
+  [attr.role]="tone() === 'danger' ? 'alert' : 'status'"
+  [attr.aria-labelledby]="items().length ? titleId : null"
+  tabindex="-1"
+>
+  @switch (tone()) {
+    @case ('success') {
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    }
+    @case ('info') {
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
+      </svg>
+    }
+    @default {
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" x2="12" y1="8" y2="12" />
+        <line x1="12" x2="12.01" y1="16" y2="16" />
+      </svg>
+    }
+  }
+  <div class="form-alert__body">
+    <p class="form-alert__title" [id]="titleId">{{ heading() }}</p>
+    <div class="form-alert__text"><ng-content /></div>
+    @if (items().length) {
+      <ul class="form-alert__list">
+        @for (item of items(); track item.target) {
+          <li>
+            <a [href]="'#' + item.target" (click)="focusField($event, item.target)">{{
+              item.text
+            }}</a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

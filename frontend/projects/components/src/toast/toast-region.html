@@ -1,0 +1,35 @@
+<section
+  [attr.class]="admin() ? 'toast-region toast-region--admin' : 'toast-region'"
+  [attr.aria-label]="label()"
+  (pointerenter)="paused.emit(true)"
+  (pointerleave)="paused.emit(false)"
+  (focusin)="paused.emit(true)"
+  (focusout)="focusOut($event)"
+>
+  <div class="toast-region__polite" role="status" aria-live="polite">
+    @for (toast of polite(); track toast.id) {
+      <cf-toast
+        [tone]="toast.tone"
+        [heading]="toast.heading"
+        [text]="toast.text"
+        [actionLabel]="toast.actionLabel"
+        [actionHref]="toast.actionHref"
+        (action)="action.emit(toast.id)"
+        (dismissed)="dismissed.emit(toast.id)"
+      />
+    }
+  </div>
+  @for (toast of failures(); track toast.id) {
+    <div role="alert">
+      <cf-toast
+        [tone]="toast.tone"
+        [heading]="toast.heading"
+        [text]="toast.text"
+        [actionLabel]="toast.actionLabel"
+        [actionHref]="toast.actionHref"
+        (action)="action.emit(toast.id)"
+        (dismissed)="dismissed.emit(toast.id)"
+      />
+    </div>
+  }
+</section>
