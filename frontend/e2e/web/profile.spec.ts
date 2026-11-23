@@ -1,8 +1,9 @@
 import { expect, test, type ApiHandlers } from '../fixtures/test';
-import { FULL_PROFILE } from '../fixtures/profiles';
+import { FULL_PROFILE, NEW_PROFILE, TODAY } from '../fixtures/profiles';
 import { WebHomePage } from '../page-objects/web/home.page';
 import { WebMemberShell } from '../page-objects/web/member-shell.page';
 import { WebProfilePage } from '../page-objects/web/profile.page';
+import { WebServerErrorPage } from '../page-objects/web/server-error.page';
 
 /** Answers `GET /api/profile/me` with `profile`, and counts the requests. */
 function answerProfile(api: ApiHandlers, profile: unknown): { count: number } {
@@ -94,6 +95,133 @@ test.describe('Member app, my profile', () => {
     await expect(profile.goals).toHaveText([`Goal ${markup}`]);
     expect((await profile.goingRows())[0].title).toBe(`Event ${markup}`);
     await expect(profile.images('x')).toHaveCount(0);
+  });
+});
+
+// L2-005 AC2: a member going to nothing sees an empty state with a link to Events; every other
+// empty section says what goes there (mock `profile/empty`).
+test.describe('Member app, a new profile', () => {
+  test('each empty section says what goes there, and Going to links to Events', async ({
+    page,
+    api,
+  }) => {
+    // Only the date is fixed; timers run, so the app renders as usual.
+    await page.clock.setFixedTime(TODAY);
+    answerProfile(api, NEW_PROFILE);
+    const profile = new WebProfilePage(page);
+
+    await profile.open();
+
+    await expect(profile.heading).toHaveText('Grace Thompson');
+    await expect(profile.avatar).toHaveText('GT');
+    await expect(profile.meta).toHaveText('Member since today');
+    await expect(profile.facts).toHaveCount(0);
+    await expect(profile.emptyTexts).toHaveText([
+      'Add a short bio so people at events know who you are.',
+      'What are you working toward this year? Goals you add show here.',
+      'No interests yet.',
+      'Not going to anything yet.',
+    ]);
+    await expect(profile.bio).toHaveCount(0);
+    await expect(profile.goals).toHaveCount(0);
+    await expect(profile.tags).toHaveCount(0);
+    await expect(profile.goingItems).toHaveCount(0);
+    await expect(profile.goingEmpty).toHaveText(/Not going to anything yet\./);
+    await expect(profile.browseEventsLink).toHaveAttribute('href', '/events');
+  });
+
+  test('interests the app does not know are left out, not shown as keys', async ({
+    page,
+    api,
+  }) => {
+    answerProfile(api, { ...FULL_PROFILE, interests: ['running', 'parkour'] });
+    const profile = new WebProfilePage(page);
+
+    await profile.open();
+
+    await expect(profile.tags).toHaveText(['Running']);
+  });
+});
+
+// The mock's loading and error states; a 5xx is the server-error screen's (L2-043 AC4, AC5).
+test.describe('Member app, while my profile loads or fails', () => {
+  test('while the profile loads, skeletons show and say so; then the profile replaces them', async ({
+    page,
+    api,
+  }) => {
+    let answer!: () => void;
+    const answered = new Promise<void>((resolve) => (answer = resolve));
+    api.on('GET', '/api/profile/me', async () => {
+      await answered;
+      return { json: FULL_PROFILE };
+    });
+    const profile = new WebProfilePage(page);
+
+    await profile.open();
+
+    await expect(profile.loadingHeading).toBeAttached();
+    await expect(profile.loading).toHaveAttribute('aria-live', 'polite');
+    await expect(profile.skeletons.first()).toBeVisible();
+    await expect(profile.heading).toHaveText('Loading profile');
+
+    answer();
+
+    await expect(profile.heading).toHaveText('Grace Thompson');
+    await expect(profile.loading).toHaveCount(0);
+  });
+
+  test('a profile that does not load says so, and Try again asks again in place', async ({
+    page,
+    api,
+  }) => {
+    let fail = true;
+    api.on('GET', '/api/profile/me', () =>
+      fail
+        ? {
+            status: 404,
+            headers: { 'content-type': 'application/problem+json' },
+            json: { status: 404, code: 'not_found' },
+          }
+        : { json: FULL_PROFILE },
+    );
+    const profile = new WebProfilePage(page);
+
+    await profile.open();
+
+    await expect(profile.heading).toHaveText('Profile');
+    await expect(profile.error).toHaveAttribute('role', 'alert');
+    await expect(profile.errorTitle).toHaveText('Your profile didn’t load');
+    await expect(profile.errorText).toHaveText(
+      'We couldn’t reach Christian Fitness. Check your connection and try again.',
+    );
+    await expect(profile.backHomeLink).toHaveAttribute('href', '/home');
+    await expect(profile.tryAgainButton).toBeEnabled();
+
+    fail = false;
+    await profile.tryAgainAndAwaitAnswer();
+
+    await expect(profile.heading).toHaveText('Grace Thompson');
+    await expect(profile.error).toHaveCount(0);
+    expect(profile.location()).toBe('/profile');
+  });
+
+  test('a server error shows the server-error screen and keeps the address', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/profile/me', () => ({
+      status: 503,
+      headers: { 'content-type': 'application/problem+json' },
+      json: { status: 503, code: 'server_error', reference: 'CF-4BF92F35' },
+    }));
+    const profile = new WebProfilePage(page);
+    const serverError = new WebServerErrorPage(page);
+
+    await profile.open();
+
+    await expect(serverError.heading).toHaveText('Something went wrong');
+    await expect(profile.error).toHaveCount(0);
+    expect(serverError.location()).toBe('/profile');
   });
 });
 
