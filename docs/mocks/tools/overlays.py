@@ -444,10 +444,11 @@ def moderate(*, member: str = "pn", action: str = "flag", invalid=False, busy=Fa
                           hint=f"Staff see this on the member's row. {500 - len(typed)} characters left.", readonly=busy)
     check_html = ""
     if suspend:
-        check_desc = ' aria-describedby="f-confirmed-error" aria-invalid="true"' if check_err else ""
-        check_html = (f'<div class="field"><label class="check check--ui"><input class="check__box" id="f-confirmed" type="checkbox"'
-                      f'{"" if invalid else " checked"}{d}{check_desc}> Suspend {m["name"]} and end their sessions</label>'
-                      + (f'<span class="field__error" id="f-confirmed-error">{check_err}</span>' if check_err else "") + "</div>")
+        group_desc = ' aria-describedby="f-confirm-error"' if check_err else ""
+        check_html = (f'<fieldset class="field"{group_desc}><legend class="field__legend">Confirm</legend>'
+                      f'<label class="check check--ui"><input class="check__box" id="f-confirmed" type="checkbox"'
+                      f'{"" if invalid else " checked"}{d}{" aria-invalid=" + chr(34) + "true" + chr(34) if check_err else ""}> Suspend {m["name"]} and end their sessions</label>'
+                      + (f'<span class="field__error" id="f-confirm-error">{check_err}</span>' if check_err else "") + "</fieldset>")
     body = f"""    {alert}
     {choices}
     {note_field}

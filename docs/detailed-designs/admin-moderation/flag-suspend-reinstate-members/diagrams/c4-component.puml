@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Components — Flag, suspend and reinstate members
 
 Container_Boundary(fe, "Admin web app") {
-  Component(page, "MembersPage", "Routed Angular page", "Offers flag, suspend and reinstate per row")
+  Component(page, "AdminMembersPage", "Routed Angular page", "Offers flag, suspend and reinstate per row")
   Component(dlg, "Moderation dialog <TO SUPPLY>", "CDK Dialog", "Collects note and confirmation")
   Component(svc, "ADMIN_MEMBERS_SERVICE / AdminMembersApi", "Injection token and contract", "Typed moderation calls")
 }

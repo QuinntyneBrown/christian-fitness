@@ -63,3 +63,7 @@ events before 6.1, and no SignalR connection exists before 12.1.
   clears the note.
 - Slice 25.1's report banner can open this dialog for its Suspend.
 - A suspended Admin cannot use the admin app; reinstating them needs another Admin, or `cf seed`.
+- The admin app's initial bundle is unchanged at 278.96 kB: the dialog, its fields and the
+  moderation rules load on the first Moderate, as a 19.5 kB chunk.
+- The confirmation is a one-box checkbox group with the legend "Confirm", so its error has a
+  place and the error summary's link has a field to focus; the library's checkbox gained an id.

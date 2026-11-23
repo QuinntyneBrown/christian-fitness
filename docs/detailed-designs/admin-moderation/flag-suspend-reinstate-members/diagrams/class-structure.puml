@@ -41,12 +41,12 @@ class SuspendMemberValidator
 class FlagMemberHandler
 class SuspendMemberHandler
 class ReinstateMemberHandler
-interface ICurrentUser {
+interface ICurrentMember {
   +Guid MemberId
   +StaffRole? Role
 }
-interface ISessionRevoker {
-  +RevokeAllAsync(memberId: Guid): Task
+interface ISessionRevocation {
+  +EndAllAsync(memberId: Guid): Task
 }
 interface IAppDbContext {
   +Members: DbSet<Member>
@@ -62,10 +62,10 @@ SuspendMemberValidator ..> SuspendMemberCommand : validates
 FlagMemberHandler ..> FlagMemberCommand : handles
 SuspendMemberHandler ..> SuspendMemberCommand : handles
 ReinstateMemberHandler ..> ReinstateMemberCommand : handles
-SuspendMemberHandler --> ICurrentUser : refuses self
-SuspendMemberHandler --> ISessionRevoker : ends sessions
+SuspendMemberHandler --> ICurrentMember : refuses self
+SuspendMemberHandler --> ISessionRevocation : ends sessions
 FlagMemberHandler --> IAppDbContext
 SuspendMemberHandler --> IAppDbContext
 ReinstateMemberHandler --> IAppDbContext
-ICurrentUser --> StaffRole
+ICurrentMember --> StaffRole
 @enduml

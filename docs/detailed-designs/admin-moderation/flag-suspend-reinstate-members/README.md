@@ -61,7 +61,7 @@ The Admin web app sends moderation commands to the Christian Fitness API, which 
 
 ### Class structure
 
-`Member` owns the three transitions. `SuspendMemberHandler` depends on `ICurrentUser` to refuse self-suspension and on `ISessionRevoker` to end sessions.
+`Member` owns the three transitions. The handlers share `ModerationTarget`, which refuses an unknown member, the caller's own account and a Moderator moderating staff; `SuspendMemberHandler` also depends on `ISessionRevocation` to end sessions. (The class and component images predate these names; their sources are current.)
 
 ![Class diagram for flagging, suspending and reinstating members](diagrams/class-structure.png)
 

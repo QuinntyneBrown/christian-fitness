@@ -16,8 +16,8 @@ skinparam package {
 }
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
-  participant "MembersPage" as page
-  participant "ModerationDialog <TO SUPPLY>" as dlg
+  participant "AdminMembersPage" as page
+  participant "ModerateMemberDialog" as dlg
   participant "HttpAdminMembersService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
@@ -25,35 +25,52 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "FlagMemberHandler" as h
+  participant "ModerationTarget" as target
   participant "Member" as ent
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
-actor -> page : Flag on an Active member's row
-page -> dlg : Open CDK Dialog
-actor -> dlg : Enter note and submit
-dlg -> client : flag(id, note)
-client -> ctrl : POST /api/admin/members/{id}/flag
-ctrl -> ctrl : Authenticate and apply StaffOnly policy
-ctrl -> h : Send FlagMemberCommand (validated: note required)
-h -> db : Load member
-db --> h : Member
-h -> ent : Flag(note)
-alt status is not Active
-  ent --> h : Refusal with code <TO SUPPLY>
-  h --> ctrl : Refusal
-  ctrl --> client : ProblemDetails with code
-  client --> dlg : Error code
-  dlg --> actor : Generic message
-else Active
-  ent --> h : Status Flagged, note stored (L2-029 AC1)
-  h -> db : Save changes
-  db --> h : Committed
-  h --> ctrl : Success
-  ctrl --> client : 204 No Content
-  client --> dlg : Done
-  dlg -> dlg : Close by its ref
-  page --> actor : Row shows Flagged status and the note as text
+actor -> page : Moderate on an Active member's row
+page -> dlg : Import on first use, open as a CDK Dialog (Flag chosen)
+actor -> dlg : Write the note
+alt no note or a note over 500 characters
+  dlg --> actor : Error summary and the field's error; nothing sent (L2-029 AC5)
+else
+  dlg -> client : flag(id, note)
+  client -> ctrl : POST /api/admin/members/{id}/flag { note }
+  ctrl -> ctrl : Authenticate; Members staff area admits Admin and Moderator
+  ctrl -> h : Send FlagMemberCommand (validated: note_required, note_too_long)
+  h -> target : FindAsync(id)
+  target -> db : Load the member and both staff roles
+alt unknown id
+  target --> h : Refusal member_not_found (404, L2-029 AC6)
+else the member is the caller
+  target --> h : Refusal cannot_moderate_self (403, L2-029 AC4)
+else a Moderator and a staff account
+  target --> h : Refusal forbidden_role (403, L2-029 AC7)
+else
+  target --> h : Member
+end
+  alt refused
+    h --> ctrl : RefusalException
+    ctrl --> client : ProblemDetails with the code
+    client --> dlg : ApiError
+    dlg --> actor : The refusal's own sentence, note kept
+  else
+    h -> ent : TryFlag(note)
+    alt Flagged or Suspended already
+      ent --> h : false
+      h --> ctrl : Refusal status_conflict (409, L2-029 AC6)
+    else Active
+      ent --> h : Flagged, note kept (L2-029 AC1)
+      h -> db : Save
+      h --> ctrl : MemberRowDto
+      ctrl --> client : 200 OK
+      client --> dlg : The member as they now are
+      dlg -> dlg : Close by its ref
+      page --> actor : Toast, the list again with the note on the row
+    end
+  end
 end
 @enduml
