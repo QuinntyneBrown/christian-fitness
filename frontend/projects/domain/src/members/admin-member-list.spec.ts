@@ -76,7 +76,7 @@ describe('memberListHref', () => {
     {
       why: 'a search that needs encoding',
       query: { ...ALL, q: 'a&b =c@d' },
-      expected: '/members?q=a%26b+%3Dc%40d',
+      expected: '/members?q=a%26b%20%3Dc%40d',
     },
   ])('$why is $expected', ({ query, expected }) => {
     expect(memberListHref(query)).toBe(expected);

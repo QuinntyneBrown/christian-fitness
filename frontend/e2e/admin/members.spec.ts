@@ -1,4 +1,4 @@
-import { answerMembers, CAST_MEMBERS, memberList } from '../fixtures/admin-members';
+import { answerMembers, CAST_MEMBERS, manyMembers, memberList } from '../fixtures/admin-members';
 import { problem } from '../fixtures/admin-events';
 import { expect, test } from '../fixtures/test';
 import { AdminMembersPage } from '../page-objects/admin/members.page';
@@ -303,5 +303,246 @@ test.describe('Admin app, the Members page filtered by status', () => {
     await expect(members.clearSearchButton).toHaveCount(0);
     await expect(members.table).toHaveCount(0);
     await expect(members.subtitle).toHaveText('5 members');
+  });
+});
+
+// L2-028 AC2 and AC4 (ADR 0022): the search keeps the members whose name or email contains it.
+test.describe('Admin app, the Members page searched', () => {
+  test('typing asks once, after the last key, and the URL names the search', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(7);
+    await members.mark();
+
+    await members.type('grace');
+
+    await expect(members.rows).toHaveCount(1);
+    expect(await members.names()).toEqual(['Grace Thompson']);
+    await expect.poll(() => members.location()).toBe('/members?q=grace');
+    // One question for the whole word, not one a letter.
+    expect(asked).toEqual([
+      { status: 'all', q: null, page: null },
+      { status: 'all', q: 'grace', page: null },
+    ]);
+    await expect(members.search).toHaveValue('grace');
+    await expect(members.search).toBeFocused();
+    await expect(members.subtitle).toHaveText('7 members');
+    expect(await members.marked()).toBe(true);
+  });
+
+  test('a space typed after a word stays in the field while the list is asked for', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(7);
+
+    await members.type('grace ');
+
+    await expect(members.rows).toHaveCount(1);
+    await expect(members.search).toHaveValue('grace ');
+    expect(asked.at(-1)).toEqual({ status: 'all', q: 'grace', page: null });
+  });
+
+  test('typing does not fill the history: Back leaves the Members page', async ({ page, api }) => {
+    answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await page.goto('/events');
+    await members.open();
+    await expect(members.rows).toHaveCount(7);
+    await members.type('gr');
+    await expect(members.rows).toHaveCount(1);
+    await members.type('ace');
+    await expect.poll(() => members.location()).toBe('/members?q=grace');
+
+    await page.goBack();
+
+    await expect.poll(() => members.location()).toBe('/events');
+  });
+
+  test('opening /members?q=gmail shows the search in the field and its members', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+
+    await members.open('?q=gmail');
+
+    await expect(members.search).toHaveValue('gmail');
+    expect(await members.names()).toEqual([
+      'Grace Thompson',
+      'Priya Nair',
+      'Kevin Brooks',
+      'Tyler Simmons',
+    ]);
+    expect(asked).toEqual([{ status: 'all', q: 'gmail', page: null }]);
+  });
+
+  test('a tab keeps the search, and the search keeps the tab', async ({ page, api }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open('?q=gmail');
+    await expect(members.rows).toHaveCount(4);
+    await expect(members.tab('Active')).toHaveAttribute('href', '/members?status=active&q=gmail');
+
+    await members.tab('Active').click();
+
+    await expect(members.currentTab).toHaveText('Active');
+    expect(await members.names()).toEqual(['Grace Thompson', 'Priya Nair']);
+    expect(members.location()).toBe('/members?status=active&q=gmail');
+    await expect(members.search).toHaveValue('gmail');
+
+    await members.search.fill('');
+    await members.type('priya');
+
+    await expect(members.rows).toHaveCount(1);
+    await expect.poll(() => members.location()).toBe('/members?status=active&q=priya');
+    expect(asked.at(-1)).toEqual({ status: 'active', q: 'priya', page: null });
+  });
+
+  // Mock admin-members/no-results.
+  test('a search nobody matches names the term and Clear search brings everyone back', async ({
+    page,
+    api,
+  }) => {
+    answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(7);
+
+    await members.type('Jessica');
+
+    await expect(members.emptyTitle).toHaveText('No members match “Jessica”');
+    await expect(members.emptyText).toHaveText('Check the spelling, or search by email instead.');
+    await expect(members.table).toHaveCount(0);
+    await expect(members.search).toHaveValue('Jessica');
+    await expect(members.tabLinks).toHaveCount(4);
+
+    await members.clearSearchButton.click();
+
+    await expect(members.rows).toHaveCount(7);
+    await expect(members.search).toHaveValue('');
+    expect(members.location()).toBe('/members');
+    await expect(members.search).toBeFocused();
+  });
+
+  test('the term is shown as text, never as HTML', async ({ page, api }) => {
+    answerMembers(api);
+    const members = new AdminMembersPage(page);
+
+    await members.open('?q=%3Cb%3EJess%3C%2Fb%3E');
+
+    await expect(members.emptyTitle).toHaveText('No members match “<b>Jess</b>”');
+    await expect(members.bold()).toHaveCount(0);
+  });
+
+  test('Escape in the search clears it and brings everyone back', async ({ page, api }) => {
+    answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open('?q=grace');
+    await expect(members.rows).toHaveCount(1);
+
+    await members.search.press('Escape');
+
+    await expect(members.rows).toHaveCount(7);
+    await expect(members.search).toHaveValue('');
+    await expect.poll(() => members.location()).toBe('/members');
+  });
+});
+
+// L2-028 AC1 (ADR 0022): 25 members to a page, with links to the other pages.
+test.describe('Admin app, the Members page in pages', () => {
+  test('31 members show 25, a summary and the pages; page 2 shows the rest', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api, manyMembers(31));
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(25);
+    await expect(members.paginationSummary).toHaveText('Showing 1–25 of 31 members');
+    await expect(members.currentPage).toHaveText('1');
+    await expect(members.previousPage).toHaveAttribute('aria-disabled', 'true');
+    await expect(members.pageLink(2)).toHaveAttribute('href', '/members?page=2');
+    await expect(members.nextPage).toHaveAttribute('href', '/members?page=2');
+    await members.mark();
+
+    await members.pageLink(2).click();
+
+    await expect(members.rows).toHaveCount(6);
+    expect((await members.names())[0]).toBe('Member 026');
+    await expect(members.paginationSummary).toHaveText('Showing 26–31 of 31 members');
+    await expect(members.currentPage).toHaveText('2');
+    await expect(members.nextPage).toHaveAttribute('aria-disabled', 'true');
+    await expect(members.previousPage).toHaveAttribute('href', '/members');
+    expect(members.location()).toBe('/members?page=2');
+    expect(asked).toEqual([
+      { status: 'all', q: null, page: null },
+      { status: 'all', q: null, page: '2' },
+    ]);
+    expect(await members.marked()).toBe(true);
+    // Focus follows to the list, so a keyboard user reads the new page from its top.
+    await expect(members.tableRegion).toBeFocused();
+  });
+
+  test('the pages stay in place while the next page loads', async ({ page, api }) => {
+    const all = manyMembers(31);
+    let release = (): void => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    api.on('GET', '/api/admin/members', async (request) => {
+      const asked = new URL(request.url()).searchParams.get('page');
+      if (asked !== '2') return memberList(all.slice(0, 25), { matches: 31, total: 31 });
+      await gate;
+      return memberList(all.slice(25), { matches: 31, total: 31, page: 2 });
+    });
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(25);
+
+    await members.focusAndPressEnter(members.nextPage);
+
+    await expect(members.loading).toBeVisible();
+    await expect(members.currentPage).toHaveText('2');
+    await expect(members.paginationSummary).toHaveCount(0);
+    release();
+    await expect(members.rows).toHaveCount(6);
+    await expect(members.paginationSummary).toHaveText('Showing 26–31 of 31 members');
+  });
+
+  test('a page past the last shows the last page the API answers', async ({ page, api }) => {
+    answerMembers(api, manyMembers(31));
+    const members = new AdminMembersPage(page);
+
+    await members.open('?page=9');
+
+    await expect(members.rows).toHaveCount(6);
+    await expect(members.currentPage).toHaveText('2');
+    await expect(members.paginationSummary).toHaveText('Showing 26–31 of 31 members');
+  });
+
+  test('a search or a tab returns to the first page, and the pages keep the search', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api, manyMembers(60));
+    const members = new AdminMembersPage(page);
+    await members.open('?page=2');
+    await expect(members.rows).toHaveCount(25);
+    await expect(members.tab('Active')).toHaveAttribute('href', '/members?status=active');
+
+    await members.type('member 0');
+
+    await expect.poll(() => members.location()).toBe('/members?q=member%200');
+    await expect(members.currentPage).toHaveText('1');
+    await expect(members.paginationSummary).toHaveText('Showing 1–25 of 60 members');
+    await expect(members.pageLink(3)).toHaveAttribute('href', '/members?q=member%200&page=3');
+    expect(asked.at(-1)).toEqual({ status: 'all', q: 'member 0', page: null });
   });
 });

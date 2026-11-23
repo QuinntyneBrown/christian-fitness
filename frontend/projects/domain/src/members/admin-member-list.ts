@@ -63,14 +63,16 @@ export function memberListQueryOf(params: { get(name: string): string | null }):
   };
 }
 
-/** The Members URL of `query`: only what differs from everyone, unsearched, on the first page. */
+/**
+ * The Members URL of `query`: only what differs from everyone, unsearched, on the first page. A
+ * space in the search is written `%20`, as the router writes it in the address bar.
+ */
 export function memberListHref(query: AdminMemberQuery): string {
-  const params = new URLSearchParams();
-  if (query.status !== 'all') params.set('status', query.status);
-  if (query.q) params.set('q', query.q);
-  if (query.page > 1) params.set('page', String(query.page));
-  const search = params.toString();
-  return search ? `/members?${search}` : '/members';
+  const params: string[] = [];
+  if (query.status !== 'all') params.push(`status=${query.status}`);
+  if (query.q) params.push(`q=${encodeURIComponent(query.q)}`);
+  if (query.page > 1) params.push(`page=${query.page}`);
+  return params.length > 0 ? `/members?${params.join('&')}` : '/members';
 }
 
 /**

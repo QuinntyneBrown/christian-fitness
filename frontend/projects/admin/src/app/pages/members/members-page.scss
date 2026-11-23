@@ -36,3 +36,8 @@
   margin-top: var(--space-1);
   color: var(--color-fg-muted);
 }
+
+// The pages sit a step under the table (mock `admin-members`, default).
+cf-pagination {
+  margin-top: var(--space-3);
+}

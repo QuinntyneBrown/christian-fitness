@@ -60,8 +60,9 @@ export class AdminMembersPage {
     this.pagination = this.main.getByRole('navigation', { name: 'Pagination' });
     this.paginationSummary = this.pagination.locator('.pagination__summary');
     this.currentPage = this.pagination.locator('.pagination__link[aria-current="page"]');
-    this.previousPage = this.pagination.getByRole('link', { name: 'Previous page' });
-    this.nextPage = this.pagination.getByRole('link', { name: 'Next page' });
+    // An unavailable end has no address, so it is not a link to assistive technology.
+    this.previousPage = this.pagination.locator('[aria-label="Previous page"]');
+    this.nextPage = this.pagination.locator('[aria-label="Next page"]');
   }
 
   /** Opens the Members page with `query`, such as `?status=flagged&q=grace` (none by default). */

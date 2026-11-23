@@ -5,7 +5,12 @@
       <p class="subtitle">{{ count }}</p>
     }
   </div>
-  <cf-search-field label="Search members" placeholder="Search name or email" />
+  <cf-search-field
+    label="Search members"
+    placeholder="Search name or email"
+    [value]="term()"
+    (valueChange)="onSearch($event)"
+  />
 </div>
 
 <cf-tabs
@@ -56,10 +61,24 @@
         [rows]="rows()"
         [cell]="statusCell"
       />
+    } @else if (empty().clearSearch) {
+      <cf-empty-state [heading]="empty().heading" [text]="empty().text">
+        <cf-button slot="actions" size="sm" (click)="clearSearch()">Clear search</cf-button>
+      </cf-empty-state>
     } @else if (query().status === 'all') {
       <cf-empty-state [heading]="empty().heading" [text]="empty().text" />
     } @else {
       <cf-empty-state variant="tight" [heading]="empty().heading" [text]="empty().text" />
     }
   }
+}
+
+@if (pages(); as paged) {
+  <cf-pagination
+    [page]="paged.page"
+    [pageCount]="paged.pageCount"
+    [summary]="paged.summary"
+    [hrefFor]="pageHref()"
+    (navigate)="goToPage($event)"
+  />
 }
