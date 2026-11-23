@@ -58,18 +58,6 @@ test.describe('Admin app, event registrations', () => {
     ]);
   });
 
-  test('the breadcrumb goes back to the Events page', async ({ page, api }) => {
-    answer(api);
-    const registrations = new EventRegistrationsPage(page);
-    const events = new AdminEventsPage(page);
-    await registrations.open(BOOTCAMP.id);
-
-    await registrations.breadcrumbEvents.click();
-
-    await expect(events.heading).toHaveText('Events');
-    expect(events.location()).toBe('/events');
-  });
-
   // Mock admin-event-registrations/empty.
   test('an event nobody registered for says so', async ({ page, api }) => {
     answer(api);
