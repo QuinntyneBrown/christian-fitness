@@ -15,6 +15,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<PasswordReset> PasswordResets => Set<PasswordReset>();
     public DbSet<SignInFailure> SignInFailures => Set<SignInFailure>();
 
+    public DbSet<StaffTwoStep> StaffTwoSteps => Set<StaffTwoStep>();
+
+    public DbSet<TwoStepChallenge> TwoStepChallenges => Set<TwoStepChallenge>();
+
+    public DbSet<TwoStepFailure> TwoStepFailures => Set<TwoStepFailure>();
+
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
 

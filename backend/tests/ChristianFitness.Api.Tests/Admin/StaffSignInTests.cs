@@ -6,22 +6,22 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-018 AC1 to AC3 (ADR 0011): staff sign in to the admin app with their own session cookie; a
-/// member without a staff role is refused with <c>not_staff</c> and 403; wrong credentials get the
-/// one generic refusal sign-in gives everyone.
+/// L2-018 AC1 to AC3 (ADR 0011, ADR 0012): staff sign in to the admin app, password then code
+/// (L2-046), with their own session cookie; a member without a staff role is refused with
+/// <c>not_staff</c> and 403; wrong credentials get the one generic refusal sign-in gives everyone.
 /// </summary>
 public sealed class StaffSignInTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Theory]
     [InlineData(StaffRoleName.Admin, "Admin")]
     [InlineData(StaffRoleName.Moderator, "Moderator")]
-    public async Task Given_a_staff_account_When_it_signs_in_to_the_admin_app_Then_the_staff_session_is_answered(StaffRoleName role, string expectedRole)
+    public async Task Given_a_staff_account_When_it_signs_in_to_the_admin_app_with_its_code_Then_the_staff_session_is_answered(StaffRoleName role, string expectedRole)
     {
         using var client = Browser.CreateClient(factory);
         var email = $"dana.{expectedRole.ToUpperInvariant()}@example.org";
         var memberId = await Staff.CreateAsync(factory, client, email, role);
 
-        using var response = await Staff.SignInAsync(client, email, Staff.Password);
+        using var response = await Staff.SignInWithCodeAsync(client, email);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var session = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
@@ -37,7 +37,7 @@ public sealed class StaffSignInTests(ApiFactory factory) : IClassFixture<ApiFact
         using var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, "dana.cookie@example.org", StaffRoleName.Admin);
 
-        using var response = await Staff.SignInAsync(client, "dana.cookie@example.org", Staff.Password);
+        using var response = await Staff.SignInWithCodeAsync(client, "dana.cookie@example.org");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var attributes = Browser.Attributes(Assert.IsType<string>(Staff.SetCookie(response)));
@@ -55,7 +55,7 @@ public sealed class StaffSignInTests(ApiFactory factory) : IClassFixture<ApiFact
     {
         using var client = Browser.CreateClient(factory);
         var memberId = await Staff.CreateAsync(factory, client, "dana.next@example.org", StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInAsync(client, "dana.next@example.org", Staff.Password);
+        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.next@example.org");
 
         using var response = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", Staff.Cookie(signedIn));
 
@@ -79,6 +79,7 @@ public sealed class StaffSignInTests(ApiFactory factory) : IClassFixture<ApiFact
         Assert.Equal(["code", "status", "title", "traceId", "type"], problem.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal("not_staff", problem.GetProperty("code").GetString());
         Assert.Null(Staff.SetCookie(response));
+        Assert.Null(Staff.StepSetCookie(response));
         Assert.Null(Browser.SessionSetCookie(response));
     }
 
@@ -99,6 +100,7 @@ public sealed class StaffSignInTests(ApiFactory factory) : IClassFixture<ApiFact
         Assert.Equal(["code", "status", "title", "traceId", "type"], problem.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal("invalid_credentials", problem.GetProperty("code").GetString());
         Assert.Null(Staff.SetCookie(response));
+        Assert.Null(Staff.StepSetCookie(response));
     }
 
     // L2-018 AC3: a member's wrong password and a staff member's get the same answer, so the

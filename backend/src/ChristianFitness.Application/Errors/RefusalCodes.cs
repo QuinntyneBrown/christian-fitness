@@ -15,6 +15,18 @@ public static class RefusalCodes
     /// <summary>No account has this email and password (L2-004 AC2): one code for both.</summary>
     public const string InvalidCredentials = "invalid_credentials";
 
+    /// <summary>A second-step code is wrong, malformed or already used (L2-046 AC3).</summary>
+    public const string InvalidCode = "invalid_code";
+
+    /// <summary>Too many wrong second-step codes for one account in the window (L2-046 AC4).</summary>
+    public const string TooManyAttempts = "too_many_attempts";
+
+    /// <summary>No pending sign-in, or it is older than 5 minutes (L2-046 AC5).</summary>
+    public const string TwoStepExpired = "two_step_expired";
+
+    /// <summary>A staff account without two-step verification set up (L2-046 AC6).</summary>
+    public const string TwoStepNotSetUp = "two_step_not_set_up";
+
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
     public const string NotStaff = "not_staff";
 

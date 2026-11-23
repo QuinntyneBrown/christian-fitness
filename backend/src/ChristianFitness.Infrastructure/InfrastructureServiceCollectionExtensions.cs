@@ -45,6 +45,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<ISessionSignIn, CookieSessionSignIn>();
         services.AddScoped<IStaffSessionSignIn, CookieStaffSessionSignIn>();
+        services.AddScoped<ITwoStepCookie, CookieTwoStepCookie>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         services.AddScoped<IClientAddress, HttpClientAddress>();
         return services;

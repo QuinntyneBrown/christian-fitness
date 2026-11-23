@@ -7,12 +7,14 @@ using ChristianFitness.Infrastructure.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 
 namespace ChristianFitness.Application.Tests.Admin;
 
 /// <summary>
-/// L2-018 AC1 to AC3: which admin sign-ins open a staff session and which are refused, and with
-/// which code, one case per row (ADR 0011).
+/// L2-018 AC1 to AC3, L2-046 AC1 and AC6: which admin password steps start a pending sign-in and
+/// which are refused, and with which code, one case per row (ADR 0011, ADR 0012). None opens a
+/// session: that is the second step's.
 /// </summary>
 public sealed class StaffSignInHandlerTests : IAsyncDisposable
 {
@@ -20,6 +22,8 @@ public sealed class StaffSignInHandlerTests : IAsyncDisposable
 
     private readonly ServiceProvider _services;
     private readonly RecordingStaffSessionSignIn _session = new();
+    private readonly RecordingTwoStepCookie _cookie = new();
+    private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 11, 23, 9, 0, 0, TimeSpan.Zero));
     private readonly Dictionary<string, Member> _members = new(StringComparer.Ordinal);
 
     public StaffSignInHandlerTests()
@@ -31,16 +35,19 @@ public sealed class StaffSignInHandlerTests : IAsyncDisposable
             .AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>())
             .AddSingleton<IPasswordHasherService, IdentityPasswordHasher>()
             .AddSingleton<IStaffSessionSignIn>(_session)
+            .AddSingleton<ITwoStepCookie>(_cookie)
+            .AddSingleton<TimeProvider>(_time)
             .BuildServiceProvider();
         var hash = new IdentityPasswordHasher().Hash(Password);
         var joined = new DateTimeOffset(2026, 11, 22, 9, 0, 0, TimeSpan.Zero);
         using var scope = _services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        foreach (var (email, role) in new (string, StaffRoleName?)[]
+        foreach (var (email, role, twoStep) in new (string, StaffRoleName?, bool)[]
         {
-            ("dana@christianfitness.ca", StaffRoleName.Admin),
-            ("sam@christianfitness.ca", StaffRoleName.Moderator),
-            ("grace.thompson@gmail.com", null),
+            ("dana@christianfitness.ca", StaffRoleName.Admin, true),
+            ("sam@christianfitness.ca", StaffRoleName.Moderator, true),
+            ("lee@christianfitness.ca", StaffRoleName.Admin, false),
+            ("grace.thompson@gmail.com", null, false),
         })
         {
             var member = Member.Join("Dana Reyes", email, hash, joined);
@@ -50,17 +57,26 @@ public sealed class StaffSignInHandlerTests : IAsyncDisposable
             {
                 db.StaffRoles.Add(StaffRole.Grant(member, name));
             }
+
+            if (twoStep)
+            {
+                db.StaffTwoSteps.Add(StaffTwoStep.SetUp(member.Id, joined));
+            }
         }
 
         db.SaveChanges();
     }
 
+    private const string Pending = "pending";
+
     public static TheoryData<string, string, string, string> Cases() => new()
     {
-        // why, email, password, outcome: the role signed in with, or the refusal's code
-        { "an Admin", "dana@christianfitness.ca", Password, "Admin" },
-        { "a Moderator", "sam@christianfitness.ca", Password, "Moderator" },
-        { "an Admin's email in another case", "Dana@ChristianFitness.CA", Password, "Admin" },
+        // why, email, password, outcome: Pending for a pending sign-in, or the refusal's code
+        { "an Admin", "dana@christianfitness.ca", Password, Pending },
+        { "a Moderator", "sam@christianfitness.ca", Password, Pending },
+        { "an Admin's email in another case", "Dana@ChristianFitness.CA", Password, Pending },
+        { "an Admin without two-step verification set up", "lee@christianfitness.ca", Password, RefusalCodes.TwoStepNotSetUp },
+        { "an Admin without two-step verification and a wrong password", "lee@christianfitness.ca", "abundantlifE", RefusalCodes.InvalidCredentials },
         { "a member without a staff role", "grace.thompson@gmail.com", Password, RefusalCodes.NotStaff },
         { "a member without a staff role and a wrong password", "grace.thompson@gmail.com", "abundantlifE", RefusalCodes.InvalidCredentials },
         { "an Admin with a wrong password", "dana@christianfitness.ca", "abundantlifE", RefusalCodes.InvalidCredentials },
@@ -71,32 +87,65 @@ public sealed class StaffSignInHandlerTests : IAsyncDisposable
 
     [Theory]
     [MemberData(nameof(Cases))]
-    public async Task Given_an_admin_sign_in_When_it_is_handled_Then_it_opens_a_staff_session_or_is_refused(string why, string email, string password, string outcome)
+    public async Task Given_an_admin_password_step_When_it_is_handled_Then_it_starts_a_pending_sign_in_or_is_refused(string why, string email, string password, string outcome)
     {
         using var scope = _services.CreateScope();
         var sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
         var sending = sender.Send(new StaffSignInCommand { Email = email, Password = password }, TestContext.Current.CancellationToken);
 
-        if (outcome is "Admin" or "Moderator")
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (outcome == Pending)
         {
-            var session = await sending;
+            await sending;
             var member = _members[Member.NormalizeEmail(email)];
-            Assert.Equal((member.Id, "Dana Reyes", outcome), (session.MemberId, session.Name, session.Role));
-            Assert.Equal([(member.Id, Enum.Parse<StaffRoleName>(outcome))], _session.SignedIn);
+            var challenge = await db.TwoStepChallenges.SingleAsync(TestContext.Current.CancellationToken);
+            var (token, expiresAt) = Assert.Single(_cookie.Issued);
+            Assert.Equal((member.Id, TwoStepChallenge.HashOf(token)), (challenge.MemberId, challenge.TokenHash));
+            Assert.Equal(_time.GetUtcNow().AddMinutes(5), expiresAt);
         }
         else
         {
             var refusal = await Assert.ThrowsAsync<RefusalException>(() => sending);
-            var kind = outcome == RefusalCodes.NotStaff ? RefusalKind.Forbidden : RefusalKind.Unauthenticated;
+            var kind = outcome is RefusalCodes.NotStaff or RefusalCodes.TwoStepNotSetUp ? RefusalKind.Forbidden : RefusalKind.Unauthenticated;
             Assert.Equal((outcome, kind), (refusal.Code, refusal.Kind));
-            Assert.Empty(_session.SignedIn);
+            Assert.Empty(_cookie.Issued);
+            Assert.Empty(await db.TwoStepChallenges.ToListAsync(TestContext.Current.CancellationToken));
         }
+
+        Assert.Empty(_session.SignedIn);
 
         Assert.NotNull(why);
     }
 
     public ValueTask DisposeAsync() => _services.DisposeAsync();
+
+    [Fact]
+    public async Task Given_an_earlier_pending_sign_in_When_the_password_is_given_again_Then_only_the_new_challenge_remains()
+    {
+        using var scope = _services.CreateScope();
+        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
+        await sender.Send(new StaffSignInCommand { Email = "dana@christianfitness.ca", Password = Password }, TestContext.Current.CancellationToken);
+        await sender.Send(new StaffSignInCommand { Email = "dana@christianfitness.ca", Password = Password }, TestContext.Current.CancellationToken);
+
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var challenge = await db.TwoStepChallenges.SingleAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(TwoStepChallenge.HashOf(_cookie.Issued[^1].Token), challenge.TokenHash);
+    }
+
+    private sealed class RecordingTwoStepCookie : ITwoStepCookie
+    {
+        public List<(string Token, DateTimeOffset ExpiresAt)> Issued { get; } = [];
+
+        public void Issue(string token, DateTimeOffset expiresAt) => Issued.Add((token, expiresAt));
+
+        public string? Read() => null;
+
+        public void Clear()
+        {
+        }
+    }
 
     private sealed class RecordingStaffSessionSignIn : IStaffSessionSignIn
     {
