@@ -19,7 +19,7 @@ The screen follows `docs/mocks/pages/admin-members/` (states `default`, `active`
 - **`memberListQueryOf`, `memberListHref`, `memberTabs`, `memberCountLabel`, `joinedOn`, `memberRangeLabel`, `noMembersMessage`** — pure helpers in `domain` with unit tests: the query a URL names, the URL of a query, the tabs, the subtitle, the join date in Toronto, the pagination summary and the empty state's words.
 - **`AdminMembersApi`** — contract behind `ADMIN_MEMBERS_SERVICE`. `HttpAdminMembersService` implements it and is bound on `MembersPage` providers.
 - **`AdminMembersController`** — `GET /api/admin/members?status=&q=&page=`, in the Members staff area, which admits Admin and Moderator (ADR 0020). It sends one `SearchMembersQuery`.
-- **`SearchMembersValidator`** — refuses a search longer than 100 characters, a status that is not `active`, `flagged` or `suspended`, and a page below 1 with 400 `validation_failed`.
+- **`SearchMembersValidator`** — refuses a search longer than 100 characters, a status other than `all`, `active`, `flagged` or `suspended`, and a page below 1 with 400 `validation_failed`.
 - **`SearchMembersHandler`** — applies a trimmed, case-insensitive contains match on name or email, an optional status filter, newest joined first then by id, and a page size of 25; a page past the last answers the last page. It answers `MemberListDto` (`total`, `matches`, `page`, `pageSize`, `members`) of `MemberRowDto`, with `EventsAttended` counted from registrations by `IRegistrationReader.CountsForAsync`, which answers none until slice 6.1.
 - **`Member`** and **`MemberStatus`** — domain types from ChristianFitness.Domain.
 

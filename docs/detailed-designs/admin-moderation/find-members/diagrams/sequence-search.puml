@@ -16,39 +16,55 @@ skinparam package {
 }
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
-  participant "MembersPage" as page
+  participant "AdminMembersPage" as page
   participant "HttpAdminMembersService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
   participant "AdminMembersController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SearchMembersValidator" as v
   participant "SearchMembersHandler" as h
+  participant "IRegistrationReader" as reg
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
-actor -> page : Open Members, type a search term or pick a status tab
-page -> client : search(term, status, page)
-client -> ctrl : GET /api/admin/members?search&status&page
-ctrl -> ctrl : Authenticate and apply StaffOnly policy (Admin or Moderator, L2-019)
-ctrl -> h : Send SearchMembersQuery
-opt search term present
-  h -> h : Name or email contains term, case-insensitive (L2-028 AC2)
-end
-opt status selected
-  h -> h : Status equals Active, Flagged or Suspended (L2-028 AC3)
-end
-h -> db : Filtered, ordered query; 25 per page; count registrations
-db --> h : Rows and total
-h --> ctrl : PagedResult of MemberRowDto (L2-028 AC1)
-ctrl --> client : 200 OK
-client --> page : Page of members
-alt rows returned
-  page --> actor : Name, initials, email, church, joined, events, status
-else no match for the term
-  page --> actor : No-results state naming the term as text
-else no members at all
-  page --> actor : Empty state
+actor -> page : Open Members, type a search, pick a status tab or a page
+page -> page : Typing waits 300 ms after the last key,\nthen the URL names status, q and page
+page -> client : search({ status, q, page })
+client -> ctrl : GET /api/admin/members?status&q&page
+ctrl -> ctrl : Authenticate; Members area admits Admin and Moderator (L2-019)
+ctrl -> v : Send SearchMembersQuery
+alt unknown status, search over 100 characters or page below 1
+  v --> ctrl : ValidationException
+  ctrl --> client : 400 validation_failed (L2-028 AC6)
+  client --> page : ApiError
+  page --> actor : Error state with Try again (L2-028 AC5)
+else
+  v -> h : Valid
+  h -> db : Count every member
+  opt status selected
+    h -> h : Status equals Active, Flagged or Suspended (L2-028 AC3)
+  end
+  opt search term present
+    h -> h : Name or email contains the trimmed term,\ncase-insensitive (L2-028 AC2)
+  end
+  h -> db : Count matches; newest joined first, then id; 25 per page
+  db --> h : Matches and the page's rows
+  h -> reg : CountsForAsync(ids of the page)
+  reg --> h : Registrations per member (none until slice 6.1)
+  h --> ctrl : MemberListDto (L2-028 AC1)
+  ctrl --> client : 200 OK
+  client --> page : total, matches, page, pageSize, members
+  alt rows returned
+    page --> actor : Initials, name, email, church, joined, events, status;\nmember count; pages when there is more than one
+  else no match for the term
+    page --> actor : "No members match" the term, as text, with Clear search
+  else nobody with the status
+    page --> actor : Tab-empty state
+  else no members at all
+    page --> actor : Empty state
+  end
 end
 @enduml

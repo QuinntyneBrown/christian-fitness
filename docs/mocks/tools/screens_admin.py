@@ -659,12 +659,12 @@ def _():
 
 @s("empty", "No members yet (a fresh community): explains where members come from.")
 def _():
-    body = admin_header("Members", "0 members") + member_tabs("All") + empty_block(
+    body = admin_header("Members", "0 members", member_search()) + member_tabs("All") + empty_block(
         "No members yet", "Members appear here when they create an account in the member app.", "")
     return admin_shell("admin-members", body, counts={"admin-members": 0, "admin-services": 0})
 
 
-@s("error", "Members failed to load: retry in place.")
+@s("error", "Members failed to load: retry in place; the search and the tabs stay, so a search that failed can be changed.")
 def _():
-    body = admin_header("Members", "") + error_block("Members didn't load", "We couldn't reach the server. Try again in a moment.", retry="default.html", ref="CF-A4M8")
+    body = admin_header("Members", "", member_search()) + member_tabs("All") + error_block("Members didn't load", "We couldn't reach the server. Try again in a moment.", retry="default.html", ref="CF-A4M8")
     return admin_shell("admin-members", body)

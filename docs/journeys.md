@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 34% (5 of 30 journeys; 31 of 91 days: journeys 1, 2, 3, 9 and 20 are done, journey 10 has 2 of its 4 days, journey 18 has 1 of its 3 days, journey 29 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
+**% complete:** 36% (6 of 30 journeys; 33 of 91 days: journeys 1, 2, 3, 9, 20 and 26 are done, journey 10 has 2 of its 4 days, journey 18 has 1 of its 3 days, journey 29 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
 
 | #   | Journey                          | App    | Description                                                                                                        | Effort (days) |
 | --- | -------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -35,7 +35,7 @@ telemetry), so those are not listed on their own.
 | 23  | Edit and remove listings         | Admin  | Staff edit a published listing or remove it with confirmation.                                                     | 2             |
 | 24  | View event registrations         | Admin  | Staff see who registered for an event and capacity used.                                                           | 2             |
 | 25  | Report a message or member       | Member | Report a harmful message so staff can review the sender.                                                           | 2             |
-| 26  | Find members                     | Admin  | Staff search members and filter by Active, Flagged or Suspended.                                                   | 2             |
+| 26  | ✅ Find members                  | Admin  | Staff search members and filter by Active, Flagged or Suspended.                                                   | 2             |
 | 27  | Flag, suspend and reinstate      | Admin  | Staff change a member's status, with a reason recorded.                                                            | 3             |
 | 28  | Watch the dashboard              | Admin  | Staff see community activity and the work awaiting them.                                                           | 3             |
 | 29  | Staff roles and audit            | Admin  | Moderators only moderate; every staff change is audited.                                                           | 3             |

@@ -4,18 +4,24 @@ LAYOUT_WITH_LEGEND()
 title Components — Find members
 
 Container_Boundary(fe, "Admin web app") {
-  Component(page, "MembersPage", "Routed Angular page", "Holds search term, status filter and page as signals")
+  Component(page, "AdminMembersPage", "Routed Angular page", "Reads status, search and page from the URL; debounces typing")
+  Component(rules, "admin-member-list", "Pure helpers in the domain library", "Query of a URL, URL of a query, tabs, count, join date, range, empty words")
   Component(svc, "ADMIN_MEMBERS_SERVICE / AdminMembersApi", "Injection token and contract", "Typed member search")
-  Component(table, "MemberTable", "Presentation component", "BEM block table with status and avatar")
+  Component(lib, "Components library", "cf-search-field, cf-tabs, cf-table, cf-status, cf-pagination, cf-empty-state", "Table with a person cell and words for an empty cell")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "AdminMembersController", "ASP.NET Core controller, policy StaffOnly", "One MediatR send")
+  Component(ctrl, "AdminMembersController", "ASP.NET Core controller, Members staff area", "One MediatR send")
+  Component(v, "SearchMembersValidator", "FluentValidation", "Refuses an unknown status, a long search, a page below 1")
   Component(h, "SearchMembersHandler", "MediatR query handler", "Filters, orders and pages members")
-  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Members and registrations")
+  Component(reg, "IRegistrationReader", "Application contract", "Events attended per member; none until slice 6.1")
+  ComponentDb(db, "Christian Fitness database", "EF Core via IAppDbContext", "Members")
 }
+Rel(page, rules, "Works out its state with")
 Rel(page, svc, "Depends on")
-Rel(page, table, "Renders rows with")
+Rel(page, lib, "Composes")
 Rel(svc, ctrl, "Calls", "JSON/HTTPS")
-Rel(ctrl, h, "Sends SearchMembersQuery")
+Rel(ctrl, v, "Sends SearchMembersQuery")
+Rel(v, h, "Passes a valid query to")
+Rel(h, reg, "Asks once per page")
 Rel(h, db, "Reads", "EF Core")
 @enduml

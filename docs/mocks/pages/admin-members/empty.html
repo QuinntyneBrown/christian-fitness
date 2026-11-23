@@ -43,7 +43,11 @@
     <h1 class="display admin-title">Members</h1>
     <p class="subtitle">0 members</p>
   </div>
-  
+  <form class="search" role="search">
+            <label class="visually-hidden" for="member-search">Search members</label>
+            <svg class="icon search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input class="search__input" id="member-search" type="search" placeholder="Search name or email">
+          </form>
 </div><nav class="tabs" aria-label="Filter members"><a class="tabs__tab" href="../../pages/admin-members/default.html" aria-current="page">All</a><a class="tabs__tab" href="../../pages/admin-members/active.html">Active</a><a class="tabs__tab" href="../../pages/admin-members/flagged.html">Flagged</a><a class="tabs__tab" href="../../pages/admin-members/suspended.html">Suspended</a></nav><div class="empty-state">
   <h2 class="display empty-state__title">No members yet</h2>
   <p class="empty-state__text">Members appear here when they create an account in the member app.</p>
