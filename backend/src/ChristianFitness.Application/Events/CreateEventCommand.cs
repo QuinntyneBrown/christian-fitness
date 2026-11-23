@@ -45,7 +45,7 @@ public sealed class CreateEventCommand : IRequest<AdminEventDto>
 
 /// <summary>
 /// Saves the event as a draft (L2-022 AC1), its start read in Toronto (<see cref="EventSchedule"/>).
-/// The body was validated before this runs (<c>CreateEventValidator</c>), so every field is
+/// The body was validated before this runs (<see cref="CreateEventValidator"/>), so every field is
 /// there and within its limits.
 /// </summary>
 internal sealed class CreateEventHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<CreateEventCommand, AdminEventDto>
