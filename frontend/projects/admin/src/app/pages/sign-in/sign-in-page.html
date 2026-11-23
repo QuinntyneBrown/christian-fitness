@@ -1,6 +1,7 @@
 <cf-staff-layout
   heading="Staff sign in"
   lead="For the Christian Fitness team only."
+  note="Two-step verification required"
   (submitted)="submit()"
 >
   @if (refusal() === 'invalid-credentials') {

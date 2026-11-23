@@ -46,6 +46,14 @@
   }
 }
 
+// A one-time code: large, spaced, tabular digits, centred.
+.input--code {
+  font-size: var(--font-size-2xl);
+  letter-spacing: var(--letter-spacing-code);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
 .field__hint {
   margin-top: var(--space-1-5);
   display: block;

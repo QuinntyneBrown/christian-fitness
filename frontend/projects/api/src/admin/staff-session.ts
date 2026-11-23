@@ -12,17 +12,35 @@ export interface StaffSessionDto {
   role: StaffRoleName;
 }
 
-/** The staff session of the admin app: who it is, signing in and signing out (ADR 0011). */
+/** The second step of staff sign-in (`POST /api/admin/session/two-step`, L2-046). */
+export interface TwoStepRequestDto {
+  /** The code from the authenticator app, as typed; the API ignores spaces. */
+  code: string;
+}
+
+/**
+ * The staff session of the admin app: who it is, signing in with a password and a code, and
+ * signing out (ADR 0011, ADR 0012).
+ */
 export interface StaffSessionApi {
   /** The current staff session; anyone without one is refused with 401. */
   current(): Observable<StaffSessionDto>;
 
   /**
-   * Signs staff in; the answer is their session. A refusal errors with an `ApiError`: code
+   * The password step: completes when the API has started a pending sign-in (202, L2-046 AC1); no
+   * session exists until {@link verify}. A refusal errors with an `ApiError`: code
    * `invalid_credentials` (401) for an unknown email or a wrong password, the same for both
-   * (L2-018 AC3), and `not_staff` (403) for a member without a staff role (L2-018 AC2).
+   * (L2-018 AC3), `not_staff` (403) for a member without a staff role (L2-018 AC2) and
+   * `two_step_not_set_up` (403) for staff without an authenticator (L2-046 AC6).
    */
-  signIn(request: SignInRequestDto): Observable<StaffSessionDto>;
+  signIn(request: SignInRequestDto): Observable<void>;
+
+  /**
+   * The second step: the authenticator's code; the answer is the staff session (L2-046 AC2). A
+   * refusal errors with an `ApiError`: `invalid_code` (401, AC3), `too_many_attempts` (429, AC4)
+   * or `two_step_expired` (401, AC5).
+   */
+  verify(request: TwoStepRequestDto): Observable<StaffSessionDto>;
 
   /**
    * Ends the staff session on the server (L2-018 AC6) and completes; a session that had already
