@@ -36,6 +36,15 @@ Outside Development the API refuses to start, naming each one, while `Email__Smt
 missing and changes nothing on a second run. The API never migrates on startup: run `migrate`,
 then `seed`, then start the API.
 
+`cf two-step <email>` sets up two-step verification for a staff account (L2-046 AC6, ADR 0012):
+it stores a new authenticator secret and prints its `otpauth://` link once, for the staff member
+to add to their authenticator app (as a QR code or by hand). Staff cannot sign in to the admin app
+until it has been run for them, the first staff account from `cf seed` included. Running it again
+replaces the secret, which is what to do when a phone is lost. An email that is not a staff
+account's stops it with exit code 3 and changes nothing. It needs only
+`ConnectionStrings__Default`; the link is a secret, so run it where nobody else can read the
+terminal and never paste it into a ticket or a chat.
+
 | Setting                      | Required          | Purpose                                                                                                     | Example                                                                     |
 | ---------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `ConnectionStrings__Default` | Yes               | The PostgreSQL database to migrate and seed, with a role that may change the schema.                       | `Host=db;Port=5432;Database=christian_fitness;Username=cf_owner;Password=…` |
