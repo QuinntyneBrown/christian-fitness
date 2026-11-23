@@ -1,0 +1,159 @@
+// The design system's dialog (docs/design-system/assets/components.css, "Overlays: scrim,
+// dialog, drawer"): a bottom sheet below 640 px, centred up to --layout-dialog-max above.
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--color-bg-backdrop);
+  animation: fade-in var(--duration-base) var(--ease-enter);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.dialog {
+  position: fixed;
+  z-index: var(--z-modal);
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  max-height: 92dvh;
+  flex-direction: column;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-4);
+  animation: sheet-in var(--duration-slow) var(--ease-enter);
+}
+
+@keyframes sheet-in {
+  from {
+    translate: 0 100%;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+.dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  padding: var(--space-5) var(--space-6) var(--space-4);
+}
+
+.dialog__title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-3xl);
+}
+
+.dialog__sub {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+// A 44 × 44 px icon button labelled "Close" (dialog.html, "Touch").
+.dialog__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--target-comfortable);
+  height: var(--target-comfortable);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2)) 0 0;
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &:active {
+    background: var(--color-bg-subtle-hover);
+  }
+}
+
+.dialog__body {
+  min-height: 0;
+  flex: 1 1 0%;
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+// The footer's actions split its width (`btn--grow`): each projected button host is
+// `display: contents`, so its button is the grid item.
+.dialog__foot {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  padding: var(--space-4) var(--space-6);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.dialog__success {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.dialog__success-icon {
+  display: flex;
+  width: var(--size-avatar-xl);
+  height: var(--size-avatar-xl);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+
+.dialog__success-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dialog__success-text {
+  color: var(--color-fg-muted);
+}
+
+@media (min-width: 40rem) {
+  .dialog {
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+    width: calc(100% - var(--space-8));
+    max-width: var(--layout-dialog-max);
+    max-height: calc(100dvh - var(--space-16));
+    border-radius: var(--radius-xl);
+    animation: dialog-in var(--duration-base) var(--ease-enter);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .dialog {
+    animation: none;
+  }
+}
