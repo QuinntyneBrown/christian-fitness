@@ -1,0 +1,52 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.820
+Leave the admin console alone for half an hour, and it signs you out. Come back, and
+
+00:00:06.820 --> 00:00:08.095
+it tells you why.
+
+00:00:10.000 --> 00:00:14.775
+Every request keeps a staff session open for thirty more minutes. The first one
+
+00:00:14.775 --> 00:00:19.547
+after thirty quiet minutes is refused, and the session ends on the server.
+
+00:00:20.000 --> 00:00:25.240
+Moving to another area checks the session. If it has expired, Staff sign in opens
+
+00:00:25.240 --> 00:00:29.034
+and says so. A first visit, or a reload, says nothing.
+
+00:00:30.000 --> 00:00:34.686
+When the API refuses something staff may not see, the Staff only screen takes its
+
+00:00:34.686 --> 00:00:39.614
+place. Its heading takes focus, and the address bar keeps where they were going.
+
+00:00:40.000 --> 00:00:44.182
+Sign out ends that session. While it waits, the button says Signing out.
+
+00:00:48.000 --> 00:00:52.151
+Five wrong passwords in fifteen minutes now pause staff sign-in too, counted
+
+00:00:52.151 --> 00:00:54.035
+together with the member app.
+
+00:00:58.000 --> 00:01:02.575
+On the server, the session renews on every request, not only after half its
+
+00:01:02.575 --> 00:01:07.634
+lifetime. A refused attempt is never counted, so nobody can stretch the pause.
+
+00:01:08.000 --> 00:01:10.922
+Every test failed first. Now they all pass.
+
+00:01:14.000 --> 00:01:16.340
+Next, Admin and Moderator roles.
+
+00:01:20.000 --> 00:01:24.915
+That's slice nine point three. Christian Fitness: a Christian community for health
+
+00:01:24.915 --> 00:01:26.354
+in body and spirit.
