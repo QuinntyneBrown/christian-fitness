@@ -2,7 +2,7 @@
 
 ## Overview
 
-Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. An *event* is a gathering staff publish for members: a run, workout, basketball game, mobility session, workshop or retreat. The events subsystem lets a member find events, read their detail, and register for or cancel a place within each event's capacity (`L1-005`).
+Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. An _event_ is a gathering staff publish for members: a run, workout, basketball game, mobility session, workshop or retreat. The events subsystem lets a member find events, read their detail, and register for or cancel a place within each event's capacity (`L1-005`).
 
 - **published event** — event staff have made visible to members, neither draft nor cancelled
 - **going** — count of current registrations for an event
@@ -33,9 +33,9 @@ The feature is a vertical slice from the Event detail screen to the database.
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. The L2 specification states its requirements as acceptance criteria; the text below condenses those criteria faithfully.
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-010` | `L1-005` | A published event shall show image, title, category, date and time, place and area, price, summary, going/capacity and the registration action. An event id that does not exist or is not published shall show a not-found view. A registered member viewing the event shall see "You're going" and a link to the event's group chat. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                           |
+| -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-010` | `L1-005`     | A published event shall show image, title, category, date and time, place and area, price, summary, going/capacity and the registration action. An event id that does not exist or is not published shall show a not-found view. A registered member viewing the event shall see "You're going" and a link to the event's group chat. |
 
 ## Diagrams
 

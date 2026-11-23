@@ -1,3 +1,6 @@
 /* The mocks render with the design system's component stylesheet:
    docs/design-system/assets/components.css. This file only forwards to it. */
 @import url("../../design-system/assets/components.css");
+
+/* The foot of a paged list: the next page loading, failing or capped (events, slice 4.1). */
+.feed-end { display: flex; justify-content: center; padding: var(--space-8) 0; color: var(--color-fg-muted); font-size: var(--font-size-sm); text-align: center; }
