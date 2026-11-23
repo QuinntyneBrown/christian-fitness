@@ -4,6 +4,7 @@ using ChristianFitness.Infrastructure.Persistence;
 using ChristianFitness.Infrastructure.Registrations;
 using ChristianFitness.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,9 +34,9 @@ public static class InfrastructureServiceCollectionExtensions
     /// <summary>
     /// Signing a member in and out with the session cookie, and staff with the admin session cookie
     /// after the second step's cookie, keeping each session on the server, reading the signed-in
-    /// member and the client address back, and ending every session of a member. Only the API,
-    /// which configures the cookie schemes, adds these (ADR 0007, ADR 0009, ADR 0011, ADR 0012,
-    /// ADR 0013, ADR 0014).
+    /// member and the client address back, ending every session of a member, and deciding each staff
+    /// area from the role in the database. Only the API, which configures the cookie schemes and the
+    /// policies, adds these (ADR 0007, ADR 0009, ADR 0011, ADR 0012, ADR 0013, ADR 0014, ADR 0017).
     /// </summary>
     public static IServiceCollection AddSessions(this IServiceCollection services)
     {
@@ -53,6 +54,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISessionRevocation, DatabaseSessionRevocation>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         services.AddScoped<IClientAddress, HttpClientAddress>();
+        // Scoped: it reads the role through the request's IAppDbContext (ADR 0017).
+        services.AddScoped<IAuthorizationHandler, StaffAreaAuthorizationHandler>();
         return services;
     }
 }

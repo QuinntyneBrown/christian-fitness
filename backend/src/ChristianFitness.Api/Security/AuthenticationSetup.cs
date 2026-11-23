@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using ChristianFitness.Api.Errors;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Security;
@@ -18,11 +17,27 @@ internal static class AuthenticationSetup
     /// <summary>The staff session cookie of the admin app (L2-018; ADR 0011).</summary>
     public const string StaffCookie = "__Host-cf-admin";
 
-    /// <summary>The policy every admin endpoint requires: a staff session with a staff role (L2-018 AC4).</summary>
+    /// <summary>
+    /// The policy of the console itself (the staff session): a staff session whose member holds any
+    /// staff role now (L2-018 AC4, L2-019 AC4). Every other area has its own (<see cref="PolicyFor"/>).
+    /// </summary>
     public const string StaffPolicy = "Staff";
 
-    /// <summary>Every controller routed under this prefix requires <see cref="StaffPolicy"/>.</summary>
+    /// <summary>Every controller routed under this prefix requires its staff area's policy.</summary>
     public const string AdminRoutePrefix = "api/admin";
+
+    /// <summary>
+    /// The staff area of each route segment after <see cref="AdminRoutePrefix"/>; a segment not here
+    /// is <see cref="StaffArea.Unlisted"/>, closed to Moderators until its slice names it (ADR 0017).
+    /// </summary>
+    private static readonly Dictionary<string, StaffArea> AreaSegments = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["session"] = StaffArea.Console,
+        ["dashboard"] = StaffArea.Dashboard,
+        ["members"] = StaffArea.Members,
+        ["events"] = StaffArea.Events,
+        ["services"] = StaffArea.Services,
+    };
 
     /// <summary>A member session lasts 14 days from the last request (ADR 0007).</summary>
     public static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(14);
@@ -93,20 +108,49 @@ internal static class AuthenticationSetup
                 };
             });
 
-        services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
-            .AddPolicy(StaffPolicy, policy => policy
+        var authorization = services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        // One policy per staff area: the staff session, and the role the database holds now must
+        // open the area (L2-019; ADR 0017). StaffAreaAuthorizationHandler decides the requirement.
+        foreach (var area in Enum.GetValues<StaffArea>())
+        {
+            authorization.AddPolicy(PolicyFor(area), policy => policy
                 .AddAuthenticationSchemes(SessionSchemes.Staff)
                 .RequireAuthenticatedUser()
-                .RequireClaim(ClaimTypes.Role, Enum.GetNames<StaffRoleName>()));
+                .AddRequirements(new StaffAreaRequirement(area)));
+        }
 
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, StaffRefusalResultHandler>();
         return services;
     }
 
+    /// <summary>The policy of <paramref name="area"/>: <see cref="StaffPolicy"/> for the console, <c>Staff:{Area}</c> otherwise.</summary>
+    public static string PolicyFor(StaffArea area) =>
+        area == StaffArea.Console ? StaffPolicy : $"{StaffPolicy}:{area}";
+
+    /// <summary>The staff area of an admin route template, or none for a route outside <see cref="AdminRoutePrefix"/>.</summary>
+    public static StaffArea? AreaOf(string template)
+    {
+        ArgumentNullException.ThrowIfNull(template);
+        if (template.Equals(AdminRoutePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return StaffArea.Console;
+        }
+
+        if (!template.StartsWith(AdminRoutePrefix + "/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var segment = template[(AdminRoutePrefix.Length + 1)..].Split('/', 2)[0];
+        return AreaSegments.GetValueOrDefault(segment, StaffArea.Unlisted);
+    }
+
     /// <summary>
-    /// Every controller routed under <see cref="AdminRoutePrefix"/> requires <see cref="StaffPolicy"/>,
-    /// so a later admin endpoint cannot forget it; <c>[AllowAnonymous]</c> on an action (the staff
-    /// sign-in) still opts out (L2-018 AC4).
+    /// Every controller routed under <see cref="AdminRoutePrefix"/> requires the policy of its staff
+    /// area, read from where it is routed, so a later admin endpoint can neither forget the staff
+    /// session nor its role rule; <c>[AllowAnonymous]</c> on an action (the staff sign-in) still opts
+    /// out (L2-018 AC4, L2-019; ADR 0017).
     /// </summary>
     public static void AddStaffAreaConvention(this MvcOptions options) =>
         options.Conventions.Add(new StaffAreaConvention());
@@ -149,11 +193,9 @@ internal static class AuthenticationSetup
         {
             foreach (var selector in controller.Selectors)
             {
-                if (selector.AttributeRouteModel?.Template is { } template
-                    && (template.Equals(AdminRoutePrefix, StringComparison.OrdinalIgnoreCase)
-                        || template.StartsWith(AdminRoutePrefix + "/", StringComparison.OrdinalIgnoreCase)))
+                if (selector.AttributeRouteModel?.Template is { } template && AreaOf(template) is { } area)
                 {
-                    selector.EndpointMetadata.Add(new AuthorizeAttribute(StaffPolicy));
+                    selector.EndpointMetadata.Add(new AuthorizeAttribute(PolicyFor(area)));
                 }
             }
         }
