@@ -1,4 +1,4 @@
-/** The community's time zone: events happen in the Greater Toronto Area (ADR 0020). */
+/** The community's time zone: events happen in the Greater Toronto Area (ADR 0021). */
 export const EVENT_TIME_ZONE = 'America/Toronto';
 
 // Made once on first use, not at import: the formatter is costly to create.

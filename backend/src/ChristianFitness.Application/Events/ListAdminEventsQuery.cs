@@ -8,11 +8,11 @@ namespace ChristianFitness.Application.Events;
 
 /// <summary>
 /// The staff list of events for one tab: <c>all</c> (the default), <c>published</c> or <c>draft</c>
-/// (L2-022 AC5; ADR 0020).
+/// (L2-022 AC5; ADR 0021).
 /// </summary>
 public sealed record ListAdminEventsQuery(string? Status) : IRequest<AdminEventListDto>
 {
-    /// <summary>The most events one answer holds; paging waits until the community has more (ADR 0020).</summary>
+    /// <summary>The most events one answer holds; paging waits until the community has more (ADR 0021).</summary>
     public const int Limit = 100;
 }
 

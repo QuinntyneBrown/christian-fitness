@@ -5,7 +5,7 @@ namespace ChristianFitness.Domain.Events;
 /// <summary>
 /// A gathering members register for: a run, a workout, basketball, mobility, a workshop or a
 /// retreat (L1-005, L1-010). Staff create it as a <see cref="EventStatus.Draft"/>, hidden from
-/// members until it is published (L2-022 AC1; ADR 0020).
+/// members until it is published (L2-022 AC1; ADR 0021).
 /// </summary>
 [SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "The design and the product call it an event; no Visual Basic code consumes the domain.")]
 public sealed class Event

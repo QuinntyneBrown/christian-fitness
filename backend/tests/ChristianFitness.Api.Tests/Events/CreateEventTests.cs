@@ -9,8 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC1 (ADR 0020): signed-in staff create an event and it is saved as a draft, its Toronto
-/// start stored as the instant; only a staff session may create one (L2-018 AC4, ADR 0011).
+/// L2-022 AC1 (ADR 0021): signed-in staff create an event and it is saved as a draft, its Toronto
+/// start stored as the instant; only a staff session may create one (L2-018 AC4, ADR 0011), and
+/// only an Admin's, since Events is an Admin area (L2-019 AC1, ADR 0020).
 /// </summary>
 public sealed class CreateEventTests(AdminEventsFactory factory) : IClassFixture<AdminEventsFactory>
 {
@@ -95,5 +96,22 @@ public sealed class CreateEventTests(AdminEventsFactory factory) : IClassFixture
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         using var scope = factory.Services.CreateScope();
         Assert.False(await scope.ServiceProvider.GetRequiredService<AppDbContext>().Events.AnyAsync(e => e.Title == "Made by a member", TestContext.Current.CancellationToken));
+    }
+
+    // L2-019 AC1 (ADR 0020): a Moderator's staff session is valid, but Events is an Admin area.
+    [Fact]
+    public async Task Given_a_Moderator_When_they_create_an_event_Then_it_is_refused_with_forbidden_role_and_nothing_is_saved()
+    {
+        using var client = Browser.CreateClient(factory);
+        await Staff.CreateAsync(factory, client, "joel.create@example.org", Domain.Members.StaffRoleName.Moderator);
+        using var signedIn = await Staff.SignInWithCodeAsync(client, "joel.create@example.org", factory.Time.GetUtcNow());
+        var body = AdminEvents.Retreat();
+        body["title"] = "Made by a Moderator";
+
+        using var response = await AdminEvents.CreateAsync(client, Staff.Cookie(signedIn), body);
+
+        await StaffRoleTests.AssertRefusedAsync(response, "forbidden_role");
+        using var scope = factory.Services.CreateScope();
+        Assert.False(await scope.ServiceProvider.GetRequiredService<AppDbContext>().Events.AnyAsync(e => e.Title == "Made by a Moderator", TestContext.Current.CancellationToken));
     }
 }

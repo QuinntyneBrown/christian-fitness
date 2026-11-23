@@ -29,7 +29,7 @@ public interface IAppDbContext
     /// <summary>The wrong second-step codes, counted per account (L2-046 AC4; ADR 0013).</summary>
     DbSet<TwoStepFailure> TwoStepFailures { get; }
 
-    /// <summary>The events staff create and members register for (L2-022; ADR 0020).</summary>
+    /// <summary>The events staff create and members register for (L2-022; ADR 0021).</summary>
     DbSet<Event> Events { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>

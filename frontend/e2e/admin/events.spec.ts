@@ -17,7 +17,7 @@ function answerList(api: ApiHandlers, events = CAST_EVENTS): (string | null)[] {
   return asked;
 }
 
-// L2-022 AC5 (ADR 0020): the Events page lists every event soonest first, with the date and time in
+// L2-022 AC5 (ADR 0021): the Events page lists every event soonest first, with the date and time in
 // Toronto, going / capacity and the status, under All, Published and Draft with their counts.
 test.describe('Admin app, the Events page', () => {
   test('lists every event soonest first under All, as the default mock draws it', async ({
@@ -172,7 +172,7 @@ test.describe('Admin app, the Events page', () => {
     await events.open();
 
     await expect(events.loading).toBeVisible();
-    // Four columns until slice 10.2 adds Edit (ADR 0020), five rows.
+    // Four columns until slice 10.2 adds Edit (ADR 0021), five rows.
     await expect(events.skeletons).toHaveCount(20);
     await expect(events.tabLinks).toHaveText(['All', 'Published', 'Draft']);
     await expect(events.tabCounts).toHaveCount(0);
@@ -182,7 +182,7 @@ test.describe('Admin app, the Events page', () => {
   });
 });
 
-// L2-022 AC6 (ADR 0020): events that cannot be loaded show the error state; Try again asks again.
+// L2-022 AC6 (ADR 0021): events that cannot be loaded show the error state; Try again asks again.
 test.describe('Admin app, the Events page when the events do not load', () => {
   test('no answer shows "Events didn\'t load", and Try again loads them', async ({ page, api }) => {
     let fail = true;

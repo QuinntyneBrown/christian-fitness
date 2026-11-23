@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC2 (ADR 0020): an event with a field missing or out of its limits is refused with 400
+/// L2-022 AC2 (ADR 0021): an event with a field missing or out of its limits is refused with 400
 /// <c>validation_failed</c>, each failed field named with its own code in <c>fieldCodes</c>, and
 /// nothing is saved. One row per code; the limits' edges are rows of
 /// <c>CreateEventValidatorTests</c>.

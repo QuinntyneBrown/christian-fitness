@@ -35,7 +35,7 @@ const CATEGORY_OPTIONS: readonly SelectOption[] = EVENT_CATEGORIES.map((category
  * CDK adds no backdrop (ADR 0017). Focus starts on Title and goes back to
  * what opened it. Save draft sends the fields; while it is on its way the button reads "Saving…",
  * the fields hold still and the drawer stays open. A created draft closes the dialog with the
- * event. A refusal shows one generic alert and gives the fields back as typed (ADR 0020). Publish
+ * event. A refusal shows one generic alert and gives the fields back as typed (ADR 0021). Publish
  * comes with slice 11.1.
  */
 @Component({

@@ -54,7 +54,7 @@ const EMPTY: Record<AdminEventTab, { heading: string; text: string }> = {
 };
 
 /**
- * The Events page (mock docs/mocks/pages/admin-events/; L2-022 AC5, AC6; ADR 0020): every event
+ * The Events page (mock docs/mocks/pages/admin-events/; L2-022 AC5, AC6; ADR 0021): every event
  * soonest first under All, Published and Draft, the tab named by the URL's `status`. Switching tabs
  * moves without reloading and asks for that tab again. While the list loads, skeleton rows; with
  * none, the empty state; when it does not load, the error state with Try again. New event opens

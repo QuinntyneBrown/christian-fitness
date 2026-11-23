@@ -952,13 +952,18 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   a component in a portal, and the async scheduler behind the overlay's scroll handling, sit in
   modules `main` already holds, and esbuild cannot split a module between chunks. A build with the
   dialog's import stubbed out showed the page alone cost 2.6 kB, so the rest was the CDK's. The
-  budget rose to 280/290 kB with that reason in ADR 0020.
+  budget rose to 280/290 kB with that reason in ADR 0021.
 - Slices 1.4, 1.5 and 1.6 merged while this one was paused and built all 46 design-system
   components once, with AGENTS.md now forbidding screen-specific duplicates. The rebase took
   main's side of every shared component, deleted this slice's `event-table`, `select-field`,
   `textarea-field` and `toast-region`, and reworked both screens onto the library; the ADR became
-  0020. The library lacked only the Registered `count` cell, a skeleton row count and a number
-  field's `min`, each added with a component test seen red first.
+  0020, then 0021 once slice 29.1 merged first with its own 0020. The library lacked only the
+  Registered `count` cell, a skeleton row count and a number field's `min`, each added with a
+  component test seen red first.
+- Slice 29.1 merged just before this one, so its Events area policy (Admins only) already covered
+  `api/admin/events` through the route convention; this slice swapped 29.1's events probe for the
+  real endpoint and added a Moderator's refused `POST`, both seen red by mapping `events` to the
+  Dashboard area for one run.
 - Slices 18.1 and 9.3 merged while this one was open and took ADRs 0015 and 0016, so this slice's
   ADR became 0017 in the record and 42 comment lines; a script renumbered only the lines this
   branch added, since 18.1's files already said "ADR 0015" for their own record. The generated
@@ -1000,7 +1005,8 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 
 - "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 9.3) found
   the CDK's share at once; after the rebase a clean worktree of `origin/main` gave the new base,
-  258.98 kB, against this slice's 277.48 kB after the move to the library.
+  258.98 kB, against this slice's 277.48 kB after the move to the library; on top of 29.1's
+  259.93 kB it is 278.29 kB.
 - "Prove a rule red by breaking it alone" (1.1 to 9.3): on the backend, the gap offset, the
   `fieldCodes` filter, the 100-event limit, the order, the draft filter, the `>` of `start_in_past`
   and the title trim each turned the right test red. On the frontend, `restoreFocus`, the toast's

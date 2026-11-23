@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// An event (ADR 0020). The category and status are stored by name, so a reordered enum never
+/// An event (ADR 0021). The category and status are stored by name, so a reordered enum never
 /// changes what a row means; the staff list reads a status's events by their start.
 /// </summary>
 internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>

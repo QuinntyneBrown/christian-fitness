@@ -1,6 +1,6 @@
 import { TOAST_LIFETIME_MS, TOAST_LIMIT, ToastStore } from './toast-store';
 
-// ADR 0020: a toast leaves by itself after about 6 seconds, Dismiss removes it at once, at most
+// ADR 0021: a toast leaves by itself after about 6 seconds, Dismiss removes it at once, at most
 // three show, and the store's timers end with its screen. A fake clock moves time; nothing sleeps.
 describe('ToastStore', () => {
   let store: ToastStore;

@@ -60,7 +60,7 @@ export const NO_ADMIN_EVENTS = {
  * Defaults, which any spec can override: `GET /api/antiforgery` sets the token cookie, and
  * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
- * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0020).
+ * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [

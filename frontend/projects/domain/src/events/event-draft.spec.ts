@@ -1,6 +1,6 @@
 import { capacityOf, eventDraftOf, EMPTY_EVENT_EDITOR, priceCentsOf } from './event-draft';
 
-// ADR 0020: the event editor's typed price, in cents. Blank is free; what is not an amount of
+// ADR 0021: the event editor's typed price, in cents. Blank is free; what is not an amount of
 // dollars and cents is sent as null for the API to refuse with price_invalid.
 describe('priceCentsOf', () => {
   it.each([
@@ -28,7 +28,7 @@ describe('priceCentsOf', () => {
   });
 });
 
-// ADR 0020: the typed capacity; what is not a whole number is sent as null (capacity_required).
+// ADR 0021: the typed capacity; what is not a whole number is sent as null (capacity_required).
 describe('capacityOf', () => {
   it.each([
     { why: 'a whole number', text: '60', expected: 60 },

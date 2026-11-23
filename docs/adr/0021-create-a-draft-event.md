@@ -1,4 +1,4 @@
-# 0020. Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1
+# 0021. Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1
 
 ## Status
 
@@ -88,7 +88,7 @@ next.
   is lazy, but the parts of `@angular/core` that CDK Dialog uses to create a component in a portal
   (about 14 kB) and rxjs's async scheduler (about 2 kB) are bundled with the rest of
   `@angular/core` and rxjs in `main`, which a lazy chunk cannot split. The events page adds
-  2.6 kB. The admin initial total goes from 258.98 kB to 277.48 kB, past the old error
+  2.6 kB. The admin initial total goes from 259.93 kB (main with slice 29.1) to 278.29 kB, past the old error
   budget of 275 kB; every later dialog reuses what is now paid for.
 - **Toasts are a screen's service.** `TOASTS_SERVICE` (`ToastsApi`, `api`) is bound to
   `ToastStore` (`domain`) on the events page: a toast leaves after 6 seconds, Dismiss removes it at
@@ -112,7 +112,9 @@ next.
 
 - Slice 10.2 adds `GET` and `PUT /api/admin/events/{id}`, the Edit column, the invalid and failed
   states (mapping `fieldCodes`), and the image; slice 11.1 adds Publish.
-- Slices 29.1 and 29.2 restrict `CreateEventCommand` to Admins and audit it; nothing here needs
-  to change for that.
+- `CreateEventCommand` is a plain staff command. Slice 29.1 (ADR 0020) merged first: the route
+  convention puts `api/admin/events` in its Events area, so a Moderator is refused both endpoints
+  with 403 `forbidden_role`; `StaffRoleTests` asks the real list in place of 29.1's events probe,
+  and `CreateEventTests` proves a Moderator's `POST` saves nothing. Slice 29.2 audits the command.
 - The list holds at most 100 events; paging waits until the community has more.
 - `@angular/cdk` is the first dialog library in the workspace; later dialogs reuse it.
