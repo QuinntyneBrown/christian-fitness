@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 29% (16 of 57 slices; 26 of 91 days)
+**% complete:** 31% (17 of 57 slices; 28 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -840,3 +840,47 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   field's `field-row` and all 162 behaviour specs still passed.
 - "A free port per worktree" (CF_WEB_PORT 4520, CF_ADMIN_PORT 4521) kept the e2e runs clear of the
   paused worktrees.
+
+## Slice 1.6: Design-system layout, navigation and migration
+
+**What slowed it**
+
+- The first session stalled after the shells and the navigation components, with about 95 files of
+  uncommitted migration on disk. A second session picked the worktree up from `git status`, ran the
+  whole regression (lint, format, unit, build, 164 behaviour specs) before touching anything, found
+  it green, and committed it as one step. Long uncommitted stretches are the risk: commit each green
+  migration, not the whole slice.
+- Encapsulated styles do not reach projected columns, so the design system's
+  `.split > * { min-width: 0 }` could not be copied; `cf-split` writes `minmax(0, …)` tracks
+  instead (ADR 0019).
+- Moving the alert's sentence into a projected wrapper changed one locator in four page objects
+  (`.form-alert__title + p` to `.form-alert__text`), and an alert link named "email" made
+  `getByLabel('Email')` ambiguous until it was `exact`. Every assertion stayed as it was.
+- Forgetting 30.1's "always pass `encoding='utf-8', newline='
+'`" let Python's text mode write
+  CRLF into the docs; `.gitattributes` (`eol=lf`) normalised them on commit.
+- The film's first frames failed with "Cannot read properties of undefined (reading 'start')": the
+  film asked for a second line in scenes that have one. `--frame` on every scene catches it in
+  seconds, before the long build.
+
+**New lessons**
+
+- A migration slice proves itself with the existing behaviour specs: break one library component
+  (an alert that drops its projected text) and watch the specs of every screen that uses it fail
+  for that reason, then restore it.
+- Look for markup repeated across screens even when it is not a component of its own: the busy
+  button's spinning loader icon was drawn by seven screens; `cf-button busy` now draws it, with a
+  component test seen red first.
+- Keep a component's selector when it moves folders (`cf-auth-layout`, `cf-staff-layout`,
+  `cf-admin-layout` into `layout/`): no screen changes, and the diff shows only the move.
+- Compare the library's folders with `docs/design-system/components/*.html` by name; the only
+  folder without a page should be a composite built from library components (`profile-hero`).
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API" (30.1 to 1.5): the shells and screens that
+  compose the new components are lazy, so both apps stayed at 261.59 kB and 258.98 kB.
+- "Keep the mocks' BEM classes" (1.1 to 1.5): the library components kept the design-system block
+  names, so all 164 behaviour specs passed with four locator changes.
+- "A free port per worktree" (CF_WEB_PORT 4361, CF_ADMIN_PORT 4362) kept the e2e runs and the film
+  clear of the paused worktrees.

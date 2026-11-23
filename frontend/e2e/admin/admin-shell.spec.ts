@@ -122,7 +122,7 @@ test.describe('Admin app, navigation below LG', () => {
   });
 });
 
-// L2-038 AC2 and AC7: the layout comes from the components library, which starts the page with the
+// L2-038 AC2, AC7 and AC8: the layout comes from the components library, which starts the page with the
 // design system's skip link; the keyboard reaches the area's content without the navigation.
 test.describe('Admin app, skip link', () => {
   test('the first Tab reaches "Skip to content", and Enter moves focus to the area', async ({

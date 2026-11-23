@@ -54,7 +54,7 @@ test.describe('Member app, member routes need a session', () => {
   });
 });
 
-// L2-038 AC2 and AC7: the shell starts the page with the design system's skip link, so the
+// L2-038 AC2, AC7 and AC8: the shell starts the page with the design system's skip link, so the
 // keyboard reaches the screen's content without going through the top bar.
 test.describe('Member app, skip link', () => {
   test('the first Tab reaches "Skip to content", and Enter moves focus to the screen', async ({
