@@ -21,4 +21,11 @@ export class HttpEventsService implements EventsApi {
   get(id: string): Observable<EventDetailDto> {
     return this.http.get<EventDetailDto>(`/api/events/${encodeURIComponent(id)}`);
   }
+
+  register(id: string): Observable<EventDetailDto> {
+    return this.http.post<EventDetailDto>(
+      `/api/events/${encodeURIComponent(id)}/registrations`,
+      null,
+    );
+  }
 }

@@ -6,6 +6,9 @@ public static class RefusalCodes
     /// <summary>A suspended member gave the right password, in either app (L2-004 AC4, L2-029 AC8).</summary>
     public const string AccountSuspended = "account_suspended";
 
+    /// <summary>The event has no place left (L2-011 AC2; ADR 0032).</summary>
+    public const string EventFull = "event_full";
+
     /// <summary>An event's capacity was set below the members going (L2-022 AC3; ADR 0025).</summary>
     public const string CapacityBelowGoing = "capacity_below_going";
 

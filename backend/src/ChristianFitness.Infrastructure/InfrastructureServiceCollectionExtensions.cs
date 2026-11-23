@@ -27,7 +27,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddSingleton<IPasswordHasherService, IdentityPasswordHasher>();
         services.TryAddSingleton(TimeProvider.System);
-        services.AddSingleton<IRegistrationReader, NoRegistrationsYet>();
+        services.AddScoped<IRegistrationReader, DatabaseRegistrations>();
         services.AddSingleton<IImageStore, FileSystemImageStore>();
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database", tags: [HealthTags.Ready]);
         return services;

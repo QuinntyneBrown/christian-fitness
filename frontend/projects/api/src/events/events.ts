@@ -30,6 +30,11 @@ export interface EventPageDto {
 /** One event in full (`EventDetailDto`, ADR 0031): the summary's fields and its summary text. */
 export interface EventDetailDto extends EventSummaryDto {
   summary: string;
+  /**
+   * The caller's own registration (ADR 0032): `confirmed` for a free event, `reserved` for a paid
+   * one, or `null` when they are not registered.
+   */
+  registration: 'confirmed' | 'reserved' | null;
 }
 
 /** The events a member browses (L2-009; ADR 0027). */
@@ -47,6 +52,14 @@ export interface EventsApi {
    * `HttpErrorResponse`.
    */
   get(id: string): Observable<EventDetailDto>;
+
+  /**
+   * Takes a place at the event for the signed-in member and answers the event as they now see it
+   * (L2-011; ADR 0032); registering again answers the same. A refusal (`event_full`,
+   * `account_suspended`, `event_not_found`) errors with the `HttpErrorResponse`; a 5xx opens the
+   * server-error screen.
+   */
+  register(id: string): Observable<EventDetailDto>;
 }
 
 /** Binds {@link EventsApi}; the Events screen provides it on its own route component. */

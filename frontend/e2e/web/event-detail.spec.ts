@@ -1,5 +1,11 @@
 import { expect, test } from '../fixtures/test';
-import { answerEvent, BOOTCAMP_DETAIL, type EventDetail } from '../fixtures/events';
+import {
+  answerEvent,
+  answerRegistration,
+  BOOTCAMP_DETAIL,
+  type EventDetail,
+  SUNRISE_DETAIL,
+} from '../fixtures/events';
 import { WebEventDetailPage } from '../page-objects/web/event-detail.page';
 import { WebEventsPage } from '../page-objects/web/events.page';
 
@@ -7,6 +13,7 @@ const FULL: EventDetail = {
   ...BOOTCAMP_DETAIL,
   id: '0190c0de-0000-7000-8000-00000000e004',
   going: 50,
+  registration: null,
 };
 
 // L2-010 AC1, AC2: a member opens a published event and reads it; an unknown one is not found (ADR 0031).
@@ -98,5 +105,70 @@ test.describe('Member app, event detail', () => {
     await events.cards.first().click();
 
     await expect(detail.eventTitle).toHaveText('Saturday Park Bootcamp');
+  });
+
+  // L2-011 AC1, AC4, AC5, AC6 and L2-010 AC1, AC3: registering takes a place and the screen says so (ADR 0032).
+  test("Register takes a place, says you're going and counts one more going", async ({
+    page,
+    api,
+  }) => {
+    answerEvent(api, [SUNRISE_DETAIL]);
+    const asked = answerRegistration(api, SUNRISE_DETAIL);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(SUNRISE_DETAIL.id);
+    await expect(detail.going).toHaveText('142 going');
+    await detail.registerButton.click();
+
+    await expect(detail.confirmed).toHaveText("You're going");
+    await expect(detail.going).toHaveText('143 going');
+    await expect(detail.spots).toHaveText('57 of 200 spots left');
+    await expect(detail.registerButton).toHaveCount(0);
+    expect(asked).toEqual([SUNRISE_DETAIL.id]);
+  });
+
+  test('a paid event is reserved and the page says how to pay', async ({ page, api }) => {
+    answerEvent(api, [BOOTCAMP_DETAIL]);
+    answerRegistration(api, BOOTCAMP_DETAIL);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(BOOTCAMP_DETAIL.id);
+    await detail.registerButton.click();
+
+    await expect(detail.confirmed).toHaveText("You're going");
+    await expect(detail.registerNote).toHaveText(
+      'Your spot is reserved. Pay the Christian Fitness team at the event; online payment is not available yet.',
+    );
+  });
+
+  test("a member already registered sees you're going and no Register button", async ({
+    page,
+    api,
+  }) => {
+    answerEvent(api, [{ ...SUNRISE_DETAIL, registration: 'confirmed' }]);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(SUNRISE_DETAIL.id);
+
+    await expect(detail.confirmed).toHaveText("You're going");
+    await expect(detail.registerButton).toHaveCount(0);
+    await expect(detail.registerNote).toHaveCount(0);
+  });
+
+  test('a refused registration shows a generic message and Register stays usable', async ({
+    page,
+    api,
+  }) => {
+    answerEvent(api, [SUNRISE_DETAIL]);
+    answerRegistration(api, SUNRISE_DETAIL, { status: 403, code: 'account_suspended' });
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(SUNRISE_DETAIL.id);
+    await detail.registerButton.click();
+
+    await expect(detail.registerError).toHaveText(/We couldn't register you/);
+    await expect(detail.registerButton).toBeEnabled();
+    await expect(detail.confirmed).toHaveCount(0);
+    await expect(detail.going).toHaveText('142 going');
   });
 });

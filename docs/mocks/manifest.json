@@ -172,6 +172,8 @@
         "default",
         "unregistered",
         "registering",
+        "reserved",
+        "failed",
         "full",
         "loading",
         "error"

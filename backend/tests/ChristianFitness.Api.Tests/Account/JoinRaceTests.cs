@@ -46,6 +46,8 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
         public DbSet<TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
 
         public DbSet<ChristianFitness.Domain.Events.Event> Events => db.Events;
+
+        public DbSet<ChristianFitness.Domain.Events.Registration> Registrations => db.Registrations;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);

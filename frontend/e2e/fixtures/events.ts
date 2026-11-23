@@ -112,12 +112,22 @@ export function answerEvents(
 /** An event as `GET /api/events/{id}` answers it (ADR 0031): the summary's fields and its summary text. */
 export interface EventDetail extends EventSummary {
   summary: string;
+  /** The caller's own registration: `confirmed` (free), `reserved` (paid) or none (ADR 0032). */
+  registration: 'confirmed' | 'reserved' | null;
 }
 
 /** The first event in full: the mock `event-detail/unregistered`, 12 of 50 spots left. */
 export const BOOTCAMP_DETAIL: EventDetail = {
   ...BOOTCAMP,
   summary: 'Forty-five minutes of full-body circuits for every level. Bring a mat and water.',
+  registration: null,
+};
+
+/** A free event in full, 142 of 200 going and the member not yet registered. */
+export const SUNRISE_DETAIL: EventDetail = {
+  ...SUNRISE_5K,
+  summary: 'Run the waterfront together at sunrise.',
+  registration: null,
 };
 
 /**
@@ -131,6 +141,31 @@ export function answerEvent(api: ApiHandlers, events: EventDetail[]): string[] {
     asked.push(id);
     const found = events.find((event) => event.id === id);
     return found ? { json: found } : { status: 404, json: { code: 'event_not_found' } };
+  });
+  return asked;
+}
+
+/**
+ * Answers `POST /api/events/{id}/registrations` for `event` as the API does (ADR 0032): going rises
+ * by one and the registration is `confirmed` for a free event or `reserved` for a paid one. With
+ * `refuse`, it answers that status and no body instead. Returns the ids asked for, in order.
+ */
+export function answerRegistration(
+  api: ApiHandlers,
+  event: EventDetail,
+  refuse?: { status: number; code: string },
+): string[] {
+  const asked: string[] = [];
+  api.on('POST', `/api/events/${event.id}/registrations`, () => {
+    asked.push(event.id);
+    if (refuse) return { status: refuse.status, json: { code: refuse.code } };
+    return {
+      json: {
+        ...event,
+        going: event.going + 1,
+        registration: event.priceCents > 0 ? 'reserved' : 'confirmed',
+      },
+    };
   });
   return asked;
 }

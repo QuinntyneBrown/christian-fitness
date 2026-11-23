@@ -25,7 +25,9 @@ import { HttpEventsService } from '../../services/http-events.service';
  * `EVENTS_SERVICE` is bound here, so the client lives only while the screen does. While it loads
  * it shows skeletons; an id that is not there (404) shows the not-found screen; any other failure
  * shows "This event didn't load" with Try again (a 5xx is the server-error screen's, L2-043 AC4).
- * Registration is slice 6.1's (ADR 0031).
+ * Register takes a place (L2-011; ADR 0032): the button is busy while it asks, then the panel says
+ * "You're going" with the new count, and any refusal shows a generic message with Register still
+ * usable. The group chat link and the full-event page wait for slices 12.x and 6.2.
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -49,9 +51,12 @@ export class EventDetailPage {
   private readonly destroyRef = inject(DestroyRef);
   private id = '';
   private request: Subscription | null = null;
+  private registration: Subscription | null = null;
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly event = signal<EventDetailView | null>(null);
+  protected readonly registering = signal(false);
+  protected readonly registerFailed = signal(false);
   protected readonly facts = computed<DescriptionItem[]>(() => {
     const view = this.event();
     return view
@@ -76,8 +81,32 @@ export class EventDetailPage {
     this.load();
   }
 
+  /** Takes a place at the event, once at a time. */
+  protected register(): void {
+    if (this.registering()) return;
+    this.registering.set(true);
+    this.registerFailed.set(false);
+    this.registration?.unsubscribe();
+    this.registration = this.events
+      .register(this.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (event) => {
+          this.event.set(eventDetailViewOf(event));
+          this.registering.set(false);
+        },
+        error: () => {
+          this.registerFailed.set(true);
+          this.registering.set(false);
+        },
+      });
+  }
+
   private load(): void {
     this.request?.unsubscribe();
+    this.registration?.unsubscribe();
+    this.registering.set(false);
+    this.registerFailed.set(false);
     this.state.set('loading');
     this.request = this.events
       .get(this.id)
