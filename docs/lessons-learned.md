@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 23% (13 of 54 slices; 19 of 83 days)
+**% complete:** 24% (14 of 54 slices; 20 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -685,3 +685,53 @@ worked when applied. Newest entries go at the bottom.
   `[innerHTML]` name, the Toronto day and the unknown interest key each turned the right test red.
 - "A gate in a fixture handler" (2.1) gave the loading state with no clock and no sleep.
 - "Use free ports" (3.2): the specs ran on 4410/4411 beside the two other sessions.
+
+## Slice 9.3: Idle expiry and forbidden
+
+**What slowed it**
+
+- The first design answered `session_expired` for any cookie the API could not accept, which
+  broke slice 3.1's test that a signed-out copy of a cookie is refused `unauthenticated`. Only a
+  session the ticket store finds expired says `session_expired` now; an unknown or signed-out key
+  stays `unauthenticated`. Running the whole backend suite after the first green caught it.
+- The forbidden screen first opened with `skipLocationChange`, as the server-error screen does,
+  and the address bar kept the area staff were leaving, because the refused request is the guard's
+  for the area they were moving to. `browserUrl` set to the navigation in flight fixed it, and the
+  requirement's wording followed.
+- The mock's forbidden screen sent staff "Back to the app", a link to another origin that left the
+  admin session open, and named the signed-in email; the sign-in mock said the account was locked
+  for 30 minutes until another admin unlocked it and disabled Sign in, which slice 3.2's pause does
+  not do. The mock and ADR 0014 were corrected before code: Sign out, and "Sign-in paused for 15
+  minutes".
+- Apostrophes in a quoted heredoc failed the parse twice more; edit specs written by the editor tool
+  and applied by a script that asserts every match took every edit after that.
+
+**New lessons**
+
+- ASP.NET Core's sliding expiration renews a cookie only after half its lifetime, so a request at
+  10 minutes and another 25 minutes later would end a 30-minute session. Setting `ShouldRenew` in
+  `OnCheckSlidingExpiration` renews on every request: a strict idle rule, proved by exactly that
+  pair of requests.
+- `ITicketStore.RetrieveAsync(key, HttpContext, ct)` lets the store mark the request when it finds an
+  expired session, so `OnRedirectToLogin` can tell an expired session from a missing one without a
+  second lookup or a claim.
+- `canActivateChild` on the shell re-checks the session on every move between areas, which is what
+  lets an idle expiry or a role taken away show on the next screen rather than at the next reload.
+- `:empty` on a layout's fields wrapper drops its gap when a screen projects no fields, without an
+  input or a class.
+- Move a shared rule's window check into the shared credential check: the member and staff handlers
+  then pause together with no second count, and a refused attempt cannot stretch the pause.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 9.2): the
+  admin initial total went from 257.70 kB to 258.98 kB, all of it in the two interceptors and the
+  route table; the forbidden screen is a 1.59 kB lazy chunk.
+- "Navigation state, read only from the navigation that set it" (9.2) carried "Your session
+  expired" to Staff sign in; a reload does not bring it back, which ADR 0014 records.
+- "`AttemptWindow` for any feature's own count" (20.1, 9.2) fitted the staff pause unchanged.
+- "Prove a rule red by breaking it alone" (1.1 to 9.2): the renewal, the expired mark, the staff
+  handler forgetting failures, the window's count and each interceptor's registration turned the
+  right tests red; "touch the restored file" (9.2) kept MSBuild honest.
+- "A gate in a fixture handler" (2.1 to 9.2) gave "Signing out…" with no clock; the backend moved a
+  `FakeTimeProvider` past 29, 30 and 15 minutes, never sleeping.
