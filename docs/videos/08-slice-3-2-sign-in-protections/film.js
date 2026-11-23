@@ -66,7 +66,7 @@ Film.scene('paused', (S) => `
   ${closeUp('shots/web-sign-in-paused.png', 110, 500, 560, pop(S, onBeat(S, part('paused', 0, 0.4)), -1))}
   ${tablet('shots/web-sign-in-paused-m-light.png', { width: 420, style: at(760, 220, 420), attrs: arrive(S, 0.2, -2, -6) })}
   ${phone('shots/web-sign-in-paused-xs-light.png', { width: 300, style: at(1260, 160, 300), attrs: arrive(S, S.bar(2), 3, 8) })}
-  <p class="lede" style="${at(1220, 900, 600)}" ${S.rise(onBeat(S, part('paused', 0, 0.75)))}>The button stays: the server decides.</p>
+  <p class="lede" style="${at(1220, 900, 600)}" ${S.rise(onBeat(S, part('paused', 0, 0.75)))}>"Reset your password" gets you back in now.</p>
   </div>
 `, { before: 0.3 });
 

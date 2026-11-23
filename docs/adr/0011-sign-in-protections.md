@@ -105,6 +105,8 @@ accounts. Staff suspend members in slice 27.1; until then only the tests make a 
 - A member who is paused can still sign in with another account's email; the pause is per email,
   as AC3 states, not per device or address.
 - The rule for a path inside the app is shared: `isAppPath` (`domain`) serves the server-error
-  screen's "Try again" and the sign-in return alike. The initial bundle of the member app went
-  from 258.23 kB to 258.32 kB (the guard's `createUrlTree`); the sign-in screen grew from 2.85 kB
-  to 3.63 kB, lazily.
+  screen's "Try again" and the sign-in return alike. The initial bundle of the member app grew
+  by 0.09 kB (the guard's `createUrlTree`), to 258.59 kB on top of slice 20.1; the sign-in
+  screen's lazy chunk carries the refusals and the reset link.
+- The failure window is slice 20.1's `AttemptWindow` (5 in 15 minutes), whose edges are the same
+  as the ones this slice tested: one rule for "at most N attempts in a period".

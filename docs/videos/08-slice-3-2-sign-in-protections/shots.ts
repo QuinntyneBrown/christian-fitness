@@ -70,6 +70,7 @@ test("sign-in paused after too many attempts", async ({ page, api }) => {
     await signIn.fill(EMAIL, PASSWORD);
     await signIn.submitAndAwaitAnswer();
     await expect(signIn.alertTitle).toHaveText("Sign-in paused for 15 minutes");
+    await expect(signIn.resetLink).toHaveAttribute("href", "/forgot-password");
     await expect(signIn.submitButton).toBeEnabled();
     await expect(signIn.email).not.toHaveAttribute("aria-invalid");
     await shot(page, name("sign-in-paused", size, theme));

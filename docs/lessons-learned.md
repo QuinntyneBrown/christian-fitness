@@ -470,6 +470,11 @@ worked when applied. Newest entries go at the bottom.
   corrected a mistyped email; the mock was corrected before code.
 - Git Bash heredocs mangled backslashes in a TypeScript regex and in Python edit scripts again;
   every file holding a backslash went through the editor tool.
+- Slice 20.1 merged while this one was finishing, and the rebase touched everything shared: both
+  had taken ADR 0010 (this one became 0011, with every reference in code renumbered by the lines
+  this branch added), both added a `DbSet` and a migration (mine was dated before theirs, so it
+  was deleted and generated again after theirs), both changed `ApiFactory`, and the sign-in
+  screen had gained "Forgot your password?". The video was shot again afterwards.
 
 **New lessons**
 
@@ -484,6 +489,11 @@ worked when applied. Newest entries go at the bottom.
 - A test of a sliding window spaces its events out (a minute apart) and checks both sides of the
   edge; events at one instant cannot tell a sliding window from a fixed one.
 - A per-address limit for IPv6 keys by the /64, since one host is usually given a whole /64.
+- After a rebase, look for what the other slice made that this one deferred or duplicated: 20.1's
+  `/forgot-password` let the paused message carry the mock's "Reset your password" (deferred
+  until then), and its `AttemptWindow` replaced this slice's own window constants.
+- A migration generated on a branch is regenerated after a rebase that brings an earlier-merged
+  migration dated later, so the model snapshot and the order of migrations agree.
 - Behind a reverse proxy, `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` is ASP.NET Core's own switch
   for the client's address; it trusts any peer, so it belongs where only the proxy reaches the
   API, and it is a setting the deployment must know (`docs/operations/settings.md`).
@@ -493,7 +503,7 @@ worked when applied. Newest entries go at the bottom.
 - "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1, 2.1, 2.2,
   3.1): the base stats were saved before the first change; the diff showed `createUrlTree` in the
   guard (53 bytes) and the shared `isAppPath` moving from one file to another. The total went from
-  258.23 kB to 258.32 kB.
+  258.23 kB to 258.32 kB, and after the rebase from main's 258.50 kB to 258.59 kB.
 - "Prove a rule red by breaking it alone" (1.1, 30.1, 2.1, 2.2, 3.1) was applied with a script
   that swaps one line, runs the test project and restores it: the limit, the window's edge, the
   clearing on success, the pruning, the suspension's place, the lease's release, the /64, the

@@ -21,7 +21,7 @@ sixth account created from one address in an hour is refused 429 `rate_limited` 
 | At   | Bars | Scene       | Picture                                                                           | Headline                          |
 | ---- | ---- | ----------- | --------------------------------------------------------------------------------- | --------------------------------- |
 | 0:00 | 5    | `hook`      | The paused screen at 1440 px and the suspended one at 390 px over the aurora      | Guard **the door.**               |
-| 0:10 | 5    | `paused`    | "Sign-in paused for 15 minutes" close up, at 768 px and at 390 px                 | Five tries, **then a pause.**     |
+| 0:10 | 5    | `paused`    | "Sign-in paused for 15 minutes" and its "Reset your password", at 768 and 390 px | Five tries, **then a pause.**     |
 | 0:20 | 5    | `window`    | The 15-minute window sliding past five failures a minute apart, and the 429       | Fifteen minutes, **sliding.**     |
 | 0:30 | 4    | `suspended` | "Your account is suspended" close up and at 1440 px                               | Suspended, **and told.**          |
 | 0:38 | 5    | `return`    | `/home?welcome=back`, the sign-in screen with its `returnUrl`, then Home again     | Right back **where you were.**    |

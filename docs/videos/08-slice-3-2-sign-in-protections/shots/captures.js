@@ -10,17 +10,17 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 155,
-    "total": 155
+    "passed": 176,
+    "total": 176
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 63,
-    "files": 12
+    "tests": 82,
+    "files": 14
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 179,
+    "passed": 227,
     "lockout": [
       "Given 4 failed sign ins When the fifth attempt has the right password Then the member signs in",
       "Given 5 failed sign ins for an unknown email When a sixth is attempted Then it is refused with too many attempts",
@@ -45,7 +45,7 @@ window.FILM_CAPTURES = {
   },
   "build": {
     "command": "npx ng build web",
-    "raw": 258.32,
-    "transfer": 67.55
+    "raw": 258.59,
+    "transfer": 67.61
   }
 };
