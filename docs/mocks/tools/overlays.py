@@ -408,18 +408,26 @@ def _():
 # ===========================================================================
 # Moderate a member (admin · Members)
 # ===========================================================================
-MODERATE_ACTIONS = [
-    ("Flag", "Marks them for staff attention. They can still use the app."),
-    ("Suspend", "Signs them out everywhere. They cannot sign in until they are reinstated."),
-]
+MODERATE_ACTIONS = {
+    "flag": ("Flag", "Marks them for staff attention. They can still use the app."),
+    "suspend": ("Suspend", "Signs them out everywhere. They cannot sign in until they are reinstated."),
+    "reinstate": ("Reinstate", "Returns them to Active and clears the note on their row."),
+}
+# What each status allows, the milder first (L2-029; ADR 0023, ADR 0024).
+MODERATE_ALLOWED = {"Active": ["flag", "suspend"], "Flagged": ["reinstate", "suspend"], "Suspended": ["reinstate"]}
+MODERATE_SUBMIT = {"flag": "Flag member", "suspend": "Suspend member", "reinstate": "Reinstate member"}
+MODERATE_TOAST = {"flag": "member-flagged", "suspend": "member-suspended", "reinstate": "member-reinstated"}
 
 
-def moderate(*, member: str = "pn", action: str = "flag", invalid=False, busy=False, failed=False, refused=False) -> str:
-    """The moderation dialog (L2-029 AC1, AC2, AC4; ADR 0023): an Active member can be flagged or
-    suspended, a Flagged one suspended; a note is required, and suspending asks for confirmation."""
+def moderate(*, member: str = "pn", action: str = "", invalid=False, busy=False, failed=False, refused=False) -> str:
+    """The moderation dialog (L2-029; ADR 0023, ADR 0024): each status offers what it allows, the
+    milder first. Flagging and suspending need a note, suspending a confirmation; reinstating
+    needs neither."""
     m = next(x for x in A.MEMBERS if x["id"] == member)
-    flagged = m["status"] == "Flagged"
-    suspend = flagged or action == "suspend"
+    allowed = MODERATE_ALLOWED[m["status"]]
+    action = action or allowed[0]
+    suspend = action == "suspend"
+    needs_note = action != "reinstate"
     note_err = "Write a note so other staff know why" if invalid else ""
     check_err = f"Confirm that {m['name']} should be suspended" if invalid and suspend else ""
     alert = ""
@@ -432,16 +440,22 @@ def moderate(*, member: str = "pn", action: str = "flag", invalid=False, busy=Fa
         alert = form_alert("You can't flag or suspend your own account", "Ask another Admin if your own account needs attention.")
     d = " disabled" if busy else ""
     choices = ""
-    if not flagged:
+    if len(allowed) > 1:
         items = "".join(
-            f'<label class="choice"><input class="choice__input" type="radio" name="action" value="{l.lower()}"'
-            f'{" checked" if (l == "Suspend") == suspend else ""}{d}><span><span class="choice__label">{l}</span>'
-            f'<span class="choice__desc">{desc}</span></span></label>' for l, desc in MODERATE_ACTIONS)
+            f'<label class="choice"><input class="choice__input" type="radio" name="action" value="{a}"'
+            f'{" checked" if a == action else ""}{d}><span><span class="choice__label">{MODERATE_ACTIONS[a][0]}</span>'
+            f'<span class="choice__desc">{MODERATE_ACTIONS[a][1]}</span></span></label>' for a in allowed)
         choices = (f'<fieldset class="field"><legend class="field__legend">What do you want to do?</legend>'
                    f'<div class="choice-group">{items}</div></fieldset>')
-    typed = "" if invalid else ("Spam messages to the Sunrise 5K group" if suspend else "Two members asked about messages from this account")
-    note_field = textarea("Note", "note", typed, rows=3, error=note_err,
-                          hint=f"Staff see this on the member's row. {500 - len(typed)} characters left.", readonly=busy)
+    note_field = ""
+    if needs_note:
+        typed = "" if invalid else ("Spam messages to the Sunrise 5K group" if suspend else "Two members asked about messages from this account")
+        note_field = textarea("Note", "note", typed, rows=3, error=note_err,
+                              hint=f"Staff see this on the member's row. {500 - len(typed)} characters left.", readonly=busy)
+    elif len(allowed) == 1:
+        note_field = form_alert(f"{m['name']} will be able to sign in again",
+                                "Their status goes back to Active and the note on their row is cleared.",
+                                kind="info", ic="info", role="status").replace(' tabindex="-1"', "")
     check_html = ""
     if suspend:
         group_desc = ' aria-describedby="f-confirm-error"' if check_err else ""
@@ -453,15 +467,13 @@ def moderate(*, member: str = "pn", action: str = "flag", invalid=False, busy=Fa
     {choices}
     {note_field}
     {check_html}"""
-    label = "Suspend member" if suspend else "Flag member"
-    toast_state = "member-suspended" if suspend else "member-flagged"
     go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
-          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-toast", toast_state)}">{label}</button>')
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-toast", MODERATE_TOAST[action])}">{MODERATE_SUBMIT[action]}</button>')
     foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-members")}">Cancel</button>\n    {go}'
-    title = f"Suspend {m['name']}" if flagged else f"Moderate {m['name']}"
+    title = f"Moderate {m['name']}" if len(allowed) > 1 else f"Reinstate {m['name']}"
     html = dialog(title, body, foot, sub=f"{m['email']} · {m['status']}")
-    if not invalid and not busy and not failed and not refused:
-        html = autofocus_first(html, 'id="f-note"' if flagged else 'name="action" value="flag"')
+    if len(allowed) > 1 and not invalid and not busy and not failed and not refused:
+        html = autofocus_first(html, f'name="action" value="{allowed[0]}"')
     return over_admin("admin-members", A.members_page(A.member_table(A.MEMBERS) + A.member_pagination()), html)
 
 
@@ -479,9 +491,19 @@ def _():
     return moderate(action="suspend")
 
 
-@s("flagged", "A Flagged member (Kevin Brooks) can only be suspended: no choice, focus on the note.")
+@s("flagged", "A Flagged member (Kevin Brooks) can be reinstated or suspended: Reinstate chosen, no note to write.")
 def _():
     return moderate(member="kb")
+
+
+@s("flagged-suspend", "Suspend chosen for a Flagged member: the note and the confirmation appear.")
+def _():
+    return moderate(member="kb", action="suspend")
+
+
+@s("suspended", "A Suspended member (Tyler Simmons) can only be reinstated: no choice and no note, what it means, focus on the dialog.")
+def _():
+    return moderate(member="ts")
 
 
 @s("invalid", "Suspend pressed with no note and no confirmation: summary focused, both named.")
@@ -543,6 +565,12 @@ def _():
 @s("member-suspended", "A member suspended from the moderation dialog: signed out everywhere.")
 def _():
     t = toast("info", "Priya Nair suspended", "They are signed out everywhere and cannot sign in.")
+    return admin_shell("admin-members", A.members_page(A.member_table(A.MEMBERS) + A.member_pagination()), after=toast_region(t, admin=True))
+
+
+@s("member-reinstated", "A member reinstated from the moderation dialog: Active again, the note cleared.")
+def _():
+    t = toast("info", "Tyler Simmons reinstated", "They are Active again and can sign in.")
     return admin_shell("admin-members", A.members_page(A.member_table(A.MEMBERS) + A.member_pagination()), after=toast_region(t, admin=True))
 
 

@@ -28,3 +28,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0021](0021-create-a-draft-event.md) | Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1 | Accepted |
 | [0022](0022-find-members.md) | Find members: one paged search, the URL as the screen's state, a registration count that answers none yet, and stand-ins until 25.1 and 27.1 | Accepted |
 | [0023](0023-flag-and-suspend-members.md) | Flag and suspend members: one moderation dialog, a note on the member, refusals by code, and who may moderate whom | Accepted |
+| [0024](0024-reinstate-members.md) | Reinstate members: no note, the earlier note cleared, and the same dialog | Accepted |
