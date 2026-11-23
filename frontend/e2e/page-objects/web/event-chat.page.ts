@@ -16,6 +16,10 @@ export class WebEventChatPage {
   readonly sendError: Locator;
   readonly failed: Locator;
   readonly tryAgainButton: Locator;
+  readonly earlierButton: Locator;
+  readonly latestButton: Locator;
+  readonly notSent: Locator;
+  readonly retrySendButton: Locator;
 
   constructor(private readonly page: Page) {
     this.chatTitle = page.locator('.chat-page__name');
@@ -29,6 +33,10 @@ export class WebEventChatPage {
     this.sendError = page.locator('.chat-page__error');
     this.failed = page.getByRole('heading', { name: "This chat didn't open" });
     this.tryAgainButton = page.getByRole('button', { name: 'Try again' });
+    this.earlierButton = page.getByRole('button', { name: 'Earlier messages' });
+    this.latestButton = page.getByRole('button', { name: 'Back to the latest messages' });
+    this.notSent = page.locator('.message--failed .message__error');
+    this.retrySendButton = this.notSent.getByRole('button', { name: 'Try again' });
   }
 
   /** One message's author, text and time, read from the thread. */
@@ -39,6 +47,23 @@ export class WebEventChatPage {
       bubble: item.locator('.message__bubble'),
       time: item.locator('.message__time'),
     };
+  }
+
+  /** The text of the message at `index`. */
+  text(index: number): Locator {
+    return this.messages.nth(index).locator('.message__bubble');
+  }
+
+  /** The bubble that holds this text. */
+  bubble(text: string): Locator {
+    return this.page.locator('.message__bubble', { hasText: new RegExp(`^${text}$`) });
+  }
+
+  /** Scrolls the thread to its first message, as a member swiping down does. */
+  async scrollToTop(): Promise<void> {
+    await this.page.locator('.thread__messages').evaluate((list) => {
+      list.scrollTop = 0;
+    });
   }
 
   async open(eventId: string): Promise<void> {

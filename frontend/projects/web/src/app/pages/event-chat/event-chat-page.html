@@ -7,9 +7,25 @@
         <p class="chat-page__sub">Event group</p>
       </div>
     </header>
-    <cf-thread [label]="'Conversation with ' + title()" [entries]="entries()" />
-    @if (sendFailed()) {
-      <p class="chat-page__error" role="alert">That message couldn't be sent. Try again.</p>
+    <cf-thread
+      [label]="'Conversation with ' + title()"
+      [entries]="entries()"
+      [earlier]="hasEarlier()"
+      [loadingEarlier]="loadingEarlier()"
+      (loadEarlier)="loadEarlier()"
+      (retry)="retrySend($event)"
+    />
+    @if (earlierFailed()) {
+      <p class="chat-page__error" role="alert">
+        Earlier messages didn't load. Check your connection and try again.
+      </p>
+    }
+    @if (!atLatest()) {
+      <div class="chat-page__latest">
+        <cf-button size="sm" variant="secondary" (click)="loadLatest()"
+          >Back to the latest messages</cf-button
+        >
+      </div>
     }
     <cf-composer [label]="'Message ' + title()" (send)="send($event)" />
   } @else if (state() === 'connecting') {

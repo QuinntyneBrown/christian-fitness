@@ -1,5 +1,12 @@
 <section class="thread" [attr.aria-label]="label()">
-  <ol class="thread__messages">
+  <ol class="thread__messages" (scroll)="scrolled($event)">
+    @if (earlier()) {
+      <li class="thread__earlier">
+        <button type="button" [disabled]="loadingEarlier()" (click)="loadEarlier.emit()">
+          Earlier messages
+        </button>
+      </li>
+    }
     @for (entry of entries(); track entry.id) {
       @if (entry.kind === 'day') {
         <li class="thread__day">{{ entry.label }}</li>

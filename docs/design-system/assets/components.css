@@ -630,6 +630,9 @@ table { border-collapse: collapse; }
 @media (min-width: 40rem) { .thread__messages { padding-inline: var(--space-6); } }
 .thread__messages > li + li { margin-top: var(--space-4); }
 .thread__day { text-align: center; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); color: var(--color-fg-muted); }
+.thread__earlier { display: flex; justify-content: center; }
+.thread__earlier button { min-height: var(--control-height-md); padding: 0 var(--space-4); border-radius: var(--radius-full); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-fg-muted); text-decoration: underline; text-underline-offset: var(--space-0-5); }
+.thread__earlier button:disabled { opacity: var(--opacity-disabled, 0.5); text-decoration: none; }
 .message { display: flex; justify-content: flex-start; }
 .message--mine { justify-content: flex-end; }
 .message__wrap { max-width: 80%; }
