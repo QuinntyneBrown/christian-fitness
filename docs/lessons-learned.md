@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 19% (10 of 54 slices; 16 of 83 days)
+**% complete:** 20% (11 of 54 slices; 17 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -519,3 +519,55 @@ worked when applied. Newest entries go at the bottom.
 - "Use free ports" (AGENTS.md): with other sessions running specs at the same time, the specs and
   the take used ports of their own (`CF_WEB_PORT`), since Playwright reuses a server already on a
   port.
+
+## Slice 9.2: Two-step verification
+
+**What slowed it**
+
+- The mock drew more than one day could hold: "Trust this browser for 30 days", backup codes, and
+  no screen to set an authenticator up or for a step that expired or was locked. The checkbox and
+  the backup link left the mock, an operator's `cf two-step` replaced a setup screen, and the
+  sign-in mock gained three endings, all in ADR 0013, before any code.
+- Clearing the step cookie on a refusal did nothing: the refusal is thrown after the cookie is
+  cleared, and the exception handler clears every header set before it, as slice 3.1 found for
+  security headers. The cookie is now expired in `Response.OnStarting`. The API tests that read
+  `Set-Cookie` on the refusals caught it.
+- A script that broke a guard and restored the file with `cp` and `mv` left the restored file
+  older than the last build, so MSBuild kept the broken assembly and a later run failed for no
+  reason in the source. The restore now touches the file.
+- Restoring `history.state` on a reload brought Staff sign in's "Sign in again" notice back on a
+  fresh visit; only an imperative navigation with a previous navigation counts now.
+- Apostrophes in a quoted Git Bash heredoc failed the parse once more (a design README edit),
+  and a chained command went on to commit without the edit; the amend fixed it, and the editor
+  tool took every prose script after that.
+
+**New lessons**
+
+- A second step is a pending sign-in, not a half session: a short-lived challenge with only its
+  token's hash stored, named by its own `__Host-` cookie, and no session cookie until the code is
+  right. No policy, claim or scheme had to change, and every admin endpoint stayed closed.
+- Count wrong codes per account, not per challenge, and check the window before the code: a new
+  password step must not reset the count, and a full window must say nothing about a guess.
+- RFC 6238's appendix vectors, cut to 6 digits, make a domain table any implementation can be
+  checked against; drift and reuse are rows too, so breaking `>` to `>=` turns exactly the reuse
+  rows red.
+- Navigation state is a clean way to carry a reason from one screen to the next without a query
+  string anyone can craft, but read it only from the navigation that set it.
+- Focusing a field that is already on screen needs no view query or `afterNextRender`: a DOM lookup
+  on the host in the error callback costs nothing in `main`.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 9.1): the
+  base was saved before the first change; the diff put the whole growth, 0.23 kB, in the route
+  table and the service method. `currentNavigation()` and the new template features cost nothing
+  in `main`; the code screen is a 2.35 kB lazy chunk.
+- "`AttemptWindow` for any feature's own count" (20.1) fitted without a change: the failure
+  table, the window's `Since` and `IsFull` were all the slice needed.
+- "Prove a rule red by breaking it alone" (1.1 to 9.1): the window check, the expiry, the failure
+  record, the window's boundary, the used step, the not-set-up check, the field's focus, the
+  ending guard and a span event carrying the code each turned the right tests red.
+- "A gate in a fixture handler" (2.1, 3.1, 9.1) gave "Verifying…" with no clock; the backend
+  moved a `FakeTimeProvider` past the 5-minute and 15-minute thresholds, never sleeping.
+- "Security headers written in `OnStarting` survive the exception handler" (3.1) was the fix for
+  the step cookie, once the failure was understood.

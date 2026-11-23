@@ -31,6 +31,12 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<PasswordReset> PasswordResets => throw new InvalidOperationException(Secret);
         public DbSet<SignInFailure> SignInFailures => throw new InvalidOperationException(Secret);
 
+        public DbSet<StaffTwoStep> StaffTwoSteps => throw new InvalidOperationException(Secret);
+
+        public DbSet<TwoStepChallenge> TwoStepChallenges => throw new InvalidOperationException(Secret);
+
+        public DbSet<TwoStepFailure> TwoStepFailures => throw new InvalidOperationException(Secret);
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
             throw new InvalidOperationException(Secret);
 

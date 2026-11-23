@@ -13,7 +13,8 @@ title Class structure — Admin sign-in
 
 interface StaffSessionApi {
   +current(): Observable<StaffSessionDto>
-  +signIn(request: SignInRequestDto): Observable<StaffSessionDto>
+  +signIn(request: SignInRequestDto): Observable<void>
+  +verify(request: TwoStepRequestDto): Observable<StaffSessionDto>
   +signOut(): Observable<void>
 }
 class HttpStaffSessionService
@@ -25,13 +26,56 @@ class SignInPage {
   +submit(): void
 }
 class "staffSignInRefusalOf()" as refusalOf
+class TwoStepPage {
+  -code: WritableSignal<string>
+  -submitting: WritableSignal<boolean>
+  -refusal: WritableSignal<TwoStepRefusal | null>
+  +submit(): void
+}
+class "twoStepRefusalOf()" as twoStepRefusalOf
 class "staffAuthGuard" as guard
 class StaffSignInCommand {
   +string Email
   +string Password
 }
 class StaffSignInHandler {
+  +Handle(cmd): Task
+}
+class VerifyTwoStepCommand {
+  +string Code
+}
+class VerifyTwoStepHandler {
   +Handle(cmd): Task<StaffSessionDto>
+}
+interface ITwoStepCookie {
+  +Issue(token, expiresAt): void
+  +Read(): string?
+  +Clear(): void
+}
+class CookieTwoStepCookie
+class StaffTwoStep {
+  +Guid MemberId
+  +byte[] Secret
+  +long LastUsedStep
+  +TryUse(code, now): bool
+}
+class TwoStepChallenge {
+  +{static} Lifetime: 5 minutes
+  +{static} FailureWindow: AttemptWindow(5, 15 minutes)
+  +string TokenHash
+  +DateTimeOffset ExpiresAt
+}
+class TwoStepFailure {
+  +Guid MemberId
+  +DateTimeOffset FailedAt
+}
+class "Totp" as totp {
+  +{static} Match(secret, code, now, lastUsedStep): long?
+}
+class AttemptWindow {
+  +int Limit
+  +TimeSpan Period
+  +IsFull(attemptsSince): bool
 }
 class MemberCredentials {
   +VerifyAsync(email, password): Task<Member>
@@ -72,12 +116,24 @@ guard ..> StaffSessionApi : current()
 StaffSignInHandler ..> StaffSignInCommand : handles
 StaffSignInHandler ..> MemberCredentials : verifies
 StaffSignInHandler ..> IAppDbContext : reads StaffRole
-StaffSignInHandler ..> IStaffSessionSignIn : signs in
-StaffSignInHandler ..> StaffSessionDto : returns
+StaffSignInHandler ..> TwoStepChallenge : issues
+StaffSignInHandler ..> ITwoStepCookie : sets the step cookie
+TwoStepPage ..> StaffSessionApi : verify()
+TwoStepPage ..> twoStepRefusalOf : chooses the message
+VerifyTwoStepHandler ..> VerifyTwoStepCommand : handles
+VerifyTwoStepHandler ..> ITwoStepCookie : reads, clears
+VerifyTwoStepHandler ..> TwoStepFailure : counts, records
+VerifyTwoStepHandler ..> StaffTwoStep : TryUse(code)
+VerifyTwoStepHandler ..> IStaffSessionSignIn : signs in
+VerifyTwoStepHandler ..> StaffSessionDto : returns
+TwoStepChallenge ..> AttemptWindow
+StaffTwoStep ..> totp
+CookieTwoStepCookie ..|> ITwoStepCookie
 MemberCredentials ..> IAppDbContext
 MemberCredentials ..> IPasswordHasherService
 CookieStaffSessionSignIn ..|> IStaffSessionSignIn
 CookieStaffSessionSignIn ..> DatabaseTicketStore : session kept on the server
 Member "1" --> "0..1" StaffRole
+Member "1" --> "0..1" StaffTwoStep
 StaffRole --> StaffRoleName
 @enduml

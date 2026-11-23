@@ -1,11 +1,12 @@
 <div class="field">
   <label class="field__label" [for]="fieldId()">{{ label() }}</label>
   <input
-    class="input"
+    [attr.class]="code() ? 'input input--code' : 'input'"
     [id]="fieldId()"
     [name]="name()"
     [type]="type()"
     [attr.autocomplete]="autocomplete() ?? null"
+    [attr.inputmode]="inputmode() ?? null"
     [attr.aria-describedby]="describedBy()"
     [attr.aria-invalid]="error() ? 'true' : null"
     [value]="value()"

@@ -14,10 +14,10 @@ namespace ChristianFitness.Application.Admin;
 public sealed record StaffSessionDto(Guid MemberId, string Name, string Role);
 
 /// <summary>
-/// Staff sign-in to the admin app (L2-018). A class, not a record: a record's generated
-/// <c>ToString</c> would print the password if it were ever logged (L2-033 AC2).
+/// The password step of staff sign-in to the admin app (L2-018, L2-046 AC1). A class, not a record:
+/// a record's generated <c>ToString</c> would print the password if it were ever logged (L2-033 AC2).
 /// </summary>
-public sealed class StaffSignInCommand : IRequest<StaffSessionDto>
+public sealed class StaffSignInCommand : IRequest
 {
     public string Email { get; init; } = string.Empty;
 
@@ -32,19 +32,30 @@ public sealed record StaffSignOutCommand : IRequest;
 
 /// <summary>
 /// Checks the credentials as the member sign-in does (L2-018 AC3), then the staff role: a member
-/// without one is refused with <c>not_staff</c> and no session (L2-018 AC2); staff get the admin
-/// session (L2-018 AC1; ADR 0011).
+/// without one is refused with <c>not_staff</c> and no session (L2-018 AC2). Staff without
+/// two-step verification set up are refused with <c>two_step_not_set_up</c> (L2-046 AC6). Staff
+/// get a pending sign-in, not a session: a <see cref="TwoStepChallenge"/> replacing any earlier one
+/// of theirs, named by the step cookie (L2-046 AC1; ADR 0013).
 /// </summary>
-internal sealed class StaffSignInHandler(MemberCredentials credentials, IAppDbContext db, IStaffSessionSignIn session)
-    : IRequestHandler<StaffSignInCommand, StaffSessionDto>
+internal sealed class StaffSignInHandler(MemberCredentials credentials, IAppDbContext db, ITwoStepCookie cookie, TimeProvider time)
+    : IRequestHandler<StaffSignInCommand>
 {
-    public async Task<StaffSessionDto> Handle(StaffSignInCommand request, CancellationToken cancellationToken)
+    public async Task Handle(StaffSignInCommand request, CancellationToken cancellationToken)
     {
         var member = await credentials.VerifyAsync(request.Email, request.Password, cancellationToken).ConfigureAwait(false);
-        var role = await StaffRoles.OfAsync(db, member.Id, cancellationToken).ConfigureAwait(false)
+        _ = await StaffRoles.OfAsync(db, member.Id, cancellationToken).ConfigureAwait(false)
             ?? throw StaffRoles.NotStaff();
-        await session.SignInAsync(member, role).ConfigureAwait(false);
-        return new StaffSessionDto(member.Id, member.Name, role.ToString());
+        if (!await db.StaffTwoSteps.AnyAsync(twoStep => twoStep.MemberId == member.Id, cancellationToken).ConfigureAwait(false))
+        {
+            throw new RefusalException(RefusalCodes.TwoStepNotSetUp, RefusalKind.Forbidden);
+        }
+
+        var earlier = await db.TwoStepChallenges.Where(c => c.MemberId == member.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        db.TwoStepChallenges.RemoveRange(earlier);
+        var (challenge, token) = TwoStepChallenge.Issue(member.Id, time.GetUtcNow());
+        db.TwoStepChallenges.Add(challenge);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        cookie.Issue(token, challenge.ExpiresAt);
     }
 }
 

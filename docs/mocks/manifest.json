@@ -292,7 +292,10 @@
         "submitting",
         "error",
         "not-staff",
-        "failed"
+        "failed",
+        "two-step-expired",
+        "two-step-locked",
+        "two-step-not-set-up"
       ],
       "not_applicable": {
         "loading": "Static form.",
@@ -310,12 +313,13 @@
       "states": [
         "default",
         "invalid",
-        "submitting"
+        "submitting",
+        "failed"
       ],
       "not_applicable": {
         "loading": "Static form.",
         "empty": "A form, not a collection.",
-        "error": "Server failures show as the invalid state's message pattern; a locked account goes back to sign in."
+        "error": "Server failures show as the invalid state's message pattern (state failed); an expired or locked sign-in goes back to sign in."
       }
     },
     {

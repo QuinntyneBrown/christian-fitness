@@ -9,7 +9,8 @@ export type TextFieldType = 'text' | 'email' | 'password';
  * consumer's: `value` sets it and `valueChange` reports each edit. `readonly` keeps what was typed
  * on screen while a form is submitting. With an `error`, the input is `aria-invalid` and described
  * by the `field__error` in place of the hint, with an optional link after the sentence, such as
- * "Sign in instead?". Every text is rendered as text.
+ * "Sign in instead?". With `code`, the input takes the `input--code` look of a one-time code.
+ * Every text is rendered as text.
  */
 @Component({
   selector: 'cf-text-field',
@@ -23,6 +24,10 @@ export class TextField {
   readonly name = input.required<string>();
   readonly type = input<TextFieldType>('text');
   readonly autocomplete = input<string>();
+  /** The keyboard a phone shows, such as `numeric` for a code. */
+  readonly inputmode = input<string>();
+  /** The design system's `input--code` look: large, spaced, tabular digits, centred. */
+  readonly code = input(false, { transform: booleanAttribute });
   readonly hint = input<string>();
   readonly value = input('');
   readonly readonly = input(false, { transform: booleanAttribute });

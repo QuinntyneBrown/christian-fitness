@@ -15,6 +15,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
   },
   {
+    // The second step, after the password (L2-046; ADR 0013). The API decides whether a pending
+    // sign-in exists; without one the code is refused and staff go back to sign in.
+    path: 'sign-in/verify',
+    title: 'Enter your code · Christian Fitness Admin',
+    loadComponent: () => import('./pages/two-step/two-step-page').then((m) => m.TwoStepPage),
+  },
+  {
     // Every staff route is a child of the shell, which opens only with a staff session (ADR 0011).
     path: '',
     canActivate: [staffAuthGuard],

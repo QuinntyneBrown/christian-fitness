@@ -1,4 +1,5 @@
-﻿using ChristianFitness.Application.Seeding;
+using ChristianFitness.Application.Admin;
+using ChristianFitness.Application.Seeding;
 using ChristianFitness.Infrastructure;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -12,21 +13,24 @@ using Microsoft.Extensions.Logging;
 const string Usage = """
     Usage: cf <command>
 
-      migrate   Apply the pending database migrations.
-      seed      Insert the seed data that is missing; a second run changes nothing.
+      migrate           Apply the pending database migrations.
+      seed              Insert the seed data that is missing; a second run changes nothing.
+      two-step <email>  Give a staff account a new authenticator secret and print its
+                        otpauth:// link once, for the staff member's app (ADR 0013).
 
     Settings (environment variables): ConnectionStrings__Default; for seed also
     Seed__StaffEmail, Seed__StaffPassword and Seed__StaffName.
     """;
 
 var command = args.FirstOrDefault();
-if (command is not ("migrate" or "seed"))
+if (command is not ("migrate" or "seed" or "two-step") || (command == "two-step" && (args.Length < 2 || string.IsNullOrWhiteSpace(args[1]))))
 {
     await Console.Error.WriteLineAsync(Usage).ConfigureAwait(false);
     return 1;
 }
 
-var builder = Host.CreateApplicationBuilder(args[1..]);
+var commandArguments = command == "two-step" ? 2 : 1;
+var builder = Host.CreateApplicationBuilder(args[commandArguments..]);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
 if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("Default")))
@@ -53,6 +57,11 @@ if (command == "seed")
     builder.Services.AddScoped<SeedRunner>();
 }
 
+if (command == "two-step")
+{
+    builder.Services.AddScoped<StaffTwoStepSetUp>();
+}
+
 using var host = builder.Build();
 await using var scope = host.Services.CreateAsyncScope();
 
@@ -62,6 +71,19 @@ if (command == "migrate")
     var pending = (await db.Database.GetPendingMigrationsAsync().ConfigureAwait(false)).ToList();
     await db.Database.MigrateAsync().ConfigureAwait(false);
     Console.WriteLine($"Migrated: {pending.Count} migration(s) applied.");
+}
+else if (command == "two-step")
+{
+    // The link is the secret: it goes to the operator's terminal once and nowhere else.
+    var link = await scope.ServiceProvider.GetRequiredService<StaffTwoStepSetUp>().SetUpAsync(args[1], CancellationToken.None).ConfigureAwait(false);
+    if (link is null)
+    {
+        await Console.Error.WriteLineAsync("No staff account has that email; nothing was changed.").ConfigureAwait(false);
+        return 3;
+    }
+
+    Console.WriteLine("Two-step verification set up. Add this link to the staff member's authenticator app (as a QR code or by hand); it is not shown again:");
+    Console.WriteLine(link);
 }
 else
 {

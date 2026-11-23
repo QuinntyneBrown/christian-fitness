@@ -28,9 +28,18 @@ def staff(inner: str) -> str:
 </main>"""
 
 
-def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, not_staff: bool = False, failed: bool = False) -> str:
+def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, not_staff: bool = False, failed: bool = False,
+           step: str = "") -> str:
     alert = ""
-    if locked:
+    # The second step's endings and refusals (L2-046 AC4 to AC6; ADR 0013).
+    step_alerts = {
+        "expired": ("Sign in again", "Your sign-in timed out before a code was entered. Sign in again to get a new code."),
+        "locked": ("Too many codes tried", "For your security, wait 15 minutes, then sign in again."),
+        "not-set-up": ("Two-step verification isn't set up", "Ask an Admin to set it up for your account, then sign in again."),
+    }
+    if step:
+        alert = '<div class="auth__alert">' + form_alert(*step_alerts[step]) + "</div>"
+    elif locked:
         alert = '<div class="auth__alert">' + form_alert("This account is locked", "Too many attempts. Ask another admin to unlock it, or wait 30 minutes and try again.") + "</div>"
     elif invalid:
         # L2-018 AC3: one generic message that names neither field (ADR 0011).
@@ -89,8 +98,24 @@ def _():
     return signin(failed=True)
 
 
-def two_step(*, invalid: bool = False, busy: bool = False) -> str:
-    err = "That code doesn't match. Codes change every 30 seconds, so enter the newest one." if invalid else ""
+@s("two-step-expired", "Back from the code screen after 5 minutes: sign in again for a new code (L2-046 AC5).")
+def _():
+    return signin(step="expired")
+
+
+@s("two-step-locked", "Back from the code screen after 5 wrong codes in 15 minutes: wait, then sign in again (L2-046 AC4).")
+def _():
+    return signin(step="locked")
+
+
+@s("two-step-not-set-up", "Staff whose two-step verification is not set up: who can set it up (L2-046 AC6).")
+def _():
+    return signin(step="not-set-up")
+
+
+def two_step(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
+    err = ("That code doesn't match. Codes change every 30 seconds, so enter the newest one." if invalid
+           else "We couldn't check your code. Try again in a moment." if failed else "")
     value = "481 920" if not invalid else "481 902"
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Verifying…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Verify</button>')
@@ -99,19 +124,18 @@ def two_step(*, invalid: bool = False, busy: bool = False) -> str:
       <p class="staff__lead">Open the authenticator app on your phone and enter the 6-digit code for Christian Fitness.</p>
       <div class="auth__fields">
         {field("Verification code", "code", value, autocomplete="one-time-code", extra='inputmode="numeric"', cls="input input--code", error=err, readonly=busy)}
-        <label class="check check--ui"><input class="check__box" type="checkbox" checked{" disabled" if busy else ""}> Trust this browser for 30 days</label>
       </div>
       {submit}
-      <p class="staff__note">{icon("smartphone", "icon--xs")} Lost your phone? <a class="text-link" href="#f-code">Use a backup code</a></p>
+      <p class="staff__note">{icon("smartphone", "icon--xs")} Lost your phone? Ask an Admin to set up two-step verification again.</p>
     </form>""")
 
 
 s = screen("admin-two-step", "page", "Two-step verification", route="/admin/sign-in/verify", group=G,
            source="Derived from the Sign In frame (its \"Two-step verification required\" notice).",
-           not_applicable={"loading": "Static form.", "empty": "A form, not a collection.", "error": "Server failures show as the invalid state's message pattern; a locked account goes back to sign in."})
+           not_applicable={"loading": "Static form.", "empty": "A form, not a collection.", "error": "Server failures show as the invalid state's message pattern (state failed); an expired or locked sign-in goes back to sign in."})
 
 
-@s("default", "Second step: a 6-digit authenticator code, with an option to trust this browser.")
+@s("default", "Second step: a 6-digit authenticator code; every sign-in asks for one (ADR 0013).")
 def _():
     return two_step()
 
@@ -124,6 +148,11 @@ def _():
 @s("submitting", "Verify pressed: busy button.")
 def _():
     return two_step(busy=True)
+
+
+@s("failed", "The server failed or did not answer: the field says so and keeps the code (L2-046 AC7).")
+def _():
+    return two_step(failed=True)
 
 
 s = screen("admin-forbidden", "page", "Staff only", route="/admin (signed in as a member)", group=G,

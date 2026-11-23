@@ -1,11 +1,17 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { SignInRequestDto, StaffSessionApi, StaffSessionDto } from '@cf/api';
+import type {
+  SignInRequestDto,
+  StaffSessionApi,
+  StaffSessionDto,
+  TwoStepRequestDto,
+} from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, map, of, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link StaffSessionApi} over HTTP: `GET`, `POST` and `DELETE /api/admin/session` (ADR 0011). A
+ * {@link StaffSessionApi} over HTTP: `GET`, `POST` and `DELETE /api/admin/session` and
+ * `POST /api/admin/session/two-step` (ADR 0011, ADR 0013). A
  * failed write errors with an `ApiError` (`apiErrorOf`), so no screen handles an
  * `HttpErrorResponse`. It holds no state.
  */
@@ -17,9 +23,16 @@ export class HttpStaffSessionService implements StaffSessionApi {
     return this.http.get<StaffSessionDto>('/api/admin/session');
   }
 
-  signIn(request: SignInRequestDto): Observable<StaffSessionDto> {
+  signIn(request: SignInRequestDto): Observable<void> {
+    return this.http.post<unknown>('/api/admin/session', request).pipe(
+      map(() => undefined),
+      catchError(asApiError),
+    );
+  }
+
+  verify(request: TwoStepRequestDto): Observable<StaffSessionDto> {
     return this.http
-      .post<StaffSessionDto>('/api/admin/session', request)
+      .post<StaffSessionDto>('/api/admin/session/two-step', request)
       .pipe(catchError(asApiError));
   }
 

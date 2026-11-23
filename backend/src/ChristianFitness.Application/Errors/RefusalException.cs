@@ -12,7 +12,7 @@ public enum RefusalKind
     /// <summary>The caller is known but may not do this, such as a member in the admin app or a suspended member signing in (403).</summary>
     Forbidden,
 
-    /// <summary>The caller has tried too often in a window, such as failed sign-ins (429).</summary>
+    /// <summary>The caller has tried too often in a window, such as failed sign-ins or wrong second-step codes (429).</summary>
     TooManyRequests,
 }
 

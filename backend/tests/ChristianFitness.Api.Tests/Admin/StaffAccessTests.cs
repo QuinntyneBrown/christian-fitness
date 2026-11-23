@@ -56,7 +56,7 @@ public sealed class StaffAccessTests(ApiFactory factory) : IClassFixture<ApiFact
     {
         using var client = Browser.CreateClient(factory);
         var id = await Staff.CreateAsync(factory, client, "dana.removed@example.org", StaffRoleName.Moderator);
-        using var signedIn = await Staff.SignInAsync(client, "dana.removed@example.org", Staff.Password);
+        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.removed@example.org");
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -74,7 +74,7 @@ public sealed class StaffAccessTests(ApiFactory factory) : IClassFixture<ApiFact
     {
         using var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, "dana.signout@example.org", StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInAsync(client, "dana.signout@example.org", Staff.Password);
+        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.signout@example.org");
         var cookie = Staff.Cookie(signedIn);
 
         using var signedOut = await Browser.SendAsync(client, HttpMethod.Delete, "/api/admin/session", cookie);
