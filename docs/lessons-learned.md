@@ -902,6 +902,12 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - A breaking script run from the scratchpad failed to build: the analysers' code-style rules
   read the `.editorconfig` of the working directory's tree. Running it with `cwd` set to
   `backend/` fixed it.
+- The slice paused while slices 1.4 to 1.6 merged ADRs 0017 to 0019 and moved every screen onto
+  the components library. The rebase renumbered this slice's ADR to 0020 (only in the files this
+  slice added, since `main` cites ADR 0017 for its own decision) and kept main's busy button in
+  the forbidden page; the role-filtered items already flowed through the library's
+  `cf-admin-layout` and `cf-sidebar-navigation`, so nothing was duplicated and no spec changed.
+  The film's close-ups reach the sidebar through `AdminShell.sidebar`, not a selector of its own.
 
 **New lessons**
 
