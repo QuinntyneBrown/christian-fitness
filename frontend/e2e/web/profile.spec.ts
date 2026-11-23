@@ -16,7 +16,7 @@ function answerProfile(api: ApiHandlers, profile: unknown): { count: number } {
 }
 
 // L2-005 AC1: a signed-in member opening Profile sees their name, initials avatar, city, join date,
-// bio, home church, goals, interests and the events they are going to (ADR 0014).
+// bio, home church, goals, interests and the events they are going to (ADR 0015).
 test.describe('Member app, my profile', () => {
   test('Profile shows every field of the member and the events they are going to', async ({
     page,

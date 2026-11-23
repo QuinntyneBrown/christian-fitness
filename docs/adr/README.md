@@ -19,4 +19,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0012](0012-sign-in-protections.md)                           | Sign-in protections: a failure window in the database, a suspended refusal, a checked return address and a join limit per address | Accepted |
 | [0013](0013-staff-two-step-verification.md)                   | Staff two-step verification: authenticator codes, a pending sign-in and a shared attempt window | Accepted |
 | [0014](0014-choosing-a-new-password.md)                      | Choosing a new password: a checked link, single use, every session ended and no sign-in | Accepted |
-| [0014](0014-view-my-profile.md)                              | View my profile: one own-profile endpoint, a registration reader that answers none yet, and a screen-scoped client | Accepted |
+| [0015](0015-view-my-profile.md)                              | View my profile: one own-profile endpoint, a registration reader that answers none yet, and a screen-scoped client | Accepted |

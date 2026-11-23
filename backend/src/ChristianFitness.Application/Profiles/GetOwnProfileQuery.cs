@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Profiles;
 
-/// <summary>The signed-in member's own profile (L2-005 AC1, AC2; ADR 0014).</summary>
+/// <summary>The signed-in member's own profile (L2-005 AC1, AC2; ADR 0015).</summary>
 public sealed record GetOwnProfileQuery : IRequest<OwnProfileDto>;
 
 /// <summary>

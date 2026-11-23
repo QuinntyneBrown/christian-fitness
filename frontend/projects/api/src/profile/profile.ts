@@ -12,7 +12,7 @@ export interface UpcomingEventDto {
 }
 
 /**
- * The signed-in member's own profile (`GET /api/profile/me`, L2-005 AC1; ADR 0014). A field the
+ * The signed-in member's own profile (`GET /api/profile/me`, L2-005 AC1; ADR 0015). A field the
  * member has not given is `null` or an empty list.
  */
 export interface OwnProfileDto {
@@ -30,7 +30,7 @@ export interface OwnProfileDto {
   upcomingEvents: UpcomingEventDto[];
 }
 
-/** A member's profile (ADR 0014). */
+/** A member's profile (ADR 0015). */
 export interface ProfileApi {
   /**
    * The signed-in member's own profile. A 5xx opens the server-error screen; any failure errors

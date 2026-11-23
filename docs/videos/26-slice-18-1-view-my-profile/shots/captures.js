@@ -15,17 +15,17 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 259,
-    "total": 259
+    "passed": 288,
+    "total": 288
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 127,
-    "files": 19
+    "tests": 153,
+    "files": 21
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 313,
+    "passed": 361,
     "own": [
       "Given a member with no home church When they open their profile Then the home church is null",
       "Given a member going to events When they open their profile Then it answers them as the registrations give them",
@@ -40,7 +40,7 @@ window.FILM_CAPTURES = {
   },
   "build": {
     "command": "npx ng build web",
-    "raw": 261.19,
-    "transfer": 68.34
+    "raw": 261.59,
+    "transfer": 68.3
   }
 };

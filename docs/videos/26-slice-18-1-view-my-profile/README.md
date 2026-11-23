@@ -7,7 +7,7 @@ initials avatar, "Member since …", home church and city when given, bio, goals
 profile shows the mock's empty sentences and "Not going to anything yet." with "Browse events". A
 skeleton holds the page's shape while it loads; a 4xx answer shows "Your profile didn't load" with
 Try again (a 5xx opens the server-error screen). `GET /api/profile/me` takes the member from the
-session, never from the address, and logs nothing personal (ADR 0014). Event registration is
+session, never from the address, and logs nothing personal (ADR 0015). Event registration is
 slice 6.1's, so "Going to" reads from a registrations query that answers none yet. The film is
 numbered by the slice's row in `docs/journeys.detailed.md`, as its prompt asked, since it was made
 while earlier rows were still being built.
@@ -18,7 +18,7 @@ while earlier rows were still being built.
 - **Music:** _En La Playa – Trinidad and Tobago Soca_ by JuliusH, from Pixabay
   ([credits](../assets/music/CREDITS.md)). 120 BPM; a bar is two seconds and every scene is a
   whole number of bars.
-- **Requirements shown:** L2-005 (AC1, AC2); ADR 0014.
+- **Requirements shown:** L2-005 (AC1, AC2); ADR 0015.
 
 ## Run sheet
 

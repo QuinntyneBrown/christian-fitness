@@ -1,5 +1,5 @@
 /**
- * Profiles as `GET /api/profile/me` answers them (ADR 0014), for the specs that open Profile. The
+ * Profiles as `GET /api/profile/me` answers them (ADR 0015), for the specs that open Profile. The
  * instants are UTC; the screen reads them in Toronto time.
  */
 

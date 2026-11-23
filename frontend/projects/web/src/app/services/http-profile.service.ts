@@ -4,7 +4,7 @@ import type { OwnProfileDto, ProfileApi } from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
- * {@link ProfileApi} over HTTP: `GET /api/profile/me` (ADR 0014). A 5xx opens the server-error
+ * {@link ProfileApi} over HTTP: `GET /api/profile/me` (ADR 0015). A 5xx opens the server-error
  * screen through the interceptor; every failure passes on to the screen. It holds no state, and is
  * provided on the Profile screen, so it lives only while the screen does.
  */

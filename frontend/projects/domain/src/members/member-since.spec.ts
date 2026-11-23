@@ -1,6 +1,6 @@
 import { memberSinceOf } from './member-since';
 
-// L2-005 AC1: the profile's join date, read in Toronto time (ADR 0014). "Today" is the day the
+// L2-005 AC1: the profile's join date, read in Toronto time (ADR 0015). "Today" is the day the
 // member joined on Toronto's calendar, whatever the date in UTC.
 describe('memberSinceOf', () => {
   it.each([

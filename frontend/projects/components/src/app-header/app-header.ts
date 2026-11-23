@@ -7,7 +7,7 @@ import { Button } from '../button/button';
  * button 44 px tall at every viewport (L2-008 AC4). Choosing it emits `signOut`; with
  * `signingOut` the button is disabled and busy. With `profileHref`, the profile avatar
  * (`profile-button`) precedes it: the member's initials, labelled "Your profile", marked
- * `aria-current="page"` with `profileCurrent` (ADR 0014). It is a real link; a plain click (the
+ * `aria-current="page"` with `profileCurrent` (ADR 0015). It is a real link; a plain click (the
  * main button, no modifier key) is not followed but emits `navigate` with its `href`, so the app
  * moves without reloading. The destinations join it with the screens they open (ADR 0009).
  */

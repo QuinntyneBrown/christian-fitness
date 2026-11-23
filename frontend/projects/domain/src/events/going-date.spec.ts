@@ -1,7 +1,7 @@
 import { goingDateOf } from './going-date';
 
 // L2-005 AC1: the day of an event the member is going to, as the profile's "Going to" shows it
-// (mock "Sat, Apr 18"), read in Toronto time (ADR 0014).
+// (mock "Sat, Apr 18"), read in Toronto time (ADR 0015).
 describe('goingDateOf', () => {
   it.each([
     {

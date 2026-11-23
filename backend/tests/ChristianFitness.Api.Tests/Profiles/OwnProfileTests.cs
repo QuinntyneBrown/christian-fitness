@@ -8,7 +8,7 @@ namespace ChristianFitness.Api.Tests.Profiles;
 
 /// <summary>
 /// L2-005 AC1 and AC2: a signed-in member's own profile, with their name, city, join date, bio,
-/// home church, goals, interests and the events they are going to, and only their own (ADR 0014).
+/// home church, goals, interests and the events they are going to, and only their own (ADR 0015).
 /// </summary>
 public sealed class OwnProfileTests(ProfileApiFactory factory) : IClassFixture<ProfileApiFactory>
 {

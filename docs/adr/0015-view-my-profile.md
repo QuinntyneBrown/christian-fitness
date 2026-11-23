@@ -1,4 +1,4 @@
-# 0014. View my profile: one own-profile endpoint, a registration reader that answers none yet, and a screen-scoped client
+# 0015. View my profile: one own-profile endpoint, a registration reader that answers none yet, and a screen-scoped client
 
 ## Status
 

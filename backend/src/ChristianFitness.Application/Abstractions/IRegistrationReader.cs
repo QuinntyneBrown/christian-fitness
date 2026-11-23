@@ -3,7 +3,7 @@ using ChristianFitness.Application.Profiles;
 namespace ChristianFitness.Application.Abstractions;
 
 /// <summary>
-/// The events a member registered for (ADR 0014). Until registration exists (slice 6.1) the
+/// The events a member registered for (ADR 0015). Until registration exists (slice 6.1) the
 /// implementation answers none; slice 6.1 reads the member's registrations instead.
 /// </summary>
 public interface IRegistrationReader

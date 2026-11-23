@@ -15,7 +15,7 @@ const CALENDAR_DAY = new Intl.DateTimeFormat('en-CA', {
 /**
  * The profile's join date (L2-005 AC1; mock `profile-hero__meta`): "Member since today" when the
  * member joined on `now`'s date in Toronto, otherwise "Member since" with the month and year they
- * joined in Toronto, such as "Member since January 2026" (ADR 0014).
+ * joined in Toronto, such as "Member since January 2026" (ADR 0015).
  */
 export function memberSinceOf(joinedAt: string, now: Date): string {
   const joined = new Date(joinedAt);
