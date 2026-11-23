@@ -69,6 +69,12 @@ export interface ChatHistory {
 
   /** The 50 messages before the message `messageId`. */
   before(eventId: string, messageId: string): Observable<ChatHistoryDto>;
+
+  /**
+   * Tells the server the member has read the chat up to now, so its unread count on the Messages
+   * list is zero (L2-016 AC7; ADR 0042).
+   */
+  markRead(eventId: string): Observable<void>;
 }
 
 /** Binds {@link ChatHistory}; the chat screen's providers provide it. */

@@ -76,6 +76,12 @@
   color: var(--color-fg-muted);
 }
 
+.mini-row__meta {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
 .mini-row__text {
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);

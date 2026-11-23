@@ -21,6 +21,10 @@ export class HttpChatHistoryService implements ChatHistory {
     });
   }
 
+  markRead(eventId: string): Observable<void> {
+    return this.http.post<void>(`${this.url(eventId).replace(/\/messages$/, '')}/read`, null);
+  }
+
   private url(eventId: string): string {
     return `/api/events/${encodeURIComponent(eventId)}/chat/messages`;
   }

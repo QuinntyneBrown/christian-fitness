@@ -12,12 +12,13 @@ import { initialsOf } from '@cf/domain';
 import { filter } from 'rxjs';
 
 /**
- * The places the header lists so far (ADR 0027); Services and Messages join as their slices land.
+ * The places the header lists so far (ADR 0027, 0042); Services joins as its slice lands.
  * The profile is the avatar button, not a link.
  */
 const DESTINATIONS: readonly MemberDestination[] = [
   { key: 'home', label: 'Home', href: '/home' },
   { key: 'events', label: 'Events', href: '/events' },
+  { key: 'messages', label: 'Messages', href: '/messages' },
 ];
 
 /**
@@ -92,6 +93,7 @@ function placeOf(url: string): MemberDestinationKey | null {
   const path = url.split(/[?#]/, 1)[0];
   if (path === '/profile') return 'profile';
   if (path === '/home') return 'home';
+  if (path === '/messages') return 'messages';
   if (path === '/events' || path.startsWith('/events/')) return 'events';
   return null;
 }

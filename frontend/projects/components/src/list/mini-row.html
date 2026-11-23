@@ -13,6 +13,9 @@
         <span class="mini-row__time">{{ when }}</span>
       }
     </span>
+    @if (meta(); as detail) {
+      <span class="mini-row__meta">{{ detail }}</span>
+    }
     @if (text(); as line) {
       <span [attr.class]="unread() ? 'mini-row__text mini-row__text--unread' : 'mini-row__text'">{{
         line

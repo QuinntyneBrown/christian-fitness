@@ -64,13 +64,13 @@ test.describe('Member app, browse events', () => {
     ]);
   });
 
-  test('The header lists Home and Events, with Events current', async ({ page, api }) => {
+  test('The header lists Home, Events and Messages, with Events current', async ({ page, api }) => {
     answerEvents(api, [SUNRISE_5K]);
     const events = new WebEventsPage(page);
 
     await events.open();
 
-    await expect(events.navLinks).toHaveText(['Home', 'Events']);
+    await expect(events.navLinks).toHaveText(['Home', 'Events', 'Messages']);
     await expect(events.currentNavLink).toHaveText('Events');
   });
 

@@ -68,6 +68,7 @@ public sealed class LastPlaceRaceTests(LastPlaceRaceTests.Factory factory) : ICl
         public DbSet<Registration> Registrations => db.Registrations;
 
         public DbSet<ChatMessage> ChatMessages => db.ChatMessages;
+        public DbSet<ChatReadMarker> ChatReadMarkers => db.ChatReadMarkers;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);

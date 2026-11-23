@@ -1805,3 +1805,42 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Read the initial total after each new API" (30.1 to 12.2): no new Angular API was used in `main`.
 - "Use the Edit and Write tools" (7.1 on): mostly followed; a few multi-file edits went through Node snippets that threw on a
   missing match, and none failed.
+
+## Slice 15.1: Conversation list
+
+**What slowed it**
+
+- The design assumed a `Conversation` entity, but 12.1 to 12.3 made an event's chat out of the event and its registrations. ADR
+  0042 keeps that: a conversation is described by `GET /api/conversations` (`kind`, `id`), so direct messages (14.1) add a
+  branch, not a table. The read marker is the only new table (`ChatReadMarkers`, an instant per member and event).
+- Four test doubles of `IAppDbContext` (the race and unreachable-database tests) each needed the new `DbSet` line; the build named
+  them at once.
+- `dotnet ef migrations add` needs the Infrastructure project as the startup project here (the Api and Cli projects do not
+  reference the Design package).
+- The first Playwright run failed to compile: `memberCountLabel` already existed in the domain library's admin members file, and
+  `export *` makes a clash an error. Search the barrel before naming a helper.
+- Prettier run over `../docs/mocks` rewrote ten mock files; they were restored from `HEAD` and the one-line additions redone.
+  Run Prettier only on `projects` and `e2e`.
+- Rows are plain `<a href>` links across the library, so a click on a row is a full page load. A "mark read when the member
+  leaves" hook on the chat page never ran in a spec; marking as messages arrive (one request in flight, one more if needed)
+  does not depend on how the member leaves.
+
+**New lessons**
+
+- Compare an unread count with an instant, and advance `FakeTimeProvider` between the open and the next message in a test: a
+  message sent in the same tick as the marker is not unread by `>`.
+- Bound a list that is built from several queries by choosing the window first (order the cheap per-member rows, take 50) and
+  computing the counts and last messages for those 50 only.
+- A fixture default for a new call (`POST .../chat/read`) goes in `FakeChatHub.install`, so every chat spec stays answered.
+- Pin the browser's clock with `page.clock.setFixedTime` for any screen that shows "today", "Yesterday" or a weekday.
+- Initial bundle: no change (web 279.01 kB, admin 279.25 kB, under 280); the page, the service and the helper are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 12.3): removing the "not my own messages" condition turned only the own-message test
+  red; undone with the inverse edit. The new API tests failed first on 404, the specs on the missing screen.
+- "EF InMemory generates no value; order by sent time and advance the fake clock" (12.2): every send in the new tests advances it.
+- "Read the initial total after each new API" (30.1 to 12.3): no new Angular API in `main`.
+- "Use the Edit and Write tools" (7.1 on): followed; two small Node replace snippets asserted every match.
+- "Count a slice's new specs against the CI budget" (24.1): six specs (list, open chat, read as it arrives, empty, failed and
+  retry, header destination), each short.

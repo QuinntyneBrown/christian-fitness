@@ -39,6 +39,9 @@ public interface IAppDbContext
     /// <summary>What members said in events' group chats (L2-016; ADR 0040).</summary>
     DbSet<ChatMessage> ChatMessages { get; }
 
+    /// <summary>How far each member has read each event chat (L2-016 AC7; ADR 0042).</summary>
+    DbSet<ChatReadMarker> ChatReadMarkers { get; }
+
     /// <summary>What staff changed: who, what, which record and when (L2-019 AC3; ADR 0023).</summary>
     DbSet<AuditEntry> AuditEntries { get; }
 

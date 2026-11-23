@@ -10,6 +10,7 @@ export * from './admin/admin-members';
 export * from './admin/staff-session';
 export * from './admin/toasts';
 export * from './chat/chat';
+export * from './conversations/conversations';
 export * from './errors/api-error';
 export * from './events/events';
 export * from './events/public-events';

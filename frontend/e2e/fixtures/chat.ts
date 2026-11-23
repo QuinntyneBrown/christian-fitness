@@ -41,6 +41,8 @@ export class FakeChatHub {
   readonly joined: string[] = [];
   /** The `before` of each history request, in order; `null` for the latest page. */
   readonly pagesAsked: (string | null)[] = [];
+  /** The event id of each read marker the page set (`POST /api/events/{id}/chat/read`, ADR 0042), in order. */
+  readonly read: string[] = [];
 
   private socket: WebSocketRoute | null = null;
   private count = 0;
@@ -66,6 +68,10 @@ export class FakeChatHub {
       const end = before === null ? history.length : history.findIndex((m) => m.id === before);
       const start = Math.max(0, end - HISTORY_PAGE);
       return { json: { messages: history.slice(start, end), hasMore: start > 0, cancelled } };
+    });
+    api.on('POST', /^\/api\/events\/[0-9a-f-]{36}\/chat\/read$/, (request) => {
+      hub.read.push(new URL(request.url()).pathname.split('/')[3]);
+      return { status: 204 };
     });
     api.on('POST', '/api/chat/negotiate', () => ({
       json: {
