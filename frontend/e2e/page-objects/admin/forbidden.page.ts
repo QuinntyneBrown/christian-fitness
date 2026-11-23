@@ -3,7 +3,8 @@ import type { Locator, Page } from '@playwright/test';
 /**
  * The admin app's "Staff only" screen (mock `docs/mocks/pages/admin-forbidden/`): the `staff`
  * card with its heading, lead, Sign out button and note, shown in place of a screen whose read
- * the API refused with 403. Owns the selectors of that screen.
+ * the API refused with 403; and its "Admins only" state for a Moderator (mock state `role`), whose
+ * action is the "Go to dashboard" link. Owns the selectors of that screen.
  */
 export class AdminForbiddenPage {
   readonly main: Locator;
@@ -14,6 +15,10 @@ export class AdminForbiddenPage {
   readonly note: Locator;
   /** Every button in the card. */
   readonly buttons: Locator;
+  /** The "Admins only" state's link back to the Dashboard. */
+  readonly dashboardLink: Locator;
+  /** Every link in the card. */
+  readonly links: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -23,6 +28,8 @@ export class AdminForbiddenPage {
     this.signOutButton = this.card.locator('.auth__submit .btn');
     this.note = this.card.locator('.staff__note');
     this.buttons = this.card.getByRole('button');
+    this.dashboardLink = this.card.locator('.auth__submit a.btn');
+    this.links = this.card.getByRole('link');
   }
 
   title(): Promise<string> {
@@ -43,6 +50,19 @@ export class AdminForbiddenPage {
   async signOutByKeyboard(): Promise<void> {
     await this.page.keyboard.press('Tab');
     await this.page.keyboard.press('Enter');
+  }
+
+  /** Follows the "Go to dashboard" link with the keyboard alone: Tab from the focused heading, then Enter. */
+  async goToDashboardByKeyboard(): Promise<void> {
+    await this.page.keyboard.press('Tab');
+    await this.page.keyboard.press('Enter');
+  }
+
+  /** The "Go to dashboard" link's box, in CSS pixels. */
+  async dashboardLinkBox(): Promise<{ width: number; height: number }> {
+    const box = await this.dashboardLink.boundingBox();
+    if (box === null) throw new Error('The Go to dashboard link is not rendered.');
+    return { width: box.width, height: box.height };
   }
 
   /** The Sign out button's box, in CSS pixels. */
