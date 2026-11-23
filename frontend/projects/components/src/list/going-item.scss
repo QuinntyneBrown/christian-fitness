@@ -17,11 +17,15 @@
   box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
   transition: box-shadow var(--duration-fast) var(--ease-standard);
 
-  &:hover {
+  &:hover:not(.going-item--cancelled) {
     box-shadow:
       inset 0 0 0 var(--border-width-hairline) var(--color-border-default),
       var(--shadow-2);
   }
+}
+
+.going-item--cancelled .going-item__image {
+  opacity: 0.55;
 }
 
 .going-item__image {

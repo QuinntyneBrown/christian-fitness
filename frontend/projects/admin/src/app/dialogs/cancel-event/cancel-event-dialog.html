@@ -1,0 +1,14 @@
+<cf-dialog heading="Cancel this event?" titleId="dlg-title" [subtitle]="subtitle" (closed)="keep()">
+  @if (failed()) {
+    <cf-alert heading="Couldn't cancel the event"
+      ><p>It is still published. Try again in a moment.</p></cf-alert
+    >
+  }
+  <p class="cancel-event__text">{{ text }}</p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="cancelling()" (click)="keep()"
+    >Keep event</cf-button
+  >
+  <cf-button slot="foot" grow [disabled]="cancelling()" [busy]="cancelling()" (click)="cancel()">{{
+    cancelling() ? 'Cancelling…' : 'Cancel event'
+  }}</cf-button>
+</cf-dialog>

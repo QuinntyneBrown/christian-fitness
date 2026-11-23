@@ -50,6 +50,12 @@ export class HttpAdminEventsService implements AdminEventsApi {
       .pipe(catchError(asApiError));
   }
 
+  cancel(id: string): Observable<AdminEventDto> {
+    return this.http
+      .post<AdminEventDto>(`/api/admin/events/${encodeURIComponent(id)}/cancel`, null)
+      .pipe(catchError(asApiError));
+  }
+
   uploadImage(file: File): Observable<EventImageDto> {
     const body = new FormData();
     body.append('file', file);

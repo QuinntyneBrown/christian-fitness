@@ -37,6 +37,7 @@ export * from './events/event-draft';
 export * from './events/event-feed';
 export * from './events/event-refusal';
 export * from './events/event-toast';
+export * from './events/cancel-event-text';
 export * from './events/event-when';
 export * from './notifications/toast-store';
 export * from './members/profile-rules';

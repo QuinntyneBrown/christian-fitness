@@ -29,6 +29,7 @@ export const FULL_PROFILE = {
       // 6:45 AM on Saturday, April 18 in Toronto.
       startsAt: '2026-04-18T10:45:00Z',
       imageUrl: PIXEL,
+      cancelled: false,
     },
     {
       eventId: '0190c0de-0000-7000-8000-00000000e002',

@@ -1,5 +1,5 @@
 /** How an event editor ended with a saved event (ADR 0026). */
-export type EventSaveOutcome = 'created' | 'updated' | 'published';
+export type EventSaveOutcome = 'created' | 'updated' | 'published' | 'cancelled';
 
 /**
  * What the admin toast says once the editor has saved `title` (mocks `admin-toast/draft-saved`,
@@ -15,6 +15,11 @@ export function eventSavedToast(
       return {
         title: `${title} is live`,
         text: 'Members can register now. A group chat opens with the first registration.',
+      };
+    case 'cancelled':
+      return {
+        title: `${title} is cancelled`,
+        text: 'Registered members see it as cancelled on their Profile.',
       };
     case 'updated':
       return { title: 'Changes saved', text: `${title} is updated.` };

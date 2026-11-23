@@ -1,4 +1,4 @@
-<a class="going-item" [href]="href()">
+<ng-template #content>
   @if (imageUrl(); as image) {
     <img class="going-item__image" [src]="image" alt="" width="128" height="72" />
   }
@@ -6,4 +6,16 @@
     <span class="going-item__date">{{ date() }}</span>
     <span class="mini-row__name">{{ title() }}</span>
   </span>
-</a>
+  @if (cancelled()) {
+    <cf-status variant="cancelled">Cancelled</cf-status>
+  }
+</ng-template>
+@if (cancelled()) {
+  <div class="going-item going-item--cancelled">
+    <ng-container [ngTemplateOutlet]="content" />
+  </div>
+} @else {
+  <a class="going-item" [href]="href()">
+    <ng-container [ngTemplateOutlet]="content" />
+  </a>
+}

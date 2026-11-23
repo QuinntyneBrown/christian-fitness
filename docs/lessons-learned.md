@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 57% (32 of 57 slices; 52 of 91 days)
+**% complete:** 58% (33 of 57 slices; 53 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1576,3 +1576,40 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "InMemory is not transactional" (6.2): no real race was run; the token's proof from 6.2 covers it.
 - "A screen's service goes on its routed component's providers" (4.1): `cancelRegistration` joined the
   service already provided on the detail page.
+
+## Slice 11.2: Cancel an event
+
+**What slowed it**
+
+- The design named a confirmation dialog, a refusal code and a group chat notice but no mock; the chat
+  does not exist until 12.x. ADR 0035 added the mocks (`cancel-event`, `edit-published`, the
+  `event-cancelled` toast, Profile `cancelled`), the code `event_not_published`, and left the notice to 12.x.
+- "Registered members see it cancelled" had no screen to land on: Event detail answers 404 for an
+  unpublished event, so the Profile "Going to" row keeps the event, marked Cancelled and not a link.
+- `git checkout src` to undo one deliberate break reverted every tracked backend edit of the slice, not just
+  the break; the edits were replayed from the script. Undo a mutation with the inverse edit, never a checkout.
+- CI caught a race local runs hid: a dialog opened after a dynamic import was not yet on screen when the spec
+  pressed Escape, so the Escape closed the editor beneath. Wait for the dialog to be visible before a key press.
+- A quoted shell command with an apostrophe inside `node -e` failed to parse and silently skipped the files
+  written after it; large files go through the editor tool.
+
+**New lessons**
+
+- A new enum value changes no EF model when the enum has no conversion: `has-pending-model-changes` was not
+  needed, but check the column mapping before assuming.
+- The cancel bumps `RegistrationVersion` (ADR 0033), and the handler saves itself in a retry loop because the
+  audit entry is saved with the change; a loser reloads and refuses `event_not_published` if it lost.
+- A `cf-going-item` that is conditionally a link or a plain row puts its content in one `ng-template`
+  shown in both branches (the slot rule), so the badge and picture are declared once.
+- Adding a field to an exact-keys contract test (`cancelled` on the Profile) is an intended change to that
+  test; the second existing test that listed the editor's footer buttons changed for the same reason.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 7.1): disabling the published check turned only the
+  refusal and audit tests red.
+- "Use the Edit tool, not Python scripts" (7.1): edits went through Edit or Node `replace` with a presence check.
+- "Work expected values from the fixture" (7.1): the 38 registered members in the dialog text come from the
+  bootcamp fixture; a unit test covers 0, 1 and many.
+- "Read the initial total after each new API" (30.1): no new core API; the admin total stayed 279.20 kB and the
+  dialog loads on first Cancel event.

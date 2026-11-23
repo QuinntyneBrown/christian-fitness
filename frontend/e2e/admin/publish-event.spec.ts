@@ -274,7 +274,10 @@ test.describe('Admin app, publishing an event', () => {
     await expect(editor.dialog).toBeVisible();
   });
 
-  test('a published event offers only Save changes', async ({ page, api }) => {
+  test('a published event offers Cancel event and Save changes, not Publish', async ({
+    page,
+    api,
+  }) => {
     answerPublish(api);
     api.on('GET', `/api/admin/events/${PUBLISHED_EVENTS[1].id}`, () => ({
       json: { ...RETREAT_DETAIL, id: PUBLISHED_EVENTS[1].id, status: 'published' },
@@ -285,6 +288,6 @@ test.describe('Admin app, publishing an event', () => {
 
     await events.editEvent(PUBLISHED_EVENTS[1].title);
 
-    await expect(editor.footButtons).toHaveText(['Save changes']);
+    await expect(editor.footButtons).toHaveText(['Cancel event', 'Save changes']);
   });
 });

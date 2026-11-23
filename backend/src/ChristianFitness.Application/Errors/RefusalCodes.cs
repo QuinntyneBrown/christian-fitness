@@ -20,6 +20,10 @@ public static class RefusalCodes
 
     /// <summary>Only a draft event can be published (L2-023 AC4; ADR 0026).</summary>
     public const string EventNotDraft = "event_not_draft";
+
+    /// <summary>Only a published event can be cancelled (L2-023 AC2; ADR 0035).</summary>
+    public const string EventNotPublished = "event_not_published";
+
     /// <summary>Staff tried to flag or suspend their own account (L2-029 AC4; ADR 0028).</summary>
     public const string CannotModerateSelf = "cannot_moderate_self";
 

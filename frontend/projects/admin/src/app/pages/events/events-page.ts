@@ -41,6 +41,13 @@ const COLUMNS: readonly TableColumn[] = [
   { key: 'status', label: 'Status', kind: 'custom' },
 ];
 
+/** The word each status badge carries. */
+const STATUS_WORD: Record<AdminEventDto['status'], string> = {
+  draft: 'Draft',
+  published: 'Published',
+  cancelled: 'Cancelled',
+};
+
 /** What the list shows: skeleton rows, the asked tab's events, or the error state. */
 type ListState =
   { kind: 'loading' } | { kind: 'ready'; events: readonly AdminEventDto[] } | { kind: 'failed' };
@@ -227,7 +234,7 @@ function rowOf(event: AdminEventDto): TableRow {
       event: { text: event.title, sub: event.place },
       date: { text: eventWhen(event.startsAt) },
       registered: { text: String(event.going), of: String(event.capacity) },
-      status: { text: event.status === 'draft' ? 'Draft' : 'Published' },
+      status: { text: STATUS_WORD[event.status] },
     },
   };
 }

@@ -1,0 +1,9 @@
+// The dialog's layout is the library's: `cf-dialog` draws the scrim and the panel.
+:host {
+  display: block;
+}
+
+.cancel-event__text {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}

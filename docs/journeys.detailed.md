@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 57% (32 of 57 slices; 52 of 91 days)
+**% complete:** 58% (33 of 57 slices; 53 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -34,7 +34,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 23  | 6.1   | 6 Register for an event             | ✅ Register for an event                          | Members claim a spot and the event shows them as going.                                                                                             | 2             |
 | 24  | 6.2   | 6 Register for an event             | ✅ Full events                                    | A full event refuses registration, even under simultaneous requests.                                                                                | 1             |
 | 25  | 7.1   | 7 Cancel a registration             | ✅ Cancel a registration                          | Members give up their spot and it frees for others.                                                                                                 | 1             |
-| 26  | 11.2  | 11 Publish and cancel events        | Cancel an event                                   | Staff cancel an event and registered members see it cancelled.                                                                                      | 1             |
+| 26  | 11.2  | 11 Publish and cancel events        | ✅ Cancel an event                                | Staff cancel an event and registered members see it cancelled.                                                                                      | 1             |
 | 27  | 24.1  | 24 View event registrations         | View event registrations                          | Staff see who registered and how much capacity is used.                                                                                             | 2             |
 | 28  | 8.1   | 8 Discover from the landing page    | Landing with upcoming events                      | Visitors see the community and upcoming events, and can join.                                                                                       | 1             |
 | 29  | 18.1  | 18 Build my profile                 | ✅ View my profile                                | Members see their profile and the events they registered for.                                                                                       | 1             |

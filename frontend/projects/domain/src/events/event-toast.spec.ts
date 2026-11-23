@@ -18,6 +18,11 @@ describe('eventSavedToast', () => {
       title: 'Whole Life Retreat is live',
       text: 'Members can register now. A group chat opens with the first registration.',
     },
+    {
+      outcome: 'cancelled' as const,
+      title: 'Whole Life Retreat is cancelled',
+      text: 'Registered members see it as cancelled on their Profile.',
+    },
   ])('says "$title" for $outcome', ({ outcome, title, text }) => {
     expect(eventSavedToast('Whole Life Retreat', outcome)).toEqual({ title, text });
   });

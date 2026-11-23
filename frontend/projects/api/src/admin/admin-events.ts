@@ -5,7 +5,7 @@ import type { Observable } from 'rxjs';
 export type EventCategory = 'run' | 'workout' | 'basketball' | 'mobility' | 'workshop' | 'retreat';
 
 /** Where an event is in its life (L2-022, L2-023). */
-export type EventStatus = 'draft' | 'published';
+export type EventStatus = 'draft' | 'published' | 'cancelled';
 
 /** A tab of the staff list of events (L2-022 AC5). */
 export type AdminEventTab = 'all' | 'published' | 'draft';
@@ -115,6 +115,12 @@ export interface AdminEventsApi {
    * `start_in_past` for a draft that has begun (ADR 0026).
    */
   publish(id: string): Observable<AdminEventDto>;
+
+  /**
+   * Withdraws a published event and answers it with status `cancelled` (200). A refusal errors with
+   * an `ApiError`: 409 `event_not_published`, 404 `not_found` (ADR 0035).
+   */
+  cancel(id: string): Observable<AdminEventDto>;
 
   /** Keeps a JPEG, PNG or WebP of up to 5 MB and answers its key; else `validation_failed` with `fieldCodes.image`. */
   uploadImage(file: File): Observable<EventImageDto>;

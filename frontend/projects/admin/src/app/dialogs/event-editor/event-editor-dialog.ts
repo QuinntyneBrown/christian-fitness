@@ -1,5 +1,5 @@
 import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { Component, computed, DestroyRef, inject, type Injector, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import {
@@ -29,6 +29,7 @@ import {
   eventEditorValuesOf,
   eventErrorHeading,
   eventErrorItems,
+  goingDateOf,
   type EventFieldErrors,
   eventFieldErrorsOf,
   type EventFieldKey,
@@ -60,7 +61,7 @@ export interface EventEditorData {
 /** How an editor ended with a saved event: what the page says about it. */
 export interface EventEditorResult {
   event: AdminEventDto;
-  outcome: 'created' | 'updated' | 'published';
+  outcome: 'created' | 'updated' | 'published' | 'cancelled';
 }
 
 /**
@@ -87,6 +88,7 @@ export class EventEditorDialog {
   private readonly ref = inject<DialogRef<EventEditorResult, EventEditorDialog>>(DialogRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly data = inject<EventEditorData>(DIALOG_DATA);
+  private readonly injector = inject(Injector);
 
   protected readonly headingId = HEADING_ID;
   protected readonly imageTypes = IMAGE_TYPES;
@@ -94,6 +96,8 @@ export class EventEditorDialog {
   protected readonly editing = this.data.event !== undefined;
   /** A new event and a draft can be published; a published event only takes changes. */
   protected readonly canPublish = !this.data.event || this.data.event.status === 'draft';
+  /** A published event can be cancelled, after a confirmation (ADR 0035). */
+  protected readonly canCancel = this.data.event?.status === 'published';
   protected readonly working = computed(() => this.saving() || this.publishing());
   /** The event as last saved here, so a retry updates it and a close keeps it. */
   private saved: AdminEventDto | null = null;
@@ -173,6 +177,24 @@ export class EventEditorDialog {
 
   protected publish(): void {
     this.run(true);
+  }
+
+  /** Asks staff to confirm; a cancelled event closes the editor with it (ADR 0035). */
+  protected async cancelEvent(): Promise<void> {
+    const event = this.data.event;
+    if (!event || this.working() || this.uploading()) return;
+    // The confirmation and its code load on first use.
+    const { openCancelEventDialog } = await import('../cancel-event/cancel-event-dialog');
+    const { title, date } = this.data.values;
+    openCancelEventDialog(this.injector, {
+      id: event.id,
+      subtitle: `${title} · ${goingDateOf(`${date}T12:00:00Z`)}`,
+      going: event.going,
+    })
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((cancelled) => {
+        if (cancelled) this.ref.close({ event: cancelled, outcome: 'cancelled' });
+      });
   }
 
   /** Saves the fields, then publishes when asked; a retry updates the draft already saved. */
