@@ -14,6 +14,11 @@ public sealed class ProfileController(ISender sender) : ControllerBase
     public async Task<IActionResult> GetOwn(CancellationToken cancellationToken) =>
         Ok(await sender.Send(new GetOwnProfileQuery(), cancellationToken).ConfigureAwait(false));
 
+    /// <summary>Another member's public profile (L2-005 AC3; ADR 0038); 404 when nobody has the id.</summary>
+    [HttpGet("/api/members/{memberId}/profile")]
+    public async Task<IActionResult> GetPublic(string memberId, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new GetPublicProfileQuery(memberId), cancellationToken).ConfigureAwait(false));
+
     /// <summary>
     /// Saves a member's profile and answers it as saved (L2-006 AC2; ADR 0024). Only the session's
     /// own member id is accepted; the handler refuses any other with 403 (AC5).

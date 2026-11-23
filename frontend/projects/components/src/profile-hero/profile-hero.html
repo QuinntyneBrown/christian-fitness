@@ -11,7 +11,9 @@
       <cf-avatar size="2xl" variant="solid" [name]="name()" [initials]="initials()" />
       <div class="profile-hero__body">
         <h1 class="profile-hero__name">{{ name() }}</h1>
-        <p class="profile-hero__meta">{{ meta() }}</p>
+        @if (meta()) {
+          <p class="profile-hero__meta">{{ meta() }}</p>
+        }
         @if (homeChurch() || city()) {
           <div class="profile-hero__facts">
             @if (homeChurch(); as church) {

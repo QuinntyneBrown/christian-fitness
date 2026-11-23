@@ -1,0 +1,42 @@
+<main id="main" class="member-profile-page">
+  @if (state() === 'loading') {
+    <cf-skeleton-region label="Loading profile" heading>
+      <cf-profile-hero loading />
+      <cf-container page="default">
+        <cf-skeleton shape="title" width="20" />
+        <cf-skeleton width="90" />
+      </cf-container>
+    </cf-skeleton-region>
+  } @else if (state() === 'failed') {
+    <cf-container page="default">
+      <h1 class="display page-title">Member</h1>
+      <cf-empty-state
+        variant="error"
+        heading="This profile didn't load"
+        text="We couldn't show this member's profile. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" variant="secondary" href="/home"
+          >Back to home</cf-button
+        >
+      </cf-empty-state>
+    </cf-container>
+  } @else {
+    @if (member(); as m) {
+      <cf-profile-hero [name]="m.name" [initials]="m.initials" [homeChurch]="m.homeChurch" />
+      <cf-container page="default">
+        <h2 class="display section-title">About</h2>
+        @if (m.bio) {
+          <p class="prose lead">{{ m.bio }}</p>
+        } @else {
+          <cf-empty-state variant="inline" heading="No bio yet." />
+        }
+        <h2 class="display section-title mt-section">Into</h2>
+        @if (m.interests.length > 0) {
+          <cf-tag-list [tags]="m.interests" />
+        } @else {
+          <cf-empty-state variant="inline" heading="No interests yet." />
+        }
+      </cf-container>
+    }
+  }
+</main>

@@ -37,6 +37,18 @@ export interface OwnProfileDto {
 }
 
 /**
+ * Another member's profile (`GET /api/members/{id}/profile`, L2-005 AC3; ADR 0038): only what members
+ * see of one another. `homeChurch` is absent unless its owner chose to show it.
+ */
+export interface PublicProfileDto {
+  name: string;
+  bio: string | null;
+  /** Interest keys, as in `INTERESTS`. */
+  interests: string[];
+  homeChurch?: string;
+}
+
+/**
  * A member's profile as the Edit profile dialog saves it (`PUT /api/members/{memberId}/profile`,
  * L2-006; ADR 0024): every value trimmed, a blank optional one `null`, goals without blank lines.
  */
@@ -58,6 +70,9 @@ export interface ProfileApi {
    * with the `HttpErrorResponse`, so the screen shows its own failed state.
    */
   own(): Observable<OwnProfileDto>;
+
+  /** Another member's public profile; a 404 `not_found` when nobody has the id (ADR 0038). */
+  member(memberId: string): Observable<PublicProfileDto>;
 
   /**
    * Saves the member's own profile and answers it as saved (L2-006 AC2). A refusal or no answer
