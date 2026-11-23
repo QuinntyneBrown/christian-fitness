@@ -22,7 +22,8 @@ import { AuthBrand } from '../auth-brand/auth-brand';
  * With `notice`, the same block is a message rather than a form (the mock's "Check your email"):
  * a `<div>` in place of the `<form>`, whose heading takes focus when it appears. The other way in
  * is a link to `altHref`, or, without one, a button that emits `altChosen` (such as "send it
- * again"); `altEnd` closes the line. The slots are declared once, in one template both shapes show.
+ * again"); `altEnd` closes the line, and without `altLink` there is no line. A `busy` notice
+ * (such as "Checking your link…") is `aria-busy` and announces its lead as a status. The slots are declared once, in one template both shapes show.
  */
 @Component({
   selector: 'cf-auth-layout',
@@ -35,13 +36,18 @@ export class AuthLayout implements AfterViewInit {
   readonly lead = input('');
   /** The words before the other way in, such as "Already a member?". */
   readonly altText = input('');
-  /** The other way in, such as "Sign in", and where it goes; without `altHref`, an action. */
-  readonly altLink = input.required<string>();
+  /**
+   * The other way in, such as "Sign in", and where it goes; without `altHref`, an action. Without
+   * it the line is left out, as in a notice that has no other way ("Password saved").
+   */
+  readonly altLink = input('');
   readonly altHref = input<string>();
   /** The words after the other way in, such as the closing ".". */
   readonly altEnd = input('');
   /** A message, not a form: no submission, and the heading takes focus. */
   readonly notice = input(false, { transform: booleanAttribute });
+  /** A notice still waiting for an answer: `aria-busy`, and its lead is a live status. */
+  readonly busy = input(false, { transform: booleanAttribute });
 
   /** The form was submitted; the browser's own submission is prevented. */
   readonly submitted = output<void>();

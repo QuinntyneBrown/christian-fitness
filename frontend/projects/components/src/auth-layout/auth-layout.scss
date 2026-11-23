@@ -70,6 +70,11 @@
 
 .auth__submit {
   margin-top: var(--space-8);
+
+  // A notice still waiting has no button; the slot takes no room.
+  &:empty {
+    display: none;
+  }
 }
 
 .auth__alt {
