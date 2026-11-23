@@ -253,6 +253,26 @@ test.describe('Admin app, suspending a member', () => {
     expect(sent).toEqual([]);
   });
 
+  test('every press that finds something missing moves focus back to the summary', async ({
+    page,
+    api,
+  }) => {
+    answerModeration(api);
+    const members = new AdminMembersPage(page);
+    const dialog = new ModerateMemberDialog(page);
+    await members.open();
+    await members.moderateButton('Priya Nair').click();
+    await dialog.submitButton.click();
+    await expect(dialog.alert).toBeFocused();
+    await dialog.flagChoice.focus();
+    await expect(dialog.alert).not.toBeFocused();
+
+    await dialog.submitButton.click();
+
+    await expect(dialog.alertTitle).toHaveText('1 thing to fix');
+    await expect(dialog.alert).toBeFocused();
+  });
+
   test('a note over 500 characters counts what is over and is not sent', async ({ page, api }) => {
     const sent = answerModeration(api);
     const members = new AdminMembersPage(page);
