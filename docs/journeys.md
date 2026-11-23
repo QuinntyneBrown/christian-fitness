@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 51% (11 of 30 journeys; 46 of 91 days: journeys 1, 2, 3, 4, 9, 10, 18, 20, 26, 27 and 29 are done, and journeys 11 and 30 each have 1 of their 2 days)
+**% complete:** 53% (12 of 30 journeys; 48 of 91 days: journeys 1, 2, 3, 4, 5, 9, 10, 18, 20, 26, 27 and 29 are done, and journeys 11 and 30 each have 1 of their 2 days)
 
 | #   | Journey                          | App    | Description                                                                                                        | Effort (days) |
 | --- | -------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -14,12 +14,12 @@ telemetry), so those are not listed on their own.
 | 2   | ✅ Join the community            | Member | Create a member account with name, email and password.                                                             | 3             |
 | 3   | ✅ Sign in and out               | Member | Sign in securely, with lockout, suspension refusal and return-to-route.                                            | 3             |
 | 4   | ✅ Browse and filter events      | Member | Find upcoming events by type, date and location.                                                                   | 3             |
-| 5   | View an event                    | Member | See an event's details, place, time and spots left.                                                                | 2             |
+| 5   | ✅ View an event                 | Member | See an event's details, place, time and spots left.                                                                | 2             |
 | 6   | Register for an event            | Member | Claim a spot within capacity; full events refuse registration.                                                     | 3             |
 | 7   | Cancel a registration            | Member | Give up a spot so someone else can take it.                                                                        | 1             |
 | 8   | Discover from the landing page   | Member | Visitors see the community, upcoming events and professionals, then join.                                          | 2             |
 | 9   | ✅ Staff sign-in with two-step   | Admin  | Only staff sign in, verified by a second step.                                                                     | 4             |
-| 10  | Create and edit events           | Admin  | Staff draft an event and edit its details in a dialog.                                                             | 4             |
+| 10  | ✅ Create and edit events        | Admin  | Staff draft an event and edit its details in a dialog.                                                             | 4             |
 | 11  | Publish and cancel events        | Admin  | Staff make a draft event visible or cancel it.                                                                     | 2             |
 | 12  | Chat in an event group           | Member | Registered members message their event group in real time.                                                         | 6             |
 | 13  | See my home                      | Member | Next events, unread messages and suggested events at a glance.                                                     | 3             |

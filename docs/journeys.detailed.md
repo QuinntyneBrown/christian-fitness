@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 51% (28 of 57 slices; 46 of 91 days)
+**% complete:** 53% (29 of 57 slices; 48 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -30,7 +30,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 19  | 11.1  | 11 Publish and cancel events        | ✅ Publish an event                               | Staff publish a draft so members can find it.                                                                                                       | 1             |
 | 20  | 4.1   | 4 Browse and filter events          | ✅ Browse upcoming events                         | Members see published upcoming events, soonest first.                                                                                               | 2             |
 | 21  | 4.2   | 4 Browse and filter events          | ✅ Filter events                                  | Filter by type, date and location, with a no-results state.                                                                                         | 1             |
-| 22  | 5.1   | 5 View an event                     | Event detail                                      | Members see an event's details, place, time and spots left.                                                                                         | 2             |
+| 22  | 5.1   | 5 View an event                     | ✅ Event detail                                   | Members see an event's details, place, time and spots left.                                                                                         | 2             |
 | 23  | 6.1   | 6 Register for an event             | Register for an event                             | Members claim a spot and the event shows them as going.                                                                                             | 2             |
 | 24  | 6.2   | 6 Register for an event             | Full events                                       | A full event refuses registration, even under simultaneous requests.                                                                                | 1             |
 | 25  | 7.1   | 7 Cancel a registration             | Cancel a registration                             | Members give up their spot and it frees for others.                                                                                                 | 1             |

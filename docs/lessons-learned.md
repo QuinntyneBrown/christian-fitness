@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 51% (28 of 57 slices; 46 of 91 days)
+**% complete:** 53% (29 of 57 slices; 48 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1300,6 +1300,7 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "Read the initial total after each new API" (30.1): `IntersectionObserver` is not an Angular API;
   the page is a lazy route, and the initial totals stayed at 277.39 kB (web) and 279.20 kB (admin).
 - "Keep the mocks' BEM classes": the page object read `.event-card__title` and the rest from the mock.
+
 ## Slice 27.1: Flag and suspend
 
 **What slowed it**
@@ -1458,3 +1459,30 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   already in `main`; the member initial bundle stayed at 277.39 kB (0 bytes added to `main`).
 - "No log, metric or span carries a query string" (1.2, 26.1): `EventsTelemetryTests` proved neither
   `?category=workshop` nor a refused `?category=secretcategoryprobe` reaches any span tag or log.
+
+## Slice 5.1: Event detail
+
+**What slowed it**
+
+- The Git Bash tool failed to parse a command whose quoted heredoc held an apostrophe in prose
+  ("member's"), so nothing in it ran; the files went through the editor tool, as 1.2 warned.
+- A page object's `title` locator clashed with `ErrorScreen.title()` (the document title), a
+  type error found only when the spec compiled; the locator became `eventTitle`.
+- Facts render the term and detail as `dt` and `dd` with no space between, so the spec matches them
+  with `\s*` rather than a literal space.
+- L2-010 asks for a registration action and "You're going" before registration exists; the mock's
+  schedule, avatars and "Waitlist open" have no data. ADR 0031 records what is left out.
+
+**New lessons**
+
+- An unknown event route passes its not-found spec at once, because the wildcard route already shows
+  "Page not found"; the proof is breaking the 404 branch alone, which sends the screen to "didn't load".
+- `eventImageSrc` and `priceOf` moved out of the card view so list and detail never word a picture or
+  a price twice.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 4.2): dropping the `Published` filter turned the
+  draft test red, and a 404 check changed to a status that never comes turned the not-found spec red.
+- "A screen's service goes on its routed component's providers" (4.1): `EVENTS_SERVICE` is provided on
+  the detail page, so the client goes with the screen.

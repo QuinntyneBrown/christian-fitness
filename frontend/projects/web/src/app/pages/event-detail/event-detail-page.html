@@ -1,0 +1,73 @@
+<main id="main" class="event-detail">
+  <cf-container page="detail">
+    @if (state() === 'not-found') {
+      <cf-error-page
+        code="404"
+        heading="Page not found"
+        text="That link may be old, or the page has moved. Everything else is right where you left it."
+      >
+        <cf-button slot="actions" href="/" size="sm">Go to home</cf-button>
+        <cf-button slot="actions" href="/events" variant="secondary" size="sm"
+          >Browse events</cf-button
+        >
+      </cf-error-page>
+    } @else {
+      <cf-link href="/events" variant="back">All events</cf-link>
+      @if (state() === 'loading') {
+        <cf-skeleton-region label="Loading event">
+          <cf-skeleton shape="image-banner" />
+          <div class="event-detail__split">
+            <div class="event-detail__skeletons">
+              <cf-skeleton shape="text-sm" width="20" />
+              <cf-skeleton shape="title-lg" />
+              <cf-skeleton shape="text" width="80" />
+              <cf-skeleton shape="text" width="80" />
+              <cf-skeleton shape="text" width="90" />
+            </div>
+            <cf-card variant="pad-sm">
+              <div class="event-detail__skeletons">
+                <cf-skeleton shape="title" width="30" />
+                <cf-skeleton shape="text-sm" width="80" />
+              </div>
+            </cf-card>
+          </div>
+        </cf-skeleton-region>
+      } @else if (state() === 'failed') {
+        <h1 class="visually-hidden">Event</h1>
+        <cf-empty-state
+          variant="error"
+          heading="This event didn't load"
+          text="We couldn't reach Christian Fitness. Check your connection and try again."
+        >
+          <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+          <cf-button slot="actions" size="sm" variant="secondary" href="/events"
+            >All events</cf-button
+          >
+        </cf-empty-state>
+      } @else if (event(); as view) {
+        <img class="event-detail__image" [src]="view.imageSrc" alt="" width="1376" height="768" />
+        <div class="event-detail__split">
+          <div>
+            <p class="event-detail__eyebrow">{{ view.type }}</p>
+            <h1 class="event-detail__title">{{ view.heading }}</h1>
+            <cf-description-list variant="facts" [items]="facts()" />
+            <section class="event-detail__section" aria-labelledby="about-title">
+              <h2 class="event-detail__heading" id="about-title">About</h2>
+              <p class="event-detail__about">{{ view.summary }}</p>
+            </section>
+          </div>
+          <aside class="event-detail__aside" aria-label="Registration">
+            <cf-card variant="pad-sm">
+              <div class="event-detail__head">
+                <p class="event-detail__price">{{ view.price }}</p>
+                <p class="event-detail__spots">{{ view.spots }}</p>
+              </div>
+              <p class="event-detail__going">{{ view.going }}</p>
+            </cf-card>
+            <p class="event-detail__posted-by">Posted by the Christian Fitness team</p>
+          </aside>
+        </div>
+      }
+    }
+  </cf-container>
+</main>
