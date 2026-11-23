@@ -9,6 +9,10 @@ public sealed class Member
     public const int NameMaxLength = 100;
     public const int EmailMaxLength = 254;
     public const int HomeChurchMaxLength = 120;
+    public const int CityMaxLength = 100;
+    public const int BioMaxLength = 300;
+    public const int GoalsMaxCount = 5;
+    public const int GoalMaxLength = 80;
 
     private Member()
     {
@@ -30,6 +34,15 @@ public sealed class Member
 
     /// <summary>The keys of the activities the member follows (<see cref="Members.Interests"/>).</summary>
     public IReadOnlyList<string> Interests { get; private set; } = [];
+
+    /// <summary>Where the member lives, as they write it; none until they give one (L2-005 AC1; slice 18.2 edits it).</summary>
+    public string? City { get; private set; }
+
+    /// <summary>A short introduction, at most 300 characters; none until written (L2-006 AC3).</summary>
+    public string? Bio { get; private set; }
+
+    /// <summary>What the member is working toward this year: at most 5, of at most 80 characters (L2-006 AC3).</summary>
+    public IReadOnlyList<string> Goals { get; private set; } = [];
 
     public MemberStatus Status { get; private set; }
 
