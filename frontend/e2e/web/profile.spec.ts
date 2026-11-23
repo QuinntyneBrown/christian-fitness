@@ -130,10 +130,7 @@ test.describe('Member app, a new profile', () => {
     await expect(profile.browseEventsLink).toHaveAttribute('href', '/events');
   });
 
-  test('interests the app does not know are left out, not shown as keys', async ({
-    page,
-    api,
-  }) => {
+  test('interests the app does not know are left out, not shown as keys', async ({ page, api }) => {
     answerProfile(api, { ...FULL_PROFILE, interests: ['running', 'parkour'] });
     const profile = new WebProfilePage(page);
 
@@ -190,9 +187,9 @@ test.describe('Member app, while my profile loads or fails', () => {
 
     await expect(profile.heading).toHaveText('Profile');
     await expect(profile.error).toHaveAttribute('role', 'alert');
-    await expect(profile.errorTitle).toHaveText('Your profile didn’t load');
+    await expect(profile.errorTitle).toHaveText("Your profile didn't load");
     await expect(profile.errorText).toHaveText(
-      'We couldn’t reach Christian Fitness. Check your connection and try again.',
+      "We couldn't reach Christian Fitness. Check your connection and try again.",
     );
     await expect(profile.backHomeLink).toHaveAttribute('href', '/home');
     await expect(profile.tryAgainButton).toBeEnabled();

@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 22% (12 of 54 slices; 18 of 83 days)
+**% complete:** 23% (13 of 54 slices; 19 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -637,3 +637,46 @@ worked when applied. Newest entries go at the bottom.
   slice 3.2 merged, so its client address and sliding window were reused for the per-address
   reset limit instead of recording it for later, and its new `IAppDbContext` member surfaced in
   this slice's own test double before CI did.
+
+## Slice 18.1: View my profile
+
+**What slowed it**
+
+- It ran out of order, before any event or registration exists. The "Going to" list was built
+  against `IRegistrationReader`, whose only implementation answers none until slice 6.1; the API
+  tests prove the pass-through with a fake reader and the screen's specs with the fixture.
+- The mocks drew a handle (`@gracet`) no requirement defines, a city for a member Join never asked
+  for one, and a reference in an error state only a 4xx or no answer can reach (a 4xx carries no
+  reference). The mock generator was corrected before code.
+- The first component-level `providers` added 2.3 kB of `@angular/core` to `main`, past the 260 kB
+  warning; a `--stats-json` diff named it in one build, and removing the line once confirmed it.
+  The warning budget went to 263 kB with that reason (ADR 0013).
+- Git Bash heredocs failed again on an apostrophe in a template ("didn't"); every component went
+  through the editor tool, as slices 1.2 to 3.2 warned.
+- A commit took the next sub-slice's spec with it because the spec was edited before the commit;
+  stage named paths only after the step's tests are run, not after the next step has begun.
+
+**New lessons**
+
+- Read every date on screen in the community's time zone (`America/Toronto`), not UTC or the
+  browser's: a table with rows either side of midnight in Toronto and UTC proves it, and the
+  "same UTC day" break turned exactly those rows red.
+- `page.clock.setFixedTime` fixes `Date` without pausing timers, so a "today" rule can be specified
+  in Playwright without the stalls a paused clock brings.
+- An event picture in a spec can be a `data:` URI: it never leaves the page, so the fixture's
+  off-localhost and console-error checks stay quiet without a fake image server.
+- A screen-scoped client is bound in the routed component's `providers`; that is a one-time cost
+  in `main` that later screens reuse, unlike binding it in `app.config.ts`, which keeps it alive.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 3.2): the
+  base stats were saved before the first change, so the 2.3 kB were named at once.
+- "A test helper that forces state the product cannot set yet can write through EF Core's
+  `Entry(...).Property(...)`" (3.2): the city, bio and goals that only slice 18.2 edits were set
+  that way, with no domain method nobody calls.
+- "Prove a rule red by breaking it alone" (1.1 to 3.2): the member lookup, the clock passed to the
+  reader, the events passed through, a logged home church, the avatar's `preventDefault`, an
+  `[innerHTML]` name, the Toronto day and the unknown interest key each turned the right test red.
+- "A gate in a fixture handler" (2.1) gave the loading state with no clock and no sleep.
+- "Use free ports" (3.2): the specs ran on 4410/4411 beside the two other sessions.

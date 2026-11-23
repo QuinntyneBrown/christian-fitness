@@ -3,9 +3,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type OwnProfileDto, PROFILE_SERVICE } from '@cf/api';
 import {
   EmptyInline,
+  ErrorState,
   GoingList,
   type GoingItem,
   ProfileHero,
+  ProfileSkeleton,
   TagList,
   TextLink,
 } from '@cf/components';
@@ -30,11 +32,13 @@ interface ProfileView {
  * Profile at `/profile` (L2-005 AC1, AC2; ADR 0013): the signed-in member's own profile, from
  * `PROFILE_SERVICE`, bound here so the client lives only while the screen does. It shows the
  * `profile-hero`, About, "Goals this year", Into and "Going to", each empty section with the
- * mock's sentence, and "Browse events" when the member is going to nothing.
+ * mock's sentence, and "Browse events" when the member is going to nothing. While it loads it shows
+ * the skeletons; a 4xx or no answer shows "Your profile didn't load" with Try again, which asks
+ * again in place (a 5xx is the server-error screen's, L2-043 AC4, AC5).
  */
 @Component({
   selector: 'cf-profile-page',
-  imports: [EmptyInline, GoingList, ProfileHero, TagList, TextLink],
+  imports: [EmptyInline, ErrorState, GoingList, ProfileHero, ProfileSkeleton, TagList, TextLink],
   providers: [{ provide: PROFILE_SERVICE, useClass: HttpProfileService }],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.scss',

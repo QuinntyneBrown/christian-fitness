@@ -1,0 +1,50 @@
+// The design system's error-state, with the empty-state title, text and actions it is composed of
+// (docs/design-system/assets/components.css, "Empty and error states").
+:host {
+  display: block;
+}
+
+.error-state {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.error-state__icon {
+  display: flex;
+  width: var(--size-avatar-xl);
+  height: var(--size-avatar-xl);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+
+  .icon {
+    width: var(--size-icon-lg);
+    height: var(--size-icon-lg);
+  }
+}
+
+.empty-state__title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  line-height: var(--line-height-3xl);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.empty-state__text {
+  margin-top: var(--space-2);
+  color: var(--color-fg-muted);
+}
+
+.empty-state__actions {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

@@ -28,6 +28,9 @@ export class WebProfilePage {
   readonly browseEventsLink: Locator;
   /** The skeletons while the profile loads. */
   readonly loading: Locator;
+  /** The visually hidden heading of the loading state. */
+  readonly loadingHeading: Locator;
+  readonly skeletons: Locator;
   readonly error: Locator;
   readonly errorTitle: Locator;
   readonly errorText: Locator;
@@ -53,6 +56,8 @@ export class WebProfilePage {
     this.goingEmpty = this.going.locator('.empty-inline');
     this.browseEventsLink = this.going.getByRole('link', { name: 'Browse events' });
     this.loading = this.main.locator('[aria-busy="true"]');
+    this.loadingHeading = this.loading.getByRole('heading', { level: 1, name: 'Loading profile' });
+    this.skeletons = this.loading.locator('.skeleton');
     this.error = this.main.locator('.error-state');
     this.errorTitle = this.error.getByRole('heading', { level: 2 });
     this.errorText = this.error.locator('.empty-state__text');

@@ -1,5 +1,18 @@
 <main id="main" class="profile-page">
-  @if (state() === 'loaded') {
+  @if (state() === 'loading') {
+    <cf-profile-skeleton />
+  } @else if (state() === 'failed') {
+    <div class="container page">
+      <h1 class="display page-title">Profile</h1>
+      <cf-error-state
+        heading="Your profile didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+        backHref="/home"
+        backLabel="Back to home"
+        (retry)="retry()"
+      />
+    </div>
+  } @else {
     @if (profile(); as p) {
       <cf-profile-hero
         [name]="p.name"
