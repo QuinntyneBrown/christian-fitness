@@ -1181,6 +1181,8 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   reinstating opens only sign-in; a test holds a session cookie from before the suspension and
   shows it stays ended.
 - "Prove a rule red by breaking it alone" (1.4 to 27.1): five backend breaks and nine in the
-  helper, dialog and service.
+  helper, dialog and service. One stayed green: `focusOnShow` set to false on the info alert,
+  because the CDK's own focus on the dialog runs after it and wins either way. It is kept as a
+  stated precaution, not a proven rule.
 - "Read the initial total after each new Angular API" (30.1): unchanged at 278.96 kB; the dialog's
   chunk grew from 19.5 kB to 20.5 kB.

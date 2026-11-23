@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["A flag or a suspension can now be undone. Staff reinstate a member from the same dialog."] },
+    { "id": "flagged", "bars": 5, "lines": ["For a flagged member, Reinstate comes first, the milder choice. It asks for no note."] },
+    { "id": "done", "bars": 4, "lines": ["One press, and the member is Active again, with the old note cleared from their row."] },
+    { "id": "suspended", "bars": 5, "lines": ["A suspended member can only be reinstated. The dialog says what that means, before anything happens."] },
+    { "id": "back", "bars": 4, "lines": ["A toast confirms it, and the list shows them Active."] },
+    { "id": "api", "bars": 5, "lines": ["On the server, sign-in opens again. Sessions that the suspension ended stay ended."] },
+    { "id": "who", "bars": 4, "lines": ["The same rules hold: not your own account, and only an Admin for staff."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["That completes journey twenty-seven."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice twenty-seven point two. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
