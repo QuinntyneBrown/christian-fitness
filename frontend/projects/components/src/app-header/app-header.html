@@ -7,14 +7,26 @@
         <rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2" /></svg
       ><span class="lockup__name">Christian Fitness</span></a
     >
-    <span class="app-header__signout">
-      <cf-button
-        variant="ghost"
-        [disabled]="signingOut()"
-        [busy]="signingOut()"
-        (click)="signOut.emit()"
-        >Sign out</cf-button
-      >
-    </span>
+    <div class="app-header__end">
+      @if (profileHref(); as href) {
+        <a
+          class="profile-button"
+          [href]="href"
+          aria-label="Your profile"
+          [attr.aria-current]="profileCurrent() ? 'page' : null"
+          (click)="follow($event, href)"
+          >{{ profileInitials() }}</a
+        >
+      }
+      <span class="app-header__signout">
+        <cf-button
+          variant="ghost"
+          [disabled]="signingOut()"
+          [busy]="signingOut()"
+          (click)="signOut.emit()"
+          >Sign out</cf-button
+        >
+      </span>
+    </div>
   </div>
 </header>

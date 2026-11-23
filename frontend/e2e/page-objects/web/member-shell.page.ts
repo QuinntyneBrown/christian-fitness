@@ -2,17 +2,41 @@ import type { Locator, Page } from '@playwright/test';
 
 /**
  * The member app's shell around every member route (mock `app-header` in `docs/mocks/pages/home/`):
- * the header with the lockup and the Sign out button. Owns the selectors of that shell.
+ * the header with the lockup, the profile avatar and the Sign out button. Owns the selectors of that
+ * shell.
  */
 export class WebMemberShell {
   readonly header: Locator;
   readonly lockup: Locator;
+  /** The `profile-button`: the member's initials, a link to Profile. */
+  readonly profileButton: Locator;
   readonly signOutButton: Locator;
 
   constructor(private readonly page: Page) {
     this.header = page.locator('.app-header');
     this.lockup = this.header.locator('.lockup');
+    this.profileButton = this.header.getByRole('link', { name: 'Your profile' });
     this.signOutButton = this.header.getByRole('button', { name: 'Sign out' });
+  }
+
+  async openProfile(): Promise<void> {
+    await this.profileButton.click();
+  }
+
+  /** Moves focus to the profile avatar and presses Enter, as a keyboard user would. */
+  async openProfileByKeyboard(): Promise<void> {
+    await this.profileButton.focus();
+    await this.page.keyboard.press('Enter');
+  }
+
+  /** Marks the document, so a later check can tell whether a click reloaded it. */
+  async markDocument(): Promise<void> {
+    await this.page.evaluate(() => document.documentElement.setAttribute('data-e2e-mark', '1'));
+  }
+
+  /** Whether the document marked by `markDocument` is still the one showing (no reload). */
+  isSameDocument(): Promise<boolean> {
+    return this.page.evaluate(() => document.documentElement.getAttribute('data-e2e-mark') === '1');
   }
 
   async signOut(): Promise<void> {

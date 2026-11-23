@@ -1,0 +1,60 @@
+<main id="main" class="profile-page">
+  @if (state() === 'loaded') {
+    @if (profile(); as p) {
+      <cf-profile-hero
+        [name]="p.name"
+        [initials]="p.initials"
+        [meta]="p.memberSince"
+        [homeChurch]="p.homeChurch"
+        [city]="p.city"
+      />
+      <div class="container page">
+        <div class="split split--profile">
+          <div>
+            <h2 class="display section-title">About</h2>
+            @if (p.bio) {
+              <p class="prose lead">{{ p.bio }}</p>
+            } @else {
+              <cf-empty-inline text="Add a short bio so people at events know who you are." />
+            }
+            <h2 class="display section-title mt-section">Goals this year</h2>
+            @if (p.goals.length > 0) {
+              <ul class="goals">
+                @for (goal of p.goals; track $index) {
+                  <li>{{ goal }}</li>
+                }
+              </ul>
+            } @else {
+              <cf-empty-inline
+                text="What are you working toward this year? Goals you add show here."
+              />
+            }
+            <h2 class="display section-title mt-section">Into</h2>
+            @if (p.interests.length > 0) {
+              <cf-tag-list [tags]="p.interests" />
+            } @else {
+              <cf-empty-inline text="No interests yet." />
+            }
+          </div>
+          <aside class="aside-stack" aria-label="Events">
+            <section aria-labelledby="going-title">
+              <h2 class="display section-title" id="going-title">Going to</h2>
+              @if (p.going.length > 0) {
+                <cf-going-list [items]="p.going" />
+              } @else {
+                <cf-empty-inline text="Not going to anything yet.">
+                  <cf-text-link slot="action" href="/events"
+                    >Browse events
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M5 12h14" />
+                      <path d="m12 5 7 7-7 7" /></svg
+                  ></cf-text-link>
+                </cf-empty-inline>
+              }
+            </section>
+          </aside>
+        </div>
+      </div>
+    }
+  }
+</main>

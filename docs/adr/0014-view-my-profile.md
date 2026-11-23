@@ -62,5 +62,11 @@ and a Groups section.
 - The Edit profile button and "Add a bio" come with slice 18.2, which builds the dialog they open;
   the Groups section comes with group membership (slice 12.3). The mock keeps them, as the end
   state.
+- The member app's warning budget for the initial bundle goes from 260 kB to 263 kB (the error
+  budget stays 275 kB). A `--stats-json` diff of `main` against the base put 2.3 kB of the growth in
+  `@angular/core`: the first component that declares `providers` brings Angular's providers
+  feature into `main`, where core lives. Binding the client in `app.config.ts` instead would have
+  cost 0.2 kB but kept a screen's service alive for the whole session, against AGENTS.md's "scope
+  state to its use"; every later screen's services reuse what is now paid for.
 - The shell asks `GET /api/session` a second time, after the guard, for the avatar's initials, as
   the admin shell does; a failure leaves the avatar without letters.

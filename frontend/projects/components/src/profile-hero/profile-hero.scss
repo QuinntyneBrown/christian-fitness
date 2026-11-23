@@ -1,0 +1,86 @@
+// The design system's profile-hero block (docs/design-system/assets/components.css, "Profile"),
+// with the display face and page-title size of its heading.
+:host {
+  display: block;
+}
+
+.profile-hero {
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-surface);
+}
+
+.profile-hero__inner {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-4);
+
+  @media (min-width: 40rem) {
+    flex-direction: row;
+    align-items: center;
+    padding-inline: var(--space-6);
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-10);
+  }
+}
+
+.profile-hero__avatar {
+  display: flex;
+  width: var(--size-avatar-3xl);
+  height: var(--size-avatar-3xl);
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-5xl);
+  font-style: italic;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-none);
+}
+
+.profile-hero__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.profile-hero__name {
+  overflow-wrap: anywhere;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  line-height: var(--line-height-none);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.profile-hero__meta {
+  margin-top: var(--space-2);
+  color: var(--color-fg-muted);
+}
+
+.profile-hero__facts {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-5);
+  row-gap: var(--space-1-5);
+  font-size: var(--font-size-ui);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+  }
+
+  .icon {
+    color: var(--color-fg-accent);
+  }
+}
