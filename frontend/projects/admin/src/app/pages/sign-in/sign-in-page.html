@@ -16,6 +16,24 @@
       heading="This account isn't on the team"
       text="The admin console is for the Christian Fitness team. On the team? Ask a community director to give you staff access."
     />
+  } @else if (refusal() === 'two-step-not-set-up') {
+    <cf-form-alert
+      slot="alert"
+      heading="Two-step verification isn't set up"
+      text="Ask an Admin to set it up for your account, then sign in again."
+    />
+  } @else if (refusal() === 'two-step-expired') {
+    <cf-form-alert
+      slot="alert"
+      heading="Sign in again"
+      text="Your sign-in timed out before a code was entered. Sign in again to get a new code."
+    />
+  } @else if (refusal() === 'two-step-locked') {
+    <cf-form-alert
+      slot="alert"
+      heading="Too many codes tried"
+      text="For your security, wait 15 minutes, then sign in again."
+    />
   } @else if (refusal() === 'failed') {
     <cf-form-alert
       slot="alert"

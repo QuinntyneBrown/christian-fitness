@@ -18,3 +18,4 @@ export * from './admin/admin-areas';
 export * from './admin/initials';
 export * from './admin/staff-sign-in-refusal';
 export * from './security/return-path';
+export * from './admin/two-step-refusal';
