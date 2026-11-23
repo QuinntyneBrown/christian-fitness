@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   ADMIN_EVENTS_SERVICE,
   type AdminEventCountsDto,
+  type AdminEventDetailDto,
   type AdminEventDto,
   type AdminEventTab,
   TOASTS_SERVICE,
@@ -25,7 +26,7 @@ import { adminEventTabOf, adminEventTabs, eventWhen, ToastStore } from '@cf/doma
 import { catchError, combineLatest, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { HttpAdminEventsService } from '../../services/http-admin-events.service';
 
-/** The list's columns (mock `admin-events`); the Edit column comes with slice 10.2. */
+/** The list's columns (mock `admin-events`); the Edit action is the table's last column. */
 const COLUMNS: readonly TableColumn[] = [
   { key: 'event', label: 'Event', kind: 'primary' },
   { key: 'date', label: 'Date', kind: 'nowrap' },
@@ -80,7 +81,8 @@ export class AdminEventsPage {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly toasts = inject(TOASTS_SERVICE);
 
-  private readonly reload = new Subject<void>();
+  /** Asks for the list again; `true` keeps the rows on screen meanwhile (after an edit). */
+  private readonly reload = new Subject<boolean>();
   private editorOpen = false;
 
   protected readonly tab = signal<AdminEventTab>('all');
@@ -117,11 +119,11 @@ export class AdminEventsPage {
     const tab$ = inject(ActivatedRoute).queryParamMap.pipe(
       map((params) => adminEventTabOf(params.get('status'))),
     );
-    combineLatest([tab$, this.reload.pipe(startWith(undefined))])
+    combineLatest([tab$, this.reload.pipe(startWith(false))])
       .pipe(
-        switchMap(([tab]) => {
+        switchMap(([tab, quiet]) => {
           this.tab.set(tab);
-          this.state.set({ kind: 'loading' });
+          if (!quiet) this.state.set({ kind: 'loading' });
           return this.events.list(tab).pipe(
             map((list) => ({ list })),
             catchError(() => of({ list: null })),
@@ -149,7 +151,7 @@ export class AdminEventsPage {
   }
 
   protected tryAgain(): void {
-    this.reload.next();
+    this.reload.next(false);
   }
 
   protected async newEvent(): Promise<void> {
@@ -164,7 +166,43 @@ export class AdminEventsPage {
         this.editorOpen = false;
         if (!created) return;
         this.toasts.show('Draft saved', `${created.title} isn't visible to members yet.`);
-        this.reload.next();
+        this.reload.next(false);
+      });
+  }
+
+  /**
+   * Opens the editor on the event `id` (L2-022 AC7): the event is loaded first, and one that does
+   * not load says so in a toast and opens nothing. A saved change says so in a toast and reloads
+   * the list with the rows kept, so focus stays on the row's Edit action.
+   */
+  protected editEvent(id: string): void {
+    if (this.editorOpen) return;
+    this.editorOpen = true;
+    this.events
+      .get(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (event) => void this.openEditor(event),
+        error: () => {
+          this.editorOpen = false;
+          this.toasts.show(
+            "Couldn't open the event",
+            "We couldn't reach the server. Try Edit again in a moment.",
+          );
+        },
+      });
+  }
+
+  private async openEditor(event: AdminEventDetailDto): Promise<void> {
+    const { openEventEditorFor } = await import('../../dialogs/event-editor/event-editor-dialog');
+    if (this.destroyRef.destroyed) return;
+    openEventEditorFor(this.injector, event)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((saved) => {
+        this.editorOpen = false;
+        if (!saved) return;
+        this.toasts.show('Changes saved', `${saved.title} is updated.`);
+        this.reload.next(true);
       });
   }
 }

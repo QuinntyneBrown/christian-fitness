@@ -7,4 +7,6 @@ export interface ApiError {
   status: number;
   code: string;
   errors?: Record<string, string[]>;
+  /** For a refused event: each failed field's own code, by the field's camel-case name (ADR 0021). */
+  fieldCodes?: Record<string, string>;
 }

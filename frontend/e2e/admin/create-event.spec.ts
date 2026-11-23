@@ -31,6 +31,7 @@ const RETREAT_REQUEST = {
   priceCents: 34000,
   capacity: 60,
   summary: RETREAT.summary,
+  imageKey: null,
 };
 
 interface Sent {
@@ -90,6 +91,7 @@ test.describe('Admin app, creating a draft event', () => {
       'Price',
       'Capacity',
       'Summary',
+      'Image (optional)',
     ]);
     await expect(editor.category.locator('option')).toHaveText([
       'Run',
@@ -222,15 +224,12 @@ test.describe('Admin app, creating a draft event', () => {
     await expect(events.toast).toHaveCount(0);
   });
 
-  test('a refused save keeps the drawer open with a generic message and the fields editable', async ({
+  test('a save the server failed keeps the drawer open with a generic message and the fields editable', async ({
     page,
     api,
   }) => {
     const state = answerCreate(api, () =>
-      problem(400, 'validation_failed', {
-        errors: { title: ['A sentence from the server the screen never shows'] },
-        fieldCodes: { title: 'title_required' },
-      }),
+      problem(500, 'error', { detail: 'A sentence from the server the screen never shows' }),
     );
     const events = new AdminEventsPage(page);
     const editor = new EventEditorDialog(page);

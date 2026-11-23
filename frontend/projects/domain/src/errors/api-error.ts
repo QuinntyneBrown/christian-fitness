@@ -11,7 +11,13 @@ export function apiErrorOf(status: number, body: unknown): ApiError {
     typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
   const code = typeof problem['code'] === 'string' ? problem['code'] : 'error';
   const errors = problem['errors'];
-  return isFieldErrors(errors) ? { status, code, errors } : { status, code };
+  const fieldCodes = problem['fieldCodes'];
+  return {
+    status,
+    code,
+    ...(isFieldErrors(errors) ? { errors } : {}),
+    ...(isFieldCodes(fieldCodes) ? { fieldCodes } : {}),
+  };
 }
 
 function isFieldErrors(value: unknown): value is Record<string, string[]> {
@@ -22,5 +28,14 @@ function isFieldErrors(value: unknown): value is Record<string, string[]> {
     Object.values(value).every(
       (messages) => Array.isArray(messages) && messages.every((m) => typeof m === 'string'),
     )
+  );
+}
+
+function isFieldCodes(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((code) => typeof code === 'string')
   );
 }

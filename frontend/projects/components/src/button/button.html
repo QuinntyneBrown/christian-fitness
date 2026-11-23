@@ -5,6 +5,8 @@
   <button
     [attr.class]="classes()"
     [type]="type()"
+    [attr.id]="buttonId() ?? null"
+    [attr.aria-describedby]="describedBy() ?? null"
     [disabled]="disabled()"
     [attr.aria-busy]="busy() ? 'true' : null"
     (click)="onClick($event)"

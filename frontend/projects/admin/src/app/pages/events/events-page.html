@@ -52,7 +52,14 @@
   }
   @default {
     @if (rows().length > 0) {
-      <cf-table caption="Events" [columns]="columns" [rows]="rows()" [cell]="statusCell" />
+      <cf-table
+        caption="Events"
+        actionLabel="Edit"
+        [columns]="columns"
+        [rows]="rows()"
+        [cell]="statusCell"
+        (action)="editEvent($event)"
+      />
     } @else if (tab() === 'all') {
       <cf-empty-state [heading]="empty().heading" [text]="empty().text">
         <cf-button slot="actions" size="sm" (click)="newEvent()">

@@ -1193,3 +1193,42 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "A gate in a fixture handler" (2.1) gave the busy state with no clock.
 - "Keep the mocks' BEM classes" (1.1 to 1.6): the library kept `dialog`, `field-grid`, `check`,
   `interest` and `form-alert`, so the page object changed two locators.
+
+## Slice 10.2: Edit an event
+
+**What slowed it**
+
+- The mock had no image field and the design system no file input, and the mock's "Move to
+  drafts" had no requirement: both were settled in ADR 0025 (a `file-field` component built once;
+  the action dropped) before any code, which was the right order but cost the first day.
+- "The number going" has no source until slice 6.1, so `IRegistrationReader.GoingAsync` answers 0
+  and the acceptance test swaps in a reader that answers a number, as ADR 0022 did for counts.
+- `UseAntiforgeryTokens` writes a token cookie on every `/api/` response, and the cookie made the
+  image GET `no-store`; the public image path is now exempt. Two mutations were silently not
+  compiled (analyzers refuse an unread parameter and unreachable code), so a "mutation green" was a
+  stale build: the mutated source must build before its result means anything.
+- After a save the list reloaded behind a skeleton, which destroyed the row's Edit button and lost
+  the focus the dialog had just returned to; the reload after an edit now keeps the rows.
+
+**New lessons**
+
+- Judge an upload by its first bytes, never by its name or content type, and keep it under a key
+  the server makes (GUID plus the extension the bytes gave) so no client text reaches a path.
+- Edit and create share one body, one validator and one editor; a rule that needs the stored state
+  (a start already in the past may stay) lives in the handler, which still answers the same
+  `validation_failed` with `fieldCodes`.
+- A field refusal is data (`fieldCodes`) the screen maps to its own words in a domain helper with a
+  case table; the server's sentences are never shown.
+- `happy-dom` lacks `FileList.item()`; index with `files?.[0]`.
+- Make a library button focusable by an error summary's link by giving it an optional `buttonId`,
+  not by wrapping a native button the component would have to restyle.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 1.6): breaking the start-in-past, the capacity
+  floor and the image signature each turned only their own tests red.
+- "A gate in a fixture handler" (2.1) gave the saving state with no clock.
+- "Keep the mocks' BEM classes" (1.1 to 1.6): the new `file-field` kept the mock's classes, so the
+  page object's locators came straight from the mock.
+- "Read the initial total after each new API" (30.1): no new core API; the admin initial total
+  stayed at 279.20 kB and the editor stays in its lazy chunk.

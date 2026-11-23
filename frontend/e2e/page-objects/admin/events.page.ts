@@ -88,7 +88,8 @@ export class AdminEventsPage {
     return this.rows.evaluateAll((rows) =>
       rows.map((row) => {
         const cells = [...row.querySelectorAll('td')];
-        const [event, ...rest] = cells;
+        const [event, ...more] = cells;
+        const rest = more.filter((cell) => !cell.classList.contains('table__end'));
         const title = event?.querySelector('.table__strong')?.textContent?.trim() ?? '';
         const place = event?.querySelector('.table__sub')?.textContent?.trim() ?? '';
         return [
@@ -108,6 +109,15 @@ export class AdminEventsPage {
   /** Rests the pointer on the page head, away from the toasts. */
   async movePointerAway(): Promise<void> {
     await this.page.mouse.move(5, 5);
+  }
+
+  /** The Edit action of the row for the event named `title`. */
+  editButton(title: string): Locator {
+    return this.table.getByRole('button', { name: `Edit ${title}` });
+  }
+
+  async editEvent(title: string): Promise<void> {
+    await this.editButton(title).click();
   }
 
   async openNewEvent(): Promise<void> {
