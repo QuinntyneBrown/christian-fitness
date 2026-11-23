@@ -1629,6 +1629,8 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - A member cookie on `/api/admin/*` answers 401, not 403, like nobody (ADR 0011); the first expectation was wrong.
 - A fixture 500 sends the admin app to the server-error screen (interceptor); an error state is reached by an
   aborted request or a 400, as in the events spec.
+- The first CI run was cancelled at the 5-minute limit: the behaviour specs already took 2m44 on main, so four new specs
+  and a slow runner tipped it. A redundant breadcrumb spec was dropped (3m48 after); count a slice's new specs against the budget.
 - A `sed` that restored a mutation left a stray token; undo with the Edit tool and a unique string.
 
 **New lessons**
