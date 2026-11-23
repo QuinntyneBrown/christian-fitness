@@ -37,6 +37,9 @@ public sealed class EditEventRulesTests(EditEventRulesTests.Factory factory) : I
         public Task<IReadOnlyList<UpcomingEventDto>> UpcomingForAsync(Guid memberId, DateTimeOffset now, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyList<UpcomingEventDto>>([]);
 
+        public Task<IReadOnlyDictionary<Guid, int>> GoingForAsync(IReadOnlyCollection<Guid> eventIds, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());
+
         public Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());
     }

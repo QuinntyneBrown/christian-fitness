@@ -18,5 +18,8 @@ public interface IRegistrationReader
     /// <summary>How many members are registered for the event (L2-022 AC3; ADR 0025).</summary>
     Task<int> GoingAsync(Guid eventId, CancellationToken cancellationToken);
 
+    /// <summary>How many are going to each of <paramref name="eventIds"/>, in one question for the page; an event with none may be left out (L2-009 AC1; ADR 0027).</summary>
+    Task<IReadOnlyDictionary<Guid, int>> GoingForAsync(IReadOnlyCollection<Guid> eventIds, CancellationToken cancellationToken);
+
     Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken);
 }

@@ -80,6 +80,9 @@ public sealed class ProfileApiFactory : ApiFactory
 
         public Task<int> GoingAsync(Guid eventId, CancellationToken cancellationToken) => Task.FromResult(0);
 
+        public Task<IReadOnlyDictionary<Guid, int>> GoingForAsync(IReadOnlyCollection<Guid> eventIds, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());
+
         public Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());
     }
