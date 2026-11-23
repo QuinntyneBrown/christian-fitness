@@ -34,6 +34,7 @@ public sealed class SearchMembersHandlerTests : IAsyncDisposable
             .AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(store))
             .AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>())
             .AddSingleton<IRegistrationReader, NoRegistrations>()
+            .AddSingleton(TimeProvider.System)
             .BuildServiceProvider();
         using var scope = _services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

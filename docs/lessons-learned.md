@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 36% (20 of 57 slices; 33 of 91 days)
+**% complete:** 38% (21 of 57 slices; 35 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1082,3 +1082,57 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   no generated `ToString` can print a search term, an email or a home church.
 - "Keep the mocks' BEM classes" (1.6): the page object reads `table__person`, `table__strong`,
   `table__sub`, `status`, `tabs__tab` and `pagination__link` as the mock writes them.
+
+## Slice 29.2: Audit staff changes
+
+**What slowed it**
+
+- The design put who and which record on the command and read the actor from the session. Neither
+  holds for the commands on `main`: the second sign-in step is anonymous until its code is checked,
+  sign-out ends the session the actor would be read from, and a created record's id exists only
+  in its handler. A scoped `AuditTrail` the handler fills, opened and enforced by the behaviour,
+  replaced both (ADR 0021).
+- Slice 10.1's create-event command merged first, so the branch was rebased onto it and the audit
+  extended to `event.created`; its handler lost its own save, since the behaviour's single save
+  must commit the draft and its entry together.
+- Rebasing met two ADR 0021s (events and audit): the audit's is renumbered 0023, and every
+  reference was checked line by line, since the two numbers sat in the same files.
+- The 26.1 handler test built its own host without a `TimeProvider`, and 40 cases failed to
+  resolve `AuditTrail`; the host now registers one.
+- Every request builds every open behaviour, so the audit behaviour's `ILogger` and `AuditTrail`
+  broke 30 handler tests whose hosts had no logging: `AddApplication` now calls `AddLogging()`.
+  Running the whole backend suite after the first green caught it, as in 9.3.
+- An OpenTelemetry `LogRecord` from the in-memory exporter has no `FormattedMessage` unless asked;
+  the test waited on it, timed out and named only templates. Match on `Body` (the template) and the
+  attribute's value.
+- A breaking change that made the awaited log never arrive left the run waiting behind a later
+  restore in the same command; the background job was stopped and the file restored by hand. A
+  break should keep what the test awaits and add the fault beside it.
+- Six behaviour specs failed in the first full run with the dev server's HMR websocket dropping
+  under the load of three sessions; the same six passed alone with one worker. Nothing of the
+  frontend had changed.
+
+**New lessons**
+
+- Put the audit entry on the request's `DbContext` before the handler's own save, and the change and
+  its entry commit together with no transaction; the behaviour's save afterwards catches only an
+  entry whose change went elsewhere (the ticket store's own scope).
+- A marker with an explicit interface member (`string IAuditableCommand.AuditAction => …`) keeps a
+  command's metadata out of model binding and out of its JSON.
+- Fail closed on a forgotten call: an auditable command whose handler records nothing fails, so the
+  next slice's first acceptance test says so.
+- A behaviour's own rules are a table of cases best proved with requests local to the test
+  assembly; the requirement itself is proved through the API on real commands.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 29.1): recording before the code was checked, the
+  behaviour's missing save, the missing record check and a member id in the log each turned the
+  right tests red; the missing save also failed the sign-in acceptance test, since sessions are
+  saved by the ticket store.
+- "A breaking script run from the scratchpad fails the analysers" (29.1): the breaks ran in
+  `backend/`; one still tripped CA1873 (an argument built for a log), and a plain variable fixed it.
+- "Regenerate your migration after theirs" (prompt): `AddEvents` landed first, so `AddAuditEntries` was
+  deleted and regenerated on main's snapshot (`dotnet ef` with Infrastructure as the startup
+  project, since the CLI one has no Design package).
+- "Use free ports" (3.2 to 29.1): specs and shots ran on 4530/4531 beside two other sessions.

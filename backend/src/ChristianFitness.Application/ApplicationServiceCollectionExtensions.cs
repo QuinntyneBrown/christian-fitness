@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Account;
+using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Behaviors;
 using ChristianFitness.Application.Sessions;
 using FluentValidation;
@@ -10,7 +11,8 @@ public static class ApplicationServiceCollectionExtensions
 {
     /// <summary>
     /// MediatR handlers and FluentValidation validators of this assembly; every request is validated
-    /// before its handler runs (<see cref="ValidationBehavior{TRequest, TResponse}"/>). The
+    /// before its handler runs (<see cref="ValidationBehavior{TRequest, TResponse}"/>), and every
+    /// staff change is audited when it succeeds (<see cref="AuditBehavior{TRequest, TResponse}"/>). The
     /// account creation limit is one per process, as its counts are (ADR 0012).
     /// </summary>
     public static IServiceCollection AddApplication(this IServiceCollection services)
@@ -19,7 +21,11 @@ public static class ApplicationServiceCollectionExtensions
         {
             configuration.RegisterServicesFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly);
             configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            configuration.AddOpenBehavior(typeof(AuditBehavior<,>));
         });
+        services.AddScoped<AuditTrail>();
+        // The audit behaviour logs each audited action; the host's logging, or none, receives it.
+        services.AddLogging();
         services.AddScoped<MemberCredentials>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
