@@ -435,9 +435,9 @@ def moderate(*, member: str = "pn", action: str = "", invalid=False, busy=False,
         items = [(note_err, "f-note")] + ([(check_err, "f-confirmed")] if check_err else [])
         alert = error_summary(f"{len(items)} thing{'s' if len(items) > 1 else ''} to fix", items).replace('tabindex="-1"', 'tabindex="-1" autofocus')
     if failed:
-        alert = form_alert("Couldn't save the change", "The server didn't respond. Your note is still here; try again.")
+        alert = form_alert("Couldn't save the change", "The server didn't respond. Nothing was lost; try again.")
     if refused:
-        alert = form_alert("You can't flag or suspend your own account", "Ask another Admin if your own account needs attention.")
+        alert = form_alert("You can't moderate your own account", "Ask another Admin if your own account needs attention.")
     d = " disabled" if busy else ""
     choices = ""
     if len(allowed) > 1:
