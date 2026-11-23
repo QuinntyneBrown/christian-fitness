@@ -51,23 +51,23 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 715
+    "passed": 738
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 182
+    "tests": 188
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 448,
-    "create": 4,
+    "passed": 476,
+    "create": 5,
     "refusals": 17,
     "list": 7
   },
   "build": {
     "command": "npx ng build admin",
-    "raw": 277.48,
-    "transfer": 72.82,
+    "raw": 278.29,
+    "transfer": 73.11,
     "page": 38.26,
     "editor": 70.53
   }
