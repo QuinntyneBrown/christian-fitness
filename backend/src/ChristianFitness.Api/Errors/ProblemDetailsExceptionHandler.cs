@@ -37,6 +37,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(IProblemDetailsServ
             RefusalKind.Forbidden => StatusCodes.Status403Forbidden,
             RefusalKind.TooManyRequests => StatusCodes.Status429TooManyRequests,
             RefusalKind.Gone => StatusCodes.Status410Gone,
+            RefusalKind.NotFound => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status400BadRequest,
         },
         // ASP.NET Core has no default type for 429; RFC 6585 defines it.

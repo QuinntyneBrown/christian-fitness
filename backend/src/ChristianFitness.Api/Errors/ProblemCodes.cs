@@ -70,7 +70,7 @@ public static class ProblemCodes
             Extensions = { ["code"] = CodeFor(list.Select(failure => failure.ErrorCode)) },
         };
         var fieldCodes = list
-            .Where(failure => CreateEventValidator.FieldCodes.Contains(failure.ErrorCode))
+            .Where(failure => EventFieldCodes.All.Contains(failure.ErrorCode))
             .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First().ErrorCode, StringComparer.Ordinal);
         if (fieldCodes.Count > 0)

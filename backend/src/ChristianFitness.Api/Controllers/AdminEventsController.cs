@@ -1,11 +1,12 @@
 using ChristianFitness.Application.Events;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Staff list events and create drafts (L2-022; ADR 0021). Routed under <c>api/admin</c>, so every
+/// Staff list events, create drafts, open and edit an event and upload its image (L2-022; ADR 0021, ADR 0025). Routed under <c>api/admin</c>, so every
 /// action requires the Staff policy (ADR 0011). Each action sends one MediatR request.
 /// </summary>
 [ApiController]
@@ -21,4 +22,32 @@ public sealed class AdminEventsController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateEventCommand command, CancellationToken cancellationToken) =>
         StatusCode(StatusCodes.Status201Created, await sender.Send(command, cancellationToken).ConfigureAwait(false));
+
+    /// <summary>One event as the editor shows it; 404 <c>not_found</c> when there is none.</summary>
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AdminEventDetailDto>> Get(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new GetAdminEventQuery(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Saves changes to the event and answers 200 with it.</summary>
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<AdminEventDto>> Update(Guid id, UpdateEventCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Stores one image and answers 201 with its key. Larger bodies than the limit are refused before this runs.</summary>
+    [HttpPost("images")]
+    [RequestSizeLimit(ImageBodyLimit)]
+    [RequestFormLimits(MultipartBodyLengthLimit = ImageBodyLimit)]
+    public async Task<IActionResult> UploadImage(IFormFile file, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        await using var content = file.OpenReadStream();
+        return StatusCode(StatusCodes.Status201Created, await sender.Send(new UploadEventImageCommand(content, file.Length), cancellationToken).ConfigureAwait(false));
+    }
+
+    /// <summary>Room above the 5 MB image limit, so a larger image is refused by the rule with its code, not by the server.</summary>
+    private const int ImageBodyLimit = 10 * 1024 * 1024;
 }

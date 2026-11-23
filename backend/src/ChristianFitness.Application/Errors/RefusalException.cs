@@ -17,6 +17,9 @@ public enum RefusalKind
 
     /// <summary>What the request names is no longer there to use, such as a spent reset link (410).</summary>
     Gone,
+
+    /// <summary>The record asked for does not exist (404).</summary>
+    NotFound,
 }
 
 /// <summary>

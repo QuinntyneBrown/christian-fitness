@@ -20,6 +20,7 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.Place).HasMaxLength(Event.PlaceMaxLength).IsRequired();
         builder.Property(e => e.Area).HasMaxLength(Event.AreaMaxLength).IsRequired();
         builder.Property(e => e.Summary).HasMaxLength(Event.SummaryMaxLength).IsRequired();
+        builder.Property(e => e.ImageKey).HasMaxLength(Event.ImageKeyMaxLength);
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
         builder.HasIndex(e => new { e.Status, e.StartsAt });
         builder.HasIndex(e => e.StartsAt);

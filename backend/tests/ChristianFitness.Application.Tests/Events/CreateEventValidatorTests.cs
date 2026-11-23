@@ -11,6 +11,7 @@ namespace ChristianFitness.Application.Tests.Events;
 public sealed class CreateEventValidatorTests
 {
     private static readonly DateTimeOffset Now = new(2026, 4, 15, 12, 45, 0, TimeSpan.Zero);
+    private const string StoredKey = "0123456789abcdef0123456789abcdef.jpg";
 
     public static TheoryData<string, string, object?, string?> Cases() => new()
     {
@@ -55,15 +56,19 @@ public sealed class CreateEventValidatorTests
         { "summary blank", "Summary", "", "Summary:summary_required" },
         { "summary 1,000", "Summary", new string('s', 1000), null },
         { "summary 1,001", "Summary", new string('s', 1001), "Summary:summary_too_long" },
+        { "no image", "ImageKey", null, null },
+        { "an image that is stored", "ImageKey", StoredKey, null },
+        { "an image that is not stored", "ImageKey", "fedcba9876543210fedcba9876543210.png", "ImageKey:image_invalid" },
+        { "an image key that is a path", "ImageKey", "../../secret.jpg", "ImageKey:image_invalid" },
     };
 
     [Theory]
     [MemberData(nameof(Cases))]
-    public void Given_an_event_When_it_is_validated_Then_only_the_expected_field_fails_with_its_code(string why, string field, object? value, string? expected)
+    public async Task Given_an_event_When_it_is_validated_Then_only_the_expected_field_fails_with_its_code(string why, string field, object? value, string? expected)
     {
         var command = With(field, value);
 
-        var result = new CreateEventValidator(new FakeTimeProvider(Now)).Validate(command);
+        var result = await new CreateEventValidator(new FakeTimeProvider(Now), new FakeImageStore(StoredKey)).ValidateAsync(command, TestContext.Current.CancellationToken);
 
         var actual = result.Errors.Select(e => $"{e.PropertyName}:{e.ErrorCode}").ToList();
         Assert.True((expected is null ? [] : new[] { expected }).SequenceEqual(actual), $"{why}: {string.Join(", ", actual)}");
@@ -74,7 +79,7 @@ public sealed class CreateEventValidatorTests
     {
         var codes = Cases().Select(row => (string?)row.Data.Item4).OfType<string>().Select(e => e.Split(':')[1]).Distinct(StringComparer.Ordinal);
 
-        Assert.All(codes, code => Assert.Contains(code, CreateEventValidator.FieldCodes));
+        Assert.All(codes, code => Assert.Contains(code, EventFieldCodes.All));
     }
 
     /// <summary>Whole Life Retreat from the event editor mock, with <paramref name="field"/> set to <paramref name="value"/>.</summary>
@@ -92,6 +97,7 @@ public sealed class CreateEventValidatorTests
             PriceCents = field == "PriceCents" ? (int?)value : 34000,
             Capacity = field == "Capacity" ? (int?)value : 60,
             Summary = field == "Summary" ? (string)value! : "Three days of trail runs, strength sessions, worship by the lake and real rest.",
+            ImageKey = field == "ImageKey" ? (string?)value : null,
         };
     }
 }

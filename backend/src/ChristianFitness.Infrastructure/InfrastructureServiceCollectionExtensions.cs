@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Infrastructure.Health;
+using ChristianFitness.Infrastructure.Images;
 using ChristianFitness.Infrastructure.Persistence;
 using ChristianFitness.Infrastructure.Registrations;
 using ChristianFitness.Infrastructure.Security;
@@ -27,6 +28,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IPasswordHasherService, IdentityPasswordHasher>();
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IRegistrationReader, NoRegistrationsYet>();
+        services.AddSingleton<IImageStore, FileSystemImageStore>();
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database", tags: [HealthTags.Ready]);
         return services;
     }

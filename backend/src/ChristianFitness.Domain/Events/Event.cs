@@ -24,6 +24,8 @@ public sealed class Event
     {
     }
 
+    public const int ImageKeyMaxLength = 64;
+
     public Guid Id { get; private set; }
 
     public string Title { get; private set; } = string.Empty;
@@ -46,6 +48,9 @@ public sealed class Event
 
     public string Summary { get; private set; } = string.Empty;
 
+    /// <summary>The stored image's key, or none (L2-022 AC4; ADR 0025).</summary>
+    public string? ImageKey { get; private set; }
+
     public EventStatus Status { get; private set; }
 
     public DateTimeOffset CreatedAt { get; private set; }
@@ -60,7 +65,8 @@ public sealed class Event
         int priceCents,
         int capacity,
         string summary,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        string? imageKey = null)
     {
         ArgumentNullException.ThrowIfNull(title);
         ArgumentNullException.ThrowIfNull(place);
@@ -77,8 +83,39 @@ public sealed class Event
             PriceCents = priceCents,
             Capacity = capacity,
             Summary = summary.Trim(),
+            ImageKey = imageKey,
             Status = EventStatus.Draft,
             CreatedAt = createdAt,
         };
+    }
+
+    /// <summary>
+    /// Replaces what staff edit (L2-022 AC7; ADR 0025). The status, the creation time and the id never
+    /// change here; each text is trimmed.
+    /// </summary>
+    public void Edit(
+        string title,
+        EventCategory category,
+        DateTimeOffset startsAt,
+        string place,
+        string area,
+        int priceCents,
+        int capacity,
+        string summary,
+        string? imageKey)
+    {
+        ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(place);
+        ArgumentNullException.ThrowIfNull(area);
+        ArgumentNullException.ThrowIfNull(summary);
+        Title = title.Trim();
+        Category = category;
+        StartsAt = startsAt.ToUniversalTime();
+        Place = place.Trim();
+        Area = area.Trim();
+        PriceCents = priceCents;
+        Capacity = capacity;
+        Summary = summary.Trim();
+        ImageKey = imageKey;
     }
 }

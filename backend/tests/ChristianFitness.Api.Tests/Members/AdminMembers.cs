@@ -140,6 +140,8 @@ public sealed class AdminMembersFactory : ApiFactory
         public Task<IReadOnlyList<UpcomingEventDto>> UpcomingForAsync(Guid memberId, DateTimeOffset now, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyList<UpcomingEventDto>>([]);
 
+        public Task<int> GoingAsync(Guid eventId, CancellationToken cancellationToken) => Task.FromResult(0);
+
         public Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken)
         {
             lock (_gate)
