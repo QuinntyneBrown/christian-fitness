@@ -31,7 +31,7 @@ internal sealed class ListAdminEventsValidator : AbstractValidator<ListAdminEven
 /// Counts every status, then reads the tab's events soonest first, at most
 /// <see cref="ListAdminEventsQuery.Limit"/>. Nobody registers before slice 6.1, so going is 0.
 /// </summary>
-internal sealed class ListAdminEventsHandler(IAppDbContext db) : IRequestHandler<ListAdminEventsQuery, AdminEventListDto>
+internal sealed class ListAdminEventsHandler(IAppDbContext db, IRegistrationReader registrations) : IRequestHandler<ListAdminEventsQuery, AdminEventListDto>
 {
     public async Task<AdminEventListDto> Handle(ListAdminEventsQuery request, CancellationToken cancellationToken)
     {
@@ -56,8 +56,10 @@ internal sealed class ListAdminEventsHandler(IAppDbContext db) : IRequestHandler
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        var going = await registrations.GoingForAsync([.. page.Select(e => e.Id)], cancellationToken).ConfigureAwait(false);
+
         return new AdminEventListDto(
             new AdminEventCountsDto(counts.Sum(c => c.Count), CountOf(EventStatus.Published), CountOf(EventStatus.Draft)),
-            [.. page.Select(e => AdminEventDto.Of(e, going: 0))]);
+            [.. page.Select(e => AdminEventDto.Of(e, going.GetValueOrDefault(e.Id)))]);
     }
 }

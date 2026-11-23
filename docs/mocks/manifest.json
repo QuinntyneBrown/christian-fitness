@@ -422,6 +422,21 @@
       ]
     },
     {
+      "id": "admin-event-registrations",
+      "kind": "page",
+      "title": "Event registrations",
+      "group": "Admin console",
+      "route": "/admin/events/:id/registrations",
+      "source": "Slice 24.1 (ADR 0036): composed from the admin events page and design-system components",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
       "id": "admin-services",
       "kind": "page",
       "title": "Manage services",
