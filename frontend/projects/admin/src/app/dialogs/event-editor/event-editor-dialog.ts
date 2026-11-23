@@ -1,0 +1,113 @@
+import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import { Component, DestroyRef, inject, type Injector, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ADMIN_EVENTS_SERVICE, type AdminEventDto, type EventCategory } from '@cf/api';
+import {
+  Alert,
+  Button,
+  Drawer,
+  FormLayout,
+  Select,
+  type SelectOption,
+  Textarea,
+  TextField,
+} from '@cf/components';
+import {
+  EMPTY_EVENT_EDITOR,
+  EVENT_CATEGORIES,
+  eventCategoryLabel,
+  eventDraftOf,
+  type EventEditorValues,
+} from '@cf/domain';
+
+/** The drawer's title id, which names the dialog. */
+const HEADING_ID = 'event-editor-title';
+
+const CATEGORY_OPTIONS: readonly SelectOption[] = EVENT_CATEGORIES.map((category) => ({
+  value: category,
+  label: eventCategoryLabel(category),
+}));
+
+/**
+ * The event editor, "New event" (mock docs/mocks/dialogs/event-editor/, states `default` and
+ * `saving`; L2-022 AC1): a CDK Dialog rendering the library's drawer, which draws its scrim and
+ * its panel at the right edge, full height, up to 32 rem wide and full width on a phone, so the
+ * CDK adds no backdrop (ADR 0017). Focus starts on Title and goes back to
+ * what opened it. Save draft sends the fields; while it is on its way the button reads "Saving…",
+ * the fields hold still and the drawer stays open. A created draft closes the dialog with the
+ * event. A refusal shows one generic alert and gives the fields back as typed (ADR 0021). Publish
+ * comes with slice 11.1.
+ */
+@Component({
+  selector: 'cf-event-editor-dialog',
+  imports: [Alert, Button, Drawer, FormLayout, Select, Textarea, TextField],
+  templateUrl: './event-editor-dialog.html',
+  styleUrl: './event-editor-dialog.scss',
+})
+export class EventEditorDialog {
+  private readonly events = inject(ADMIN_EVENTS_SERVICE);
+  private readonly ref = inject<DialogRef<AdminEventDto, EventEditorDialog>>(DialogRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly headingId = HEADING_ID;
+  protected readonly categories = CATEGORY_OPTIONS;
+  protected readonly values = signal<EventEditorValues>(inject<EventEditorValues>(DIALOG_DATA));
+  protected readonly saving = signal(false);
+  protected readonly failed = signal(false);
+
+  protected set(field: Exclude<keyof EventEditorValues, 'category'>, value: string): void {
+    this.values.update((values) => ({ ...values, [field]: value }));
+  }
+
+  protected setCategory(value: string): void {
+    this.values.update((values) => ({ ...values, category: value as EventCategory }));
+  }
+
+  protected close(): void {
+    if (!this.saving()) this.ref.close();
+  }
+
+  protected saveDraft(): void {
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.failed.set(false);
+    // Escape and the scrim wait for the answer, so it is never lost.
+    this.ref.disableClose = true;
+    this.events
+      .create(eventDraftOf(this.values()))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (created) => this.ref.close(created),
+        error: () => {
+          this.failed.set(true);
+          this.saving.set(false);
+          this.ref.disableClose = false;
+        },
+      });
+  }
+}
+
+/**
+ * Opens the event editor for a new event, with `injector` (the Events page's, which binds
+ * {@link ADMIN_EVENTS_SERVICE}); it closes with the created draft, or nothing. The Events page
+ * imports this file on the first New event, so CDK Dialog stays out of every bundle until then.
+ */
+export function openEventEditor(injector: Injector): DialogRef<AdminEventDto, EventEditorDialog> {
+  return injector
+    .get(Dialog)
+    .open<AdminEventDto, EventEditorValues, EventEditorDialog>(EventEditorDialog, {
+      injector,
+      data: EMPTY_EVENT_EDITOR,
+      ariaLabelledBy: HEADING_ID,
+      ariaModal: true,
+      autoFocus: '#f-title',
+      restoreFocus: true,
+      // The drawer draws its own scrim and fixed panel, so the CDK adds no backdrop; its pane
+      // spans the viewport the scrim covers and adds the dialog role, the focus trap, Escape and
+      // focus return.
+      hasBackdrop: false,
+      width: '100%',
+      maxWidth: '100%',
+      height: '100%',
+    });
+}

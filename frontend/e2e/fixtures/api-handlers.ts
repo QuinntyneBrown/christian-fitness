@@ -1,10 +1,14 @@
 import type { Request, Route } from '@playwright/test';
 
-/** What a handler answers: a status (200 unless given) and a JSON body, or no body. */
+/**
+ * What a handler answers: a status (200 unless given) and a JSON body, or no body; or, with
+ * `abort`, no answer at all, as when the network drops (the request fails with status 0).
+ */
 export interface ApiReply {
   status?: number;
   json?: unknown;
   headers?: Record<string, string>;
+  abort?: boolean;
 }
 
 /** Answers one API request. It receives the request as the app sent it. */
@@ -42,6 +46,12 @@ export const MODERATOR_SIGNED_IN = {
   role: 'Moderator',
 };
 
+/** The staff list of events the fixture answers unless a spec says otherwise: no events yet. */
+export const NO_ADMIN_EVENTS = {
+  counts: { all: 0, published: 0, draft: 0 },
+  events: [],
+};
+
 /**
  * The answers a spec gives to the app's API requests. A spec registers a handler with `on`; the
  * latest registration for a method and path wins, so a spec can override a default. A request
@@ -49,7 +59,8 @@ export const MODERATOR_SIGNED_IN = {
  *
  * Defaults, which any spec can override: `GET /api/antiforgery` sets the token cookie, and
  * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
- * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open.
+ * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
+ * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -63,6 +74,7 @@ export class ApiHandlers {
     },
     { method: 'GET', path: '/api/session', handler: () => ({ json: SIGNED_IN }) },
     { method: 'GET', path: '/api/admin/session', handler: () => ({ json: STAFF_SIGNED_IN }) },
+    { method: 'GET', path: '/api/admin/events', handler: () => ({ json: NO_ADMIN_EVENTS }) },
   ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */
@@ -81,6 +93,10 @@ export class ApiHandlers {
     );
     if (!match) return false;
     const reply = await match.handler(request);
+    if (reply.abort) {
+      await route.abort('failed');
+      return true;
+    }
     await route.fulfill({
       status: reply.status ?? 200,
       headers: reply.headers,

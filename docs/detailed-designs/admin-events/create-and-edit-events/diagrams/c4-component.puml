@@ -4,26 +4,31 @@ LAYOUT_WITH_LEGEND()
 title Components — Create and edit events
 
 Container_Boundary(admin, "Admin web app") {
-  Component(page, "AdminEventsPage", "Angular page", "Events table and tabs")
-  Component(dlg, "EventEditorDialog", "CDK Dialog", "New event / Edit event")
-  Component(rules, "eventEditorRules", "domain", "Client hints")
+  Component(page, "AdminEventsPage", "Angular page", "Events table, tabs, toast")
+  Component(dlg, "EventEditorDialog", "CDK Dialog, lazy", "New event / Edit event")
+  Component(rules, "eventDraftOf, eventWhen", "domain", "Typed values to a request; Toronto times")
   Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "Implements AdminEventsApi")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AdminOnly")
-  Component(val, "EventFieldsValidator", "FluentValidation", "Field codes")
+  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "Staff policy")
+  Component(val, "CreateEventValidator", "FluentValidation", "fieldCodes")
+  Component(list, "ListAdminEventsHandler", "MediatR handler", "Counts and a tab, soonest first")
   Component(handler, "Create/UpdateEventHandler", "MediatR handlers", "Draft, capacity_below_going")
   Component(img, "UploadEventImageHandler", "MediatR handler", "image_invalid")
-  Component(store, "IImageStore", "Infrastructure", "Storage <TO SUPPLY>")
+  Component(store, "IImageStore", "Infrastructure", "Storage chosen in slice 10.2")
 }
 ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
 
 Rel(page, dlg, "Opens")
+Rel(page, rules, "Formats dates")
+Rel(page, svc, "Calls list")
 Rel(dlg, rules, "Uses")
 Rel(dlg, svc, "Calls create/update/uploadImage")
 Rel(svc, ctrl, "Calls", "JSON/HTTPS, multipart")
 Rel(ctrl, val, "Validates through pipeline")
 Rel(ctrl, handler, "Sends commands")
+Rel(ctrl, list, "Sends ListAdminEventsQuery")
+Rel(list, db, "Reads events", "EF Core")
 Rel(ctrl, img, "Sends UploadEventImageCommand")
 Rel(img, store, "Stores image")
 Rel(handler, db, "Reads and writes events", "EF Core")

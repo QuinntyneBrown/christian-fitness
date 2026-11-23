@@ -318,7 +318,7 @@ def empty_block(title: str, text: str, action: str, *, tag: str = "h2", tight: b
     return f"""<div class="empty-state{' empty-state--tight' if tight else ''}">
   <{tag} class="display empty-state__title">{title}</{tag}>
   <p class="empty-state__text">{text}</p>
-  <div class="empty-state__actions">{action}</div>
+  {f'<div class="empty-state__actions">{action}</div>' if action else ''}
 </div>"""
 
 

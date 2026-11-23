@@ -12,24 +12,47 @@ skinparam class {
 title Class structure — Create and edit events
 
 interface AdminEventsApi {
-  +create(input: EventInput): Promise<EventResult>
-  +update(id: string, input: EventInput): Promise<EventResult>
-  +uploadImage(file: File): Promise<ImageResult>
+  +list(status: AdminEventTab): Observable<AdminEventListDto>
+  +create(request: CreateEventRequestDto): Observable<AdminEventDto>
+  +update(id: string, request): Observable<AdminEventDto> (10.2)
+  +uploadImage(file: File): Observable<ImageResult> (10.2)
+}
+class AdminEventsPage {
+  -state: Signal<loading | loaded | failed>
+  -toast: Signal<ToastView | null>
+  +newEvent(): Promise<void>
 }
 class HttpAdminEventsService
 class EventEditorDialog {
-  -fieldErrors: Signal<Record<string, string>>
-  -busy: Signal<boolean>
+  -values: Signal<EventEditorValues>
+  -saving: Signal<boolean>
   +save(): void
 }
 class CreateEventCommand {
-  +EventFields Fields
+  +string Title
+  +string Category
+  +string Date
+  +string StartTime
+  +string Place
+  +string Area
+  +int? PriceCents
+  +int? Capacity
+  +string Summary
+}
+class ListAdminEventsQuery {
+  +string? Status
+}
+class ListAdminEventsHandler
+class AdminEventDto
+class EventSchedule {
+  +{static} TimeZoneInfo Toronto
+  +{static} DateTimeOffset StartOf(DateOnly, TimeOnly)
 }
 class UpdateEventCommand {
   +Guid EventId
   +EventFields Fields
 }
-class EventFieldsValidator
+class CreateEventValidator
 class CreateEventHandler
 class UpdateEventHandler {
   +Handle(cmd): Task<Result<EventDto>>
@@ -54,7 +77,7 @@ class Event {
   +DateTimeOffset StartsAt
   +string Place
   +string Area
-  +decimal? Price
+  +int PriceCents
   +int Capacity
   +string? ImageKey
   +string Summary
@@ -64,7 +87,7 @@ class Event {
 enum EventStatus {
   Draft
   Published
-  Cancelled
+  Cancelled (11.2)
 }
 enum EventCategory {
   Run
@@ -79,13 +102,18 @@ Event --> EventCategory
 
 HttpAdminEventsService ..|> AdminEventsApi
 EventEditorDialog ..> AdminEventsApi : injects ADMIN_EVENTS_SERVICE
-EventFieldsValidator ..> CreateEventCommand
-EventFieldsValidator ..> UpdateEventCommand
+CreateEventValidator ..> CreateEventCommand
+CreateEventValidator ..> EventSchedule : start after now
 CreateEventHandler ..> Event : CreateDraft
+CreateEventHandler ..> AdminEventDto
+ListAdminEventsHandler ..> ListAdminEventsQuery
+ListAdminEventsHandler ..> AdminEventDto
+AdminEventsPage ..> AdminEventsApi : injects ADMIN_EVENTS_SERVICE
+AdminEventsPage ..> EventEditorDialog : opens
 UpdateEventHandler ..> Event : Edit
 UpdateEventHandler ..> Registration : counts going
-CreateEventCommand ..|> IAuditableCommand
-UpdateEventCommand ..|> IAuditableCommand
+CreateEventCommand ..|> IAuditableCommand : slice 29.2
+UpdateEventCommand ..|> IAuditableCommand : slice 29.2
 UploadEventImageCommand ..> IImageStore
 Event "1" --> "*" Registration
 @enduml

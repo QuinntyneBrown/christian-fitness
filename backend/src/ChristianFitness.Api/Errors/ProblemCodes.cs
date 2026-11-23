@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Application.Events;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,7 +52,10 @@ public static class ProblemCodes
     /// <summary>
     /// The 400 answer to a body that failed validation (L2-032 AC1): the field errors keyed by the
     /// camel-case field name, each with its fixed sentence, and the code <c>field_too_long</c> when
-    /// any field is over its limit (L2-003 AC6), else <c>validation_failed</c>.
+    /// any field is over its limit (L2-003 AC6), else <c>validation_failed</c>. A failure whose code
+    /// is a field's own code, such as an event's <c>title_required</c> (L2-022 AC2; ADR 0021), is also
+    /// named in a <c>fieldCodes</c> extension: the field's camel-case name and its first code. A body
+    /// with no such failure, such as Join's, has no <c>fieldCodes</c>.
     /// </summary>
     public static ValidationProblemDetails Invalid(IEnumerable<ValidationFailure> failures)
     {
@@ -59,11 +63,21 @@ public static class ProblemCodes
         var errors = list
             .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.Select(failure => failure.ErrorMessage).Distinct(StringComparer.Ordinal).ToArray(), StringComparer.Ordinal);
-        return new ValidationProblemDetails(errors)
+        var problem = new ValidationProblemDetails(errors)
         {
             Status = StatusCodes.Status400BadRequest,
             Extensions = { ["code"] = CodeFor(list.Select(failure => failure.ErrorCode)) },
         };
+        var fieldCodes = list
+            .Where(failure => CreateEventValidator.FieldCodes.Contains(failure.ErrorCode))
+            .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First().ErrorCode, StringComparer.Ordinal);
+        if (fieldCodes.Count > 0)
+        {
+            problem.Extensions["fieldCodes"] = fieldCodes;
+        }
+
+        return problem;
     }
 
     /// <summary>The code of a refused body, from the error codes of its failures.</summary>

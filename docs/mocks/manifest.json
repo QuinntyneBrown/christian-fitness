@@ -411,6 +411,7 @@
         "draft",
         "loading",
         "empty",
+        "tab-empty",
         "error"
       ]
     },
@@ -494,7 +495,8 @@
         "edit",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "saving"
       ]
     },
     {
@@ -556,6 +558,7 @@
       "states": [
         "info",
         "success",
+        "draft-saved",
         "warning",
         "danger",
         "with-action",
