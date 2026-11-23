@@ -44,7 +44,16 @@
         [meta]="p.memberSince"
         [homeChurch]="p.homeChurch"
         [city]="p.city"
-      />
+      >
+        <cf-button slot="action" variant="secondary" (click)="edit()"
+          ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+            />
+            <path d="m15 5 4 4" /></svg
+          >Edit profile</cf-button
+        >
+      </cf-profile-hero>
       <cf-container page="default">
         <cf-split variant="profile" flush>
           <div>
@@ -55,7 +64,11 @@
               <cf-empty-state
                 variant="inline"
                 heading="Add a short bio so people at events know who you are."
-              />
+              >
+                <cf-button slot="actions" variant="link" size="sm" (click)="edit()"
+                  >Add a bio</cf-button
+                >
+              </cf-empty-state>
             }
             <h2 class="display section-title mt-section">Goals this year</h2>
             @if (p.goals.length > 0) {

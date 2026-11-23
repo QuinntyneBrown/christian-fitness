@@ -5,17 +5,17 @@ title Components — Edit own profile
 
 Container_Boundary(web, "Member web app") {
   Component(page, "ProfilePage", "Angular routed component", "Opens the dialog")
-  Component(dlg, "EditProfileDialog", "CDK Dialog component", "Edit form")
+  Component(dlg, "EditProfileDialog", "Angular component in a CDK Dialog", "Edit form")
   Component(svc, "HttpProfileService", "PROFILE_SERVICE", "HTTP client")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "ProfileController", "ASP.NET Core controller", "PUT /api/profile/me")
-  Component(v, "UpdateProfileValidator", "FluentValidation", "Bio, goals limits")
-  Component(h, "UpdateProfileHandler", "MediatR handler", "Owner-only update")
+  Component(ctrl, "ProfileController", "ASP.NET Core controller", "PUT /api/members/{memberId}/profile")
+  Component(v, "UpdateProfileValidator", "FluentValidation", "Name, city, church, bio, goals limits")
+  Component(h, "UpdateProfileHandler", "MediatR handler", "Owner-only update, 403 forbidden")
 }
 ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
-Rel(page, dlg, "Opens with current values", "CDK Dialog")
+Rel(page, dlg, "Opens with current values", "import(), CDK Dialog")
 Rel(dlg, svc, "Saves")
 Rel(svc, ctrl, "PUT", "JSON/HTTPS")
 Rel(ctrl, h, "Sends UpdateProfileCommand")

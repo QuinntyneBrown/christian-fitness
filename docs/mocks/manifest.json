@@ -479,6 +479,8 @@
       "states": [
         "default",
         "invalid",
+        "invalid-limits",
+        "refused",
         "busy",
         "failed"
       ]

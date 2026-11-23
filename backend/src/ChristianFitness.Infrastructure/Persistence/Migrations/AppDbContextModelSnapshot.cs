@@ -158,6 +158,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("ShowHomeChurch")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(16)

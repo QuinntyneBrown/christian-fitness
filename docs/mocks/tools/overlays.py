@@ -119,27 +119,44 @@ def _():
 # ===========================================================================
 # Edit profile (member · Profile)
 # ===========================================================================
-def edit_profile(*, invalid=False, busy=False, failed=False) -> str:
+BIO_MAX = 300
+# A bio of 312 characters and six goals: over both limits of L2-006 AC3 (mock `invalid-limits`).
+LONG_BIO = (ME["bio"] + " Sundays I walk with my sister after church, and on weekdays I squeeze in a run before the kids wake up."
+            " Looking for people to train with this spring and summer, and for a walking group on Sunday afternoons.")
+SIX_GOALS = ME["goals"] + ["Run with the Sunrise 5K Crew every week", "Try a retreat", "Learn to swim"]
+
+
+def edit_profile(*, invalid=False, limits=False, refused=False, busy=False, failed=False) -> str:
     alert = ""
+    bio = LONG_BIO if limits else ME["bio"]
+    goals = SIX_GOALS if limits else ME["goals"]
     if invalid:
         alert = error_summary("Check your profile", [("Enter your name so people know who you are", "f-name")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if limits:
+        alert = error_summary("Check your profile", [("Keep your bio to 300 characters", "f-bio"), ("Choose up to 5 goals", "f-goals")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if refused:
+        alert = form_alert("Check your profile", "Some of your changes weren't accepted. Check each field and try again.").replace('tabindex="-1"', 'tabindex="-1" autofocus')
     if failed:
         alert = form_alert("We couldn't save your changes", "Nothing was lost. Check your connection and try again.")
     chips = "".join(f'<button class="interest" type="button" aria-pressed="{"true" if i in ME["interests"] else "false"}"{" disabled" if busy else ""}>{i}</button>' for i in INTERESTS)
+    left = BIO_MAX - len(bio)
+    bio_hint = f"A sentence or two. {left} characters left." if left >= 0 else ""
+    show = f'<label class="check check--ui"><input class="check__box" type="checkbox" id="f-show-church" name="showChurch"{" disabled" if busy else ""}> Show my home church to other members</label>'
     body = f"""    {alert}
     {field("Full name", "name", "" if invalid else ME["name"], autocomplete="name", error="Enter your name so people know who you are" if invalid else "", readonly=busy)}
     <div class="field-grid">
-      {field("Home church", "church", ME["church"], optional=True, hint="Only shown on your profile", readonly=busy)}
-      {field("City", "city", ME["city"], autocomplete="address-level2", readonly=busy)}
+      {field("Home church", "church", ME["church"], optional=True, hint="Hidden from other members unless you show it", readonly=busy)}
+      {field("City", "city", ME["city"], autocomplete="address-level2", optional=True, readonly=busy)}
     </div>
-    {textarea("About", "bio", ME["bio"], rows=3, hint="A sentence or two. 160 characters left.", readonly=busy)}
-    {textarea("Goals this year", "goals", chr(10).join(ME["goals"]), rows=3, hint="One per line", readonly=busy)}
+    {show}
+    {textarea("About", "bio", bio, rows=3, hint=bio_hint, error="Keep your bio to 300 characters" if limits else "", readonly=busy)}
+    {textarea("Goals this year", "goals", chr(10).join(goals), rows=3, hint="One per line, up to 5", error="Choose up to 5 goals" if limits else "", readonly=busy)}
     <fieldset><legend class="field__legend">Into</legend><div class="interest-list">{chips}</div></fieldset>"""
     save = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
             else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("profile")}">Save changes</button>')
     foot = f'    <button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("profile")}">Cancel</button>\n    {save}'
     html = dialog("Edit profile", body, foot)
-    if not invalid:
+    if not (invalid or limits or refused):
         html = autofocus_first(html, 'id="f-name"')
     return over_member("profile", M.profile(ME, self_view=True), html)
 
@@ -148,7 +165,7 @@ s = screen("edit-profile", "dialog", "Edit profile", opens_from="profile",
            source="Derived: the Profile frame's \"Edit profile\" button.")
 
 
-@s("default", "Edit name, home church (optional), city, bio, goals and interests; long body scrolls between fixed header and footer.")
+@s("default", "Edit name, home church (optional, hidden from other members until shown), city, bio, goals and interests; long body scrolls between fixed header and footer.")
 def _():
     return edit_profile()
 
@@ -156,6 +173,16 @@ def _():
 @s("invalid", "Name cleared: summary focused, inline error, other fields kept.")
 def _():
     return edit_profile(invalid=True)
+
+
+@s("invalid-limits", "A bio over 300 characters and six goals: summary focused, both fields marked, nothing sent.")
+def _():
+    return edit_profile(limits=True)
+
+
+@s("refused", "The server refused the changes (field_too_long, too_many_goals or another 400): a generic message, everything typed kept.")
+def _():
+    return edit_profile(refused=True)
 
 
 @s("busy", "Save pressed: busy button, fields read-only.")

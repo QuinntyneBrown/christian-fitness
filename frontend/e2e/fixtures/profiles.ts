@@ -1,6 +1,8 @@
+import { SIGNED_IN } from './api-handlers';
+
 /**
- * Profiles as `GET /api/profile/me` answers them (ADR 0015), for the specs that open Profile. The
- * instants are UTC; the screen reads them in Toronto time.
+ * Profiles as `GET /api/profile/me` answers them (ADR 0015, ADR 0024), for the specs that open
+ * Profile. The instants are UTC; the screen reads them in Toronto time.
  */
 
 /** A one-pixel image, so an event's picture loads without leaving the page or the fixture. */
@@ -9,12 +11,15 @@ export const PIXEL =
 
 /** Grace, with every field given and two events she is going to (mock `profile/default`). */
 export const FULL_PROFILE = {
+  memberId: SIGNED_IN.memberId,
   name: 'Grace Thompson',
   city: 'Toronto, ON',
   // 10:30 AM in Toronto on January 14, 2026: "Member since January 2026".
   joinedAt: '2026-01-14T15:30:00Z',
   bio: 'Mom of two, recovering couch-to-5K runner. Training for my first half marathon and praying my knees agree.',
   homeChurch: 'Grace Fellowship, Scarborough',
+  // Hidden from other members until she shows it (L2-006 AC4).
+  showHomeChurch: false,
   goals: ['Half marathon in the fall', 'Strength twice a week', 'Sleep before 11'],
   interests: ['running', 'strength', 'basketball', 'nutrition'],
   upcomingEvents: [
@@ -43,12 +48,14 @@ export const TODAY = '2026-11-23T14:15:00Z';
 
 /** Grace on the day she joined, with nothing given yet (mock `profile/empty`). */
 export const NEW_PROFILE = {
+  memberId: SIGNED_IN.memberId,
   name: 'Grace Thompson',
   city: null,
   // Half past midnight in Toronto the same day: "Member since today".
   joinedAt: '2026-11-23T05:30:00Z',
   bio: null,
   homeChurch: null,
+  showHomeChurch: false,
   goals: [],
   interests: [],
   upcomingEvents: [],

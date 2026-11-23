@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 38% (7 of 30 journeys; 35 of 91 days: journeys 1, 2, 3, 9, 20, 26 and 29 are done, journey 10 has 2 of its 4 days, journey 18 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
+**% complete:** 41% (8 of 30 journeys; 37 of 91 days: journeys 1, 2, 3, 9, 18, 20, 26 and 29 are done, journey 10 has 2 of its 4 days, and journey 30 has 1 of its 2 days)
 
 | #   | Journey                          | App    | Description                                                                                                        | Effort (days) |
 | --- | -------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -27,7 +27,7 @@ telemetry), so those are not listed on their own.
 | 15  | Pick up conversations            | Member | List group and direct conversations, newest first, with unread counts.                                             | 2             |
 | 16  | Browse professionals             | Member | Find vetted Christian professionals by category.                                                                   | 3             |
 | 17  | Book a professional              | Member | Request a booking or message a professional from their listing.                                                    | 3             |
-| 18  | Build my profile                 | Member | View and edit name, bio, church, interests and goals.                                                              | 3             |
+| 18  | ✅ Build my profile              | Member | View and edit name, bio, church, interests and goals.                                                              | 3             |
 | 19  | View a member's profile          | Member | See another member's public profile from a chat or event.                                                          | 1             |
 | 20  | ✅ Reset a forgotten password    | Member | Request a reset link by email and choose a new password.                                                           | 3             |
 | 21  | Review professional applications | Admin  | Staff approve or decline applications, oldest first.                                                               | 3             |

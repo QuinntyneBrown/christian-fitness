@@ -7,6 +7,8 @@ import type { Locator, Page } from '@playwright/test';
  */
 export class WebProfilePage {
   readonly main: Locator;
+  /** The `profile-hero` block: avatar, name, facts and Edit profile. */
+  readonly hero: Locator;
   readonly heading: Locator;
   readonly avatar: Locator;
   readonly meta: Locator;
@@ -31,6 +33,10 @@ export class WebProfilePage {
   /** The visually hidden heading of the loading state. */
   readonly loadingHeading: Locator;
   readonly skeletons: Locator;
+  /** The hero's Edit profile button. */
+  readonly editButton: Locator;
+  /** The empty About section's "Add a bio". */
+  readonly addBioButton: Locator;
   readonly error: Locator;
   readonly errorTitle: Locator;
   readonly errorText: Locator;
@@ -39,6 +45,7 @@ export class WebProfilePage {
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
+    this.hero = this.main.locator('.profile-hero');
     this.heading = this.main.getByRole('heading', { level: 1 });
     this.avatar = this.main.locator('.profile-hero .avatar');
     this.meta = this.main.locator('.profile-hero__meta');
@@ -58,6 +65,12 @@ export class WebProfilePage {
     this.loading = this.main.locator('[aria-busy="true"]');
     this.loadingHeading = this.loading.getByRole('heading', { level: 1, name: 'Loading profile' });
     this.skeletons = this.loading.locator('.skeleton');
+    this.editButton = this.main
+      .locator('.profile-hero__action')
+      .getByRole('button', { name: 'Edit profile' });
+    this.addBioButton = this.main
+      .locator('.empty-inline')
+      .getByRole('button', { name: 'Add a bio' });
     this.error = this.main.locator('.error-state');
     this.errorTitle = this.error.getByRole('heading', { level: 2 });
     this.errorText = this.error.locator('.empty-state__text');

@@ -7,7 +7,8 @@ import { Skeleton } from '../skeleton/skeleton';
  * `docs/mocks/pages/profile/`), a screen composite built from library components: the member's
  * `cf-avatar` at the avatar page's profile size (2xl, initials, hidden from assistive technology
  * since the name follows it), the name as the page's heading, the meta line, then the home church
- * and the city, each only when given. With `loading` it holds `cf-skeleton`s of the same boxes in
+ * and the city, each only when given, and the action projected through `[slot=action]`, such
+ * as Edit profile. With `loading` it holds `cf-skeleton`s of the same boxes in
  * the same layout, for a `cf-skeleton-region` around it to name. Every value is rendered as text.
  */
 @Component({

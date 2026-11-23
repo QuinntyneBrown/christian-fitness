@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Profiles;
 using ChristianFitness.Application.Members;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Persistence;
@@ -145,8 +146,8 @@ public sealed class SearchMembersHandlerTests : IAsyncDisposable
 
     private sealed class NoRegistrations : IRegistrationReader
     {
-        public Task<IReadOnlyList<Profiles.UpcomingEventDto>> UpcomingForAsync(Guid memberId, DateTimeOffset now, CancellationToken cancellationToken) =>
-            Task.FromResult<IReadOnlyList<Profiles.UpcomingEventDto>>([]);
+        public Task<IReadOnlyList<UpcomingEventDto>> UpcomingForAsync(Guid memberId, DateTimeOffset now, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<UpcomingEventDto>>([]);
 
         public Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());

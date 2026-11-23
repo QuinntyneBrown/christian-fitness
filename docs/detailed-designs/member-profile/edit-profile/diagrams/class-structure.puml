@@ -11,47 +11,70 @@ skinparam class {
 }
 title Class structure — Edit own profile
 class ProfilePage {
-  +openEdit(): void
+  -profile: Signal<ProfileView|null>
+  #edit(): Promise<void>
 }
 class EditProfileDialog {
-  +form: FormGroup
-  +saving: Signal<boolean>
-  +errorCode: Signal<string|null>
-  +save(): void
+  -fieldErrors: Signal<ProfileFieldErrors>
+  -refusal: Signal<ProfileRefusal|null>
+  -saving: Signal<boolean>
+  #save(): void
+  #dismiss(): void
+}
+class "profile-rules" as rules <<@cf/domain>> {
+  +validateProfile(form): ProfileFieldErrors
+  +profileRequestOf(form): UpdateProfileDto
+  +profileRefusalOf(error): ProfileRefusal
 }
 class UpdateProfileDto {
-  +fullName: string
-  +city: string
-  +bio: string
-  +homeChurch?: string
+  +name: string
+  +city: string|null
+  +homeChurch: string|null
   +showHomeChurch: boolean
+  +bio: string|null
   +goals: string[]
   +interests: string[]
 }
 interface ProfileApi {
-  +update(dto: UpdateProfileDto): Observable<OwnProfileDto>
+  +own(): Observable<OwnProfileDto>
+  +update(memberId, dto: UpdateProfileDto): Observable<OwnProfileDto>
+}
+class HttpProfileService
+class ProfileController {
+  +Update(memberId, command): Task<IActionResult>
 }
 class UpdateProfileCommand {
-  +Guid CallerId
-  +string Bio
-  +IReadOnlyList<string> Goals
+  +Guid MemberId
+  +string Name
+  +string? City
+  +string? HomeChurch
   +bool ShowHomeChurch
+  +string? Bio
+  +IReadOnlyList<string> Goals
+  +IReadOnlyList<string> Interests
 }
 class UpdateProfileValidator
 class UpdateProfileHandler {
-  +Handle(c: UpdateProfileCommand): Task<Result<OwnProfileDto>>
+  +Handle(c: UpdateProfileCommand): Task<OwnProfileDto>
 }
 class Member {
-  +string Bio
+  +string Name
+  +string? City
+  +string? Bio
   +string? HomeChurch
   +bool ShowHomeChurch = false
-  +List<string> Goals
-  +UpdateProfile(...): void
+  +IReadOnlyList<string> Goals
+  +IReadOnlyList<string> Interests
+  +EditProfile(...): void
 }
-ProfilePage ..> EditProfileDialog : opens
+ProfilePage ..> EditProfileDialog : opens (import(), CDK Dialog)
 EditProfileDialog ..> ProfileApi : injects PROFILE_SERVICE
-EditProfileDialog ..> UpdateProfileDto
+EditProfileDialog ..> rules
+rules ..> UpdateProfileDto
+HttpProfileService ..|> ProfileApi
+HttpProfileService ..> ProfileController : PUT /api/members/{memberId}/profile
+ProfileController ..> UpdateProfileCommand : sends
 UpdateProfileValidator ..> UpdateProfileCommand : validates
 UpdateProfileHandler ..> UpdateProfileCommand : handles
-UpdateProfileHandler --> Member : mutates
+UpdateProfileHandler --> Member : EditProfile
 @enduml
