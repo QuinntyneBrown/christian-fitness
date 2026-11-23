@@ -1,7 +1,9 @@
+using ChristianFitness.Api.Chat;
 using ChristianFitness.Api.Errors;
 using ChristianFitness.Api.Security;
 using ChristianFitness.Api.Telemetry;
 using ChristianFitness.Application;
+using ChristianFitness.Application.Chat;
 using ChristianFitness.Infrastructure;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Health;
@@ -37,6 +39,8 @@ builder.Services.AddProblemDetails(options =>
         ProblemReference.AddTo(context);
     });
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IChatChannel, HubChatChannel>();
 
 var app = builder.Build();
 
@@ -48,6 +52,7 @@ app.UseAuthorization();
 app.UseAntiforgeryTokens();
 
 app.MapControllers();
+app.MapHub<ChatHub>(ChatHub.Path);
 app.MapAntiforgeryToken();
 
 // Liveness runs no check; readiness (and /health) checks the database. Status only (L2-040 AC2).

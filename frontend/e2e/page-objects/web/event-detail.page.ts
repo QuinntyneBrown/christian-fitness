@@ -22,6 +22,7 @@ export class WebEventDetailPage extends ErrorScreen {
   readonly full: Locator;
   readonly registerNote: Locator;
   readonly registerError: Locator;
+  readonly groupChatLink: Locator;
   readonly cantMakeItButton: Locator;
   readonly cancelDialog: Locator;
   readonly cancelConfirmButton: Locator;
@@ -47,6 +48,7 @@ export class WebEventDetailPage extends ErrorScreen {
     this.full = page.locator('.event-detail__full');
     this.registerNote = page.locator('.event-detail__note');
     this.registerError = page.getByRole('alert');
+    this.groupChatLink = page.getByRole('link', { name: 'Group chat' });
     this.cantMakeItButton = page.getByRole('button', { name: "Can't make it" });
     this.cancelDialog = page.getByRole('dialog', { name: 'Cancel your registration?' });
     this.cancelConfirmButton = this.cancelDialog.getByRole('button', {

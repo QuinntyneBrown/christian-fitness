@@ -35,7 +35,7 @@ import { HttpEventsService } from '../../services/http-events.service';
  * usable. A full event says "This event is full" in place of Register, also when another member takes the
  * last place first (ADR 0033). "Can't make it" opens the Cancel registration dialog (L2-012; ADR 0034),
  * whose code and the CDK Dialog load on first use; confirming frees the place and the page shows
- * Register again. The group chat link waits for slices 12.x.
+ * Register again. A registered member also sees a Group chat link to the event's chat (L2-010 AC3; ADR 0039).
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -68,6 +68,7 @@ export class EventDetailPage {
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly event = signal<EventDetailView | null>(null);
+  protected readonly chatHref = signal('');
   protected readonly registering = signal(false);
   protected readonly registerFailed = signal(false);
   protected readonly facts = computed<DescriptionItem[]>(() => {
@@ -88,6 +89,7 @@ export class EventDetailPage {
       .paramMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
         this.id = params.get('id') ?? '';
+        this.chatHref.set(`/events/${this.id}/chat`);
         this.load();
       });
   }

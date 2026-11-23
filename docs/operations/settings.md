@@ -75,3 +75,11 @@ critical CSS (`optimization.styles.inlineCritical: false` in `angular.json`), wh
 styles at run time, hence `'unsafe-inline'` for styles only. `/api/` is served from the same
 origin as the app (a reverse proxy in front of both), so the session and antiforgery cookies,
 which are `SameSite` and `__Host-` prefixed, reach the API.
+
+## Group chat (slice 12.1; ADR 0039)
+
+The event group chat is a SignalR hub at `/api/chat`, reached from the member app on the same origin. The
+reverse proxy in front of the API must pass WebSocket upgrades (`Upgrade` and `Connection` headers) for
+`/api/chat`; SignalR falls back to long polling if it does not. `connect-src 'self'` already covers the
+WebSocket. Messages are delivered by the one API instance that holds the connection, so a deployment with
+more than one instance needs a SignalR backplane before the chat is scaled out; none is configured.

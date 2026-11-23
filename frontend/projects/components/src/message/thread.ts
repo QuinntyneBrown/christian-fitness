@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { type AfterViewChecked, Component, ElementRef, inject, input, output } from '@angular/core';
 
 /** A day separator: "Today", "Yesterday", "Mon, Apr 13". */
 export interface ThreadDay {
@@ -34,12 +34,24 @@ export type ThreadEntry = ThreadDay | ThreadMessage;
   templateUrl: './thread.html',
   styleUrl: './thread.scss',
 })
-export class Thread {
+export class Thread implements AfterViewChecked {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private shown = 0;
+
   /** The conversation's name, such as "Sunrise 5K Crew". */
   readonly label = input.required<string>();
   readonly entries = input.required<readonly ThreadEntry[]>();
 
   readonly retry = output<string>();
+
+  /** Scrolls to the newest message whenever the thread has grown (mock: data-scroll-end). */
+  ngAfterViewChecked(): void {
+    const count = this.entries().length;
+    if (count === this.shown) return;
+    this.shown = count;
+    const list = this.host.nativeElement.querySelector('.thread__messages');
+    if (list) list.scrollTop = list.scrollHeight;
+  }
 
   protected classes(message: ThreadMessage): string {
     return `message${message.mine ? ' message--mine' : ''}${message.failed ? ' message--failed' : ''}`;

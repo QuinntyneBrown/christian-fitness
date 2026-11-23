@@ -1697,3 +1697,42 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "Prove a rule red by breaking it alone": showing the church always turned the backend key test red, and a null church turned the spec red; both undone with the inverse edit.
 - "Read the initial total after each new API": `main` 277.83 kB, under 280; no host style bindings added.
 - "Count a slice's new specs against the CI budget" (24.1): only two specs added.
+
+## Slice 12.1: Real-time group chat
+
+**What slowed it**
+
+- The first real-time slice needed three new pieces at once: a hub the handlers could stay behind (`IChatChannel`, so no
+  `IHubContext` in Application), a real SignalR client in the backend tests, and a stand-in hub for Playwright. ADR 0039
+  records them; messages are delivered live and not stored, since history is 12.2.
+- Nothing in the mocks draws the chat alone: the messages mock is the whole inbox. The screen is the library's `thread`
+  and `composer` under a page-scoped head, and the conversation list stays with slice 15.1.
+- The new route alone grew the initial total from 277.83 to 279.14 kB, though `@microsoft/signalr` is its own lazy chunk
+  (56 kB): the route entry is 0.17 kB, the rest is Angular core code the bundler now shares with the chat chunk. An A/B build
+  with the route removed, and a diff of the `main` inputs in `browser-stats.json`, found it. It is under the 280 budget.
+- A shell heredoc with an apostrophe failed again, and a heredoc with a stray `python3` hung for two minutes; every file
+  with prose went through the Write tool afterwards.
+- `/tmp` in Git Bash is not the `/tmp` Node sees; scratch files for a Node script go in the scratchpad path.
+
+**New lessons**
+
+- A hub refusal is an answer: `ChatAnswer { code, title, memberId }`. The caller's own id comes back in the join answer, so
+  the page needs no second request to know which messages are "mine".
+- Test a SignalR hub with `HubConnectionBuilder`, `Transports = LongPolling` and `HttpMessageHandlerFactory = _ =>
+  factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"]`. A `Channel<T>` read with a linked
+  timeout gives "waits for X" failures with no sleep, and a member who should receive nothing is proved by another member
+  of the same chat receiving first, then checking the first one's channel is empty.
+- Pass the caller's id from `Context.UserIdentifier` into the request: `IHttpContextAccessor` is not dependable on long
+  polling, and the hub still checks nothing.
+- Playwright: `page.routeWebSocket` plus a POST handler for `/api/chat/negotiate` is enough to run the real `@microsoft/signalr`
+  client; answer the handshake `{}` + `\u001e`, answer each invocation with a type 3 completion, push type 1 frames.
+- A failed negotiate or start must reset the connection's start promise, or "Try again" would reuse the failure.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1): this caught the 1.3 kB; "watch host style bindings" (24.1): none added.
+- "Prove a rule red by breaking it alone" (1.1 to 19.1): a constant group name turned only the other-chat test red; treating
+  every message as someone else's turned the spec red; slicing the window from the front turned three unit cases red. Each was
+  undone with the inverse edit.
+- "Count a slice's new specs against the CI budget" (24.1): two specs (live flow from the event; not registered).
+- "Use the Edit and Write tools" (7.1 on): followed after the two shell mishaps above.
