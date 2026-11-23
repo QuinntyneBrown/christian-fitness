@@ -39,6 +39,8 @@ actor -> nav : Click or press Enter on Events
 nav -> nav : Plain click: prevent the page load
 nav --> shell : navigate('/events')
 shell -> router : navigateByUrl('/events')
+router -> ctrl : staffAuthGuard (canActivateChild): GET /api/admin/session
+ctrl --> router : session (an expired one opens Staff sign in, ADR 0016)
 router -> router : loadComponent for the area
 router --> shell : NavigationEnd
 shell -> shell : current = currentAdminArea(url)

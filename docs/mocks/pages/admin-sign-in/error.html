@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-sign-in">
 <meta name="mock:state" content="error">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Sign In (x7rTtnFLo7JruWBh3LepjD)">
-<meta name="description" content="Account locked after too many attempts: who can unlock it and when to retry.">
+<meta name="description" content="5 failed sign-ins for the email in 15 minutes (L2-018 AC3, L2-004 AC3): sign-in paused for 15 minutes; what was typed stays and Sign in stays enabled.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -29,13 +29,13 @@
       <p class="staff__lead">For the Christian Fitness team only.</p>
       <div class="auth__alert"><div class="form-alert" role="alert" tabindex="-1">
   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-  <div><p class="form-alert__title">This account is locked</p><p>Too many attempts. Ask another admin to unlock it, or wait 30 minutes and try again.</p></div>
+  <div><p class="form-alert__title">Sign-in paused for 15 minutes</p><p>Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again.</p></div>
 </div></div>
       <div class="auth__fields">
         <div class="field"><label class="field__label" for="f-email">Work email</label><input class="input" id="f-email" name="email" type="email" value="dana@christianfitness.ca" autocomplete="username"></div>
         <div class="field"><label class="field__label" for="f-password">Password</label><input class="input" id="f-password" name="password" type="password" value="••••••••••" autocomplete="current-password"></div>
       </div>
-      <button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled>Sign in</button>
+      <button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign in</button>
       <p class="staff__note"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Two-step verification required</p>
     </form>
   </div>
@@ -53,6 +53,7 @@
     <li><a href="two-step-expired.html">two-step-expired</a></li>
     <li><a href="two-step-locked.html">two-step-locked</a></li>
     <li><a href="two-step-not-set-up.html">two-step-not-set-up</a></li>
+    <li><a href="session-expired.html">session-expired</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

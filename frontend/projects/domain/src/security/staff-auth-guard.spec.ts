@@ -28,8 +28,8 @@ async function guard(
   return isObservable(result) ? firstValueFrom(result) : result;
 }
 
-function failure(status: number): Observable<never> {
-  return throwError(() => new HttpErrorResponse({ status, url: '/api/admin/session' }));
+function failure(status: number, error: unknown = null): Observable<never> {
+  return throwError(() => new HttpErrorResponse({ status, url: '/api/admin/session', error }));
 }
 
 // L2-018 AC4, ADR 0011: a staff route opens only with a staff session; one row per answer.
@@ -53,6 +53,11 @@ describe('staffAuthGuard', () => {
     { why: 'a forbidden answer', status: 403 },
   ])('$why ($status) keeps the visitor where they are', async ({ status }) => {
     expect(await guard(failure(status))).toBe(false);
+  });
+
+  // L2-018 AC5 (ADR 0016): sessionExpiredInterceptor opens Staff sign in with the notice.
+  it('a 401 session_expired is left to the interceptor', async () => {
+    expect(await guard(failure(401, { status: 401, code: 'session_expired' }))).toBe(false);
   });
 
   it('anything that is not an HTTP failure keeps the visitor where they are', async () => {

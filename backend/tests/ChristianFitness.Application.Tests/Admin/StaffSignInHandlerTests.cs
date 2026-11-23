@@ -2,6 +2,7 @@ using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Admin;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Sessions;
 using ChristianFitness.Infrastructure.Persistence;
 using ChristianFitness.Infrastructure.Security;
 using MediatR;
@@ -132,6 +133,29 @@ public sealed class StaffSignInHandlerTests : IAsyncDisposable
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var challenge = await db.TwoStepChallenges.SingleAsync(TestContext.Current.CancellationToken);
         Assert.Equal(TwoStepChallenge.HashOf(_cookie.Issued[^1].Token), challenge.TokenHash);
+    }
+
+    // L2-018 AC3 with L2-004 AC3 (ADR 0016): a paused email is refused before the password is
+    // checked, the refusal is not counted, and no pending sign-in starts.
+    [Fact]
+    public async Task Given_5_recent_failures_for_a_staff_email_When_the_right_password_is_given_Then_it_is_refused_with_too_many_attempts_and_not_recorded()
+    {
+        using var scope = _services.CreateScope();
+        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        for (var i = 0; i < 5; i++)
+        {
+            db.SignInFailures.Add(SignInFailure.Record("dana@christianfitness.ca", _time.GetUtcNow().AddMinutes(-14)));
+        }
+
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var refusal = await Assert.ThrowsAsync<RefusalException>(() => sender.Send(new StaffSignInCommand { Email = "dana@christianfitness.ca", Password = Password }, TestContext.Current.CancellationToken));
+
+        Assert.Equal((RefusalCodes.TooManyAttempts, RefusalKind.TooManyRequests), (refusal.Code, refusal.Kind));
+        Assert.Equal(5, await db.SignInFailures.CountAsync(TestContext.Current.CancellationToken));
+        Assert.Empty(_cookie.Issued);
+        Assert.Empty(await db.TwoStepChallenges.ToListAsync(TestContext.Current.CancellationToken));
     }
 
     private sealed class RecordingTwoStepCookie : ITwoStepCookie

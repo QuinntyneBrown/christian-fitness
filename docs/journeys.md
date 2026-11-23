@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 23% (4 of 30 journeys; 19 of 83 days: journeys 1, 2, 3 and 20 are done, journey 9 has 3 of its 4 days, journey 18 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
+**% complete:** 24% (5 of 30 journeys; 20 of 83 days: journeys 1, 2, 3, 9 and 20 are done, journey 18 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
 
 | #   | Journey                          | App    | Description                                                                   | Effort (days) |
 | --- | -------------------------------- | ------ | ----------------------------------------------------------------------------- | ------------- |
@@ -18,7 +18,7 @@ telemetry), so those are not listed on their own.
 | 6   | Register for an event            | Member | Claim a spot within capacity; full events refuse registration.                | 3             |
 | 7   | Cancel a registration            | Member | Give up a spot so someone else can take it.                                   | 1             |
 | 8   | Discover from the landing page   | Member | Visitors see the community, upcoming events and professionals, then join.     | 2             |
-| 9   | Staff sign-in with two-step      | Admin  | Only staff sign in, verified by a second step.                                | 4             |
+| 9   | ✅ Staff sign-in with two-step   | Admin  | Only staff sign in, verified by a second step.                                | 4             |
 | 10  | Create and edit events           | Admin  | Staff draft an event and edit its details in a dialog.                        | 4             |
 | 11  | Publish and cancel events        | Admin  | Staff make a draft event visible or cancel it.                                | 2             |
 | 12  | Chat in an event group           | Member | Registered members message their event group in real time.                    | 6             |

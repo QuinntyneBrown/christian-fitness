@@ -12,7 +12,7 @@
       </div>
     </div>
     <form class="staff__form" novalidate (submit)="onSubmit($event)">
-      <h1 class="display staff__title">{{ heading() }}</h1>
+      <h1 class="display staff__title" tabindex="-1">{{ heading() }}</h1>
       <p class="staff__lead">{{ lead() }}</p>
       <div class="auth__alert"><ng-content select="[slot=alert]" /></div>
       <div class="auth__fields"><ng-content select="[slot=fields]" /></div>
@@ -24,7 +24,7 @@
               <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
               <path d="M12 18h.01" />
             </svg>
-          } @else {
+          } @else if (noteIcon() === 'lock') {
             <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
               <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />

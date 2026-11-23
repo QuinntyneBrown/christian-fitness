@@ -20,3 +20,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0013](0013-staff-two-step-verification.md)                   | Staff two-step verification: authenticator codes, a pending sign-in and a shared attempt window | Accepted |
 | [0014](0014-choosing-a-new-password.md)                      | Choosing a new password: a checked link, single use, every session ended and no sign-in | Accepted |
 | [0015](0015-view-my-profile.md)                              | View my profile: one own-profile endpoint, a registration reader that answers none yet, and a screen-scoped client | Accepted |
+| [0016](0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md) | Staff idle expiry, the staff sign-in pause and the forbidden screen: a renewal on every request, a session_expired code and a Staff only screen for a 403 | Accepted |

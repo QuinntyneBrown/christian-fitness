@@ -3,10 +3,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { STAFF_SESSION_SERVICE } from '@cf/api';
 import { Button, FormAlert, StaffLayout, TextField } from '@cf/components';
-import { staffSignInRefusalOf, twoStepEndingOf, type StaffSignInRefusal } from '@cf/domain';
+import {
+  sessionEndingOf,
+  staffSignInRefusalOf,
+  twoStepEndingOf,
+  type StaffSignInRefusal,
+} from '@cf/domain';
 
-/** The alert Staff sign in shows: a refusal of its own, or how the code screen ended (ADR 0013). */
-type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked';
+/**
+ * The alert Staff sign in shows: a refusal of its own, how the code screen ended (ADR 0013), or a
+ * session that expired while idle (ADR 0016).
+ */
+type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked' | 'session-expired';
 
 /**
  * The Staff sign in screen (mock docs/mocks/pages/admin-sign-in/): staff sign in with their work
@@ -15,7 +23,8 @@ type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked';
  * A refusal shows one alert: wrong credentials name neither field (AC3), a member is told the
  * console is for the team (AC2), and anything else is a failure; the form stays as typed. The
  * note says a code comes next. Sent back from the code screen, it says why once: the pending
- * sign-in timed out or too many codes were tried (L2-046 AC4, AC5; ADR 0013).
+ * sign-in timed out or too many codes were tried (L2-046 AC4, AC5; ADR 0013). Sent here by
+ * `sessionExpiredInterceptor`, it says the session expired (L2-018 AC5; ADR 0016).
  */
 @Component({
   selector: 'cf-sign-in-page',
@@ -33,12 +42,14 @@ export class SignInPage {
   protected readonly submitting = signal(false);
   protected readonly refusal = signal<SignInAlert | null>(this.endingAlert());
 
-  /** The code screen's ending, from the navigation that opened this screen; none on a fresh visit. */
+  /** Why the app sent staff here, from the navigation that opened this screen; none on a fresh visit. */
   private endingAlert(): SignInAlert | null {
     const navigation = this.router.currentNavigation();
-    // Only the code screen's own navigation counts: a reload or Back restores the state, not the reason.
-    const fromCodeScreen = navigation?.trigger === 'imperative' && !!navigation.previousNavigation;
-    const ending = fromCodeScreen ? twoStepEndingOf(navigation.extras.state) : null;
+    // Only the app's own navigation counts: a reload or Back restores the state, not the reason.
+    if (navigation?.trigger !== 'imperative' || !navigation.previousNavigation) return null;
+    const state = navigation.extras.state;
+    if (sessionEndingOf(state)) return 'session-expired';
+    const ending = twoStepEndingOf(state);
     return ending ? `two-step-${ending}` : null;
   }
 

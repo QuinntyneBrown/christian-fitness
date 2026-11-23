@@ -63,6 +63,29 @@ test.describe('Admin app, staff sign-in refusals', () => {
     expect(signIn.location()).toBe('/sign-in');
   });
 
+  // L2-018 AC3 with L2-004 AC3 (ADR 0016): the member sign-in's pause, counted in both apps.
+  test('5 failed sign-ins in 15 minutes pause sign-in, keep what was typed and leave Sign in enabled', async ({
+    page,
+    api,
+  }) => {
+    refuseSignIn(api, problem(429, 'too_many_attempts'));
+    const signIn = new AdminStaffSignInPage(page);
+
+    await signIn.open();
+    await signIn.fill(EMAIL, PASSWORD);
+    await signIn.submitAndAwaitAnswer();
+
+    await expect(signIn.alertTitle).toHaveText('Sign-in paused for 15 minutes');
+    await expect(signIn.alertText).toHaveText(
+      'Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again.',
+    );
+    await expect(signIn.alert).toBeFocused();
+    await expect(signIn.email).toHaveValue(EMAIL);
+    await expect(signIn.password).toHaveValue(PASSWORD);
+    await expect(signIn.submitButton).toBeEnabled();
+    expect(signIn.location()).toBe('/sign-in');
+  });
+
   for (const [why, reply] of [
     ['a server error', problem(500, 'server_error')],
     ['a refused token', problem(400, 'antiforgery_failed')],

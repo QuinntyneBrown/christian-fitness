@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — A read refused 403 shows Staff only
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "Admin screen or staffAuthGuard" as screen
+  participant "forbiddenInterceptor" as icpt
+  participant "ForbiddenPage" as forbidden
+  participant "HttpStaffSessionService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "StaffSessionController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetStaffSessionHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> screen : Open a screen after the staff role was taken away
+screen -> icpt : GET /api/admin/session
+icpt -> ctrl : Request with __Host-cf-admin cookie
+ctrl -> handler : Send GetStaffSessionQuery
+handler -> db : Read StaffRole
+handler --> ctrl : not_staff
+ctrl --> icpt : 403 ProblemDetails, no data
+icpt -> forbidden : Navigate to /forbidden, browserUrl = the URL asked for (L2-047 AC1)
+forbidden --> actor : "Staff only", heading focused, the URL asked for in the address bar
+actor -> forbidden : Sign out
+forbidden --> actor : "Signing out…", disabled (L2-047 AC2)
+forbidden -> client : signOut()
+client -> ctrl : DELETE /api/admin/session
+ctrl --> client : 204, session ended on the server
+forbidden --> actor : Staff sign in
+note over icpt : A write answered 403 is left to its screen (L2-047 AC3)
+@enduml

@@ -22,6 +22,12 @@
       heading="Two-step verification isn't set up"
       text="Ask an Admin to set it up for your account, then sign in again."
     />
+  } @else if (refusal() === 'too-many-attempts') {
+    <cf-form-alert
+      slot="alert"
+      heading="Sign-in paused for 15 minutes"
+      text="Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again."
+    />
   } @else if (refusal() === 'two-step-expired') {
     <cf-form-alert
       slot="alert"
@@ -33,6 +39,12 @@
       slot="alert"
       heading="Too many codes tried"
       text="For your security, wait 15 minutes, then sign in again."
+    />
+  } @else if (refusal() === 'session-expired') {
+    <cf-form-alert
+      slot="alert"
+      heading="Your session expired"
+      text="You were signed out after 30 minutes without activity. Sign in again to carry on."
     />
   } @else if (refusal() === 'failed') {
     <cf-form-alert

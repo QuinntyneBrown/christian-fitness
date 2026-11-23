@@ -298,7 +298,8 @@
         "failed",
         "two-step-expired",
         "two-step-locked",
-        "two-step-not-set-up"
+        "two-step-not-set-up",
+        "session-expired"
       ],
       "not_applicable": {
         "loading": "Static form.",
@@ -330,11 +331,12 @@
       "kind": "page",
       "title": "Staff only",
       "group": "Admin console",
-      "route": "/admin (signed in as a member)",
+      "route": "(any admin route, on a 403 to a read)",
       "source": "Derived from the Sign In frame layout.",
       "requirements": [],
       "states": [
-        "default"
+        "default",
+        "submitting"
       ],
       "not_applicable": {
         "loading": "Renders without data.",

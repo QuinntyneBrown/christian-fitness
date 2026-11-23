@@ -13,7 +13,9 @@ has no backend behaviour of its own; it calls only the session endpoint from `ad
 ## Description
 
 - **`AdminShell`** — routed layout component in `projects/admin` that parents every staff route
-  behind `staffAuthGuard`. It reads the staff session once for the name, role and initials
+  behind `staffAuthGuard`, a `canActivateChild` guard, so every move between areas checks the
+  staff session: an expired one returns staff to Staff sign in and a refused one (403) shows the
+  "Staff only" screen (`admin-sign-in`; [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)). It reads the staff session once for the name, role and initials
   (`initialsOf`), keeps the current area (`currentAdminArea` over the router's URL after each
   `NavigationEnd`), hands a plain click on a link to the router and signs out
   ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
@@ -73,7 +75,7 @@ The shell reads the router and the session; presentation components take inputs 
 
 ### Behaviour — navigate between areas
 
-Choosing an item loads the area lazily without reloading the page and moves `aria-current`;
+Choosing an item checks the staff session, loads the area lazily without reloading the page and moves `aria-current`;
 below LG the same links sit in the band (`L2-021` AC1–AC2).
 
 ![Sequence diagram for navigating between areas](diagrams/sequence-navigate.png)
