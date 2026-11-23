@@ -68,8 +68,12 @@ jobs:
         if: steps.browser.outputs.cache-hit != 'true'
         run: npx playwright install --only-shell chromium
 
+      # The specs serve the build above instead of compiling both apps again with ng serve, and
+      # the playwright config runs four workers on the runner's four cores.
       - name: Behaviour specs
         id: specs
+        env:
+          CF_SERVE_BUILT: '1'
         run: npm run e2e
 
       - name: Keep the Playwright traces

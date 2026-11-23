@@ -10,6 +10,10 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const WEB_PORT = Number(process.env['CF_WEB_PORT'] ?? 4310);
 const ADMIN_PORT = Number(process.env['CF_ADMIN_PORT'] ?? 4311);
+// CI serves the build the previous step made; a person's run compiles with `ng serve`.
+const builtApps = process.env['CF_SERVE_BUILT'] === '1';
+const serve = (app: string, port: number) =>
+  builtApps ? `node e2e/static-server.mjs ${app} ${port}` : `npx ng serve ${app} --port ${port}`;
 const sweeps = process.env['CF_SWEEPS'] === '1';
 
 export default defineConfig({
@@ -17,6 +21,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env['CI'],
   retries: 0,
+  // The runner has four cores and the specs wait on the browser more than they compute.
+  workers: process.env['CI'] ? 4 : undefined,
   reporter: process.env['CI'] ? [['github'], ['list']] : 'list',
   grepInvert: sweeps ? undefined : /@sweep/,
   use: {
@@ -38,13 +44,13 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: `npx ng serve web --port ${WEB_PORT}`,
+      command: serve('web', WEB_PORT),
       url: `http://localhost:${WEB_PORT}`,
       reuseExistingServer: !process.env['CI'],
       timeout: 180_000,
     },
     {
-      command: `npx ng serve admin --port ${ADMIN_PORT}`,
+      command: serve('admin', ADMIN_PORT),
       url: `http://localhost:${ADMIN_PORT}`,
       reuseExistingServer: !process.env['CI'],
       timeout: 180_000,
