@@ -1,12 +1,13 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, input, type TemplateRef } from '@angular/core';
+import { Component, computed, input, type TemplateRef } from '@angular/core';
 
 /**
  * The design system's hairline-separated lists (list.html, "Overview"): `ruled` adds top and bottom
  * rules, `divided` only rules between, `mini` spaces compact person rows, `card` is the list card
- * (card.html, `card card--list`) and `goals` the profile's larger static lines.
+ * (card.html, `card card--list`), `goals` the profile's larger static lines and `going` the
+ * profile's thumbnail cards (`cf-going-item`), 12 px apart.
  */
-export type ListVariant = 'ruled' | 'divided' | 'mini' | 'card' | 'goals';
+export type ListVariant = 'ruled' | 'divided' | 'mini' | 'card' | 'goals' | 'going';
 
 /** One item of a list; its `id` keeps the row while the list changes. */
 export interface ListItem {
@@ -32,11 +33,22 @@ export class List<T extends ListItem = ListItem> {
   readonly template = input.required<TemplateRef<{ $implicit: T }>>();
   readonly label = input<string>();
 
+  /** Each item as its row's template context, made once per list rather than on every check. */
+  protected readonly rows = computed(() => this.items().map((item) => ({ $implicit: item })));
+
   protected classes(): string {
     const variant = this.variant();
-    if (variant === 'card') {
-      return 'card card--list';
+    switch (variant) {
+      case 'card':
+        return 'card card--list';
+      case 'mini':
+        return 'mini-list';
+      case 'goals':
+        return 'goals';
+      case 'going':
+        return 'going-list';
+      default:
+        return `list-${variant}`;
     }
-    return variant === 'mini' ? 'mini-list' : variant === 'goals' ? 'goals' : `list-${variant}`;
   }
 }

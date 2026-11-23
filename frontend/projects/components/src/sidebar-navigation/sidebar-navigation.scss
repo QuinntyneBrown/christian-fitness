@@ -1,0 +1,83 @@
+// The design system's admin sidebar (docs/design-system/assets/components.css, "Admin shell").
+// Mobile first: below LG the sidebar is a band, the brand and Sign out on one row and the links
+// in a row under them; from LG, a sticky full-height column with the staff member at its foot.
+// The host takes no box, so the sidebar is the layout's flex item and can stick.
+:host {
+  display: contents;
+}
+
+.admin__sidebar {
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome);
+
+  @media (min-width: 64rem) {
+    position: sticky;
+    top: 0;
+    display: flex;
+    height: 100dvh;
+    width: var(--layout-sidebar-width);
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+// In the dark theme the chrome stays dark and gains a hairline so it parts from the canvas.
+:host-context([data-theme='dark']) .admin__sidebar {
+  border-right: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.admin__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+
+  @media (min-width: 64rem) {
+    padding: var(--space-6);
+  }
+}
+
+.admin__brand-name {
+  white-space: nowrap;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-style: italic;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-none);
+}
+
+.admin__brand-sub {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  line-height: var(--line-height-xs);
+  color: var(--color-highlight);
+}
+
+// The navigation spans the band's width below LG.
+.admin__nav {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+// The staff member sits at the end of the brand row below LG, at the foot from LG.
+.admin__user {
+  grid-row: 1;
+  grid-column: 2;
+  padding: var(--space-4);
+
+  @media (min-width: 64rem) {
+    margin-top: auto;
+    border-top: var(--border-width-hairline) solid var(--color-border-on-chrome);
+    padding: var(--space-5) var(--space-6);
+  }
+}

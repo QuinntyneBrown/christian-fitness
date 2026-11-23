@@ -1,0 +1,55 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.967
+Slice one point six finishes the design system, and every screen is now built from
+
+00:00:06.967 --> 00:00:08.660
+the one shared library.
+
+00:00:10.000 --> 00:00:14.693
+Fourteen screen-specific copies are gone. The form alert is now the alert, the app
+
+00:00:14.693 --> 00:00:19.628
+header is the top bar, and the admin layout is built from the sidebar navigation.
+
+00:00:20.000 --> 00:00:24.491
+Every member screen starts with a skip link. Then the top bar: the lockup, your
+
+00:00:24.491 --> 00:00:26.042
+profile, and Sign out.
+
+00:00:28.000 --> 00:00:33.079
+The admin console starts with the same skip link. Its sidebar becomes a band below a
+
+00:00:33.079 --> 00:00:37.188
+thousand and twenty-four pixels, the links scrolling within it.
+
+00:00:38.000 --> 00:00:43.328
+Your profile is now container, split, avatar, lists and tags. Loading and failing
+
+00:00:43.328 --> 00:00:46.259
+use the shared skeleton and empty state.
+
+00:00:48.000 --> 00:00:53.010
+Sign in and Join take the shared alert, links and interest list. A busy button draws
+
+00:00:53.010 --> 00:00:54.264
+its own spinner.
+
+00:00:56.000 --> 00:01:00.655
+The tab bar, breadcrumb and footer wait for the screens that need them, each proven
+
+00:01:00.655 --> 00:01:01.909
+by its own tests.
+
+00:01:04.000 --> 00:01:08.654
+Every Playwright spec passes, asserting what it did before, and both apps start
+
+00:01:08.654 --> 00:01:10.015
+exactly as before.
+
+00:01:12.000 --> 00:01:17.061
+That's slice one point six. Christian Fitness: a Christian community for health in
+
+00:01:17.061 --> 00:01:18.348
+body and spirit.

@@ -1,0 +1,63 @@
+// The design system's breadcrumb (docs/design-system/assets/components.css, "Breadcrumb").
+:host {
+  display: block;
+}
+
+.breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+// The separator is drawn, so it is never read aloud.
+.breadcrumb__item + .breadcrumb__item::before {
+  content: '/';
+  color: var(--color-fg-subtle);
+}
+
+.breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--target-min);
+  border-radius: var(--radius-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+
+  &:hover {
+    color: var(--color-fg-default);
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+
+  &[aria-current='page'] {
+    color: var(--color-fg-default);
+    text-decoration: none;
+  }
+}
+
+.breadcrumb__item--parent-only {
+  display: none;
+}
+
+// Below 768 px a collapsible trail is only its "← Parent" link.
+@media (max-width: 47.99rem) {
+  .breadcrumb--collapsible {
+    .breadcrumb__item {
+      display: none;
+    }
+
+    .breadcrumb__item--parent-only {
+      display: inline-flex;
+    }
+  }
+}

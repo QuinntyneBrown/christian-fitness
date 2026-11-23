@@ -122,6 +122,27 @@ test.describe('Admin app, navigation below LG', () => {
   });
 });
 
+// L2-038 AC2, AC7 and AC8: the layout comes from the components library, which starts the page with the
+// design system's skip link; the keyboard reaches the area's content without the navigation.
+test.describe('Admin app, skip link', () => {
+  test('the first Tab reaches "Skip to content", and Enter moves focus to the area', async ({
+    page,
+  }) => {
+    const shell = new AdminShell(page);
+
+    await shell.open('/events');
+    await expect(shell.heading).toHaveText('Events');
+    await shell.press('Tab');
+
+    await expect(shell.skipLink).toBeFocused();
+    await expect(shell.skipLink).toBeInViewport();
+    await shell.press('Enter');
+
+    await expect(shell.main).toBeFocused();
+    expect(shell.location()).toBe('/events');
+  });
+});
+
 // L2-018 AC6: Sign out ends the staff session on the server and returns to Staff sign in.
 test.describe('Admin app, sign out', () => {
   test('Sign out ends the session and returns staff to Staff sign in', async ({ page, api }) => {

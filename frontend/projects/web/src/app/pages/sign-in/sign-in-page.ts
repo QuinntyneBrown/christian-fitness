@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SESSION_SERVICE } from '@cf/api';
-import { AuthLayout, Button, FormAlert, TextField, TextLink } from '@cf/components';
+import { Alert, AuthLayout, Button, Link, TextField } from '@cf/components';
 import { signInRefusalOf, signInReturnPathOf, type SignInRefusal } from '@cf/domain';
 
 /**
@@ -15,7 +15,7 @@ import { signInRefusalOf, signInReturnPathOf, type SignInRefusal } from '@cf/dom
  */
 @Component({
   selector: 'cf-sign-in-page',
-  imports: [AuthLayout, Button, FormAlert, TextField, TextLink],
+  imports: [Alert, AuthLayout, Button, Link, TextField],
   templateUrl: './sign-in-page.html',
   styleUrl: './sign-in-page.scss',
 })

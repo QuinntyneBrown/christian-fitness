@@ -1,5 +1,5 @@
 <main id="main" class="server-error-page">
-  <div class="container page">
+  <cf-container page="default">
     <cf-error-page code="500" heading="Something went wrong" [text]="text">
       <cf-button slot="actions" [href]="retry" size="sm"
         ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -9,5 +9,5 @@
       >
       <cf-button slot="actions" href="/" variant="secondary" size="sm">Go to home</cf-button>
     </cf-error-page>
-  </div>
+  </cf-container>
 </main>

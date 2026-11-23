@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ACCOUNT_SERVICE } from '@cf/api';
-import { AuthLayout, Button, FormAlert, TextField } from '@cf/components';
+import { Alert, AuthLayout, Button, TextField } from '@cf/components';
 import { EMAIL_INVALID, emailErrorOf, resetRequestRefusalOf } from '@cf/domain';
 
 /**
@@ -16,7 +16,7 @@ import { EMAIL_INVALID, emailErrorOf, resetRequestRefusalOf } from '@cf/domain';
  */
 @Component({
   selector: 'cf-forgot-password-page',
-  imports: [AuthLayout, Button, FormAlert, TextField],
+  imports: [Alert, AuthLayout, Button, TextField],
   templateUrl: './forgot-password-page.html',
   styleUrl: './forgot-password-page.scss',
 })

@@ -1,0 +1,40 @@
+// The design system's split (docs/design-system/assets/components.css, "Layout"). Encapsulated
+// styles do not reach projected columns, so `minmax(0, …)` lets each shrink (the page's
+// `.split > * { min-width: 0 }`).
+:host {
+  display: block;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-10);
+  margin-top: var(--space-8);
+}
+
+.split--flush {
+  margin-top: 0;
+}
+
+@media (min-width: 64rem) {
+  .split--home {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  }
+
+  .split--detail {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+
+  .split--profile {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+
+  .split--services {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--space-8);
+  }
+
+  .split--dashboard {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+}

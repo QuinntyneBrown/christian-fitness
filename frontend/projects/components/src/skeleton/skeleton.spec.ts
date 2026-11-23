@@ -16,6 +16,16 @@ class Host {
   readonly busy = signal(true);
 }
 
+@Component({
+  imports: [Skeleton, SkeletonRegion],
+  template: `
+    <cf-skeleton-region label="Loading profile" heading>
+      <cf-skeleton shape="avatar-2xl" />
+    </cf-skeleton-region>
+  `,
+})
+class PageHost {}
+
 describe('SkeletonRegion', () => {
   it('marks the region busy, polite, and names what is loading in hidden text', async () => {
     const fixture = TestBed.createComponent(Host);
@@ -47,5 +57,17 @@ describe('SkeletonRegion', () => {
 
     const region = fixture.nativeElement.querySelector('.skeleton-region') as HTMLElement;
     expect(region.getAttribute('aria-busy')).toBe('false');
+  });
+
+  // A screen that is all skeletons still has its one heading (the profile mock's loading state).
+  it('with heading, names what is loading in a hidden page heading', async () => {
+    const fixture = TestBed.createComponent(PageHost);
+    await fixture.whenStable();
+    const region = fixture.nativeElement.querySelector('.skeleton-region') as HTMLElement;
+
+    const heading = region.querySelector('h1');
+    expect(heading?.textContent).toBe('Loading profile');
+    expect(heading?.classList.contains('visually-hidden')).toBe(true);
+    expect(region.querySelectorAll('.visually-hidden')).toHaveLength(1);
   });
 });

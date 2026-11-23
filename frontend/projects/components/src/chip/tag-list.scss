@@ -1,0 +1,12 @@
+// The design system's tag list (docs/design-system/assets/components.css, "Chips (filters) and
+// interest toggles"); each tag is cf-tag's.
+:host {
+  display: block;
+}
+
+.tag-list {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

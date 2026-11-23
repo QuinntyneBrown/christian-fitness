@@ -17,7 +17,7 @@ skinparam package {
 actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "MemberShell" as shell
-  participant "AppNav / TabBar" as nav
+  participant "TopBar / TabBar" as nav
   participant "UnreadCountService" as svc
   participant "SignalRChatConnection" as conn
 end box

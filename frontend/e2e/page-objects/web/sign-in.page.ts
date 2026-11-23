@@ -33,7 +33,7 @@ export class WebSignInPage {
     this.form = this.main.locator('.auth__form');
     this.heading = this.form.getByRole('heading', { level: 1 });
     this.lead = this.form.locator('.auth__lead');
-    this.email = this.form.getByLabel('Email');
+    this.email = this.form.getByLabel('Email', { exact: true });
     this.password = this.form.getByLabel('Password');
     this.inputs = this.form.locator('.field .input');
     this.submitButton = this.form.locator('.auth__submit .btn');
@@ -41,7 +41,7 @@ export class WebSignInPage {
     this.joinLink = this.alt.getByRole('link', { name: 'Create a profile' });
     this.alert = this.form.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
-    this.alertText = this.alert.locator('.form-alert__title + p');
+    this.alertText = this.alert.locator('.form-alert__text');
     this.links = this.form.getByRole('link');
     this.forgotLink = this.form.getByRole('link', { name: 'Forgot your password?' });
     this.resetLink = this.alert.getByRole('link', { name: 'Reset your password' });

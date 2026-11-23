@@ -1,38 +1,47 @@
 <section class="profile-hero">
   <div class="profile-hero__inner">
-    <span class="profile-hero__avatar" aria-hidden="true">{{ initials() }}</span>
-    <div class="profile-hero__body">
-      <h1 class="profile-hero__name">{{ name() }}</h1>
-      <p class="profile-hero__meta">{{ meta() }}</p>
-      @if (homeChurch() || city()) {
-        <div class="profile-hero__facts">
-          @if (homeChurch(); as church) {
-            <span
-              ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M10 9h4" />
-                <path d="M12 7v5" />
-                <path d="M14 22v-4a2 2 0 0 0-4 0v4" />
-                <path
-                  d="M18 22V5.618a1 1 0 0 0-.553-.894l-4.553-2.277a2 2 0 0 0-1.788 0L6.553 4.724A1 1 0 0 0 6 5.618V22"
-                />
-                <path
-                  d="m18 7 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.618a1 1 0 0 1 .553-.894L6 7"
-                /></svg
-              >{{ church }}</span
-            >
-          }
-          @if (city(); as place) {
-            <span
-              ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-                />
-                <circle cx="12" cy="10" r="3" /></svg
-              >{{ place }}</span
-            >
-          }
-        </div>
-      }
-    </div>
+    @if (loading()) {
+      <cf-skeleton shape="avatar-2xl" />
+      <div class="profile-hero__body profile-hero__lines">
+        <cf-skeleton shape="title-lg" width="50" />
+        <cf-skeleton width="40" />
+        <cf-skeleton width="55" />
+      </div>
+    } @else {
+      <cf-avatar size="2xl" variant="solid" [name]="name()" [initials]="initials()" />
+      <div class="profile-hero__body">
+        <h1 class="profile-hero__name">{{ name() }}</h1>
+        <p class="profile-hero__meta">{{ meta() }}</p>
+        @if (homeChurch() || city()) {
+          <div class="profile-hero__facts">
+            @if (homeChurch(); as church) {
+              <span
+                ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10 9h4" />
+                  <path d="M12 7v5" />
+                  <path d="M14 22v-4a2 2 0 0 0-4 0v4" />
+                  <path
+                    d="M18 22V5.618a1 1 0 0 0-.553-.894l-4.553-2.277a2 2 0 0 0-1.788 0L6.553 4.724A1 1 0 0 0 6 5.618V22"
+                  />
+                  <path
+                    d="m18 7 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.618a1 1 0 0 1 .553-.894L6 7"
+                  /></svg
+                >{{ church }}</span
+              >
+            }
+            @if (city(); as place) {
+              <span
+                ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                  />
+                  <circle cx="12" cy="10" r="3" /></svg
+                >{{ place }}</span
+              >
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
 </section>

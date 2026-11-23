@@ -1,0 +1,41 @@
+// The design system's admin block (docs/design-system/assets/components.css, "Admin shell"): the
+// sidebar navigation beside the page from LG, above it below LG, and the page centred in its main.
+:host {
+  display: block;
+}
+
+.admin {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-default);
+
+  @media (min-width: 64rem) {
+    flex-direction: row;
+  }
+}
+
+.admin__main {
+  min-width: 0;
+  flex: 1 1 0%;
+
+  // Focused by the skip link only; the page itself shows no ring.
+  &:focus {
+    outline: none;
+  }
+}
+
+.admin__page {
+  max-width: var(--layout-admin-max);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-8);
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-10);
+  }
+}

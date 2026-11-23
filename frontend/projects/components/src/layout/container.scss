@@ -1,0 +1,32 @@
+// The design system's container and page padding (docs/design-system/assets/components.css,
+// "Layout").
+:host {
+  display: block;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+}
+
+.page {
+  padding-block: var(--space-8);
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-10);
+  }
+}
+
+.page--detail {
+  padding-block: var(--space-6);
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-8);
+  }
+}

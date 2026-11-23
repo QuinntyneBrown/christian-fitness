@@ -35,7 +35,7 @@ export class WebForgotPasswordPage {
     this.heading = this.form.getByRole('heading', { level: 1 });
     this.lead = this.form.locator('.auth__lead');
     this.leadEmail = this.lead.locator('strong');
-    this.email = this.form.getByLabel('Email');
+    this.email = this.form.getByLabel('Email', { exact: true });
     this.inputs = this.form.locator('.field .input');
     this.emailError = this.form.locator('#f-email-error');
     this.submitButton = this.form.locator('.auth__submit button.btn');
@@ -45,7 +45,7 @@ export class WebForgotPasswordPage {
     this.sendAgain = this.alt.getByRole('button', { name: 'send it again' });
     this.alert = this.form.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
-    this.alertText = this.alert.locator('.form-alert__title + p');
+    this.alertText = this.alert.locator('.form-alert__text');
     this.alertLinks = this.alert.getByRole('link');
   }
 

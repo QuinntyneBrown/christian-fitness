@@ -7,6 +7,8 @@ import type { Locator, Page } from '@playwright/test';
  * until each area's slice shows only its heading. Owns the selectors of that layout.
  */
 export class AdminShell {
+  /** The design system's skip link, the page's first stop. */
+  readonly skipLink: Locator;
   readonly main: Locator;
   readonly sidebar: Locator;
   readonly brandName: Locator;
@@ -22,6 +24,7 @@ export class AdminShell {
   readonly heading: Locator;
 
   constructor(private readonly page: Page) {
+    this.skipLink = page.getByRole('link', { name: 'Skip to content' });
     this.main = page.getByRole('main');
     this.sidebar = page.locator('.admin__sidebar');
     this.brandName = this.sidebar.locator('.admin__brand-name');
@@ -92,6 +95,11 @@ export class AdminShell {
       items.map((item) => Math.round(item.getBoundingClientRect().top)),
     );
     return new Set(tops).size === 1;
+  }
+
+  /** Presses one key, such as Tab or Enter, wherever focus is. */
+  async press(key: string): Promise<void> {
+    await this.page.keyboard.press(key);
   }
 
   /** Moves focus with Tab alone, from the top of the page, to `target`, and presses Enter. */

@@ -1,4 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
+import { isPlainClick } from '../link/plain-click';
 import { paginationItems } from './pagination-items';
 
 /**
@@ -27,9 +28,7 @@ export class Pagination {
   protected readonly items = computed(() => paginationItems(this.page(), this.pageCount()));
 
   protected follow(event: MouseEvent, page: number): void {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-      return;
-    }
+    if (!isPlainClick(event)) return;
     event.preventDefault();
     this.navigate.emit(page);
   }

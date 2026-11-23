@@ -1,6 +1,10 @@
 <div class="skeleton-region" [attr.aria-busy]="busy()" aria-live="polite">
   @if (busy()) {
-    <p class="visually-hidden">{{ label() }}</p>
+    @if (heading()) {
+      <h1 class="visually-hidden">{{ label() }}</h1>
+    } @else {
+      <p class="visually-hidden">{{ label() }}</p>
+    }
   }
   <ng-content />
 </div>

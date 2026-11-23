@@ -1,0 +1,34 @@
+<main id="main" class="staff">
+  <div class="staff__card">
+    <div class="staff__brand">
+      <cf-seal size="signin" decorative />
+      <div>
+        <p class="staff__name">Christian Fitness</p>
+        <p class="admin-eyebrow">Admin console</p>
+      </div>
+    </div>
+    <form class="staff__form" novalidate (submit)="onSubmit($event)">
+      <h1 class="display staff__title" tabindex="-1">{{ heading() }}</h1>
+      <p class="staff__lead">{{ lead() }}</p>
+      <div class="auth__alert"><ng-content select="[slot=alert]" /></div>
+      <div class="auth__fields"><ng-content select="[slot=fields]" /></div>
+      <div class="auth__submit"><ng-content select="[slot=submit]" /></div>
+      @if (note(); as text) {
+        <p class="staff__note">
+          @if (noteIcon() === 'smartphone') {
+            <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+              <path d="M12 18h.01" />
+            </svg>
+          } @else if (noteIcon() === 'lock') {
+            <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          }
+          {{ text }}
+        </p>
+      }
+    </form>
+  </div>
+</main>

@@ -1,0 +1,54 @@
+@if (variant() === 'site') {
+  <header class="site-header">
+    <cf-brand-lockup [href]="homeHref()" />
+    <div class="site-header__actions">
+      <span class="site-header__signin">
+        <cf-button variant="ghost" [href]="signInHref()">Sign in</cf-button>
+      </span>
+      <cf-button [href]="joinHref()">Join free</cf-button>
+    </div>
+  </header>
+} @else {
+  <header class="app-header">
+    <div class="app-header__inner">
+      <cf-brand-lockup [href]="homeHref()" />
+      @if (links().length) {
+        <nav class="app-nav" aria-label="Primary">
+          @for (link of links(); track link.key) {
+            <a
+              class="app-nav__link"
+              [href]="link.href"
+              [attr.aria-current]="link.key === current() ? 'page' : null"
+              (click)="follow($event, link.href)"
+              >{{ link.label }}
+              @if (link.key === 'messages') {
+                <cf-count-badge [count]="unread()" noun="unread" />
+              }
+            </a>
+          }
+        </nav>
+      }
+      <div class="app-header__end">
+        @if (profileHref(); as href) {
+          <a
+            class="profile-button"
+            [href]="href"
+            aria-label="Your profile"
+            [attr.aria-current]="current() === 'profile' ? 'page' : null"
+            (click)="follow($event, href)"
+            >{{ profileInitials() }}</a
+          >
+        }
+        <span class="app-header__signout">
+          <cf-button
+            variant="ghost"
+            [disabled]="signingOut()"
+            [busy]="signingOut()"
+            (click)="signOut.emit()"
+            >Sign out</cf-button
+          >
+        </span>
+      </div>
+    </div>
+  </header>
+}

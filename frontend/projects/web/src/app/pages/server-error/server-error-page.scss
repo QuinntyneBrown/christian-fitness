@@ -1,25 +1,5 @@
-// The page area the member shell will provide (docs/design-system/assets/components.css: container,
-// page); until the shell exists, the page sets it itself.
+// The screen fills the viewport; its page area is cf-container (layout.html, "Container").
 .server-error-page {
   display: block;
   min-height: 100dvh;
-}
-
-.container {
-  width: 100%;
-  max-width: var(--layout-container-max);
-  margin-inline: auto;
-  padding-inline: var(--space-4);
-
-  @media (min-width: 40rem) {
-    padding-inline: var(--space-6);
-  }
-}
-
-.page {
-  padding-block: var(--space-8);
-
-  @media (min-width: 64rem) {
-    padding-block: var(--space-10);
-  }
 }

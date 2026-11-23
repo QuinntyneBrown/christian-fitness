@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SESSION_SERVICE } from '@cf/api';
+import { Container } from '@cf/components';
 import { welcomeOf } from '@cf/domain';
 
 /**
@@ -11,6 +12,7 @@ import { welcomeOf } from '@cf/domain';
  */
 @Component({
   selector: 'cf-home-page',
+  imports: [Container],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss',
 })

@@ -19,16 +19,22 @@ has no backend behaviour of its own; it calls only the session endpoint from `ad
   (`initialsOf`), keeps the current area (`currentAdminArea` over the router's URL after each
   `NavigationEnd`), hands a plain click on a link to the router and signs out
   ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
-- **`AdminLayout`** — presentation component in `components` for block `admin`: `admin__sidebar`,
-  `admin__brand`, `admin__main`, `admin__page`, with the routed page projected. From 1024 px a
-  sticky 256 px column; below, a band with the brand and Sign out on one row and the links under
-  them.
-- **`AdminNav`** — presentation component for block `admin-nav` (`admin-nav__item`). Inputs: the
-  items and the current key; it sets `aria-current="page"` on the current item. Links are real
-  `href`s; a plain click emits `navigate` instead of loading the page. Counts
-  (`admin-nav__count`) come with the dashboard summary (slice 28.1) and the queues' slices.
-- **`AdminUser`** — presentation component for `admin__user`: initials, name and role from LG,
-  and the 44 × 44 px Sign out icon button (`admin__signout`) at every viewport.
+- **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):
+  `cf-skip-link` first, then `cf-sidebar-navigation` and `main#main.admin__main` with
+  `admin__page`, the routed page projected. The first Tab reaches "Skip to content", which moves
+  focus to `main` (`L2-038` AC2, AC8; [ADR 0019](../../../adr/0019-design-system-layout-navigation-and-migration.md)).
+- **`SidebarNavigation`** — the design system's sidebar navigation (`admin__sidebar`) in
+  `components/sidebar-navigation/`: the brand (`cf-seal`, "Christian Fitness", "Admin console"),
+  `AdminNav` and `AdminUser`. From 1024 px a sticky 256 px column; below, a band with the brand
+  and Sign out on one row and the links under them.
+- **`AdminNav`** — the page's `admin-nav` block (`admin-nav__item`), part of the sidebar
+  navigation. Inputs: the items and the current key; it sets `aria-current="page"` on the current
+  item. Links are real `href`s; a plain click (`isPlainClick`, shared by every navigation
+  component) emits `navigate` instead of loading the page. An item's optional `count`
+  (`admin-nav__count`) is named by a full phrase ("3 applications waiting") and gone at zero; the
+  dashboard summary (slice 28.1) and the queues' slices fill it.
+- **`AdminUser`** — the sidebar navigation's `admin__user`: initials, name and role from LG, and
+  the 44 × 44 px Sign out icon button (`admin__signout`) at every viewport.
 - **`ADMIN_AREAS`**, **`currentAdminArea`** — in `domain`: the four areas and their paths, and
   which one a URL is in. `canManage` from `staff-roles` filters them by role in slice 29.1.
 - **`AreaPage`** — the stand-in each area opens until its slice: its heading only (Dashboard 28.1,
@@ -46,6 +52,7 @@ instead, and `L2-021` AC2 was corrected to it (ADR 0011).
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-021` | `L1-009` | Given viewport LG or wider, when staff use the admin app, then a side navigation shows Dashboard, Events, Services and Members with `aria-current="page"` on the current one. Given viewport below LG, when staff use the admin app, then the side navigation becomes a band at the top: the same four links in one row that scrolls sideways within itself, Sign out stays reachable, and tables become stacked cards without horizontal page scroll. |
+| `L2-038` | `L1-015` | Given any interaction, when performed by keyboard only, then it is reachable in a logical order with a visible focus indicator. Given either app's shell, when the first Tab is pressed, then "Skip to content" shows and moves focus to the screen's `main`. Given a component in `docs/design-system/components/`, when a screen needs it, then it comes from the components library under its design-system name. |
 
 ## Diagrams
 
@@ -63,7 +70,8 @@ Navigation runs in the Admin web app; it calls the API only to read the staff se
 
 ### Components
 
-`AdminShell` renders `AdminLayout`, which composes `AdminNav` and `AdminUser`, around the routed page.
+`AdminShell` renders `AdminLayout`, which composes the skip link and `SidebarNavigation` (with `AdminNav` and
+`AdminUser`) around the routed page.
 
 ![C4 component view for admin navigation](diagrams/c4-component.png)
 

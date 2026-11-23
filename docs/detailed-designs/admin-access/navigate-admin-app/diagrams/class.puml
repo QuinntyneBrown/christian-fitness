@@ -25,6 +25,17 @@ class AdminLayout {
   +navigate: OutputEmitterRef<string>
   +signOut: OutputEmitterRef<void>
 }
+class SkipLink {
+  +target: InputSignal<string>
+}
+class SidebarNavigation {
+  +items: InputSignal<AdminNavItem[]>
+  +current: InputSignal<string | null>
+  +userName, userRole, userInitials: InputSignal<string>
+  +signingOut: InputSignal<boolean>
+  +navigate: OutputEmitterRef<string>
+  +signOut: OutputEmitterRef<void>
+}
 class AdminNav {
   +items: InputSignal<AdminNavItem[]>
   +current: InputSignal<string | null>
@@ -41,12 +52,16 @@ class AdminNavItem {
   +key: string
   +label: string
   +href: string
+  +count?: number
+  +countLabel?: string
 }
 class "ADMIN_AREAS, currentAdminArea(), initialsOf()" as domain
 interface StaffSessionApi
 AdminShell *-- AdminLayout
-AdminLayout *-- AdminNav
-AdminLayout *-- AdminUser
+AdminLayout *-- SkipLink
+AdminLayout *-- SidebarNavigation
+SidebarNavigation *-- AdminNav
+SidebarNavigation *-- AdminUser
 AdminShell ..> AreaPage : router outlet
 AdminShell ..> StaffSessionApi : injects STAFF_SESSION_SERVICE
 AdminShell ..> domain

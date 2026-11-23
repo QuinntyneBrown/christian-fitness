@@ -2,14 +2,18 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type OwnProfileDto, PROFILE_SERVICE } from '@cf/api';
 import {
-  EmptyInline,
-  ErrorState,
-  GoingList,
-  type GoingItem,
+  Button,
+  Container,
+  EmptyState,
+  GoingItem,
+  Link,
+  List,
   ProfileHero,
-  ProfileSkeleton,
+  Skeleton,
+  SkeletonRegion,
+  Split,
+  Stack,
   TagList,
-  TextLink,
 } from '@cf/components';
 import { goingDateOf, initialsOf, interestLabelsOf, memberSinceOf } from '@cf/domain';
 import type { Subscription } from 'rxjs';
@@ -23,9 +27,19 @@ interface ProfileView {
   homeChurch: string | null;
   city: string | null;
   bio: string | null;
-  goals: string[];
+  /** Each goal with its place in the list, which keeps its row. */
+  goals: { id: number; text: string }[];
   interests: string[];
-  going: GoingItem[];
+  going: GoingRow[];
+}
+
+/** One event in "Going to": where it opens, its day, its title and its picture, if any. */
+interface GoingRow {
+  id: string;
+  href: string;
+  date: string;
+  title: string;
+  imageUrl: string | null;
 }
 
 /**
@@ -38,7 +52,20 @@ interface ProfileView {
  */
 @Component({
   selector: 'cf-profile-page',
-  imports: [EmptyInline, ErrorState, GoingList, ProfileHero, ProfileSkeleton, TagList, TextLink],
+  imports: [
+    Button,
+    Container,
+    EmptyState,
+    GoingItem,
+    Link,
+    List,
+    ProfileHero,
+    Skeleton,
+    SkeletonRegion,
+    Split,
+    Stack,
+    TagList,
+  ],
   providers: [{ provide: PROFILE_SERVICE, useClass: HttpProfileService }],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.scss',
@@ -85,9 +112,10 @@ function viewOf(profile: OwnProfileDto, now: Date): ProfileView {
     homeChurch: profile.homeChurch,
     city: profile.city,
     bio: profile.bio,
-    goals: profile.goals,
+    goals: profile.goals.map((text, id) => ({ id, text })),
     interests: interestLabelsOf(profile.interests),
     going: profile.upcomingEvents.map((event) => ({
+      id: event.eventId,
       href: `/events/${encodeURIComponent(event.eventId)}`,
       date: goingDateOf(event.startsAt),
       title: event.title,

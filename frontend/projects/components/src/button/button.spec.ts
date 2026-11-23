@@ -47,6 +47,21 @@ describe('Button', () => {
     expect(host.submits).toBe(0);
   });
 
+  it('shows the spinning loader icon, hidden from assistive technology, only while busy', async () => {
+    const { fixture, host, button } = render();
+    expect(button.querySelector('.icon--spin')).toBeNull();
+
+    host.busy.set(true);
+    await fixture.whenStable();
+    const icon = button.querySelector('svg.icon--spin');
+    expect(icon?.getAttribute('aria-hidden')).toBe('true');
+    expect(button.firstElementChild).toBe(icon);
+
+    host.busy.set(false);
+    await fixture.whenStable();
+    expect(button.querySelector('.icon--spin')).toBeNull();
+  });
+
   it('drops aria-busy when the work is done', async () => {
     const { fixture, host, button } = render();
     host.busy.set(true);

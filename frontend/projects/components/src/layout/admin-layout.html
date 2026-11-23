@@ -1,0 +1,16 @@
+<cf-skip-link />
+<div class="admin">
+  <cf-sidebar-navigation
+    [items]="items()"
+    [current]="current()"
+    [userName]="userName()"
+    [userRole]="userRole()"
+    [userInitials]="userInitials()"
+    [signingOut]="signingOut()"
+    (navigate)="navigate.emit($event)"
+    (signOut)="signOut.emit()"
+  />
+  <main id="main" class="admin__main">
+    <div class="admin__page"><ng-content /></div>
+  </main>
+</div>

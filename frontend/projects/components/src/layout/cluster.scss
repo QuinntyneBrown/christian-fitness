@@ -1,0 +1,11 @@
+// The design system's cluster (docs/design-system/assets/components.css, "Layout").
+:host {
+  display: block;
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}

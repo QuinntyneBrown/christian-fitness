@@ -7,25 +7,20 @@
   (submitted)="submit()"
 >
   @if (summary().length) {
-    <cf-form-alert slot="alert" heading="Check your details" [items]="summary()" />
+    <cf-alert slot="alert" heading="Check your details" [items]="summary()" />
   } @else if (refusal() === 'refused') {
-    <cf-form-alert
-      slot="alert"
-      heading="Check your details"
-      text="Some of your details weren't accepted. Check each field and try again."
-    />
+    <cf-alert slot="alert" heading="Check your details"
+      >Some of your details weren't accepted. Check each field and try again.</cf-alert
+    >
   } @else if (refusal() === 'rate-limited') {
-    <cf-form-alert
-      slot="alert"
-      heading="Too many new profiles"
-      text="Too many profiles were made from this network in the last hour. Try again later."
-    />
+    <cf-alert slot="alert" heading="Too many new profiles"
+      >Too many profiles were made from this network in the last hour. Try again later.</cf-alert
+    >
   } @else if (refusal() === 'failed') {
-    <cf-form-alert
-      slot="alert"
-      heading="We couldn't create your profile"
-      text="Our servers didn't respond. Everything you typed is still here, so try again in a moment."
-    />
+    <cf-alert slot="alert" heading="We couldn't create your profile"
+      >Our servers didn't respond. Everything you typed is still here, so try again in a
+      moment.</cf-alert
+    >
   }
   <cf-text-field
     slot="fields"
@@ -79,14 +74,16 @@
     [readonly]="submitting()"
     (valueChange)="edit('homeChurch', $event)"
   />
-  <cf-interest-picker
-    slot="fields"
-    legend="What are you into?"
-    [options]="options"
-    [selected]="interests()"
-    [disabled]="submitting()"
-    (toggled)="toggle($event)"
-  />
+  <cf-interest-list slot="fields" fieldId="f-interests" legend="What are you into?">
+    @for (option of options; track option.key) {
+      <cf-interest
+        [pressed]="interests().includes(option.key)"
+        [disabled]="submitting()"
+        (pressedChange)="toggle(option.key)"
+        >{{ option.label }}</cf-interest
+      >
+    }
+  </cf-interest-list>
   <cf-button
     slot="submit"
     type="submit"
@@ -96,9 +93,7 @@
     [busy]="submitting()"
   >
     @if (submitting()) {
-      <svg class="icon icon--spin" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg
-      >Creating your profile…
+      Creating your profile…
     } @else {
       Create profile
     }

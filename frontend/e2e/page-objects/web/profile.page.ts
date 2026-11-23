@@ -40,7 +40,7 @@ export class WebProfilePage {
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
     this.heading = this.main.getByRole('heading', { level: 1 });
-    this.avatar = this.main.locator('.profile-hero__avatar');
+    this.avatar = this.main.locator('.profile-hero .avatar');
     this.meta = this.main.locator('.profile-hero__meta');
     this.facts = this.main.locator('.profile-hero__facts > span');
     this.aboutHeading = this.main.getByRole('heading', { level: 2, name: 'About' });

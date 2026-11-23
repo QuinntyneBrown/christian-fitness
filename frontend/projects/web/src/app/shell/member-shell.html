@@ -1,8 +1,9 @@
-<cf-app-header
+<cf-skip-link />
+<cf-top-bar
   homeHref="/home"
   profileHref="/profile"
   [profileInitials]="initials()"
-  [profileCurrent]="onProfile()"
+  [current]="onProfile() ? 'profile' : null"
   [signingOut]="signingOut()"
   (navigate)="navigate($event)"
   (signOut)="signOut()"

@@ -22,8 +22,9 @@ export type ButtonType = 'button' | 'submit';
  * The design system's `btn` block (docs/design-system/components/button.html). With `href` it is
  * a link that loads that URL; without, a `<button>` of `type`, which can be `disabled` and `busy`.
  * Busy is announced with `aria-busy` and ignores further presses: the click neither submits the
- * form nor reaches the consumer. The label and an optional leading icon (the spinner while busy)
- * are projected once, through one template both branches show.
+ * form nor reaches the consumer, and the spinning loader icon (spinner.html, "In a button") sits
+ * before the busy label. The label and an optional leading icon are projected once, through one
+ * template both branches show.
  */
 @Component({
   selector: 'cf-button',
