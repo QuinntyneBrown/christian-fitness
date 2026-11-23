@@ -3,6 +3,7 @@ using ChristianFitness.Api.Security;
 using ChristianFitness.Api.Telemetry;
 using ChristianFitness.Application;
 using ChristianFitness.Infrastructure;
+using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Health;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -14,6 +15,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSessionAuthentication(builder.Configuration);
 builder.Services.AddSessions();
+builder.Services.AddEmail(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddRequestAntiforgery();
 builder.Services.AddSecurityHeaders();
 // Missing fields reach the validators, which name them (L2-032 AC1); a body that cannot be read at

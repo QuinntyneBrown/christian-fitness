@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Member requests a reset link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ForgotPasswordPage" as page
+  participant "HttpAccountService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AccountController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RequestPasswordResetHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "QueuedEmailSender" as q
+  participant "EmailDispatcher" as d
+end box
+participant "Email service" as smtp
+actor -> page : "Forgot your password?" on Sign in (L2-044 AC1)
+actor -> page : Submit email
+alt Blank or malformed (L2-044 AC5)
+  page --> actor : Summary and field error; nothing sent
+else Looks like an email
+  page -> client : requestPasswordReset({ email })
+  client -> ctrl : POST /api/account/password-reset (antiforgery token)
+  ctrl -> h : Send RequestPasswordResetCommand
+  note over h : Validator: 400 validation_failed\nfor a malformed email
+  h -> db : Load Member by NormalizedEmail
+  opt Member exists
+    h -> db : Count PasswordReset since now - 1 h
+    opt Fewer than 3 (L2-044 AC6)
+      h -> db : Add PasswordReset (token hash, expires now + 30 min)
+      h -> q : SendAsync(link /reset-password#token=...)
+      q -> d : Channel
+      d -> smtp : Deliver (after the answer)
+    end
+  end
+  h --> ctrl : done
+  ctrl --> client : 202, no body, whatever happened (L2-044 AC2, AC3)
+  client --> page : complete
+  page --> actor : "Check your email" (L2-044 AC4)
+end
+@enduml

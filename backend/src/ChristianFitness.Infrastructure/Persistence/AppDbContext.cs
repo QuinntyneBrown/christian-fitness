@@ -11,6 +11,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<StaffRole> StaffRoles => Set<StaffRole>();
 
+    public DbSet<PasswordReset> PasswordResets => Set<PasswordReset>();
+
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
 

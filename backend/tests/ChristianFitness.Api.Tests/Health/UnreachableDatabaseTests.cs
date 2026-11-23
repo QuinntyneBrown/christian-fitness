@@ -27,6 +27,8 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
 
         public DbSet<StaffRole> StaffRoles => throw new InvalidOperationException(Secret);
 
+        public DbSet<PasswordReset> PasswordResets => throw new InvalidOperationException(Secret);
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
             throw new InvalidOperationException(Secret);
 

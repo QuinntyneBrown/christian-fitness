@@ -14,3 +14,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0007](0007-join-session-and-home-stand-in.md)                 | Join: a session from the first request, a Home stand-in and the member app's HTTP client | Accepted |
 | [0008](0008-join-refusals.md)                                 | Join refusals: one rule table in both stacks, a validation behaviour and a 409 for a taken email | Accepted |
 | [0009](0009-sign-in-sign-out-and-request-protections.md)      | Sign in and sign out: a session endpoint, antiforgery tokens, security headers and a member shell | Accepted |
+| [0010](0010-password-reset-request-and-email.md)              | Password reset request: one answer for every email, hashed tokens and a queued email sender | Accepted |

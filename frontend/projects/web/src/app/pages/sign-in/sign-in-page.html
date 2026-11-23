@@ -30,17 +30,21 @@
     [readonly]="submitting()"
     (valueChange)="email.set($event)"
   />
-  <cf-text-field
-    slot="fields"
-    fieldId="f-password"
-    label="Password"
-    name="password"
-    type="password"
-    autocomplete="current-password"
-    [value]="password()"
-    [readonly]="submitting()"
-    (valueChange)="password.set($event)"
-  />
+  <div slot="fields">
+    <cf-text-field
+      fieldId="f-password"
+      label="Password"
+      name="password"
+      type="password"
+      autocomplete="current-password"
+      [value]="password()"
+      [readonly]="submitting()"
+      (valueChange)="password.set($event)"
+    />
+    <p class="sign-in-page__forgot">
+      <cf-text-link href="/forgot-password">Forgot your password?</cf-text-link>
+    </p>
+  </div>
   <cf-button
     slot="submit"
     type="submit"

@@ -33,7 +33,8 @@ route first asked for.
   no field marked invalid (L2-004 AC2, mock `invalid`), and "We couldn't sign you in"
   for anything else (mock `failed`). Slice 3.2 adds a wait message for
   `too_many_attempts` and a contact-the-team message for `account_suspended`. The
-  mock's "Forgot your password?" link waits for the screen it opens (journey 20).
+  mock's "Forgot your password?" link under the password field opens `/forgot-password`
+  (slice 20.1, [reset a forgotten password](../reset-password/README.md)).
 - **`memberAuthGuard`** — `CanActivateFn` in `domain` on `MemberShell`, the parent of
   every member route. It asks `SESSION_SERVICE.current()`: a session opens the route,
   a 401 redirects to `/sign-in` (slice 3.2 adds `?returnUrl=…`), and any other failure

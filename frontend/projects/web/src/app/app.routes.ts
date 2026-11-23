@@ -23,6 +23,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
   },
   {
+    path: 'forgot-password',
+    title: 'Forgot password · Christian Fitness',
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password-page').then((m) => m.ForgotPasswordPage),
+  },
+  {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).
     path: '',
     canActivate: [memberAuthGuard],

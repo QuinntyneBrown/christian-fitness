@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Reset a forgotten password
+
+Person(user, "Member", "Person with a member account who has forgotten the password")
+
+System(cf, "Christian Fitness", "Christian community for health in body and spirit in the Greater Toronto Area")
+System_Ext(smtp, "Email service", "SMTP relay that delivers mail")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces, metrics and logs")
+
+Rel(user, cf, "Asks for a reset link using", "HTTPS")
+Rel(cf, smtp, "Sends the reset email through", "SMTP, TLS")
+Rel(smtp, user, "Delivers the reset email to")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

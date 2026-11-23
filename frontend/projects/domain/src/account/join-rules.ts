@@ -1,3 +1,4 @@
+import { EMAIL_INVALID, EMAIL_MAX, EMAIL_PATTERN as EMAIL } from './email-rule';
 import type { JoinForm } from './join';
 
 /** The Join form's fields a rule can name, in the order the form shows them. */
@@ -21,14 +22,8 @@ export interface ErrorSummaryItem {
 }
 
 const NAME_MAX = 100;
-const EMAIL_MAX = 254;
 const HOME_CHURCH_MAX = 120;
 const PASSWORD_MIN = 8;
-
-/** One `@`, something on both sides, a dot in the domain and no white space (ADR 0008). */
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const EMAIL_INVALID = 'Enter an email address like name@example.com';
 
 /**
  * The Join rules (L2-003 AC3, AC6; ADR 0008): each invalid field's message, in the form's order.

@@ -9,3 +9,4 @@ export * from './error-page/error-page';
 export * from './form-alert/form-alert';
 export * from './interest-picker/interest-picker';
 export * from './text-field/text-field';
+export * from './text-link/text-link';

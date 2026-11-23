@@ -34,6 +34,8 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
 
         public DbSet<StaffRole> StaffRoles => db.StaffRoles;
 
+        public DbSet<PasswordReset> PasswordResets => db.PasswordResets;
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
