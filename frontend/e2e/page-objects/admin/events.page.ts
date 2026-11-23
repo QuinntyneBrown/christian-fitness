@@ -47,7 +47,7 @@ export class AdminEventsPage {
     this.tabCounts = this.tabs.locator('.tabs__count');
     this.table = this.main.locator('.table-wrap .table');
     this.rows = this.table.locator('tbody tr');
-    this.loading = this.main.locator('[aria-busy="true"]');
+    this.loading = this.main.locator('.skeleton-region[aria-busy="true"]');
     this.skeletons = this.loading.locator('.skeleton');
     this.empty = this.main.locator('.empty-state');
     this.emptyTitle = this.empty.locator('.empty-state__title');
@@ -103,6 +103,11 @@ export class AdminEventsPage {
   /** The `<b>` elements inside the table: none when names are rendered as text. */
   boldInTable(): Locator {
     return this.table.locator('b');
+  }
+
+  /** Rests the pointer on the page head, away from the toasts. */
+  async movePointerAway(): Promise<void> {
+    await this.page.mouse.move(5, 5);
   }
 
   async openNewEvent(): Promise<void> {

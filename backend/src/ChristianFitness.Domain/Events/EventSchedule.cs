@@ -2,7 +2,7 @@ namespace ChristianFitness.Domain.Events;
 
 /// <summary>
 /// Events happen in the Greater Toronto Area, so staff give a start as a Toronto date and time and
-/// members read it back in Toronto, wherever either of them is (ADR 0017).
+/// members read it back in Toronto, wherever either of them is (ADR 0020).
 /// </summary>
 public static class EventSchedule
 {

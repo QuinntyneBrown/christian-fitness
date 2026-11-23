@@ -63,7 +63,7 @@ export class EventEditorDialog {
     });
     this.footButtons = this.dialog.locator('.drawer__foot .btn');
     this.alert = this.dialog.locator('.form-alert');
-    this.scrim = page.locator('.cf-scrim');
+    this.scrim = this.dialog.locator('.scrim');
   }
 
   /** Fills every field; the category by its label, such as "Retreat". */

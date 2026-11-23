@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Staff list events and create drafts (L2-022; ADR 0017). Routed under <c>api/admin</c>, so every
+/// Staff list events and create drafts (L2-022; ADR 0020). Routed under <c>api/admin</c>, so every
 /// action requires the Staff policy (ADR 0011). Each action sends one MediatR request.
 /// </summary>
 [ApiController]

@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC1 (ADR 0017): signed-in staff create an event and it is saved as a draft, its Toronto
+/// L2-022 AC1 (ADR 0020): signed-in staff create an event and it is saved as a draft, its Toronto
 /// start stored as the instant; only a staff session may create one (L2-018 AC4, ADR 0011).
 /// </summary>
 public sealed class CreateEventTests(AdminEventsFactory factory) : IClassFixture<AdminEventsFactory>

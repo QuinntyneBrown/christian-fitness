@@ -61,7 +61,7 @@ function answerCreate(
   return state;
 }
 
-// L2-022 AC1 (ADR 0017): New event opens the event editor drawer; Save draft saves the event as a
+// L2-022 AC1 (ADR 0020): New event opens the event editor drawer; Save draft saves the event as a
 // draft, closes the drawer, says so in a toast and shows the draft in the list.
 test.describe('Admin app, creating a draft event', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -266,6 +266,8 @@ test.describe('Admin app, creating a draft event', () => {
     await editor.fill(RETREAT);
     await editor.saveDraft();
     await expect(events.toastTitle).toHaveText('Draft saved');
+    // Save draft sits where the toast appears; a pointer resting on a toast holds it (below).
+    await events.movePointerAway();
 
     await page.clock.fastForward(5_000);
     await expect(events.toast).toHaveCount(1);
@@ -279,9 +281,40 @@ test.describe('Admin app, creating a draft event', () => {
     await events.toastDismiss.click();
     await expect(events.toast).toHaveCount(0);
   });
+
+  // WCAG 2.2.1 (ADR 0020): a toast never leaves while the pointer rests on it or focus is in it.
+  test('the toast waits while the pointer rests on it or focus is inside it', async ({
+    page,
+    api,
+  }) => {
+    answerCreate(api);
+    await page.clock.install();
+    const events = new AdminEventsPage(page);
+    const editor = new EventEditorDialog(page);
+    await events.open();
+    await events.openNewEvent();
+    await editor.fill(RETREAT);
+    await editor.saveDraft();
+    await expect(events.toastTitle).toHaveText('Draft saved');
+
+    await events.toast.hover();
+    await page.clock.fastForward(20_000);
+    await expect(events.toast).toHaveCount(1);
+
+    await events.toastDismiss.focus();
+    await events.movePointerAway();
+    await page.clock.fastForward(20_000);
+    await expect(events.toast).toHaveCount(1);
+
+    await events.newEventButton.focus();
+    await page.clock.fastForward(5_000);
+    await expect(events.toast).toHaveCount(1);
+    await page.clock.fastForward(1_500);
+    await expect(events.toast).toHaveCount(0);
+  });
 });
 
-// L2-039 (ADR 0017): on a phone the drawer fills the width.
+// L2-039 (ADR 0020): on a phone the drawer fills the width.
 test.describe('Admin app, the event editor on a phone', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 

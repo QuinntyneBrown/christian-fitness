@@ -1,9 +1,9 @@
 <section
   [attr.class]="admin() ? 'toast-region toast-region--admin' : 'toast-region'"
   [attr.aria-label]="label()"
-  (pointerenter)="paused.emit(true)"
-  (pointerleave)="paused.emit(false)"
-  (focusin)="paused.emit(true)"
+  (pointerenter)="hover(true)"
+  (pointerleave)="hover(false)"
+  (focusin)="focusIn()"
   (focusout)="focusOut($event)"
 >
   <div class="toast-region__polite" role="status" aria-live="polite">

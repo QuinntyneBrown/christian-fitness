@@ -68,6 +68,26 @@ describe('Table', () => {
     expect(el.querySelector('tbody .skeleton')).not.toBeNull();
   });
 
+  it('draws as many skeleton rows as the screen asks for while loading', async () => {
+    const { el } = await render({ loading: true, rows: [], loadingRows: 5 });
+
+    expect(el.querySelectorAll('tbody tr')).toHaveLength(5);
+    expect(el.querySelectorAll('tbody .skeleton')).toHaveLength(20);
+  });
+
+  it('reads a count cell as the count, then its total muted, on one line', async () => {
+    const { el } = await render({
+      columns: [{ key: 'registered', label: 'Registered', kind: 'count' }],
+      rows: [{ id: 'r', name: 'Retreat', cells: { registered: { text: '0', of: '60' } } }],
+    });
+
+    const cell = el.querySelector('tbody td') as HTMLElement;
+    expect(cell.className).toBe('table__nowrap');
+    expect(cell.querySelector('.table__strong')?.textContent).toBe('0');
+    expect(cell.querySelector('.muted')?.textContent).toBe(' / 60');
+    expect(cell.textContent?.trim()).toBe('0 / 60');
+  });
+
   it('renders cells as text', async () => {
     const { el } = await render({
       rows: [{ id: 'x', name: '<b>x</b>', cells: { event: { text: '<b>x</b>' } } }],

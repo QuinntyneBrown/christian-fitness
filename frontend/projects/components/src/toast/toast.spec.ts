@@ -106,6 +106,22 @@ describe('ToastRegion', () => {
     expect(paused).toEqual([true]);
   });
 
+  it('stays paused while focus is inside after the pointer leaves, and the other way round', async () => {
+    const { fixture, region } = await render([registered]);
+    const paused: boolean[] = [];
+    fixture.componentInstance.paused.subscribe((value) => paused.push(value));
+
+    region.dispatchEvent(new Event('pointerenter'));
+    region.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    region.dispatchEvent(new Event('pointerleave'));
+    expect(paused).toEqual([true]);
+    region.dispatchEvent(new Event('pointerenter'));
+    region.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    expect(paused).toEqual([true]);
+    region.dispatchEvent(new Event('pointerleave'));
+    expect(paused).toEqual([true, false]);
+  });
+
   it('renders words as text', async () => {
     const { region } = await render([
       { id: 'x', tone: 'info', heading: '<b>x</b>', text: '<i>y</i>' },

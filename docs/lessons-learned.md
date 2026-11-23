@@ -951,8 +951,14 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   although the dialog, its fields and the CDK all load on first use: the parts of core that create
   a component in a portal, and the async scheduler behind the overlay's scroll handling, sit in
   modules `main` already holds, and esbuild cannot split a module between chunks. A build with the
-  dialog's import stubbed out showed the page alone cost 2.4 kB, so the rest was the CDK's. The
-  budget rose to 280/290 kB with that reason in ADR 0017.
+  dialog's import stubbed out showed the page alone cost 2.6 kB, so the rest was the CDK's. The
+  budget rose to 280/290 kB with that reason in ADR 0020.
+- Slices 1.4, 1.5 and 1.6 merged while this one was paused and built all 46 design-system
+  components once, with AGENTS.md now forbidding screen-specific duplicates. The rebase took
+  main's side of every shared component, deleted this slice's `event-table`, `select-field`,
+  `textarea-field` and `toast-region`, and reworked both screens onto the library; the ADR became
+  0020. The library lacked only the Registered `count` cell, a skeleton row count and a number
+  field's `min`, each added with a component test seen red first.
 - Slices 18.1 and 9.3 merged while this one was open and took ADRs 0015 and 0016, so this slice's
   ADR became 0017 in the record and 42 comment lines; a script renumbered only the lines this
   branch added, since 18.1's files already said "ADR 0015" for their own record. The generated
@@ -960,17 +966,21 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   `AddEvents` migration was regenerated after 18.1's `AddMemberProfile`.
 - 9.3's 30-minute staff idle timeout signed out this slice's clock test, which moved the API's clock
   an hour to turn an ahead start into a past one. It now starts 10 minutes ahead and moves 20.
-- 18.1 brought an `ErrorState` the events list could reuse, where this slice had drawn the same
-  block as a variant of its own `EmptyState`; the variant went, and `ErrorState`'s back link
-  became optional.
 - A quoted Git Bash heredoc with "Couldn't" in its Angular template failed to parse again and wrote
   none of the files; they went through the editor tool.
 
 **New lessons**
 
 - CDK Overlay loads its own structural styles when the first overlay opens, so a lazy dialog needs
-  no global `@use` of `overlay-prebuilt.css`; only the scrim's look (`backdropClass`) is a global
-  utility, because the overlay renders it outside any component.
+  no global `@use` of `overlay-prebuilt.css`. A shell that draws its own scrim and fixed panel
+  (`cf-drawer`) opens with `hasBackdrop: false` and a pane of `100%` by `100%` (`maxWidth: '100%'`
+  too, since CDK Dialog caps it at 80vw): with a content-sized pane the `role="dialog"` element
+  has an empty box and Playwright calls it hidden.
+- A toast region that reports `paused` from both the pointer and focus must combine them: the
+  pointer leaving while focus is still on Dismiss resumed the timers until the region kept both
+  flags. Only an e2e spec that hovered, focused and then moved the pointer away caught it; the
+  composed screens also showed that the Save draft button sits where the toast appears, so the
+  timing spec moves the pointer away first.
 - CDK Dialog's `aria-modal` is `false` unless `ariaModal: true` is set, and its `autoFocus` takes a
   selector (`'#f-title'`), so focus can start on a form's first field instead of Close.
 - Setting `disableClose` on the dialog's ref while a save is on its way keeps Escape and the scrim
@@ -990,7 +1000,7 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 
 - "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 9.3) found
   the CDK's share at once; after the rebase a clean worktree of `origin/main` gave the new base,
-  258.98 kB, against this slice's 275.88 kB.
+  258.98 kB, against this slice's 277.48 kB after the move to the library.
 - "Prove a rule red by breaking it alone" (1.1 to 9.3): on the backend, the gap offset, the
   `fieldCodes` filter, the 100-event limit, the order, the draft filter, the `>` of `start_in_past`
   and the title trim each turned the right test red. On the frontend, `restoreFocus`, the toast's

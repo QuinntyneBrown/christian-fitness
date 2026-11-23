@@ -33,7 +33,7 @@ export const EMPTY_EVENT_EDITOR: EventEditorValues = {
 const AMOUNT = /^\$?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d{1,2}))?$/;
 
 /**
- * A typed price in cents (ADR 0017): blank is free (0); "$1,234.50" is 123450. Anything that is not
+ * A typed price in cents (ADR 0020): blank is free (0); "$1,234.50" is 123450. Anything that is not
  * an amount of dollars and cents is `null`, which the API refuses with `price_invalid`; the API also
  * holds the upper limit.
  */

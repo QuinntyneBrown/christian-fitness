@@ -69,6 +69,11 @@
   font-weight: var(--font-weight-semibold);
 }
 
+// A count's total, after the count (table.html, "Standard: events": "142 / 200").
+.muted {
+  color: var(--color-fg-muted);
+}
+
 .table__sub {
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);

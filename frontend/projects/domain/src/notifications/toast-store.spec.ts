@@ -1,6 +1,6 @@
 import { TOAST_LIFETIME_MS, TOAST_LIMIT, ToastStore } from './toast-store';
 
-// ADR 0017: a toast leaves by itself after about 6 seconds, Dismiss removes it at once, at most
+// ADR 0020: a toast leaves by itself after about 6 seconds, Dismiss removes it at once, at most
 // three show, and the store's timers end with its screen. A fake clock moves time; nothing sleeps.
 describe('ToastStore', () => {
   let store: ToastStore;
@@ -68,6 +68,40 @@ describe('ToastStore', () => {
 
     expect(titles()).toEqual(['Two', 'Three', 'Four']);
     expect(vi.getTimerCount()).toBe(3);
+  });
+
+  // WCAG 2.2.1: the region reports `paused` while the pointer is over it or focus is inside it.
+  it('holds every toast while paused and gives each its time left when resumed', () => {
+    store.show('First', '');
+    vi.advanceTimersByTime(4_000);
+    store.show('Second', '');
+
+    store.pause(true);
+    vi.advanceTimersByTime(60_000);
+    expect(titles()).toEqual(['First', 'Second']);
+    expect(vi.getTimerCount()).toBe(0);
+
+    store.pause(false);
+    vi.advanceTimersByTime(1_999);
+    expect(titles()).toEqual(['First', 'Second']);
+    vi.advanceTimersByTime(1);
+    expect(titles()).toEqual(['Second']);
+    vi.advanceTimersByTime(4_000);
+    expect(titles()).toEqual([]);
+  });
+
+  it('a toast shown while paused waits too, and pausing twice changes nothing', () => {
+    store.pause(true);
+    store.show('First', '');
+    store.pause(true);
+    vi.advanceTimersByTime(10_000);
+    expect(titles()).toEqual(['First']);
+
+    store.pause(false);
+    store.pause(false);
+    expect(vi.getTimerCount()).toBe(1);
+    vi.advanceTimersByTime(TOAST_LIFETIME_MS);
+    expect(titles()).toEqual([]);
   });
 
   it('ends every timer when its screen goes', () => {

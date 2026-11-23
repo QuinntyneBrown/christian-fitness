@@ -1,4 +1,4 @@
-# 0017. Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1
+# 0020. Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1
 
 ## Status
 
@@ -54,7 +54,7 @@ next.
 - **Stand-ins until 10.2 and 11.1.** The editor's footer shows Save draft only; Publish arrives with
   11.1, and the table's Edit column with 10.2. Both stay in the mocks, which draw the finished
   screen. Until 10.2 designs the invalid and failed states, a refused or failed save shows the
-  existing `form-alert` at the top of the drawer, "Couldn't save the draft" / "Check every field
+  library's alert (`cf-alert`, block `form-alert`) at the top of the drawer, "Couldn't save the draft" / "Check every field
   and try again. Your changes are still here.", and makes the fields editable again; nothing is
   marked per field yet.
 - **The editor is a CDK Dialog drawer, loaded on first use.** `@angular/cdk` joins the
@@ -65,23 +65,37 @@ next.
   dialog is `aria-modal`, named by the drawer's heading, starts focus on Title and gives it back to
   what opened it; Escape and the scrim close it, except while a save is on its way. It closes by
   its ref with the created event; the page then shows the Draft saved toast and loads the list
-  again. The drawer's look is the design system's `drawer` block (`Drawer`, `components`), placed
-  by a global position strategy at the right edge, full height, up to `--layout-dialog-max`
-  (32 rem) and full width on phones. Its scrim is the `cf-scrim` backdrop class in the global
-  utilities, since the overlay renders it outside any component. The CDK loads its own structural
-  overlay styles when the first overlay opens, so `styles.scss` imports nothing.
+  again. The dialog renders the library's drawer shell (`cf-drawer`, ADR 0017), which draws its
+  own scrim and its fixed panel at the right edge, full height, up to `--layout-dialog-max`
+  (32 rem) and full width on phones; so the CDK opens it with no backdrop and a pane the size of
+  the viewport, and adds only the dialog role, the focus trap, Escape and focus return. The CDK
+  loads its own structural overlay styles when the first overlay opens, so `styles.scss` imports
+  nothing.
+- **Every part is the library's (AGENTS.md, "Design-system components").** Slices 1.4 to 1.6
+  merged while this one was open and built all 46 design-system components once. This slice's own
+  `event-table`, `select-field`, `textarea-field`, `toast-region`, `tabs`, `drawer`, `empty-state`
+  and the scrim utility went; the page composes `cf-tabs`, `cf-table` (a `custom` status cell with
+  `cf-status`), `cf-skeleton-region`, `cf-empty-state` (`page`, `tight` and `error`) and
+  `cf-toast-region`, and the editor `cf-drawer`, `cf-alert`, `cf-form-layout` (`grid`),
+  `cf-text-field`, `cf-select`, `cf-textarea` and `cf-button`. The library grew where the design
+  system asked and no component had it: the table's `count` cell (the count strong, " / 200"
+  muted, as table.html's Registered column draws it) and `loadingRows` (the mock's five skeleton
+  rows), the text field's `min`, and a toast region that stays paused while either the pointer or
+  focus is inside it.
+- **Toasts pause (WCAG 2.2.1).** `ToastStore.pause` holds every timer while the region reports
+  `paused` and gives each toast its time left on resume.
 - **The admin initial budget rises to 280 kB (warning) and 290 kB (error).** The dialog's chunk
   is lazy, but the parts of `@angular/core` that CDK Dialog uses to create a component in a portal
   (about 14 kB) and rxjs's async scheduler (about 2 kB) are bundled with the rest of
   `@angular/core` and rxjs in `main`, which a lazy chunk cannot split. The events page adds
-  2.4 kB of core. The admin initial total goes from 258.98 kB to 275.88 kB, past the old error
+  2.6 kB. The admin initial total goes from 258.98 kB to 277.48 kB, past the old error
   budget of 275 kB; every later dialog reuses what is now paid for.
 - **Toasts are a screen's service.** `TOASTS_SERVICE` (`ToastsApi`, `api`) is bound to
   `ToastStore` (`domain`) on the events page: a toast leaves after 6 seconds, Dismiss removes it at
   once, at most three show, and the store's timers end with the page. `ToastRegion`
   (`components`) draws the region, always present so its polite status is announced.
-- **The list's error state is slice 18.1's `ErrorState`,** whose back link becomes optional, since
-  the Events page has nowhere to go back to.
+- **The list's error state is the library's `cf-empty-state` `error` variant** with Try again and
+  no back link, since the Events page has nowhere to go back to.
 - **Two stand-ins in the list's states.** The error state leaves out the mock's reference line
   ("Reference CF-A2E4"): a failed `GET` that got no answer has no trace id to show. The Draft tab
   with no drafts, which no mock draws, reuses the `tab-empty` layout with "No drafts" / "Save an

@@ -23,12 +23,15 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   Registered `going / capacity`, and New event. Each tab asks the API for its events; a tab with
   none says so (`tab-empty`), no events at all shows the empty state with New event, and a
   request that got no answer or a 4xx shows the error state with Try again, which asks again
-  (a 5xx opens the server-error screen, L2-043 AC4). Its services are on the routed component's
+  (a 5xx opens the server-error screen, L2-043 AC4). Every part is the components library's:
+  `Tabs`, `Table` with a `Status` badge cell and its `count` cell, `SkeletonRegion`, `EmptyState`
+  (`page`, `tight`, `error`) and `ToastRegion`. Its services are on the routed component's
   `providers`.
 - **`EventEditorDialog`** — CDK Dialog opened from the page (`docs/mocks/dialogs/event-editor/`,
   states `default`, `saving`, `edit`, `invalid`, `busy`, `failed`), loaded with a dynamic
-  `import()` on the first New event. It renders the `Drawer` component (block `drawer`) with
-  `TextField`, `SelectField` and `TextareaField`: title, category, date, start time, place, area,
+  `import()` on the first New event. It renders the library's `Drawer` (block `drawer`, which draws
+  its own scrim, so the CDK adds no backdrop) with `Alert`, `FormLayout` (`grid`), `TextField`,
+  `Select`, `Textarea` and `Button`: title, category, date, start time, place, area,
   price ("Leave blank for free"), capacity and summary. Save draft turns to "Saving…" with every
   field read-only (`saving`); a created draft closes the dialog by its ref with the event, and
   the page shows the `admin-toast/draft-saved` toast ("Draft saved", leaving after about 6
@@ -39,8 +42,9 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   slice 11.1 adds Publish and `busy`.
 - **`ToastsApi` / `TOASTS_SERVICE`, `ToastStore`, `ToastRegion`** — the page's toasts: the
   contract and token in `api`, the store in `domain` (a toast leaves after 6 seconds, Dismiss
-  removes it at once, at most three show, its timers end with the page) bound on the page's
-  `providers`, and the always-present `toast-region` in `components`.
+  removes it at once, at most three show, none leaves while the region is paused by the pointer or
+  focus, its timers end with the page) bound on the page's `providers`, and the library's
+  always-present `cf-toast-region` (`admin`).
 - **`AdminEventsApi` / `ADMIN_EVENTS_SERVICE`** — contract and token in the `api` library: `list`
   and `create` (10.1), `get`, `update` and `uploadImage` (10.2); `HttpAdminEventsService`
   implements it and errors with an `ApiError`.
@@ -63,7 +67,7 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   extension naming each field's code: `title_required`, `title_too_long`, `category_required`,
   `date_required`, `start_time_required`, `start_in_past`, `place_required`, `place_too_long`,
   `area_required`, `area_too_long`, `price_invalid`, `capacity_required`,
-  `capacity_out_of_range`, `summary_required`, `summary_too_long` (ADR 0017).
+  `capacity_out_of_range`, `summary_required`, `summary_too_long` (ADR 0020).
 - **`UpdateEventCommand`** / **`UpdateEventHandler`** (10.2) — counts `Registration` rows that are
   going and refuses a lower capacity with `capacity_below_going`.
 - **`UploadEventImageCommand`** / handler (10.2) — checks the content signature (JPEG, PNG, WebP)
@@ -73,7 +77,7 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   **`EventSchedule`** turns a Toronto date and time into the UTC instant (`America/Toronto`; a time
   inside the spring-forward gap takes the standard offset).
 
-The mock gaps are settled (ADR 0017): the editor has Place and Area, Summary for the summary and
+The mock gaps are settled (ADR 0020): the editor has Place and Area, Summary for the summary and
 no group chat checkbox (every event has a group chat members join by registering, L2-011); the
 image field arrives with slice 10.2.
 

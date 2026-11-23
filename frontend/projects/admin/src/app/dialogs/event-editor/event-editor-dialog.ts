@@ -1,15 +1,15 @@
 import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { createGlobalPositionStrategy } from '@angular/cdk/overlay';
 import { Component, DestroyRef, inject, type Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ADMIN_EVENTS_SERVICE, type AdminEventDto, type EventCategory } from '@cf/api';
 import {
+  Alert,
   Button,
   Drawer,
-  FormAlert,
-  SelectField,
+  FormLayout,
+  Select,
   type SelectOption,
-  TextareaField,
+  Textarea,
   TextField,
 } from '@cf/components';
 import {
@@ -20,7 +20,7 @@ import {
   type EventEditorValues,
 } from '@cf/domain';
 
-/** The drawer's heading id, which names the dialog. */
+/** The drawer's title id, which names the dialog. */
 const HEADING_ID = 'event-editor-title';
 
 const CATEGORY_OPTIONS: readonly SelectOption[] = EVENT_CATEGORIES.map((category) => ({
@@ -30,16 +30,17 @@ const CATEGORY_OPTIONS: readonly SelectOption[] = EVENT_CATEGORIES.map((category
 
 /**
  * The event editor, "New event" (mock docs/mocks/dialogs/event-editor/, states `default` and
- * `saving`; L2-022 AC1): a CDK Dialog drawing the drawer at the right edge, full height, up to 32
- * rem wide and full width on a phone, over the `cf-scrim`. Focus starts on Title and goes back to
+ * `saving`; L2-022 AC1): a CDK Dialog rendering the library's drawer, which draws its scrim and
+ * its panel at the right edge, full height, up to 32 rem wide and full width on a phone, so the
+ * CDK adds no backdrop (ADR 0017). Focus starts on Title and goes back to
  * what opened it. Save draft sends the fields; while it is on its way the button reads "Saving…",
  * the fields hold still and the drawer stays open. A created draft closes the dialog with the
- * event. A refusal shows one generic alert and gives the fields back as typed (ADR 0017). Publish
+ * event. A refusal shows one generic alert and gives the fields back as typed (ADR 0020). Publish
  * comes with slice 11.1.
  */
 @Component({
   selector: 'cf-event-editor-dialog',
-  imports: [Button, Drawer, FormAlert, SelectField, TextareaField, TextField],
+  imports: [Alert, Button, Drawer, FormLayout, Select, Textarea, TextField],
   templateUrl: './event-editor-dialog.html',
   styleUrl: './event-editor-dialog.scss',
 })
@@ -101,10 +102,12 @@ export function openEventEditor(injector: Injector): DialogRef<AdminEventDto, Ev
       ariaModal: true,
       autoFocus: '#f-title',
       restoreFocus: true,
-      backdropClass: 'cf-scrim',
+      // The drawer draws its own scrim and fixed panel, so the CDK adds no backdrop; its pane
+      // spans the viewport the scrim covers and adds the dialog role, the focus trap, Escape and
+      // focus return.
+      hasBackdrop: false,
       width: '100%',
-      maxWidth: 'var(--layout-dialog-max)',
+      maxWidth: '100%',
       height: '100%',
-      positionStrategy: createGlobalPositionStrategy(injector).right('0').top('0'),
     });
 }

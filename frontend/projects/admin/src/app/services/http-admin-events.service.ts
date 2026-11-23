@@ -11,7 +11,7 @@ import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link AdminEventsApi} over HTTP: `GET` and `POST /api/admin/events` (ADR 0017). A failure
+ * {@link AdminEventsApi} over HTTP: `GET` and `POST /api/admin/events` (ADR 0020). A failure
  * errors with an `ApiError` (`apiErrorOf`), so no screen handles an `HttpErrorResponse`. It holds
  * no state.
  */

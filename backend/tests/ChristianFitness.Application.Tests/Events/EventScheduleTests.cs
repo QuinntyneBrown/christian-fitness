@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Events;
 namespace ChristianFitness.Application.Tests.Events;
 
 /// <summary>
-/// ADR 0017: a Toronto date and time to the UTC instant, one case per row, across both changes of
+/// ADR 0020: a Toronto date and time to the UTC instant, one case per row, across both changes of
 /// the clock in 2026 (March 8 and November 1). The admin app's <c>eventWhen</c>
 /// (frontend/projects/domain/src/events/event-when.spec.ts) reads the same instants back.
 /// </summary>

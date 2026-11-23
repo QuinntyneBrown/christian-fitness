@@ -17,7 +17,7 @@
     </thead>
     <tbody>
       @if (loading()) {
-        @for (n of skeletonRows; track n) {
+        @for (n of skeletonRows(); track n) {
           <tr>
             @for (column of columns(); track column.key) {
               <td><cf-skeleton shape="text-sm" [width]="$first ? '80' : '50'" /></td>
@@ -39,6 +39,13 @@
                         *ngTemplateOutlet="template; context: { $implicit: row, column: column }"
                       />
                     }
+                  }
+                  @case ('count') {
+                    <span class="table__strong">{{ row.cells[column.key]?.text }}</span><span
+                      class="muted"
+                    >
+                      / {{ row.cells[column.key]?.of }}</span
+                    >
                   }
                   @case ('primary') {
                     <p class="table__strong">{{ row.cells[column.key]?.text }}</p>

@@ -11,15 +11,27 @@ import {
 import {
   Button,
   EmptyState,
-  ErrorState,
-  EventTable,
-  type EventTableRow,
+  SkeletonRegion,
+  Status,
+  Table,
+  type TableColumn,
+  type TableRow,
+  type TabItem,
   Tabs,
+  type ToastData,
   ToastRegion,
 } from '@cf/components';
 import { adminEventTabOf, adminEventTabs, eventWhen, ToastStore } from '@cf/domain';
 import { catchError, combineLatest, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { HttpAdminEventsService } from '../../services/http-admin-events.service';
+
+/** The list's columns (mock `admin-events`); the Edit column comes with slice 10.2. */
+const COLUMNS: readonly TableColumn[] = [
+  { key: 'event', label: 'Event', kind: 'primary' },
+  { key: 'date', label: 'Date', kind: 'nowrap' },
+  { key: 'registered', label: 'Registered', kind: 'count' },
+  { key: 'status', label: 'Status', kind: 'custom' },
+];
 
 /** What the list shows: skeleton rows, the asked tab's events, or the error state. */
 type ListState =
@@ -42,16 +54,18 @@ const EMPTY: Record<AdminEventTab, { heading: string; text: string }> = {
 };
 
 /**
- * The Events page (mock docs/mocks/pages/admin-events/; L2-022 AC5, AC6; ADR 0017): every event
+ * The Events page (mock docs/mocks/pages/admin-events/; L2-022 AC5, AC6; ADR 0020): every event
  * soonest first under All, Published and Draft, the tab named by the URL's `status`. Switching tabs
  * moves without reloading and asks for that tab again. While the list loads, skeleton rows; with
  * none, the empty state; when it does not load, the error state with Try again. New event opens
  * the event editor, imported on first use; a saved draft says so in a toast and the list reloads.
+ * Every part is the design system's, composed from the library: tabs, table with a status badge,
+ * skeleton region, empty and error states, and the admin toast region.
  * Its services are this screen's own, provided here (AGENTS.md, "Scope state to its use").
  */
 @Component({
   selector: 'cf-admin-events-page',
-  imports: [Button, EmptyState, ErrorState, EventTable, Tabs, ToastRegion],
+  imports: [Button, EmptyState, SkeletonRegion, Status, Table, Tabs, ToastRegion],
   templateUrl: './events-page.html',
   styleUrl: './events-page.scss',
   providers: [
@@ -74,14 +88,30 @@ export class AdminEventsPage {
   private readonly counts = signal<AdminEventCountsDto | null>(null);
   protected readonly state = signal<ListState>({ kind: 'loading' });
 
-  protected readonly tabs = computed(() =>
+  protected readonly columns = COLUMNS;
+  private readonly tabViews = computed(() =>
     adminEventTabs(this.tab(), this.state().kind === 'loading' ? null : this.counts()),
   );
-  protected readonly rows = computed<EventTableRow[]>(() => {
+  protected readonly tabs = computed<TabItem[]>(() =>
+    this.tabViews().map(({ label, href, count }) =>
+      count === null ? { label, href } : { label, href, count },
+    ),
+  );
+  protected readonly currentHref = computed(() => this.tabViews().find((t) => t.current)?.href);
+  private readonly shownEvents = computed(() => {
     const state = this.state();
-    return state.kind === 'ready' ? state.events.map(rowOf) : [];
+    return state.kind === 'ready' ? state.events : [];
   });
+  protected readonly rows = computed<TableRow[]>(() => this.shownEvents().map(rowOf));
   protected readonly empty = computed(() => EMPTY[this.tab()]);
+  protected readonly toastViews = computed<ToastData[]>(() =>
+    this.toasts.toasts().map(({ id, title, text }) => ({
+      id: String(id),
+      tone: 'info',
+      heading: title,
+      text,
+    })),
+  );
 
   constructor() {
     const tab$ = inject(ActivatedRoute).queryParamMap.pipe(
@@ -109,6 +139,15 @@ export class AdminEventsPage {
     void this.router.navigateByUrl(href);
   }
 
+  /** The status badge's variant for the row `id`. */
+  protected statusOf(id: string): AdminEventDto['status'] {
+    return this.shownEvents().find((event) => event.id === id)?.status ?? 'draft';
+  }
+
+  protected dismissToast(id: string): void {
+    this.toasts.dismiss(Number(id));
+  }
+
   protected tryAgain(): void {
     this.reload.next();
   }
@@ -130,15 +169,15 @@ export class AdminEventsPage {
   }
 }
 
-function rowOf(event: AdminEventDto): EventTableRow {
+function rowOf(event: AdminEventDto): TableRow {
   return {
     id: event.id,
-    title: event.title,
-    place: event.place,
-    when: eventWhen(event.startsAt),
-    going: event.going,
-    capacity: event.capacity,
-    status: event.status,
-    statusLabel: event.status === 'draft' ? 'Draft' : 'Published',
+    name: event.title,
+    cells: {
+      event: { text: event.title, sub: event.place },
+      date: { text: eventWhen(event.startsAt) },
+      registered: { text: String(event.going), of: String(event.capacity) },
+      status: { text: event.status === 'draft' ? 'Draft' : 'Published' },
+    },
   };
 }

@@ -43,22 +43,3 @@
     animation: none;
   }
 }
-
-// The scrim under a CDK Dialog (docs/design-system/assets/components.css, "scrim"): the dialog
-// names it as its backdrop class, and the CDK places it under the pane (ADR 0017).
-.cf-scrim {
-  background: var(--color-bg-backdrop);
-  animation: fade-in var(--duration-base) var(--ease-enter);
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cf-scrim {
-    animation: none;
-  }
-}

@@ -1,9 +1,8 @@
-<cf-drawer heading="New event" [headingId]="headingId" (dismiss)="close()">
+<cf-drawer heading="New event" [titleId]="headingId" (closed)="close()">
   @if (failed()) {
-    <cf-form-alert
-      heading="Couldn't save the draft"
-      text="Check every field and try again. Your changes are still here."
-    />
+    <cf-alert heading="Couldn't save the draft">
+      Check every field and try again. Your changes are still here.
+    </cf-alert>
   }
   <cf-text-field
     fieldId="f-title"
@@ -13,7 +12,7 @@
     [readonly]="saving()"
     (valueChange)="set('title', $event)"
   />
-  <cf-select-field
+  <cf-select
     fieldId="f-category"
     label="Category"
     name="category"
@@ -22,7 +21,7 @@
     [disabled]="saving()"
     (valueChange)="setCategory($event)"
   />
-  <div class="field-grid">
+  <cf-form-layout layout="grid">
     <cf-text-field
       fieldId="f-date"
       label="Date"
@@ -41,7 +40,7 @@
       [readonly]="saving()"
       (valueChange)="set('startTime', $event)"
     />
-  </div>
+  </cf-form-layout>
   <cf-text-field
     fieldId="f-place"
     label="Place"
@@ -59,7 +58,7 @@
     [readonly]="saving()"
     (valueChange)="set('area', $event)"
   />
-  <div class="field-grid">
+  <cf-form-layout layout="grid">
     <cf-text-field
       fieldId="f-price"
       label="Price"
@@ -80,8 +79,8 @@
       [readonly]="saving()"
       (valueChange)="set('capacity', $event)"
     />
-  </div>
-  <cf-textarea-field
+  </cf-form-layout>
+  <cf-textarea
     fieldId="f-summary"
     label="Summary"
     name="summary"
@@ -93,7 +92,6 @@
   <cf-button
     slot="foot"
     variant="secondary"
-    grow
     [busy]="saving()"
     [disabled]="saving()"
     (click)="saveDraft()"
