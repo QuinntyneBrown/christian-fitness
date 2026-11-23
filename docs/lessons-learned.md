@@ -650,11 +650,15 @@ worked when applied. Newest entries go at the bottom.
   reference). The mock generator was corrected before code.
 - The first component-level `providers` added 2.3 kB of `@angular/core` to `main`, past the 260 kB
   warning; a `--stats-json` diff named it in one build, and removing the line once confirmed it.
-  The warning budget went to 263 kB with that reason (ADR 0013).
+  The warning budget went to 263 kB with that reason (ADR 0014).
 - Git Bash heredocs failed again on an apostrophe in a template ("didn't"); every component went
   through the editor tool, as slices 1.2 to 3.2 warned.
 - A commit took the next sub-slice's spec with it because the spec was edited before the commit;
   stage named paths only after the step's tests are run, not after the next step has begun.
+
+- Slice 9.2 merged first and took ADR 0013 and a later migration timestamp. Our ADR became 0014
+  (references changed only on the lines this slice added) and `AddMemberProfile` was regenerated
+  on 9.2's snapshot, so the migrations stay in order.
 
 **New lessons**
 

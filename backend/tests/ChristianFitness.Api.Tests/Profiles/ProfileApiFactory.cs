@@ -12,7 +12,7 @@ namespace ChristianFitness.Api.Tests.Profiles;
 /// <summary>
 /// The API on a clock the tests move, with the registrations a test gives it: until registration
 /// exists (slice 6.1) nothing in the product creates one, so <see cref="Registrations"/> stands in
-/// for the reader (ADR 0013). It can also set the profile fields that only slice 18.2 edits.
+/// for the reader (ADR 0014). It can also set the profile fields that only slice 18.2 edits.
 /// </summary>
 public sealed class ProfileApiFactory : ApiFactory
 {

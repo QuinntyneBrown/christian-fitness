@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
 
-/// <summary>A member's profile (L2-005; ADR 0013). A visitor is refused 401 by the fallback policy.</summary>
+/// <summary>A member's profile (L2-005; ADR 0014). A visitor is refused 401 by the fallback policy.</summary>
 [ApiController]
 [Route("api/profile")]
 public sealed class ProfileController(ISender sender) : ControllerBase

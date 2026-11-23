@@ -1,4 +1,4 @@
-/** Where the community meets, so the time zone every date on screen is read in (ADR 0013). */
+/** Where the community meets, so the time zone every date on screen is read in (ADR 0014). */
 export const COMMUNITY_TIME_ZONE = 'America/Toronto';
 
 const GOING_DATE = new Intl.DateTimeFormat('en-CA', {

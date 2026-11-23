@@ -19,7 +19,7 @@ home church only when its owner made it visible (L2-006).
 ## Description
 
 Slice 18.1 builds the own profile (L2-005 AC1, AC2;
-[ADR 0013](../../../adr/0013-view-my-profile.md)); slice 19.1 builds the public
+[ADR 0014](../../../adr/0014-view-my-profile.md)); slice 19.1 builds the public
 profile (AC3). Editing, and the Edit profile button and "Add a bio" action that open
 it, come with slice 18.2 ([edit own profile](../edit-profile/README.md)); the mock's
 Groups section comes with group membership (slice 12.3).

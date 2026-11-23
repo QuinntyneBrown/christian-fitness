@@ -48,7 +48,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
       },
       {
-        // The signed-in member's own profile (L2-005; ADR 0013).
+        // The signed-in member's own profile (L2-005; ADR 0014).
         path: 'profile',
         title: 'Profile · Christian Fitness',
         loadComponent: () => import('./pages/profile/profile-page').then((m) => m.ProfilePage),

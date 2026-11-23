@@ -15,7 +15,7 @@ import { goingDateOf, initialsOf, interestLabelsOf, memberSinceOf } from '@cf/do
 import type { Subscription } from 'rxjs';
 import { HttpProfileService } from '../../services/http-profile.service';
 
-/** What the screen shows of a profile, read for the member (ADR 0013). */
+/** What the screen shows of a profile, read for the member (ADR 0014). */
 interface ProfileView {
   name: string;
   initials: string;
@@ -29,7 +29,7 @@ interface ProfileView {
 }
 
 /**
- * Profile at `/profile` (L2-005 AC1, AC2; ADR 0013): the signed-in member's own profile, from
+ * Profile at `/profile` (L2-005 AC1, AC2; ADR 0014): the signed-in member's own profile, from
  * `PROFILE_SERVICE`, bound here so the client lives only while the screen does. It shows the
  * `profile-hero`, About, "Goals this year", Into and "Going to", each empty section with the
  * mock's sentence, and "Browse events" when the member is going to nothing. While it loads it shows

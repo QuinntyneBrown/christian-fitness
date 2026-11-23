@@ -6,7 +6,7 @@ import { AppHeader } from '@cf/components';
 import { initialsOf } from '@cf/domain';
 import { filter } from 'rxjs';
 
-/** The member's own profile, which the header's avatar opens (ADR 0013). */
+/** The member's own profile, which the header's avatar opens (ADR 0014). */
 const PROFILE_PATH = '/profile';
 
 /**
@@ -15,7 +15,7 @@ const PROFILE_PATH = '/profile';
  * start, a session that had already ended included (L2-004 AC5); any other failure keeps them where
  * they are with Sign out enabled. The header's profile avatar shows the member's initials, read once
  * from `SESSION_SERVICE`, is current while Profile shows, and a plain click on it moves the router
- * (ADR 0013).
+ * (ADR 0014).
  */
 @Component({
   selector: 'cf-member-shell',

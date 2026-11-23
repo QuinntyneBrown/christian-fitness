@@ -1,7 +1,7 @@
 namespace ChristianFitness.Application.Profiles;
 
 /// <summary>
-/// The signed-in member's own profile (L2-005 AC1; ADR 0013): every field, the optional ones
+/// The signed-in member's own profile (L2-005 AC1; ADR 0014): every field, the optional ones
 /// <c>null</c> until given. It is answered only to its owner, so it may carry the home church.
 /// </summary>
 public sealed record OwnProfileDto(
