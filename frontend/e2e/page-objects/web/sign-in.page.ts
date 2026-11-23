@@ -25,6 +25,8 @@ export class WebSignInPage {
   readonly links: Locator;
   /** "Forgot your password?" under the password field. */
   readonly forgotLink: Locator;
+  /** "Reset your password" in the alert that says sign-in is paused. */
+  readonly resetLink: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -42,10 +44,14 @@ export class WebSignInPage {
     this.alertText = this.alert.locator('.form-alert__title + p');
     this.links = this.form.getByRole('link');
     this.forgotLink = this.form.getByRole('link', { name: 'Forgot your password?' });
+    this.resetLink = this.alert.getByRole('link', { name: 'Reset your password' });
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/sign-in');
+  /** Opens the screen; with `returnUrl`, as a link that asks to return there after signing in. */
+  async open(returnUrl?: string): Promise<void> {
+    await this.page.goto(
+      returnUrl === undefined ? '/sign-in' : `/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`,
+    );
   }
 
   title(): Promise<string> {

@@ -13,8 +13,9 @@ export class WebHomePage {
     this.greeting = this.main.locator('.page-title--greeting');
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/home');
+  /** Opens Home, with `query` (such as `?welcome=back`) when given. */
+  async open(query = ''): Promise<void> {
+    await this.page.goto('/home' + query);
   }
 
   /** Waits until the API has answered the session the greeting is read from. */

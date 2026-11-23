@@ -7,6 +7,8 @@ describe('staffSignInRefusalOf', () => {
     { error: { status: 401, code: 'invalid_credentials' }, expected: 'invalid-credentials' },
     { error: { status: 403, code: 'not_staff' }, expected: 'not-staff' },
     { error: { status: 403, code: 'forbidden' }, expected: 'failed' },
+    { error: { status: 403, code: 'account_suspended' }, expected: 'failed' },
+    { error: { status: 429, code: 'too_many_attempts' }, expected: 'failed' },
     { error: { status: 401, code: 'not_staff' }, expected: 'failed' },
     { error: { status: 401, code: 'unauthenticated' }, expected: 'failed' },
     { error: { status: 400, code: 'antiforgery_failed' }, expected: 'failed' },

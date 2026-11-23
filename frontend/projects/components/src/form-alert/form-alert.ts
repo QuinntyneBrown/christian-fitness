@@ -10,9 +10,10 @@ export interface FormAlertItem {
 /**
  * The design system's form alert (docs/design-system/assets/components.css, "form-alert"): a
  * message above a form, with `role="alert"`, a title and either a sentence (`text`) or, as an
- * error summary, one link per field to fix (`items`). It takes focus when it appears, so it is
- * read at once; a link moves focus to its field without leaving the page. Text is rendered as
- * text.
+ * error summary, one link per field to fix (`items`). The sentence may end with a link to another
+ * screen (`link`, `linkHref`), as a field's error does. It takes focus when it appears, so it is
+ * read at once; a summary's link moves focus to its field without leaving the page. Text is
+ * rendered as text.
  */
 @Component({
   selector: 'cf-form-alert',
@@ -22,6 +23,9 @@ export interface FormAlertItem {
 export class FormAlert implements AfterViewInit {
   readonly heading = input.required<string>();
   readonly text = input<string>();
+  /** A link after the sentence, and where it goes. */
+  readonly link = input<string>();
+  readonly linkHref = input<string>();
   readonly items = input<readonly FormAlertItem[]>([]);
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);

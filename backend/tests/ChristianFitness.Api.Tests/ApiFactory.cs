@@ -1,6 +1,9 @@
+using System.Net;
+using System.Security.Cryptography;
 using ChristianFitness.Application.Email;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -20,6 +23,13 @@ public class ApiFactory : WebApplicationFactory<Program>
 {
     /// <summary>The member app's address the API builds links with.</summary>
     public const string MemberAppBaseUrl = "https://members.example.test";
+
+    /// <summary>
+    /// The client address a request comes from, as the test names it. A request without it comes
+    /// from an address of its own, so the joins of different tests never share the limit of
+    /// account creations per address (L2-034 AC2; ADR 0012).
+    /// </summary>
+    public const string ClientAddressHeader = "X-Test-Client-Address";
 
     private readonly string _store = $"api-tests-{Guid.NewGuid():N}";
 
@@ -48,6 +58,7 @@ public class ApiFactory : WebApplicationFactory<Program>
                 services.Remove(dispatcher);
             }
 
+            services.AddSingleton<IStartupFilter, ClientAddressStartupFilter>();
             ConfigureServices(services);
         });
     }
@@ -55,5 +66,23 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Where a derived fixture swaps or adds services (fault injection, exporters).</summary>
     protected virtual void ConfigureServices(IServiceCollection services)
     {
+    }
+
+    /// <summary>
+    /// The in-memory server gives a request no remote address; this sets the one the test named, or
+    /// a random IPv6 address (its own /64) when it named none.
+    /// </summary>
+    private sealed class ClientAddressStartupFilter : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+        {
+            app.Use((context, nextMiddleware) =>
+            {
+                var named = context.Request.Headers[ClientAddressHeader].ToString();
+                context.Connection.RemoteIpAddress = named.Length > 0 ? IPAddress.Parse(named) : new IPAddress(RandomNumberGenerator.GetBytes(16));
+                return nextMiddleware(context);
+            });
+            next(app);
+        };
     }
 }

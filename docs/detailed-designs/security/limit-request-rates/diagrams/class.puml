@@ -25,11 +25,21 @@ class SendResult {
   +string? Code
   +MessageDto? Message
 }
-class AccountCreationRateLimitPolicy {
-  +PermitLimit = 5
+class AccountCreationLimiter {
+  +Limit = 5
   +Window = 1 hour
-  +Partition = remote IP
+  -TimeProvider clock
+  +TryAcquire(address: string): Lease?
+  +Release(lease: Lease): void
+}
+interface IClientAddress {
+  +PartitionKey: string
+}
+class CreateAccountHandler {
+  +Handle(c: CreateAccountCommand): Task<SessionDto>
 }
 SendMessageHandler ..> MessageRateLimiter
 SendMessageHandler ..> SendResult
+CreateAccountHandler ..> AccountCreationLimiter
+CreateAccountHandler ..> IClientAddress
 @enduml

@@ -38,7 +38,8 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   field) appears above the fields and takes focus, and each invalid field shows its
   `field__error` with `aria-invalid="true"` (L2-003 AC3, mock `invalid-fields`). Editing a field
   clears its error. A refusal from the API is shown through `joinRefusalOf`: `email_taken` on the
-  email field with "Sign in instead?" (AC2, mock `invalid`), any other 4xx as the generic
+  email field with "Sign in instead?" (AC2, mock `invalid`), a 429 as "Too many new profiles"
+  (L2-034 AC2, mock `limited`, slice 3.2), any other 4xx as the generic
   "Check your details" alert (L2-032 AC1, mock `refused`), a 5xx or no answer as "We couldn't
   create your profile" (mock `error`); everything typed stays.
 - **`AuthLayout`** — presentation component (`cf-auth-layout`): the `auth` block with the page's
@@ -72,7 +73,7 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   unit test per row. `validateJoin(form)` gives each invalid field's message, in the form's order,
   from the rule table of ADR 0008 (the API's validator carries the same table).
   `joinRefusalOf(error)` turns an `ApiError` into what the screen shows: `email-taken`,
-  `refused` or `failed`. `apiErrorOf(status, body)` reads `code` and `errors` from a
+  `rate-limited` (any 429), `refused` or `failed`. `apiErrorOf(status, body)` reads `code` and `errors` from a
   ProblemDetails body, and gives code `network` for status 0.
 - **`Button`** — gains a `<button>` branch: without `href` it renders `<button>` with `type`,
   `disabled` and `busy` (`aria-busy`), the size `lg` and the `block` modifier; both branches show
@@ -114,7 +115,9 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   `ValidationException` 400 and `RefusalException` with its kind's status (`Conflict` 409), each
   with its `code`; only a 500 is logged. `JoinPage` branches on `code` through `joinRefusalOf`:
   `email_taken` shows "An account with this email already exists. Sign in instead?" on the email
-  field; any other 4xx shows the generic `form-alert`; a 5xx or no answer shows the failed
+  field; a 429 `rate_limited`, the sixth account from one address in an hour, shows "Too many
+  new profiles" ([limit request rates](../../security/limit-request-rates/README.md)); any
+  other 4xx shows the generic `form-alert`; a 5xx or no answer shows the failed
   alert.
 - **Telemetry** — no span or log carries the name, the email, the password, the home church or
   the request body; the request's span records the route template `api/account/join`, the

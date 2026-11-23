@@ -23,6 +23,6 @@ Rel(svc, ctrl, "Session calls", "JSON/HTTPS")
 Rel(ctrl, h, "Sends SignInCommand")
 Rel(ctrl, o, "Sends SignOutCommand")
 Rel(h, hash, "Verifies password")
-Rel(h, db, "Reads Member, SignInAttempt", "EF Core")
+Rel(h, db, "Reads Member; counts, adds and deletes SignInFailure", "EF Core")
 Rel(ctrl, sess, "Issues or clears cookie")
 @enduml

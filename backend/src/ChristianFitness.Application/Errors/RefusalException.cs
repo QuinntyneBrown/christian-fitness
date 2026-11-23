@@ -9,8 +9,11 @@ public enum RefusalKind
     /// <summary>The caller could not be identified, such as by a wrong password (401).</summary>
     Unauthenticated,
 
-    /// <summary>The caller is known but may not do this, such as a member in the admin app (403).</summary>
+    /// <summary>The caller is known but may not do this, such as a member in the admin app or a suspended member signing in (403).</summary>
     Forbidden,
+
+    /// <summary>The caller has tried too often in a window, such as failed sign-ins (429).</summary>
+    TooManyRequests,
 }
 
 /// <summary>

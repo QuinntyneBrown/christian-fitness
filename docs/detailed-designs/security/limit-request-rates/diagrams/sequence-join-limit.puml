@@ -20,18 +20,36 @@ box "Frontend — Member web app" #E0F2FE
   participant "HttpAccountService" as http
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "Rate limiting middleware" as mw
-  participant "AuthController" as ctrl
+  participant "AccountController" as ctrl
+end box
+box "Backend — Christian Fitness Application" #ECFDF3
+  participant "CreateAccountHandler" as h
+  participant "AccountCreationLimiter" as lim
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "HttpClientAddress" as addr
 end box
 actor -> page : Submit join form
 page -> http : join(dto)
-http -> mw : POST /api/auth/join
-alt fewer than 5 creations from this IP in the hour
-  mw -> ctrl : Pass request
-  ctrl --> http : 201
-else limit reached
-  mw --> http : 429 ProblemDetails code rate_limited (L2-034 AC2)
+http -> ctrl : POST /api/account/join
+ctrl -> h : Send CreateAccountCommand (after validation)
+h -> addr : PartitionKey
+addr --> h : IPv4, or IPv6 /64
+h -> lim : TryAcquire(address)
+alt fewer than 5 creations from this address in the last hour
+  lim --> h : Lease (creation recorded now)
+  alt email taken or save fails
+    h -> lim : Release(lease)
+    h --> ctrl : RefusalException email_taken (409)
+  else created
+    h --> ctrl : SessionDto
+    ctrl --> http : 201 + session cookie
+  end
+else 5 creations in the last hour
+  lim --> h : none
+  h --> ctrl : RefusalException rate_limited
+  ctrl --> http : 429 ProblemDetails code rate_limited (L2-034 AC2)
   http --> page : ApiError
-  page --> actor : Generic message
+  page --> actor : "Too many new profiles", form kept
 end
 @enduml

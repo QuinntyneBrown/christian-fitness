@@ -26,6 +26,7 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SignInHandler" as h
+  participant "MemberCredentials" as cred
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "IPasswordHasherService" as hash
@@ -35,7 +36,7 @@ end box
 actor -> guard : Open a member route
 guard -> client : current()
 client --> guard : 401 unauthenticated
-guard --> actor : Redirect to /sign-in (returnUrl: slice 3.2, L2-004 AC6)
+guard --> actor : Redirect to /sign-in?returnUrl=<route asked for> (L2-004 AC6)
 actor -> page : Submit email and password
 page -> client : signIn({ email, password })
 client -> xsrf : POST /api/session
@@ -45,25 +46,38 @@ opt No __Host-cf-xsrf cookie yet
 end
 xsrf -> ctrl : POST /api/session with X-XSRF-TOKEN
 ctrl -> h : Send SignInCommand
-note over h : Slice 3.2 first counts SignInAttempt\nin the last 15 min (429 too_many_attempts)
-h -> db : Load Member by NormalizedEmail
-db --> h : Member or none
-h -> hash : Verify password (a fixed hash when none)
-hash --> h : Match result
+h -> db : Count SignInFailure for the email key\nsince now - 15 min (TimeProvider)
+db --> h : Failures in the window
+alt 5 or more failures in the window (L2-004 AC3)
+  h --> ctrl : RefusalException too_many_attempts (not recorded)
+  ctrl --> client : 429 ProblemDetails code too_many_attempts
+  client --> page : ApiError
+  page --> actor : "Sign-in paused for 15 minutes"
+end
+h -> cred : VerifyAsync(email, password)
+cred -> db : Load Member by NormalizedEmail
+db --> cred : Member or none
+cred -> hash : Verify password (a fixed hash when none)
+hash --> cred : Match result
+cred --> h : Member, or RefusalException invalid_credentials
 alt Unknown email or wrong password (L2-004 AC2)
+  h -> db : Delete failures older than the window;\nadd SignInFailure (email key, now)
   h --> ctrl : RefusalException invalid_credentials
   ctrl --> client : 401 ProblemDetails code invalid_credentials
   client --> page : ApiError
   page --> actor : "Email or password is incorrect"
-else Member suspended (slice 3.2, L2-004 AC4)
-  h --> ctrl : account_suspended
+else Right password, member suspended (L2-004 AC4)
+  h --> ctrl : RefusalException account_suspended
   ctrl --> client : 403 ProblemDetails code account_suspended
+  client --> page : ApiError
+  page --> actor : "Your account is suspended" and contact the team
 else Valid
+  h -> db : Delete the email's failures
   h -> sess : SignInAsync(member)
   sess --> h : __Host-cf-session, Secure, HttpOnly, SameSite=Lax (L2-004 AC1)
   h --> ctrl : SessionDto
   ctrl --> client : 200 SessionDto + Set-Cookie (session and a fresh token)
   client --> page : Session
-  page --> actor : Navigate to Home
+  page --> actor : Navigate to returnUrl if it is a path in the app, else Home (L2-004 AC6)
 end
 @enduml

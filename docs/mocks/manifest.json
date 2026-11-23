@@ -49,6 +49,7 @@
         "invalid",
         "invalid-fields",
         "refused",
+        "limited",
         "submitting",
         "error"
       ],
@@ -70,6 +71,7 @@
         "invalid",
         "submitting",
         "error",
+        "suspended",
         "failed"
       ],
       "not_applicable": {
