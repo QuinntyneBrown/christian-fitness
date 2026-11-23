@@ -45,7 +45,9 @@ public sealed record StaffSignOutCommand : IRequest, IAuditableCommand
 }
 
 /// <summary>
-/// Checks the credentials as the member sign-in does, with its pause (L2-018 AC3; ADR 0016), then the staff role: a member
+/// Checks the credentials as the member sign-in does, with its pause (L2-018 AC3; ADR 0016); a
+/// suspended account with the right password is refused <c>account_suspended</c>, as in the member
+/// app (L2-029 AC8; ADR 0028); then the staff role: a member
 /// without one is refused with <c>not_staff</c> and no session (L2-018 AC2). Staff without
 /// two-step verification set up are refused with <c>two_step_not_set_up</c> (L2-046 AC6). Staff
 /// get a pending sign-in, not a session: a <see cref="TwoStepChallenge"/> replacing any earlier one
@@ -58,6 +60,11 @@ internal sealed class StaffSignInHandler(MemberCredentials credentials, IAppDbCo
     public async Task Handle(StaffSignInCommand request, CancellationToken cancellationToken)
     {
         var member = await credentials.VerifyAsync(request.Email, request.Password, cancellationToken).ConfigureAwait(false);
+        if (member.Status == MemberStatus.Suspended)
+        {
+            throw new RefusalException(RefusalCodes.AccountSuspended, RefusalKind.Forbidden);
+        }
+
         _ = await StaffRoles.OfAsync(db, member.Id, cancellationToken).ConfigureAwait(false)
             ?? throw StaffRoles.NotStaff();
         if (!await db.StaffTwoSteps.AnyAsync(twoStep => twoStep.MemberId == member.Id, cancellationToken).ConfigureAwait(false))

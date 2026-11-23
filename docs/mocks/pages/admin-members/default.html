@@ -60,58 +60,65 @@
         </div><nav class="tabs" aria-label="Filter members"><a class="tabs__tab" href="../../pages/admin-members/default.html" aria-current="page">All</a><a class="tabs__tab" href="../../pages/admin-members/active.html">Active</a><a class="tabs__tab" href="../../pages/admin-members/flagged.html">Flagged</a><a class="tabs__tab" href="../../pages/admin-members/suspended.html">Suspended</a></nav><div class="table-wrap">
           <table class="table table--wider">
             <caption class="visually-hidden">Members</caption>
-            <thead><tr><th scope="col">Member</th><th scope="col">Church</th><th scope="col">Joined</th><th scope="col">Events</th><th scope="col">Status</th></tr></thead>
+            <thead><tr><th scope="col">Member</th><th scope="col">Church</th><th scope="col">Joined</th><th scope="col">Events</th><th scope="col">Status</th><th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th></tr></thead>
             <tbody><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">GT</span><div class="mini-row__body"><p class="table__strong">Grace Thompson</p><p class="table__sub">grace.thompson@gmail.com</p></div></div></td>
                 <td class="muted">Grace Fellowship, Scarborough</td>
                 <td class="table__nowrap">Jan 12, 2026</td>
                 <td class="table__num">9</td>
                 <td><span class="status status--active">Active</span></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/default.html">Moderate<span class="visually-hidden"> Grace Thompson</span></button></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">MC</span><div class="mini-row__body"><p class="table__strong">Michael Chen</p><p class="table__sub">mchen.runs@outlook.com</p></div></div></td>
                 <td class="muted">Toronto Chinese Baptist</td>
                 <td class="table__nowrap">Nov 3, 2025</td>
                 <td class="table__num">14</td>
                 <td><span class="status status--active">Active</span></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/default.html">Moderate<span class="visually-hidden"> Michael Chen</span></button></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">PN</span><div class="mini-row__body"><p class="table__strong">Priya Nair</p><p class="table__sub">priya.nair@gmail.com</p></div></div></td>
                 <td class="muted">Hope Church Mississauga</td>
                 <td class="table__nowrap">Feb 20, 2026</td>
                 <td class="table__num">5</td>
                 <td><span class="status status--active">Active</span></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/default.html">Moderate<span class="visually-hidden"> Priya Nair</span></button></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">KB</span><div class="mini-row__body"><p class="table__strong">Kevin Brooks</p><p class="table__sub">kbrooks.fit@gmail.com</p></div></div></td>
                 <td class="muted"><span aria-hidden="true">—</span><span class="visually-hidden">Not given</span></td>
                 <td class="table__nowrap">Apr 2, 2026</td>
                 <td class="table__num">0</td>
-                <td><span class="status status--flagged">Flagged</span></td>
+                <td><span class="status status--flagged">Flagged</span><p class="table__sub">Promoting supplements in 3 group chats</p></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/flagged.html">Moderate<span class="visually-hidden"> Kevin Brooks</span></button></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">AK</span><div class="mini-row__body"><p class="table__strong">Adaeze Kalu</p><p class="table__sub">adaeze.k@yahoo.ca</p></div></div></td>
                 <td class="muted">RCCG Jesus House</td>
                 <td class="table__nowrap">Dec 8, 2025</td>
                 <td class="table__num">11</td>
                 <td><span class="status status--active">Active</span></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/default.html">Moderate<span class="visually-hidden"> Adaeze Kalu</span></button></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">JR</span><div class="mini-row__body"><p class="table__strong">Jordan Reid</p><p class="table__sub">jreid@rogers.com</p></div></div></td>
                 <td class="muted">The Meeting House</td>
                 <td class="table__nowrap">Mar 15, 2026</td>
                 <td class="table__num">2</td>
                 <td><span class="status status--active">Active</span></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/default.html">Moderate<span class="visually-hidden"> Jordan Reid</span></button></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">TS</span><div class="mini-row__body"><p class="table__strong">Tyler Simmons</p><p class="table__sub">tsimmons22@gmail.com</p></div></div></td>
                 <td class="muted"><span aria-hidden="true">—</span><span class="visually-hidden">Not given</span></td>
                 <td class="table__nowrap">Mar 30, 2026</td>
                 <td class="table__num">0</td>
-                <td><span class="status status--suspended">Suspended</span></td>
+                <td><span class="status status--suspended">Suspended</span><p class="table__sub">Spam messages, suspended Apr 4</p></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/suspended.html">Moderate<span class="visually-hidden"> Tyler Simmons</span></button></td>
               </tr></tbody>
           </table>
         </div><nav class="pagination mt-3" aria-label="Pagination">
           <p class="pagination__summary">Showing 1–25 of 2,431 members</p>
           <ol class="pagination__list">
             <li><a class="pagination__link" aria-label="Previous page" aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></a></li>
-            <li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page 1" aria-current="page">1</a></li><li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page 2">2</a></li><li class="pagination__number pagination__gap" aria-hidden="true">…</li><li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page 98">98</a></li>
+            <li class="pagination__number"><a class="pagination__link" href="../../pages/admin-members/default.html" aria-label="Page 1" aria-current="page">1</a></li><li class="pagination__number"><a class="pagination__link" href="../../pages/admin-members/default.html" aria-label="Page 2">2</a></li><li class="pagination__number pagination__gap" aria-hidden="true">…</li><li class="pagination__number"><a class="pagination__link" href="../../pages/admin-members/default.html" aria-label="Page 98">98</a></li>
             <li class="pagination__page-only">Page 1 of 98</li>
-            <li><a class="pagination__link" href="default.html" aria-label="Next page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></li>
+            <li><a class="pagination__link" href="../../pages/admin-members/default.html" aria-label="Next page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></li>
           </ol>
         </nav>
     </div>

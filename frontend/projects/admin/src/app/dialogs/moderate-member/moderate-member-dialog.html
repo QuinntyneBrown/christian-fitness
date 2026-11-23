@@ -1,0 +1,68 @@
+<cf-dialog
+  [heading]="heading"
+  [subtitle]="subtitle"
+  [titleId]="headingId"
+  [descriptionId]="descriptionId"
+  (closed)="close()"
+>
+  @for (attempt of attempts(); track attempt) {
+    @if (summaryItems().length > 0) {
+      <cf-alert [heading]="summaryHeading()" [items]="summaryItems()" />
+    }
+  }
+  @if (refusalMessage(); as message) {
+    <cf-alert [heading]="message.heading">{{ message.text }}</cf-alert>
+  }
+  @if (options.length > 0) {
+    <cf-radio-group
+      fieldId="f-action"
+      legend="What do you want to do?"
+      name="action"
+      [options]="shownOptions()"
+      [value]="action()"
+      (valueChange)="choose($event)"
+    />
+  }
+  @if (options.length === 0) {
+    <cf-alert tone="info" [heading]="reinstateHeading" [focusOnShow]="false">
+      Their status goes back to Active and the note on their row is cleared.
+    </cf-alert>
+  }
+  @if (needsNote()) {
+    <cf-textarea
+      [fieldId]="noteId"
+      label="Note"
+      name="note"
+      hint="Staff see this on the member's row."
+      [rows]="3"
+      [maxLength]="noteMax"
+      [value]="note()"
+      [readonly]="saving()"
+      [error]="noteError()"
+      (valueChange)="setNote($event)"
+    />
+  }
+  @if (action() === 'suspend') {
+    <cf-checkbox-group fieldId="f-confirm" legend="Confirm" [error]="confirmedError()">
+      <cf-checkbox
+        [fieldId]="confirmedId"
+        name="confirmed"
+        [label]="confirmLabel"
+        [checked]="confirmed()"
+        [disabled]="saving()"
+        [invalid]="confirmedError() !== null"
+        (checkedChange)="setConfirmed($event)"
+      />
+    </cf-checkbox-group>
+  }
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button slot="foot" grow [busy]="saving()" [disabled]="saving()" (click)="submit()">
+    @if (saving()) {
+      Saving…
+    } @else {
+      {{ submitLabel() }}
+    }
+  </cf-button>
+</cf-dialog>

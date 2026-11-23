@@ -23,6 +23,14 @@ describe('Checkbox', () => {
     },
   );
 
+  it.each(['compact', 'form', 'choice'] as const)(
+    'takes an id as a %s checkbox, so an error summary can move focus to it',
+    (variant) => {
+      expect(render({ variant, fieldId: 'f-confirmed' }).box.id).toBe('f-confirmed');
+      expect(render({ variant }).box.hasAttribute('id')).toBe(false);
+    },
+  );
+
   it('reports each toggle', () => {
     const { fixture, box } = render({});
     const toggles: boolean[] = [];

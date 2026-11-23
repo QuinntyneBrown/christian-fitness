@@ -3,6 +3,7 @@
     <input
       class="choice__input"
       type="checkbox"
+      [attr.id]="fieldId() ?? null"
       [attr.name]="name() ?? null"
       [attr.value]="value() ?? null"
       [checked]="checked()"
@@ -23,6 +24,7 @@
     <input
       class="check__box"
       type="checkbox"
+      [attr.id]="fieldId() ?? null"
       [attr.name]="name() ?? null"
       [attr.value]="value() ?? null"
       [checked]="checked()"

@@ -21,5 +21,6 @@ internal sealed class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.Property(member => member.Bio).HasMaxLength(Member.BioMaxLength);
         builder.PrimitiveCollection(member => member.Goals).IsRequired();
         builder.Property(member => member.Status).HasConversion<string>().HasMaxLength(16);
+        builder.Property(member => member.ModerationNote).HasMaxLength(Member.ModerationNoteMaxLength);
     }
 }

@@ -1,0 +1,46 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.962
+Staff can now flag a member for attention, or suspend them, always with a reason.
+
+00:00:08.000 --> 00:00:12.969
+Each row that can be moderated has one action, and shows its note under the status.
+
+00:00:16.000 --> 00:00:21.522
+Moderate opens a dialog. Flag is chosen first, the milder step. A note is all it
+
+00:00:21.522 --> 00:00:22.236
+needs.
+
+00:00:26.000 --> 00:00:30.054
+A toast confirms it, and the list shows the member flagged, with the note.
+
+00:00:34.000 --> 00:00:39.026
+Suspend asks for more: the note, and a confirmation that their sessions will end.
+
+00:00:44.000 --> 00:00:48.027
+Leave something out, and the dialog names it before anything is sent.
+
+00:00:52.000 --> 00:00:56.821
+On the server, suspending ends every session in the same save, and sign-in is
+
+00:00:56.821 --> 00:00:58.436
+refused in both apps.
+
+00:01:02.000 --> 00:01:07.271
+Nobody moderates their own account, and only an Admin moderates staff. Each refusal
+
+00:01:07.271 --> 00:01:08.651
+has its own code.
+
+00:01:12.000 --> 00:01:14.922
+Every test failed first. Now they all pass.
+
+00:01:18.000 --> 00:01:19.888
+Next, reinstating a member.
+
+00:01:24.000 --> 00:01:28.849
+That's slice twenty-seven point one. Christian Fitness: a Christian community for
+
+00:01:28.849 --> 00:01:30.705
+health in body and spirit.

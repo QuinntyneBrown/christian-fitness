@@ -14,16 +14,17 @@ A suspended member cannot sign in (L2-004 AC4) or register for events (L2-011 AC
 
 ## Description
 
-The screen follows `docs/mocks/pages/admin-members/` (states `active`, `flagged`, `suspended`). The mock's `report` block ("Reported by 4 members", with "Dismiss" and "Suspend") is one entry point for suspension.
+The screen follows `docs/mocks/pages/admin-members/` (rows with a note under the status and a "Moderate" action) and `docs/mocks/dialogs/moderate-member/` (states `default`, `suspend`, `flagged`, `invalid`, `busy`, `failed`, `refused`), with the toasts `admin-toast/member-flagged` and `member-suspended`. ADR 0028 and ADR 0029 record the decisions. Slice 27.1 built flag and suspend; slice 27.2 reinstate (mock states `flagged-suspend` and `suspended`, toast `member-reinstated`).
 
-- **`MembersPage`** — routed page in `projects/admin`. Each row offers the actions its status allows, with accessible names that include the member's name.
-- **Moderation dialog** — CDK Dialog that collects the note for flag and the note plus confirmation for suspend. The mocks contain no flag, suspend-note or reinstate control, so its name and states are `<TO SUPPLY>` and need a mock state or ADR stand-in. It closes by its ref.
+- **`AdminMembersPage`** — routed page in `projects/admin`. Every row has one action, "Moderate", whose accessible name includes the member's name. The action imports and opens the moderation dialog; when it closes with a changed member the page shows a toast and loads the list again.
+- **`ModerateMemberDialog`** — CDK Dialog rendering the library's `cf-dialog`, loaded on first use. For an Active member it offers Flag or Suspend as radios; for a Flagged member Reinstate or Suspend; for a Suspended member only reinstating, with no field. It collects the note for a flag or a suspension and, for suspend, the confirmation; it names what is missing in an error summary before sending, holds still while the answer is on its way, and closes by its ref.
+- **`moderationOf`, `moderationProblems`, `moderationRefusalOf`** — pure helpers in `domain` with unit tests: what a status allows, what is missing from the form, and what the dialog says for each refusal code.
 - **`AdminMembersApi`** — contract behind `ADMIN_MEMBERS_SERVICE`, extended with `flag`, `suspend` and `reinstate`.
-- **`AdminMembersController`** — controller under policy `StaffOnly`. Each action sends one command.
-- **`FlagMemberCommand`**, **`FlagMemberValidator`** and **`FlagMemberHandler`** — require a note and call `Member.Flag`.
-- **`SuspendMemberCommand`**, **`SuspendMemberValidator`** and **`SuspendMemberHandler`** — require a note and confirmation. The handler refuses with code `cannot_moderate_self` when the target is the caller from `ICurrentUser`. Otherwise it calls `Member.Suspend`, saves, and calls `ISessionRevoker.RevokeAllAsync` to end every session.
-- **`ReinstateMemberCommand`** and **`ReinstateMemberHandler`** — call `Member.Reinstate`.
-- **`Member`** — domain entity owning the transition table below. An illegal transition returns a refusal whose `code` is `<TO SUPPLY>`.
+- **`AdminMembersController`** — in the Members staff area. `POST {id}/flag`, `POST {id}/suspend` and `POST {id}/reinstate` each send one command.
+- **`FlagMemberCommand`** and **`SuspendMemberCommand`** with **`ModerateMemberValidator`** rules — require a note of at most 500 characters; suspend also requires `confirmed`. Failures carry `note_required`, `note_too_long` and `confirmation_required`, named in the refusal's `fieldCodes`.
+- **`ModerateMemberHandler`** rules, shared by both handlers — refuse `member_not_found` (404) for an unknown id, `cannot_moderate_self` (403) when the target is the caller from `ICurrentMember`, `forbidden_role` (403) when a Moderator targets a staff account, and `status_conflict` (409) when the transition is not in the table. The suspend handler also calls `ISessionRevocation.EndAllAsync` and removes the member's pending admin sign-in, all in one save. All three commands are `IAuditableCommand`s (`member.flagged`, `member.suspended`, `member.reinstated`): the handler records who changed which member on the request's `AuditTrail` before that save (ADR 0023).
+- **`Member`** — domain entity owning the transition table below (`TryFlag`, `TrySuspend`, `TryReinstate`) and the `ModerationNote`, which reinstating clears.
+- **`ReinstateMemberCommand`** and its handler — no body and no validator; the same target checks, then `Member.TryReinstate`.
 
 | From | Flag | Suspend | Reinstate |
 |------|------|---------|-----------|
@@ -31,13 +32,13 @@ The screen follows `docs/mocks/pages/admin-members/` (states `active`, `flagged`
 | `Flagged` | refused | `Suspended` | `Active` |
 | `Suspended` | refused | refused | `Active` |
 
-The note is shown on the member's row as text, never as HTML (L2-032), and no log, metric or span carries it. How sessions are stored and revoked depends on cookie auth in ChristianFitness.Infrastructure; the mechanism (for example a security stamp check) is `<TO SUPPLY>`. Whether a suspended member's open SignalR connections close at once is `<TO SUPPLY>`. Whether reinstatement clears the moderation note, and whether staff may flag or reinstate themselves, are `<TO SUPPLY>`; L2-029 AC4 names only suspension. Whether a Moderator may suspend an Admin is `<TO SUPPLY>`.
+The note is shown on the member's row as text, never as HTML (L2-032), and no log, metric or span carries it. Sessions are rows of `Sessions` (ADR 0009); removing them ends every session, member app and admin app alike. A suspended account is refused at member sign-in (L2-004 AC4) and at staff sign-in with `account_suspended`. Refusing registration (L2-011 AC6) arrives with slice 6.1, and closing live connections with 12.1. Reinstating clears the note (ADR 0029); its history is the audit's, slice 29.2.
 
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-029` | `L1-012` | Flag, suspend and reinstate members. Given an Active member, when staff flag them with a note, then their status becomes Flagged and the note is shown on their row. Given an Active or Flagged member, when staff suspend them with a note and confirmation, then their status becomes Suspended, their sessions end and L2-004 AC4 and L2-011 AC6 apply. Given a Flagged or Suspended member, when staff reinstate them, then their status becomes Active. Given staff try to suspend their own account, when submitted, then it is refused with code `cannot_moderate_self`. |
+| `L2-029` | `L1-012` | Flag, suspend and reinstate members. Given an Active member, when staff flag them with a note, then their status becomes Flagged and the note is shown on their row. Given an Active or Flagged member, when staff suspend them with a note and confirmation, then their status becomes Suspended, their sessions end and L2-004 AC4 and L2-011 AC6 apply. Given a Flagged or Suspended member, when staff reinstate them, then their status becomes Active. Given staff try to flag or suspend their own account, then it is refused with code `cannot_moderate_self`. A missing or long note or an unconfirmed suspension is refused with `validation_failed` and field codes; a status that does not allow the change with `status_conflict`; an unknown member with `member_not_found`; a Moderator moderating staff with `forbidden_role`; a suspended staff account at admin sign-in with `account_suspended`. Moderate on a row opens a dialog for the action and the note. |
 
 ## Diagrams
 
@@ -61,7 +62,7 @@ The Admin web app sends moderation commands to the Christian Fitness API, which 
 
 ### Class structure
 
-`Member` owns the three transitions. `SuspendMemberHandler` depends on `ICurrentUser` to refuse self-suspension and on `ISessionRevoker` to end sessions.
+`Member` owns the three transitions. The handlers share `ModerationTarget`, which refuses an unknown member, the caller's own account and a Moderator moderating staff; `SuspendMemberHandler` also depends on `ISessionRevocation` to end sessions. (The class and component images predate these names; their sources are current.)
 
 ![Class diagram for flagging, suspending and reinstating members](diagrams/class-structure.png)
 

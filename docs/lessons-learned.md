@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 41% (22 of 57 slices; 37 of 91 days)
+**% complete:** 49% (27 of 57 slices; 45 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1300,3 +1300,121 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "Read the initial total after each new API" (30.1): `IntersectionObserver` is not an Angular API;
   the page is a lazy route, and the initial totals stayed at 277.39 kB (web) and 279.20 kB (admin).
 - "Keep the mocks' BEM classes": the page object read `.event-card__title` and the rest from the mock.
+## Slice 27.1: Flag and suspend
+
+**What slowed it**
+
+- No mock drew a flag, suspend or note control, and the design left the dialog, the code of an
+  illegal transition, self-flagging and whether a Moderator may suspend an Admin `<TO SUPPLY>`. A
+  new dialog mock (`moderate-member`, seven states), the row's note and action, two toasts,
+  L2-029 AC5 to AC9 and ADR 0028 settled them before code.
+- Suspension meant nothing for staff: staff sign-in never looked at the status, and a password
+  step taken before the suspension could still be finished with its code. Both were found by
+  writing the acceptance test for "an Admin suspends signed-in staff" first.
+- Drawing the pagination behind the new dialog broke eight mock links: its `href="default.html"`
+  only resolved from its own folder. Mock fragments reused across folders take `href(...)`.
+- The library's checkbox had no id, so an error summary could not move focus to the
+  confirmation, and its error belongs to a group: the confirmation became a one-box
+  `cf-checkbox-group` with a legend, and the mock followed.
+- Extending the contract first left the admin app not compiling, so the first e2e run waited
+  three minutes for a dev server that never came up; build the app before starting Playwright
+  after a contract change.
+- A spec read the table's notes before the rows had rendered and saw none; every read through
+  `evaluateAll` waits on a count first.
+- Graphviz is still missing here: the two sequence diagrams were rendered again, the class and
+  component images were not, and the design says so.
+
+- It was built on a branch stacked on slice 26.1 while slices 26.1, 29.2 and 18.2 merged. The
+  rebase took main's audit (ADR 0023): both commands became auditable, with tests seen red
+  first; this slice's ADR went from 0023 to 0025, and to 0028 when main took 0025 to 0027 for slices 10.2, 11.1 and 4.1; renumbered only on the lines the slice adds,
+  since main cites 0023 for the audit in the same files; `AddMemberModerationNote` was deleted and
+  generated again after `AddHomeChurchVisibility`, and again after main's `AddEventImage`; the film took number 51 and was recorded and
+  built again with the counts after the rebase.
+
+**New lessons**
+
+- A status change that must lock someone out has three doors to close, in one save: the sessions
+  that exist, the sign-in still waiting for its second step, and every sign-in endpoint. Test each
+  door with a credential obtained before the change.
+- One row action that opens a dialog which asks what to do scales better than a button per
+  transition: the table keeps one action column, each status offers only what it allows, and the
+  next slice's Reinstate needs no new column.
+- An error summary that must take focus on every failed press is drawn inside an `@for` over a
+  one-item list whose item changes each press, so the alert is a new instance each time.
+- After a change that reloads a list, the control that opened the dialog is gone, so CDK's
+  `restoreFocus` has nothing to return to: send focus to the list's region when the new rows
+  arrive, and leave `restoreFocus` for the paths that change nothing.
+- A refusal the screen itself prevents (a missing note) still gets its server code and test; the
+  screen maps anything unexpected to the generic failure rather than trusting itself.
+- Write the same transition table twice, as the domain's `TryFlag`/`TrySuspend` rows and as
+  `moderationActionsOf` in the app, each with one case per row, so the screen never offers what
+  the API refuses.
+
+**How earlier lessons worked**
+
+- "A class, not a record, for anything personal" (2.1): the commands and the request body carry
+  the note and are classes; a temporary log of the note turned the telemetry test red.
+- "Ending sessions in the same transaction needs no new store" (20.2): `ISessionRevocation`
+  ended a suspended member's sessions in both apps unchanged.
+- "A policy's refusal code" (29.1): `forbidden_role` was reused for a Moderator moderating staff,
+  so the dialog needed no new kind of answer.
+- "Load a dialog by a dynamic `import()` of a file whose function opens it with the page's
+  injector" and "`disableClose` while a save is on its way" (10.1) carried over whole: the dialog
+  is a 19.5 kB lazy chunk and the initial total stayed at 278.96 kB.
+- "Prove a rule red by breaking it alone" with `breakcheck` (1.4, 26.1): 18 backend breaks, 15 in
+  the moderation helpers and 29 in the dialog, page and service.
+- "A gate in a fixture handler" (2.1) gave "Saving…" with Escape, Close and the scrim pressed
+  during it.
+- "Fail closed on a forgotten call" (29.2) worked as promised: with the marker on the commands and
+  no call in the handlers, every moderation answered 500 until `ModerationTarget.Audit` recorded
+  the entry.
+- "A test helper that forces state through EF Core's entry" (3.2) is no longer needed for
+  Flagged and Suspended: the API sets them now, and the older helpers still work.
+
+## Slice 27.2: Reinstate
+
+**What slowed it**
+
+- Little: slice 27.1 had left the dialog, the target checks, the row action and the fixture
+  ready for a third action. The one open decision, whether reinstating clears the note, was
+  settled in ADR 0029 before code, with the mock's new states.
+- A stub written only to make the tests compile (`TryReinstate() => false`) failed the build:
+  CA1822 wants a method that touches no instance data to be static, as slice 20.2 warned. The
+  red was the build's, and the rule's own red came from breaking it afterwards.
+- A fourth kind of alert in the dialog (what reinstating means, an info alert) matched the page
+  object's `.form-alert` locator; it now names the error summary and the refusal apart from it.
+- The refusal sentences said "flag or suspend"; with a third action they say "moderate", in the
+  helper, its table, the specs and the mock together.
+- It was rebased with slice 27.1 onto slices 29.2 and 18.2: reinstating became an audited command
+  (`member.reinstated`), its ADR went from 0024 to 0026 and then to 0029 (main took 0025 to 0027), and the film took number 52 and was
+  recorded and built again. Files that conflicted only because 27.1's ADR number had changed
+  beside them were taken whole from the slice and renumbered again, except the mock generator,
+  which main had also changed and which took the slice's edit by script instead.
+
+**New lessons**
+
+- A dialog with nothing to fill in starts focus on the dialog itself (`autoFocus: 'dialog'`), so
+  its name and description are read before the one button that acts; focusing that button would
+  make Enter act before anything was heard.
+- When a choice changes, forget what the last press found missing: the problems belonged to the
+  other choice, and a spec that switches back after a failed press proves it.
+- An action that needs no body sends none (`null`), and the fixture records `null`; a spec that
+  expects exactly that catches a client that starts sending `{}`.
+- Clearing a reason is a decision to state on screen before it happens, not only in an ADR: the
+  dialog and the option's description both say the note is cleared.
+
+**How earlier lessons worked**
+
+- "One row action that opens a dialog which asks what to do" (27.1) paid at once: Reinstate
+  needed no new column, button or screen, only a third option and a status's list.
+- "Write the same transition table twice, one case per row" (27.1): three rows were added to the
+  domain's table and three to `moderationActionsOf`, and the dialog followed them.
+- "A status change that must lock someone out closes three doors" (27.1), read backwards:
+  reinstating opens only sign-in; a test holds a session cookie from before the suspension and
+  shows it stays ended.
+- "Prove a rule red by breaking it alone" (1.4 to 27.1): five backend breaks and nine in the
+  helper, dialog and service. One stayed green: `focusOnShow` set to false on the info alert,
+  because the CDK's own focus on the dialog runs after it and wins either way. It is kept as a
+  stated precaution, not a proven rule.
+- "Read the initial total after each new Angular API" (30.1): unchanged at 278.96 kB; the dialog's
+  chunk grew from 19.5 kB to 20.5 kB.

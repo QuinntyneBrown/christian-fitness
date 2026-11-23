@@ -39,6 +39,9 @@
                         *ngTemplateOutlet="template; context: { $implicit: row, column: column }"
                       />
                     }
+                    @if (row.cells[column.key]?.sub; as sub) {
+                      <p class="table__sub">{{ sub }}</p>
+                    }
                   }
                   @case ('count') {
                     <span class="table__strong">{{ row.cells[column.key]?.text }}</span><span
@@ -77,14 +80,16 @@
             }
             @if (actionLabel(); as label) {
               <td class="table__end">
-                @if (row.actionHref; as href) {
-                  <a class="row-link" [href]="href"
-                    >{{ label }}<span class="visually-hidden"> {{ row.name }}</span></a
-                  >
-                } @else {
-                  <button class="row-link" type="button" (click)="action.emit(row.id)">
-                    {{ label }}<span class="visually-hidden"> {{ row.name }}</span>
-                  </button>
+                @if (!row.noAction) {
+                  @if (row.actionHref; as href) {
+                    <a class="row-link" [href]="href"
+                      >{{ label }}<span class="visually-hidden"> {{ row.name }}</span></a
+                    >
+                  } @else {
+                    <button class="row-link" type="button" (click)="action.emit(row.id)">
+                      {{ label }}<span class="visually-hidden"> {{ row.name }}</span>
+                    </button>
+                  }
                 }
               </td>
             }
