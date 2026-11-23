@@ -1,0 +1,48 @@
+// The design system's search pill (docs/design-system/assets/components.css, "Search field").
+:host {
+  display: block;
+}
+
+.search {
+  position: relative;
+  display: block;
+  width: 100%;
+
+  @media (min-width: 40rem) {
+    width: var(--layout-search-width);
+  }
+}
+
+.search__icon {
+  pointer-events: none;
+  position: absolute;
+  left: var(--space-3-5);
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--color-fg-muted);
+}
+
+.search__input {
+  width: 100%;
+  min-height: var(--target-comfortable);
+  border-radius: var(--radius-full);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  padding: var(--space-2-5) var(--space-4) var(--space-2-5) var(--space-10);
+  font-size: var(--font-size-ui);
+  outline: none;
+
+  &::placeholder {
+    color: var(--color-fg-subtle);
+  }
+
+  &:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent-ring);
+  }
+
+  &:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+}

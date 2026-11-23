@@ -1,0 +1,51 @@
+// The design system's form field (docs/design-system/assets/components.css, "Forms": field,
+// field__label, field__optional, field__legend, field__hint, field__error, field-row). The control
+// is the consumer's and keeps its own styles; its top margin spaces it from the label.
+:host {
+  display: block;
+}
+
+.field {
+  display: block;
+}
+
+.field-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.field__label,
+.field__legend {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.field__optional {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+.field__hint,
+.field__error {
+  margin-top: var(--space-1-5);
+  display: block;
+  font-size: var(--font-size-sm);
+}
+
+.field__hint {
+  color: var(--color-fg-muted);
+}
+
+// The words carry the meaning, never the colour alone (WCAG 3.3.1).
+.field__error {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-danger-fg);
+}
+
+.inline-link {
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+  font-weight: var(--font-weight-semibold);
+}

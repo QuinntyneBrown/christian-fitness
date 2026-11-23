@@ -1,0 +1,26 @@
+// The design system's avatar stack (docs/design-system/assets/components.css, "Avatar"). Each
+// avatar sits in an item that rings and overlaps it, since the avatar's own block is its own.
+:host {
+  display: block;
+}
+
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-stack__item {
+  display: flex;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 var(--border-width-thick) var(--color-bg-surface);
+
+  & + & {
+    margin-left: calc(-1 * var(--space-2));
+  }
+}
+
+.avatar-stack__label {
+  margin-left: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

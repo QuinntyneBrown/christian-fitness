@@ -1,20 +1,29 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, input } from '@angular/core';
 
-/** The design system's button variants this component renders so far. */
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+/**
+ * The design system's button variants, from highest emphasis to lowest; `inverse` and `on-brand`
+ * are the primary and secondary pair on bordeaux panels, and `quiet` is the borderless,
+ * full-width text action.
+ */
+export type ButtonVariant =
+  'primary' | 'secondary' | 'ghost' | 'danger' | 'link' | 'inverse' | 'on-brand' | 'quiet';
 
-/** The design system's button sizes this component renders so far. */
-export type ButtonSize = 'sm' | 'md' | 'lg';
+/**
+ * The design system's button sizes: `xs` and `sm` are 36 px (44 px targets on touch), `default`
+ * 44 px with a 15 px label, `md` the 16 px label of dialog footers, `lg` 52 px.
+ */
+export type ButtonSize = 'xs' | 'sm' | 'default' | 'md' | 'lg';
 
 /** What a `<button>` does in its form. */
 export type ButtonType = 'button' | 'submit';
 
 /**
  * The design system's `btn` block (docs/design-system/components/button.html). With `href` it is
- * a link that loads that URL; without, a `<button>` of `type`, which can be `disabled` and `busy`
- * (`aria-busy`, the mock's submitting state). The label and an optional leading icon are projected
- * once, through one template both branches show.
+ * a link that loads that URL; without, a `<button>` of `type`, which can be `disabled` and `busy`.
+ * Busy is announced with `aria-busy` and ignores further presses: the click neither submits the
+ * form nor reaches the consumer. The label and an optional leading icon (the spinner while busy)
+ * are projected once, through one template both branches show.
  */
 @Component({
   selector: 'cf-button',
@@ -26,11 +35,13 @@ export class Button {
   readonly href = input<string>();
   readonly type = input<ButtonType>('button');
   readonly variant = input<ButtonVariant>('primary');
-  readonly size = input<ButtonSize>('md');
+  readonly size = input<ButtonSize>('default');
   /** Fills its container's width (`btn--block`). */
   readonly block = input(false, { transform: booleanAttribute });
+  /** Shares a row equally with its siblings (`btn--grow`). */
+  readonly grow = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** Working on what was asked: announced with `aria-busy`. */
+  /** Working on what was asked: announced with `aria-busy`; presses are ignored meanwhile. */
   readonly busy = input(false, { transform: booleanAttribute });
 
   /**
@@ -39,6 +50,15 @@ export class Button {
    */
   protected classes(): string {
     const size = this.size();
-    return `btn btn--${this.variant()}${size === 'md' ? '' : ` btn--${size}`}${this.block() ? ' btn--block' : ''}`;
+    return `btn btn--${this.variant()}${size === 'default' ? '' : ` btn--${size}`}${
+      this.block() ? ' btn--block' : ''
+    }${this.grow() ? ' btn--grow' : ''}`;
+  }
+
+  /** A busy button keeps its place but does nothing: no submit, no click for the consumer. */
+  protected onClick(event: Event): void {
+    if (!this.busy()) return;
+    event.preventDefault();
+    event.stopPropagation();
   }
 }

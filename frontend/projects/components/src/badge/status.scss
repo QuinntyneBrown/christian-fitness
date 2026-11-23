@@ -1,0 +1,67 @@
+// The design system's status badge (docs/design-system/assets/components.css: "status", and
+// "Badge with icon").
+:host {
+  display: contents;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-2-5);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-xs);
+}
+
+.status--published {
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+
+// Draft and active are quiet outlines.
+.status--draft,
+.status--active {
+  background: var(--color-bg-canvas);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.status--draft {
+  color: var(--color-fg-muted);
+}
+
+.status--active {
+  color: var(--color-fg-default);
+}
+
+.status--flagged {
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+}
+
+.status--suspended {
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+}
+
+.status--info {
+  background: var(--color-info-bg);
+  color: var(--color-info-fg);
+}
+
+.status--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-fg);
+}
+
+.status--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-fg);
+}
+
+.status--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+}

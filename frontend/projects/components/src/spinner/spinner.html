@@ -1,0 +1,6 @@
+@if (shown()) {
+  <span [attr.class]="size() === 'md' ? 'spinner' : 'spinner spinner--' + size()">
+    <span class="spinner__ring" aria-hidden="true"></span>
+    <span [attr.class]="hideLabel() ? 'visually-hidden' : null">{{ label() }}</span>
+  </span>
+}

@@ -1,0 +1,7 @@
+<div class="form-layout">
+  <div class="form-layout__alert"><ng-content select="[slot=alert]" /></div>
+  <div [attr.class]="layout() === 'grid' ? 'field-grid' : 'form-layout__fields'">
+    <ng-content />
+  </div>
+  <div class="form-layout__actions"><ng-content select="[slot=actions]" /></div>
+</div>

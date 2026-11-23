@@ -1,0 +1,6 @@
+<div class="avatar-stack">
+  @for (name of shown(); track $index) {
+    <span class="avatar-stack__item"><cf-avatar [name]="name" size="sm" /></span>
+  }
+  <span class="avatar-stack__label">{{ label() }}</span>
+</div>

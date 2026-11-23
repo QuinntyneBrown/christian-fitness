@@ -1,0 +1,40 @@
+// The design system's form layout (docs/design-system/assets/components.css, "Forms":
+// field-grid). Projected content is laid out with gap on its slot's wrapper, since emulated
+// encapsulation does not reach it; an empty slot collapses.
+:host {
+  display: block;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.form-layout__alert:empty,
+.form-layout__actions:empty {
+  display: none;
+}
+
+// Fields 20 px apart in one column.
+.form-layout__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+// One column below 640 px, two from there; order fields so one column still reads well.
+.field-grid {
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.form-layout__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

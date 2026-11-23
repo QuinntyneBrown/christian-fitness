@@ -1,0 +1,37 @@
+<ng-template #name
+  >{{ label() }}
+  @if (optional()) {
+    <span class="field__optional">(optional)</span>
+  }
+</ng-template>
+<ng-template #control><ng-content /></ng-template>
+<ng-template #message>
+  @if (error(); as message) {
+    <span class="field__error" [id]="fieldId() + '-error'"
+      >{{ message }}
+      @if (errorLink(); as link) {
+        <a class="inline-link" [href]="errorHref()">{{ link }}</a>
+      }
+    </span>
+  } @else if (hint(); as text) {
+    <span class="field__hint" [id]="fieldId() + '-hint'">{{ text }}</span>
+  }
+</ng-template>
+@if (group()) {
+  <fieldset class="field" [attr.aria-describedby]="describedBy()">
+    <legend class="field__legend"><ng-container [ngTemplateOutlet]="name" /></legend>
+    <ng-container [ngTemplateOutlet]="control" />
+    <ng-container [ngTemplateOutlet]="message" />
+  </fieldset>
+} @else {
+  <div class="field">
+    <div class="field-row">
+      <label class="field__label" [for]="fieldId()"
+        ><ng-container [ngTemplateOutlet]="name"
+      /></label>
+      <ng-content select="[slot=label-action]" />
+    </div>
+    <ng-container [ngTemplateOutlet]="control" />
+    <ng-container [ngTemplateOutlet]="message" />
+  </div>
+}

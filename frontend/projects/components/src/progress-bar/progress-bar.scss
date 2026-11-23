@@ -1,0 +1,75 @@
+// The design system's progress bar (docs/design-system/assets/components.css, "Progress bar").
+// The bar's width is the host's --progress, set from the value.
+:host {
+  display: block;
+}
+
+.progress {
+  display: block;
+}
+
+// A long label wraps and the value stays right-aligned.
+.progress__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.progress__label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.progress__value {
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress__track {
+  position: relative;
+  margin-top: var(--space-1-5);
+  height: var(--size-meter);
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-border-default);
+}
+
+.progress__bar {
+  height: 100%;
+  width: var(--progress, 0%);
+  border-radius: inherit;
+  background: var(--color-accent);
+  transition: width var(--duration-base) var(--ease-standard);
+}
+
+.progress--success .progress__bar {
+  background: var(--color-success-solid);
+}
+
+.progress--danger .progress__bar {
+  background: var(--color-danger-solid);
+}
+
+.progress--indeterminate .progress__bar {
+  width: 40%;
+  animation: progress-slide var(--duration-deliberate) var(--ease-standard) infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    translate: -100% 0;
+  }
+
+  to {
+    translate: 250% 0;
+  }
+}
+
+// Reduced motion (L2-038 AC5): no slide; a full, faded bar.
+@media (prefers-reduced-motion: reduce) {
+  .progress--indeterminate .progress__bar {
+    animation: none;
+    width: 100%;
+    opacity: var(--opacity-unavailable);
+  }
+}

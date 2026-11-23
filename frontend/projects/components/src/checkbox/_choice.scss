@@ -1,0 +1,49 @@
+// The design system's option row (docs/design-system/assets/components.css, "Checkbox and radio":
+// choice, choice__input, choice__label, choice__desc, choice-group, choice-card), written once and
+// included by the checkbox and the radio group in their encapsulated stylesheets.
+@mixin choice {
+  .choice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-height: var(--target-comfortable);
+    padding-block: var(--space-2-5);
+    cursor: pointer;
+    font-size: var(--font-size-ui);
+
+    &:has(.choice__input:disabled) {
+      color: var(--color-fg-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  .choice__input {
+    flex-shrink: 0;
+    width: var(--size-icon-lg);
+    height: var(--size-icon-lg);
+    margin: var(--space-0-5) 0 0;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    // Invalid: a danger outline, with the group's error saying why.
+    &[aria-invalid='true'] {
+      outline: var(--border-width-thick) solid var(--color-danger-fg);
+      outline-offset: var(--border-width-hairline);
+    }
+  }
+
+  .choice__label {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .choice__desc {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-fg-muted);
+  }
+}

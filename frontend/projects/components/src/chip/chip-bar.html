@@ -1,0 +1,7 @@
+<div class="chip-bar" role="group" [attr.aria-label]="label()">
+  <ng-content />
+  @if (divided()) {
+    <span class="chip-bar__divider" aria-hidden="true"></span>
+  }
+  <ng-content select="[slot=after]" />
+</div>

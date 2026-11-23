@@ -1,5 +1,13 @@
-<div class="field">
-  <label class="field__label" [for]="fieldId()">{{ label() }}</label>
+<cf-form-field
+  [fieldId]="fieldId()"
+  [label]="label()"
+  [optional]="optional()"
+  [hint]="hint()"
+  [error]="error()"
+  [errorLink]="errorLink()"
+  [errorHref]="errorHref()"
+>
+  <ng-content select="[slot=label-action]" ngProjectAs="[slot=label-action]" />
   <input
     [attr.class]="code() ? 'input input--code' : 'input'"
     [id]="fieldId()"
@@ -11,16 +19,7 @@
     [attr.aria-invalid]="error() ? 'true' : null"
     [value]="value()"
     [readOnly]="readonly()"
+    [disabled]="disabled()"
     (input)="onInput($event)"
   />
-  @if (error(); as message) {
-    <span class="field__error" [id]="fieldId() + '-error'"
-      >{{ message }}
-      @if (errorLink(); as link) {
-        <a class="inline-link" [href]="errorHref()">{{ link }}</a>
-      }
-    </span>
-  } @else if (hint(); as text) {
-    <span class="field__hint" [id]="fieldId() + '-hint'">{{ text }}</span>
-  }
-</div>
+</cf-form-field>

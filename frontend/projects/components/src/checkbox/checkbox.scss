@@ -1,0 +1,41 @@
+// The design system's checkbox (docs/design-system/assets/components.css: "check", and the
+// "Checkbox and radio" option row).
+@use 'choice';
+
+:host {
+  display: block;
+}
+
+// Compact: 14 px semibold, never wraps (filter bars scroll instead).
+.check {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+  padding-inline: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+
+  &:has(.check__box:disabled) {
+    color: var(--color-fg-disabled);
+    cursor: not-allowed;
+  }
+}
+
+// Form: 15 px, wraps, inside a form.
+.check--ui {
+  padding-inline: 0;
+  gap: var(--space-2-5);
+  font-size: var(--font-size-ui);
+  white-space: normal;
+}
+
+.check__box {
+  flex-shrink: 0;
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  accent-color: var(--color-accent);
+}
+
+@include choice.choice;

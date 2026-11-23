@@ -1,0 +1,12 @@
+<span [attr.class]="dismissed() ? 'tooltip-anchor tooltip-anchor--dismissed' : 'tooltip-anchor'">
+  <ng-content />
+  <span
+    [attr.class]="placement() === 'below' ? 'tooltip tooltip--below' : 'tooltip'"
+    role="tooltip"
+    [id]="tooltipId()"
+    >{{ text() }}
+    @if (shortcut(); as key) {
+      <kbd class="tooltip__key">{{ key }}</kbd>
+    }
+  </span>
+</span>

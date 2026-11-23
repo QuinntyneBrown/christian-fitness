@@ -1,0 +1,49 @@
+// The design system's icon-button block (docs/design-system/assets/components.css, "Buttons").
+:host {
+  display: contents;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  padding: var(--space-2);
+  color: inherit;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &:active {
+    background: var(--color-bg-subtle-hover);
+  }
+
+  &:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+    background: none;
+  }
+}
+
+.icon-button--sm {
+  padding: var(--space-1-5);
+}
+
+// Touch: a 44 × 44 px target without changing the look (L2-038 AC4).
+@media (pointer: coarse) {
+  .icon-button {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
+}

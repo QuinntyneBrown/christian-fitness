@@ -1,0 +1,45 @@
+// The look the design system gives every form control (docs/design-system/assets/components.css,
+// "Forms": `.input, .select, .textarea`), written once and included by each control's own block
+// in its encapsulated stylesheet. The label, hint and error are the form field's.
+@mixin control {
+  margin-top: var(--space-1-5);
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-md);
+  outline: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    border-color: var(--color-fg-muted);
+  }
+
+  &:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent-ring);
+  }
+
+  // The field's error says what is wrong; the border only reinforces it.
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger-fg);
+  }
+
+  &:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+    background: var(--color-bg-subtle);
+  }
+}
+
+// Read-only while a form submits: readable and selectable, but it cannot change.
+@mixin read-only {
+  &[readonly] {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-muted);
+  }
+}

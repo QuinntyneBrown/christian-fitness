@@ -1,0 +1,23 @@
+// The design system's skip link (docs/design-system/assets/components.css, "skip-link"). Never
+// display: none or visibility: hidden, which would take it out of the tab order.
+:host {
+  display: contents;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: calc(-1 * var(--space-24));
+  z-index: var(--z-tooltip);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+
+  // It appears at once, with the shared focus ring, never covered by the sticky header.
+  &:focus {
+    top: var(--space-2);
+  }
+}

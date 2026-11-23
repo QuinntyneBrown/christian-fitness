@@ -1,0 +1,18 @@
+<div [attr.class]="classes()">
+  <div class="progress__head">
+    <span class="progress__label">{{ label() }}</span>
+    @if (percent() !== null) {
+      <span class="progress__value">{{ percent() }}%</span>
+    }
+  </div>
+  <div
+    class="progress__track"
+    role="progressbar"
+    [attr.aria-label]="label()"
+    [attr.aria-valuenow]="percent()"
+    [attr.aria-valuemin]="percent() === null ? null : 0"
+    [attr.aria-valuemax]="percent() === null ? null : 100"
+  >
+    <div class="progress__bar"></div>
+  </div>
+</div>

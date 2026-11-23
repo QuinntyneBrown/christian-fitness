@@ -1,0 +1,7 @@
+@if (count() > 0) {
+  <span
+    [attr.class]="pill() ? 'count-pill' : 'count-badge'"
+    [attr.aria-label]="count() + ' ' + noun()"
+    >{{ text() }}</span
+  >
+}

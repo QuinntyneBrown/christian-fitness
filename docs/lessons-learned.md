@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 25% (15 of 57 slices; 23 of 91 days)
+**% complete:** 29% (16 of 57 slices; 26 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -58,7 +58,7 @@ worked when applied. Newest entries go at the bottom.
   `.config/`.
 - No PostgreSQL server was available locally (Docker was not running), so `cf migrate` was not run
   against a real database; the migration was checked with `dotnet ef migrations
-  has-pending-model-changes` and the CLI's refusals by running it.
+has-pending-model-changes` and the CLI's refusals by running it.
 - In Git Bash, a quoted heredoc containing an apostrophe in a comment ("member's") failed to parse
   in this harness; files with prose went through the editor tool instead.
 - The film runtime gave each scene's `<section>` the scene's name as its `id`, so a scene called
@@ -123,7 +123,7 @@ worked when applied. Newest entries go at the bottom.
   folder, so a spec or a test that reads a file outside its project fails in CI, as AGENTS.md
   warns, instead of passing by luck.
 - The ubuntu runner already has Chromium's system libraries: `npx playwright install --only-shell
-  chromium` without `--with-deps` is enough, and with the browser cached by the Playwright
+chromium` without `--with-deps` is enough, and with the browser cached by the Playwright
   version the step is skipped.
 - With warm caches a run is under 40 s (frontend 36 s, backend 34 s, side by side); the cold
   first run was 91 s, most of it `npm ci`. A five-minute `timeout-minutes` on each job makes the
@@ -346,7 +346,7 @@ worked when applied. Newest entries go at the bottom.
 
 - It was built out of order, beside slices 3.2 and 9.1, so nothing could be borrowed from 3.2's
   failed sign-in window. The rule was made a stateless Domain record, `AttemptWindow(Limit,
-  Period)`, fed by each feature's own count, so 3.2 can share it whatever store it picks.
+Period)`, fed by each feature's own count, so 3.2 can share it whatever store it picks.
 - `dotnet ef migrations add` wrote a composite index as `new[] { … }`, which CA1861 refuses with
   warnings as errors; a `.editorconfig` in `Persistence/Migrations` turns CA1861 off for generated
   migrations only.
@@ -789,3 +789,54 @@ worked when applied. Newest entries go at the bottom.
   kept every docs and spec edit to one attempt.
 - "Shared fixture: run the whole suite after touching a shared flow" (2.1): the error page's new
   variant ran under all 162 behaviour specs, green.
+
+## Slice 1.4: Design-system primitives and form controls
+
+**What slowed it**
+
+- The button's stylesheet passed the 3 kB component-style warning once it carried the page's eight
+  variants and five sizes. Moving padding and the hover colour into component tokens
+  (`--btn-pad-y`, `--btn-pad-x`, `--btn-fg-hover`) cut it to 3.28 kB; the rest has no real seam, so
+  the warning went to 3.5 kB with ADR 0018 giving the reason, and the error stayed at 4 kB.
+- `label-has-associated-control` cannot follow an input through `ngTemplateOutlet`, so the checkbox
+  writes its input in both branches instead of sharing one template. The slot rule (declare each
+  `ng-content` once) still holds: the input is not a slot.
+- `happy-dom` returns `textarea.rows` as a string; the test reads the attribute instead.
+- An Escape handler on the tooltip's anchor `span` failed `interactive-supports-focus`. The handlers
+  went on the component's host, which the button's events reach by bubbling.
+- Slice 1.5 merged while this one was open, with the same components test target, ADR 0017 and
+  the stat page's fill meter. The rebase kept its target and took ADR 0018, and this slice's
+  `cf-meter` was dropped for its `cf-fill`, so the meter is built once.
+- Apostrophes in quoted heredocs failed the parse again; every edit after the first went through a
+  script written with the editor tool that asserts each match.
+
+**New lessons**
+
+- A design-system rule that styles several blocks at once (`.input, .select, .textarea`, or the
+  checkbox and radio option row) becomes a Sass mixin in the library (`_control.scss`,
+  `_choice.scss`) included under each block, which keeps every stylesheet encapsulated without a
+  global rule.
+- When no screen uses a component yet, the acceptance test is a TestBed test through the CLI's
+  `@angular/build:unit-test` builder, with a host component whose template is its own
+  `.spec.html` (the lint rule forbids inline templates). Test one behaviour per case: keyboard,
+  output, ARIA state, focus or timer, never markup.
+- A small `breakcheck.py` that applies `[file, old, new]` cases one at a time, runs the suite,
+  lists the failing tests and restores the file made honest red cheap: 60-odd guards across five
+  sub-slices, each seen to turn the right test red.
+- One form-field wrapper (label or fieldset and legend, optional marker, hint or error, and a pure
+  `fieldDescribedBy`) let six controls share their accessible name and description without
+  repeating markup.
+- `[attr.class]` with whole class strings keeps a component off the class-binding runtime, and a
+  `host` style binding (`--progress`) feeds a CSS width without an inline `style` in a template.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API" (30.1 to 9.3): `linkedSignal`, `DestroyRef`
+  and `DOCUMENT` were already paid for; both apps' initial totals stayed at 261.59 kB and 258.98 kB
+  through all five sub-slices, which is the proof that the one barrel tree-shakes.
+- "Prove a rule red by breaking it alone" (1.1 to 9.3) ran as the breakcheck script after every
+  sub-slice.
+- "Keep the mocks' BEM classes" held every page object unchanged: the text field gained the form
+  field's `field-row` and all 162 behaviour specs still passed.
+- "A free port per worktree" (CF_WEB_PORT 4520, CF_ADMIN_PORT 4521) kept the e2e runs clear of the
+  paused worktrees.

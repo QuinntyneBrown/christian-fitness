@@ -1,0 +1,16 @@
+// The design system's choice-group (docs/design-system/assets/components.css, "Checkbox and
+// radio"): options stacked, or wrapping in a row.
+:host {
+  display: block;
+}
+
+.choice-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.choice-group--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: var(--space-6);
+}

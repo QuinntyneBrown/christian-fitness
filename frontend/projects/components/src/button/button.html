@@ -7,6 +7,7 @@
     [type]="type()"
     [disabled]="disabled()"
     [attr.aria-busy]="busy() ? 'true' : null"
+    (click)="onClick($event)"
   >
     <ng-container [ngTemplateOutlet]="label" />
   </button>
