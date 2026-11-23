@@ -57,6 +57,7 @@ export class FakeChatHub {
     api: ApiHandlers,
     join: JoinAnswer,
     history: readonly ChatMessage[] = [],
+    cancelled = false,
   ): Promise<FakeChatHub> {
     const hub = new FakeChatHub(join, history);
     api.on('GET', /^\/api\/events\/[0-9a-f-]{36}\/chat\/messages$/, (request) => {
@@ -64,7 +65,7 @@ export class FakeChatHub {
       hub.pagesAsked.push(before);
       const end = before === null ? history.length : history.findIndex((m) => m.id === before);
       const start = Math.max(0, end - HISTORY_PAGE);
-      return { json: { messages: history.slice(start, end), hasMore: start > 0 } };
+      return { json: { messages: history.slice(start, end), hasMore: start > 0, cancelled } };
     });
     api.on('POST', '/api/chat/negotiate', () => ({
       json: {
@@ -81,6 +82,11 @@ export class FakeChatHub {
   /** The next `count` sends fail: the hub answers the invocation with an error. */
   failNextSends(count: number): void {
     this.failing = count;
+  }
+
+  /** The event is cancelled while the page is in its chat: the hub pushes `EventCancelled` (ADR 0041). */
+  cancelEvent(eventId: string): void {
+    this.frame({ type: 1, target: 'EventCancelled', arguments: [eventId] });
   }
 
   /** A message from another member reaches the page. */

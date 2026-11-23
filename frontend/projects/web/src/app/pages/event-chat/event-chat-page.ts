@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { CHAT_CONNECTION, CHAT_HISTORY, type ChatMessageDto } from '@cf/api';
 import {
+  Alert,
   Button,
   Composer,
   EmptyState,
@@ -36,11 +37,12 @@ interface Unsent {
  * again. Earlier messages load 50 at a time above the first, by the thread's button or by scrolling
  * up; when they push the newest off the end of the window, live messages are not added out of place
  * and "Back to the latest messages" reloads the end. A message that cannot be sent stays in the
- * thread marked "Not sent", and Try again sends it again.
+ * thread marked "Not sent", and Try again sends it again. When staff cancel the event, from the
+ * stored history or live (slice 12.3; ADR 0041), a notice replaces the composer.
  */
 @Component({
   selector: 'cf-event-chat-page',
-  imports: [Button, Composer, EmptyState, Link, Skeleton, SkeletonRegion, Thread],
+  imports: [Alert, Button, Composer, EmptyState, Link, Skeleton, SkeletonRegion, Thread],
   providers: [
     { provide: CHAT_CONNECTION, useClass: SignalRChatConnection },
     { provide: CHAT_HISTORY, useClass: HttpChatHistoryService },
@@ -57,6 +59,8 @@ export class EventChatPage {
   protected readonly eventHref = signal('/events');
   protected readonly state = signal<'connecting' | 'open' | 'refused' | 'failed'>('connecting');
   protected readonly title = signal('');
+  /** True once staff cancelled the event: a notice replaces the composer (ADR 0041). */
+  protected readonly cancelled = signal(false);
   protected readonly hasEarlier = signal(false);
   protected readonly loadingEarlier = signal(false);
   protected readonly earlierFailed = signal(false);
@@ -92,6 +96,9 @@ export class EventChatPage {
       if (message.eventId === this.id && this.atLatest()) {
         this.window.update((held) => withChatMessage(held, message));
       }
+    });
+    this.chat.cancelled.pipe(takeUntilDestroyed()).subscribe((eventId) => {
+      if (eventId === this.id) this.cancelled.set(true);
     });
     inject(ActivatedRoute)
       .paramMap.pipe(takeUntilDestroyed())
@@ -178,6 +185,7 @@ export class EventChatPage {
     this.hasEarlier.set(false);
     this.earlierFailed.set(false);
     this.atLatest.set(true);
+    this.cancelled.set(false);
     try {
       const answer = await this.chat.join(this.id);
       if (this.destroyRef.destroyed) return;
@@ -193,6 +201,7 @@ export class EventChatPage {
         for (const message of this.window()) held = withChatMessage(held, message);
         this.window.set(held);
         this.hasEarlier.set(page.hasMore);
+        this.cancelled.update((live) => live || page.cancelled);
         this.title.set(answer.title ?? '');
         this.memberId.set(answer.memberId ?? '');
         this.state.set('open');

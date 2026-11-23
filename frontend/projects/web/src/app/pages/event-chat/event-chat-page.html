@@ -27,7 +27,13 @@
         >
       </div>
     }
-    <cf-composer [label]="'Message ' + title()" (send)="send($event)" />
+    @if (cancelled()) {
+      <cf-alert tone="info" heading="This event was cancelled" [focusOnShow]="false">
+        You can still read the chat, but no new messages can be sent.
+      </cf-alert>
+    } @else {
+      <cf-composer [label]="'Message ' + title()" (send)="send($event)" />
+    }
   } @else if (state() === 'connecting') {
     <cf-skeleton-region label="Opening chat" heading>
       <cf-skeleton shape="title" width="30" />

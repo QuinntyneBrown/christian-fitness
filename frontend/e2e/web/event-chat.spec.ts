@@ -75,6 +75,39 @@ test.describe('Member app, event group chat', () => {
   });
 });
 
+// L2-023 AC2 (slice 12.3; ADR 0041): a cancelled event's chat shows a notice and takes no more messages.
+test.describe('Member app, cancelled event group chat', () => {
+  test('a chat opened after the event was cancelled shows the notice and no composer', async ({
+    page,
+    api,
+  }) => {
+    await FakeChatHub.install(page, api, JOINED_CHAT, stored(2), true);
+    const chat = new WebEventChatPage(page);
+
+    await chat.open(SUNRISE_DETAIL.id);
+
+    await expect(chat.messages).toHaveCount(2);
+    await expect(chat.cancelledNotice).toBeVisible();
+    await expect(chat.composerInput).toHaveCount(0);
+  });
+
+  test('a chat that is open when staff cancel the event shows the notice at once', async ({
+    page,
+    api,
+  }) => {
+    const hub = await FakeChatHub.install(page, api, JOINED_CHAT);
+    const chat = new WebEventChatPage(page);
+    await chat.open(SUNRISE_DETAIL.id);
+    await expect(chat.composerInput).toBeVisible();
+    await expect(chat.cancelledNotice).toHaveCount(0);
+
+    hub.cancelEvent(SUNRISE_DETAIL.id);
+
+    await expect(chat.cancelledNotice).toBeVisible();
+    await expect(chat.composerInput).toHaveCount(0);
+  });
+});
+
 /** The first `count` stored messages of the chat, oldest first: "Message 1" and on, a minute apart. */
 function stored(count: number): ChatMessage[] {
   return Array.from({ length: count }, (_, index) => ({
@@ -87,7 +120,7 @@ function stored(count: number): ChatMessage[] {
   }));
 }
 
-const JOINED = { code: null, title: SUNRISE_DETAIL.title, memberId: SIGNED_IN.memberId };
+const JOINED_CHAT = { code: null, title: SUNRISE_DETAIL.title, memberId: SIGNED_IN.memberId };
 
 // L2-016 AC6 (slice 12.2; ADR 0040): the latest 50 load, earlier ones a page at a time, at most 200 held.
 test.describe('Member app, event group chat history', () => {
@@ -95,7 +128,7 @@ test.describe('Member app, event group chat history', () => {
     page,
     api,
   }) => {
-    const hub = await FakeChatHub.install(page, api, JOINED, stored(60));
+    const hub = await FakeChatHub.install(page, api, JOINED_CHAT, stored(60));
     const chat = new WebEventChatPage(page);
 
     await chat.open(SUNRISE_DETAIL.id);
@@ -118,7 +151,7 @@ test.describe('Member app, event group chat history', () => {
     page,
     api,
   }) => {
-    await FakeChatHub.install(page, api, JOINED, stored(120));
+    await FakeChatHub.install(page, api, JOINED_CHAT, stored(120));
     const chat = new WebEventChatPage(page);
     await chat.open(SUNRISE_DETAIL.id);
     await expect(chat.messages).toHaveCount(50);
@@ -132,7 +165,7 @@ test.describe('Member app, event group chat history', () => {
   });
 
   test('the reader keeps their place when earlier messages are added', async ({ page, api }) => {
-    await FakeChatHub.install(page, api, JOINED, stored(120));
+    await FakeChatHub.install(page, api, JOINED_CHAT, stored(120));
     const chat = new WebEventChatPage(page);
     await chat.open(SUNRISE_DETAIL.id);
     await expect(chat.messages).toHaveCount(50);
@@ -149,7 +182,7 @@ test.describe('Member app, event group chat history', () => {
     page,
     api,
   }) => {
-    const hub = await FakeChatHub.install(page, api, JOINED, stored(260));
+    const hub = await FakeChatHub.install(page, api, JOINED_CHAT, stored(260));
     const chat = new WebEventChatPage(page);
     await chat.open(SUNRISE_DETAIL.id);
     await expect(chat.messages).toHaveCount(50);
@@ -190,7 +223,7 @@ test.describe('Member app, event group chat failed sends', () => {
     page,
     api,
   }) => {
-    const hub = await FakeChatHub.install(page, api, JOINED);
+    const hub = await FakeChatHub.install(page, api, JOINED_CHAT);
     const chat = new WebEventChatPage(page);
     await chat.open(SUNRISE_DETAIL.id);
     await expect(chat.chatTitle).toBeVisible();
@@ -219,7 +252,7 @@ test.describe('Member app, event group chat failed sends', () => {
     page,
     api,
   }) => {
-    const hub = await FakeChatHub.install(page, api, JOINED);
+    const hub = await FakeChatHub.install(page, api, JOINED_CHAT);
     const chat = new WebEventChatPage(page);
     await chat.open(SUNRISE_DETAIL.id);
     await expect(chat.chatTitle).toBeVisible();

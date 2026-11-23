@@ -54,6 +54,7 @@ database. Screens follow `docs/mocks/pages/messages/` (`default`, `direct`, `dra
 - **`GetMessagesHandler`** — returns pages of 50 for participants only, else
   `not_a_participant` (HTTP 403 ProblemDetails with `code`).
 - **Event group chat history (slice 12.2; ADR 0040)** — messages of an event chat are stored (`ChatMessage`) and read through `GET /api/events/{id}/chat/messages?before=` (`ChatController`, `GetChatHistoryQuery`): 50 a page, oldest first, with `hasMore`; the chat page loads the latest page on opening and earlier pages through the thread's "Earlier messages" button or by scrolling up, inside the 200-message window. A message that fails to send stays in the thread as "Not sent" with Try again.
+- **Group membership (slice 12.3; ADR 0041)** — a registration is the membership: cancelling it makes `IChatChannel.LeaveAsync` take the member's connections out of the event's group, so they receive nothing more and `Join`/`Send` answer `not_a_participant`. When staff cancel the event the group is sent `EventCancelled(eventId)`, `Send` answers `event_cancelled`, the history reports `cancelled`, and the chat page shows an info alert (mock `messages/cancelled`) in place of the composer.
 - **`MarkConversationReadHandler`** — sets the caller's `LastReadMessageId`.
 
 Telemetry carries no message text, query string or body; the hub method and route template

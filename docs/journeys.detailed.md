@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 68% (38 of 57 slices; 62 of 91 days)
+**% complete:** 69% (39 of 57 slices; 63 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -42,7 +42,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 31  | 19.1  | 19 View a member's profile          | ✅ View a member's profile                        | Members see another member's public profile, never private details.                                                                                 | 1             |
 | 32  | 12.1  | 12 Chat in an event group           | ✅ Real-time group chat                           | Registered members send and receive event group messages live.                                                                                      | 3             |
 | 33  | 12.2  | 12 Chat in an event group           | ✅ Chat history and failed sends                  | Older messages load in a bounded window; failed sends can retry.                                                                                    | 2             |
-| 34  | 12.3  | 12 Chat in an event group           | Group membership                                  | Only registered members join; cancelling a registration leaves the group.                                                                           | 1             |
+| 34  | 12.3  | 12 Chat in an event group           | ✅ Group membership                               | Only registered members join; cancelling a registration leaves the group.                                                                           | 1             |
 | 35  | 15.1  | 15 Pick up conversations            | Conversation list                                 | Members see their conversations, newest first, with unread counts.                                                                                  | 2             |
 | 36  | 14.1  | 14 Message a member directly        | Direct messages                                   | Members start a private conversation from a profile and chat live.                                                                                  | 3             |
 | 37  | 13.1  | 13 See my home                      | Next and suggested events                         | Home shows a member's next events and suggested events.                                                                                             | 2             |

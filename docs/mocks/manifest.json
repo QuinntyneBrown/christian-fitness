@@ -213,6 +213,7 @@
         "direct",
         "draft",
         "send-failed",
+        "cancelled",
         "loading",
         "empty",
         "error"

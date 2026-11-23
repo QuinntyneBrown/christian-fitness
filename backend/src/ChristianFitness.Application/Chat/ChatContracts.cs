@@ -19,7 +19,16 @@ public sealed record ChatMessageDto(Guid Id, Guid EventId, Guid AuthorId, string
 public interface IChatChannel
 {
     /// <summary>Lets the connection receive the event's messages from now on.</summary>
-    Task JoinAsync(string connectionId, Guid eventId, CancellationToken cancellationToken);
+    Task JoinAsync(string connectionId, Guid memberId, Guid eventId, CancellationToken cancellationToken);
+
+    /// <summary>Takes every connection of the member out of the event's chat (slice 12.3; ADR 0041).</summary>
+    Task LeaveAsync(Guid memberId, Guid eventId, CancellationToken cancellationToken);
+
+    /// <summary>Tells every connection in the event's chat that the event was cancelled.</summary>
+    Task NotifyCancelledAsync(Guid eventId, CancellationToken cancellationToken);
+
+    /// <summary>Forgets a connection that closed.</summary>
+    void Disconnected(string connectionId);
 
     /// <summary>Delivers the message to every connection that joined its event's chat.</summary>
     Task SendAsync(ChatMessageDto message, CancellationToken cancellationToken);
