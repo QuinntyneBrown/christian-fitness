@@ -20,7 +20,7 @@ box "Frontend — Admin web app" #E0F2FE
   participant "HttpAdminEventsService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "AdminOnly policy" as pol
+  participant "Staff:Events policy" as pol
   participant "AdminEventsController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
@@ -33,10 +33,15 @@ end box
 actor -> page : Save an event change
 page -> client : updateEvent(...)
 client -> pol : PUT /api/admin/events/{id}
-pol -> db : Read StaffRole (claims transformation)
+pol -> db : Read StaffRole (StaffAreaAuthorizationHandler, every request, L2-019 AC4)
 db --> pol : Role
-alt role Moderator (L2-019 AC1)
-  pol --> client : 403 ProblemDetails
+pol -> pol : StaffAccess.Allows(role, Events)
+alt no role (L2-019 AC4)
+  pol --> client : 403 ProblemDetails, code not_staff
+  client --> page : Refusal with code
+  page --> actor : Show forbidden message
+else role Moderator (L2-019 AC1)
+  pol --> client : 403 ProblemDetails, code forbidden_role
   client --> page : Refusal with code
   page --> actor : Show forbidden message
 else role Admin (L2-019 AC2)

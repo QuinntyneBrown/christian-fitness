@@ -336,7 +336,8 @@
       "requirements": [],
       "states": [
         "default",
-        "submitting"
+        "submitting",
+        "role"
       ],
       "not_applicable": {
         "loading": "Renders without data.",
@@ -392,6 +393,7 @@
         "loading",
         "empty",
         "error",
+        "moderator",
         "partial"
       ]
     },

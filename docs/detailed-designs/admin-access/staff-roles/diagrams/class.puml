@@ -42,7 +42,23 @@ class ICurrentStaff {
   +Guid MemberId
   +StaffRoleName Role
 }
-class StaffRoleClaimsTransformation
+enum StaffArea {
+  Console
+  Dashboard
+  Members
+  Events
+  Services
+  Unlisted
+}
+class StaffAccess <<static>> {
+  +Allows(role: StaffRoleName, area: StaffArea): bool
+}
+class StaffAreaRequirement {
+  +StaffArea Area
+}
+class StaffAreaAuthorizationHandler {
+  #HandleRequirementAsync(context, requirement): Task
+}
 interface IAppDbContext
 
 Member "1" --> "0..1" StaffRole
@@ -51,6 +67,10 @@ AuditBehavior ..> IAuditableCommand : audits
 AuditBehavior ..> ICurrentStaff : reads actor
 AuditBehavior ..> AuditEntry : creates
 AuditBehavior ..> IAppDbContext
-StaffRoleClaimsTransformation ..> StaffRole : reads
+StaffAreaAuthorizationHandler ..> StaffAreaRequirement : handles
+StaffAreaAuthorizationHandler ..> StaffRole : reads every request
+StaffAreaAuthorizationHandler ..> StaffAccess : asks
+StaffAccess ..> StaffArea
+StaffAccess ..> StaffRoleName
 AuditEntry --> Member : actor
 @enduml

@@ -2,7 +2,7 @@
 Layout and copy follow the Magic Patterns prototype "Admin Console" frame for frame."""
 from __future__ import annotations
 
-from cf_data import ADMIN, APPLICATIONS, DRAFT_EVENT, EVENTS, MEMBERS, SERVICES
+from cf_data import ADMIN, APPLICATIONS, DRAFT_EVENT, EVENTS, MEMBERS, MODERATOR, SERVICES
 from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field,
                    form_alert, href, icon, loading_region, screen, seal, service_avatar)
 
@@ -163,7 +163,16 @@ def _():
     return two_step(failed=True)
 
 
-def forbidden(*, busy: bool = False) -> str:
+def forbidden(*, busy: bool = False, role: bool = False) -> str:
+    if role:
+        # A Moderator on an Admins-only area (L2-019 AC5; ADR 0017): their session is valid, so the
+        # way out is the Dashboard, not Sign out.
+        return staff(f"""    <form action="{href("admin-dashboard")}" novalidate>
+      <h1 class="display staff__title" tabindex="-1">Admins only</h1>
+      <p class="staff__lead">Events and Services are run by admins. As a moderator, you look after members from the Dashboard and Members.</p>
+      <a class="btn btn--primary btn--lg btn--block auth__submit" href="{href("admin-dashboard", "moderator")}">Go to dashboard</a>
+      <p class="staff__note">Need to manage events or services? Ask a community director to make you an admin.</p>
+    </form>""")
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing out…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign out</button>')
     return staff(f"""    <form action="{href("admin-sign-in")}" novalidate>
@@ -187,6 +196,11 @@ def _():
 @s("submitting", "Sign out pressed (L2-047 AC2): \"Signing out…\", button disabled; then Staff sign in.")
 def _():
     return forbidden(busy=True)
+
+
+@s("role", "A Moderator opened Events or Services, or a read was refused forbidden_role (L2-019 AC5; ADR 0017): \"Admins only\", the heading takes focus, Go to dashboard; the title is \"Admins only · Christian Fitness Admin\".")
+def _():
+    return forbidden(role=True)
 
 
 # ===========================================================================
@@ -228,9 +242,9 @@ def _():
 # ===========================================================================
 # Dashboard
 # ===========================================================================
-def queue_items(include=True) -> str:
+def queue_items(include=True, *, applications: bool = True) -> str:
     items = []
-    for a in APPLICATIONS:
+    for a in (APPLICATIONS if applications else []):
         items.append((False, f'{a["name"]} applied to list services', f'{a["role"]} · {a["submitted"]}', href("admin-services")))
     for m in MEMBERS:
         if m["status"] == "Flagged":
@@ -273,9 +287,15 @@ def fill_list() -> str:
     return f'<ul class="fill-list">{"".join(lis)}</ul>'
 
 
-def dashboard(*, queue: str | None = None, count: str = "4", upcoming: str | None = None, stats: str | None = None) -> str:
-    q, n = queue_items()
-    return f"""{admin_header(f"Morning, {ADMIN['first']}", "Here's what needs you today.")}
+def dashboard(*, queue: str | None = None, count: str = "4", upcoming: str | None = None, stats: str | None = None,
+              staff: dict | None = None) -> str:
+    staff = staff or ADMIN
+    # A Moderator manages neither services nor events (L2-019 AC5; ADR 0017): no applications to
+    # review and no link to manage events.
+    admin = staff["role"] != "Moderator"
+    q, n = queue_items(applications=admin)
+    manage = f'<a class="text-link" href="{href("admin-events")}">Manage {icon("arrow-right")}</a>' if admin else ""
+    return f"""{admin_header(f"Morning, {staff['first']}", "Here's what needs you today.")}
         <div class="split split--dashboard">
           <section class="min-w-0" aria-labelledby="attention-title">
             <h2 class="display section-title" id="attention-title">Needs attention <span class="section-title__count">{count}</span></h2>
@@ -286,7 +306,7 @@ def dashboard(*, queue: str | None = None, count: str = "4", upcoming: str | Non
         <section class="mt-12" aria-labelledby="upcoming-title">
           <div class="section-head">
             <h2 class="display section-title" id="upcoming-title">Upcoming events</h2>
-            <a class="text-link" href="{href("admin-events")}">Manage {icon("arrow-right")}</a>
+            {manage}
           </div>
           {upcoming if upcoming is not None else fill_list()}
         </section>"""
@@ -324,6 +344,11 @@ def _():
     body = admin_header(f"Morning, {ADMIN['first']}", "Here's what needs you today.") + error_block(
         "The dashboard didn't load", "We couldn't reach the server. Nothing you approved or published is lost.", retry="default.html", ref="CF-A1D6")
     return admin_shell("admin-dashboard", body)
+
+
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0017): the navigation lists Dashboard and Members only; the queue holds member reports, and Upcoming events has no Manage link.")
+def _():
+    return admin_shell("admin-dashboard", dashboard(count="1", staff=MODERATOR), staff=MODERATOR)
 
 
 @s("partial", "Upcoming events failed while the queue loaded: retry in place under that heading.")
