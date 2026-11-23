@@ -138,8 +138,8 @@ test.describe('Admin app, the Members page', () => {
     await members.open();
 
     await expect(members.loading).toBeVisible();
-    // Five columns, seven rows.
-    await expect(members.skeletons).toHaveCount(35);
+    // Six columns with the row action's, seven rows.
+    await expect(members.skeletons).toHaveCount(42);
     await expect(members.subtitle).toHaveCount(0);
     await expect(members.search).toBeVisible();
     await expect(members.tabLinks).toHaveText(['All', 'Active', 'Flagged', 'Suspended']);

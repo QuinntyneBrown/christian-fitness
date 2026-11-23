@@ -30,6 +30,7 @@
       <cf-table
         caption="Members"
         width="wider"
+        actionLabel="Moderate"
         [columns]="columns"
         [rows]="[]"
         [loading]="true"
@@ -57,9 +58,11 @@
       <cf-table
         caption="Members"
         width="wider"
+        actionLabel="Moderate"
         [columns]="columns"
         [rows]="rows()"
         [cell]="statusCell"
+        (action)="moderate($event)"
       />
     } @else if (empty().clearSearch) {
       <cf-empty-state [heading]="empty().heading" [text]="empty().text">
@@ -82,3 +85,10 @@
     (navigate)="goToPage($event)"
   />
 }
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

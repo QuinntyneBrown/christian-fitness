@@ -16,8 +16,8 @@ skinparam package {
 }
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
-  participant "MembersPage" as page
-  participant "ModerationDialog <TO SUPPLY>" as dlg
+  participant "AdminMembersPage" as page
+  participant "ModerateMemberDialog" as dlg
   participant "HttpAdminMembersService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
@@ -25,38 +25,56 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SuspendMemberHandler" as h
+  participant "ModerationTarget" as target
   participant "Member" as ent
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
-  participant "Session store" as sess
+  participant "ISessionRevocation" as sess
   database "Christian Fitness database" as db
 end box
-actor -> page : Suspend on an Active or Flagged member's row
-page -> dlg : Open CDK Dialog
-actor -> dlg : Enter note and confirm
-dlg -> client : suspend(id, note)
-client -> ctrl : POST /api/admin/members/{id}/suspend
-ctrl -> ctrl : Authenticate and apply StaffOnly policy
-ctrl -> h : Send SuspendMemberCommand (validated: note and confirmation)
-alt target is the caller
-  h --> ctrl : Refusal cannot_moderate_self (L2-029 AC4)
-  ctrl --> client : ProblemDetails, code cannot_moderate_self
-  client --> dlg : cannot_moderate_self
-  dlg --> actor : Generic message
-else another member
-  h -> db : Load member
-  db --> h : Member
-  h -> ent : Suspend(note)
-  ent --> h : Status Suspended (L2-029 AC2)
-  h -> db : Save changes
-  db --> h : Committed
-  h -> sess : Revoke every session of the member
-  sess --> h : Sessions ended
-  h --> ctrl : Success
-  ctrl --> client : 204 No Content
-  client --> dlg : Done
-  dlg -> dlg : Close by its ref
-  page --> actor : Row shows Suspended
-  note over h, db : Afterwards sign-in and event registration refuse with account_suspended (L2-004 AC4, L2-011 AC6)
+actor -> page : Moderate on an Active or Flagged member's row
+page -> dlg : Import on first use, open as a CDK Dialog
+actor -> dlg : Choose Suspend, write the note, confirm
+alt no note, a note over 500 characters or no confirmation
+  dlg --> actor : Error summary and each field's error; nothing sent (L2-029 AC5)
+else
+  dlg -> client : suspend(id, note)
+  client -> ctrl : POST /api/admin/members/{id}/suspend { note, confirmed: true }
+  ctrl -> ctrl : Authenticate; Members staff area admits Admin and Moderator
+  ctrl -> h : Send SuspendMemberCommand (validated: note_required, note_too_long, confirmation_required)
+  h -> target : FindAsync(id)
+  target -> db : Load the member and both staff roles
+alt unknown id
+  target --> h : Refusal member_not_found (404, L2-029 AC6)
+else the member is the caller
+  target --> h : Refusal cannot_moderate_self (403, L2-029 AC4)
+else a Moderator and a staff account
+  target --> h : Refusal forbidden_role (403, L2-029 AC7)
+else
+  target --> h : Member
+end
+  alt refused
+    h --> ctrl : RefusalException
+    ctrl --> client : ProblemDetails with the code
+    client --> dlg : ApiError
+    dlg --> actor : The refusal's own sentence, note kept
+  else
+    h -> ent : TrySuspend(note)
+    alt already Suspended
+      ent --> h : false
+      h --> ctrl : Refusal status_conflict (409, L2-029 AC6)
+    else Active or Flagged
+      ent --> h : Suspended, note kept (L2-029 AC2)
+      h -> sess : EndAllAsync(member)
+      h -> db : Remove pending admin sign-ins; save once
+      db --> h : Committed: status, note, sessions gone
+      h --> ctrl : MemberRowDto
+      ctrl --> client : 200 OK
+      client --> dlg : The member as they now are
+      dlg -> dlg : Close by its ref
+      page --> actor : Toast, the list again, focus on the table
+      note over h, db : Afterwards sign-in refuses with account_suspended in both apps (L2-004 AC4, L2-029 AC8)
+    end
+  end
 end
 @enduml

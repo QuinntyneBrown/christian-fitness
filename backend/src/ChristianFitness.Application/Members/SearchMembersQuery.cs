@@ -99,7 +99,6 @@ internal sealed class SearchMembersHandler(IAppDbContext db, IRegistrationReader
             matches,
             page,
             SearchMembersQuery.PageSize,
-            [.. rows.Select(m => new MemberRowDto(
-                m.Id, m.Name, m.Email, m.HomeChurch, m.JoinedAt, attended.GetValueOrDefault(m.Id), MemberStatusNames.Of(m.Status)))]);
+            [.. rows.Select(m => MemberRowDto.Of(m, attended.GetValueOrDefault(m.Id)))]);
     }
 }

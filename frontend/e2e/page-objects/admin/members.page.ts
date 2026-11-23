@@ -35,6 +35,9 @@ export class AdminMembersPage {
   readonly currentPage: Locator;
   readonly previousPage: Locator;
   readonly nextPage: Locator;
+  readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -63,6 +66,9 @@ export class AdminMembersPage {
     // An unavailable end has no address, so it is not a link to assistive technology.
     this.previousPage = this.pagination.locator('[aria-label="Previous page"]');
     this.nextPage = this.pagination.locator('[aria-label="Next page"]');
+    this.toast = page.getByRole('region', { name: 'Notifications' }).locator('.toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
   }
 
   /** Opens the Members page with `query`, such as `?status=flagged&q=grace` (none by default). */
@@ -89,8 +95,9 @@ export class AdminMembersPage {
   }
 
   /**
-   * Each row as its cells' text: name, email, church, joined, events and status. A cell with no
-   * home church reads as assistive technology reads it ("Not given"), not as its dash.
+   * Each row as its cells' text: name, email, church, joined, events and the status badge's word.
+   * A cell with no home church reads as assistive technology reads it ("Not given"), not as its
+   * dash. The note under a status and the row's action are read by `notes` and `moderateButton`.
    */
   async rowTexts(): Promise<string[][]> {
     return this.rows.evaluateAll((rows) =>
@@ -103,7 +110,10 @@ export class AdminMembersPage {
         const [person, ...rest] = [...row.querySelectorAll('td')];
         const name = person?.querySelector('.table__strong')?.textContent?.trim() ?? '';
         const email = person?.querySelector('.table__sub')?.textContent?.trim() ?? '';
-        return [name, email, ...rest.map(read)];
+        const [church, joined, events, status] = rest;
+        const badge = status?.querySelector('.status')?.textContent?.trim() ?? '';
+        const cells = [church, joined, events].map((cell) => (cell ? read(cell) : ''));
+        return [name, email, ...cells, badge];
       }),
     );
   }
@@ -116,6 +126,26 @@ export class AdminMembersPage {
   /** The initials each row's avatar shows, which assistive technology skips. */
   avatars(): Locator {
     return this.rows.locator('.table__person .avatar[aria-hidden="true"]');
+  }
+
+  /** Each row's moderation note, the muted line under its status; empty for a row without one. */
+  async notes(): Promise<string[]> {
+    return this.rows.evaluateAll((rows) =>
+      rows.map((row) => {
+        const status = [...row.querySelectorAll('td')][4];
+        return status?.querySelector('.table__sub')?.textContent?.trim() ?? '';
+      }),
+    );
+  }
+
+  /** The row action that opens the moderation dialog for `name`. */
+  moderateButton(name: string): Locator {
+    return this.table.getByRole('button', { name: `Moderate ${name}`, exact: true });
+  }
+
+  /** Every row action in the table. */
+  moderateButtons(): Locator {
+    return this.table.locator('.row-link');
   }
 
   /** The status badges in the table. */

@@ -1,3 +1,4 @@
+using ChristianFitness.Application.Members;
 using ChristianFitness.Application.Account;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Behaviors;
@@ -27,6 +28,7 @@ public static class ApplicationServiceCollectionExtensions
         // The audit behaviour logs each audited action; the host's logging, or none, receives it.
         services.AddLogging();
         services.AddScoped<MemberCredentials>();
+        services.AddScoped<ModerationTarget>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();

@@ -9,6 +9,8 @@ export interface AdminMemberFixture {
   joinedAt: string;
   eventsAttended: number;
   status: 'active' | 'flagged' | 'suspended';
+  /** Why staff last flagged or suspended them; none for a member nobody moderated. */
+  note: string | null;
 }
 
 /** What the admin app asked the list for: its `status`, `q` and `page` parameters, as sent. */
@@ -26,6 +28,7 @@ const member = (
   joinedAt: string,
   eventsAttended: number,
   status: AdminMemberFixture['status'] = 'active',
+  note: string | null = null,
 ): AdminMemberFixture => ({
   id: `0190c0de-0000-7000-8000-0000000a00${String(n).padStart(2, '0')}`,
   name,
@@ -34,6 +37,7 @@ const member = (
   joinedAt,
   eventsAttended,
   status,
+  note,
 });
 
 /**
@@ -73,6 +77,7 @@ export const CAST_MEMBERS: AdminMemberFixture[] = [
     '2026-04-02T16:00:00+00:00',
     0,
     'flagged',
+    'Promoting supplements in 3 group chats',
   ),
   member(
     5,
@@ -91,6 +96,7 @@ export const CAST_MEMBERS: AdminMemberFixture[] = [
     '2026-03-30T16:00:00+00:00',
     0,
     'suspended',
+    'Spam messages, suspended Apr 4',
   ),
 ];
 
@@ -106,6 +112,7 @@ export function manyMembers(count: number): AdminMemberFixture[] {
       joinedAt: '2026-03-01T17:00:00+00:00',
       eventsAttended: 0,
       status: 'active' as const,
+      note: null,
     };
   });
 }
