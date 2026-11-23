@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Application.Tests.Members;
 
 /// <summary>
-/// L2-019 AC1 and AC2 (ADR 0017): which role may use which staff area, one case per row. The rows
+/// L2-019 AC1 and AC2 (ADR 0020): which role may use which staff area, one case per row. The rows
 /// for the four areas the admin app lists are the same as <c>canManage</c>'s in
 /// <c>frontend/projects/domain/src/admin/admin-areas.spec.ts</c>.
 /// </summary>

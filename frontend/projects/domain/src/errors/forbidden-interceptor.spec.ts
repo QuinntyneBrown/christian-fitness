@@ -106,7 +106,7 @@ describe('forbiddenInterceptor', () => {
     expect(navigations).toEqual([]);
   });
 
-  // L2-019 AC5 (ADR 0017): a role the area refuses shows "Admins only" instead.
+  // L2-019 AC5 (ADR 0020): a role the area refuses shows "Admins only" instead.
   it('a GET refused forbidden_role shows "Admins only" with the URL asked for', async () => {
     const { navigations, outcome } = await intercept({
       method: 'GET',

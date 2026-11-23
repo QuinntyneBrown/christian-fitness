@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Infrastructure.Security;
 
-/// <summary>The staff area an admin endpoint belongs to; its policy carries it (L2-019; ADR 0017).</summary>
+/// <summary>The staff area an admin endpoint belongs to; its policy carries it (L2-019; ADR 0020).</summary>
 public sealed class StaffAreaRequirement(StaffArea area) : IAuthorizationRequirement
 {
     public StaffArea Area { get; } = area;
@@ -16,7 +16,7 @@ public sealed class StaffAreaRequirement(StaffArea area) : IAuthorizationRequire
 /// <summary>
 /// Decides a <see cref="StaffAreaRequirement"/> from the role the database holds now, read on every
 /// admin request, so a role changed or taken away applies at the next request without a new sign-in
-/// (L2-019 AC4; ADR 0017). The role claim the staff cookie carries from sign-in is not read. A member
+/// (L2-019 AC4; ADR 0020). The role claim the staff cookie carries from sign-in is not read. A member
 /// without a role fails with <c>not_staff</c>; a role the area refuses fails with
 /// <c>forbidden_role</c> (L2-019 AC1). The failure's message is the code the API's refusal carries.
 /// Nothing here logs the member or the role.

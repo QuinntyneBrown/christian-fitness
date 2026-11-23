@@ -62,7 +62,7 @@ describe('staffAuthGuard', () => {
     expect(await guard(failure(401, { status: 401, code: 'session_expired' }))).toBe(false);
   });
 
-  // L2-019 AC5 (ADR 0017): the role decides each area; one row per role and area.
+  // L2-019 AC5 (ADR 0020): the role decides each area; one row per role and area.
   it.each<{ role: StaffRoleName; url: string; opens: boolean }>([
     { role: 'Admin', url: '/events', opens: true },
     { role: 'Admin', url: '/services/listing-1', opens: true },

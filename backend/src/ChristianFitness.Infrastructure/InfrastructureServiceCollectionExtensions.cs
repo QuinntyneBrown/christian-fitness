@@ -36,7 +36,7 @@ public static class InfrastructureServiceCollectionExtensions
     /// after the second step's cookie, keeping each session on the server, reading the signed-in
     /// member and the client address back, ending every session of a member, and deciding each staff
     /// area from the role in the database. Only the API, which configures the cookie schemes and the
-    /// policies, adds these (ADR 0007, ADR 0009, ADR 0011, ADR 0012, ADR 0013, ADR 0014, ADR 0017).
+    /// policies, adds these (ADR 0007, ADR 0009, ADR 0011, ADR 0012, ADR 0013, ADR 0014, ADR 0020).
     /// </summary>
     public static IServiceCollection AddSessions(this IServiceCollection services)
     {
@@ -54,7 +54,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISessionRevocation, DatabaseSessionRevocation>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         services.AddScoped<IClientAddress, HttpClientAddress>();
-        // Scoped: it reads the role through the request's IAppDbContext (ADR 0017).
+        // Scoped: it reads the role through the request's IAppDbContext (ADR 0020).
         services.AddScoped<IAuthorizationHandler, StaffAreaAuthorizationHandler>();
         return services;
     }

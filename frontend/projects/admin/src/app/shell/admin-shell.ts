@@ -9,7 +9,7 @@ import { filter } from 'rxjs';
 /**
  * The routed layout around every staff route, behind `staffAuthGuard` (ADR 0011): the admin
  * layout with the areas the signed-in role opens, `aria-current` on the one showing (L2-021 AC1,
- * L2-019 AC5; ADR 0017), and the signed-in staff member, read once from `STAFF_SESSION_SERVICE`.
+ * L2-019 AC5; ADR 0020), and the signed-in staff member, read once from `STAFF_SESSION_SERVICE`.
  * No area is listed until the session has loaded, so a Moderator never sees Events or Services. A plain click on an area moves the router;
  * Sign out ends the session on the server and returns to Staff sign in, a session that had already
  * ended included (L2-018 AC6); any other failure keeps staff where they are with Sign out enabled.

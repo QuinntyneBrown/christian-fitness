@@ -27,7 +27,7 @@ public static class RefusalCodes
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
     public const string NotStaff = "not_staff";
 
-    /// <summary>A staff member's role does not open this area of the admin console (L2-019 AC1; ADR 0017).</summary>
+    /// <summary>A staff member's role does not open this area of the admin console (L2-019 AC1; ADR 0020).</summary>
     public const string ForbiddenRole = "forbidden_role";
 
     /// <summary>Too many accounts were created, or reset links asked for, from one address in an hour (L2-034 AC2, AC3).</summary>

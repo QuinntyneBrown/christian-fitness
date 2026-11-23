@@ -12,7 +12,7 @@ import { Button, StaffLayout } from '@cf/components';
  * reads "Signing out…" and is disabled, and a failure enables it again (AC2). At `/admins-only`
  * (route data `{ reason: 'role' }`) it is the "Admins only" state (mock state `role`) a Moderator
  * meets on Events or Services, whose session is valid: the way out is "Go to dashboard", a plain
- * link, not Sign out (L2-019 AC5; ADR 0017).
+ * link, not Sign out (L2-019 AC5; ADR 0020).
  */
 @Component({
   selector: 'cf-forbidden-page',

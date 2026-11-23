@@ -12,7 +12,7 @@ export const ADMINS_ONLY_PATH = '/admins-only';
 /**
  * Shows the "Staff only" screen when the API refuses a read: a GET to `/api/` answering 403
  * (L2-047 AC1; ADR 0016), or "Admins only" when the code is `forbidden_role`, a role the area
- * refuses (L2-019 AC5; ADR 0017). The address bar shows the URL staff asked for (`browserUrl`):
+ * refuses (L2-019 AC5; ADR 0020). The address bar shows the URL staff asked for (`browserUrl`):
  * where a navigation still in flight is going, as when the guard's request is refused, or else the
  * current URL, so a reload asks again. A write's 403 passes on to the screen that sent it (AC3), so
  * Staff sign in still shows `not_staff` itself. Not while either screen already shows. The error

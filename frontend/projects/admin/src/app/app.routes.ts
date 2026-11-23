@@ -64,7 +64,7 @@ export const routes: Routes = [
   },
   {
     // The same screen for a role the area refuses: staffAuthGuard and forbiddenInterceptor open it
-    // with the URL asked for kept (L2-019 AC5; ADR 0017). The words come from the route data.
+    // with the URL asked for kept (L2-019 AC5; ADR 0020). The words come from the route data.
     path: 'admins-only',
     title: 'Admins only · Christian Fitness Admin',
     data: { reason: 'role' },

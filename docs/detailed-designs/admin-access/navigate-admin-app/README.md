@@ -17,7 +17,7 @@ has no backend behaviour of its own; it calls only the session endpoint from `ad
   staff session: an expired one returns staff to Staff sign in and a refused one (403) shows the
   "Staff only" screen (`admin-sign-in`; [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)). It reads the staff session once for the name, role and initials
   (`initialsOf`) and lists only the areas that role opens (`areasFor`, `staff-roles`;
-  [ADR 0017](../../../adr/0017-staff-roles-by-area.md)), keeps the current area (`currentAdminArea` over the router's URL after each
+  [ADR 0020](../../../adr/0020-staff-roles-by-area.md)), keeps the current area (`currentAdminArea` over the router's URL after each
   `NavigationEnd`), hands a plain click on a link to the router and signs out
   ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
 - **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):

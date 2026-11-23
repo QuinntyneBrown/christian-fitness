@@ -39,7 +39,7 @@ describe('currentAdminArea', () => {
   });
 });
 
-// L2-019 AC1, AC5 (ADR 0017): which role opens which area. The rows are the same as the four-area
+// L2-019 AC1, AC5 (ADR 0020): which role opens which area. The rows are the same as the four-area
 // rows of StaffAccessTests.cs in backend/tests/ChristianFitness.Application.Tests/Members.
 describe('canManage', () => {
   it.each<{ role: StaffRoleName; area: AdminAreaKey; allowed: boolean; why: string }>([

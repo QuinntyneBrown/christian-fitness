@@ -33,11 +33,11 @@ export function currentAdminArea(url: string): AdminAreaKey | null {
   return area?.key ?? null;
 }
 
-/** The areas a Moderator opens (L2-019 AC1; ADR 0017): they moderate members, nothing more. */
+/** The areas a Moderator opens (L2-019 AC1; ADR 0020): they moderate members, nothing more. */
 const MODERATOR_AREAS: readonly AdminAreaKey[] = ['dashboard', 'members'];
 
 /**
- * Whether `role` may use `area` (L2-019 AC1, AC2; ADR 0017): an Admin every area, a Moderator the
+ * Whether `role` may use `area` (L2-019 AC1, AC2; ADR 0020): an Admin every area, a Moderator the
  * Dashboard and Members. The API decides each request with the same table (`StaffAccess`); this
  * only adapts what the admin app shows. A role it does not know opens nothing.
  */

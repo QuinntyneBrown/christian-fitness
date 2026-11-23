@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-019 AC1 and AC2 (ADR 0017): a Moderator may use the staff session, the Dashboard and Members,
+/// L2-019 AC1 and AC2 (ADR 0020): a Moderator may use the staff session, the Dashboard and Members,
 /// and is refused every Events and Services endpoint, and any admin endpoint in no area yet, with
 /// 403 and <c>forbidden_role</c>; an Admin may use them all. The areas without an endpoint yet are
 /// asked through the probes of <see cref="StaffRolesApiFactory"/>.

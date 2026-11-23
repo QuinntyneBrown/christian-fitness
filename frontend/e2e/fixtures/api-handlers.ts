@@ -35,7 +35,7 @@ export const STAFF_SIGNED_IN = {
   role: 'Admin',
 };
 
-/** A signed-in Moderator, for a spec to answer `GET /api/admin/session` with (L2-019; ADR 0017). */
+/** A signed-in Moderator, for a spec to answer `GET /api/admin/session` with (L2-019; ADR 0020). */
 export const MODERATOR_SIGNED_IN = {
   memberId: '0190c0de-0000-7000-8000-000000000003',
   name: 'Joel Mensah',

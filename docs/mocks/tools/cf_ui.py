@@ -230,7 +230,7 @@ ADMIN_NAV = [("admin-dashboard", "Dashboard", "layout-dashboard", 0), ("admin-ev
              ("admin-services", "Services", "heart-handshake", 3), ("admin-members", "Members", "users", 1)]
 
 
-# The areas a Moderator opens (L2-019 AC5; ADR 0017); an Admin opens all four.
+# The areas a Moderator opens (L2-019 AC5; ADR 0020); an Admin opens all four.
 MODERATOR_AREAS = ("admin-dashboard", "admin-members")
 
 

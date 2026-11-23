@@ -1,6 +1,6 @@
 namespace ChristianFitness.Domain.Members;
 
-/// <summary>The parts of the admin console an endpoint can belong to (L2-019; ADR 0017).</summary>
+/// <summary>The parts of the admin console an endpoint can belong to (L2-019; ADR 0020).</summary>
 public enum StaffArea
 {
     /// <summary>The console itself: the staff session, and anything at <c>api/admin</c> alone.</summary>

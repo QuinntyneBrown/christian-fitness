@@ -1,7 +1,7 @@
 namespace ChristianFitness.Domain.Members;
 
 /// <summary>
-/// Which staff role may use which area of the admin console (L2-019 AC1, AC2; ADR 0017): an Admin
+/// Which staff role may use which area of the admin console (L2-019 AC1, AC2; ADR 0020): an Admin
 /// every area; a Moderator the console, the Dashboard and Members, so they moderate members but
 /// manage neither events nor services, nor anything not yet in an area.
 /// </summary>

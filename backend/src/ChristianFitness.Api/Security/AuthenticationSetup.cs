@@ -28,7 +28,7 @@ internal static class AuthenticationSetup
 
     /// <summary>
     /// The staff area of each route segment after <see cref="AdminRoutePrefix"/>; a segment not here
-    /// is <see cref="StaffArea.Unlisted"/>, closed to Moderators until its slice names it (ADR 0017).
+    /// is <see cref="StaffArea.Unlisted"/>, closed to Moderators until its slice names it (ADR 0020).
     /// </summary>
     private static readonly Dictionary<string, StaffArea> AreaSegments = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -111,7 +111,7 @@ internal static class AuthenticationSetup
         var authorization = services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
         // One policy per staff area: the staff session, and the role the database holds now must
-        // open the area (L2-019; ADR 0017). StaffAreaAuthorizationHandler decides the requirement.
+        // open the area (L2-019; ADR 0020). StaffAreaAuthorizationHandler decides the requirement.
         foreach (var area in Enum.GetValues<StaffArea>())
         {
             authorization.AddPolicy(PolicyFor(area), policy => policy
@@ -150,7 +150,7 @@ internal static class AuthenticationSetup
     /// Every controller routed under <see cref="AdminRoutePrefix"/> requires the policy of its staff
     /// area, read from where it is routed, so a later admin endpoint can neither forget the staff
     /// session nor its role rule; <c>[AllowAnonymous]</c> on an action (the staff sign-in) still opts
-    /// out (L2-018 AC4, L2-019; ADR 0017).
+    /// out (L2-018 AC4, L2-019; ADR 0020).
     /// </summary>
     public static void AddStaffAreaConvention(this MvcOptions options) =>
         options.Conventions.Add(new StaffAreaConvention());

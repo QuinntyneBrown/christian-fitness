@@ -7,7 +7,7 @@ namespace ChristianFitness.Api.Security;
 
 /// <summary>
 /// Gives a staff policy's 403 the code its area handler failed with, <c>not_staff</c> or
-/// <c>forbidden_role</c> (L2-019 AC1, AC4; ADR 0017), then lets the default handler forbid, so the
+/// <c>forbidden_role</c> (L2-019 AC1, AC4; ADR 0020), then lets the default handler forbid, so the
 /// status-code page writes the usual ProblemDetails with that code and nothing else.
 /// </summary>
 internal sealed class StaffRefusalResultHandler : IAuthorizationMiddlewareResultHandler

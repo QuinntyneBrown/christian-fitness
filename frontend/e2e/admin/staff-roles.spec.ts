@@ -12,12 +12,12 @@ const LEAD =
   'Events and Services are run by admins. As a moderator, you look after members from the Dashboard and Members.';
 const NOTE = 'Need to manage events or services? Ask a community director to make you an admin.';
 
-/** The session answers a signed-in Moderator (L2-019; ADR 0017). */
+/** The session answers a signed-in Moderator (L2-019; ADR 0020). */
 function signedInAsModerator(api: ApiHandlers): void {
   api.on('GET', '/api/admin/session', () => ({ json: MODERATOR_SIGNED_IN }));
 }
 
-// L2-019 AC5 (ADR 0017): a Moderator's navigation lists only the areas their role opens.
+// L2-019 AC5 (ADR 0020): a Moderator's navigation lists only the areas their role opens.
 test.describe('Admin app, a Moderator', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -53,7 +53,7 @@ test.describe('Admin app, a Moderator', () => {
   });
 });
 
-// L2-019 AC5 (ADR 0017): an area the role does not open shows "Admins only" in its place, with the
+// L2-019 AC5 (ADR 0020): an area the role does not open shows "Admins only" in its place, with the
 // address kept, so a reload asks again.
 test.describe('Admin app, a Moderator on an Admins-only area', () => {
   test.use({ viewport: { width: 1440, height: 900 } });

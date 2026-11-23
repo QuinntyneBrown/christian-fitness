@@ -15,7 +15,7 @@ import { ADMINS_ONLY_PATH } from '../errors/forbidden-interceptor';
  * already opens the server-error screen and a 403 the forbidden screen. The admin routes use it as
  * `canActivateChild`, so every move between areas asks again. A session whose role does not open
  * the area being opened (`canManage`) shows "Admins only" in its place, the address kept, so a
- * reload asks again (L2-019 AC5; ADR 0017); the API refuses that area's requests either way.
+ * reload asks again (L2-019 AC5; ADR 0020); the API refuses that area's requests either way.
  */
 export const staffAuthGuard: CanActivateFn = (_route, state) => {
   const router = inject(Router);
