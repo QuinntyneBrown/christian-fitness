@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 62% (35 of 57 slices; 56 of 91 days)
+**% complete:** 63% (36 of 57 slices; 57 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -39,7 +39,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 28  | 8.1   | 8 Discover from the landing page    | ✅ Landing with upcoming events                   | Visitors see the community and upcoming events, and can join.                                                                                       | 1             |
 | 29  | 18.1  | 18 Build my profile                 | ✅ View my profile                                | Members see their profile and the events they registered for.                                                                                       | 1             |
 | 30  | 18.2  | 18 Build my profile                 | ✅ Edit my profile                                | Members edit name, bio, optional church, interests and goals.                                                                                       | 2             |
-| 31  | 19.1  | 19 View a member's profile          | View a member's profile                           | Members see another member's public profile, never private details.                                                                                 | 1             |
+| 31  | 19.1  | 19 View a member's profile          | ✅ View a member's profile                        | Members see another member's public profile, never private details.                                                                                 | 1             |
 | 32  | 12.1  | 12 Chat in an event group           | Real-time group chat                              | Registered members send and receive event group messages live.                                                                                      | 3             |
 | 33  | 12.2  | 12 Chat in an event group           | Chat history and failed sends                     | Older messages load in a bounded window; failed sends can retry.                                                                                    | 2             |
 | 34  | 12.3  | 12 Chat in an event group           | Group membership                                  | Only registered members join; cancelling a registration leaves the group.                                                                           | 1             |

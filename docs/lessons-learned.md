@@ -1676,3 +1676,24 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "Read the initial total after each new API" (30.1): the lazy landing chunk is 13.6 kB; `main` is 277.7 kB, under 280.
 - "Undo with the inverse edit" (10.1 on): both mutations were reverted with `sed` of the same unique text and the diff checked.
 - "Count a slice's new specs against the CI budget" (24.1): six specs, no redundant ones added.
+
+## Slice 19.1: View a member's profile
+
+**What slowed it**
+
+- The mock draws Message, Groups, goals and "Going to", but L2-005 AC3 allows only name, initials, bio and
+  interests (and a shown home church), so ADR 0038 records what is left out and the screen is smaller than the mock.
+- A `node -e` edit with an apostrophe and a `cat > file` with no input hung or failed again; the Write and Edit tools were used.
+- `ProfileHero` always drew its meta line, an empty paragraph for a member with no join date; it is now conditional.
+
+**New lessons**
+
+- A hidden field is an absent key (`WhenWritingNull`), so the exact-keys assertion proves absence; a null would hide it.
+- The 404 for a malformed id is the same answer as for an unknown one, so the API reveals nothing.
+- Two specs cover the slice (public fields with church hidden then shown on one test, and a failed load).
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone": showing the church always turned the backend key test red, and a null church turned the spec red; both undone with the inverse edit.
+- "Read the initial total after each new API": `main` 277.83 kB, under 280; no host style bindings added.
+- "Count a slice's new specs against the CI budget" (24.1): only two specs added.

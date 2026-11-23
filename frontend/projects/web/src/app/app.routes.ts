@@ -62,6 +62,13 @@ export const routes: Routes = [
           import('./pages/event-detail/event-detail-page').then((m) => m.EventDetailPage),
       },
       {
+        // Another member's public profile (L2-005 AC3; ADR 0038).
+        path: 'members/:id',
+        title: 'Member · Christian Fitness',
+        loadComponent: () =>
+          import('./pages/member-profile/member-profile-page').then((m) => m.MemberProfilePage),
+      },
+      {
         // The signed-in member's own profile (L2-005; ADR 0015).
         path: 'profile',
         title: 'Profile · Christian Fitness',

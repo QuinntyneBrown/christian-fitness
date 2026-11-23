@@ -86,10 +86,12 @@ The answer of `GET /api/profile/me` is
 The public profile (slice 19.1):
 
 - **`MemberProfilePage`** — routed page for another member, matching the mock
-  `pages/profile/member.html`. The route path is not listed in the mock manifest;
-  `/members/:id` is proposed, `<TO SUPPLY>` for confirmation.
-- **`GetPublicProfileHandler`** — returns `PublicProfileDto` with name, initials, bio
-  and interests. It adds `homeChurch` only when `Member.ShowHomeChurch` is true, and
+  `pages/profile/member.html`. The route is `/members/:id`
+  ([ADR 0038](../../../adr/0038-view-a-members-profile.md)): hero (name, initials, home church
+  only when shown), About and Into. The mock's Message button, goals, events and Groups wait for
+  slices 14.1, 12.3 and later.
+- **`GetPublicProfileHandler`** — `GET /api/members/{id}/profile` returns `PublicProfileDto` with name, bio
+  and interests (the screen derives the initials); 404 `not_found` for an unknown or malformed id. It adds `homeChurch` only when `Member.ShowHomeChurch` is true, and
   never includes email (L2-005 AC3). The DTO has no email field by construction.
 
 ## Requirements

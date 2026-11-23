@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { OwnProfileDto, ProfileApi, UpdateProfileDto } from '@cf/api';
+import type { OwnProfileDto, ProfileApi, PublicProfileDto, UpdateProfileDto } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
@@ -17,6 +17,10 @@ export class HttpProfileService implements ProfileApi {
 
   own(): Observable<OwnProfileDto> {
     return this.http.get<OwnProfileDto>('/api/profile/me');
+  }
+
+  member(memberId: string): Observable<PublicProfileDto> {
+    return this.http.get<PublicProfileDto>(`/api/members/${encodeURIComponent(memberId)}/profile`);
   }
 
   update(memberId: string, profile: UpdateProfileDto): Observable<OwnProfileDto> {
