@@ -11,7 +11,7 @@ namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
 /// What the admin tests need: a staff account with two-step verification set up, and signing in
-/// to the admin app as staff do, password then code (ADR 0011, ADR 0012).
+/// to the admin app as staff do, password then code (ADR 0011, ADR 0013).
 /// </summary>
 internal static class Staff
 {

@@ -11,7 +11,7 @@ import { catchError, map, of, throwError, type Observable } from 'rxjs';
 
 /**
  * {@link StaffSessionApi} over HTTP: `GET`, `POST` and `DELETE /api/admin/session` and
- * `POST /api/admin/session/two-step` (ADR 0011, ADR 0012). A
+ * `POST /api/admin/session/two-step` (ADR 0011, ADR 0013). A
  * failed write errors with an `ApiError` (`apiErrorOf`), so no screen handles an
  * `HttpErrorResponse`. It holds no state.
  */

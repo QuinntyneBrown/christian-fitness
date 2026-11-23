@@ -28,10 +28,10 @@ public static class InfrastructureServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Signing a member in and out with the session cookie, and staff with the admin session cookie,
-    /// keeping each session on the server, and reading the signed-in member and the client address
-    /// back. Only the API, which configures the cookie schemes, adds these (ADR 0007, ADR 0009,
-    /// ADR 0011, ADR 0012).
+    /// Signing a member in and out with the session cookie, and staff with the admin session cookie
+    /// after the second step's cookie, keeping each session on the server, and reading the
+    /// signed-in member and the client address back. Only the API, which configures the cookie
+    /// schemes, adds these (ADR 0007, ADR 0009, ADR 0011, ADR 0012, ADR 0013).
     /// </summary>
     public static IServiceCollection AddSessions(this IServiceCollection services)
     {

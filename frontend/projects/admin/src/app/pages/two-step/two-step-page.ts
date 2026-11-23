@@ -14,7 +14,7 @@ const FIELD_ERRORS = {
 
 /**
  * The code screen, "Enter your code" (mock docs/mocks/pages/admin-two-step/; L2-046 AC1 to AC5,
- * AC7; ADR 0012): after the password, staff enter the 6-digit code from their authenticator app and
+ * AC7; ADR 0013): after the password, staff enter the 6-digit code from their authenticator app and
  * land on the Dashboard. While the code is checked the button reads "Verifying…" and is disabled,
  * and the field holds still. A wrong code or a failure is said under the field, which keeps the
  * code and takes focus; an expired or locked pending sign-in goes back to Staff sign in with a

@@ -24,7 +24,7 @@ email or the password was wrong.
 The slice runs from the Staff sign in screen (mock `docs/mocks/pages/admin-sign-in/`) through
 the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
 ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md),
-[ADR 0012](../../../adr/0012-staff-two-step-verification.md)).
+[ADR 0013](../../../adr/0013-staff-two-step-verification.md)).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`) with `TextField`, `FormAlert` and
@@ -86,7 +86,7 @@ the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
 
 Error codes: `invalid_credentials` (401, one generic message), `not_staff` (403),
 `two_step_not_set_up` (403), `invalid_code` (401), `two_step_expired` (401) and
-`too_many_attempts` (429). There is no "Trust this browser" and no backup code (ADR 0012). The lockout of
+`too_many_attempts` (429). There is no "Trust this browser" and no backup code (ADR 0013). The lockout of
 `L2-004` AC3 (`too_many_attempts`, 429), which AC3 applies here too, arrives with slice 3.2 in
 `MemberCredentials`, so both sign-ins get it; the mock's locked copy is that slice's. The 30-minute idle expiry (AC5) and its session-expired notice
 are slice 9.3's. Telemetry records the route template and outcome code, never the email, the code, the secret or

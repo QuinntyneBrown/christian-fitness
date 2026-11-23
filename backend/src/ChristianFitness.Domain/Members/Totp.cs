@@ -5,7 +5,7 @@ using System.Text;
 namespace ChristianFitness.Domain.Members;
 
 /// <summary>
-/// The authenticator code of RFC 6238 (L2-046; ADR 0012): HMAC-SHA1 over the number of 30-second
+/// The authenticator code of RFC 6238 (L2-046; ADR 0013): HMAC-SHA1 over the number of 30-second
 /// steps since the Unix epoch, truncated to 6 digits as RFC 4226 says, which every authenticator
 /// app computes from an <c>otpauth://</c> link.
 /// </summary>

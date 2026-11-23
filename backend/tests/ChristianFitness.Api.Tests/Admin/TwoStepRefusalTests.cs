@@ -6,7 +6,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-046 AC3 to AC6 (ADR 0012): a wrong, malformed or used code is refused with
+/// L2-046 AC3 to AC6 (ADR 0013): a wrong, malformed or used code is refused with
 /// <c>invalid_code</c>; after 5 wrong codes in 15 minutes every code is refused with
 /// <c>too_many_attempts</c> until the window passes; a code with no pending sign-in, or after 5
 /// minutes, is refused with <c>two_step_expired</c>; staff without two-step set up are refused at

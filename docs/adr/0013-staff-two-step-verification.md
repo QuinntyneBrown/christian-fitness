@@ -1,4 +1,4 @@
-# 0012. Staff two-step verification: authenticator codes, a pending sign-in and a shared attempt window
+# 0013. Staff two-step verification: authenticator codes, a pending sign-in and a shared attempt window
 
 ## Status
 

@@ -13,7 +13,7 @@ namespace ChristianFitness.Application.Tests.Admin;
 
 /// <summary>
 /// L2-018 AC1 to AC3, L2-046 AC1 and AC6: which admin password steps start a pending sign-in and
-/// which are refused, and with which code, one case per row (ADR 0011, ADR 0012). None opens a
+/// which are refused, and with which code, one case per row (ADR 0011, ADR 0013). None opens a
 /// session: that is the second step's.
 /// </summary>
 public sealed class StaffSignInHandlerTests : IAsyncDisposable

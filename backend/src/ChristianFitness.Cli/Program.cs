@@ -16,7 +16,7 @@ const string Usage = """
       migrate           Apply the pending database migrations.
       seed              Insert the seed data that is missing; a second run changes nothing.
       two-step <email>  Give a staff account a new authenticator secret and print its
-                        otpauth:// link once, for the staff member's app (ADR 0012).
+                        otpauth:// link once, for the staff member's app (ADR 0013).
 
     Settings (environment variables): ConnectionStrings__Default; for seed also
     Seed__StaffEmail, Seed__StaffPassword and Seed__StaffName.

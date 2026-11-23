@@ -1,7 +1,7 @@
 import type { ApiError } from '@cf/api';
 
 /**
- * What the code screen does with a refused code (L2-046 AC3 to AC5, AC7; ADR 0012):
+ * What the code screen does with a refused code (L2-046 AC3 to AC5, AC7; ADR 0013):
  * `invalid-code` says "That code doesn't match…" under the field (mock `invalid`), `expired` and
  * `locked` end the pending sign-in and go back to Staff sign in, and `failed` says "We couldn't
  * check your code…" under the field (mock `failed`) for anything else.

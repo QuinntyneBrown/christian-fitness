@@ -31,7 +31,7 @@ def staff(inner: str) -> str:
 def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, not_staff: bool = False, failed: bool = False,
            step: str = "") -> str:
     alert = ""
-    # The second step's endings and refusals (L2-046 AC4 to AC6; ADR 0012).
+    # The second step's endings and refusals (L2-046 AC4 to AC6; ADR 0013).
     step_alerts = {
         "expired": ("Sign in again", "Your sign-in timed out before a code was entered. Sign in again to get a new code."),
         "locked": ("Too many codes tried", "For your security, wait 15 minutes, then sign in again."),
@@ -135,7 +135,7 @@ s = screen("admin-two-step", "page", "Two-step verification", route="/admin/sign
            not_applicable={"loading": "Static form.", "empty": "A form, not a collection.", "error": "Server failures show as the invalid state's message pattern (state failed); an expired or locked sign-in goes back to sign in."})
 
 
-@s("default", "Second step: a 6-digit authenticator code; every sign-in asks for one (ADR 0012).")
+@s("default", "Second step: a 6-digit authenticator code; every sign-in asks for one (ADR 0013).")
 def _():
     return two_step()
 

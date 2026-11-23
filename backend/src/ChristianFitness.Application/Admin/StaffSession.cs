@@ -35,7 +35,7 @@ public sealed record StaffSignOutCommand : IRequest;
 /// without one is refused with <c>not_staff</c> and no session (L2-018 AC2). Staff without
 /// two-step verification set up are refused with <c>two_step_not_set_up</c> (L2-046 AC6). Staff
 /// get a pending sign-in, not a session: a <see cref="TwoStepChallenge"/> replacing any earlier one
-/// of theirs, named by the step cookie (L2-046 AC1; ADR 0012).
+/// of theirs, named by the step cookie (L2-046 AC1; ADR 0013).
 /// </summary>
 internal sealed class StaffSignInHandler(MemberCredentials credentials, IAppDbContext db, ITwoStepCookie cookie, TimeProvider time)
     : IRequestHandler<StaffSignInCommand>

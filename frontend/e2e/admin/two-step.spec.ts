@@ -39,7 +39,7 @@ async function reachCodeScreen(signIn: AdminStaffSignInPage, twoStep: AdminTwoSt
   await expect(twoStep.heading).toHaveText('Enter your code');
 }
 
-// L2-046 AC1: the code screen as the mock draws it (mock `admin-two-step/default`; ADR 0012).
+// L2-046 AC1: the code screen as the mock draws it (mock `admin-two-step/default`; ADR 0013).
 test.describe('Admin app, two-step verification', () => {
   test('shows the code screen the mock draws', async ({ page, api }) => {
     answerCode(api, { json: STAFF_SIGNED_IN });

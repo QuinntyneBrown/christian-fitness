@@ -36,7 +36,7 @@ Outside Development the API refuses to start, naming each one, while `Email__Smt
 missing and changes nothing on a second run. The API never migrates on startup: run `migrate`,
 then `seed`, then start the API.
 
-`cf two-step <email>` sets up two-step verification for a staff account (L2-046 AC6, ADR 0012):
+`cf two-step <email>` sets up two-step verification for a staff account (L2-046 AC6, ADR 0013):
 it stores a new authenticator secret and prints its `otpauth://` link once, for the staff member
 to add to their authenticator app (as a QR code or by hand). Staff cannot sign in to the admin app
 until it has been run for them, the first staff account from `cf seed` included. Running it again

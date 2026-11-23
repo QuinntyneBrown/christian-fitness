@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Admin;
 
 /// <summary>
-/// What <c>cf two-step &lt;email&gt;</c> does (L2-046 AC6; ADR 0012): gives the staff account with
+/// What <c>cf two-step &lt;email&gt;</c> does (L2-046 AC6; ADR 0013): gives the staff account with
 /// <paramref name="email"/> a new random authenticator secret, replacing any earlier one (how a
 /// lost phone is handled), and answers the <c>otpauth://</c> link an authenticator app reads, to be
 /// shown once to the operator. An email that is not a staff account's gets nothing.

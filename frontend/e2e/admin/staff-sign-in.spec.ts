@@ -29,7 +29,7 @@ interface Sent {
 
 /**
  * Starts signed out; the password step answers 202 with no session, as the API does with its step
- * cookie (ADR 0012), and the code answers Dana's staff session, which from then on is hers, as on
+ * cookie (ADR 0013), and the code answers Dana's staff session, which from then on is hers, as on
  * the server. Records each path, body and antiforgery header sent.
  */
 function answerSignIn(api: ApiHandlers): Sent[] {
@@ -108,7 +108,7 @@ test.describe('Admin app, staff sign in', () => {
     await expect(signIn.password).toHaveAttribute('autocomplete', 'current-password');
     await expect(signIn.submitButton).toHaveText('Sign in');
     await expect(signIn.alert).toHaveCount(0);
-    // Every sign-in asks for a code now (L2-046, ADR 0012).
+    // Every sign-in asks for a code now (L2-046, ADR 0013).
     await expect(signIn.note).toHaveText('Two-step verification required');
   });
 

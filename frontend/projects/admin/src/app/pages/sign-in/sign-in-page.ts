@@ -5,7 +5,7 @@ import { STAFF_SESSION_SERVICE } from '@cf/api';
 import { Button, FormAlert, StaffLayout, TextField } from '@cf/components';
 import { staffSignInRefusalOf, twoStepEndingOf, type StaffSignInRefusal } from '@cf/domain';
 
-/** The alert Staff sign in shows: a refusal of its own, or how the code screen ended (ADR 0012). */
+/** The alert Staff sign in shows: a refusal of its own, or how the code screen ended (ADR 0013). */
 type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked';
 
 /**
@@ -15,7 +15,7 @@ type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked';
  * A refusal shows one alert: wrong credentials name neither field (AC3), a member is told the
  * console is for the team (AC2), and anything else is a failure; the form stays as typed. The
  * note says a code comes next. Sent back from the code screen, it says why once: the pending
- * sign-in timed out or too many codes were tried (L2-046 AC4, AC5; ADR 0012).
+ * sign-in timed out or too many codes were tried (L2-046 AC4, AC5; ADR 0013).
  */
 @Component({
   selector: 'cf-sign-in-page',

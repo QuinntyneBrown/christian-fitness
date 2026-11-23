@@ -1,7 +1,7 @@
 namespace ChristianFitness.Domain.Members;
 
 /// <summary>
-/// One wrong second-step code for an account (L2-046 AC4; ADR 0012), counted against
+/// One wrong second-step code for an account (L2-046 AC4; ADR 0013), counted against
 /// <see cref="TwoStepChallenge.FailureWindow"/>. Kept per account, not per challenge, so signing in
 /// again does not reset the count. Nothing typed is kept.
 /// </summary>

@@ -15,7 +15,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
   },
   {
-    // The second step, after the password (L2-046; ADR 0012). The API decides whether a pending
+    // The second step, after the password (L2-046; ADR 0013). The API decides whether a pending
     // sign-in exists; without one the code is refused and staff go back to sign in.
     path: 'sign-in/verify',
     title: 'Enter your code · Christian Fitness Admin',

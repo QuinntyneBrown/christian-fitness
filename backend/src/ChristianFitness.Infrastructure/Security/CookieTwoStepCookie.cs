@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 namespace ChristianFitness.Infrastructure.Security;
 
 /// <summary>
-/// The step cookie <c>__Host-cf-admin-step</c> (L2-046; ADR 0012): <c>Secure</c>, <c>HttpOnly</c>,
+/// The step cookie <c>__Host-cf-admin-step</c> (L2-046; ADR 0013): <c>Secure</c>, <c>HttpOnly</c>,
 /// <c>SameSite=Strict</c>, path <c>/</c>, no domain, expiring with its challenge.
 /// </summary>
 internal sealed class CookieTwoStepCookie(IHttpContextAccessor accessor) : ITwoStepCookie

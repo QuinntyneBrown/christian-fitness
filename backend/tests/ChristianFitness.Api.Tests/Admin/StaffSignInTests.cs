@@ -6,7 +6,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-018 AC1 to AC3 (ADR 0011, ADR 0012): staff sign in to the admin app, password then code
+/// L2-018 AC1 to AC3 (ADR 0011, ADR 0013): staff sign in to the admin app, password then code
 /// (L2-046), with their own session cookie; a member without a staff role is refused with
 /// <c>not_staff</c> and 403; wrong credentials get the one generic refusal sign-in gives everyone.
 /// </summary>

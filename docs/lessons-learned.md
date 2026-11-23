@@ -519,6 +519,7 @@ worked when applied. Newest entries go at the bottom.
 - "Use free ports" (AGENTS.md): with other sessions running specs at the same time, the specs and
   the take used ports of their own (`CF_WEB_PORT`), since Playwright reuses a server already on a
   port.
+
 ## Slice 9.2: Two-step verification
 
 **What slowed it**

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-046 AC1 and AC2 (ADR 0012): the password step answers 202 with a pending sign-in and no staff
+/// L2-046 AC1 and AC2 (ADR 0013): the password step answers 202 with a pending sign-in and no staff
 /// session; the authenticator's code, within 5 minutes, starts the staff session.
 /// </summary>
 public sealed class TwoStepTests(TwoStepTests.Factory factory) : IClassFixture<TwoStepTests.Factory>

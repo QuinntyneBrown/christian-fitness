@@ -20,7 +20,7 @@ export interface TwoStepRequestDto {
 
 /**
  * The staff session of the admin app: who it is, signing in with a password and a code, and
- * signing out (ADR 0011, ADR 0012).
+ * signing out (ADR 0011, ADR 0013).
  */
 export interface StaffSessionApi {
   /** The current staff session; anyone without one is refused with 401. */

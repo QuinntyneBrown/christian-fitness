@@ -5,7 +5,7 @@ using System.Text;
 namespace ChristianFitness.Domain.Members;
 
 /// <summary>
-/// A pending admin sign-in (L2-046 AC1, AC5; ADR 0012): the password was right, the code is still
+/// A pending admin sign-in (L2-046 AC1, AC5; ADR 0013): the password was right, the code is still
 /// to come. Only a hash of its token is stored; the token itself lives in the step cookie.
 /// </summary>
 public sealed class TwoStepChallenge

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 namespace ChristianFitness.Domain.Members;
 
 /// <summary>
-/// A staff account's authenticator (L2-046; ADR 0012): the TOTP secret its app shares with the
+/// A staff account's authenticator (L2-046; ADR 0013): the TOTP secret its app shares with the
 /// server, and the last step whose code opened a session, so no code opens two. The secret is
 /// never answered by the API or logged.
 /// </summary>

@@ -2,7 +2,7 @@ namespace ChristianFitness.Application.Abstractions;
 
 /// <summary>
 /// The cookie that names a pending admin sign-in between the password and the code (L2-046;
-/// ADR 0012). It holds the challenge's token, which nothing logs.
+/// ADR 0013). It holds the challenge's token, which nothing logs.
 /// </summary>
 public interface ITwoStepCookie
 {

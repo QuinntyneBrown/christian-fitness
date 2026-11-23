@@ -4,7 +4,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Application.Tests.Members;
 
 /// <summary>
-/// L2-046 AC2 and AC3 (ADR 0012): the authenticator code of RFC 6238 (HMAC-SHA1, 30-second steps,
+/// L2-046 AC2 and AC3 (ADR 0013): the authenticator code of RFC 6238 (HMAC-SHA1, 30-second steps,
 /// 6 digits), which codes are accepted at a given moment, and the secret's base32 form for the
 /// <c>otpauth://</c> link, one case per row.
 /// </summary>

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Admin;
 
 /// <summary>
-/// L2-046 AC6 (ADR 0012): <c>cf two-step &lt;email&gt;</c> gives a staff account a new authenticator
+/// L2-046 AC6 (ADR 0013): <c>cf two-step &lt;email&gt;</c> gives a staff account a new authenticator
 /// secret and answers its <c>otpauth://</c> link once; a second run replaces the secret; a member
 /// without a staff role or an unknown email gets nothing.
 /// </summary>

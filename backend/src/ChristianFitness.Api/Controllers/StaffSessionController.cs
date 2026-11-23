@@ -7,7 +7,7 @@ namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
 /// The staff session of the admin app: sign in with a password and a code, who is signed in, sign
-/// out (L2-018, L2-046; ADR 0011, ADR 0012). Routed under <c>api/admin</c>, so every action but the
+/// out (L2-018, L2-046; ADR 0011, ADR 0013). Routed under <c>api/admin</c>, so every action but the
 /// two sign-in steps requires the Staff policy.
 /// </summary>
 [ApiController]

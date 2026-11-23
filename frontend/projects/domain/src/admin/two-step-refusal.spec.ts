@@ -7,7 +7,7 @@ import {
 } from './two-step-refusal';
 
 // L2-046 AC3 to AC5, AC7 and the mock's `invalid` and `failed` states and the sign-in screen's
-// `two-step-expired` and `two-step-locked` states (ADR 0012).
+// `two-step-expired` and `two-step-locked` states (ADR 0013).
 describe('twoStepRefusalOf', () => {
   it.each<{ error: ApiError; expected: TwoStepRefusal }>([
     { error: { status: 401, code: 'invalid_code' }, expected: 'invalid-code' },

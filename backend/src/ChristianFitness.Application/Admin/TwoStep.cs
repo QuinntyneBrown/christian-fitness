@@ -16,7 +16,7 @@ public sealed class VerifyTwoStepCommand : IRequest<StaffSessionDto>
 }
 
 /// <summary>
-/// Checks a second-step code against the pending sign-in its step cookie names (ADR 0012), refusing
+/// Checks a second-step code against the pending sign-in its step cookie names (ADR 0013), refusing
 /// in this order: no cookie or an unknown or expired challenge with <c>two_step_expired</c> (L2-046
 /// AC5); a full failure window with <c>too_many_attempts</c>, right code or not, ending the
 /// challenge (AC4); a wrong, malformed or used code with <c>invalid_code</c>, recording one failure

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A staff account's authenticator: one per account, gone with the account (ADR 0012).</summary>
+/// <summary>A staff account's authenticator: one per account, gone with the account (ADR 0013).</summary>
 internal sealed class StaffTwoStepConfiguration : IEntityTypeConfiguration<StaffTwoStep>
 {
     public void Configure(EntityTypeBuilder<StaffTwoStep> builder)
@@ -17,7 +17,7 @@ internal sealed class StaffTwoStepConfiguration : IEntityTypeConfiguration<Staff
     }
 }
 
-/// <summary>A pending admin sign-in, found by its token's hash (ADR 0012).</summary>
+/// <summary>A pending admin sign-in, found by its token's hash (ADR 0013).</summary>
 internal sealed class TwoStepChallengeConfiguration : IEntityTypeConfiguration<TwoStepChallenge>
 {
     public void Configure(EntityTypeBuilder<TwoStepChallenge> builder)
@@ -32,7 +32,7 @@ internal sealed class TwoStepChallengeConfiguration : IEntityTypeConfiguration<T
     }
 }
 
-/// <summary>A wrong second-step code; the window counts an account's recent ones (ADR 0012).</summary>
+/// <summary>A wrong second-step code; the window counts an account's recent ones (ADR 0013).</summary>
 internal sealed class TwoStepFailureConfiguration : IEntityTypeConfiguration<TwoStepFailure>
 {
     public void Configure(EntityTypeBuilder<TwoStepFailure> builder)
