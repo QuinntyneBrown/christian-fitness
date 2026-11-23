@@ -1,8 +1,11 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EVENTS_SERVICE } from '@cf/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { EVENTS_SERVICE, type EventCategory } from '@cf/api';
 import {
   Button,
+  Chip,
+  ChipBar,
   Container,
   EmptyState,
   EventCard,
@@ -17,8 +20,11 @@ import {
   EMPTY_FEED,
   type EventCardView,
   eventCardViewOf,
+  eventCategoryChips,
+  eventCategoryOf,
   type EventFeed,
   hasMore,
+  noCategoryEventsText,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpEventsService } from '../../services/http-events.service';
@@ -41,6 +47,8 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
   selector: 'cf-events-page',
   imports: [
     Button,
+    Chip,
+    ChipBar,
     Container,
     EmptyState,
     EventCard,
@@ -57,6 +65,13 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 })
 export class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
+  private readonly router = inject(Router);
+  protected readonly category = signal<EventCategory | null>(null);
+  protected readonly chips = computed(() => eventCategoryChips(this.category()));
+  protected readonly noResultsText = computed(() => {
+    const current = this.category();
+    return current === null ? '' : noCategoryEventsText(current);
+  });
   private readonly destroyRef = inject(DestroyRef);
   private request: Subscription | null = null;
 
@@ -76,7 +91,16 @@ export class EventsPage {
   protected readonly capped = computed(() => this.feed().capped);
 
   constructor() {
-    this.loadFirst();
+    inject(ActivatedRoute)
+      .queryParamMap.pipe(takeUntilDestroyed())
+      .subscribe((params) => {
+        this.category.set(eventCategoryOf(params.get('category')));
+        this.loadFirst();
+      });
+  }
+
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
   }
 
   /** Asks for the first page again, in place. */
@@ -91,7 +115,7 @@ export class EventsPage {
     this.request?.unsubscribe();
     this.more.set('loading');
     this.request = this.events
-      .page(cursor)
+      .page(cursor, this.category())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
@@ -108,7 +132,7 @@ export class EventsPage {
     this.more.set('idle');
     this.feed.set(EMPTY_FEED);
     this.request = this.events
-      .page(null)
+      .page(null, this.category())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {

@@ -6,6 +6,13 @@
         <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
       </div>
     </div>
+    <cf-chip-bar label="Filter events">
+      @for (chip of chips(); track chip.href) {
+        <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate($event)">{{
+          chip.label
+        }}</cf-chip>
+      }
+    </cf-chip-bar>
     @if (state() === 'loading') {
       <cf-skeleton-region label="Loading events">
         <cf-event-grid [items]="skeletons" [template]="skeletonCard" />
@@ -17,6 +24,10 @@
         text="We couldn't reach Christian Fitness. Check your connection and try again."
       >
         <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+      </cf-empty-state>
+    } @else if (cards().length === 0 && category() !== null) {
+      <cf-empty-state heading="Nothing here yet" [text]="noResultsText()">
+        <cf-button slot="actions" size="sm" (click)="navigate('/events')">Clear filter</cf-button>
       </cf-empty-state>
     } @else if (cards().length === 0) {
       <cf-empty-state

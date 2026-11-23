@@ -77,6 +77,7 @@ export function generatedEvent(n: number): EventSummary {
 export interface EventsAsked {
   /** The `cursor` of each request, in order; `null` for the first page. */
   cursors: (string | null)[];
+  categories: (string | null)[];
 }
 
 /**
@@ -88,17 +89,21 @@ export function answerEvents(
   events: EventSummary[],
   fail: (requestNumber: number) => { status?: number; abort?: boolean } | null = () => null,
 ): EventsAsked {
-  const asked: EventsAsked = { cursors: [] };
+  const asked: EventsAsked = { cursors: [], categories: [] };
   api.on('GET', '/api/events', (request) => {
     const number = asked.cursors.length;
     const cursor = new URL(request.url()).searchParams.get('cursor');
+    const category = new URL(request.url()).searchParams.get('category');
+    asked.categories.push(category);
     asked.cursors.push(cursor);
     const refusal = fail(number);
     if (refusal?.abort) return { abort: true };
     if (refusal) return { status: refusal.status ?? 400, json: { code: 'error' } };
     const from = cursor === null ? 0 : Number(cursor);
-    const page = events.slice(from, from + 20);
-    const next = from + 20 < events.length ? String(from + 20) : null;
+    const matches =
+      category === null ? events : events.filter((event) => event.category === category);
+    const page = matches.slice(from, from + 20);
+    const next = from + 20 < matches.length ? String(from + 20) : null;
     return { json: { events: page, nextCursor: next } };
   });
   return asked;

@@ -63,8 +63,26 @@ export class WebEventsPage {
     this.currentNavLink = nav.locator('[aria-current="page"]');
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/events');
+  filter(name: string): Locator {
+    return this.page
+      .getByRole('group', { name: 'Filter events' })
+      .getByRole('link', { name, exact: true });
+  }
+
+  get noResults(): Locator {
+    return this.page.getByRole('heading', { name: 'Nothing here yet' });
+  }
+
+  get noResultsText(): Locator {
+    return this.page.locator('.empty-state__text');
+  }
+
+  get clearFilter(): Locator {
+    return this.page.getByRole('button', { name: 'Clear filter' });
+  }
+
+  async open(category?: string): Promise<void> {
+    await this.page.goto(category ? `/events?category=${encodeURIComponent(category)}` : '/events');
   }
 
   title(): Promise<string> {

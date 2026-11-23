@@ -20,7 +20,7 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> page : Open Events
-page -> client : listEvents(null, null)
+page -> client : page(null, null)
 client -> ctrl : GET /api/events
 ctrl -> h : Send ListEventsQuery
 h -> db : Published, StartsAt > now, order by StartsAt, take 21 (L2-009)
@@ -30,9 +30,9 @@ ctrl --> client : 200 JSON
 client --> page : EventPageDto
 page --> actor : event-card list with going/capacity
 actor -> page : Select category chip
-page -> page : Reset EventFeed; chip aria-pressed="true"
-page -> client : listEvents(category, null)
-client -> ctrl : GET /api/events?category=Run
+page -> page : Address /events?category=run; reset EventFeed; chip aria-current="page"
+page -> client : page(null, "run")
+client -> ctrl : GET /api/events?category=run
 ctrl -> h : Send ListEventsQuery
 h -> db : Same filter plus category
 db --> h : Rows
@@ -45,8 +45,8 @@ else matches
   page --> actor : Filtered event-card list
 end
 opt member scrolls to the end and NextCursor is set
-  page -> client : listEvents(category, NextCursor)
-  client -> ctrl : GET /api/events?cursor=...
+  page -> client : page(NextCursor, "run")
+  client -> ctrl : GET /api/events?category=run&cursor=...
   ctrl -> h : Send ListEventsQuery
   h -> db : Next 20 after cursor
   db --> h : Rows

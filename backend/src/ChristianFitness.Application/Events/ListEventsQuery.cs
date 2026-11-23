@@ -34,8 +34,8 @@ public sealed record ListEventsQuery(string? Cursor, string? Category = null) : 
     public const int PageSize = 20;
 }
 
-/// <summary>A cursor this API did not hand out is refused with <c>cursor_invalid</c> on the <c>cursor</c> field.</summary>
-internal sealed class ListEventsValidator : AbstractValidator<ListEventsQuery>
+/// <summary>A cursor or category this API does not know is refused with <c>cursor_invalid</c> or <c>category_invalid</c>.</summary>
+public sealed class ListEventsValidator : AbstractValidator<ListEventsQuery>
 {
     public ListEventsValidator()
     {

@@ -1,1 +1,7 @@
-<a class="chip" [href]="href()" [attr.aria-current]="current() ? 'page' : null"><ng-content /></a>
+<a
+  class="chip"
+  [href]="href()"
+  [attr.aria-current]="current() ? 'page' : null"
+  (click)="follow($event)"
+  ><ng-content
+/></a>
