@@ -62,6 +62,13 @@ export const routes: Routes = [
           import('./pages/event-detail/event-detail-page').then((m) => m.EventDetailPage),
       },
       {
+        // An event's group chat, for the members registered for it (L2-016; ADR 0039).
+        path: 'events/:id/chat',
+        title: 'Group chat · Christian Fitness',
+        loadComponent: () =>
+          import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
+      },
+      {
         // Another member's public profile (L2-005 AC3; ADR 0038).
         path: 'members/:id',
         title: 'Member · Christian Fitness',

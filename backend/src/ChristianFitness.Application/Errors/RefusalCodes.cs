@@ -42,6 +42,12 @@ public static class RefusalCodes
     /// </summary>
     public const string Forbidden = "forbidden";
 
+    /// <summary>The member is not registered for the event whose chat they asked for (L2-016; ADR 0039).</summary>
+    public const string NotAParticipant = "not_a_participant";
+
+    /// <summary>A chat message is empty or longer than 2,000 characters (L2-016; ADR 0039).</summary>
+    public const string MessageInvalid = "message_invalid";
+
     /// <summary>A field is longer than its limit (L2-003 AC6).</summary>
     public const string FieldTooLong = "field_too_long";
 
