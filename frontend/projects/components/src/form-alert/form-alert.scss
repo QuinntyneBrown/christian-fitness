@@ -28,6 +28,12 @@
   font-size: var(--font-size-md);
 }
 
+.inline-link {
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+  font-weight: var(--font-weight-semibold);
+}
+
 .form-alert__list {
   margin-top: var(--space-1);
 
@@ -40,7 +46,8 @@
 
 // Touch: each link of the summary is a 44 px tall target; the lines stand apart to make room.
 @media (pointer: coarse) {
-  .form-alert__list a {
+  .form-alert__list a,
+  .inline-link {
     display: inline-flex;
     align-items: center;
     min-height: var(--target-comfortable);

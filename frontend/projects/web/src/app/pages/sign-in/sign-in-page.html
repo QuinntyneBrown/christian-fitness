@@ -13,11 +13,12 @@
       text="Check both and try again."
     />
   } @else if (refusal() === 'too-many-attempts') {
-    <!-- "Reset your password" waits for the screen it opens (journey 20, ADR 0010). -->
     <cf-form-alert
       slot="alert"
       heading="Sign-in paused for 15 minutes"
       text="Too many attempts, so we paused sign-in to keep your account safe."
+      link="Reset your password"
+      linkHref="/forgot-password"
     />
   } @else if (refusal() === 'suspended') {
     <cf-form-alert

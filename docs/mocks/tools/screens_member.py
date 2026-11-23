@@ -253,7 +253,7 @@ def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
         # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0011).
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
-            f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a> to get back in now.') + "</div>"
+            f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
     if suspended:
         # L2-004 AC4: shown only once the right password was given (ADR 0011).
         alert = '<div class="auth__alert">' + form_alert(

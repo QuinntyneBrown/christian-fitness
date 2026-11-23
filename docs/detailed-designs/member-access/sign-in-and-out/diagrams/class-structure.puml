@@ -32,7 +32,7 @@ package "Member web app and libraries" {
   class signInRefusalOf <<domain>> {
     +(error): 'invalid-credentials'|'too-many-attempts'|'suspended'|'failed'
   }
-  class returnPathOf <<domain>> {
+  class signInReturnPathOf <<domain>> {
     +(value): string
   }
   interface SessionApi <<api>> {
@@ -93,7 +93,7 @@ package "Christian Fitness API, Application and Domain" {
 HttpSessionService ..|> SessionApi
 SignInPage ..> SessionApi : injects SESSION_SERVICE
 SignInPage ..> signInRefusalOf
-SignInPage ..> returnPathOf : returnUrl
+SignInPage ..> signInReturnPathOf : returnUrl
 MemberShell --> AppHeader
 MemberShell ..> SessionApi : signOut()
 memberAuthGuard ..> SessionApi : current()

@@ -53,8 +53,7 @@ act the cuts are hard.
   stored as a SHA-256 of the email and pruned as the window passes, attempts during the pause not
   lengthening it, a suspended member's wrong password getting the generic answer, refused joins
   not counting towards the limit, the dark theme (shot, not shown) and
-  `ASPNETCORE_FORWARDEDHEADERS_ENABLED` for the proxy. "Reset your password" in the paused message
-  waits for journey 20.
+  `ASPNETCORE_FORWARDEDHEADERS_ENABLED` for the proxy.
 
 ## Build it again
 

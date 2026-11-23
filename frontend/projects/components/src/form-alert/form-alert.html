@@ -7,7 +7,12 @@
   <div>
     <p class="form-alert__title">{{ heading() }}</p>
     @if (text(); as sentence) {
-      <p>{{ sentence }}</p>
+      <p>
+        {{ sentence }}
+        @if (link(); as label) {
+          <a class="inline-link" [href]="linkHref()">{{ label }}</a>
+        }
+      </p>
     }
     @if (items().length) {
       <ul class="form-alert__list">

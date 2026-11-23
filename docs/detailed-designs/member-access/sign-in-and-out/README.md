@@ -27,13 +27,14 @@ route first asked for ([ADR 0011](../../../adr/0011-sign-in-protections.md)).
   `field`, `input` and `form-alert` blocks, with one signal per field. While the
   request is on its way the button reads "Signing in…", is disabled and busy, and the
   fields are read-only. Success navigates to the `returnUrl` query parameter the guard
-  set, read once from the route snapshot and checked by `returnPathOf` (`domain`): a
+  set, read once from the route snapshot and checked by `signInReturnPathOf` (`domain`): a
   path inside the app (one leading `/`, no `//`, no `\`, no control character, not
   `/sign-in` itself) is followed, anything else, or none, opens `/home` (L2-004 AC1,
   AC6). `signInRefusalOf` (`domain`) turns the `ApiError` into what the screen shows,
   each as a `form-alert` that takes focus, with no field marked invalid:
   - 401 `invalid_credentials` — "Email or password is incorrect" (L2-004 AC2, mock `invalid`);
-  - 429 `too_many_attempts` — "Sign-in paused for 15 minutes" (L2-004 AC3, mock `error`);
+  - 429 `too_many_attempts` — "Sign-in paused for 15 minutes", ending with the link "Reset your
+    password" (L2-004 AC3, mock `error`);
   - 403 `account_suspended` — "Your account is suspended", with a sentence to contact the
     team (L2-004 AC4, mock `suspended`);
   - anything else — "We couldn't sign you in" (mock `failed`).

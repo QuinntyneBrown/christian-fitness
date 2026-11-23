@@ -53,11 +53,13 @@ accounts. Staff suspend members in slice 27.1; until then only the tests make a 
   who corrects a mistyped email, and could only be enabled again by a timer the screen does not
   need. The `sign-in/error` mock was changed to match, and its alert now takes focus as every
   other refusal does.
-- **"Reset your password" is left out of the paused alert until journey 20** builds the screen it
-  opens, as ADR 0009 left out "Forgot your password?"; the mock keeps both links.
+- **"Reset your password" ends the paused alert** and opens `/forgot-password`, the screen slice
+  20.1 built, so a paused member can get back in without waiting. `FormAlert` gains an optional
+  link after its sentence (`link`, `linkHref`), as `TextField` has after an error; the mock's
+  trailing "to get back in now" was dropped so that the link ends the sentence.
 - **The return address.** `memberAuthGuard` redirects a visitor to
   `/sign-in?returnUrl=<the URL asked for>`. `SignInPage` reads `returnUrl` once from the route
-  snapshot and passes it through `returnPathOf` (`domain`): only a path inside the app is followed
+  snapshot and passes it through `signInReturnPathOf` (`domain`): only a path inside the app is followed
   (one leading `/`, not `//`, no `\`, no control character, not `/sign-in` again); anything else,
   or nothing, opens `/home`. A crafted link to sign in therefore cannot send a member to another
   site after they sign in (an open redirect). L2-004 AC6 now says so.
