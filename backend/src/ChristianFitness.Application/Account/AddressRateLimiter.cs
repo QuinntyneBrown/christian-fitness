@@ -2,7 +2,7 @@ namespace ChristianFitness.Application.Account;
 
 /// <summary>
 /// At most a given number of leases per client address in a sliding window (L2-034; ADR 0012, ADR
-/// 0013). <see cref="TryAcquire"/> records one now and answers it, or none once the address has
+/// 0014). <see cref="TryAcquire"/> records one now and answers it, or none once the address has
 /// used its window; <see cref="Release"/> gives one back, for a limit that counts only what
 /// succeeded. Kept in memory under a lock: no address is stored, and each call forgets addresses
 /// whose leases have all left the window, so it holds at most the last window's leases. Each

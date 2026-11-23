@@ -42,6 +42,12 @@ public sealed class PasswordResetRaceTests(PasswordResetRaceTests.Factory factor
 
         public DbSet<SignInFailure> SignInFailures => db.SignInFailures;
 
+        public DbSet<StaffTwoStep> StaffTwoSteps => db.StaffTwoSteps;
+
+        public DbSet<TwoStepChallenge> TwoStepChallenges => db.TwoStepChallenges;
+
+        public DbSet<TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)

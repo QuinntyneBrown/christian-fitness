@@ -576,9 +576,10 @@ worked when applied. Newest entries go at the bottom.
 
 **What slowed it**
 
-- It was built out of order again, beside slices 3.2 and 9.1, and both merged while it was open.
-  Slice 9.1 took ADR 0011 and slice 3.2 then took 0012, so this slice's ADR was renumbered twice,
-  ending at 0013, in the record, the design, the code comments and the film. Each rebase met the
+- It was built out of order again, beside slices 3.2, 9.1 and 9.2, and all three merged while it
+  was open. They took ADRs 0011, 0012 and 0013 in turn, so this slice's ADR was renumbered three
+  times, ending at 0014, in the record, the design, the code comments and the film (rebuilt each
+  time its kicker changed); 9.2 also took L2-046, after this slice's L2-045. Each rebase met the
   other slice's new `RefusalKind` (`Forbidden`, then `TooManyRequests`), codes and service
   registrations in the same lines as this slice's `Gone`, `reset_link_expired` and session
   revocation, all kept side by side; 3.2 also added `SignInFailures` to `IAppDbContext`, which

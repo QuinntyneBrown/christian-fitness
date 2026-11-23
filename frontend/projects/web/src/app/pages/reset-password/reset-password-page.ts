@@ -18,7 +18,7 @@ type ResetState = 'checking' | 'form' | 'saved' | 'expired' | 'unchecked';
 
 /**
  * The Reset password screen (mock docs/mocks/pages/reset-password/) the emailed link opens (L2-045;
- * ADR 0013). It reads the token once from the link's fragment, keeps it here and takes it out of
+ * ADR 0014). It reads the token once from the link's fragment, keeps it here and takes it out of
  * the address bar (AC1). With no token the link is expired at once (AC4); otherwise "Checking your
  * link…" shows until the API names the account (mock `loading`, `default`). A short or mismatched
  * password is named on its field and in a summary that takes focus, and nothing is sent (AC5, mock

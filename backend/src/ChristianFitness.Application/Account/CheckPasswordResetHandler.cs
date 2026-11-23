@@ -6,7 +6,7 @@ namespace ChristianFitness.Application.Account;
 
 /// <summary>
 /// Answers the email of the account a usable link belongs to (L2-045 AC1); an unknown, used or
-/// expired link is refused 410 <c>reset_link_expired</c>, alike in every case (L2-045 AC4; ADR 0013).
+/// expired link is refused 410 <c>reset_link_expired</c>, alike in every case (L2-045 AC4; ADR 0014).
 /// </summary>
 internal sealed class CheckPasswordResetHandler(IAppDbContext db, TimeProvider time)
     : IRequestHandler<CheckPasswordResetQuery, PasswordResetCheckDto>

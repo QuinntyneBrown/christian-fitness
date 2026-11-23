@@ -8,7 +8,7 @@ namespace ChristianFitness.Api.Tests.Account;
 /// <summary>
 /// L2-034 AC3: 10 password reset requests from one IP address in one hour, whatever emails they
 /// named, refuse the next with HTTP 429 and code <c>rate_limited</c>, and no email is sent (ADR
-/// 0013). Each test asks from its own address, named in <see cref="ApiFactory.ClientAddressHeader"/>,
+/// 0014). Each test asks from its own address, named in <see cref="ApiFactory.ClientAddressHeader"/>,
 /// and moves the shared clock only forward.
 /// </summary>
 public sealed class PasswordResetRateLimitTests(ProtectionsApiFactory factory) : IClassFixture<ProtectionsApiFactory>

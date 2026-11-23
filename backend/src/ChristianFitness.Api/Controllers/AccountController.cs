@@ -29,7 +29,7 @@ public sealed class AccountController(ISender sender) : ControllerBase
     }
 
     /// <summary>
-    /// Answers the email of the account a usable reset link belongs to (L2-045 AC1; ADR 0013). The
+    /// Answers the email of the account a usable reset link belongs to (L2-045 AC1; ADR 0014). The
     /// token travels in the body, never in a URL.
     /// </summary>
     [AllowAnonymous]
@@ -37,7 +37,7 @@ public sealed class AccountController(ISender sender) : ControllerBase
     public async Task<ActionResult<PasswordResetCheckDto>> CheckPasswordReset(CheckPasswordResetQuery query, CancellationToken cancellationToken) =>
         await sender.Send(query, cancellationToken).ConfigureAwait(false);
 
-    /// <summary>Sets a new password through a usable reset link and answers 204 (L2-045 AC2; ADR 0013).</summary>
+    /// <summary>Sets a new password through a usable reset link and answers 204 (L2-045 AC2; ADR 0014).</summary>
     [AllowAnonymous]
     [HttpPost("password-reset/complete")]
     public async Task<IActionResult> CompletePasswordReset(CompletePasswordResetCommand command, CancellationToken cancellationToken)

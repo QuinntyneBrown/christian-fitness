@@ -132,7 +132,7 @@ test.describe('Member app, reset request refusals', () => {
     });
   }
 
-  // L2-034 AC3: the eleventh reset request from one address in an hour (mock `limited`, ADR 0013).
+  // L2-034 AC3: the eleventh reset request from one address in an hour (mock `limited`, ADR 0014).
   test('too many requests from one network say so and keep the email', async ({ page, api }) => {
     const sent = answerReset(api, problem(429, 'rate_limited'));
     const forgot = new WebForgotPasswordPage(page);

@@ -13,7 +13,7 @@ namespace ChristianFitness.Application.Account;
 /// 202 (L2-044 AC3). Only the hash of the link's token is stored, and one account is sent at most
 /// 3 links an hour (L2-044 AC6); the body was validated before this runs. One client address makes
 /// at most 10 requests an hour, whatever emails they name: the next is refused <c>rate_limited</c>
-/// before any lookup, so the refusal says nothing of accounts (L2-034 AC3; ADR 0013).
+/// before any lookup, so the refusal says nothing of accounts (L2-034 AC3; ADR 0014).
 /// </summary>
 internal sealed class RequestPasswordResetHandler(
     IAppDbContext db,
@@ -28,7 +28,7 @@ internal sealed class RequestPasswordResetHandler(
 
     public async Task Handle(RequestPasswordResetCommand request, CancellationToken cancellationToken)
     {
-        // Every request counts and none is given back (ADR 0013).
+        // Every request counts and none is given back (ADR 0014).
         _ = limiter.TryAcquire(clientAddress.PartitionKey)
             ?? throw new RefusalException(RefusalCodes.RateLimited, RefusalKind.TooManyRequests);
         var normalizedEmail = Member.NormalizeEmail(request.Email ?? string.Empty);

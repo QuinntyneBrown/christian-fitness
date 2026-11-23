@@ -29,7 +29,7 @@ export const routes: Routes = [
       import('./pages/forgot-password/forgot-password-page').then((m) => m.ForgotPasswordPage),
   },
   {
-    // The emailed link: the token rides in the fragment, which the page reads and drops (ADR 0013).
+    // The emailed link: the token rides in the fragment, which the page reads and drops (ADR 0014).
     path: 'reset-password',
     title: 'Reset password · Christian Fitness',
     loadComponent: () =>

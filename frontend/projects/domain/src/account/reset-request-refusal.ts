@@ -2,7 +2,7 @@ import type { ApiError } from '@cf/api';
 
 /**
  * What the Forgot password screen shows for a failed reset request (L2-044 AC5, AC7, L2-034 AC3;
- * ADR 0010, ADR 0013): `invalid` marks the email field, as the form's own check does (mock
+ * ADR 0010, ADR 0014): `invalid` marks the email field, as the form's own check does (mock
  * `invalid`); `rate-limited` is "Too many requests" for any 429 (mock `limited`); `failed` is
  * "We couldn't send the email" (mock `error`).
  */

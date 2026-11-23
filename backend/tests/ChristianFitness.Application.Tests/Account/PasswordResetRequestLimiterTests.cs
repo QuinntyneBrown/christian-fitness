@@ -5,7 +5,7 @@ namespace ChristianFitness.Application.Tests.Account;
 
 /// <summary>
 /// L2-034 AC3: the sliding hour of 10 reset requests per client address, one case per row (ADR
-/// 0013). The address key is <c>ClientAddressPartition</c>'s, tested with the account creations.
+/// 0014). The address key is <c>ClientAddressPartition</c>'s, tested with the account creations.
 /// </summary>
 public sealed class PasswordResetRequestLimiterTests
 {
