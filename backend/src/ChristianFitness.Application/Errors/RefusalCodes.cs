@@ -9,6 +9,9 @@ public static class RefusalCodes
     /// <summary>An event's capacity was set below the members going (L2-022 AC3; ADR 0025).</summary>
     public const string CapacityBelowGoing = "capacity_below_going";
 
+    /// <summary>Only a draft event can be published (L2-023 AC4; ADR 0026).</summary>
+    public const string EventNotDraft = "event_not_draft";
+
     /// <summary>An account already has this email (L2-003 AC2).</summary>
     public const string EmailTaken = "email_taken";
 

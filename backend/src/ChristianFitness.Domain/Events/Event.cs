@@ -118,4 +118,18 @@ public sealed class Event
         Summary = summary.Trim();
         ImageKey = imageKey;
     }
+
+    /// <summary>
+    /// Makes a draft visible to members (L2-023 AC3; ADR 0026). Only a draft can be published; the
+    /// handler refuses any other status before it asks.
+    /// </summary>
+    public void Publish()
+    {
+        if (Status != EventStatus.Draft)
+        {
+            throw new InvalidOperationException("Only a draft event can be published.");
+        }
+
+        Status = EventStatus.Published;
+    }
 }
