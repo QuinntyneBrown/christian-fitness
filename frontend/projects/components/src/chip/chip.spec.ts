@@ -7,13 +7,46 @@ describe('Chip', () => {
     [false, null],
   ])('is a filter link, marked current when current is %s', (current, expected) => {
     const fixture = TestBed.createComponent(Chip);
-    fixture.componentRef.setInput('href', '/events?type=run');
+    fixture.componentRef.setInput('href', '/events?category=run');
     fixture.componentRef.setInput('current', current);
     fixture.detectChanges();
 
     const link = (fixture.nativeElement as HTMLElement).querySelector('a')!;
-    expect(link.getAttribute('href')).toBe('/events?type=run');
+    expect(link.getAttribute('href')).toBe('/events?category=run');
     expect(link.getAttribute('aria-current')).toBe(expected);
+  });
+
+  it('prevents reload and emits navigate on a plain click', () => {
+    const fixture = TestBed.createComponent(Chip);
+    fixture.componentRef.setInput('href', '/events?category=run');
+    fixture.detectChanges();
+    const targets: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => targets.push(href));
+
+    const link = (fixture.nativeElement as HTMLElement).querySelector('a')!;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    link.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(targets).toEqual(['/events?category=run']);
+  });
+
+  it.each([
+    { why: 'Ctrl-click', init: { button: 0, ctrlKey: true } },
+    { why: 'middle-click', init: { button: 1 } },
+  ])('leaves $why to the browser without emitting navigate', ({ init }) => {
+    const fixture = TestBed.createComponent(Chip);
+    fixture.componentRef.setInput('href', '/events?category=run');
+    fixture.detectChanges();
+    const targets: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => targets.push(href));
+
+    const link = (fixture.nativeElement as HTMLElement).querySelector('a')!;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+    link.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(targets).toEqual([]);
   });
 });
 

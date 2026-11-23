@@ -34,7 +34,7 @@ export interface EventsApi {
    * `cursor` (`null` for the first). A 5xx to it opens the server-error screen; any failure errors
    * with the `HttpErrorResponse`, so the screen shows its own failed state.
    */
-  page(cursor: string | null): Observable<EventPageDto>;
+  page(cursor: string | null, category?: EventCategory | null): Observable<EventPageDto>;
 }
 
 /** Binds {@link EventsApi}; the Events screen provides it on its own route component. */

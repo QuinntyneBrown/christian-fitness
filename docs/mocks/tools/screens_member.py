@@ -633,7 +633,8 @@ def chip_bar(active: str, going: bool, links: dict | None = None) -> str:
 
 
 CAT_LINKS = {"All": href("events"), "Run": href("events", "filtered"), "Workshop": href("events", "no-results"),
-             "Workout": href("events", "filtered"), "Basketball": href("events", "filtered"), "Mobility": href("events", "filtered")}
+             "Workout": href("events", "filtered"), "Basketball": href("events", "filtered"), "Mobility": href("events", "filtered"),
+             "Retreat": href("events", "no-results")}
 
 
 def event_card(e: dict) -> str:
@@ -733,7 +734,7 @@ def _():
 def _():
     return member_shell("events", events_page(empty_block(
         "Nothing here yet", "No workshop events right now. New ones are posted every week.",
-        '<a class="btn btn--primary btn--sm" href="default.html">Show all events</a>', tag="p"), active="Workshop"))
+        '<a class="btn btn--primary btn--sm" href="default.html">Clear filter</a>', tag="p"), active="Workshop"))
 
 
 @s("filtered", "Run filter: only the Easter Sunrise 5K.")

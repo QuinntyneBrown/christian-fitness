@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 49% (27 of 57 slices; 45 of 91 days)
+**% complete:** 51% (28 of 57 slices; 46 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1418,3 +1418,43 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   stated precaution, not a proven rule.
 - "Read the initial total after each new Angular API" (30.1): unchanged at 278.96 kB; the dialog's
   chunk grew from 19.5 kB to 20.5 kB.
+
+## Slice 4.2: Filter events
+
+**What slowed it**
+
+- L2-009 AC2 originally described category filters as `aria-pressed="true"` buttons while the design
+  system (`chip.html`) and mocks draw filter chips as links with `aria-current="page"`, missed the
+  Retreat chip, and worded Clear filter as "Show all events". ADR 0030 settled the link address
+  (`/events?category=<name>`), added Retreat to the mock and aligned Clear filter before the screen
+  was wired.
+- `ListEventsValidator` was `internal` from slice 4.1, which broke direct validator testing in
+  `ChristianFitness.Application.Tests`, and an inline `new[]` in the theory tripped CA1861; making
+  the validator `public` and moving the expected error array to a `static readonly` field fixed both.
+- `cf-chip-bar` lacked the design system's `margin-top: var(--space-6)`, leaving the filter bar flush
+  against the page heading until added to `chip-bar.scss`.
+- Slices 27.1 and 27.2 merged onto `main` mid-slice and took ADRs 0028 and 0029, so this slice's ADR
+  renumbered cleanly from 0028 to 0030 across the record, the design and the code comments during
+  rebase.
+
+**New lessons**
+
+- Filter chips that update the query string stay real `<a>` links: `cf-chip` prevents default and
+  emits `navigate` only on a plain primary click (`isPlainClick`), so Ctrl-click and middle-click
+  still open a new tab while plain clicks and Enter navigate without reloading the document.
+- Resetting `EventFeed` whenever `queryParamMap` changes ensures a cursor from one category is never
+  sent to another, while browser Back and direct links restore the filter from the URL alone.
+
+**How earlier lessons worked**
+
+- "Read a URL through one pure function that cannot produce a question the API refuses" (26.1) and
+  "A rule computed in both stacks shares one inline case table" (2.2): `eventCategoryOf` in `domain`
+  and `ListEventsValidatorTests` share the same 11 rows, turning unknown or mistyped categories in
+  the URL into All (`null`) while the API still refuses bad direct requests with `category_invalid`.
+- "Prove a rule red by breaking it alone" with `breakcheck` (1.4, 26.1): 10 single-line breaks across
+  the handler, validator, `EventFieldCodes.All`, `cf-chip`, `eventCategoryOf`, `eventCategoryChips`,
+  `HttpEventsService`, `loadMore` and the no-results branch each turned its target test red.
+- "Read the initial total after each new Angular API" (30.1): `ActivatedRoute` and `Router` were
+  already in `main`; the member initial bundle stayed at 277.39 kB (0 bytes added to `main`).
+- "No log, metric or span carries a query string" (1.2, 26.1): `EventsTelemetryTests` proved neither
+  `?category=workshop` nor a refused `?category=secretcategoryprobe` reaches any span tag or log.

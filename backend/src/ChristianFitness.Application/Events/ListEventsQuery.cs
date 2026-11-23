@@ -26,21 +26,28 @@ public sealed record EventPageDto(IReadOnlyList<EventSummaryDto> Events, string?
 
 /// <summary>
 /// The published events that have not started, soonest first, 20 to a page after the opaque
-/// <paramref name="Cursor"/> (L2-009 AC1, AC4, AC5; ADR 0027).
+/// <paramref name="Cursor"/>, of one category when <paramref name="Category"/> names it (L2-009 AC1, AC2,
+/// AC4, AC5; ADR 0027, ADR 0030).
 /// </summary>
-public sealed record ListEventsQuery(string? Cursor) : IRequest<EventPageDto>
+public sealed record ListEventsQuery(string? Cursor, string? Category = null) : IRequest<EventPageDto>
 {
     public const int PageSize = 20;
 }
 
-/// <summary>A cursor this API did not hand out is refused with <c>cursor_invalid</c> on the <c>cursor</c> field.</summary>
-internal sealed class ListEventsValidator : AbstractValidator<ListEventsQuery>
+/// <summary>A cursor or category this API does not know is refused with <c>cursor_invalid</c> or <c>category_invalid</c>.</summary>
+public sealed class ListEventsValidator : AbstractValidator<ListEventsQuery>
 {
-    public ListEventsValidator() =>
+    public ListEventsValidator()
+    {
         RuleFor(q => q.Cursor)
             .Must(cursor => cursor is null || EventCursor.TryParse(cursor, out _))
             .WithMessage("The list could not continue")
             .WithErrorCode(EventFieldCodes.CursorInvalid);
+        RuleFor(q => q.Category)
+            .Must(category => category is null || EventNames.CategoryOf(category) is not null)
+            .WithMessage("Choose one of the categories")
+            .WithErrorCode(EventFieldCodes.CategoryInvalid);
+    }
 }
 
 /// <summary>The start and id of the last event of a page, as an opaque URL-safe text.</summary>
@@ -86,6 +93,11 @@ internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader re
     {
         var now = time.GetUtcNow();
         var events = db.Events.AsNoTracking().Where(e => e.Status == EventStatus.Published && e.StartsAt > now);
+        if (EventNames.CategoryOf(request.Category) is { } category)
+        {
+            events = events.Where(e => e.Category == category);
+        }
+
         if (request.Cursor is not null && EventCursor.TryParse(request.Cursor, out var after))
         {
             events = events.Where(e => e.StartsAt > after.StartsAt || (e.StartsAt == after.StartsAt && e.Id.CompareTo(after.Id) > 0));

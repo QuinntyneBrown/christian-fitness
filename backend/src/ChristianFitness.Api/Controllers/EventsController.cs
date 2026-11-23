@@ -12,8 +12,11 @@ namespace ChristianFitness.Api.Controllers;
 [Route("api/events")]
 public sealed class EventsController(ISender sender) : ControllerBase
 {
-    /// <summary>One page of the published events that have not started, after the cursor a page gave.</summary>
+    /// <summary>
+    /// One page of the published events that have not started, after the cursor a page gave, of one
+    /// category when asked (ADR 0030).
+    /// </summary>
     [HttpGet]
-    public async Task<IActionResult> List([FromQuery] string? cursor, CancellationToken cancellationToken) =>
-        Ok(await sender.Send(new ListEventsQuery(cursor), cancellationToken).ConfigureAwait(false));
+    public async Task<IActionResult> List([FromQuery] string? cursor, [FromQuery] string? category, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new ListEventsQuery(cursor, category), cancellationToken).ConfigureAwait(false));
 }

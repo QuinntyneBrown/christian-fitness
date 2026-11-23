@@ -27,13 +27,14 @@ public static class EventFieldCodes
     public const string SummaryTooLong = "summary_too_long";
     public const string ImageInvalid = "image_invalid";
     public const string CursorInvalid = "cursor_invalid";
+    public const string CategoryInvalid = "category_invalid";
 
     /// <summary>Every code a field of an event can fail with.</summary>
     public static readonly IReadOnlySet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         TitleRequired, TitleTooLong, CategoryRequired, DateRequired, StartTimeRequired, StartInPast, PlaceRequired,
         PlaceTooLong, AreaRequired, AreaTooLong, PriceInvalid, CapacityRequired, CapacityOutOfRange,
-        SummaryRequired, SummaryTooLong, ImageInvalid, CursorInvalid,
+        SummaryRequired, SummaryTooLong, ImageInvalid, CursorInvalid, CategoryInvalid,
     };
 }
 

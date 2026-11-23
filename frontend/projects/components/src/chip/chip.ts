@@ -1,4 +1,5 @@
-import { booleanAttribute, Component, input } from '@angular/core';
+import { booleanAttribute, Component, input, output } from '@angular/core';
+import { isPlainClick } from '../link/plain-click';
 
 /**
  * The design system's filter chip (docs/design-system/components/chip.html): a link to a filtered
@@ -14,4 +15,11 @@ import { booleanAttribute, Component, input } from '@angular/core';
 export class Chip {
   readonly href = input.required<string>();
   readonly current = input(false, { transform: booleanAttribute });
+  readonly navigate = output<string>();
+
+  protected follow(event: MouseEvent): void {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    this.navigate.emit(this.href());
+  }
 }
