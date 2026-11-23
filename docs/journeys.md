@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 20% (3 of 30 journeys; 17 of 83 days: journeys 1, 2 and 3 are done, journey 9 has 3 of its 4 days, journey 20 has 2 of its 3 days, and journey 30 has 1 of its 2 days)
+**% complete:** 22% (4 of 30 journeys; 18 of 83 days: journeys 1, 2, 3 and 20 are done, journey 9 has 3 of its 4 days, and journey 30 has 1 of its 2 days)
 
 | #   | Journey                          | App    | Description                                                                   | Effort (days) |
 | --- | -------------------------------- | ------ | ----------------------------------------------------------------------------- | ------------- |
@@ -29,7 +29,7 @@ telemetry), so those are not listed on their own.
 | 17  | Book a professional              | Member | Request a booking or message a professional from their listing.               | 3             |
 | 18  | Build my profile                 | Member | View and edit name, bio, church, interests and goals.                         | 3             |
 | 19  | View a member's profile          | Member | See another member's public profile from a chat or event.                     | 1             |
-| 20  | Reset a forgotten password       | Member | Request a reset link by email and choose a new password.                      | 3             |
+| 20  | ✅ Reset a forgotten password    | Member | Request a reset link by email and choose a new password.                      | 3             |
 | 21  | Review professional applications | Admin  | Staff approve or decline applications, oldest first.                          | 3             |
 | 22  | Apply to be listed               | Member | A member applies to be listed as a professional.                              | 2             |
 | 23  | Edit and remove listings         | Admin  | Staff edit a published listing or remove it with confirmation.                | 2             |

@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 20% (11 of 54 slices; 17 of 83 days)
+**% complete:** 22% (12 of 54 slices; 18 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -571,3 +571,53 @@ worked when applied. Newest entries go at the bottom.
   moved a `FakeTimeProvider` past the 5-minute and 15-minute thresholds, never sleeping.
 - "Security headers written in `OnStarting` survive the exception handler" (3.1) was the fix for
   the step cookie, once the failure was understood.
+
+## Slice 20.2: Choose a new password
+
+**What slowed it**
+
+- It was built out of order again, beside slices 3.2 and 9.1, which both held an ADR 0010 of
+  their own; this slice took 0011 and L2-045 and kept every shared table to appended rows, so a
+  rebase only renumbers.
+- The mock named the account above the fields ("For grace.thompson@gmail.com."), which the token
+  alone cannot do: a second endpoint checks the link first. That brought three mock states the
+  mocks lacked (`loading`, `failed`, `unchecked`), drawn before code.
+- The screen's code was written in the same sitting as its happy-path spec, so the refusal spec
+  passed at once and proved nothing. Each guard was broken in turn by a script (no-token state,
+  check refusal, form check, failure alert, save refusal, `replaceState`, the empty last line,
+  `aria-busy`); one break deleted the `if` of an `else if` chain and failed the build instead of
+  a test, so it was redone as a changed condition.
+- A Git Bash heredoc holding Python with "don't" failed to parse, as slices 1.2 to 20.1 warned;
+  the edit scripts went through the editor tool.
+
+**New lessons**
+
+- Single use under a race is an EF Core concurrency token on `UsedAt`: the database updates the
+  reset only while it is still unused, and `DbUpdateConcurrencyException` becomes the refusal.
+  EF Core InMemory checks concurrency tokens, so a decorator of `IAppDbContext` that spends the
+  link from another scope just before the real save reproduces the race with no sleeping.
+- Ending sessions in the same transaction as the password change needs no new store: an
+  Application contract whose Infrastructure implementation removes `Sessions` rows through the
+  request's scoped `AppDbContext` (the same instance as `IAppDbContext`) leaves them for the
+  handler's one `SaveChanges`.
+- A token in a fragment is read once from `ActivatedRoute.snapshot.fragment` and dropped with
+  `Location.replaceState`, which `main` already pays for: the whole screen cost the initial bundle
+  0.45 kB, all of it the route and the two service methods.
+- A breaking script must leave the code compiling: change a condition (`=== 'nothing'`), never
+  delete half of a chain.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 20.1): the
+  base stats were saved before the first change; `@switch`, `Location` and `computed` were
+  already paid for.
+- "Prove a rule red by breaking it alone" (1.1 to 20.1) caught nothing weak this time but was the
+  only proof for the specs written after the screen; the expiry boundary (`<` to `<=`), the used
+  check and the logged token each turned the right backend tests red.
+- "A rule computed in both stacks shares one inline case table" (2.2, 20.1): the new password's
+  rows sit in `new-password-rules.spec.ts` and `CompletePasswordResetValidatorTests.cs`.
+- "A gate in a fixture handler" (2.1) gave "Checking your link…" and "Saving…" and the film's
+  busy shots with no clock.
+- "Rebase onto origin/main before the PR" applied: rows 8 and 9 were still unmerged, so nothing
+  of slice 3.2's rate limiting could be reused; the per-IP limit on reset requests is recorded
+  for L2-034 in the design's open questions and ADR 0011.

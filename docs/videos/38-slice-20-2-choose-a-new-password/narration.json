@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["The reset email is in your inbox. One tap, and you choose a new password."] },
+    { "id": "open", "bars": 5, "lines": ["The link opens the Reset password screen. It checks the link first, then names the account it belongs to."] },
+    { "id": "token", "bars": 5, "lines": ["The link's secret sits after the hash sign, so no server ever logs it. The screen reads it, then wipes it from the address bar."] },
+    { "id": "save", "bars": 5, "lines": ["Type the new password twice and press save. The button says, saving, then your password is saved."] },
+    { "id": "everywhere", "bars": 5, "lines": ["Saving signs you out on every device, this one too. You sign in again with the new password."] },
+    { "id": "once", "bars": 5, "lines": ["A link works once, for thirty minutes. Used, expired or unknown, it shows the same page, with a new link one tap away."] },
+    { "id": "invalid", "bars": 4, "lines": ["Passwords that don't match, or are too short, are named before anything is sent."] },
+    { "id": "failed", "bars": 4, "lines": ["If the server fails, a message says so, and both passwords stay, ready to try again."] },
+    { "id": "race", "bars": 4, "lines": ["Even two saves at the same moment can't use one link twice. The second is refused."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice twenty point two, and journey twenty is done. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
