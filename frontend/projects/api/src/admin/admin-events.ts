@@ -83,6 +83,21 @@ export interface AdminEventDetailDto {
   status: EventStatus;
 }
 
+/** One registered member as staff see them: the name and when they registered, nothing else (ADR 0036). */
+export interface RegistrationRowDto {
+  name: string;
+  registeredAt: string;
+}
+
+/** `GET /api/admin/events/{id}/registrations`: the capacity, how many are going and the members, oldest first, at most 500. */
+export interface EventRegistrationsDto {
+  eventId: string;
+  title: string;
+  capacity: number;
+  going: number;
+  registrations: RegistrationRowDto[];
+}
+
 /** `POST /api/admin/events/images`: the key the image is kept under. */
 export interface EventImageDto {
   imageKey: string;
@@ -121,6 +136,9 @@ export interface AdminEventsApi {
    * an `ApiError`: 409 `event_not_published`, 404 `not_found` (ADR 0035).
    */
   cancel(id: string): Observable<AdminEventDto>;
+
+  /** The event's registrations (L2-024 AC1; ADR 0036). An unknown id errors with code `not_found` (404). */
+  registrations(id: string): Observable<EventRegistrationsDto>;
 
   /** Keeps a JPEG, PNG or WebP of up to 5 MB and answers its key; else `validation_failed` with `fieldCodes.image`. */
   uploadImage(file: File): Observable<EventImageDto>;

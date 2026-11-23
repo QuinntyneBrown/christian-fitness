@@ -8,6 +8,7 @@ import type {
   AdminEventTab,
   CreateEventRequestDto,
   EventImageDto,
+  EventRegistrationsDto,
   UpdateEventRequestDto,
 } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
@@ -53,6 +54,12 @@ export class HttpAdminEventsService implements AdminEventsApi {
   cancel(id: string): Observable<AdminEventDto> {
     return this.http
       .post<AdminEventDto>(`/api/admin/events/${encodeURIComponent(id)}/cancel`, null)
+      .pipe(catchError(asApiError));
+  }
+
+  registrations(id: string): Observable<EventRegistrationsDto> {
+    return this.http
+      .get<EventRegistrationsDto>(`/api/admin/events/${encodeURIComponent(id)}/registrations`)
       .pipe(catchError(asApiError));
   }
 

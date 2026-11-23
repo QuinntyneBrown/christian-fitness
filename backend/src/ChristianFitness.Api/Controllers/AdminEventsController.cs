@@ -28,6 +28,11 @@ public sealed class AdminEventsController(ISender sender) : ControllerBase
     public async Task<ActionResult<AdminEventDetailDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetAdminEventQuery(id), cancellationToken).ConfigureAwait(false);
 
+    /// <summary>The event's capacity, going and registered members' names and dates (L2-024 AC1).</summary>
+    [HttpGet("{id:guid}/registrations")]
+    public async Task<ActionResult<EventRegistrationsDto>> Registrations(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new GetEventRegistrationsQuery(id), cancellationToken).ConfigureAwait(false);
+
     /// <summary>Saves changes to the event and answers 200 with it.</summary>
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<AdminEventDto>> Update(Guid id, UpdateEventCommand command, CancellationToken cancellationToken)

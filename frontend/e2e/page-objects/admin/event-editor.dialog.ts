@@ -48,6 +48,8 @@ export class EventEditorDialog {
   readonly saveButton: Locator;
   /** The foot's Publish button, which reads "Publishing…" while it works. */
   readonly publishButton: Locator;
+  /** The foot's View registrations button, offered on an event that is not a draft. */
+  readonly viewRegistrationsButton: Locator;
   /** The foot's Cancel event button, offered on a published event. */
   readonly cancelEventButton: Locator;
   readonly chooseImageButton: Locator;
@@ -88,6 +90,7 @@ export class EventEditorDialog {
     this.publishButton = this.dialog.locator('.drawer__foot .btn', {
       hasText: /Publish/,
     });
+    this.viewRegistrationsButton = this.dialog.getByRole('button', { name: 'View registrations' });
     this.cancelEventButton = this.dialog.locator('.drawer__foot .btn', { hasText: /Cancel event/ });
     this.chooseImageButton = this.dialog.getByRole('button', { name: /^Choose image/ });
     this.removeImageButton = this.dialog.getByRole('button', { name: 'Remove image' });
@@ -116,6 +119,10 @@ export class EventEditorDialog {
 
   async publish(): Promise<void> {
     await this.publishButton.click();
+  }
+
+  async viewRegistrations(): Promise<void> {
+    await this.viewRegistrationsButton.click();
   }
 
   async cancelEvent(): Promise<void> {

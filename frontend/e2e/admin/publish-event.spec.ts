@@ -288,6 +288,10 @@ test.describe('Admin app, publishing an event', () => {
 
     await events.editEvent(PUBLISHED_EVENTS[1].title);
 
-    await expect(editor.footButtons).toHaveText(['Cancel event', 'Save changes']);
+    await expect(editor.footButtons).toHaveText([
+      'View registrations',
+      'Cancel event',
+      'Save changes',
+    ]);
   });
 });

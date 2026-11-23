@@ -43,6 +43,15 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/events/events-page').then((m) => m.AdminEventsPage),
       },
       {
+        // Who registered for one event and how much of its capacity is used (slice 24.1; ADR 0036).
+        path: 'events/:id/registrations',
+        title: 'Registrations · Christian Fitness Admin',
+        loadComponent: () =>
+          import('./pages/event-registrations/event-registrations-page').then(
+            (m) => m.EventRegistrationsPage,
+          ),
+      },
+      {
         path: 'services',
         title: 'Services · Christian Fitness Admin',
         data: { heading: 'Services' },

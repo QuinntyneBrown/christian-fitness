@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 58% (33 of 57 slices; 53 of 91 days)
+**% complete:** 60% (34 of 57 slices; 55 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1613,3 +1613,38 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   bootcamp fixture; a unit test covers 0, 1 and many.
 - "Read the initial total after each new API" (30.1): no new core API; the admin total stayed 279.20 kB and the
   dialog loads on first Cancel event.
+
+## Slice 24.1: View event registrations
+
+**What slowed it**
+
+- The design named a page, a CSV export, a page size and a refusal code but no mock; ADR 0036 added the mock
+  (`admin-event-registrations`), reached from a View registrations button in the published event's editor
+  so the table needed no second row action, and left the CSV to its own slice.
+- The staff list still answered `going: 0` (a stand-in from before slice 6.1), so the table and the new page
+  could not agree; the list now reads `GoingForAsync`.
+- The first use of `cf-progress-bar` grew admin `main` by 4.4 kB (279.20 to 283.76, over the 280 budget): its
+  host `[style.--progress]` binding pulls the style-binding runtime. It now writes the property in
+  `ngOnChanges` and `main` grew 0.2 kB. Found by building with and without the component.
+- A member cookie on `/api/admin/*` answers 401, not 403, like nobody (ADR 0011); the first expectation was wrong.
+- A fixture 500 sends the admin app to the server-error screen (interceptor); an error state is reached by an
+  aborted request or a 400, as in the events spec.
+- The first CI run was cancelled at the 5-minute limit: the behaviour specs already took 2m44 on main, so four new specs
+  and a slow runner tipped it. A redundant breadcrumb spec was dropped (3m48 after); count a slice's new specs against the budget.
+- A `sed` that restored a mutation left a stray token; undo with the Edit tool and a unique string.
+
+**New lessons**
+
+- Check a new library component's host bindings before first use: a host `style` binding costs the whole
+  styling runtime in `main`, a direct `style.setProperty` does not.
+- Names are rendered as text: the spec registers a member named `<b>Priya</b> Nair` and sees it literally.
+- A member's answer is exactly `name` and `registeredAt`; the exact-keys assertion proves no contact or
+  faith detail ever joins it.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 11.2): reversing the order turned the list test red, and a
+  percent of 0 turned the page spec red; each was undone with the inverse edit.
+- "Read the initial total after each new Angular API" (30.1): this is what caught the progress bar.
+- "Use the Edit tool, not scripts" (7.1, 11.2): a quoting mistake in a `node -e` command did it again; the Edit tool fixed it.
+- "Wait for a lazy dialog before a key press" (11.2): the new spec presses no key; it waits for the button to be visible.

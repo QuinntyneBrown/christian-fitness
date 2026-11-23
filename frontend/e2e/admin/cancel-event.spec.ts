@@ -46,7 +46,11 @@ test.describe('Admin app, cancelling an event', () => {
 
     await events.editEvent(BOOTCAMP.title);
 
-    await expect(editor.footButtons).toHaveText(['Cancel event', 'Save changes']);
+    await expect(editor.footButtons).toHaveText([
+      'View registrations',
+      'Cancel event',
+      'Save changes',
+    ]);
   });
 
   // Mock cancel-event/default.
