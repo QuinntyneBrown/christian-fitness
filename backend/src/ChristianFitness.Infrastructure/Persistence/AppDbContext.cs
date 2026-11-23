@@ -28,6 +28,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Registration> Registrations => Set<Registration>();
 
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<ChatReadMarker> ChatReadMarkers => Set<ChatReadMarker>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 

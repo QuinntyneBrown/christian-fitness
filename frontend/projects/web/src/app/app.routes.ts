@@ -71,6 +71,12 @@ export const routes: Routes = [
           import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
       },
       {
+        // The member's conversations, newest first, with unread counts (L2-015; ADR 0042).
+        path: 'messages',
+        title: titled('Messages'),
+        loadComponent: () => import('./pages/messages/messages-page').then((m) => m.MessagesPage),
+      },
+      {
         // Another member's public profile (L2-005 AC3; ADR 0038).
         path: 'members/:id',
         title: titled('Member'),

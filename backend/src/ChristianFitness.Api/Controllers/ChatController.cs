@@ -17,4 +17,12 @@ public sealed class ChatController(ISender sender) : ControllerBase
     [HttpGet("messages")]
     public async Task<IActionResult> Messages(Guid id, [FromQuery] Guid? before, CancellationToken cancellationToken) =>
         Ok(await sender.Send(new GetChatHistoryQuery(id, before), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>The caller opened the chat: its unread count becomes zero (L2-016 AC7; ADR 0042).</summary>
+    [HttpPost("read")]
+    public async Task<IActionResult> Read(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new MarkChatReadCommand(id), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
 }

@@ -476,6 +476,7 @@ table { border-collapse: collapse; }
 .mini-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--font-weight-semibold); }
 .mini-row__name--unread { font-weight: var(--font-weight-bold); }
 .mini-row__time { flex-shrink: 0; font-size: var(--font-size-xs); color: var(--color-fg-muted); }
+.mini-row__meta { margin: 0; font-size: var(--font-size-xs); color: var(--color-fg-muted); }
 .mini-row__text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-sm); color: var(--color-fg-muted); }
 .mini-row__text--unread { color: var(--color-fg-default); }
 .mini-row__end { flex-shrink: 0; font-size: var(--font-size-sm); color: var(--color-fg-muted); }

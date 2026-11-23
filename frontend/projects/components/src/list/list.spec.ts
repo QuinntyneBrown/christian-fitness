@@ -111,3 +111,11 @@ describe('MiniRow', () => {
     },
   );
 });
+
+describe('MiniRow meta line', () => {
+  it("shows an event group's member count under the name, and nothing without one", async () => {
+    const row = await miniRow({ conversation: true, meta: '18 members' });
+    expect(row.querySelector('.mini-row__meta')?.textContent).toBe('18 members');
+    expect((await miniRow({ conversation: true })).querySelector('.mini-row__meta')).toBeNull();
+  });
+});

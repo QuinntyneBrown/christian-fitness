@@ -81,6 +81,22 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("ChatMessages", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.ChatReadMarker", b =>
+                {
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MemberId", "EventId");
+
+                    b.ToTable("ChatReadMarkers", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.Event", b =>
                 {
                     b.Property<Guid>("Id")

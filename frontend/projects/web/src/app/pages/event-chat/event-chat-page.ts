@@ -68,6 +68,9 @@ export class EventChatPage {
   protected readonly atLatest = signal(true);
   private readonly unsent = signal<readonly Unsent[]>([]);
   private unsentCount = 0;
+  /** A read marker is on its way; one that is asked for meanwhile is sent after it. */
+  private marking = false;
+  private markAgain = false;
   private readonly memberId = signal('');
   private readonly window = signal<readonly ChatMessageDto[]>([]);
   protected readonly entries = computed<ThreadEntry[]>(() => [
@@ -95,6 +98,8 @@ export class EventChatPage {
     this.chat.messages.pipe(takeUntilDestroyed()).subscribe((message) => {
       if (message.eventId === this.id && this.atLatest()) {
         this.window.update((held) => withChatMessage(held, message));
+        // The member is looking at it: it is read as it arrives (ADR 0042).
+        if (message.authorId !== this.memberId()) this.markRead();
       }
     });
     this.chat.cancelled.pipe(takeUntilDestroyed()).subscribe((eventId) => {
@@ -169,6 +174,25 @@ export class EventChatPage {
     }
   }
 
+  /**
+   * Tells the server the chat was read, so its unread count on Messages is zero (L2-016 AC7). One
+   * request is in flight at a time; a message that arrives meanwhile asks for another after it. It is
+   * not tied to the screen, which may be going; a failure is left, and the next one sets it.
+   */
+  private markRead(): void {
+    if (this.marking) {
+      this.markAgain = true;
+      return;
+    }
+    this.marking = true;
+    this.markAgain = false;
+    const done = (): void => {
+      this.marking = false;
+      if (this.markAgain) this.markRead();
+    };
+    this.history.markRead(this.id).subscribe({ complete: done, error: done });
+  }
+
   /** The one answer of an HTTP call, left unsettled if the screen is destroyed first. */
   private once<T>(source: Observable<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
@@ -205,6 +229,7 @@ export class EventChatPage {
         this.title.set(answer.title ?? '');
         this.memberId.set(answer.memberId ?? '');
         this.state.set('open');
+        this.markRead();
       }
     } catch {
       if (!this.destroyRef.destroyed) this.state.set('failed');

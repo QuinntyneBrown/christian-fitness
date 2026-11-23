@@ -1,0 +1,39 @@
+// The page head and the loading rows (docs/design-system/assets/components.css: "page-title",
+// "display"; docs/mocks/pages/messages/loading); the list, the rows and the empty state are the
+// library's.
+:host {
+  display: block;
+}
+
+.messages-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  margin-block: var(--space-6) var(--space-4);
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.messages-page__skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.messages-page__skeleton-lines {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  gap: var(--space-2);
+}

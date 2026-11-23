@@ -22,6 +22,8 @@ export class MiniRow {
   readonly time = input<string>();
   /** The last line, such as "Michael: Parking at Marilyn Bell fills up by 6:30". */
   readonly text = input<string>();
+  /** A line under the name: an event group's member count, such as "18 members". */
+  readonly meta = input<string>();
   readonly unread = input(0);
   /** The inbox's row, with its larger padding and current state. */
   readonly conversation = input(false, { transform: booleanAttribute });
