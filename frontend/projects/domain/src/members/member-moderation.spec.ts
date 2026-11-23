@@ -1,5 +1,6 @@
 import {
   moderationActionsOf,
+  moderationNeedsNote,
   moderationProblems,
   moderationProblemsHeading,
   moderationRefusalMessage,
@@ -17,8 +18,8 @@ const CONFIRM = { field: 'confirmed', text: 'Confirm that Priya Nair should be s
 describe('moderationActionsOf', () => {
   it.each([
     { status: 'active' as const, expected: ['flag', 'suspend'] },
-    { status: 'flagged' as const, expected: ['suspend'] },
-    { status: 'suspended' as const, expected: [] },
+    { status: 'flagged' as const, expected: ['reinstate', 'suspend'] },
+    { status: 'suspended' as const, expected: ['reinstate'] },
   ])('$status allows $expected', ({ status, expected }) => {
     expect(moderationActionsOf(status)).toEqual(expected);
   });
@@ -27,7 +28,16 @@ describe('moderationActionsOf', () => {
 describe('moderationTitle', () => {
   it.each([
     { why: 'a choice to make', status: 'active' as const, expected: 'Moderate Priya Nair' },
-    { why: 'only suspension left', status: 'flagged' as const, expected: 'Suspend Priya Nair' },
+    {
+      why: 'a choice for a flagged member too',
+      status: 'flagged' as const,
+      expected: 'Moderate Priya Nair',
+    },
+    {
+      why: 'only reinstating left',
+      status: 'suspended' as const,
+      expected: 'Reinstate Priya Nair',
+    },
   ])('$why: $expected', ({ status, expected }) => {
     expect(moderationTitle('Priya Nair', status)).toBe(expected);
   });
@@ -37,6 +47,7 @@ describe('moderationSubmitLabel', () => {
   it.each([
     { action: 'flag' as const, expected: 'Flag member' },
     { action: 'suspend' as const, expected: 'Suspend member' },
+    { action: 'reinstate' as const, expected: 'Reinstate member' },
   ])('$action is "$expected"', ({ action, expected }) => {
     expect(moderationSubmitLabel(action)).toBe(expected);
   });
@@ -129,8 +140,32 @@ describe('moderationProblems', () => {
       confirmed: false,
       expected: [LONG, CONFIRM],
     },
+    {
+      why: 'reinstating needs nothing',
+      action: 'reinstate' as const,
+      note: '',
+      confirmed: false,
+      expected: [],
+    },
+    {
+      why: 'reinstating ignores a long note left in the field',
+      action: 'reinstate' as const,
+      note: 'n'.repeat(501),
+      confirmed: false,
+      expected: [],
+    },
   ])('$why', ({ action, note, confirmed, expected }) => {
     expect(moderationProblems(action, note, confirmed, 'Priya Nair')).toEqual(expected);
+  });
+});
+
+describe('moderationNeedsNote', () => {
+  it.each([
+    { action: 'flag' as const, expected: true },
+    { action: 'suspend' as const, expected: true },
+    { action: 'reinstate' as const, expected: false },
+  ])('$action: $expected', ({ action, expected }) => {
+    expect(moderationNeedsNote(action)).toBe(expected);
   });
 });
 
@@ -201,8 +236,8 @@ describe('moderationRefusalOf', () => {
 
 describe('moderationRefusalMessage', () => {
   it.each([
-    { refusal: 'self' as const, heading: "You can't flag or suspend your own account" },
-    { refusal: 'role' as const, heading: 'Only an Admin can flag or suspend staff' },
+    { refusal: 'self' as const, heading: "You can't moderate your own account" },
+    { refusal: 'role' as const, heading: 'Only an Admin can moderate staff' },
     { refusal: 'changed' as const, heading: 'This member has changed' },
     { refusal: 'failed' as const, heading: "Couldn't save the change" },
   ])('$refusal is "$heading"', ({ refusal, heading }) => {
@@ -216,6 +251,13 @@ describe('moderationToast', () => {
     expect(moderationToast('flag', 'Priya Nair')).toEqual({
       title: 'Priya Nair flagged',
       text: 'They can still use the app. Your note is on their row.',
+    });
+  });
+
+  it('says a reinstated member is active again', () => {
+    expect(moderationToast('reinstate', 'Tyler Simmons')).toEqual({
+      title: 'Tyler Simmons reinstated',
+      text: 'They are Active again and can sign in.',
     });
   });
 

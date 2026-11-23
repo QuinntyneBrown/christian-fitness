@@ -43,8 +43,8 @@ export interface AdminMemberQuery {
   page: number;
 }
 
-/** What staff can do to a member from the moderation dialog (L2-029; reinstate is slice 27.2). */
-export type ModerationAction = 'flag' | 'suspend';
+/** What staff can do to a member from the moderation dialog (L2-029; ADR 0028, ADR 0029). */
+export type ModerationAction = 'flag' | 'suspend' | 'reinstate';
 
 /** Staff find members (L2-028; ADR 0022) and flag or suspend them (L2-029; ADR 0028). */
 export interface AdminMembersApi {
@@ -64,6 +64,12 @@ export interface AdminMembersApi {
    * row; every session of theirs ends. Refusals are those of {@link flag}.
    */
   suspend(id: string, note: string): Observable<AdminMemberDto>;
+
+  /**
+   * Returns the Flagged or Suspended member `id` to Active, clears their note and answers their
+   * row. Refusals are those of {@link flag}, but for a body's: it sends none.
+   */
+  reinstate(id: string): Observable<AdminMemberDto>;
 }
 
 /** Binds {@link AdminMembersApi}; the Members page provides it on its routed component. */

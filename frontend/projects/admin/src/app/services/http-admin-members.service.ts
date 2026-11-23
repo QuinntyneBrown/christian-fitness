@@ -11,7 +11,7 @@ import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
  * {@link AdminMembersApi} over HTTP: `GET /api/admin/members` (ADR 0022) and
- * `POST /api/admin/members/{id}/flag` and `/suspend` (ADR 0028). The list sends the status
+ * `POST /api/admin/members/{id}/flag`, `/suspend` (ADR 0028) and `/reinstate` (ADR 0029, no body). The list sends the status
  * always, the search only when there is one and the page only past the first; a suspension is
  * sent as confirmed, since the dialog sends it only once staff confirmed. A failure errors
  * with an `ApiError` (`apiErrorOf`), so no screen handles an `HttpErrorResponse`. It holds no
@@ -42,6 +42,12 @@ export class HttpAdminMembersService implements AdminMembersApi {
         note,
         confirmed: true,
       })
+      .pipe(catchError(asApiError));
+  }
+
+  reinstate(id: string): Observable<AdminMemberDto> {
+    return this.http
+      .post<AdminMemberDto>(`/api/admin/members/${encodeURIComponent(id)}/reinstate`, null)
       .pipe(catchError(asApiError));
   }
 }

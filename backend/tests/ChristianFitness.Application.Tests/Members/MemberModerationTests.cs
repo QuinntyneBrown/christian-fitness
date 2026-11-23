@@ -3,14 +3,16 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Application.Tests.Members;
 
 /// <summary>
-/// L2-029 AC1, AC2 and AC6 (ADR 0028): the transition table, one case per row. A change the
-/// status allows moves the status and keeps the note, trimmed; one it does not allow changes
-/// nothing, the earlier note included.
+/// L2-029 AC1 to AC3 and AC6 (ADR 0028, ADR 0029): the transition table, one case per row. A flag
+/// or a suspension the status allows moves the status and keeps the note, trimmed; a
+/// reinstatement returns the member to Active and clears the note; a change the status does not
+/// allow changes nothing, the earlier note included.
 /// </summary>
 public sealed class MemberModerationTests
 {
     private const string Flag = "flag";
     private const string Suspend = "suspend";
+    private const string Reinstate = "reinstate";
     private const string Earlier = "An earlier note";
 
     public static TheoryData<MemberStatus, string, MemberStatus?> Rows() => new()
@@ -22,6 +24,9 @@ public sealed class MemberModerationTests
         { MemberStatus.Active, Suspend, MemberStatus.Suspended },
         { MemberStatus.Flagged, Suspend, MemberStatus.Suspended },
         { MemberStatus.Suspended, Suspend, null },
+        { MemberStatus.Active, Reinstate, null },
+        { MemberStatus.Flagged, Reinstate, MemberStatus.Active },
+        { MemberStatus.Suspended, Reinstate, MemberStatus.Active },
     };
 
     [Theory]
@@ -39,15 +44,19 @@ public sealed class MemberModerationTests
             Assert.True(member.TrySuspend(Earlier));
         }
 
-        var changed = action == Flag
-            ? member.TryFlag("  Two members asked about messages from this account ")
-            : member.TrySuspend("  Two members asked about messages from this account ");
+        var earlier = member.ModerationNote;
+        var changed = action switch
+        {
+            Flag => member.TryFlag("  Two members asked about messages from this account "),
+            Suspend => member.TrySuspend("  Two members asked about messages from this account "),
+            _ => member.TryReinstate(),
+        };
 
         Assert.Equal(after is not null, changed);
         Assert.Equal(after ?? from, member.Status);
-        Assert.Equal(
-            after is not null ? "Two members asked about messages from this account" : Earlier,
-            member.ModerationNote);
+        // A refused change keeps what was there; a reinstatement clears the note (ADR 0029).
+        var expectedNote = after is null ? earlier : action == Reinstate ? null : "Two members asked about messages from this account";
+        Assert.Equal(expectedNote, member.ModerationNote);
     }
 
     [Fact]

@@ -127,6 +127,23 @@ public sealed class Member
     /// </summary>
     public bool TrySuspend(string note) => TryModerate(MemberStatus.Suspended, Status != MemberStatus.Suspended, note);
 
+    /// <summary>
+    /// Returns a Flagged or Suspended member to Active and clears the note, which gave the reason
+    /// for a standing they no longer have (L2-029 AC3; ADR 0029). Answers false, changing nothing,
+    /// for a member already Active.
+    /// </summary>
+    public bool TryReinstate()
+    {
+        if (Status == MemberStatus.Active)
+        {
+            return false;
+        }
+
+        Status = MemberStatus.Active;
+        ModerationNote = null;
+        return true;
+    }
+
     private bool TryModerate(MemberStatus to, bool allowed, string note)
     {
         ArgumentNullException.ThrowIfNull(note);

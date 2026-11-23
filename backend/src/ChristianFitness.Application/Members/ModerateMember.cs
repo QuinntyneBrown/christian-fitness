@@ -40,6 +40,16 @@ public sealed class SuspendMemberCommand(Guid memberId, string? note, bool? conf
 }
 
 /// <summary>
+/// Returns the Flagged or Suspended member <see cref="MemberId"/> to Active (L2-029 AC3; ADR 0029).
+/// It carries nothing but the id: reinstating asks for no note. Audited as
+/// <c>member.reinstated</c> (L2-019 AC3; ADR 0023).
+/// </summary>
+public sealed record ReinstateMemberCommand(Guid MemberId) : IRequest<MemberRowDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "member.reinstated";
+}
+
+/// <summary>
 /// The codes a moderation's fields fail with (L2-029 AC5), named in the refusal's
 /// <c>fieldCodes</c>, and the note's rule both commands share. The sentences are fixed and never
 /// repeat the note.
@@ -78,7 +88,7 @@ internal sealed class SuspendMemberValidator : AbstractValidator<SuspendMemberCo
 }
 
 /// <summary>
-/// What both moderations check before they change a member (L2-029 AC4, AC6, AC7; ADR 0028), in
+/// What every moderation checks before it changes a member (L2-029 AC4, AC6, AC7; ADR 0028), in
 /// order: the id names a member, or 404 <c>member_not_found</c>; the member is not the caller, or
 /// 403 <c>cannot_moderate_self</c>; a staff account is moderated only by an Admin, or 403
 /// <c>forbidden_role</c>. It logs nothing.
@@ -165,6 +175,27 @@ internal sealed class SuspendMemberHandler(IAppDbContext db, ModerationTarget ta
         await sessions.EndAllAsync(member.Id, cancellationToken).ConfigureAwait(false);
         var pending = await db.TwoStepChallenges.Where(c => c.MemberId == member.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
         db.TwoStepChallenges.RemoveRange(pending);
+        target.Audit(member);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return await target.RowOfAsync(member, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Returns a Flagged or Suspended member to Active and clears their note (L2-029 AC3; ADR 0029).
+/// Nothing else is restored: the sessions a suspension ended stay ended, and the member signs in
+/// again.
+/// </summary>
+internal sealed class ReinstateMemberHandler(IAppDbContext db, ModerationTarget target) : IRequestHandler<ReinstateMemberCommand, MemberRowDto>
+{
+    public async Task<MemberRowDto> Handle(ReinstateMemberCommand request, CancellationToken cancellationToken)
+    {
+        var member = await target.FindAsync(request.MemberId, cancellationToken).ConfigureAwait(false);
+        if (!member.TryReinstate())
+        {
+            throw ModerationTarget.Conflict();
+        }
+
         target.Audit(member);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return await target.RowOfAsync(member, cancellationToken).ConfigureAwait(false);

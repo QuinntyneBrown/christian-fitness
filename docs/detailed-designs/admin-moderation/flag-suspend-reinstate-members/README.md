@@ -14,24 +14,25 @@ A suspended member cannot sign in (L2-004 AC4) or register for events (L2-011 AC
 
 ## Description
 
-The screen follows `docs/mocks/pages/admin-members/` (rows with a note under the status and a "Moderate" action) and `docs/mocks/dialogs/moderate-member/` (states `default`, `suspend`, `flagged`, `invalid`, `busy`, `failed`, `refused`), with the toasts `admin-toast/member-flagged` and `member-suspended`. ADR 0028 records the decisions. Slice 27.1 builds flag and suspend; reinstate is slice 27.2.
+The screen follows `docs/mocks/pages/admin-members/` (rows with a note under the status and a "Moderate" action) and `docs/mocks/dialogs/moderate-member/` (states `default`, `suspend`, `flagged`, `invalid`, `busy`, `failed`, `refused`), with the toasts `admin-toast/member-flagged` and `member-suspended`. ADR 0028 and ADR 0029 record the decisions. Slice 27.1 built flag and suspend; slice 27.2 reinstate (mock states `flagged-suspend` and `suspended`, toast `member-reinstated`).
 
-- **`AdminMembersPage`** — routed page in `projects/admin`. Each Active or Flagged row has one action, "Moderate", whose accessible name includes the member's name; a Suspended row has none until 27.2. The action imports and opens the moderation dialog; when it closes with a changed member the page shows a toast and loads the list again.
-- **`ModerateMemberDialog`** — CDK Dialog rendering the library's `cf-dialog`, loaded on first use. For an Active member it offers Flag or Suspend as radios; for a Flagged member only suspension. It collects the note and, for suspend, the confirmation; it names what is missing in an error summary before sending, holds still while the answer is on its way, and closes by its ref.
+- **`AdminMembersPage`** — routed page in `projects/admin`. Every row has one action, "Moderate", whose accessible name includes the member's name. The action imports and opens the moderation dialog; when it closes with a changed member the page shows a toast and loads the list again.
+- **`ModerateMemberDialog`** — CDK Dialog rendering the library's `cf-dialog`, loaded on first use. For an Active member it offers Flag or Suspend as radios; for a Flagged member Reinstate or Suspend; for a Suspended member only reinstating, with no field. It collects the note for a flag or a suspension and, for suspend, the confirmation; it names what is missing in an error summary before sending, holds still while the answer is on its way, and closes by its ref.
 - **`moderationOf`, `moderationProblems`, `moderationRefusalOf`** — pure helpers in `domain` with unit tests: what a status allows, what is missing from the form, and what the dialog says for each refusal code.
-- **`AdminMembersApi`** — contract behind `ADMIN_MEMBERS_SERVICE`, extended with `flag` and `suspend`.
-- **`AdminMembersController`** — in the Members staff area. `POST {id}/flag` and `POST {id}/suspend` each send one command.
+- **`AdminMembersApi`** — contract behind `ADMIN_MEMBERS_SERVICE`, extended with `flag`, `suspend` and `reinstate`.
+- **`AdminMembersController`** — in the Members staff area. `POST {id}/flag`, `POST {id}/suspend` and `POST {id}/reinstate` each send one command.
 - **`FlagMemberCommand`** and **`SuspendMemberCommand`** with **`ModerateMemberValidator`** rules — require a note of at most 500 characters; suspend also requires `confirmed`. Failures carry `note_required`, `note_too_long` and `confirmation_required`, named in the refusal's `fieldCodes`.
-- **`ModerateMemberHandler`** rules, shared by both handlers — refuse `member_not_found` (404) for an unknown id, `cannot_moderate_self` (403) when the target is the caller from `ICurrentMember`, `forbidden_role` (403) when a Moderator targets a staff account, and `status_conflict` (409) when the transition is not in the table. The suspend handler also calls `ISessionRevocation.EndAllAsync` and removes the member's pending admin sign-in, all in one save. Both commands are `IAuditableCommand`s (`member.flagged`, `member.suspended`): the handler records who changed which member on the request's `AuditTrail` before that save (ADR 0023).
-- **`Member`** — domain entity owning the transition table below (`TryFlag`, `TrySuspend`) and the `ModerationNote`.
+- **`ModerateMemberHandler`** rules, shared by both handlers — refuse `member_not_found` (404) for an unknown id, `cannot_moderate_self` (403) when the target is the caller from `ICurrentMember`, `forbidden_role` (403) when a Moderator targets a staff account, and `status_conflict` (409) when the transition is not in the table. The suspend handler also calls `ISessionRevocation.EndAllAsync` and removes the member's pending admin sign-in, all in one save. All three commands are `IAuditableCommand`s (`member.flagged`, `member.suspended`, `member.reinstated`): the handler records who changed which member on the request's `AuditTrail` before that save (ADR 0023).
+- **`Member`** — domain entity owning the transition table below (`TryFlag`, `TrySuspend`, `TryReinstate`) and the `ModerationNote`, which reinstating clears.
+- **`ReinstateMemberCommand`** and its handler — no body and no validator; the same target checks, then `Member.TryReinstate`.
 
-| From | Flag | Suspend | Reinstate (27.2) |
+| From | Flag | Suspend | Reinstate |
 |------|------|---------|-----------|
 | `Active` | `Flagged` | `Suspended` | refused |
 | `Flagged` | refused | `Suspended` | `Active` |
 | `Suspended` | refused | refused | `Active` |
 
-The note is shown on the member's row as text, never as HTML (L2-032), and no log, metric or span carries it. Sessions are rows of `Sessions` (ADR 0009); removing them ends every session, member app and admin app alike. A suspended account is refused at member sign-in (L2-004 AC4) and at staff sign-in with `account_suspended`. Refusing registration (L2-011 AC6) arrives with slice 6.1, and closing live connections with 12.1. Whether reinstatement clears the note is slice 27.2's decision.
+The note is shown on the member's row as text, never as HTML (L2-032), and no log, metric or span carries it. Sessions are rows of `Sessions` (ADR 0009); removing them ends every session, member app and admin app alike. A suspended account is refused at member sign-in (L2-004 AC4) and at staff sign-in with `account_suspended`. Refusing registration (L2-011 AC6) arrives with slice 6.1, and closing live connections with 12.1. Reinstating clears the note (ADR 0029); its history is the audit's, slice 29.2.
 
 ## Requirements
 

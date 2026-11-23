@@ -17,27 +17,34 @@ export interface ModerationProblem {
 export type ModerationRefusal = 'self' | 'role' | 'changed' | 'failed';
 
 /**
- * What a member's status lets staff do, the milder first (L2-029 AC1, AC2; ADR 0028): an Active
- * member can be flagged or suspended, a Flagged one suspended, a Suspended one neither (reinstate
- * is slice 27.2).
+ * What a member's status lets staff do, the milder first (L2-029 AC1 to AC3; ADR 0028, ADR 0029):
+ * an Active member can be flagged or suspended, a Flagged one reinstated or suspended, a Suspended
+ * one reinstated.
  */
 export function moderationActionsOf(status: MemberStatus): readonly ModerationAction[] {
   if (status === 'active') return ['flag', 'suspend'];
-  return status === 'flagged' ? ['suspend'] : [];
+  return status === 'flagged' ? ['reinstate', 'suspend'] : ['reinstate'];
+}
+
+/** Whether `action` needs a reason: flagging and suspending do, reinstating does not (ADR 0029). */
+export function moderationNeedsNote(action: ModerationAction): boolean {
+  return action !== 'reinstate';
 }
 
 /** The dialog's title: "Moderate" when there is a choice to make, the one action when there is not. */
 export function moderationTitle(name: string, status: MemberStatus): string {
-  return moderationActionsOf(status).length > 1 ? `Moderate ${name}` : `Suspend ${name}`;
+  return moderationActionsOf(status).length > 1 ? `Moderate ${name}` : `Reinstate ${name}`;
 }
 
 /** The button that sends the change. */
 export function moderationSubmitLabel(action: ModerationAction): string {
-  return action === 'flag' ? 'Flag member' : 'Suspend member';
+  if (action === 'flag') return 'Flag member';
+  return action === 'suspend' ? 'Suspend member' : 'Reinstate member';
 }
 
 /**
- * What is missing before `action` can be sent (L2-029 AC5), in the order of the fields: a note
+ * What is missing before `action` can be sent (L2-029 AC5), in the order of the fields; nothing
+ * for a reinstatement. A note
  * (blank counts as none, and it is measured trimmed, as the API keeps it) and, for a suspension,
  * the confirmation, which names the member.
  */
@@ -48,6 +55,7 @@ export function moderationProblems(
   name: string,
 ): ModerationProblem[] {
   const problems: ModerationProblem[] = [];
+  if (!moderationNeedsNote(action)) return problems;
   const length = note.trim().length;
   if (length === 0) {
     problems.push({ field: 'note', text: 'Write a note so other staff know why' });
@@ -83,12 +91,12 @@ export function moderationRefusalMessage(refusal: ModerationRefusal): {
   switch (refusal) {
     case 'self':
       return {
-        heading: "You can't flag or suspend your own account",
+        heading: "You can't moderate your own account",
         text: 'Ask another Admin if your own account needs attention.',
       };
     case 'role':
       return {
-        heading: 'Only an Admin can flag or suspend staff',
+        heading: 'Only an Admin can moderate staff',
         text: 'Ask an Admin to look at this account.',
       };
     case 'changed':
@@ -99,7 +107,7 @@ export function moderationRefusalMessage(refusal: ModerationRefusal): {
     default:
       return {
         heading: "Couldn't save the change",
-        text: "The server didn't respond. Your note is still here; try again.",
+        text: "The server didn't respond. Nothing was lost; try again.",
       };
   }
 }
@@ -109,7 +117,18 @@ export function moderationToast(
   action: ModerationAction,
   name: string,
 ): { title: string; text: string } {
-  return action === 'flag'
-    ? { title: `${name} flagged`, text: 'They can still use the app. Your note is on their row.' }
-    : { title: `${name} suspended`, text: 'They are signed out everywhere and cannot sign in.' };
+  switch (action) {
+    case 'flag':
+      return {
+        title: `${name} flagged`,
+        text: 'They can still use the app. Your note is on their row.',
+      };
+    case 'suspend':
+      return {
+        title: `${name} suspended`,
+        text: 'They are signed out everywhere and cannot sign in.',
+      };
+    default:
+      return { title: `${name} reinstated`, text: 'They are Active again and can sign in.' };
+  }
 }

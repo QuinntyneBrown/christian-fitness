@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 48% (26 of 57 slices; 44 of 91 days)
+**% complete:** 49% (27 of 57 slices; 45 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1370,3 +1370,51 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   the entry.
 - "A test helper that forces state through EF Core's entry" (3.2) is no longer needed for
   Flagged and Suspended: the API sets them now, and the older helpers still work.
+
+## Slice 27.2: Reinstate
+
+**What slowed it**
+
+- Little: slice 27.1 had left the dialog, the target checks, the row action and the fixture
+  ready for a third action. The one open decision, whether reinstating clears the note, was
+  settled in ADR 0029 before code, with the mock's new states.
+- A stub written only to make the tests compile (`TryReinstate() => false`) failed the build:
+  CA1822 wants a method that touches no instance data to be static, as slice 20.2 warned. The
+  red was the build's, and the rule's own red came from breaking it afterwards.
+- A fourth kind of alert in the dialog (what reinstating means, an info alert) matched the page
+  object's `.form-alert` locator; it now names the error summary and the refusal apart from it.
+- The refusal sentences said "flag or suspend"; with a third action they say "moderate", in the
+  helper, its table, the specs and the mock together.
+- It was rebased with slice 27.1 onto slices 29.2 and 18.2: reinstating became an audited command
+  (`member.reinstated`), its ADR went from 0024 to 0026 and then to 0029 (main took 0025 to 0027), and the film took number 52 and was
+  recorded and built again. Files that conflicted only because 27.1's ADR number had changed
+  beside them were taken whole from the slice and renumbered again, except the mock generator,
+  which main had also changed and which took the slice's edit by script instead.
+
+**New lessons**
+
+- A dialog with nothing to fill in starts focus on the dialog itself (`autoFocus: 'dialog'`), so
+  its name and description are read before the one button that acts; focusing that button would
+  make Enter act before anything was heard.
+- When a choice changes, forget what the last press found missing: the problems belonged to the
+  other choice, and a spec that switches back after a failed press proves it.
+- An action that needs no body sends none (`null`), and the fixture records `null`; a spec that
+  expects exactly that catches a client that starts sending `{}`.
+- Clearing a reason is a decision to state on screen before it happens, not only in an ADR: the
+  dialog and the option's description both say the note is cleared.
+
+**How earlier lessons worked**
+
+- "One row action that opens a dialog which asks what to do" (27.1) paid at once: Reinstate
+  needed no new column, button or screen, only a third option and a status's list.
+- "Write the same transition table twice, one case per row" (27.1): three rows were added to the
+  domain's table and three to `moderationActionsOf`, and the dialog followed them.
+- "A status change that must lock someone out closes three doors" (27.1), read backwards:
+  reinstating opens only sign-in; a test holds a session cookie from before the suspension and
+  shows it stays ended.
+- "Prove a rule red by breaking it alone" (1.4 to 27.1): five backend breaks and nine in the
+  helper, dialog and service. One stayed green: `focusOnShow` set to false on the info alert,
+  because the CDK's own focus on the dialog runs after it and wins either way. It is kept as a
+  stated precaution, not a proven rule.
+- "Read the initial total after each new Angular API" (30.1): unchanged at 278.96 kB; the dialog's
+  chunk grew from 19.5 kB to 20.5 kB.

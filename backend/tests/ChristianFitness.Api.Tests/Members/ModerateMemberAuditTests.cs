@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Members;
 
 /// <summary>
-/// L2-019 AC3 (ADR 0023) for L2-029: flagging and suspending are staff changes, so each one that
+/// L2-019 AC3 (ADR 0023) for L2-029: flagging, suspending and reinstating are staff changes, so each one that
 /// goes through leaves one audit entry naming who did it and to which member, and one that is
 /// refused leaves none. The entry keeps no note. Each test starts its own API.
 /// </summary>
@@ -37,8 +37,15 @@ public sealed class ModerateMemberAuditTests : IAsyncLifetime
     [Theory]
     [InlineData("flag", "member.flagged")]
     [InlineData("suspend", "member.suspended")]
+    [InlineData("reinstate", "member.reinstated")]
     public async Task Given_signed_in_staff_When_they_moderate_a_member_Then_an_audit_entry_records_who_did_what_to_whom(string action, string audited)
     {
+        if (action == "reinstate")
+        {
+            // Flagged in the store, so the reinstatement is the only change the API made.
+            await AdminMembers.SetStatusAsync(_factory, _priya, MemberStatus.Flagged);
+        }
+
         using var response = await PostAsync(_priya, action, new { note = "Seen pressuring newcomers", confirmed = true });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -56,6 +63,7 @@ public sealed class ModerateMemberAuditTests : IAsyncLifetime
         { "a flag with no note", "flag", "{}" },
         { "a suspension not confirmed", "suspend", """{"note":"Spam","confirmed":false}""" },
         { "a suspension of a suspended member", "suspend", """{"note":"Again","confirmed":true}""" },
+        { "a reinstatement of an active member", "reinstate", "{}" },
     };
 
     [Theory]

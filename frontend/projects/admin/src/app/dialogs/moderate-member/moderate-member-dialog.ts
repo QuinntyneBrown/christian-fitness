@@ -17,6 +17,7 @@ import {
   memberStatusLabel,
   MODERATION_NOTE_MAX,
   moderationActionsOf,
+  moderationNeedsNote,
   type ModerationProblem,
   moderationProblems,
   moderationProblemsHeading,
@@ -50,14 +51,22 @@ const OPTIONS: Record<ModerationAction, RadioOption> = {
     label: 'Suspend',
     description: 'Signs them out everywhere. They cannot sign in until they are reinstated.',
   },
+  reinstate: {
+    value: 'reinstate',
+    label: 'Reinstate',
+    description: 'Returns them to Active and clears the note on their row.',
+  },
 };
+
+const ACTIONS: readonly ModerationAction[] = ['flag', 'suspend', 'reinstate'];
 
 /**
  * The moderation dialog (mock docs/mocks/dialogs/moderate-member/; L2-029 AC1, AC2, AC4, AC5, AC9;
- * ADR 0028): a CDK Dialog rendering the library's dialog, which draws its own scrim and panel, so
- * the CDK adds no backdrop. An Active member can be flagged (chosen first, the milder) or
- * suspended; a Flagged one only suspended, and the title says so. A note is required, and a
- * suspension also its confirmation: what is missing is named in an error summary that takes focus
+ * ADR 0028, ADR 0029): a CDK Dialog rendering the library's dialog, which draws its own scrim and
+ * panel, so the CDK adds no backdrop. Each status offers what it allows, the milder first: an
+ * Active member can be flagged or suspended, a Flagged one reinstated or suspended, a Suspended
+ * one only reinstated, and then the title says so and the dialog says what it means. A flag or a
+ * suspension needs a note, and a suspension also its confirmation; reinstating needs neither: what is missing is named in an error summary that takes focus
  * and beside each field, and nothing is sent. While the change is on its way the fields hold
  * still and the dialog stays open. A change closes it with the member as they now are; a refusal
  * shows its own sentence by code and gives the fields back as typed.
@@ -87,6 +96,8 @@ export class ModerateMemberDialog {
   protected readonly options: readonly RadioOption[] =
     this.allowed.length > 1 ? this.allowed.map((action) => OPTIONS[action]) : [];
   protected readonly confirmLabel = `Suspend ${this.member.name} and end their sessions`;
+  /** What reinstating means, said when it is the only thing the status allows (mock `suspended`). */
+  protected readonly reinstateHeading = `${this.member.name} will be able to sign in again`;
 
   protected readonly action = signal<ModerationAction>(this.allowed[0] ?? 'suspend');
   protected readonly note = signal('');
@@ -102,6 +113,7 @@ export class ModerateMemberDialog {
   protected readonly shownOptions = computed<RadioOption[]>(() =>
     this.options.map((option) => ({ ...option, disabled: this.saving() })),
   );
+  protected readonly needsNote = computed(() => moderationNeedsNote(this.action()));
   protected readonly submitLabel = computed(() => moderationSubmitLabel(this.action()));
   protected readonly summaryHeading = computed(() =>
     moderationProblemsHeading(this.problems().length),
@@ -119,9 +131,12 @@ export class ModerateMemberDialog {
     return refusal ? moderationRefusalMessage(refusal) : null;
   });
 
-  protected choose(action: string): void {
-    this.action.set(action === 'flag' ? 'flag' : 'suspend');
-    this.forget('confirmed');
+  /** A new choice starts clean: what the last press found missing belonged to the old one. */
+  protected choose(value: string): void {
+    const action = ACTIONS.find((known) => known === value);
+    if (!action || !this.allowed.includes(action)) return;
+    this.action.set(action);
+    this.problems.set([]);
   }
 
   protected setNote(note: string): void {
@@ -155,7 +170,9 @@ export class ModerateMemberDialog {
     const change =
       action === 'flag'
         ? this.members.flag(this.member.id, note)
-        : this.members.suspend(this.member.id, note);
+        : action === 'suspend'
+          ? this.members.suspend(this.member.id, note)
+          : this.members.reinstate(this.member.id);
     change.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (member) => this.ref.close({ action, member }),
       error: (error: unknown) => {
@@ -192,8 +209,9 @@ export function openModerateMember(
       ariaLabelledBy: HEADING_ID,
       ariaDescribedBy: DESCRIPTION_ID,
       ariaModal: true,
-      // The first choice when there is one to make, else the note.
-      autoFocus: moderationActionsOf(member.status).length > 1 ? '#f-action-0' : `#${NOTE_ID}`,
+      // The first choice when there is one to make; else the dialog itself, so its name and
+      // description are read before the one button that acts.
+      autoFocus: moderationActionsOf(member.status).length > 1 ? '#f-action-0' : 'dialog',
       restoreFocus: true,
       // The dialog draws its own scrim and panel, so the CDK adds no backdrop; its pane spans the
       // viewport the scrim covers and adds the dialog role, the focus trap, Escape and focus

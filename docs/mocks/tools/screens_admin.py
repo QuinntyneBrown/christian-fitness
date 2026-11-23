@@ -600,7 +600,7 @@ def member_table(rows) -> str:
                 <td class="table__nowrap">{m["joined"]}</td>
                 <td class="table__num">{m["events"]}</td>
                 <td><span class="status status--{m["status"].lower()}">{m["status"]}</span>{f'<p class="table__sub">{m["note"]}</p>' if m.get("note") else ""}</td>
-                <td class="table__end">{f'<button class="row-link" type="button" data-mock-href="{href("moderate-member", "flagged" if m["status"] == "Flagged" else "default")}">Moderate<span class="visually-hidden"> {m["name"]}</span></button>' if m["status"] != "Suspended" else ""}</td>
+                <td class="table__end">{f'<button class="row-link" type="button" data-mock-href="{href("moderate-member", {"Flagged": "flagged", "Suspended": "suspended"}.get(m["status"], "default"))}">Moderate<span class="visually-hidden"> {m["name"]}</span></button>'}</td>
               </tr>""" for m in rows)
     return f"""<div class="table-wrap">
           <table class="table table--wider">
