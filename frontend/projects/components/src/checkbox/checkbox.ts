@@ -24,6 +24,8 @@ export class Checkbox {
   readonly label = input.required<string>();
   readonly description = input<string>();
   readonly variant = input<CheckboxVariant>('form');
+  /** The checkbox's id, when something must find it, such as an error summary's link. */
+  readonly fieldId = input<string>();
   readonly name = input<string>();
   readonly value = input<string>();
   readonly checked = input(false, { transform: booleanAttribute });
