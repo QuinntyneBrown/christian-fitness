@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Forgot your password? Now there is a way back in."] },
+    { "id": "link", "bars": 4, "lines": ["Under the password field on Sign in, Forgot your password opens a short form, on phone and desktop."] },
+    { "id": "send", "bars": 5, "lines": ["Enter the email you joined with and press send. The button says, sending, then the screen tells you to check your email."] },
+    { "id": "secret", "bars": 5, "lines": ["Whether we know that email or not, the answer is exactly the same, so nobody can use this form to find out who is a member."] },
+    { "id": "email", "bars": 5, "lines": ["A member gets one email with a link that lasts thirty minutes. We keep only a fingerprint of it, never the link itself."] },
+    { "id": "invalid", "bars": 4, "lines": ["An email that isn't complete is named on the field before anything is sent."] },
+    { "id": "failed", "bars": 4, "lines": ["If the server fails, a message says so, and your email stays, ready to try again."] },
+    { "id": "limit", "bars": 4, "lines": ["And one account gets at most three links an hour, so no inbox can be flooded."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice twenty point two: choose a new password."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice twenty point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

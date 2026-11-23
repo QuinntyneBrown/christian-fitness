@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 13% (7 of 54 slices; 11 of 83 days)
+**% complete:** 16% (8 of 54 slices; 13 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -339,3 +339,58 @@ worked when applied. Newest entries go at the bottom.
   with no clock and no sleep.
 - "Write edit scripts to files, not heredocs" (1.2, 2.1, 2.2) applied again: the one heredoc used
   for a spec failed.
+
+## Slice 20.1: Request a reset link
+
+**What slowed it**
+
+- It was built out of order, beside slices 3.2 and 9.1, so nothing could be borrowed from 3.2's
+  failed sign-in window. The rule was made a stateless Domain record, `AttemptWindow(Limit,
+  Period)`, fed by each feature's own count, so 3.2 can share it whatever store it picks.
+- `dotnet ef migrations add` wrote a composite index as `new[] { … }`, which CA1861 refuses with
+  warnings as errors; a `.editorconfig` in `Persistence/Migrations` turns CA1861 off for generated
+  migrations only.
+- An email needs settings production cannot run without, but every API test starts the host in
+  `Production`: the shared `ApiFactory` now sets a dummy SMTP host, sender and member-app address,
+  replaces `IEmailSender` with a recorder and removes the dispatcher, so no background service
+  runs in the shared host.
+- `{{ altLink() }}` followed by `{{ altEnd() }}` on the next line rendered "again ." : the
+  newline between an element and an interpolation becomes a space. The closing words sit on the
+  element's line, with Prettier's `</button\n>` form.
+- A spec that aborted the request with `page.route(...).abort()` failed in the shared fixture:
+  Chromium logs `net::ERR_FAILED` as a console error. A 503 answer covers "the server failed".
+- Git Bash heredocs failed twice more on apostrophes (`'invalid'|'failed'` in a PlantUML file);
+  the files went through the editor tool, as slices 1.2 to 3.1 warned.
+
+**New lessons**
+
+- An endpoint that must not reveal whether an account exists answers the same status, headers
+  and bytes in every case, and never waits for a mail server: queue the email
+  (`Channel` + `BackgroundService`) and let the handler return. Test it by comparing two
+  responses' bodies and header names, and prove it red by making the unknown case throw.
+- A reset token goes in the link's fragment (`#token=`), which no browser sends to a server or in
+  a `Referer`; the link's origin comes from configuration, never the `Host` header.
+- A MailKit sender is testable without a mail server: a 60-line `TcpListener` that speaks EHLO,
+  MAIL, RCPT, DATA and QUIT, awaited through a channel with a timeout that names what was awaited.
+- A component whose two shapes differ by their root element (a `<form>` or a `<div>`) keeps its
+  slots in one `<ng-template>` shown by `ngTemplateOutlet` in both branches, as AGENTS.md asks,
+  and an empty slot wrapper hides itself with `:empty`.
+- A notice that replaces a form takes focus on its heading in `ngAfterViewInit`; rendering it as a
+  second instance in an `@else` makes every arrival a new instance, so focus moves every time.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 3.1): base
+  stats saved before the first change named the whole growth at once, 0.27 kB from the route and
+  the service method; `ngTemplateOutlet` and `computed` were already paid for.
+- "A rule computed in both stacks shares one inline case table" (2.2): the reset email rule's
+  table sits in `email-rule.spec.ts` and `RequestPasswordResetValidatorTests.cs` row for row.
+- "Prove a rule red by breaking it alone" (1.1 to 3.1) found a weak table: breaking the refusal
+  mapping to `status >= 400` passed until a row with a 500 and `validation_failed` was added.
+  The window's boundary (`>` to `>=`), the stored hash, the dispatcher's catch, the recorder's
+  bound, the summary, the field reset, the notice's focus and a logged link each turned the right
+  tests red.
+- "A telemetry test shares the fixture's log snapshot" (2.2): one temporary log of the link turned
+  all three reset telemetry tests red, refusals included.
+- "A gate in a fixture handler" (2.1) gave the "Sending…" state and the film's busy shot with no
+  clock and no sleep.
