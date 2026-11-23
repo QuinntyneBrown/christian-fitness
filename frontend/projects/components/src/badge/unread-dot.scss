@@ -1,0 +1,13 @@
+// The design system's unread dot (docs/design-system/assets/components.css).
+:host {
+  display: contents;
+}
+
+.unread-dot {
+  display: block;
+  width: var(--size-dot-lg);
+  height: var(--size-dot-lg);
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}

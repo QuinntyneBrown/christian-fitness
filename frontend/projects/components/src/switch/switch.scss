@@ -1,0 +1,91 @@
+// The design system's switch (docs/design-system/assets/components.css, "Switch"). The thumb's
+// position and the track's fill carry the state together, never colour alone.
+:host {
+  display: block;
+}
+
+// The whole row is the target, at least 44 px tall; long labels wrap beside the switch.
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--target-comfortable);
+  cursor: pointer;
+  font-size: var(--font-size-ui);
+
+  &:has(.switch__input:disabled) {
+    color: var(--color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  &[aria-busy='true'] {
+    cursor: progress;
+  }
+}
+
+.switch--start {
+  justify-content: flex-start;
+  flex-direction: row-reverse;
+}
+
+.switch__text {
+  min-width: 0;
+}
+
+.switch__label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.switch__desc {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.switch__input {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: var(--size-switch-w);
+  height: var(--size-switch-h);
+  margin: 0;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: var(--space-0-5);
+    left: var(--space-0-5);
+    width: calc(var(--size-switch-h) - 2 * var(--space-0-5));
+    height: calc(var(--size-switch-h) - 2 * var(--space-0-5));
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-1);
+    transition: translate var(--duration-fast) var(--ease-standard);
+  }
+
+  &:hover {
+    background: var(--color-fg-muted);
+  }
+
+  &:checked {
+    background: var(--color-accent);
+
+    &::before {
+      translate: calc(var(--size-switch-w) - var(--size-switch-h)) 0;
+    }
+
+    &:hover {
+      background: var(--color-accent-hover);
+    }
+  }
+
+  &:disabled {
+    opacity: var(--opacity-unavailable);
+    cursor: not-allowed;
+  }
+}

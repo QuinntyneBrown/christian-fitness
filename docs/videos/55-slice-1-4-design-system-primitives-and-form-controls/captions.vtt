@@ -1,0 +1,49 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:07.606
+Nineteen design-system pages are now components in one library, built once and used
+
+00:00:07.606 --> 00:00:08.649
+everywhere.
+
+00:00:10.000 --> 00:00:14.669
+Earlier screens drew their own versions. Now a screen takes the component by its
+
+00:00:14.669 --> 00:00:16.078
+design-system name.
+
+00:00:18.000 --> 00:00:22.739
+Buttons in every variant and size. A busy button ignores a second press.
+
+00:00:26.000 --> 00:00:31.092
+One form field gives every control its label, hint and error, tied together for
+
+00:00:31.092 --> 00:00:34.486
+screen readers. Sign in and Join already use it.
+
+00:00:36.000 --> 00:00:41.157
+Checkboxes, radios, switches and toggles carry their state as attributes, never
+
+00:00:41.157 --> 00:00:42.306
+colour alone.
+
+00:00:44.000 --> 00:00:48.853
+Chips, badges, counts and avatars. A photo that fails shows initials.
+
+00:00:52.000 --> 00:00:57.251
+A spinner waits before it shows. A tooltip hides on Escape. A skip link jumps to the
+
+00:00:57.251 --> 00:00:58.051
+content.
+
+00:01:00.000 --> 00:01:04.549
+Every behaviour has a test that failed first, and the first load did not grow.
+
+00:01:08.000 --> 00:01:10.600
+Next, feedback and overlays, then layout.
+
+00:01:14.000 --> 00:01:19.014
+That's slice one point four. Christian Fitness: a Christian community for health in
+
+00:01:19.014 --> 00:01:20.280
+body and spirit.

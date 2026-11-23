@@ -1,0 +1,5 @@
+@if (photo(); as src) {
+  <img [attr.class]="classes()" [src]="src" alt="" (error)="onError()" />
+} @else {
+  <span [attr.class]="classes()" aria-hidden="true">{{ letters() }}</span>
+}

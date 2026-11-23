@@ -1,0 +1,11 @@
+// The design system's interest list (docs/design-system/assets/components.css, "Chips").
+:host {
+  display: block;
+}
+
+.interest-list {
+  margin-top: var(--space-2-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

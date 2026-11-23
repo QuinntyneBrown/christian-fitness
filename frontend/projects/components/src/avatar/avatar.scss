@@ -1,0 +1,54 @@
+// The design system's avatar (docs/design-system/assets/components.css, "Avatar"). Initials are
+// set at 36 % of the size in Barlow Condensed.
+:host {
+  display: contents;
+}
+
+.avatar {
+  --avatar-size: var(--size-avatar-lg);
+
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  font-size: calc(var(--avatar-size) * 0.36);
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+  object-fit: cover;
+}
+
+.avatar--sm {
+  --avatar-size: var(--size-avatar-sm);
+}
+
+.avatar--md {
+  --avatar-size: var(--size-avatar-md);
+}
+
+.avatar--xl {
+  --avatar-size: var(--size-avatar-xl);
+}
+
+.avatar--2xl {
+  --avatar-size: var(--size-avatar-2xl);
+}
+
+.avatar--group {
+  border-radius: var(--radius-md);
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+}
+
+.avatar--solid {
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+}
+
+.avatar--photo-square {
+  border-radius: var(--radius-lg);
+}

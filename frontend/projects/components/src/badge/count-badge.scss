@@ -1,0 +1,26 @@
+// The design system's count badge and count pill (docs/design-system/assets/components.css).
+:host {
+  display: contents;
+}
+
+.count-badge,
+.count-pill {
+  flex-shrink: 0;
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+  padding-inline: var(--space-1-5);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.count-badge {
+  margin-left: var(--space-0-5);
+  padding-block: var(--space-px);
+  line-height: var(--line-height-xs);
+}
+
+.count-pill {
+  line-height: var(--line-height-sm);
+}

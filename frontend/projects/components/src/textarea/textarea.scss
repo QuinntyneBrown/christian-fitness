@@ -1,0 +1,14 @@
+// The design system's textarea (docs/design-system/assets/components.css, "Forms": textarea).
+// The label, hint, counter and error are the form field's.
+@use '../form-field/control';
+
+:host {
+  display: block;
+}
+
+.textarea {
+  @include control.control;
+  @include control.read-only;
+
+  resize: none;
+}

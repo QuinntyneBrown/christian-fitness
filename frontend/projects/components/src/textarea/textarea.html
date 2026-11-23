@@ -1,0 +1,21 @@
+<cf-form-field
+  [fieldId]="fieldId()"
+  [label]="label()"
+  [optional]="optional()"
+  [hint]="shownHint()"
+  [error]="shownError()"
+>
+  <textarea
+    class="textarea"
+    [id]="fieldId()"
+    [name]="name()"
+    [rows]="rows()"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="shownError() ? 'true' : null"
+    [value]="value()"
+    [readOnly]="readonly()"
+    [disabled]="disabled()"
+    (input)="onInput($event)"
+  ></textarea>
+  <span class="visually-hidden" aria-live="polite">{{ announcement() }}</span>
+</cf-form-field>

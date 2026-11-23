@@ -1,0 +1,9 @@
+<button
+  [attr.class]="size() === 'sm' ? 'icon-button icon-button--sm' : 'icon-button'"
+  [type]="type()"
+  [disabled]="disabled()"
+  [attr.aria-labelledby]="labelledBy() ?? null"
+  [attr.aria-label]="labelledBy() ? null : (label() ?? null)"
+>
+  <ng-content />
+</button>

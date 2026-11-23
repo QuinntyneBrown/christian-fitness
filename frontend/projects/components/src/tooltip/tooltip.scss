@@ -1,0 +1,57 @@
+// The design system's tooltip (docs/design-system/assets/components.css, "Tooltip").
+:host {
+  display: inline-flex;
+}
+
+.tooltip-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: var(--z-tooltip);
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  max-width: calc(var(--space-24) * 2.5);
+  padding: var(--space-1-5) var(--space-2-5);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+  font: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    visibility 0s linear var(--duration-fast);
+}
+
+.tooltip--below {
+  bottom: auto;
+  top: calc(100% + var(--space-2));
+}
+
+// Shown on hover or focus after the delay; Escape hides it until the pointer or focus moves on.
+.tooltip-anchor:hover .tooltip,
+.tooltip-anchor:focus-within .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: var(--delay-tooltip), 0s;
+}
+
+.tooltip-anchor--dismissed .tooltip {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.tooltip__key {
+  margin-inline-start: var(--space-1-5);
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-xs);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-inverse);
+  font: inherit;
+}

@@ -1,0 +1,32 @@
+<cf-form-field
+  group
+  [fieldId]="fieldId()"
+  [label]="legend()"
+  [optional]="optional()"
+  [hint]="hint()"
+  [error]="error()"
+>
+  <div [attr.class]="row() ? 'choice-group choice-group--row' : 'choice-group'">
+    @for (option of options(); track option.value; let i = $index) {
+      <label [attr.class]="card() ? 'choice choice-card' : 'choice'">
+        <input
+          class="choice__input"
+          type="radio"
+          [id]="fieldId() + '-' + i"
+          [name]="name()"
+          [value]="option.value"
+          [checked]="option.value === value()"
+          [disabled]="option.disabled ?? false"
+          [attr.aria-invalid]="error() ? 'true' : null"
+          (change)="onChange($event)"
+        />
+        <span>
+          <span class="choice__label">{{ option.label }}</span>
+          @if (option.description; as text) {
+            &ngsp;<span class="choice__desc">{{ text }}</span>
+          }
+        </span>
+      </label>
+    }
+  </div>
+</cf-form-field>

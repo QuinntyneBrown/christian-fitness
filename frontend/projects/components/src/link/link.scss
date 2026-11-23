@@ -1,0 +1,85 @@
+// The design system's links (docs/design-system/assets/components.css: "Link", "text-link" and
+// "back-link", with the coarse-pointer touch target).
+:host {
+  display: contents;
+}
+
+.link {
+  color: var(--color-fg-link);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+  border-radius: var(--radius-xs);
+
+  // The underline thickens, so hover never relies on colour alone.
+  &:hover {
+    color: var(--color-fg-link-hover);
+    text-decoration-thickness: var(--border-width-thick);
+  }
+
+  &:active {
+    color: var(--color-accent-active);
+  }
+}
+
+.link__external {
+  display: inline-block;
+  width: var(--size-icon-xs);
+  height: var(--size-icon-xs);
+  margin-inline-start: var(--space-0-5);
+  vertical-align: -0.1em;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+}
+
+.text-link--quiet {
+  color: var(--color-fg-muted);
+
+  &:hover {
+    color: var(--color-fg-default);
+    text-decoration: none;
+  }
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+}
+
+// Touch: text and back links reach 44 × 44 px without changing their look; inline links in body
+// text are exempt (WCAG 2.5.8).
+@media (pointer: coarse) {
+  .text-link,
+  .back-link {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
+}

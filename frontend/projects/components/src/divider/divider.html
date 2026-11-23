@@ -1,0 +1,11 @@
+@switch (variant()) {
+  @case ('label') {
+    <div class="divider--label" role="separator" [attr.aria-label]="label()">{{ label() }}</div>
+  }
+  @case ('vertical') {
+    <span class="divider--vertical" aria-hidden="true"></span>
+  }
+  @default {
+    <hr class="divider" />
+  }
+}

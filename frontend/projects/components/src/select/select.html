@@ -1,0 +1,26 @@
+<cf-form-field
+  [fieldId]="fieldId()"
+  [label]="label()"
+  [optional]="optional()"
+  [hint]="hint()"
+  [error]="error()"
+>
+  <select
+    class="select"
+    [id]="fieldId()"
+    [name]="name()"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="error() ? 'true' : null"
+    [disabled]="disabled()"
+    (change)="onChange($event)"
+  >
+    @if (prompt(); as text) {
+      <option value="" [selected]="value() === ''">{{ text }}</option>
+    }
+    @for (option of options(); track option.value) {
+      <option [value]="option.value" [selected]="option.value === value()">
+        {{ option.label }}
+      </option>
+    }
+  </select>
+</cf-form-field>

@@ -12,11 +12,54 @@ skinparam class {
 title Class structure — Meet WCAG
 left to right direction
 
-class ButtonComponent <<components>> {
-  +pressed: InputSignal<boolean>
+class Button <<components>> {
+  +variant: ButtonVariant
+  +size: ButtonSize
   +disabled: InputSignal<boolean>
-  min-size 44 x 44 px
+  +busy: InputSignal<boolean>
+  aria-busy, presses ignored while busy
 }
+class FormField <<components>> {
+  +fieldId: InputSignal<string>
+  +label: InputSignal<string>
+  +hint / error: InputSignal<string>
+  +group: InputSignal<boolean>
+  label for, fieldset + legend
+}
+class TextField <<components>> {
+  aria-invalid, aria-describedby
+  +valueChange: OutputEmitterRef<string>
+}
+class Textarea <<components>> {
+  +maxLength: InputSignal<number>
+  counter announced after a pause
+}
+class RadioGroup <<components>> {
+  +value: InputSignal<string>
+  +valueChange: OutputEmitterRef<string>
+}
+class Interest <<components>> {
+  +pressed: InputSignal<boolean>
+  aria-pressed
+}
+class Tooltip <<components>> {
+  +tooltipId: InputSignal<string>
+  role tooltip, Escape hides
+}
+class SkipLink <<components>> {
+  +target: InputSignal<string>
+  focuses main without a reload
+}
+class "fieldDescribedBy()" as Described <<components>>
+TextField *-- FormField
+Textarea *-- FormField
+RadioGroup *-- FormField
+TextField ..> Described
+Button ..> Tokens
+FormField ..> Tokens
+Interest ..> Tokens
+Tooltip ..> Tokens
+SkipLink ..> Tokens
 class MiniRow <<components>> {
   +unread: InputSignal<number>
   +current: InputSignal<boolean>
@@ -60,7 +103,6 @@ class Foundations <<global styles>> {
   :focus-visible
   @media prefers-reduced-motion
 }
-ButtonComponent ..> Tokens
 MiniRow ..> Tokens
 StatusChipComponent ..> Tokens
 Alert ..> Tokens

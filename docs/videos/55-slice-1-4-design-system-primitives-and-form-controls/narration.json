@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 5, "lines": ["Nineteen design-system pages are now components in one library, built once and used everywhere."] },
+    { "id": "why", "bars": 4, "lines": ["Earlier screens drew their own versions. Now a screen takes the component by its design-system name."] },
+    { "id": "actions", "bars": 4, "lines": ["Buttons in every variant and size. A busy button ignores a second press."] },
+    { "id": "fields", "bars": 5, "lines": ["One form field gives every control its label, hint and error, tied together for screen readers. Sign in and Join already use it."] },
+    { "id": "choices", "bars": 4, "lines": ["Checkboxes, radios, switches and toggles carry their state as attributes, never colour alone."] },
+    { "id": "display", "bars": 4, "lines": ["Chips, badges, counts and avatars. A photo that fails shows initials."] },
+    { "id": "feedback", "bars": 4, "lines": ["A spinner waits before it shows. A tooltip hides on Escape. A skip link jumps to the content."] },
+    { "id": "proof", "bars": 4, "lines": ["Every behaviour has a test that failed first, and the first load did not grow."] },
+    { "id": "left", "bars": 3, "lines": ["Next, feedback and overlays, then layout."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice one point four. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

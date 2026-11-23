@@ -1,5 +1,6 @@
 // The design system's button block (docs/design-system/assets/components.css, "Buttons").
-// The host takes no box of its own, so the link sits in its parent's layout.
+// Variants only set the component tokens; the base reads them, so each state is one rule.
+// The host takes no box of its own, so the button sits in its parent's layout.
 :host {
   display: contents;
 }
@@ -9,8 +10,11 @@
   --btn-bg-hover: var(--btn-bg);
   --btn-bg-active: var(--btn-bg-hover);
   --btn-fg: var(--color-fg-default);
+  --btn-fg-hover: var(--btn-fg);
   --btn-border: transparent;
   --btn-border-hover: var(--btn-border);
+  --btn-pad-y: var(--space-2-5);
+  --btn-pad-x: var(--space-5);
 
   display: inline-flex;
   align-items: center;
@@ -20,8 +24,9 @@
   white-space: nowrap;
   border-radius: var(--radius-full);
   border: var(--border-width-hairline) solid var(--btn-border);
-  padding: calc(var(--space-2-5) - var(--border-width-hairline))
-    calc(var(--space-5) - var(--border-width-hairline));
+  // The border sits inside the padding, so every variant has the same box.
+  padding: calc(var(--btn-pad-y) - var(--border-width-hairline))
+    calc(var(--btn-pad-x) - var(--border-width-hairline));
   background: var(--btn-bg);
   color: var(--btn-fg);
   font-size: var(--font-size-ui);
@@ -34,6 +39,7 @@
   &:hover {
     background: var(--btn-bg-hover);
     border-color: var(--btn-border-hover);
+    color: var(--btn-fg-hover);
   }
 
   &:active {
@@ -54,30 +60,97 @@
   --btn-bg-active: var(--color-bg-subtle);
 }
 
-.btn--sm {
-  min-height: var(--control-height-sm);
-  font-size: var(--font-size-sm);
-  padding-inline: calc(var(--space-4) - var(--border-width-hairline));
-}
-
 // A quiet action in a bar, such as Sign out in the app header; still 44 px tall.
 .btn--ghost {
   --btn-bg-hover: var(--color-bg-subtle);
   --btn-bg-active: var(--color-bg-subtle-hover);
+  --btn-pad-y: var(--space-2);
+  --btn-pad-x: var(--space-4);
+}
 
-  padding: calc(var(--space-2) - var(--border-width-hairline))
-    calc(var(--space-4) - var(--border-width-hairline));
+// Destructive actions, only inside a confirmation step.
+.btn--danger {
+  --btn-bg: var(--color-danger-solid);
+  --btn-bg-hover: var(--color-danger-solid-hover);
+  --btn-fg: var(--color-fg-on-danger);
+}
+
+// The primary and secondary pair on bordeaux panels, with the borealis focus ring.
+.btn--inverse {
+  --btn-bg: var(--color-bg-brand-inverse);
+  --btn-bg-hover: var(--color-bg-brand-inverse-hover);
+  --btn-fg: var(--color-fg-brand-inverse);
+}
+
+.btn--on-brand {
+  --btn-border: var(--color-border-on-brand);
+  --btn-bg-hover: var(--color-bg-on-brand-hover);
+  --btn-fg: var(--color-fg-on-brand);
+}
+
+.btn--inverse:focus-visible,
+.btn--on-brand:focus-visible {
+  outline-color: var(--color-focus-ring-on-dark);
+}
+
+// Text actions: "Retry" that looks like a link, and the borderless full-width quiet action.
+.btn--link,
+.btn--quiet {
+  min-height: var(--target-min);
+  padding: 0;
+  border: 0;
+}
+
+.btn--link {
+  --btn-fg: var(--color-fg-link);
+  --btn-fg-hover: var(--color-fg-link-hover);
+
+  border-radius: var(--radius-xs);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+}
+
+.btn--quiet {
+  --btn-fg: var(--color-fg-muted);
+  --btn-fg-hover: var(--color-fg-default);
+
+  width: 100%;
+  font-size: var(--font-size-sm);
+}
+
+.btn--xs,
+.btn--sm {
+  --btn-pad-x: var(--space-4);
+
+  min-height: var(--control-height-sm);
+  font-size: var(--font-size-sm);
+}
+
+.btn--xs {
+  --btn-pad-y: var(--space-2);
+}
+
+// The 16 px label of dialog and drawer footers.
+.btn--md {
+  --btn-pad-y: var(--space-3);
+
+  font-size: var(--font-size-md);
 }
 
 .btn--lg {
+  --btn-pad-y: var(--space-3-5);
+  --btn-pad-x: var(--space-6);
+
   min-height: var(--control-height-lg);
   font-size: var(--font-size-md);
-  padding: calc(var(--space-3-5) - var(--border-width-hairline))
-    calc(var(--space-6) - var(--border-width-hairline));
 }
 
 .btn--block {
   width: 100%;
+}
+
+.btn--grow {
+  flex: 1 1 0%;
 }
 
 .btn:disabled {
@@ -95,6 +168,7 @@
 
 // Touch: a small button's target extends to 44 × 44 px without changing its look (L2-038 AC4).
 @media (pointer: coarse) {
+  .btn--xs,
   .btn--sm {
     position: relative;
 

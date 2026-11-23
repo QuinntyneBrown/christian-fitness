@@ -1,0 +1,14 @@
+// The design system's tag (docs/design-system/assets/components.css, "Chips").
+:host {
+  display: contents;
+}
+
+.tag {
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  padding: var(--space-1-5) var(--space-3-5);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}

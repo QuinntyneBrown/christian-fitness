@@ -1,0 +1,11 @@
+// The design system's select (docs/design-system/assets/components.css, "Forms": select). The
+// platform's arrow and open list are not restyled.
+@use '../form-field/control';
+
+:host {
+  display: block;
+}
+
+.select {
+  @include control.control;
+}

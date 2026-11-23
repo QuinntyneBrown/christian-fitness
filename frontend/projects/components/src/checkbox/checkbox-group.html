@@ -1,0 +1,12 @@
+<cf-form-field
+  group
+  [fieldId]="fieldId()"
+  [label]="legend()"
+  [optional]="optional()"
+  [hint]="hint()"
+  [error]="error()"
+>
+  <div [attr.class]="row() ? 'choice-group choice-group--row' : 'choice-group'">
+    <ng-content />
+  </div>
+</cf-form-field>

@@ -1,0 +1,38 @@
+// The design system's lockup (docs/design-system/assets/components.css, "Brand: seal and
+// lockup").
+:host {
+  display: contents;
+}
+
+.lockup {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2-5);
+  min-height: var(--target-comfortable);
+  border-radius: var(--radius-sm);
+
+  &:focus-visible {
+    outline-color: var(--color-focus-ring);
+    outline-offset: var(--space-1);
+  }
+}
+
+.lockup__name {
+  white-space: nowrap;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  line-height: var(--line-height-none);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.lockup--light {
+  color: var(--color-fg-on-brand);
+
+  &:focus-visible {
+    outline-color: var(--color-focus-ring-on-dark);
+  }
+}
