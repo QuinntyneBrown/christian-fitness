@@ -17,7 +17,8 @@ screens.
 - **`BreakpointService`** — service behind `BREAKPOINT_SERVICE` in the `api` library, implemented with CDK `BreakpointObserver` and exposing `isLg: Signal<boolean>`. Screens read it to choose layout; it releases its observer on destroy.
 - **Services and Messages routes** — below LG, `/services` and `/messages` show the list and `/services/:id` and `/messages/:id` show the detail as separate screens; at LG and above the parent component renders both side by side (mocks `pages/services`, `pages/messages` `list` and `default` states).
 - **Forms** — form layouts in the `dialogs/` mocks use a single full-width column at XS; the primary action sits in a sticky footer so it stays visible.
-- **Admin tables** — below LG, tables become stacked cards (`L2-021`).
+- **Admin tables** — below LG, tables become stacked cards (`L2-021`). Until a screen needs the cards, the components library's `cf-table` keeps its minimum width and scrolls sideways inside its focusable, labelled wrapper, so the page itself never scrolls sideways (ADR 0017).
+- **Feedback, overlays and content components** — the dialog is a bottom sheet below 640 px and a centred panel above; the drawer fills the width on phones; the toast region sits above the member tab bar on phones and bottom right from 768 px; pagination swaps its page numbers for "Page 2 of 8" below 640 px; tabs scroll sideways and bring the current tab into view; banners put their icon, text and actions on one row from 640 px; message bubbles take at most 80 % of the thread on phones and 65 % from 640 px (`L2-039`, `L2-048`).
 - **Responsive sweep** — a Playwright spec, tagged `@sweep` and run on request (`CF_SWEEPS=1`), opens each screen at 375, 576, 768, 992 and 1440 px and asserts `document.documentElement.scrollWidth <= clientWidth`.
 
 ## Requirements
