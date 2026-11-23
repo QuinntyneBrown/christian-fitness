@@ -3,19 +3,28 @@ import { ApiHandlers } from './api-handlers';
 
 export { expect };
 export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
-export { MODERATOR_SIGNED_IN, SIGNED_IN, STAFF_SIGNED_IN, XSRF_TOKEN } from './api-handlers';
+export {
+  MODERATOR_SIGNED_IN,
+  NO_ADMIN_EVENTS,
+  SIGNED_IN,
+  STAFF_SIGNED_IN,
+  XSRF_TOKEN,
+} from './api-handlers';
 
 /** Requests to these path prefixes go to the backend, which never runs in a spec. */
 const BACKEND = ['/api/', '/hubs/'];
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
 /**
- * Chromium logs every 4xx or 5xx response as a console error. For a backend request that is the
- * status a handler chose to answer, not a fault of the page; an unanswered one is reported above.
+ * Chromium logs every 4xx or 5xx response, and every request that got no answer, as a console
+ * error. For a backend request that is what a handler chose to answer (a status, or `abort`), not a
+ * fault of the page; an unanswered one is reported above.
  */
 function isAnsweredBackendStatus(message: ConsoleMessage): boolean {
+  const text = message.text();
   if (
-    !message.text().startsWith('Failed to load resource: the server responded with a status of')
+    !text.startsWith('Failed to load resource: the server responded with a status of') &&
+    text !== 'Failed to load resource: net::ERR_FAILED'
   ) {
     return false;
   }

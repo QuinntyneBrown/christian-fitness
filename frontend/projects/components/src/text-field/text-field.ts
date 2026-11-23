@@ -31,6 +31,8 @@ export class TextField {
   readonly autocomplete = input<string>();
   /** The keyboard a phone shows, such as `numeric` for a code. */
   readonly inputmode = input<string>();
+  /** The lowest number a `number` field offers, such as 1 for a capacity. */
+  readonly min = input<number>();
   /** The design system's `input--code` look: large, spaced, tabular digits, centred. */
   readonly code = input(false, { transform: booleanAttribute });
   readonly optional = input(false, { transform: booleanAttribute });

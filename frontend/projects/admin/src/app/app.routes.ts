@@ -29,7 +29,7 @@ export const routes: Routes = [
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {
-        // Stand-ins until slices 28.1, 10.1, 21.1 and 26.1 (ADR 0011).
+        // Stand-ins until slices 28.1, 21.1 and 26.1 (ADR 0011).
         path: '',
         pathMatch: 'full',
         title: 'Dashboard · Christian Fitness Admin',
@@ -37,10 +37,10 @@ export const routes: Routes = [
         loadComponent: area,
       },
       {
+        // Every event under All, Published and Draft, and the event editor (slice 10.1; ADR 0015).
         path: 'events',
         title: 'Events · Christian Fitness Admin',
-        data: { heading: 'Events' },
-        loadComponent: area,
+        loadComponent: () => import('./pages/events/events-page').then((m) => m.AdminEventsPage),
       },
       {
         path: 'services',

@@ -1,0 +1,57 @@
+<div class="page-head page-head--wrap">
+  <div>
+    <h1 class="admin-title">Events</h1>
+    <p class="subtitle">Published events appear in the member app right away.</p>
+  </div>
+  <cf-button (click)="newEvent()">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+    New event
+  </cf-button>
+</div>
+
+<cf-tabs label="Filter events" [items]="tabs()" (navigate)="navigate($event)" />
+
+@switch (state().kind) {
+  @case ('loading') {
+    <cf-event-table loading />
+  }
+  @case ('failed') {
+    <cf-empty-state
+      variant="error"
+      heading="Events didn't load"
+      text="We couldn't reach the server. Try again in a moment."
+    >
+      <cf-button size="sm" (click)="tryAgain()">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+          <path d="M21 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+          <path d="M8 16H3v5" />
+        </svg>
+        Try again
+      </cf-button>
+    </cf-empty-state>
+  }
+  @default {
+    @if (rows().length > 0) {
+      <cf-event-table [rows]="rows()" />
+    } @else if (tab() === 'all') {
+      <cf-empty-state [heading]="empty().heading" [text]="empty().text">
+        <cf-button size="sm" (click)="newEvent()">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+          </svg>
+          New event
+        </cf-button>
+      </cf-empty-state>
+    } @else {
+      <cf-empty-state variant="tight" [heading]="empty().heading" [text]="empty().text" />
+    }
+  }
+}
+
+<cf-toast-region [toasts]="toasts.toasts()" (dismiss)="toasts.dismiss($event)" />

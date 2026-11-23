@@ -1,0 +1,15 @@
+// The event editor's own layout (docs/design-system/assets/components.css, "Forms": field-grid):
+// the drawer draws the panel, the fields draw themselves.
+:host {
+  display: block;
+  height: 100%;
+}
+
+.field-grid {
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

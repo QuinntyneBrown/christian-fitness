@@ -37,6 +37,10 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   motion; the scrim, Close and Escape dismiss it and focus returns to New event. Slice 10.2 adds
   `edit`, `invalid` (each `fieldCodes` entry on its field with `aria-invalid`) and `failed`;
   slice 11.1 adds Publish and `busy`.
+- **`ToastsApi` / `TOASTS_SERVICE`, `ToastStore`, `ToastRegion`** — the page's toasts: the
+  contract and token in `api`, the store in `domain` (a toast leaves after 6 seconds, Dismiss
+  removes it at once, at most three show, its timers end with the page) bound on the page's
+  `providers`, and the always-present `toast-region` in `components`.
 - **`AdminEventsApi` / `ADMIN_EVENTS_SERVICE`** — contract and token in the `api` library: `list`
   and `create` (10.1), `get`, `update` and `uploadImage` (10.2); `HttpAdminEventsService`
   implements it and errors with an `ApiError`.

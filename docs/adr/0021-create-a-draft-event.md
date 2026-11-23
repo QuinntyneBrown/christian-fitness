@@ -57,14 +57,32 @@ next.
   and try again. Your changes are still here.", and makes the fields editable again; nothing is
   marked per field yet.
 - **The editor is a CDK Dialog drawer, loaded on first use.** `@angular/cdk` joins the
-  dependencies. The events page imports `Dialog` and opens `EventEditorDialog`, which it loads
-  with a dynamic `import()` on the first New event, so neither the dialog nor its fields are in
-  the page's chunk, and nothing of either is in `main`. The dialog closes by its ref with the
-  created event; the page then shows the Draft saved toast and loads the list again. The drawer's
-  look is the design system's `drawer` block (`Drawer`, `components`), placed by the overlay at the
-  right edge, full height, up to 32 rem wide and full width on phones; its scrim is the
-  `cf-scrim` backdrop class in the global utilities, since the overlay renders it outside any
-  component. The CDK's structural overlay styles are imported once in `styles.scss`.
+  dependencies. On the first New event the events page imports the editor's file, which holds
+  `EventEditorDialog` and `openEventEditor`; that file alone imports CDK Dialog and Overlay, so
+  neither the dialog, its fields nor the CDK is in the page's chunk. The page passes its own
+  injector, which binds `ADMIN_EVENTS_SERVICE` and `TOASTS_SERVICE` on the routed component. The
+  dialog is `aria-modal`, named by the drawer's heading, starts focus on Title and gives it back to
+  what opened it; Escape and the scrim close it, except while a save is on its way. It closes by
+  its ref with the created event; the page then shows the Draft saved toast and loads the list
+  again. The drawer's look is the design system's `drawer` block (`Drawer`, `components`), placed
+  by a global position strategy at the right edge, full height, up to `--layout-dialog-max`
+  (32 rem) and full width on phones. Its scrim is the `cf-scrim` backdrop class in the global
+  utilities, since the overlay renders it outside any component. The CDK loads its own structural
+  overlay styles when the first overlay opens, so `styles.scss` imports nothing.
+- **The admin initial budget rises to 280 kB (warning) and 290 kB (error).** The dialog's chunk
+  is lazy, but the parts of `@angular/core` that CDK Dialog uses to create a component in a portal
+  (about 14 kB) and rxjs's async scheduler (about 2 kB) are bundled with the rest of
+  `@angular/core` and rxjs in `main`, which a lazy chunk cannot split. The events page adds
+  2.4 kB of core. The admin initial total goes from 257.70 kB to 274.73 kB, within 0.27 kB of the
+  old error budget; every later dialog reuses what is now paid for.
+- **Toasts are a screen's service.** `TOASTS_SERVICE` (`ToastsApi`, `api`) is bound to
+  `ToastStore` (`domain`) on the events page: a toast leaves after 6 seconds, Dismiss removes it at
+  once, at most three show, and the store's timers end with the page. `ToastRegion`
+  (`components`) draws the region, always present so its polite status is announced.
+- **Two stand-ins in the list's states.** The error state leaves out the mock's reference line
+  ("Reference CF-A2E4"): a failed `GET` that got no answer has no trace id to show. The Draft tab
+  with no drafts, which no mock draws, reuses the `tab-empty` layout with "No drafts" / "Save an
+  event as a draft and it waits here until you publish it."
 - **New mock states:** `event-editor/saving` (Save draft busy, Publish disabled),
   `admin-events/tab-empty` (a tab with no events) and `admin-toast/draft-saved` (the toast after
   a draft is saved, leaving after about 6 seconds, as the design system's toast timing says).
