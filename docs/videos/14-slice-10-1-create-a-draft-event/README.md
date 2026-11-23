@@ -7,10 +7,12 @@ status, with skeleton rows while it loads, an empty state with New event, a tab-
 an error state with Try again. New event opens the event editor, a CDK Dialog drawer imported on
 first use, focus on Title. Save draft sends the fields to `POST /api/admin/events`; while it waits
 the button reads "Saving…", the fields hold still and Escape and the scrim wait; then the drawer
-closes, the "Draft saved" toast leaves after 6 seconds and the list shows the draft. The API
+closes, the "Draft saved" toast leaves after 6 seconds (held while the pointer or focus is on it)
+and the list shows the draft. Every part on screen is the components library's: tabs, table and
+status badge, skeleton region, empty and error states, drawer, alert, fields and toast region. The API
 checks every field's limits and answers a refusal with 400 `validation_failed` and each field's
 own code in `fieldCodes`; a start is a Toronto date and time that must be after the API's clock
-(ADR 0017).
+(ADR 0020).
 
 - **Film:** [`14-slice-10-1-create-a-draft-event.mp4`](14-slice-10-1-create-a-draft-event.mp4),
   1920×1080, 30 fps, 1 min 34 s. Captions: [`captions.vtt`](captions.vtt), not burned in.
@@ -18,7 +20,7 @@ own code in `fieldCodes`; a start is a Toronto date and time that must be after 
 - **Music:** _En La Playa – Trinidad and Tobago Soca_ by JuliusH, from Pixabay
   ([credits](../assets/music/CREDITS.md)). 120 BPM; a bar is two seconds and every scene is a
   whole number of bars.
-- **Requirements shown:** L2-022 (AC1, AC2, AC5, AC6); ADR 0017.
+- **Requirements shown:** L2-022 (AC1, AC2, AC5, AC6); ADR 0020.
 
 ## Run sheet
 

@@ -1,0 +1,55 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.814
+Staff can now put a new event together, and keep it as a draft until it is ready.
+
+00:00:08.000 --> 00:00:13.071
+The Events page lists every event, soonest first. Each row shows the date and time
+
+00:00:13.071 --> 00:00:17.082
+in Toronto, how many are going, and whether it is published.
+
+00:00:18.000 --> 00:00:22.658
+All, Published and Draft each show a count. A tab with nothing in it says so.
+
+00:00:26.000 --> 00:00:31.201
+New event opens the event editor at the side, with focus on the title. On a phone,
+
+00:00:31.201 --> 00:00:32.769
+it fills the screen.
+
+00:00:36.000 --> 00:00:40.749
+Save draft sends the event. While it waits, the button says Saving, and the fields
+
+00:00:40.749 --> 00:00:41.686
+hold still.
+
+00:00:44.000 --> 00:00:48.571
+Then the drawer closes, a toast says the draft is not visible to members yet, and
+
+00:00:48.571 --> 00:00:49.887
+the list shows it.
+
+00:00:54.000 --> 00:00:59.000
+With no events yet, the page offers the first one. If the list does not load, Try
+
+00:00:59.000 --> 00:01:00.349
+again asks again.
+
+00:01:02.000 --> 00:01:07.136
+On the server, every field has its limits, and a refusal names each field's own
+
+00:01:07.136 --> 00:01:10.751
+code. The start must be after now, in Toronto time.
+
+00:01:12.000 --> 00:01:14.922
+Every test failed first. Now they all pass.
+
+00:01:18.000 --> 00:01:19.624
+Next, editing an event.
+
+00:01:24.000 --> 00:01:28.979
+That's slice ten point one. Christian Fitness: a Christian community for health in
+
+00:01:28.979 --> 00:01:30.250
+body and spirit.

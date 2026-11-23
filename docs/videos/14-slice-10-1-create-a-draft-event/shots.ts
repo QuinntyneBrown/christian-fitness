@@ -176,9 +176,10 @@ test("what the runners and the build say", () => {
   };
 
   const unit = run("npm test", path.join(root, "frontend"));
-  const unitCount = /Tests\s+(\d+) passed \((\d+)\)/.exec(unit);
-  expect(unitCount, unit).not.toBeNull();
-  capture("unit", { command: "npm test", passed: Number(unitCount![1]) });
+  // `npm test` runs the domain's tests, then the components'; the film shows both.
+  const unitCounts = [...unit.matchAll(/Tests\s+(\d+) passed \((\d+)\)/g)].map((m) => Number(m[1]));
+  expect(unitCounts.length, unit).toBe(2);
+  capture("unit", { command: "npm test", passed: unitCounts.reduce((a, b) => a + b, 0) });
 
   const specs = run("npx playwright test --list", path.join(root, "frontend"));
   const specCount = /Total: (\d+) tests? in (\d+) files?/.exec(specs);
