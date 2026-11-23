@@ -1,0 +1,5 @@
+// The moderation dialog composes the library's dialog, alert and fields; it adds no look of its
+// own.
+:host {
+  display: contents;
+}

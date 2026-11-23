@@ -13,6 +13,7 @@ public sealed class Member
     public const int BioMaxLength = 300;
     public const int GoalsMaxCount = 5;
     public const int GoalMaxLength = 80;
+    public const int ModerationNoteMaxLength = 500;
 
     private Member()
     {
@@ -51,6 +52,12 @@ public sealed class Member
     public bool ShowHomeChurch { get; private set; }
 
     public MemberStatus Status { get; private set; }
+
+    /// <summary>
+    /// Why staff last flagged or suspended the member (L2-029 AC1, AC2; ADR 0025): staff's own words,
+    /// at most 500 characters, shown on the member's row and never logged. None until then.
+    /// </summary>
+    public string? ModerationNote { get; private set; }
 
     public DateTimeOffset JoinedAt { get; private set; }
 
@@ -106,6 +113,31 @@ public sealed class Member
         Bio = NoneIfBlank(bio);
         Goals = [.. goals.Where(goal => !string.IsNullOrWhiteSpace(goal)).Select(goal => goal.Trim())];
         Interests = [.. interests.Distinct(StringComparer.Ordinal)];
+    }
+
+    /// <summary>
+    /// Flags an Active member with <paramref name="note"/> (L2-029 AC1). Answers false, changing
+    /// nothing, for a member already Flagged or Suspended.
+    /// </summary>
+    public bool TryFlag(string note) => TryModerate(MemberStatus.Flagged, Status == MemberStatus.Active, note);
+
+    /// <summary>
+    /// Suspends an Active or Flagged member with <paramref name="note"/> (L2-029 AC2). Answers false,
+    /// changing nothing, for a member already Suspended.
+    /// </summary>
+    public bool TrySuspend(string note) => TryModerate(MemberStatus.Suspended, Status != MemberStatus.Suspended, note);
+
+    private bool TryModerate(MemberStatus to, bool allowed, string note)
+    {
+        ArgumentNullException.ThrowIfNull(note);
+        if (!allowed)
+        {
+            return false;
+        }
+
+        Status = to;
+        ModerationNote = note.Trim();
+        return true;
     }
 
     /// <summary>Replaces the password with <paramref name="passwordHash"/>, a hash, never the password (L2-030 AC1, L2-045 AC2).</summary>

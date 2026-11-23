@@ -3,8 +3,17 @@ namespace ChristianFitness.Application.Errors;
 /// <summary>The codes a handler or a validator refuses with; clients branch on them (L2-032).</summary>
 public static class RefusalCodes
 {
-    /// <summary>A suspended member gave the right password (L2-004 AC4).</summary>
+    /// <summary>A suspended member gave the right password, in either app (L2-004 AC4, L2-029 AC8).</summary>
     public const string AccountSuspended = "account_suspended";
+
+    /// <summary>Staff tried to flag or suspend their own account (L2-029 AC4; ADR 0025).</summary>
+    public const string CannotModerateSelf = "cannot_moderate_self";
+
+    /// <summary>The id names no member (L2-029 AC6).</summary>
+    public const string MemberNotFound = "member_not_found";
+
+    /// <summary>The member's status does not allow the change, such as flagging a Flagged member (L2-029 AC6).</summary>
+    public const string StatusConflict = "status_conflict";
 
     /// <summary>An account already has this email (L2-003 AC2).</summary>
     public const string EmailTaken = "email_taken";
@@ -33,7 +42,10 @@ public static class RefusalCodes
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
     public const string NotStaff = "not_staff";
 
-    /// <summary>A staff member's role does not open this area of the admin console (L2-019 AC1; ADR 0020).</summary>
+    /// <summary>
+    /// A staff member's role does not open this area of the admin console (L2-019 AC1; ADR 0020), or
+    /// a Moderator tried to flag or suspend a staff account (L2-029 AC7; ADR 0025).
+    /// </summary>
     public const string ForbiddenRole = "forbidden_role";
 
     /// <summary>Too many accounts were created, or reset links asked for, from one address in an hour (L2-034 AC2, AC3).</summary>

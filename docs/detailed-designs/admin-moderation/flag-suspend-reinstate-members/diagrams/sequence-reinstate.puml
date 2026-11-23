@@ -16,8 +16,8 @@ skinparam package {
 }
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
-  participant "MembersPage" as page
-  participant "ModerationDialog <TO SUPPLY>" as dlg
+  participant "AdminMembersPage" as page
+  participant "ModerateMemberDialog" as dlg
   participant "HttpAdminMembersService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
@@ -33,7 +33,7 @@ end box
 actor -> page : Reinstate on a Flagged or Suspended member's row
 page -> client : reinstate(id)
 client -> ctrl : POST /api/admin/members/{id}/reinstate
-ctrl -> ctrl : Authenticate and apply StaffOnly policy
+ctrl -> ctrl : Authenticate and apply Members staff area policy
 ctrl -> h : Send ReinstateMemberCommand
 h -> db : Load member
 db --> h : Member

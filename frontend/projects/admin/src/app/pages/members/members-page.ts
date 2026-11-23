@@ -2,6 +2,7 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   inject,
   Injector,
@@ -14,6 +15,7 @@ import {
   type AdminMemberDto,
   type AdminMemberListDto,
   type AdminMemberQuery,
+  TOASTS_SERVICE,
 } from '@cf/api';
 import {
   Button,
@@ -27,6 +29,8 @@ import {
   type TableRow,
   type TabItem,
   Tabs,
+  type ToastData,
+  ToastRegion,
 } from '@cf/components';
 import {
   joinedOn,
@@ -38,7 +42,10 @@ import {
   memberRangeLabel,
   memberStatusLabel,
   memberTabs,
+  moderationActionsOf,
+  moderationToast,
   noMembersMessage,
+  ToastStore,
 } from '@cf/domain';
 import {
   catchError,
@@ -87,22 +94,40 @@ const listKeyOf = (query: AdminMemberQuery): string => `${query.status}\n${query
  * page moves focus to the table. While the list loads, skeleton rows, with the pages kept in
  * place;
  * with nobody to list, an empty state; when it does not load, the error state with Try again.
+ * Each row shows its moderation note under its status and, when its status allows a change,
+ * "Moderate", which opens the moderation dialog (L2-029; ADR 0025).
  * Every part is the design system's, composed from the library: search field, tabs, table with a
- * person cell and a status badge, skeleton region and empty and error states.
+ * person cell and a status badge, skeleton region, empty and error states and the toast region.
  * Its service is this screen's own, provided here (AGENTS.md, "Scope state to its use").
  */
 @Component({
   selector: 'cf-admin-members-page',
-  imports: [Button, EmptyState, Pagination, SearchField, SkeletonRegion, Status, Table, Tabs],
+  imports: [
+    Button,
+    EmptyState,
+    Pagination,
+    SearchField,
+    SkeletonRegion,
+    Status,
+    Table,
+    Tabs,
+    ToastRegion,
+  ],
   templateUrl: './members-page.html',
   styleUrl: './members-page.scss',
-  providers: [{ provide: ADMIN_MEMBERS_SERVICE, useClass: HttpAdminMembersService }],
+  providers: [
+    { provide: ADMIN_MEMBERS_SERVICE, useClass: HttpAdminMembersService },
+    { provide: TOASTS_SERVICE, useClass: ToastStore },
+  ],
 })
 export class AdminMembersPage {
   private readonly members = inject(ADMIN_MEMBERS_SERVICE);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly toasts = inject(TOASTS_SERVICE);
+  private dialogOpen = false;
 
   private readonly reload = new Subject<void>();
   /** Each edit of the search field, asked for once typing pauses. */
@@ -159,6 +184,14 @@ export class AdminMembersPage {
         : undefined,
     };
   });
+  protected readonly toastViews = computed<ToastData[]>(() =>
+    this.toasts.toasts().map(({ id, title, text }) => ({
+      id: String(id),
+      tone: 'info',
+      heading: title,
+      text,
+    })),
+  );
   protected readonly pageHref = computed(() => {
     const query = this.query();
     return (page: number) => memberListHref({ ...query, page });
@@ -223,6 +256,34 @@ export class AdminMembersPage {
     void this.router.navigateByUrl(href);
   }
 
+  /**
+   * Opens the moderation dialog for the row `id` (L2-029 AC9; ADR 0025), imported on the first
+   * Moderate. A change shows its toast and loads the list again; since the row that opened the
+   * dialog is drawn anew, focus goes to the table.
+   */
+  protected async moderate(id: string): Promise<void> {
+    const member = this.shownMembers().find((shown) => shown.id === id);
+    if (!member || this.dialogOpen) return;
+    this.dialogOpen = true;
+    const { openModerateMember } =
+      await import('../../dialogs/moderate-member/moderate-member-dialog');
+    if (this.destroyRef.destroyed) return;
+    openModerateMember(this.injector, member)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        this.dialogOpen = false;
+        if (!result) return;
+        const toast = moderationToast(result.action, result.member.name);
+        this.toasts.show(toast.title, toast.text);
+        this.focusTable = true;
+        this.reload.next();
+      });
+  }
+
+  protected dismissToast(id: string): void {
+    this.toasts.dismiss(Number(id));
+  }
+
   /** The status badge's variant for the row `id`. */
   protected statusOf(id: string): AdminMemberDto['status'] {
     return this.shownMembers().find((member) => member.id === id)?.status ?? 'active';
@@ -260,7 +321,8 @@ function rowOf(member: AdminMemberDto): TableRow {
       church: { text: member.homeChurch ?? '' },
       joined: { text: joinedOn(member.joinedAt) },
       events: { text: String(member.eventsAttended) },
-      status: { text: memberStatusLabel(member.status) },
+      status: { text: memberStatusLabel(member.status), sub: member.note ?? undefined },
     },
+    noAction: moderationActionsOf(member.status).length === 0,
   };
 }
