@@ -17,6 +17,9 @@ internal sealed class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.Property(member => member.PasswordHash).IsRequired();
         builder.Property(member => member.HomeChurch).HasMaxLength(Member.HomeChurchMaxLength);
         builder.PrimitiveCollection(member => member.Interests).IsRequired();
+        builder.Property(member => member.City).HasMaxLength(Member.CityMaxLength);
+        builder.Property(member => member.Bio).HasMaxLength(Member.BioMaxLength);
+        builder.PrimitiveCollection(member => member.Goals).IsRequired();
         builder.Property(member => member.Status).HasConversion<string>().HasMaxLength(16);
     }
 }

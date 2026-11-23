@@ -27,10 +27,57 @@
   }
 }
 
-// Sign out sits at the header's end, where the profile avatar will precede it.
-.app-header__signout {
+// The profile avatar and Sign out sit together at the header's end.
+.app-header__end {
   margin-left: auto;
   display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-header__signout {
+  display: flex;
+}
+
+.profile-button {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-avatar-sm);
+  height: var(--size-avatar-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+
+  &[aria-current='page'] {
+    box-shadow:
+      0 0 0 var(--border-width-thick) var(--color-bg-surface),
+      0 0 0 calc(2 * var(--border-width-thick)) var(--color-highlight);
+  }
+
+  &:focus-visible {
+    outline-color: var(--color-focus-ring);
+    outline-offset: var(--space-1);
+  }
+
+  // Touch: a 44 × 44 px target without changing its look.
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
 }
 
 .lockup {

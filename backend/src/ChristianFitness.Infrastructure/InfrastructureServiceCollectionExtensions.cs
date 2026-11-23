@@ -1,6 +1,7 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Infrastructure.Health;
 using ChristianFitness.Infrastructure.Persistence;
+using ChristianFitness.Infrastructure.Registrations;
 using ChristianFitness.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,8 @@ namespace ChristianFitness.Infrastructure;
 public static class InfrastructureServiceCollectionExtensions
 {
     /// <summary>
-    /// The PostgreSQL database (ADR 0004), the password hasher, the clock and the readiness check.
+    /// The PostgreSQL database (ADR 0004), the password hasher, the clock, the registrations a profile
+    /// lists (none until slice 6.1, ADR 0015) and the readiness check.
     /// Never migrates (L2-041 AC1): <c>cf migrate</c> does.
     /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -23,6 +25,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddSingleton<IPasswordHasherService, IdentityPasswordHasher>();
         services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<IRegistrationReader, NoRegistrationsYet>();
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database", tags: [HealthTags.Ready]);
         return services;
     }

@@ -1,2 +1,10 @@
-<cf-app-header homeHref="/home" [signingOut]="signingOut()" (signOut)="signOut()" />
+<cf-app-header
+  homeHref="/home"
+  profileHref="/profile"
+  [profileInitials]="initials()"
+  [profileCurrent]="onProfile()"
+  [signingOut]="signingOut()"
+  (navigate)="navigate($event)"
+  (signOut)="signOut()"
+/>
 <router-outlet />

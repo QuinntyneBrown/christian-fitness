@@ -12,7 +12,8 @@ skinparam class {
 title Class structure — View a profile
 class ProfilePage {
   +profile: Signal<OwnProfileDto|null>
-  +state: Signal<'loading'|'loaded'|'error'>
+  +state: Signal<'loading'|'loaded'|'failed'>
+  +retry(): void
 }
 class MemberProfilePage {
   +profile: Signal<PublicProfileDto|null>
@@ -23,14 +24,20 @@ interface ProfileApi {
 }
 class HttpProfileService
 class OwnProfileDto {
-  +fullName: string
-  +city: string
+  +name: string
+  +city: string|null
   +joinedAt: string
-  +bio: string
-  +homeChurch?: string
+  +bio: string|null
+  +homeChurch: string|null
   +goals: string[]
   +interests: string[]
   +upcomingEvents: UpcomingEventDto[]
+}
+class UpcomingEventDto {
+  +eventId: string
+  +title: string
+  +startsAt: string
+  +imageUrl: string|null
 }
 class PublicProfileDto {
   +fullName: string
@@ -41,15 +48,19 @@ class PublicProfileDto {
 }
 class GetOwnProfileHandler
 class GetPublicProfileHandler
+interface IRegistrationReader {
+  +UpcomingForAsync(memberId, now): UpcomingEventDto[]
+}
+class NoRegistrationsYet
 class Member {
   +Guid Id
-  +string FullName
-  +string City
-  +string Bio
+  +string Name
+  +string? City
+  +string? Bio
   +string? HomeChurch
   +bool ShowHomeChurch
-  +List<string> Goals
-  +List<string> Interests
+  +IReadOnlyList<string> Goals
+  +IReadOnlyList<string> Interests
   +DateTimeOffset JoinedAt
 }
 class Registration {
@@ -59,8 +70,11 @@ class Registration {
 HttpProfileService ..|> ProfileApi
 ProfilePage ..> ProfileApi : injects PROFILE_SERVICE
 MemberProfilePage ..> ProfileApi : injects PROFILE_SERVICE
+OwnProfileDto *-- UpcomingEventDto
 GetOwnProfileHandler ..> Member
-GetOwnProfileHandler ..> Registration
+GetOwnProfileHandler ..> IRegistrationReader
+NoRegistrationsYet ..|> IRegistrationReader : until slice 6.1
+IRegistrationReader ..> Registration : slice 6.1
 GetOwnProfileHandler ..> OwnProfileDto : returns
 GetPublicProfileHandler ..> Member
 GetPublicProfileHandler ..> PublicProfileDto : returns

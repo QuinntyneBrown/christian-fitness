@@ -24,23 +24,29 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "GetOwnProfileHandler" as h
+  participant "IRegistrationReader" as reg
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> page : Open /profile
-page --> actor : Show skeleton
+page --> actor : Show skeleton (aria-busy)
 page -> client : own()
 client -> ctrl : GET /api/profile/me
-ctrl -> h : Send GetOwnProfileQuery(caller id)
-h -> db : Load caller Member and upcoming Registration rows
-db --> h : Member, events
+ctrl -> h : Send GetOwnProfileQuery (member from the session)
+h -> db : Load the caller's Member
+db --> h : Member
+h -> reg : UpcomingForAsync(member id, now)
+reg --> h : Upcoming events, soonest first (none until slice 6.1)
 h --> ctrl : OwnProfileDto
 ctrl --> client : 200 JSON
 client --> page : Profile
 alt Has upcoming events (L2-005 AC1)
-  page --> actor : Name, initials avatar, city, join date, bio, church, goals, interests, events
+  page --> actor : Name, initials avatar, member since, church, city, bio, goals, interests, Going to
 else No events (L2-005 AC2)
-  page --> actor : Empty state with link to Events
+  page --> actor : "Not going to anything yet." with Browse events (/events)
+end
+alt 4xx or no answer (L2-043 AC5)
+  page --> actor : "Your profile didn't load" with Try again and Back to home
 end
 @enduml
