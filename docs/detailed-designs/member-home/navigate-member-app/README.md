@@ -21,23 +21,29 @@ targets measure at least 44 × 44 px.
   (behind `memberAuthGuard`). It hosts `<router-outlet>` and both navigation bars, and
   provides the unread count to them. It is the parent through which sibling routes
   share one chat connection.
-- **`AppHeader`** (slice 3.1) — presentation component in `components` that renders
-  the mock's `app-header` block: the lockup linking to `homeHref`, room for `AppNav`
-  and the profile avatar, and at its end a ghost **Sign out** button, 44 px tall, at
-  every viewport (L2-008 AC4). It emits `signOut`; with `signingOut` the button is
-  disabled and busy. `MemberShell` signs the member out
-  ([sign in and sign out](../../member-access/sign-in-and-out/README.md)). Until the
-  screens they open exist, the shell shows no destinations, avatar or bottom bar;
-  each journey that builds a destination adds it ([ADR 0009](../../../adr/0009-sign-in-sign-out-and-request-protections.md)).
-- **`AppNav`** — presentation component in `components` that renders the mock's
-  `app-header` and `app-nav` blocks with `routerLink`-free anchors: it takes
-  `destinations`, `current` and `unreadCount` inputs and keeps `aria-current="page"`
-  on the active item (L2-008 AC1). The shell supplies the `href` values.
-- **`TabBar`** — presentation component rendering the mock's `tab-bar` with
-  `tab-bar__item` targets of at least 44 × 44 px (L2-008 AC2).
-- **`CountBadge`** — renders the unread count as text (`count-badge`) with an
-  accessible label such as "4 unread" (L2-008 AC3). The mock's mobile `tab-bar__dot`
-  is `aria-hidden`; the bottom bar shall expose the count as text as well.
+- **`SkipLink`** — the design system's skip link, first in the shell: the first Tab shows
+  "Skip to content", and Enter moves focus to the screen's `main#main` (`L2-038` AC8;
+  [ADR 0019](../../../adr/0019-design-system-layout-navigation-and-migration.md)).
+- **`TopBar`** (`variant="app"`) — the design system's top bar in `components/top-bar/`,
+  replacing slice 3.1's `AppHeader` and the planned `AppNav`: the mock's `app-header` block with
+  the lockup linking to `homeHref`, the `app-nav` links labelled "Primary" from MD up (every
+  destination but Profile, `aria-current="page"` on the current one, L2-008 AC1), the
+  `profile-button` with the member's initials and, at its end, a ghost **Sign out** button,
+  44 px tall, at every viewport (L2-008 AC4). Inputs: `destinations`, `current`, `unread`,
+  `profileHref`, `profileInitials`, `signingOut`; outputs `navigate` (a plain click only) and
+  `signOut`. `MemberShell` signs the member out
+  ([sign in and sign out](../../member-access/sign-in-and-out/README.md)). Until the screens
+  they open exist, the shell passes no destinations, so neither the `nav` nor the bottom bar
+  shows; each journey that builds a destination adds it ([ADR 0009](../../../adr/0009-sign-in-sign-out-and-request-protections.md), ADR 0019).
+  The same component's `site` variant is the public `site-header`.
+- **`TabBar`** — the design system's tab bar in `components/tab-bar/`: the `tab-bar` with
+  `tab-bar__item` targets of at least 44 × 44 px (L2-008 AC2), taking the same `destinations`,
+  `current` and `unread` as the top bar so their labels match word for word.
+- **`MemberDestination`** — the destination type both bars take: `key` (home, events, services,
+  messages, profile), `label` and `href`.
+- **`CountBadge`** — renders the unread count as text (`count-badge`) with an accessible label
+  such as "4 unread" (L2-008 AC3), capped at "99+" as the badge page says (the top-bar page's
+  "9+" yields to it, ADR 0019). On the tab bar the count is text as well, never only the dot.
 - **`UnreadCountService` / `UNREAD_COUNT_SERVICE`** — contract and token in `api`. The
   implementation reads the initial count from the home summary or `GET
   /api/messages/unread-count` and updates it from `CHAT_CONNECTION` events; no
@@ -55,6 +61,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-008` | `L1-004` | Given viewport MD or wider, a header shows Home, Events, Services, Messages and Profile with `aria-current="page"` on the current one; given viewport XS or SM, the same destinations appear in a bottom bar with targets of at least 44 × 44 px; given unread messages, Messages shows the unread count as text, not colour alone; given a signed-in member at any viewport, the app header offers a Sign out button with a target of at least 44 × 44 px (acceptance criteria 1–4). |
+| `L2-038` | `L1-015` | Given either app's shell, when the first Tab is pressed, then "Skip to content" shows and moves focus to the screen's `main`; given a component in `docs/design-system/components/`, when a screen needs it, then it comes from the components library under its design-system name (acceptance criteria 7–8). |
 
 ## Diagrams
 

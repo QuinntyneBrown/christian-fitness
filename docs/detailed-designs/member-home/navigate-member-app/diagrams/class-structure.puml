@@ -16,26 +16,31 @@ class MemberShell {
   +signingOut: Signal<boolean>
   +signOut(): void
 }
-class AppHeader {
+class SkipLink {
+  +target: input<string>
+}
+class TopBar {
+  +variant: input<'app'|'site'>
   +homeHref: input<string>
+  +destinations: input<MemberDestination[]>
+  +current: input<MemberDestinationKey | null>
+  +unread: input<number>
+  +profileHref, profileInitials: input<string>
   +signingOut: input<boolean>
+  +navigate: output<string>
   +signOut: output<void>
 }
-class AppNav {
-  +destinations: input<NavDestination[]>
-  +current: input<string>
-  +unreadCount: input<number>
-}
 class TabBar {
-  +destinations: input<NavDestination[]>
-  +current: input<string>
-  +unreadCount: input<number>
+  +destinations: input<MemberDestination[]>
+  +current: input<MemberDestinationKey | null>
+  +unread: input<number>
+  +navigate: output<string>
 }
 class CountBadge {
   +count: input<number>
 }
-class NavDestination {
-  +id: 'home'|'events'|'services'|'messages'|'profile'
+class MemberDestination {
+  +key: 'home'|'events'|'services'|'messages'|'profile'
   +label: string
   +href: string
 }
@@ -46,12 +51,13 @@ interface SessionApi {
   +signOut(): Observable<void>
 }
 interface ChatConnection
-MemberShell --> AppHeader
-AppHeader --> AppNav
+MemberShell --> SkipLink
+MemberShell --> TopBar
 MemberShell --> TabBar
-AppNav --> CountBadge
+TopBar --> CountBadge
 TabBar --> CountBadge
-AppNav --> "5" NavDestination
+TopBar --> "5" MemberDestination
+TabBar --> "5" MemberDestination
 MemberShell ..> UnreadCountApi : injects UNREAD_COUNT_SERVICE
 MemberShell ..> SessionApi : injects SESSION_SERVICE
 UnreadCountApi ..> ChatConnection : CHAT_CONNECTION

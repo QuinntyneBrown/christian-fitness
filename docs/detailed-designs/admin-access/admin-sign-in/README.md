@@ -30,8 +30,8 @@ the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
 [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
-  renders the `staff` card through `StaffLayout` (`components`) with `TextField`, `FormAlert` and
-  `Button`: Work email, Password, Sign in, and the `submitting` state ("Signing in…", disabled,
+  renders the `staff` card through `StaffLayout` (`components`) with `TextField`, `Alert` (the
+  `form-alert` block; slice 1.6 replaced the screen's own `FormAlert`) and `Button`: Work email, Password, Sign in, and the `submitting` state ("Signing in…", disabled,
   fields read-only). A refusal shows one `form-alert` that takes focus, chosen from the error
   `code` by `staffSignInRefusalOf` (`domain`): `invalid` (no field marked, L2-018 AC3),
   `not-staff` (AC2), `two-step-not-set-up` (L2-046 AC6), `too-many-attempts` ("Sign-in paused for

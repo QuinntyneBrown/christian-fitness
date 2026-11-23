@@ -85,6 +85,8 @@ does not draw, fits; and two places where the design system disagrees with itsel
   | `interest-picker` | `cf-interest-list` of `cf-interest` |
   | the profile's goals list | `cf-list variant="goals"` |
   | hand-written `container`, `page`, `split`, `aside-stack` | `cf-container`, `cf-split`, `cf-stack` |
+  | the busy icon each screen drew in its submit button | `cf-button busy`, which draws the spinning loader icon before its label (spinner.html, "In a button") |
+  | the member error screens' own `container page` styles | `cf-container page="default"` |
   | `mini-row__count` (slice 1.5) | `cf-unread-dot` on a mini row, `cf-count-badge pill` on a conversation (list.html, "States") |
 
   `cf-profile-hero` stays a screen composite, since no design-system page covers it, and is now

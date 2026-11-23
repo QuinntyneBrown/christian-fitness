@@ -5,7 +5,8 @@ title Components — Navigate the member app
 
 Container_Boundary(web, "Member web app") {
   Component(shell, "MemberShell", "Angular layout route", "Router outlet and navigation")
-  Component(nav, "AppNav", "components library", "Header navigation")
+  Component(skip, "SkipLink", "components library", "Skip to content")
+  Component(nav, "TopBar", "components library", "app-header with app-nav and Sign out")
   Component(tab, "TabBar", "components library", "Bottom bar")
   Component(badge, "CountBadge", "components library", "Unread count as text")
   Component(svc, "UnreadCountService", "UNREAD_COUNT_SERVICE", "Unread count signal")
@@ -18,7 +19,8 @@ Container_Boundary(api, "Christian Fitness API") {
 }
 ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
 
-Rel(shell, nav, "Renders at MD+")
+Rel(shell, skip, "Renders first")
+Rel(shell, nav, "Renders; links at MD+")
 Rel(shell, tab, "Renders at XS/SM")
 Rel(nav, badge, "Uses")
 Rel(tab, badge, "Uses")
