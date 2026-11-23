@@ -26,3 +26,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0019](0019-design-system-layout-navigation-and-migration.md) | Design-system layout, navigation and migration: shells built from the library, one shared navigation pattern, and every screen-specific duplicate removed | Accepted |
 | [0020](0020-staff-roles-by-area.md)                          | Staff roles by area: a policy per area, the role read on every request and an "Admins only" screen | Accepted |
 | [0021](0021-create-a-draft-event.md) | Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1 | Accepted |
+| [0022](0022-find-members.md) | Find members: one paged search, the URL as the screen's state, a registration count that answers none yet, and stand-ins until 25.1 and 27.1 | Accepted |

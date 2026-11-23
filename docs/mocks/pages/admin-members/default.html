@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-members">
 <meta name="mock:state" content="default">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Members (tPxu6npHD6a6sbs4ZYxPji)">
-<meta name="description" content="The open report first (Kevin Brooks), then every member with church, joined date, events and status.">
+<meta name="description" content="The open report first (Kevin Brooks), then the newest 25 members with church, joined date, events and status (seven drawn), and the pages under the table.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -41,12 +41,12 @@
 <div class="page-head page-head--wrap">
   <div>
     <h1 class="display admin-title">Members</h1>
-    <p class="subtitle">2,431 members · 86 joined this month</p>
+    <p class="subtitle">2,431 members</p>
   </div>
   <form class="search" role="search">
             <label class="visually-hidden" for="member-search">Search members</label>
             <svg class="icon search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input class="search__input" id="member-search" type="search" placeholder="Search name, email or church">
+            <input class="search__input" id="member-search" type="search" placeholder="Search name or email">
           </form>
 </div><div class="report" role="region" aria-label="Report about Kevin Brooks">
           <div class="report__body">
@@ -81,7 +81,7 @@
                 <td><span class="status status--active">Active</span></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">KB</span><div class="mini-row__body"><p class="table__strong">Kevin Brooks</p><p class="table__sub">kbrooks.fit@gmail.com</p></div></div></td>
-                <td class="muted"><span aria-label="Not given">—</span></td>
+                <td class="muted"><span aria-hidden="true">—</span><span class="visually-hidden">Not given</span></td>
                 <td class="table__nowrap">Apr 2, 2026</td>
                 <td class="table__num">0</td>
                 <td><span class="status status--flagged">Flagged</span></td>
@@ -99,13 +99,21 @@
                 <td><span class="status status--active">Active</span></td>
               </tr><tr>
                 <td><div class="table__person"><span class="avatar avatar--table" aria-hidden="true">TS</span><div class="mini-row__body"><p class="table__strong">Tyler Simmons</p><p class="table__sub">tsimmons22@gmail.com</p></div></div></td>
-                <td class="muted"><span aria-label="Not given">—</span></td>
+                <td class="muted"><span aria-hidden="true">—</span><span class="visually-hidden">Not given</span></td>
                 <td class="table__nowrap">Mar 30, 2026</td>
                 <td class="table__num">0</td>
                 <td><span class="status status--suspended">Suspended</span></td>
               </tr></tbody>
           </table>
-        </div>
+        </div><nav class="pagination mt-3" aria-label="Pagination">
+          <p class="pagination__summary">Showing 1–25 of 2,431 members</p>
+          <ol class="pagination__list">
+            <li><a class="pagination__link" aria-label="Previous page" aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></a></li>
+            <li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page 1" aria-current="page">1</a></li><li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page 2">2</a></li><li class="pagination__number pagination__gap" aria-hidden="true">…</li><li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page 98">98</a></li>
+            <li class="pagination__page-only">Page 1 of 98</li>
+            <li><a class="pagination__link" href="default.html" aria-label="Next page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></li>
+          </ol>
+        </nav>
     </div>
   </main>
 </div>
@@ -118,6 +126,7 @@
     <li><a href="flagged.html">flagged</a></li>
     <li><a href="suspended.html">suspended</a></li>
     <li><a href="no-results.html">no-results</a></li>
+    <li><a href="tab-empty.html">tab-empty</a></li>
     <li><a href="loading.html">loading</a></li>
     <li><a href="empty.html">empty</a></li>
     <li><a href="error.html">error</a></li>

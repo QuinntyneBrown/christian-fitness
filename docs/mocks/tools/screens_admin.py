@@ -552,7 +552,7 @@ def member_search(value: str = "") -> str:
     return f"""<form class="search" role="search">
             <label class="visually-hidden" for="member-search">Search members</label>
             {icon("search", "search__icon")}
-            <input class="search__input" id="member-search" type="search" placeholder="Search name, email or church"{v}>
+            <input class="search__input" id="member-search" type="search" placeholder="Search name or email"{v}>
           </form>"""
 
 
@@ -577,10 +577,26 @@ def member_tabs(active: str) -> str:
         f'<a class="tabs__tab" href="{h}"{CUR if n == active else ""}>{n}</a>' for n, h in STATUS_LINKS) + "</nav>"
 
 
+def member_pagination() -> str:
+    """Page 1 of 98: 2,431 members, 25 to a page (L2-028 AC1; ADR 0022)."""
+    def num(n: int, cur: bool = False) -> str:
+        c = ' aria-current="page"' if cur else ""
+        return f'<li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page {n}"{c}>{n}</a></li>'
+    return f"""<nav class="pagination mt-3" aria-label="Pagination">
+          <p class="pagination__summary">Showing 1–25 of 2,431 members</p>
+          <ol class="pagination__list">
+            <li><a class="pagination__link" aria-label="Previous page" aria-disabled="true">{icon("arrow-left")}</a></li>
+            {num(1, True)}{num(2)}<li class="pagination__number pagination__gap" aria-hidden="true">…</li>{num(98)}
+            <li class="pagination__page-only">Page 1 of 98</li>
+            <li><a class="pagination__link" href="default.html" aria-label="Next page">{icon("arrow-right")}</a></li>
+          </ol>
+        </nav>"""
+
+
 def member_table(rows) -> str:
     trs = "".join(f"""<tr>
                 <td><div class="table__person">{avatar(m["initials"], size="table")}<div class="mini-row__body"><p class="table__strong">{m["name"]}</p><p class="table__sub">{m["email"]}</p></div></div></td>
-                <td class="muted">{m["church"] if m["church"] != "—" else '<span aria-label="Not given">—</span>'}</td>
+                <td class="muted">{m["church"] if m["church"] != "—" else '<span aria-hidden="true">—</span><span class="visually-hidden">Not given</span>'}</td>
                 <td class="table__nowrap">{m["joined"]}</td>
                 <td class="table__num">{m["events"]}</td>
                 <td><span class="status status--{m["status"].lower()}">{m["status"]}</span></td>
@@ -597,15 +613,15 @@ def member_table(rows) -> str:
 def members_page(body: str, active: str = "All", *, search: str = "", show_report: bool = True) -> str:
     flagged = [m for m in MEMBERS if m["status"] == "Flagged"]
     reports = "".join(report_banner(m) for m in flagged) if show_report else ""
-    return admin_header("Members", "2,431 members · 86 joined this month", member_search(search)) + reports + member_tabs(active) + body
+    return admin_header("Members", "2,431 members", member_search(search)) + reports + member_tabs(active) + body
 
 
 s = screen("admin-members", "page", "Members", route="/admin/members", group=G, source=SRC + "Members (tPxu6npHD6a6sbs4ZYxPji)")
 
 
-@s("default", "The open report first (Kevin Brooks), then every member with church, joined date, events and status.")
+@s("default", "The open report first (Kevin Brooks), then the newest 25 members with church, joined date, events and status (seven drawn), and the pages under the table.")
 def _():
-    return admin_shell("admin-members", members_page(member_table(MEMBERS)))
+    return admin_shell("admin-members", members_page(member_table(MEMBERS) + member_pagination()))
 
 
 @s("active", "Active tab.")
@@ -625,9 +641,15 @@ def _():
 
 @s("no-results", "Search matched nobody: says what was searched and how to widen it.")
 def _():
-    body = empty_block("No members match “Jessica”", "Check the spelling, or search by email or home church instead.",
+    body = empty_block("No members match “Jessica”", "Check the spelling, or search by email instead.",
                        '<a class="btn btn--primary btn--sm" href="default.html">Clear search</a>')
     return admin_shell("admin-members", members_page(body, search="Jessica"))
+
+
+@s("tab-empty", "A status with nobody in it (here Flagged): says so under the tabs, with no action.")
+def _():
+    body = empty_block("No flagged members", "A member staff flag appears here until they are reinstated or suspended.", "", tight=True)
+    return admin_shell("admin-members", members_page(body, "Flagged", show_report=False), counts={"admin-members": 0})
 
 
 @s("loading", "Members table loading: skeleton rows.")
@@ -638,8 +660,7 @@ def _():
 @s("empty", "No members yet (a fresh community): explains where members come from.")
 def _():
     body = admin_header("Members", "0 members") + member_tabs("All") + empty_block(
-        "No members yet", "Members appear here when they create a profile in the app. Share the landing page to invite your first ones.",
-        f'<a class="btn btn--primary btn--sm" href="{href("landing")}">Open the landing page</a>')
+        "No members yet", "Members appear here when they create an account in the member app.", "")
     return admin_shell("admin-members", body, counts={"admin-members": 0, "admin-services": 0})
 
 
