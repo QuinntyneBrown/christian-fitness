@@ -11,7 +11,7 @@ namespace ChristianFitness.Application.Admin;
 /// The second step of staff sign-in: the code from the authenticator app (L2-046 AC2). A class, not
 /// a record, so the code can never reach a log through a generated <c>ToString</c> (L2-046 AC8).
 /// Starting a staff session is a staff change, audited as <c>staff_session.started</c> (L2-019 AC3;
-/// ADR 0021).
+/// ADR 0023).
 /// </summary>
 public sealed class VerifyTwoStepCommand : IRequest<StaffSessionDto>, IAuditableCommand
 {
@@ -26,7 +26,7 @@ public sealed class VerifyTwoStepCommand : IRequest<StaffSessionDto>, IAuditable
 /// AC5); a full failure window with <c>too_many_attempts</c>, right code or not, ending the
 /// challenge (AC4); a wrong, malformed or used code with <c>invalid_code</c>, recording one failure
 /// (AC3). A right code ends the challenge and its cookie and starts the staff session (AC2), which
-/// the audit trail records as the staff member's own change to their session (ADR 0021).
+/// the audit trail records as the staff member's own change to their session (ADR 0023).
 /// </summary>
 internal sealed class VerifyTwoStepHandler(IAppDbContext db, ITwoStepCookie cookie, IStaffSessionSignIn session, AuditTrail audit, TimeProvider time)
     : IRequestHandler<VerifyTwoStepCommand, StaffSessionDto>

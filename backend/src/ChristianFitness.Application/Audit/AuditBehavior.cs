@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace ChristianFitness.Application.Audit;
 
 /// <summary>
-/// Audits every staff change (L2-019 AC3; ADR 0021). For an <see cref="IAuditableCommand"/> it opens
+/// Audits every staff change (L2-019 AC3; ADR 0023). For an <see cref="IAuditableCommand"/> it opens
 /// the request's <see cref="AuditTrail"/>, runs the handler and, when the handler succeeds, saves the
 /// entry the handler recorded (already saved if the handler saved after recording it). A command
 /// that is refused or fails throws before this point and leaves no entry. An auditable command whose

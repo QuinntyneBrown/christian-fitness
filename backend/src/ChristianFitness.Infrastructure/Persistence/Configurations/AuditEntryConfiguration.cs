@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// The audit trail of staff changes (ADR 0021). No foreign key to the member or the record: an entry
+/// The audit trail of staff changes (ADR 0023). No foreign key to the member or the record: an entry
 /// outlives both, and the trail is read by record or by staff member, newest first.
 /// </summary>
 internal sealed class AuditEntryConfiguration : IEntityTypeConfiguration<AuditEntry>

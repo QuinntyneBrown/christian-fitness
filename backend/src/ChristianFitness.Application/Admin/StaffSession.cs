@@ -16,7 +16,7 @@ public sealed record StaffSessionDto(Guid MemberId, string Name, string Role)
 {
     /// <summary>
     /// The record type an audit entry names for a staff session; its id is the staff member's, since
-    /// a session's own key is a secret (ADR 0021).
+    /// a session's own key is a secret (ADR 0023).
     /// </summary>
     public const string RecordType = "StaffSession";
 }
@@ -37,7 +37,7 @@ public sealed record GetStaffSessionQuery : IRequest<StaffSessionDto>;
 
 /// <summary>
 /// Signing out of the admin app: the staff session ends on the server (L2-018 AC6; ADR 0011). A staff
-/// change, audited as <c>staff_session.ended</c> (L2-019 AC3; ADR 0021).
+/// change, audited as <c>staff_session.ended</c> (L2-019 AC3; ADR 0023).
 /// </summary>
 public sealed record StaffSignOutCommand : IRequest, IAuditableCommand
 {

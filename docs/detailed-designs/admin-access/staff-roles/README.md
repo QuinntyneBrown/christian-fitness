@@ -21,7 +21,8 @@ telemetry carries only the action name and outcome, never personal data.
 ## Description
 
 Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
-[ADR 0020](../../../adr/0020-staff-roles-by-area.md)); slice 29.2 builds the audit (AC3).
+[ADR 0020](../../../adr/0020-staff-roles-by-area.md)); slice 29.2 builds the audit (AC3;
+[ADR 0023](../../../adr/0023-audit-staff-changes.md)).
 
 - **`StaffRole`** — domain entity linking a `Member` to `StaffRoleName` (`Admin`, `Moderator`),
   one per member. `cf seed` grants the first account Admin; a screen to grant or change roles is
@@ -69,17 +70,37 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   services? Ask a community director to make you an admin." (mock
   `docs/mocks/pages/admin-forbidden/role.html`). A Moderator's session is valid, so there is no
   Sign out here; the shell has one.
-- **`IAuditableCommand`**, **`AuditBehavior`**, **`AuditEntry`** — slice 29.2: a marker interface
-  on each data-changing staff command (`AuditAction`, `RecordType`), a MediatR pipeline behaviour
-  that adds an `AuditEntry` (`ActorMemberId`, `Action`, `RecordType`, `RecordId`, `OccurredAt` from
-  `TimeProvider`) in the same unit of work after a successful auditable command. Retention is
-  `<TO SUPPLY>` (slice 29.2).
+- **`IAuditableCommand`** (Application) — the marker every data-changing staff command carries,
+  with `AuditAction`, a stable name `{record}.{past tense}` implemented explicitly so it is never
+  bound from a request body. `VerifyTwoStepCommand` is `staff_session.started` and
+  `StaffSignOutCommand` `staff_session.ended`; slice 10.1's `CreateEventCommand` and every later
+  staff command add the marker and one `Record` call, nothing else.
+- **`AuditTrail`** (Application, scoped) — the request's pending entry. The behaviour opens it with
+  the command's action; the handler calls `Record(actorMemberId, recordType, recordId)` once, when
+  the change is going ahead and before it saves, which adds the `AuditEntry` to `IAppDbContext`, so
+  a change saved there is committed with its entry. Only the handler knows the actor for certain
+  (the second sign-in step is anonymous until it succeeds, and sign-out reads the member before the
+  session ends) and the record (a created record's id). `Record` outside an auditable command, or
+  twice, throws.
+- **`AuditBehavior<TRequest, TResponse>`** (Application) — the MediatR pipeline behaviour after
+  validation: it passes every other request straight through; for an `IAuditableCommand` it opens
+  the trail, runs the handler and, on success, saves (the entry of a change saved outside the
+  context, such as a session the ticket store keeps) and logs `Staff change {AuditAction} audited`
+  with the action as the only attribute. A refusal or failure throws before that, so the entry is
+  never saved; a handler that names no record fails the request (HTTP 500), so a forgotten `Record`
+  is caught by its slice's first test.
+- **`AuditEntry`** (Domain) — `Id` (version 7), `ActorMemberId`, `Action`, `RecordType`, `RecordId`
+  and `OccurredAt` from `TimeProvider`; no name, email, field value or request text. The
+  `AuditEntries` table has no foreign key, so an entry outlives the member and the record it names,
+  and indexes by record and by actor, each with time. A staff session's record is the staff
+  member's own id (its key is a secret). Entries are kept with no automatic deletion; a retention
+  period, if one is set, comes with the screen that reads them (open question 2).
 
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members but cannot manage events or services (HTTP 403, code `forbidden_role`). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry. Given a role changed or taken away, the next request applies it (`not_staff` when taken away). Given a Moderator, the navigation lists only Dashboard and Members, and Events or Services by address shows "Admins only". |
+| `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members but cannot manage events or services (HTTP 403, code `forbidden_role`). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry; a refused or failed one records none. Given a role changed or taken away, the next request applies it (`not_staff` when taken away). Given a Moderator, the navigation lists only Dashboard and Members, and Events or Services by address shows "Admins only". |
 | `L2-021` | `L1-009` | The navigation shows the areas the signed-in role opens, `aria-current="page"` on the current one. |
 | `L2-047` | `L1-008`, `L1-015` | A 403 to a read shows "Staff only", except `forbidden_role`, which shows "Admins only". |
 
@@ -132,3 +153,6 @@ address kept (`L2-019` AC5).
 1. Granting, changing and taking away roles has no screen: `cf seed` grants the first Admin, and
    anything else is a change in the database until a later slice adds one. The API already applies
    such a change at the next request.
+2. Nothing reads the audit trail yet: no endpoint or screen lists entries, and no job deletes them.
+   Slice 29.2 keeps every entry (ADR 0023); the slice that adds an audit view decides who may read
+   it and whether entries older than a period are deleted.

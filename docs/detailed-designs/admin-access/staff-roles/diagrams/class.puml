@@ -24,8 +24,9 @@ enum StaffRoleName {
 }
 interface IAuditableCommand {
   +string AuditAction
-  +string RecordType
-  +Guid RecordId
+}
+class AuditTrail <<scoped>> {
+  +Record(actorMemberId: Guid, recordType: string, recordId: Guid)
 }
 class "AuditBehavior<TRequest,TResponse>" as AuditBehavior {
   +Handle(req, next, ct): Task<TResponse>
@@ -37,10 +38,6 @@ class AuditEntry {
   +string RecordType
   +Guid RecordId
   +DateTimeOffset OccurredAt
-}
-class ICurrentStaff {
-  +Guid MemberId
-  +StaffRoleName Role
 }
 enum StaffArea {
   Console
@@ -64,13 +61,14 @@ interface IAppDbContext
 Member "1" --> "0..1" StaffRole
 StaffRole --> StaffRoleName
 AuditBehavior ..> IAuditableCommand : audits
-AuditBehavior ..> ICurrentStaff : reads actor
-AuditBehavior ..> AuditEntry : creates
-AuditBehavior ..> IAppDbContext
+AuditBehavior ..> AuditTrail : opens, then checks
+AuditBehavior ..> IAppDbContext : saves
+AuditTrail ..> AuditEntry : creates
+AuditTrail ..> IAppDbContext : adds entry
 StaffAreaAuthorizationHandler ..> StaffAreaRequirement : handles
 StaffAreaAuthorizationHandler ..> StaffRole : reads every request
 StaffAreaAuthorizationHandler ..> StaffAccess : asks
 StaffAccess ..> StaffArea
 StaffAccess ..> StaffRoleName
-AuditEntry --> Member : actor
+AuditEntry ..> Member : actor id, no foreign key
 @enduml

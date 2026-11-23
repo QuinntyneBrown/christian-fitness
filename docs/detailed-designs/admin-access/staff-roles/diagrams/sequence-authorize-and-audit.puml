@@ -46,13 +46,15 @@ else role Moderator (L2-019 AC1)
   page --> actor : Show forbidden message
 else role Admin (L2-019 AC2)
   pol -> ctrl : Authorized
-  ctrl -> audit : Send UpdateEventCommand
+  ctrl -> audit : Send UpdateEventCommand (IAuditableCommand)
+  audit -> audit : AuditTrail.Open("event.updated")
   audit -> handler : next()
   handler -> db : Load and change Event
-  handler --> audit : Success
-  audit -> db : Add AuditEntry(actor, action, record, time) (L2-019 AC3)
-  audit -> db : SaveChanges in one unit of work
-  db --> audit : Committed
+  handler -> handler : AuditTrail.Record(actor, "Event", id) adds AuditEntry (L2-019 AC3)
+  handler -> db : SaveChanges: the change and its AuditEntry in one commit
+  handler --> audit : Success (a refusal throws: no entry)
+  audit -> db : SaveChanges (an entry not yet saved, such as a session's)
+  audit -> audit : Log "Staff change {AuditAction} audited", no person or record
   audit --> ctrl : Result
   ctrl --> client : 200
   client --> page : Updated event

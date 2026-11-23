@@ -4,7 +4,7 @@ using ChristianFitness.Domain.Audit;
 namespace ChristianFitness.Application.Audit;
 
 /// <summary>
-/// The audit entry of the auditable command a request is running (ADR 0021), one per request scope.
+/// The audit entry of the auditable command a request is running (ADR 0023), one per request scope.
 /// <see cref="AuditBehavior{TRequest, TResponse}"/> opens it with the command's action; the handler
 /// names who changed which record with <see cref="Record"/>, before it saves, so the entry is saved
 /// with the change itself whenever the change goes through <see cref="IAppDbContext"/>.

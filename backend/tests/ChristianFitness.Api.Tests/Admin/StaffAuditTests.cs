@@ -9,7 +9,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-019 AC3 (ADR 0021): a staff change that succeeds leaves one audit entry saying who made it,
+/// L2-019 AC3 (ADR 0023): a staff change that succeeds leaves one audit entry saying who made it,
 /// what it was, which record it changed and when; a refused one leaves none. Proved on the staff
 /// commands <c>main</c> has: starting and ending a staff session.
 /// </summary>

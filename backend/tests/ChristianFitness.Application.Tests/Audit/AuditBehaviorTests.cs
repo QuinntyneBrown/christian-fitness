@@ -9,7 +9,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Audit;
 
 /// <summary>
-/// L2-019 AC3 (ADR 0021): which requests the audit behaviour records, one case per row. The requests
+/// L2-019 AC3 (ADR 0023): which requests the audit behaviour records, one case per row. The requests
 /// here stand for any request: the acceptance tests prove the rule on the real staff commands.
 /// </summary>
 public sealed class AuditBehaviorTests : IAsyncDisposable

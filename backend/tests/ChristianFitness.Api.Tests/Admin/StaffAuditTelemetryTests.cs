@@ -5,7 +5,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-019 AC3 with L2-033 AC2 (ADR 0021): an audited staff change tells telemetry what was done and
+/// L2-019 AC3 with L2-033 AC2 (ADR 0023): an audited staff change tells telemetry what was done and
 /// nothing of who did it or which record it changed; the audit entry in the database holds those.
 /// </summary>
 public sealed class StaffAuditTelemetryTests(TelemetryTests.Factory factory) : IClassFixture<TelemetryTests.Factory>

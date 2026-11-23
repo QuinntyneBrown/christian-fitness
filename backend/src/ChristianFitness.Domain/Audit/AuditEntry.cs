@@ -1,7 +1,7 @@
 namespace ChristianFitness.Domain.Audit;
 
 /// <summary>
-/// One staff change that succeeded (L2-019 AC3; ADR 0021): who made it (the staff member's id), what
+/// One staff change that succeeded (L2-019 AC3; ADR 0023): who made it (the staff member's id), what
 /// it was (a stable action name such as <c>staff_session.started</c>), which record it changed (its
 /// type and id) and when. Nothing else is kept: no name, email, field value or request text. An
 /// entry is never changed or deleted, and outlives the member it names.
