@@ -1,0 +1,55 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:07.015
+The team now has a door of its own. The admin console opens to staff, and only to
+
+00:00:07.015 --> 00:00:07.687
+staff.
+
+00:00:08.000 --> 00:00:12.729
+Staff sign in with their work email and password, and land on the Dashboard, with
+
+00:00:12.729 --> 00:00:15.072
+their name and role in the sidebar.
+
+00:00:18.000 --> 00:00:22.915
+A member without a staff role is told the console is for the team. Wrong credentials
+
+00:00:22.915 --> 00:00:25.438
+get one message that never says which.
+
+00:00:28.000 --> 00:00:33.146
+Four areas sit in the sidebar. Choose one, and it opens without reloading the page,
+
+00:00:33.146 --> 00:00:35.120
+marked as the current page.
+
+00:00:38.000 --> 00:00:42.934
+On a phone or tablet, the sidebar becomes a band. The links scroll within it, and
+
+00:00:42.934 --> 00:00:44.696
+Sign out stays in reach.
+
+00:00:48.000 --> 00:00:52.830
+Open a staff page without a session, and you are taken to sign in. If the server
+
+00:00:52.830 --> 00:00:54.518
+fails, you are told so.
+
+00:00:56.000 --> 00:01:01.059
+On the server, every admin endpoint needs a staff session, in its own strict cookie.
+
+00:01:01.059 --> 00:01:03.346
+A member's session opens nothing.
+
+00:01:06.000 --> 00:01:08.922
+Every test failed first. Now they all pass.
+
+00:01:12.000 --> 00:01:14.504
+Next, the second step, and the lockout.
+
+00:01:18.000 --> 00:01:23.072
+That's slice nine point one. Christian Fitness: a Christian community for health in
+
+00:01:23.072 --> 00:01:24.350
+body and spirit.

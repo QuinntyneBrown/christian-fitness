@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["The team now has a door of its own. The admin console opens to staff, and only to staff."] },
+    { "id": "signin", "bars": 5, "lines": ["Staff sign in with their work email and password, and land on the Dashboard, with their name and role in the sidebar."] },
+    { "id": "refuse", "bars": 5, "lines": ["A member without a staff role is told the console is for the team. Wrong credentials get one message that never says which."] },
+    { "id": "shell", "bars": 5, "lines": ["Four areas sit in the sidebar. Choose one, and it opens without reloading the page, marked as the current page."] },
+    { "id": "band", "bars": 5, "lines": ["On a phone or tablet, the sidebar becomes a band. The links scroll within it, and Sign out stays in reach."] },
+    { "id": "guard", "bars": 4, "lines": ["Open a staff page without a session, and you are taken to sign in. If the server fails, you are told so."] },
+    { "id": "api", "bars": 5, "lines": ["On the server, every admin endpoint needs a staff session, in its own strict cookie. A member's session opens nothing."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, the second step, and the lockout."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice nine point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

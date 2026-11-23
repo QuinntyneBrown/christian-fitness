@@ -73,10 +73,10 @@ menu button below LG, while the design system and every admin mock draw the side
   (`initialsOf`), name and role with a Sign out button. The shell reads the session once for
   them, so opening the admin app asks `GET /api/admin/session` twice (guard and shell), as Home
   does in the member app. `AdminUser` is its own component because the layout's stylesheet passed
-  the 3 kB warning; the user block is a real seam. The
-  links are real `href`s; a plain click is handed to the router by the shell, so the page does
-  not reload, while a modified click opens a new tab as a link should. The counts beside Services
-  and Members come with the dashboard summary (slice 28.1 and the queues' slices).
+  the 3 kB warning; the user block is a real seam. The links are real `href`s; a plain click is
+  handed to the router by the shell, so the page does not reload, while a modified click opens a
+  new tab as a link should. The counts beside Services and Members come with the dashboard
+  summary (slice 28.1 and the queues' slices).
 - **Stand-ins until their slices.** The Dashboard (`/`, slice 28.1), Events (`/events`, 10.1),
   Services (`/services`, 21.1) and Members (`/members`, 26.1) each open one lazy `AreaPage`
   with the area's heading and nothing else, so every link of L2-021 AC1 leads somewhere and
@@ -94,9 +94,9 @@ menu button below LG, while the design system and every admin mock draw the side
   did for the same client (ADR 0007). The initial total went from 224.70 kB to 257.44 kB raw
   (58.40 kB to 67.39 kB to transfer). Diffing `--stats-json` inputs of `main` against the base
   put 24.2 kB in `@angular/common` (`HttpClient`, its XSRF support and interceptors), 11.5 kB in
-  `@angular/core` (the template, signal and input features the sign-in screen and the shell are the first admin screens to use, paid once), 2.2 kB
-  in `domain` (the guard, the interceptors, the areas) and 0.9 kB in the router (the parent route
-  and its guard). The sign-in screen (12.95 kB) and the shell (12.86 kB) load lazily.
+  `@angular/core` (the template, signal and input features the sign-in screen and the shell are
+  the first admin screens to use, paid once), 2.2 kB in `domain` (the guard, the interceptors, the
+  areas) and 0.9 kB in the router (the parent route and its guard). The sign-in screen (12.95 kB) and the shell (12.86 kB) load lazily.
 
 ## Consequences
 

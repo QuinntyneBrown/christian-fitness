@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 16% (8 of 54 slices; 13 of 83 days)
+**% complete:** 18% (9 of 54 slices; 15 of 83 days)
 
 | #   | Slice | Root journey                        | Name                          | Description                                                                          | Effort (days) |
 | --- | ----- | ----------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ | ------------- |
