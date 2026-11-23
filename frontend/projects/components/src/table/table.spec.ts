@@ -151,6 +151,39 @@ describe('Table', () => {
     expect(el.querySelector('tbody td')?.textContent?.trim()).toBe('');
   });
 
+  it('leaves the action cell empty for a row that has no action, and keeps the column', async () => {
+    const { el } = await render({
+      rows: [rows[0], { id: 'retreat', name: 'Whole Life Retreat', cells: {}, noAction: true }],
+    });
+
+    expect(el.querySelectorAll('thead th')).toHaveLength(4);
+    const actionCells = Array.from(el.querySelectorAll('tbody td.table__end'));
+    expect(actionCells).toHaveLength(2);
+    expect(actionCells[0]?.querySelector('.row-link')).not.toBeNull();
+    expect(actionCells[1]?.querySelector('.row-link')).toBeNull();
+    expect(actionCells[1]?.textContent?.trim()).toBe('');
+  });
+
+  it('draws a muted second line under a custom cell that has one, as text', async () => {
+    const { el } = await render({
+      actionLabel: undefined,
+      columns: [{ key: 'status', label: 'Status', kind: 'custom' }],
+      rows: [
+        {
+          id: 'kb',
+          name: 'Kevin Brooks',
+          cells: { status: { text: 'Flagged', sub: '<b>Spam</b>' } },
+        },
+        { id: 'gt', name: 'Grace Thompson', cells: { status: { text: 'Active' } } },
+      ],
+    });
+
+    const cells = Array.from(el.querySelectorAll('tbody td'));
+    expect(cells[0]?.querySelector('.table__sub')?.textContent).toBe('<b>Spam</b>');
+    expect(cells[0]?.querySelector('b')).toBeNull();
+    expect(cells[1]?.querySelector('.table__sub')).toBeNull();
+  });
+
   it('renders cells as text', async () => {
     const { el } = await render({
       rows: [{ id: 'x', name: '<b>x</b>', cells: { event: { text: '<b>x</b>' } } }],

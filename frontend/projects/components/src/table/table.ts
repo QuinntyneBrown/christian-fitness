@@ -32,8 +32,8 @@ export interface TableColumn {
 }
 
 /**
- * A cell's words: the text, a second line for a `primary` or `person` cell, the total of a
- * `count` cell.
+ * A cell's words: the text, a second line for a `primary` or `person` cell or under a `custom`
+ * one (a note under a status badge), the total of a `count` cell.
  */
 export interface TableCell {
   text: string;
@@ -48,6 +48,8 @@ export interface TableRow {
   cells: Record<string, TableCell | undefined>;
   /** The row action's address, when it is a link rather than a button. */
   actionHref?: string;
+  /** A row the table's action does not apply to: its action cell stays empty. */
+  noAction?: boolean;
 }
 
 /** What a `custom` cell template receives. */
