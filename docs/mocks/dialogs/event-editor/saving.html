@@ -109,6 +109,7 @@
       <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="60" readonly min="1" inputmode="numeric"></div>
     </div>
     <div class="field"><label class="field__label" for="f-summary">Summary</label><textarea class="textarea" id="f-summary" name="summary" rows="4" aria-describedby="f-summary-hint" readonly>Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.</textarea><span class="field__hint" id="f-summary-hint">Up to 1,000 characters</span></div>
+    <div class="field file-field"><span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint" disabled>Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
   </form>
   <div class="drawer__foot">
     <button class="btn btn--secondary btn--grow" type="button" disabled aria-busy="true"><svg class="icon icon--spin" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Saving…</button>
@@ -121,6 +122,10 @@
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
     <li><a href="edit.html">edit</a></li>
+    <li><a href="edit-saving.html">edit-saving</a></li>
+    <li><a href="edit-invalid.html">edit-invalid</a></li>
+    <li><a href="edit-failed.html">edit-failed</a></li>
+    <li><a href="image-invalid.html">image-invalid</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="busy.html">busy</a></li>
     <li><a href="failed.html">failed</a></li>

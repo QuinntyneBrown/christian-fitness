@@ -38,8 +38,12 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   seconds) and loads the list again. The overlay places the drawer at the right edge, full height,
   up to 32 rem wide and full width on phones; it slides in over 260 ms and fades under reduced
   motion; the scrim, Close and Escape dismiss it and focus returns to New event. Slice 10.2 adds
-  `edit`, `invalid` (each `fieldCodes` entry on its field with `aria-invalid`) and `failed`;
-  slice 11.1 adds Publish and `busy`.
+  `edit` (opened from the table's Edit action, which loads the event by id; the title reads "Edit
+  event" and the button "Save changes"), `invalid` (each `fieldCodes` entry on its field with
+  `aria-invalid` and an error summary "N things to fix" that takes focus), `failed` (the alert
+  "Couldn't save the changes") and the image field (`FileField`: Choose image, the chosen name and
+  Remove, `image-invalid` under it); an edit closes with the toast "Changes saved". Slice 11.1 adds
+  Publish and `busy`.
 - **`ToastsApi` / `TOASTS_SERVICE`, `ToastStore`, `ToastRegion`** — the page's toasts: the
   contract and token in `api`, the store in `domain` (a toast leaves after 6 seconds, Dismiss
   removes it at once, at most three show, none leaves while the region is paused by the pointer or
@@ -68,11 +72,20 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   `date_required`, `start_time_required`, `start_in_past`, `place_required`, `place_too_long`,
   `area_required`, `area_too_long`, `price_invalid`, `capacity_required`,
   `capacity_out_of_range`, `summary_required`, `summary_too_long` (ADR 0021).
-- **`UpdateEventCommand`** / **`UpdateEventHandler`** (10.2) — counts `Registration` rows that are
-  going and refuses a lower capacity with `capacity_below_going`.
-- **`UploadEventImageCommand`** / handler (10.2) — checks the content signature (JPEG, PNG, WebP)
-  and size up to 5 MB, else `image_invalid`; stores it through **`IImageStore`** (storage chosen
-  in 10.2) and returns an `ImageKey`; `image_required` joins the create rules then.
+- **`EventFields`** / **`EventFieldsValidator<T>`** (10.2) — the editor's fields and their rules,
+  shared by `CreateEventCommand` and `UpdateEventCommand` (ADR 0025); the optional `imageKey` must
+  name a stored image, else `image_invalid`.
+- **`GetAdminEventQuery`** (10.2) — `GET /api/admin/events/{id}` answers `AdminEventDetailDto`, the
+  editor's values with the Toronto date and time; an unknown id is 404 `not_found`.
+- **`UpdateEventCommand`** / **`UpdateEventHandler`** (10.2) — `PUT /api/admin/events/{id}`, audited
+  as `event.updated`. Refuses a start in the past only when the date or time changed
+  (`start_in_past`), and a capacity below the number going (`IRegistrationReader.GoingAsync`) with
+  409 `capacity_below_going`. It never changes the status.
+- **`UploadEventImageCommand`** / handler (10.2) — `POST /api/admin/events/images`: checks the first
+  bytes (JPEG, PNG, WebP) and size up to 5 MB, else 400 with `fieldCodes.image` = `image_invalid`;
+  stores it through **`IImageStore`** (`FileSystemImageStore`, setting `Images:Directory`) and
+  answers `{ imageKey }`; audited as `event_image.uploaded`. `GET /api/events/images/{key}` serves it
+  anonymously (`GetEventImageQuery`). `image_required` is not added: the image is optional.
 - **`Event`** — domain entity; `Event.CreateDraft(...)` (10.1) and `Event.Edit(...)` (10.2).
   **`EventSchedule`** turns a Toronto date and time into the UTC instant (`America/Toronto`; a time
   inside the spring-forward gap takes the standard offset).

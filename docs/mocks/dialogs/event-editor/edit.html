@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="event-editor">
 <meta name="mock:state" content="edit">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Manage Events (state composing: the New event drawer)">
-<meta name="description" content="Editing Saturday Park Bootcamp: same drawer, Save changes and Move to drafts.">
+<meta name="description" content="Editing Saturday Park Bootcamp: same drawer, an image chosen, Save changes.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -109,10 +109,10 @@
       <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="50" min="1" inputmode="numeric"></div>
     </div>
     <div class="field"><label class="field__label" for="f-summary">Summary</label><textarea class="textarea" id="f-summary" name="summary" rows="4" aria-describedby="f-summary-hint">Forty-five minutes of full-body circuits for every level, led by Danielle Okafor. Bring a mat and water.</textarea><span class="field__hint" id="f-summary-hint">Up to 1,000 characters</span></div>
+    <div class="field file-field"><span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" hidden><span class="file-field__name">park-bootcamp.jpg</span><button class="btn btn--ghost btn--sm" type="button">Remove<span class="visually-hidden"> image</span></button></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
   </form>
   <div class="drawer__foot">
-    <button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../notifications/admin-toast/info.html">Move to drafts</button>
-    <button class="btn btn--primary btn--grow" type="button" data-mock-href="../../notifications/admin-toast/success.html">Save changes</button>
+    <button class="btn btn--primary btn--grow" type="button" data-mock-href="../../notifications/admin-toast/changes-saved.html">Save changes</button>
   </div>
 </aside>
 <nav class="mock-bar" aria-label="Mock navigation">
@@ -121,6 +121,10 @@
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
     <li><a href="edit.html" aria-current="page">edit</a></li>
+    <li><a href="edit-saving.html">edit-saving</a></li>
+    <li><a href="edit-invalid.html">edit-invalid</a></li>
+    <li><a href="edit-failed.html">edit-failed</a></li>
+    <li><a href="image-invalid.html">image-invalid</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="busy.html">busy</a></li>
     <li><a href="failed.html">failed</a></li>

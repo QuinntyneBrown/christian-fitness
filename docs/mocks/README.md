@@ -155,19 +155,19 @@ Legend: ✅ mock exists · ➖ not applicable (reason in manifest) · ❌ missin
 
 ### Dialogs
 
-| Screen | default | busy | invalid | failed | success | invalid-limits | refused | edit | saving | Requirements |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Request a booking (`request-booking`) | [✅](dialogs/request-booking/default.html) | [✅](dialogs/request-booking/busy.html) | [✅](dialogs/request-booking/invalid.html) | [✅](dialogs/request-booking/failed.html) | [✅](dialogs/request-booking/success.html) |  |  |  |  |  |
-| Edit profile (`edit-profile`) | [✅](dialogs/edit-profile/default.html) | [✅](dialogs/edit-profile/busy.html) | [✅](dialogs/edit-profile/invalid.html) | [✅](dialogs/edit-profile/failed.html) |  | [✅](dialogs/edit-profile/invalid-limits.html) | [✅](dialogs/edit-profile/refused.html) |  |  |  |
-| Event editor (`event-editor`) | [✅](dialogs/event-editor/default.html) | [✅](dialogs/event-editor/busy.html) | [✅](dialogs/event-editor/invalid.html) | [✅](dialogs/event-editor/failed.html) |  |  |  | [✅](dialogs/event-editor/edit.html) | [✅](dialogs/event-editor/saving.html) |  |
-| Listing editor (`listing-editor`) | [✅](dialogs/listing-editor/default.html) | [✅](dialogs/listing-editor/busy.html) | [✅](dialogs/listing-editor/invalid.html) | [✅](dialogs/listing-editor/failed.html) |  |  |  |  |  |  |
+| Screen | default | busy | invalid | failed | success | invalid-limits | refused | edit | saving | edit-saving | edit-invalid | edit-failed | image-invalid | Requirements |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Request a booking (`request-booking`) | [✅](dialogs/request-booking/default.html) | [✅](dialogs/request-booking/busy.html) | [✅](dialogs/request-booking/invalid.html) | [✅](dialogs/request-booking/failed.html) | [✅](dialogs/request-booking/success.html) |  |  |  |  |  |  |  |  |  |
+| Edit profile (`edit-profile`) | [✅](dialogs/edit-profile/default.html) | [✅](dialogs/edit-profile/busy.html) | [✅](dialogs/edit-profile/invalid.html) | [✅](dialogs/edit-profile/failed.html) |  | [✅](dialogs/edit-profile/invalid-limits.html) | [✅](dialogs/edit-profile/refused.html) |  |  |  |  |  |  |  |
+| Event editor (`event-editor`) | [✅](dialogs/event-editor/default.html) | [✅](dialogs/event-editor/busy.html) | [✅](dialogs/event-editor/invalid.html) | [✅](dialogs/event-editor/failed.html) |  |  |  | [✅](dialogs/event-editor/edit.html) | [✅](dialogs/event-editor/saving.html) | [✅](dialogs/event-editor/edit-saving.html) | [✅](dialogs/event-editor/edit-invalid.html) | [✅](dialogs/event-editor/edit-failed.html) | [✅](dialogs/event-editor/image-invalid.html) |  |
+| Listing editor (`listing-editor`) | [✅](dialogs/listing-editor/default.html) | [✅](dialogs/listing-editor/busy.html) | [✅](dialogs/listing-editor/invalid.html) | [✅](dialogs/listing-editor/failed.html) |  |  |  |  |  |  |  |  |  |  |
 
 ### Notifications
 
-| Screen | info | success | warning | danger | with-action | stacked | persistent | draft-saved | Requirements |
-|---|---|---|---|---|---|---|---|---|---|
-| Toast (`toast`) | [✅](notifications/toast/info.html) | [✅](notifications/toast/success.html) | [✅](notifications/toast/warning.html) | [✅](notifications/toast/danger.html) | [✅](notifications/toast/with-action.html) | [✅](notifications/toast/stacked.html) |  |  |  |
-| Banner (`banner`) | [✅](notifications/banner/info.html) | [✅](notifications/banner/success.html) | [✅](notifications/banner/warning.html) | [✅](notifications/banner/danger.html) |  |  | [✅](notifications/banner/persistent.html) |  |  |
-| Admin toast (`admin-toast`) | [✅](notifications/admin-toast/info.html) | [✅](notifications/admin-toast/success.html) | [✅](notifications/admin-toast/warning.html) | [✅](notifications/admin-toast/danger.html) | [✅](notifications/admin-toast/with-action.html) | [✅](notifications/admin-toast/stacked.html) |  | [✅](notifications/admin-toast/draft-saved.html) |  |
+| Screen | info | success | warning | danger | with-action | stacked | persistent | draft-saved | changes-saved | load-failed | Requirements |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Toast (`toast`) | [✅](notifications/toast/info.html) | [✅](notifications/toast/success.html) | [✅](notifications/toast/warning.html) | [✅](notifications/toast/danger.html) | [✅](notifications/toast/with-action.html) | [✅](notifications/toast/stacked.html) |  |  |  |  |  |
+| Banner (`banner`) | [✅](notifications/banner/info.html) | [✅](notifications/banner/success.html) | [✅](notifications/banner/warning.html) | [✅](notifications/banner/danger.html) |  |  | [✅](notifications/banner/persistent.html) |  |  |  |  |
+| Admin toast (`admin-toast`) | [✅](notifications/admin-toast/info.html) | [✅](notifications/admin-toast/success.html) | [✅](notifications/admin-toast/warning.html) | [✅](notifications/admin-toast/danger.html) | [✅](notifications/admin-toast/with-action.html) | [✅](notifications/admin-toast/stacked.html) |  | [✅](notifications/admin-toast/draft-saved.html) | [✅](notifications/admin-toast/changes-saved.html) | [✅](notifications/admin-toast/load-failed.html) |  |
 
 <!-- coverage:end -->

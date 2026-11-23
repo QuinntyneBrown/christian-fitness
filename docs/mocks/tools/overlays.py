@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from cf_data import EV, INTERESTS, ME, SV
-from cf_ui import (admin_shell, banner, busy_label, error_summary, field, form_alert, href, icon, member_shell, note,
+from cf_ui import (admin_shell, banner, busy_label, error_summary, field, file_field, form_alert, href, icon, member_shell, note,
                    screen, select, textarea, toast, toast_region)
 import screens_admin as A
 import screens_member as M
@@ -201,7 +201,7 @@ def _():
 CATS = ["Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 
 
-def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False) -> str:
+def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False, image_invalid=False, capacity_below=False) -> str:
     if edit:
         v = dict(title="Saturday Park Bootcamp", cat="Workout", date="2026-04-25", time="08:00", place="Trillium Park, Ontario Place",
                  area="Waterfront, Toronto", price="$10", cap="50", desc=EV["park-bootcamp"]["summary"])
@@ -209,14 +209,22 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
         v = dict(title="Whole Life Retreat", cat="Retreat", date="2026-05-22", time="16:00", place="Muskoka Woods, Rosseau",
                  area="Muskoka Lakes", price="$340", cap="60", desc="Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.")
     alert = ""
-    title_err = date_err = ""
+    title_err = date_err = image_err = capacity_err = ""
     if invalid:
         v.update(title="", date="2026-04-10")
         title_err = "Give the event a title members will recognize"
         date_err = "Pick a date after today, April 15"
-        alert = error_summary("2 things to fix before publishing", [(title_err, "f-title"), (date_err, "f-date")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+        alert = error_summary("2 things to fix before saving", [(title_err, "f-title"), (date_err, "f-date")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if image_invalid:
+        image_err = "Use a JPEG, PNG or WebP image up to 5 MB"
+        alert = error_summary("1 thing to fix before saving", [(image_err, "f-image")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if capacity_below:
+        v.update(cap="20")
+        capacity_err = "36 members are going. Set a capacity of at least 36"
+        alert = error_summary("1 thing to fix before saving", [(capacity_err, "f-capacity")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
     if failed:
-        alert = form_alert("Couldn't publish", "The server didn't respond. Your changes are still here; try again, or save a draft.")
+        alert = form_alert("Couldn't save the changes" if edit else "Couldn't save the draft",
+                           "The server didn't respond. Your changes are still here; try again.")
     ro = busy or saving
     body = f"""    {alert}
     {field("Title", "title", v["title"], error=title_err, readonly=ro)}
@@ -229,9 +237,10 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
     {field("Area", "area", v["area"], hint="Neighbourhood and city, like Waterfront, Toronto", readonly=ro)}
     <div class="field-grid">
       {field("Price", "price", v["price"], hint="Leave blank for free", readonly=ro)}
-      {field("Capacity", "capacity", v["cap"], type_="number", extra='min="1" inputmode="numeric"', readonly=ro)}
+      {field("Capacity", "capacity", v["cap"], type_="number", extra='min="1" inputmode="numeric"', error=capacity_err, readonly=ro)}
     </div>
-    {textarea("Summary", "summary", v["desc"], rows=4, hint="Up to 1,000 characters", readonly=ro)}"""
+    {textarea("Summary", "summary", v["desc"], rows=4, hint="Up to 1,000 characters", readonly=ro)}
+    {file_field("Image", "image", filename="park-bootcamp.jpg" if edit and not image_invalid else "", hint="JPEG, PNG or WebP, up to 5 MB", error=image_err, optional=True, readonly=ro)}"""
     publish_label = "Save changes" if edit else "Publish"
     publish = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Publishing…")}</button>' if busy
                else f'<button class="btn btn--primary btn--grow" type="button" disabled>{publish_label}</button>' if saving
@@ -241,6 +250,10 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
     second_html = (f'<button class="btn btn--secondary btn--grow" type="button" disabled aria-busy="true">{busy_label("Saving…")}</button>' if saving
                    else f'<button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("admin-toast", toast_state)}">{second}</button>')
     foot = f'    {second_html}\n    {publish}'
+    if edit:
+        save = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Saving…")}</button>' if saving
+                else f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("admin-toast", "changes-saved")}">Save changes</button>')
+        foot = f'    {save}'
     html = drawer("Edit event" if edit else "New event", body, foot)
     if not invalid and not busy and not saving:
         html = autofocus_first(html, 'id="f-title"')
@@ -257,9 +270,29 @@ def _():
                                  "top: 1rem; left: 1rem;")
 
 
-@s("edit", "Editing Saturday Park Bootcamp: same drawer, Save changes and Move to drafts.")
+@s("edit", "Editing Saturday Park Bootcamp: same drawer, an image chosen, Save changes.")
 def _():
     return event_editor(edit=True)
+
+
+@s("edit-saving", "Save changes pressed: Saving…, fields read-only.")
+def _():
+    return event_editor(edit=True, saving=True)
+
+
+@s("edit-invalid", "Capacity below the 36 going: the capacity field marked and the summary focused.")
+def _():
+    return event_editor(edit=True, capacity_below=True)
+
+
+@s("edit-failed", "Saving failed: message at the top of the drawer, everything kept.")
+def _():
+    return event_editor(edit=True, failed=True)
+
+
+@s("image-invalid", "An image that is not JPEG, PNG or WebP, or over 5 MB: the message under the image field.")
+def _():
+    return event_editor(image_invalid=True)
 
 
 @s("invalid", "Missing title and a past date: summary focused, both fields marked.")
@@ -272,7 +305,7 @@ def _():
     return event_editor(busy=True)
 
 
-@s("failed", "Publishing failed: message at the top of the drawer, everything kept.")
+@s("failed", "Saving the draft failed: message at the top of the drawer, everything kept.")
 def _():
     return event_editor(failed=True)
 
@@ -459,6 +492,18 @@ def _():
 @s("draft-saved", "Draft saved from the New event drawer: the draft is in the list; leaves after about 6 seconds.")
 def _():
     t = toast("info", "Draft saved", "Whole Life Retreat isn't visible to members yet.")
+    return admin_shell("admin-events", events_admin_page(), after=toast_region(t, admin=True))
+
+
+@s("changes-saved", "Changes saved from the Edit event drawer; leaves after about 6 seconds.")
+def _():
+    t = toast("info", "Changes saved", "Whole Life Retreat is updated.")
+    return admin_shell("admin-events", events_admin_page(), after=toast_region(t, admin=True))
+
+
+@s("load-failed", "An event could not be opened for editing: the list stays; leaves after about 6 seconds.")
+def _():
+    t = toast("info", "Couldn't open the event", "We couldn't reach the server. Try Edit again in a moment.")
     return admin_shell("admin-events", events_admin_page(), after=toast_region(t, admin=True))
 
 

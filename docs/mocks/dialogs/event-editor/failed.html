@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="event-editor">
 <meta name="mock:state" content="failed">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Manage Events (state composing: the New event drawer)">
-<meta name="description" content="Publishing failed: message at the top of the drawer, everything kept.">
+<meta name="description" content="Saving the draft failed: message at the top of the drawer, everything kept.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -97,7 +97,7 @@
   <form class="drawer__body" novalidate>
     <div class="form-alert" role="alert" tabindex="-1">
   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-  <div><p class="form-alert__title">Couldn't publish</p><p>The server didn't respond. Your changes are still here; try again, or save a draft.</p></div>
+  <div><p class="form-alert__title">Couldn't save the draft</p><p>The server didn't respond. Your changes are still here; try again.</p></div>
 </div>
     <div class="field"><label class="field__label" for="f-title">Title</label><input class="input" id="f-title" autofocus name="title" type="text" value="Whole Life Retreat"></div>
     <div class="field"><label class="field__label" for="f-category">Category</label><select class="select" id="f-category" name="category"><option>Run</option><option>Workout</option><option>Basketball</option><option>Mobility</option><option>Workshop</option><option selected>Retreat</option></select></div>
@@ -112,6 +112,7 @@
       <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="60" min="1" inputmode="numeric"></div>
     </div>
     <div class="field"><label class="field__label" for="f-summary">Summary</label><textarea class="textarea" id="f-summary" name="summary" rows="4" aria-describedby="f-summary-hint">Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.</textarea><span class="field__hint" id="f-summary-hint">Up to 1,000 characters</span></div>
+    <div class="field file-field"><span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
   </form>
   <div class="drawer__foot">
     <button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../notifications/admin-toast/draft-saved.html">Save draft</button>
@@ -124,6 +125,10 @@
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
     <li><a href="edit.html">edit</a></li>
+    <li><a href="edit-saving.html">edit-saving</a></li>
+    <li><a href="edit-invalid.html">edit-invalid</a></li>
+    <li><a href="edit-failed.html">edit-failed</a></li>
+    <li><a href="image-invalid.html">image-invalid</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="busy.html">busy</a></li>
     <li><a href="failed.html" aria-current="page">failed</a></li>
