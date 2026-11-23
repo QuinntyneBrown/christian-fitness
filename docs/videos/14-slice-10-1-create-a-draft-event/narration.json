@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Staff can now put a new event together, and keep it as a draft until it is ready."] },
+    { "id": "list", "bars": 5, "lines": ["The Events page lists every event, soonest first. Each row shows the date and time in Toronto, how many are going, and whether it is published."] },
+    { "id": "tabs", "bars": 4, "lines": ["All, Published and Draft each show a count. A tab with nothing in it says so."] },
+    { "id": "editor", "bars": 5, "lines": ["New event opens the event editor at the side, with focus on the title. On a phone, it fills the screen."] },
+    { "id": "saving", "bars": 4, "lines": ["Save draft sends the event. While it waits, the button says Saving, and the fields hold still."] },
+    { "id": "saved", "bars": 5, "lines": ["Then the drawer closes, a toast says the draft is not visible to members yet, and the list shows it."] },
+    { "id": "states", "bars": 4, "lines": ["With no events yet, the page offers the first one. If the list does not load, Try again asks again."] },
+    { "id": "api", "bars": 5, "lines": ["On the server, every field has its limits, and a refusal names each field's own code. The start must be after now, in Toronto time."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, editing an event."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice ten point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
