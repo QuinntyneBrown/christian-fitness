@@ -9,6 +9,9 @@ public static class RefusalCodes
     /// <summary>The event has no place left (L2-011 AC2; ADR 0032).</summary>
     public const string EventFull = "event_full";
 
+    /// <summary>The event has started, so a place can no longer be given up (L2-012 AC2; ADR 0034).</summary>
+    public const string EventStarted = "event_started";
+
     /// <summary>An event's capacity was set below the members going (L2-022 AC3; ADR 0025).</summary>
     public const string CapacityBelowGoing = "capacity_below_going";
 

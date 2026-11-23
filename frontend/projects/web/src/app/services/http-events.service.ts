@@ -28,4 +28,10 @@ export class HttpEventsService implements EventsApi {
       null,
     );
   }
+
+  cancelRegistration(id: string): Observable<EventDetailDto> {
+    return this.http.delete<EventDetailDto>(
+      `/api/events/${encodeURIComponent(id)}/registrations/me`,
+    );
+  }
 }

@@ -60,6 +60,13 @@ export interface EventsApi {
    * server-error screen.
    */
   register(id: string): Observable<EventDetailDto>;
+
+  /**
+   * Gives up the signed-in member's place at the event and answers the event as they now see it
+   * (L2-012; ADR 0034). A refusal (`event_started`, `event_not_found`) errors with the
+   * `HttpErrorResponse`; a 5xx opens the server-error screen.
+   */
+  cancelRegistration(id: string): Observable<EventDetailDto>;
 }
 
 /** Binds {@link EventsApi}; the Events screen provides it on its own route component. */

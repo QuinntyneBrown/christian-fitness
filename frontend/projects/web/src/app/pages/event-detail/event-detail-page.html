@@ -73,6 +73,9 @@
                   @if (view.payNote; as note) {
                     <p class="event-detail__note">{{ note }}</p>
                   }
+                  <cf-button variant="quiet" (click)="cancelRegistration()"
+                    >Can't make it</cf-button
+                  >
                 } @else if (view.full) {
                   <p class="event-detail__full" role="status">This event is full</p>
                 } @else {

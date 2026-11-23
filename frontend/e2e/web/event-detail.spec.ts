@@ -1,5 +1,6 @@
 import { expect, test } from '../fixtures/test';
 import {
+  answerCancellation,
   answerEvent,
   answerRegistration,
   BOOTCAMP_DETAIL,
@@ -213,6 +214,65 @@ test.describe('Member app, event detail', () => {
     await expect(detail.registerError).toHaveText(/We couldn't register you/);
     await expect(detail.registerButton).toBeEnabled();
     await expect(detail.confirmed).toHaveCount(0);
+    await expect(detail.going).toHaveText('142 going');
+  });
+
+  // L2-012 AC1, AC2 (ADR 0034): Can't make it asks in a dialog, and confirming frees the place.
+  test('confirming Cancel registration frees the place and offers Register again', async ({
+    page,
+    api,
+  }) => {
+    const going: EventDetail = { ...SUNRISE_DETAIL, registration: 'confirmed' };
+    answerEvent(api, [going]);
+    const asked = answerCancellation(api, going);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(going.id);
+    await detail.cantMakeItButton.click();
+    await expect(detail.cancelDialog).toBeVisible();
+    await detail.cancelConfirmButton.click();
+
+    await expect(detail.cancelDialog).toHaveCount(0);
+    await expect(detail.registerButton).toBeVisible();
+    await expect(detail.confirmed).toHaveCount(0);
+    await expect(detail.going).toHaveText('141 going');
+    await expect(detail.spots).toHaveText('59 of 200 spots left');
+    expect(asked).toEqual([going.id]);
+  });
+
+  test('Keep my place closes the dialog and asks nothing', async ({ page, api }) => {
+    const going: EventDetail = { ...SUNRISE_DETAIL, registration: 'confirmed' };
+    answerEvent(api, [going]);
+    const asked = answerCancellation(api, going);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(going.id);
+    await detail.cantMakeItButton.click();
+    await detail.keepPlaceButton.click();
+
+    await expect(detail.cancelDialog).toHaveCount(0);
+    await expect(detail.confirmed).toHaveText("You're going");
+    await expect(detail.going).toHaveText('142 going');
+    expect(asked).toEqual([]);
+  });
+
+  test('a refused cancel keeps the dialog with a generic message and the place', async ({
+    page,
+    api,
+  }) => {
+    const going: EventDetail = { ...SUNRISE_DETAIL, registration: 'confirmed' };
+    answerEvent(api, [going]);
+    answerCancellation(api, going, { status: 409, code: 'event_started' });
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(going.id);
+    await detail.cantMakeItButton.click();
+    await detail.cancelConfirmButton.click();
+
+    await expect(detail.cancelError).toContainText("Couldn't cancel your registration");
+    await expect(detail.cancelConfirmButton).toBeEnabled();
+    await detail.keepPlaceButton.click();
+    await expect(detail.confirmed).toHaveText("You're going");
     await expect(detail.going).toHaveText('142 going');
   });
 });

@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 56% (31 of 57 slices; 51 of 91 days)
+**% complete:** 57% (32 of 57 slices; 52 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1546,3 +1546,33 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "InMemory raises no `DbUpdateException`, so inject it" (6.1): applied unchanged to the version conflict.
 - "Prove a rule red by breaking it alone" (1.1 to 6.1): removing the token mapping turned the version test red.
 - "A screen's service goes on its routed component's providers" (4.1): nothing new; `register` was already there.
+
+## Slice 7.1: Cancel a registration
+
+**What slowed it**
+
+- The detail design left three questions open (no dialog mock, a 24-hour cut-off in the mock copy, no refund
+  rule) and the group chat does not exist yet; ADR 0034 settles them by the requirement's exact words:
+  a dialog mock was added, only `now >= StartsAt` refuses, nothing is refunded and chat leaving waits for 12.x.
+- The started-event test needs the clock to move, but the class shares one `FakeTimeProvider`: the event
+  starts one hour out and the test advances one hour, while every other test uses events three days out.
+- The first expected spots figure was worked from the wrong number (60, not 59); work it from the fixture.
+- The Python edit script emptied nothing this time because the edits went through the Edit tool and Node
+  `replace` with a presence check, as 6.2 advised.
+
+**New lessons**
+
+- A `cf-button` host cannot take `autoFocus` by id (the id sits on the host, not the inner button); the CDK
+  Dialog's `autoFocus` selector names the inner `.btn--secondary` instead.
+- The dialog makes the call through the screen's `EVENTS_SERVICE` and closes with the updated event, so the
+  page needs no cancel state of its own; its code and the CDK Dialog load on first use (`main` grew 0.16 kB).
+- `Event.ReleasePlace()` bumps the same `RegistrationVersion` as `TakePlace()`, so cancel and register
+  racing for one place share the 6.2 token; on a conflict the handler resets its row and decides again.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 6.2): disabling the `StartsAt` check turned only the
+  `event_started` test red.
+- "InMemory is not transactional" (6.2): no real race was run; the token's proof from 6.2 covers it.
+- "A screen's service goes on its routed component's providers" (4.1): `cancelRegistration` joined the
+  service already provided on the detail page.

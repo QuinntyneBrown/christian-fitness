@@ -562,6 +562,20 @@
       ]
     },
     {
+      "id": "cancel-registration",
+      "kind": "dialog",
+      "title": "Cancel a registration",
+      "group": "Member app",
+      "opens_from": "event-detail",
+      "source": "Derived: the Event detail frame's Can't make it action, confirmed in a dialog (L2-012; ADR 0034).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ]
+    },
+    {
       "id": "moderate-member",
       "kind": "dialog",
       "title": "Moderate a member",

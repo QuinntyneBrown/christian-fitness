@@ -169,3 +169,22 @@ export function answerRegistration(
   });
   return asked;
 }
+
+/**
+ * Answers `DELETE /api/events/{id}/registrations/me` for `event` as the API does (ADR 0034): going
+ * falls by one and the member holds no place. With `refuse`, it answers that status and code
+ * instead. Returns the ids asked for, in order.
+ */
+export function answerCancellation(
+  api: ApiHandlers,
+  event: EventDetail,
+  refuse?: { status: number; code: string },
+): string[] {
+  const asked: string[] = [];
+  api.on('DELETE', `/api/events/${event.id}/registrations/me`, () => {
+    asked.push(event.id);
+    if (refuse) return { status: refuse.status, json: { code: refuse.code } };
+    return { json: { ...event, going: event.going - 1, registration: null } };
+  });
+  return asked;
+}

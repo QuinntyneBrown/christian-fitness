@@ -64,6 +64,9 @@ public sealed class Event
     /// <summary>Marks that a place is being taken, so a racing save is refused.</summary>
     public void TakePlace() => RegistrationVersion++;
 
+    /// <summary>Marks that a place is being given up, so a racing save is refused (ADR 0034).</summary>
+    public void ReleasePlace() => RegistrationVersion++;
+
     /// <summary>A new draft with the given fields, trimmed; the validator has checked every limit.</summary>
     public static Event CreateDraft(
         string title,
