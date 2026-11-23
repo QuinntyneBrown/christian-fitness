@@ -90,6 +90,7 @@ test.describe('Admin app, cancelling an event', () => {
     await confirm.closeButton.click();
     await expect(confirm.dialog).toHaveCount(0);
     await editor.cancelEvent();
+    await expect(confirm.dialog).toBeVisible();
     await confirm.pressEscape();
 
     await expect(confirm.dialog).toHaveCount(0);
