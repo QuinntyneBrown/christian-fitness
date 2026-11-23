@@ -2,7 +2,7 @@ import type { ApiError } from '@cf/api';
 import { staffSignInRefusalOf, type StaffSignInRefusal } from './staff-sign-in-refusal';
 
 // L2-018 AC2, AC3, L2-046 AC6, L2-032 AC1 and the mock's `invalid`, `not-staff`,
-// `two-step-not-set-up` and `failed` states (ADR 0011, ADR 0013).
+// `two-step-not-set-up`, `error` (paused) and `failed` states (ADR 0011, ADR 0013, ADR 0014).
 describe('staffSignInRefusalOf', () => {
   it.each<{ error: ApiError; expected: StaffSignInRefusal }>([
     { error: { status: 401, code: 'invalid_credentials' }, expected: 'invalid-credentials' },
@@ -11,7 +11,9 @@ describe('staffSignInRefusalOf', () => {
     { error: { status: 401, code: 'two_step_not_set_up' }, expected: 'failed' },
     { error: { status: 403, code: 'forbidden' }, expected: 'failed' },
     { error: { status: 403, code: 'account_suspended' }, expected: 'failed' },
-    { error: { status: 429, code: 'too_many_attempts' }, expected: 'failed' },
+    { error: { status: 429, code: 'too_many_attempts' }, expected: 'too-many-attempts' },
+    { error: { status: 401, code: 'too_many_attempts' }, expected: 'failed' },
+    { error: { status: 429, code: 'rate_limited' }, expected: 'failed' },
     { error: { status: 401, code: 'not_staff' }, expected: 'failed' },
     { error: { status: 401, code: 'unauthenticated' }, expected: 'failed' },
     { error: { status: 400, code: 'antiforgery_failed' }, expected: 'failed' },
