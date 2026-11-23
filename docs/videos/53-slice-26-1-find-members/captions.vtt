@@ -1,0 +1,58 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.742
+Staff can now find any member, by name, by email, or by their standing in the
+
+00:00:06.742 --> 00:00:07.658
+community.
+
+00:00:08.000 --> 00:00:13.385
+The Members page lists everyone, newest first. Each row shows name and email, home
+
+00:00:13.385 --> 00:00:17.559
+church, the day they joined in Toronto, events, and status.
+
+00:00:18.000 --> 00:00:23.089
+Active, Flagged and Suspended are tabs. Each is a link, so the address names what is
+
+00:00:23.089 --> 00:00:23.995
+on screen.
+
+00:00:26.000 --> 00:00:31.133
+Search waits for the last key, then asks once. It looks in names and emails, never
+
+00:00:31.133 --> 00:00:32.497
+in a home church.
+
+00:00:36.000 --> 00:00:40.668
+When nobody matches, the page says so, and Clear search brings everyone back.
+
+00:00:44.000 --> 00:00:48.921
+Twenty-five members fill a page. The pages keep the tab and the search, and a new
+
+00:00:48.921 --> 00:00:51.044
+page moves focus to the table.
+
+00:00:54.000 --> 00:00:58.580
+While members load, rows hold their place. If they do not load, Try again asks
+
+00:00:58.580 --> 00:00:59.232
+again.
+
+00:01:02.000 --> 00:01:06.554
+On the server, one answer holds the page, the matches, and the size of the
+
+00:01:06.554 --> 00:01:09.993
+community. Nothing staff search for is ever logged.
+
+00:01:12.000 --> 00:01:14.922
+Every test failed first. Now they all pass.
+
+00:01:18.000 --> 00:01:20.912
+Later, staff flag, suspend and reinstate.
+
+00:01:24.000 --> 00:01:28.717
+That's slice twenty-six point one. Christian Fitness: a Christian community for
+
+00:01:28.717 --> 00:01:30.570
+health in body and spirit.

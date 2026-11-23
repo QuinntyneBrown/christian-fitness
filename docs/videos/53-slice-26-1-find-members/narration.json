@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Staff can now find any member, by name, by email, or by their standing in the community."] },
+    { "id": "list", "bars": 5, "lines": ["The Members page lists everyone, newest first. Each row shows name and email, home church, the day they joined in Toronto, events, and status."] },
+    { "id": "tabs", "bars": 4, "lines": ["Active, Flagged and Suspended are tabs. Each is a link, so the address names what is on screen."] },
+    { "id": "search", "bars": 5, "lines": ["Search waits for the last key, then asks once. It looks in names and emails, never in a home church."] },
+    { "id": "none", "bars": 4, "lines": ["When nobody matches, the page says so, and Clear search brings everyone back."] },
+    { "id": "pages", "bars": 5, "lines": ["Twenty-five members fill a page. The pages keep the tab and the search, and a new page moves focus to the table."] },
+    { "id": "states", "bars": 4, "lines": ["While members load, rows hold their place. If they do not load, Try again asks again."] },
+    { "id": "api", "bars": 5, "lines": ["On the server, one answer holds the page, the matches, and the size of the community. Nothing staff search for is ever logged."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Later, staff flag, suspend and reinstate."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice twenty-six point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

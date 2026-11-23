@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 34% (19 of 57 slices; 31 of 91 days)
+**% complete:** 36% (20 of 57 slices; 33 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1016,3 +1016,69 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   clock; Playwright's clock moved only the toast's 6 seconds.
 - "Rebase onto origin/main before the PR" (20.2, 9.3) brought two merged slices into the branch
   before the docs and film were written, so they carry the final numbers.
+
+## Slice 26.1: Find members
+
+**What slowed it**
+
+- It ran far out of order (row 53 of 57), in a fresh cloud container with no .NET SDK and the usual
+  download hosts refused; the SDK came out of Microsoft's own container image
+  (`mcr.microsoft.com/dotnet/sdk:10.0`), layer by layer. The pre-installed Chromium was a build
+  older than the pinned Playwright asks for, so the first e2e run failed on every spec in 2 ms;
+  a link from the build it wanted to the one installed fixed it without touching the config.
+- The design left the sort order, "events attended", the search delay and the pagination
+  `<TO SUPPLY>`, named a `MemberTable` the library now forbids, and the mock searched by home
+  church, counted "joined this month" and drew no pages. All of it was settled in the mock, L2-028
+  and ADR 0022 before code.
+- Nothing registers, reports, flags or suspends yet. Events attended went behind
+  `IRegistrationReader.CountsForAsync`, which answers none until 6.1; statuses were set through the
+  store in tests; the report banner stays in the mock for 25.1 and 27.1.
+- A table test read `tbody td` with the default row action on, so every second cell was the
+  action's; the failure looked like the new cell not rendering.
+- `URLSearchParams` writes a space as `+` and Angular's router as `%20`: the links and the address
+  bar disagreed until `memberListHref` encoded with `encodeURIComponent`.
+- An `<a>` with `aria-disabled` and no `href` is not a link to `getByRole`; the page object reaches
+  the unavailable Previous and Next by their label.
+- Graphviz could not be installed, so only the sequence diagram was rendered again; the class and
+  component sources are updated and their images still show the earlier design.
+
+**New lessons**
+
+- When the URL is a list's state, keep the field's text apart from the URL's term: the field is the
+  person's while they type (a trailing space stays), and the URL overwrites it only when it names
+  a different search. A spec that types "grace " catches a field bound straight to the URL.
+- A paged list answers two counts, the community's and the matches', and the page it answered;
+  the screen shows the answered page, so a stale `?page=9` cannot strand anyone on an empty list.
+- Keep pagination in place while its next page loads, keyed by the list it belongs to (tab and
+  search), so focus is not lost with the link that was pressed and one list's pages never stand
+  under another.
+- Read a URL through one pure function that cannot produce a question the API refuses (unknown
+  status to all, a long search cut, a bad page to 1): the API's refusals then need no screen.
+- `aria-label` on a `<span>` names nothing; an empty cell is a dash with `aria-hidden` beside
+  visually hidden words, and a page object that drops `aria-hidden` nodes reads the row as
+  assistive technology does.
+- A break that leaves every test green may be telling you the line is redundant: clearing the
+  field in Clear search was already done by the URL, and the line went.
+- A dev server kept running lets a break-check script run 25 Playwright breaks in a few minutes;
+  give each run a short timeout, since a broken rule otherwise waits out every assertion.
+
+**How earlier lessons worked**
+
+- "A registration reader that answers none yet" (18.1) took a second method without a new
+  abstraction, and its fake proved the pass-through and that the page asks once.
+- "A test helper that forces state the product cannot set yet writes through EF Core's entry"
+  (3.2) set Flagged and Suspended with no domain method nobody calls.
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 10.1): the
+  base was saved first; the diff named `debounceTime` (0.44 kB), `afterNextRender` (0.44 kB) and
+  the route. 278.29 kB became 278.96 kB, under the 280 kB warning, so no budget moved.
+- "Prove a rule red by breaking it alone" with `breakcheck` (1.4): 18 backend breaks, 20 in the
+  domain helpers and 25 on the page each turned the right tests red, but for the redundant line
+  above; the telemetry test went red when the controller logged the search term.
+- "A rule with a table of cases gets a direct test, one case per row": the handler's 25 search
+  rows and 15 validator rows, and the helpers' tables in `domain`.
+- "A gate in a fixture handler" (2.1) gave the loading states and the pages held in place, with no
+  clock; the 300 ms wait is proved by counting the questions asked, not by sleeping.
+- "A class, not a record, for anything personal" (2.1): the query and the row DTO are classes, so
+  no generated `ToString` can print a search term, an email or a home church.
+- "Keep the mocks' BEM classes" (1.6): the page object reads `table__person`, `table__strong`,
+  `table__sub`, `status`, `tabs__tab` and `pagination__link` as the mock writes them.

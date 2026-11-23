@@ -20,59 +20,72 @@ class Member {
   +Guid Id
   +string Name
   +string Email
+  +string NormalizedEmail
   +string? HomeChurch
   +DateTimeOffset JoinedAt
   +MemberStatus Status
-  +string? ModerationNote
-}
-class Registration {
-  +Guid MemberId
-  +Guid EventId
 }
 class SearchMembersQuery {
   +string? Search
-  +MemberStatus? Status
-  +int Page
+  +string? Status
+  +int? Page
+  +{static} PageSize = 25
+  +{static} SearchMaxLength = 100
+}
+class SearchMembersValidator {
+  status: all, active, flagged or suspended
+  search: 100 characters or fewer, trimmed
+  page: 1 or more
 }
 class MemberRowDto {
   +Guid Id
   +string Name
-  +string Initials
   +string Email
-  +string? Church
-  +DateTimeOffset Joined
+  +string? HomeChurch
+  +DateTimeOffset JoinedAt
   +int EventsAttended
-  +MemberStatus Status
-  +string? Note
+  +string Status
 }
-class PagedResult<T> {
-  +IReadOnlyList<T> Items
-  +int Page
-  +int PageSize = 25
+class MemberListDto {
   +int Total
+  +int Matches
+  +int Page
+  +int PageSize
+  +IReadOnlyList<MemberRowDto> Members
 }
 class SearchMembersHandler {
-  +Handle(q: SearchMembersQuery): Task<PagedResult<MemberRowDto>>
+  +Handle(q: SearchMembersQuery): Task<MemberListDto>
 }
 interface IAppDbContext {
   +Members: DbSet<Member>
-  +Registrations: DbSet<Registration>
 }
+interface IRegistrationReader {
+  +CountsForAsync(memberIds): Task<IReadOnlyDictionary<Guid, int>>
+}
+class NoRegistrationsYet
 interface AdminMembersApi {
-  +search(term, status, page): Observable<PagedResult<MemberRowDto>>
+  +search(query: AdminMemberQuery): Observable<AdminMemberListDto>
+}
+class AdminMemberQuery <<TypeScript>> {
+  +status: all | active | flagged | suspended
+  +q: string
+  +page: number
 }
 class HttpAdminMembersService
-class MembersPage {
-  +search: Signal<string>
-  +status: Signal<MemberStatus | null>
-  +page: Signal<number>
+class AdminMembersPage {
+  #query: Signal<AdminMemberQuery>
+  #term: Signal<string>
+  #state: Signal<loading | ready | failed>
 }
 Member --> MemberStatus : has
-Member "1" --> "*" Registration
+SearchMembersValidator ..> SearchMembersQuery : validates
 SearchMembersHandler ..> SearchMembersQuery : handles
-SearchMembersHandler ..> PagedResult : returns
-PagedResult o-- MemberRowDto
+SearchMembersHandler ..> MemberListDto : returns
+MemberListDto o-- MemberRowDto
 SearchMembersHandler --> IAppDbContext
+SearchMembersHandler --> IRegistrationReader : events attended
+NoRegistrationsYet ..|> IRegistrationReader : until slice 6.1
 HttpAdminMembersService ..|> AdminMembersApi
-MembersPage --> AdminMembersApi : ADMIN_MEMBERS_SERVICE
+AdminMembersApi ..> AdminMemberQuery
+AdminMembersPage --> AdminMembersApi : ADMIN_MEMBERS_SERVICE
 @enduml

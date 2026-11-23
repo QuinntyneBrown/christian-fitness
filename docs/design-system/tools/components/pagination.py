@@ -20,8 +20,8 @@ def pager(label, cur=2, total=8, summary=True):
 
 
 SPEC = {
-    "lead": "Pagination splits long admin lists into pages of 20 and says where you are in them.",
-    "meta": ["Status: proposed", "<code>&lt;nav&gt;</code> of links", "No mock yet"],
+    "lead": "Pagination splits long admin lists into pages (25 members to a page) and says where you are in them.",
+    "meta": ["Status: proposed", "<code>&lt;nav&gt;</code> of links", "Mock: admin-members"],
     "overview": """<p>Use pagination on admin tables that can grow past one screen: members, events, applications. Each page is a URL (<code>?page=3</code>) so Back and sharing work. On phones the numbers collapse to "Page 2 of 8" between Previous and Next.</p>
 <ul>
 <li>Member-facing lists (events, messages) load more as you scroll or use a "Show more" button instead; they are windowed, not paged.</li>

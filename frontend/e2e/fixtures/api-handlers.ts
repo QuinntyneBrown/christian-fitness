@@ -52,6 +52,9 @@ export const NO_ADMIN_EVENTS = {
   events: [],
 };
 
+/** The staff list of members the fixture answers unless a spec says otherwise: nobody yet. */
+export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, members: [] };
+
 /**
  * The answers a spec gives to the app's API requests. A spec registers a handler with `on`; the
  * latest registration for a method and path wins, so a spec can override a default. A request
@@ -60,7 +63,8 @@ export const NO_ADMIN_EVENTS = {
  * Defaults, which any spec can override: `GET /api/antiforgery` sets the token cookie, and
  * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
- * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021).
+ * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021), and
+ * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -75,6 +79,7 @@ export class ApiHandlers {
     { method: 'GET', path: '/api/session', handler: () => ({ json: SIGNED_IN }) },
     { method: 'GET', path: '/api/admin/session', handler: () => ({ json: STAFF_SIGNED_IN }) },
     { method: 'GET', path: '/api/admin/events', handler: () => ({ json: NO_ADMIN_EVENTS }) },
+    { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },
   ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */

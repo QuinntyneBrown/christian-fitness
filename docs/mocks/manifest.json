@@ -446,6 +446,7 @@
         "flagged",
         "suspended",
         "no-results",
+        "tab-empty",
         "loading",
         "empty",
         "error"

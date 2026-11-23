@@ -47,6 +47,17 @@
                       / {{ row.cells[column.key]?.of }}</span
                     >
                   }
+                  @case ('person') {
+                    <div class="table__person">
+                      <cf-avatar [name]="row.cells[column.key]?.text ?? ''" size="md" />
+                      <div class="table__person-text">
+                        <p class="table__strong">{{ row.cells[column.key]?.text }}</p>
+                        @if (row.cells[column.key]?.sub; as sub) {
+                          <p class="table__sub">{{ sub }}</p>
+                        }
+                      </div>
+                    </div>
+                  }
                   @case ('primary') {
                     <p class="table__strong">{{ row.cells[column.key]?.text }}</p>
                     @if (row.cells[column.key]?.sub; as sub) {
@@ -54,7 +65,12 @@
                     }
                   }
                   @default {
-                    {{ row.cells[column.key]?.text }}
+                    @if (row.cells[column.key]?.text; as text) {
+                      {{ text }}
+                    } @else if (column.empty) {
+                      <span aria-hidden="true">—</span
+                      ><span class="visually-hidden">{{ column.empty }}</span>
+                    }
                   }
                 }
               </td>

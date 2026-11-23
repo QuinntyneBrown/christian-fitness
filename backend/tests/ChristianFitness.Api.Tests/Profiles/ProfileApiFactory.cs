@@ -77,5 +77,8 @@ public sealed class ProfileApiFactory : ApiFactory
                 return Task.FromResult(_events.TryGetValue(memberId, out var events) ? events : (IReadOnlyList<UpcomingEventDto>)[]);
             }
         }
+
+        public Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());
     }
 }

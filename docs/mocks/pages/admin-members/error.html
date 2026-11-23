@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-members">
 <meta name="mock:state" content="error">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Members (tPxu6npHD6a6sbs4ZYxPji)">
-<meta name="description" content="Members failed to load: retry in place.">
+<meta name="description" content="Members failed to load: retry in place; the search and the tabs stay, so a search that failed can be changed.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -43,8 +43,12 @@
     <h1 class="display admin-title">Members</h1>
     
   </div>
-  
-</div><div class="error-state" role="alert">
+  <form class="search" role="search">
+            <label class="visually-hidden" for="member-search">Search members</label>
+            <svg class="icon search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input class="search__input" id="member-search" type="search" placeholder="Search name or email">
+          </form>
+</div><nav class="tabs" aria-label="Filter members"><a class="tabs__tab" href="../../pages/admin-members/default.html" aria-current="page">All</a><a class="tabs__tab" href="../../pages/admin-members/active.html">Active</a><a class="tabs__tab" href="../../pages/admin-members/flagged.html">Flagged</a><a class="tabs__tab" href="../../pages/admin-members/suspended.html">Suspended</a></nav><div class="error-state" role="alert">
   <span class="error-state__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></span>
   <div>
     <h2 class="display empty-state__title">Members didn't load</h2>
@@ -68,6 +72,7 @@
     <li><a href="flagged.html">flagged</a></li>
     <li><a href="suspended.html">suspended</a></li>
     <li><a href="no-results.html">no-results</a></li>
+    <li><a href="tab-empty.html">tab-empty</a></li>
     <li><a href="loading.html">loading</a></li>
     <li><a href="empty.html">empty</a></li>
     <li><a href="error.html" aria-current="page">error</a></li>
