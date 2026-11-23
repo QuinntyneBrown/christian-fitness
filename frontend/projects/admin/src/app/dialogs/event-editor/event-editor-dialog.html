@@ -125,6 +125,16 @@
     (fileChosen)="chooseImage($event)"
     (removed)="removeImage()"
   />
+  @if (canViewRegistrations) {
+    <cf-button
+      slot="foot"
+      variant="secondary"
+      [disabled]="working() || uploading()"
+      (click)="viewRegistrations()"
+    >
+      View registrations
+    </cf-button>
+  }
   @if (canCancel) {
     <cf-button
       slot="foot"

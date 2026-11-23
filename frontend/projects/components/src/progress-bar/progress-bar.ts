@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, ElementRef, inject, input, type OnChanges } from '@angular/core';
 
 /** The design system's progress tones: in progress, complete and failed. */
 export type ProgressTone = 'default' | 'success' | 'danger';
@@ -21,9 +21,10 @@ export function clampPercent(value: number): number {
   selector: 'cf-progress-bar',
   templateUrl: './progress-bar.html',
   styleUrl: './progress-bar.scss',
-  host: { '[style.--progress]': 'width()' },
 })
-export class ProgressBar {
+export class ProgressBar implements OnChanges {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   readonly label = input.required<string>();
   /** The percent done; none while the length is not known. */
   readonly value = input<number | null>(null);
@@ -38,6 +39,16 @@ export class ProgressBar {
     const percent = this.percent();
     return percent === null ? null : `${percent}%`;
   });
+
+  /**
+   * Hands the bar's width to the stylesheet as `--progress` on the host. A direct write, not a host
+   * `style` binding, keeps the style-binding runtime out of the initial bundle.
+   */
+  ngOnChanges(): void {
+    const width = this.width();
+    if (width === null) this.host.nativeElement.style.removeProperty('--progress');
+    else this.host.nativeElement.style.setProperty('--progress', width);
+  }
 
   protected classes(): string {
     const tone = this.tone();

@@ -1,6 +1,7 @@
 import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { filter } from 'rxjs';
 import {
   ADMIN_EVENTS_SERVICE,
@@ -89,6 +90,7 @@ export class EventEditorDialog {
   private readonly destroyRef = inject(DestroyRef);
   private readonly data = inject<EventEditorData>(DIALOG_DATA);
   private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
 
   protected readonly headingId = HEADING_ID;
   protected readonly imageTypes = IMAGE_TYPES;
@@ -98,6 +100,9 @@ export class EventEditorDialog {
   protected readonly canPublish = !this.data.event || this.data.event.status === 'draft';
   /** A published event can be cancelled, after a confirmation (ADR 0035). */
   protected readonly canCancel = this.data.event?.status === 'published';
+  /** A published or cancelled event has registrations to read (ADR 0036). */
+  protected readonly canViewRegistrations =
+    this.data.event !== undefined && this.data.event.status !== 'draft';
   protected readonly working = computed(() => this.saving() || this.publishing());
   /** The event as last saved here, so a retry updates it and a close keeps it. */
   private saved: AdminEventDto | null = null;
@@ -177,6 +182,14 @@ export class EventEditorDialog {
 
   protected publish(): void {
     this.run(true);
+  }
+
+  /** Closes the editor by its ref, then opens the event's registrations page (ADR 0036). */
+  protected viewRegistrations(): void {
+    const event = this.data.event;
+    if (!event || this.working() || this.uploading()) return;
+    this.ref.close(this.saved ? { event: this.saved, outcome: this.savedOutcome() } : undefined);
+    void this.router.navigateByUrl(`/events/${encodeURIComponent(event.id)}/registrations`);
   }
 
   /** Asks staff to confirm; a cancelled event closes the editor with it (ADR 0035). */
