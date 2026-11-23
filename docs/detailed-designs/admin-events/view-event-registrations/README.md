@@ -34,9 +34,9 @@ without exposing personal data beyond names.
 
 ## Requirements
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-024` | `L1-010` | Given an event, when an Admin opens its registrations, then registered members are listed with name and registration date, and the total matches going. Given an Admin exports registrations, when the export is produced, then it is a CSV of name and registration date only. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                     |
+| -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-024` | `L1-010`     | Given an event, when an Admin opens its registrations, then registered members are listed with name and registration date, and the total matches going. Given an Admin exports registrations, when the export is produced, then it is a CSV of name and registration date only. |
 
 ## Diagrams
 

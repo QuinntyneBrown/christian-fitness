@@ -2,8 +2,8 @@
 
 ## Overview
 
-An event moves through three states. A *draft* is hidden from members. *Publishing* makes it
-visible on the member Events screen and the landing page. *Cancelling* a published event removes
+An event moves through three states. A _draft_ is hidden from members. _Publishing_ makes it
+visible on the member Events screen and the landing page. _Cancelling_ a published event removes
 it from member lists, keeps it on registered members' Profile marked as cancelled, and posts a
 cancellation notice in its group chat.
 
@@ -16,13 +16,17 @@ cancellation notice in its group chat.
 
 - **`AdminEventsPage`** and **`EventEditorDialog`** — host the Publish action (dialog footer in
   `docs/mocks/dialogs/event-editor/default.html`) and the Cancel event action.
-- **`ConfirmCancelEventDialog`** — CDK Dialog asking the Admin to confirm. No mock exists for it;
-  the mock is `<TO SUPPLY>` before implementation.
+- **`ConfirmCancelEventDialog`** — CDK Dialog asking the Admin to confirm (slice 11.2). No mock
+  exists for it; the mock is `<TO SUPPLY>` before implementation.
 - **`AdminEventsApi.publish(id)` / `cancel(id)`** — contract methods on `ADMIN_EVENTS_SERVICE`.
 - **`AdminEventsController`** — `POST /api/admin/events/{id}/publish` and
   `POST /api/admin/events/{id}/cancel` under `AdminOnly`; one MediatR send each.
-- **`PublishEventHandler`** — calls `Event.Publish()`, which refuses any state but `Draft`
-  (code `event_not_draft` `<TO SUPPLY: code not in spec>`).
+- **`PublishEventHandler`** (slice 11.1, ADR 0026) — calls `Event.Publish()`, which refuses any
+  state but `Draft` (409 `event_not_draft`); a draft whose start has passed is refused with 400
+  `validation_failed` and `fieldCodes.date` = `start_in_past`; audited as `event.published`. In
+  the editor, Publish (new event or draft) saves the fields, then publishes; the editor keeps the
+  saved id, so a failed publish shows the alert `publish-failed` and a retry updates the same
+  draft (`edit-draft`, `publish-failed`, `busy`).
 - **`CancelEventHandler`** — calls `Event.Cancel()`, which refuses any state but `Published`
   (code `event_not_published` `<TO SUPPLY>`), adds a system `Message` to the event's
   `Conversation`, saves both in one unit of work, then calls **`IChatNotifier`**.
@@ -32,14 +36,14 @@ cancellation notice in its group chat.
   events with a future start; the Profile registrations query returns cancelled events with
   status `Cancelled`. These belong to the member subsystems and change no code here.
 
-The edit mock offers "Move to drafts" on a published event; no L2 requirement defines
-unpublishing, so it is `<TO SUPPLY>`.
+The edit mock's "Move to drafts" on a published event was dropped (ADR 0025): no L2 requirement
+defines unpublishing.
 
 ## Requirements
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-023` | `L1-010` | Given a draft event, when an Admin publishes it, then members see it on Events and the landing page. Given a published event, when an Admin cancels it with confirmation, then it disappears from member lists, registered members see it as cancelled in Profile and its group chat shows a cancellation notice. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                       |
+| -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-023` | `L1-010`     | Given a draft event, when an Admin publishes it, then members see it on Events and the landing page. Given a published event, when an Admin cancels it with confirmation, then it disappears from member lists, registered members see it as cancelled in Profile and its group chat shows a cancellation notice. |
 
 ## Diagrams
 

@@ -74,7 +74,7 @@ design left the readable antiforgery cookie's name and the static host `<TO SUPP
   handles the token. The admin app gets the same when it gets its client (slice 9.1).
 - **Security headers (L2-030 AC4).** `UseSecurityHeaders` adds to every API response
   `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; base-uri 'none';
-  form-action 'none'` (an API serves no script at all), `X-Content-Type-Options: nosniff` and
+form-action 'none'` (an API serves no script at all), `X-Content-Type-Options: nosniff` and
   `Referrer-Policy: strict-origin-when-cross-origin`, as the response starts, so refusals and
   errors carry them too. `UseHsts` adds
   `Strict-Transport-Security: max-age=31536000; includeSubDomains` outside the Development

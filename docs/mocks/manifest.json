@@ -499,6 +499,8 @@
         "edit-saving",
         "edit-invalid",
         "edit-failed",
+        "edit-draft",
+        "publish-failed",
         "image-invalid",
         "invalid",
         "busy",

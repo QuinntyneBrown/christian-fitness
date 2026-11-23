@@ -36,8 +36,9 @@ are kept out `<TO SUPPLY>`. The mocks drew the taken email (`invalid`) and the s
   The email pattern is `^[^\s@]+@[^\s@]+\.[^\s@]+$` in both stacks. Each suite carries the same
   inline case table (`validateJoin` in `domain`, `CreateAccountValidator` in Application), as
   AGENTS.md asks of a rule computed in both stacks.
+
 - **The API validates in a MediatR pipeline behaviour.** `ValidationBehavior<TRequest,
-  TResponse>` runs every FluentValidation validator of the request before its handler and throws
+TResponse>` runs every FluentValidation validator of the request before its handler and throws
   FluentValidation's `ValidationException` with the failures. `ProblemDetailsExceptionHandler`
   answers it with 400 `ValidationProblemDetails`: `errors` keyed by the camel-case field name
   (`fullName`, `email`, `password`, `homeChurch`, `interests`) with fixed sentences that never

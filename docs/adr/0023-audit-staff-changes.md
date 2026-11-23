@@ -69,7 +69,6 @@ Three things made the design's shape unworkable as written:
   `Record` call before its save; nothing in the API, the controllers or the pipeline changes.
 - Signing in and out of the admin app now writes one more row each.
 - A change saved outside `IAppDbContext` (only the session today) is committed before its entry, so
-  a database failure between the two keeps the change without its entry and the request answers
-  500. Every record of the community goes through `IAppDbContext`, where the two commit together.
+  a database failure between the two keeps the change without its entry and the request answers 500. Every record of the community goes through `IAppDbContext`, where the two commit together.
 - `AddApplication` registers logging, since the behaviour logs; a host without a logging provider
   writes nothing.
