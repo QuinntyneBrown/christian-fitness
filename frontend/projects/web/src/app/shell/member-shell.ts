@@ -2,12 +2,23 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { SESSION_SERVICE } from '@cf/api';
-import { SkipLink, TopBar } from '@cf/components';
+import {
+  type MemberDestination,
+  type MemberDestinationKey,
+  SkipLink,
+  TopBar,
+} from '@cf/components';
 import { initialsOf } from '@cf/domain';
 import { filter } from 'rxjs';
 
-/** The member's own profile, which the header's avatar opens (ADR 0015). */
-const PROFILE_PATH = '/profile';
+/**
+ * The places the header lists so far (ADR 0027); Services and Messages join as their slices land.
+ * The profile is the avatar button, not a link.
+ */
+const DESTINATIONS: readonly MemberDestination[] = [
+  { key: 'home', label: 'Home', href: '/home' },
+  { key: 'events', label: 'Events', href: '/events' },
+];
 
 /**
  * The routed layout around every member route, behind `memberAuthGuard` (ADR 0007, 0009): the
@@ -30,7 +41,9 @@ export class MemberShell {
 
   protected readonly signingOut = signal(false);
   protected readonly initials = signal('');
-  protected readonly onProfile = signal(isProfile(this.urlNow()));
+  protected readonly destinations = DESTINATIONS;
+  /** The place showing, read from the address; none on any other. */
+  protected readonly current = signal<MemberDestinationKey | null>(placeOf(this.urlNow()));
 
   constructor() {
     this.router.events
@@ -38,7 +51,7 @@ export class MemberShell {
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => this.onProfile.set(isProfile(this.router.url)));
+      .subscribe(() => this.current.set(placeOf(this.router.url)));
     this.session
       .current()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -74,6 +87,11 @@ export class MemberShell {
   }
 }
 
-function isProfile(url: string): boolean {
-  return url.split(/[?#]/, 1)[0] === PROFILE_PATH;
+/** The place of the member app an address is in: Events covers an event under it too. */
+function placeOf(url: string): MemberDestinationKey | null {
+  const path = url.split(/[?#]/, 1)[0];
+  if (path === '/profile') return 'profile';
+  if (path === '/home') return 'home';
+  if (path === '/events' || path.startsWith('/events/')) return 'events';
+  return null;
 }

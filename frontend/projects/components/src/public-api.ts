@@ -35,6 +35,7 @@ export * from './drawer/drawer';
 export * from './empty-state/empty-state';
 export * from './error-page/error-page';
 export * from './event-card/event-card';
+export * from './event-card/event-grid';
 export * from './file-field/file-field';
 export * from './footer/footer';
 export * from './form-field/form-field';

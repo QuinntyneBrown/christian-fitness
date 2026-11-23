@@ -1266,3 +1266,37 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "A gate in a fixture handler" (2.1) gave the Publishing… state with no clock.
 - "Read the initial total after each new API" (30.1): no new core API; the initial total stayed at
   279.20 kB.
+
+## Slice 4.1: Browse upcoming events
+
+**What slowed it**
+
+- The design left the window bound, the cursor's error code and the empty-image case open, and the
+  mock had a search box and an "Only events I'm going to" toggle that L2-009 never asks for. ADR
+  0027 settled each (200 events, `cursor_invalid`, a bundled photo per category) and left the search
+  box and toggle unbuilt until a requirement states them.
+- `EventFieldCodes.All` is the filter for `fieldCodes`, so the new `cursor_invalid` had to join it
+  before the 400 carried the code; the first run answered a bare `validation_failed`.
+- The shell only knew "Profile is current". It now reads the address into a place (home, events,
+  profile), and Events stays current on an event under it.
+- A long heredoc of several files made the shell reject the whole command and run nothing; one
+  Write per file was the reliable way.
+
+**New lessons**
+
+- A paged list asks for 21 to know whether more remain, orders by start then id, and its cursor
+  is the last start and id, so events with the same start split across pages with none lost.
+- Tests that count rows share a store, so each count (45 in pages, exactly 20, 21 tied) lives in
+  its own class.
+- The end of the list is one `IntersectionObserver` in a directive that is only in the DOM while a
+  next page can be asked for, so it is released with the page and with the last page.
+- A bounded feed that stops at a cap and says so loses no card the member scrolled past.
+
+**How earlier lessons worked**
+
+- "A test that moves the clock gets its own class" (11.1): the same rule, for counts, kept the paging
+  classes order-independent.
+- "A 5xx to a GET opens the server-error screen" (11.1): the spec's failures abort the request.
+- "Read the initial total after each new API" (30.1): `IntersectionObserver` is not an Angular API;
+  the page is a lazy route, and the initial totals stayed at 277.39 kB (web) and 279.20 kB (admin).
+- "Keep the mocks' BEM classes": the page object read `.event-card__title` and the rest from the mock.

@@ -1,0 +1,5 @@
+<ul class="event-grid">
+  @for (row of rows(); track row.$implicit.id) {
+    <li><ng-container [ngTemplateOutlet]="template()" [ngTemplateOutletContext]="row" /></li>
+  }
+</ul>

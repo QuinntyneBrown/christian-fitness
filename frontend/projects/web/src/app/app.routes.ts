@@ -48,6 +48,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
       },
       {
+        // The published events that have not started, paged (L2-009; ADR 0027).
+        path: 'events',
+        title: 'Events · Christian Fitness',
+        loadComponent: () => import('./pages/events/events-page').then((m) => m.EventsPage),
+      },
+      {
         // The signed-in member's own profile (L2-005; ADR 0015).
         path: 'profile',
         title: 'Profile · Christian Fitness',
