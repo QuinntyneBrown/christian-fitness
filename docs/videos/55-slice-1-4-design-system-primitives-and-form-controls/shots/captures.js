@@ -3,8 +3,8 @@ window.FILM_CAPTURES = {
   "unit": {
     "command": "npm test",
     "domain": 329,
-    "components": 142,
-    "componentFiles": 19
+    "components": 281,
+    "componentFiles": 41
   },
   "specs": {
     "command": "npx playwright test --list",
