@@ -41,6 +41,8 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<ChristianFitness.Domain.Events.Event> Events => throw new InvalidOperationException(Secret);
 
         public DbSet<ChristianFitness.Domain.Events.Registration> Registrations => throw new InvalidOperationException(Secret);
+
+        public DbSet<ChristianFitness.Domain.Events.ChatMessage> ChatMessages => throw new InvalidOperationException(Secret);
         public DbSet<AuditEntry> AuditEntries => throw new InvalidOperationException(Secret);
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>

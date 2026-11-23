@@ -1719,7 +1719,7 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - A hub refusal is an answer: `ChatAnswer { code, title, memberId }`. The caller's own id comes back in the join answer, so
   the page needs no second request to know which messages are "mine".
 - Test a SignalR hub with `HubConnectionBuilder`, `Transports = LongPolling` and `HttpMessageHandlerFactory = _ =>
-  factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"]`. A `Channel<T>` read with a linked
+factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"]`. A `Channel<T>` read with a linked
   timeout gives "waits for X" failures with no sleep, and a member who should receive nothing is proved by another member
   of the same chat receiving first, then checking the first one's channel is empty.
 - Pass the caller's id from `Context.UserIdentifier` into the request: `IHttpContextAccessor` is not dependable on long
@@ -1736,3 +1736,45 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   undone with the inverse edit.
 - "Count a slice's new specs against the CI budget" (24.1): two specs (live flow from the event; not registered).
 - "Use the Edit and Write tools" (7.1 on): followed after the two shell mishaps above.
+
+## Slice 12.2: Chat history and failed sends
+
+**What slowed it**
+
+- The precondition came first: the Frontend job took 4 m 54 s and the web initial total was 279.14 kB against 280. The job's
+  time was the Playwright step (3 m 24 s): the runner has four cores, so Playwright used two workers, and both apps were
+  compiled a second time by `ng serve` after `npm run build` had built them. CI now serves the build (`e2e/static-server.mjs`,
+  `CF_SERVE_BUILT=1`), runs four workers, and a person's local run still uses `ng serve`. Locally the whole suite went from
+  1 m 45 s on a dev server to under 1 m 10 s of spec time on the built one, and the dev server was the cause of a run of
+  `ERR_ABORTED` failures when it was rebuilding. The bundle: `main` is 258.8 kB of which 6.8 kB is ours; a shared
+  `titled()` for the route titles saved 0.25 kB in each app, and nothing else in `main` was avoidable without raising a budget.
+- EF Core InMemory generates no value for a non-key column, so a `ValueGeneratedOnAdd` sequence for message order was 0 for every
+  message in the tests while PostgreSQL would number them. Order and paging use the instant, then the id; tests advance
+  `FakeTimeProvider` between sends. The migration was removed and made again after the model changed.
+- A first use of `firstValueFrom` in the lazy chat page moved 0.18 kB into `main` (the bundler shares it with the router). A
+  local `once()` over `takeUntilDestroyed` costs nothing in `main`; it was found by reading the total after the change.
+- Two of the new specs were wrong, not the code: the thread asks for earlier messages by itself when scrolled to the top, so a
+  spec that scrolled up and then clicked loaded twice; and a page of 50 from a store of 260 leaves messages still to load, so
+  the window ends at "Message 210", not "Message 200".
+- A shell heredoc with an apostrophe failed again ("didn't" in a script); that script went through the Write tool.
+
+**New lessons**
+
+- A spec that proves the reader keeps their place checks that the message that was first is in the viewport and a message from
+  the loaded page is not; without the scroll adjustment the first one is pushed out of view and the spec turns red.
+- A stored history needs the fake hub to answer the history route too, or every chat spec fails on an unanswered request: the
+  fixture installs it by default with an empty list.
+- A send that fails is a thread entry of its own (`unsent-N`), not a flag on a window message, so the 200-message window never
+  holds a message the server has not confirmed.
+- Reading the initial total after each change caught the rxjs helper at once; the stats diff would have named it.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1 to 24.1): named `firstValueFrom` immediately.
+- "Prove a rule red by breaking it alone" (1.1 to 12.1): turning the scroll adjustment off turned the place-keeping spec red;
+  undone with the inverse edit. Removing the participant check in the history handler would not build (unreachable code under
+  warnings as errors), so the 403 test was proved by being written before the endpoint existed.
+- "Wait for what is lazily opened" (earlier slices): the specs wait on the title and the message count, never on time.
+- "Use the Edit and Write tools" (7.1 on): followed except for the one script above.
+- "Count a slice's new specs against the CI budget" (24.1): six specs added (four history, two failed sends); the run is now
+  faster than before the slice.

@@ -46,3 +46,25 @@ export interface ChatConnection {
 
 /** Binds {@link ChatConnection}; the chat screen's providers provide it. */
 export const CHAT_CONNECTION = new InjectionToken<ChatConnection>('CHAT_CONNECTION');
+
+/** One page of an event chat's stored messages (ADR 0040), oldest first, and whether earlier ones remain. */
+export interface ChatHistoryDto {
+  messages: ChatMessageDto[];
+  hasMore: boolean;
+}
+
+/**
+ * The stored messages of an event's chat (L2-016 AC6; ADR 0040). A member not registered for the
+ * event is refused 403 with the code `not_a_participant`; any failure errors with the
+ * `HttpErrorResponse`, and a 5xx to it opens the server-error screen.
+ */
+export interface ChatHistory {
+  /** The latest 50 messages. */
+  latest(eventId: string): Observable<ChatHistoryDto>;
+
+  /** The 50 messages before the message `messageId`. */
+  before(eventId: string, messageId: string): Observable<ChatHistoryDto>;
+}
+
+/** Binds {@link ChatHistory}; the chat screen's providers provide it. */
+export const CHAT_HISTORY = new InjectionToken<ChatHistory>('CHAT_HISTORY');

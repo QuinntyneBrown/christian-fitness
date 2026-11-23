@@ -1,6 +1,6 @@
 import type { ChatMessageDto } from '@cf/api';
 import { describe, expect, it } from 'vitest';
-import { CHAT_WINDOW_SIZE, chatTime, withChatMessage } from './chat-window';
+import { CHAT_WINDOW_SIZE, chatTime, withChatMessage, withEarlierMessages } from './chat-window';
 
 function message(n: number): ChatMessageDto {
   return {
@@ -48,5 +48,31 @@ describe('chatTime', () => {
     { sentAt: 'not a date', time: '' },
   ])('words $sentAt in Toronto as "$time"', ({ sentAt, time }) => {
     expect(chatTime(sentAt)).toBe(time);
+  });
+});
+
+describe('withEarlierMessages', () => {
+  it('puts earlier messages first, oldest first', () => {
+    const result = withEarlierMessages([message(3), message(4)], [message(1), message(2)]);
+
+    expect(result.messages.map((m) => m.id)).toEqual(['m1', 'm2', 'm3', 'm4']);
+    expect(result.droppedNewest).toBe(false);
+  });
+
+  it('leaves out an earlier message the window already holds', () => {
+    const result = withEarlierMessages([message(2), message(3)], [message(1), message(2)]);
+
+    expect(result.messages.map((m) => m.id)).toEqual(['m1', 'm2', 'm3']);
+  });
+
+  it.each([
+    { size: 4, ids: ['m1', 'm2', 'm3', 'm4'], dropped: false },
+    { size: 3, ids: ['m1', 'm2', 'm3'], dropped: true },
+    { size: 1, ids: ['m1'], dropped: true },
+  ])('holds $size at most and says when the newest fell off', ({ size, ids, dropped }) => {
+    const result = withEarlierMessages([message(3), message(4)], [message(1), message(2)], size);
+
+    expect(result.messages.map((m) => m.id)).toEqual(ids);
+    expect(result.droppedNewest).toBe(dropped);
   });
 });

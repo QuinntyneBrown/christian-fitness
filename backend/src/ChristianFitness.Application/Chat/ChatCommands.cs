@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,8 +59,10 @@ internal sealed class SendChatMessageHandler(IAppDbContext db, IChatChannel chan
             .Select(m => m.Name)
             .SingleAsync(cancellationToken)
             .ConfigureAwait(false);
-        var sentAt = time.GetUtcNow();
-        await channel.SendAsync(new ChatMessageDto(Guid.CreateVersion7(sentAt), request.EventId, request.MemberId, author, request.Text, sentAt), cancellationToken)
+        var stored = ChatMessage.Of(request.EventId, request.MemberId, request.Text, time.GetUtcNow());
+        db.ChatMessages.Add(stored);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await channel.SendAsync(new ChatMessageDto(stored.Id, stored.EventId, stored.AuthorId, author, stored.Text, stored.SentAt), cancellationToken)
             .ConfigureAwait(false);
         return ChatAnswer.Ok;
     }

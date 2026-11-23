@@ -23,6 +23,27 @@
   }
 }
 
+.thread__earlier {
+  display: flex;
+  justify-content: center;
+
+  button {
+    min-height: var(--control-height-md);
+    border-radius: var(--radius-full);
+    padding: 0 var(--space-4);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+
+    &:disabled {
+      text-decoration: none;
+      opacity: 0.5;
+    }
+  }
+}
+
 .thread__day {
   text-align: center;
   font-size: var(--font-size-xs);

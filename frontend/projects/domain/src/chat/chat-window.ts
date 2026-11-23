@@ -32,3 +32,26 @@ export function chatTime(sentAt: string): string {
   // ICU puts a narrow no-break space before AM and PM; the mock has a plain space.
   return timeFormat.format(instant).replace(/\s/g, ' ');
 }
+
+/** The window after earlier messages join it, and whether the newest had to fall off its end. */
+export interface EarlierWindow {
+  messages: readonly ChatMessageDto[];
+  droppedNewest: boolean;
+}
+
+/**
+ * The window after a page of `earlier` messages (oldest first) joins it: they go first, any already
+ * held (same id) are left out, and beyond `size` the newest fall off the end, so the member reads
+ * on from where they scrolled to.
+ */
+export function withEarlierMessages(
+  window: readonly ChatMessageDto[],
+  earlier: readonly ChatMessageDto[],
+  size: number = CHAT_WINDOW_SIZE,
+): EarlierWindow {
+  const held = new Set(window.map((message) => message.id));
+  const next = [...earlier.filter((message) => !held.has(message.id)), ...window];
+  return next.length > size
+    ? { messages: next.slice(0, size), droppedNewest: true }
+    : { messages: next, droppedNewest: false };
+}

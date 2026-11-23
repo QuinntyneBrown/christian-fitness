@@ -35,6 +35,10 @@ public interface IAppDbContext
 
     /// <summary>The places members hold at events (L2-011; ADR 0032).</summary>
     DbSet<Registration> Registrations { get; }
+
+    /// <summary>What members said in events' group chats (L2-016; ADR 0040).</summary>
+    DbSet<ChatMessage> ChatMessages { get; }
+
     /// <summary>What staff changed: who, what, which record and when (L2-019 AC3; ADR 0023).</summary>
     DbSet<AuditEntry> AuditEntries { get; }
 
