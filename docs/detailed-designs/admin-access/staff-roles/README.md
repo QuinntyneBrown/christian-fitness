@@ -73,8 +73,9 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
 - **`IAuditableCommand`** (Application) — the marker every data-changing staff command carries,
   with `AuditAction`, a stable name `{record}.{past tense}` implemented explicitly so it is never
   bound from a request body. `VerifyTwoStepCommand` is `staff_session.started` and
-  `StaffSignOutCommand` `staff_session.ended`; slice 10.1's `CreateEventCommand` and every later
-  staff command add the marker and one `Record` call, nothing else.
+  `StaffSignOutCommand` `staff_session.ended`; `CreateEventCommand` (slice 10.1) is `event.created`, and every
+  later staff command adds the marker and one `Record` call, nothing else. The handler does not
+  save: the behaviour's one `SaveChangesAsync` commits the change and its entry together.
 - **`AuditTrail`** (Application, scoped) — the request's pending entry. The behaviour opens it with
   the command's action; the handler calls `Record(actorMemberId, recordType, recordId)` once, when
   the change is going ahead and before it saves, which adds the `AuditEntry` to `IAppDbContext`, so

@@ -1092,8 +1092,13 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   sign-out ends the session the actor would be read from, and a created record's id exists only
   in its handler. A scoped `AuditTrail` the handler fills, opened and enforced by the behaviour,
   replaced both (ADR 0021).
-- Slice 10.1's create-event command, the first staff command on a community record, was being built
-  beside this one, so the audit was proved on the staff session commands, as the prompt allowed.
+- Slice 10.1's create-event command merged first, so the branch was rebased onto it and the audit
+  extended to `event.created`; its handler lost its own save, since the behaviour's single save
+  must commit the draft and its entry together.
+- Rebasing met two ADR 0021s (events and audit): the audit's is renumbered 0023, and every
+  reference was checked line by line, since the two numbers sat in the same files.
+- The 26.1 handler test built its own host without a `TimeProvider`, and 40 cases failed to
+  resolve `AuditTrail`; the host now registers one.
 - Every request builds every open behaviour, so the audit behaviour's `ILogger` and `AuditTrail`
   broke 30 handler tests whose hosts had no logging: `AddApplication` now calls `AddLogging()`.
   Running the whole backend suite after the first green caught it, as in 9.3.
@@ -1127,6 +1132,7 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   saved by the ticket store.
 - "A breaking script run from the scratchpad fails the analysers" (29.1): the breaks ran in
   `backend/`; one still tripped CA1873 (an argument built for a log), and a plain variable fixed it.
-- "Regenerate your migration after theirs" (prompt): this slice's `AddAuditEntries` is the only new
-  migration so far; it is regenerated if slice 10.1's `AddEvents` lands first.
+- "Regenerate your migration after theirs" (prompt): `AddEvents` landed first, so `AddAuditEntries` was
+  deleted and regenerated on main's snapshot (`dotnet ef` with Infrastructure as the startup
+  project, since the CLI one has no Design package).
 - "Use free ports" (3.2 to 29.1): specs and shots ran on 4530/4531 beside two other sessions.

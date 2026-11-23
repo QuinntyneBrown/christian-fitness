@@ -59,8 +59,9 @@ Three things made the design's shape unworkable as written:
   telemetry test finds the action in the log and no member id, email, name or record type in any
   span or log. The behaviour's own cases (records and leaves the save to the behaviour, records and
   saves, refused after recording, refused before, names no record, not auditable) are a table in
-  `AuditBehaviorTests`, with requests local to that test. When slice 10.1 lands, its create-event
-  command adds the marker and one `Record` call, and one acceptance test proves it is audited.
+  `AuditBehaviorTests`, with requests local to that test. Slice 10.1 merged first, so its create-event
+  command carries the marker and one `Record` call (`event.created`, record type `Event`), and
+  `CreateEventAuditTests` proves it is audited and that a refused draft leaves no entry.
 
 ## Consequences
 

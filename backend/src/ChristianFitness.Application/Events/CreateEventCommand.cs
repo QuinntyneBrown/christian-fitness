@@ -1,5 +1,7 @@
 using System.Globalization;
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Audit;
+using ChristianFitness.Application.Sessions;
 using ChristianFitness.Domain.Events;
 using MediatR;
 
@@ -8,11 +10,13 @@ namespace ChristianFitness.Application.Events;
 /// <summary>
 /// The event editor's fields, as the admin app sends them (L2-022 AC1; ADR 0021): the start as the
 /// Toronto date (<c>yyyy-MM-dd</c>) and time (<c>HH:mm</c>) staff typed, the price in cents (0 is
-/// free) and the category by its lower-case name. A plain staff command: Admin-only access and its
-/// audit entry are slices 29.1 and 29.2.
+/// free) and the category by its lower-case name. A staff command, audited as <c>event.created</c>
+/// (L2-019 AC3; ADR 0023).
 /// </summary>
-public sealed class CreateEventCommand : IRequest<AdminEventDto>
+public sealed class CreateEventCommand : IRequest<AdminEventDto>, IAuditableCommand
 {
+    string IAuditableCommand.AuditAction => "event.created";
+
     public const string DateFormat = "yyyy-MM-dd";
     public const string TimeFormat = "HH:mm";
 
@@ -48,7 +52,7 @@ public sealed class CreateEventCommand : IRequest<AdminEventDto>
 /// The body was validated before this runs (<see cref="CreateEventValidator"/>), so every field is
 /// there and within its limits.
 /// </summary>
-internal sealed class CreateEventHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<CreateEventCommand, AdminEventDto>
+internal sealed class CreateEventHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit) : IRequestHandler<CreateEventCommand, AdminEventDto>
 {
     public async Task<AdminEventDto> Handle(CreateEventCommand request, CancellationToken cancellationToken)
     {
@@ -65,7 +69,7 @@ internal sealed class CreateEventHandler(IAppDbContext db, TimeProvider time) : 
             request.Summary,
             time.GetUtcNow());
         db.Events.Add(created);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        audit.Record(current.Id, nameof(Event), created.Id);
         return AdminEventDto.Of(created, going: 0);
     }
 }
