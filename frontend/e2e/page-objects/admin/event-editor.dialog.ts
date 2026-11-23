@@ -46,6 +46,8 @@ export class EventEditorDialog {
   readonly saveDraftButton: Locator;
   /** The foot's save button, whichever the editor shows: Save draft, Save changes or Saving…. */
   readonly saveButton: Locator;
+  /** The foot's Publish button, which reads "Publishing…" while it works. */
+  readonly publishButton: Locator;
   readonly chooseImageButton: Locator;
   readonly removeImageButton: Locator;
   readonly imageName: Locator;
@@ -81,6 +83,9 @@ export class EventEditorDialog {
     this.saveButton = this.dialog.locator('.drawer__foot .btn', {
       hasText: /Save draft|Save changes|Saving/,
     });
+    this.publishButton = this.dialog.locator('.drawer__foot .btn', {
+      hasText: /Publish/,
+    });
     this.chooseImageButton = this.dialog.getByRole('button', { name: /^Choose image/ });
     this.removeImageButton = this.dialog.getByRole('button', { name: 'Remove image' });
     this.imageName = this.dialog.locator('.file-field__name');
@@ -104,6 +109,10 @@ export class EventEditorDialog {
 
   async saveDraft(): Promise<void> {
     await this.saveDraftButton.click();
+  }
+
+  async publish(): Promise<void> {
+    await this.publishButton.click();
   }
 
   async saveChanges(): Promise<void> {

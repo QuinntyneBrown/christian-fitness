@@ -109,6 +109,13 @@ export interface AdminEventsApi {
    */
   update(id: string, request: UpdateEventRequestDto): Observable<AdminEventDto>;
 
+  /**
+   * Makes a draft visible to members and answers it (200). A refusal errors with an `ApiError`:
+   * 409 `event_not_draft`, 404 `not_found`, or 400 `validation_failed` with `fieldCodes.date`
+   * `start_in_past` for a draft that has begun (ADR 0026).
+   */
+  publish(id: string): Observable<AdminEventDto>;
+
   /** Keeps a JPEG, PNG or WebP of up to 5 MB and answers its key; else `validation_failed` with `fieldCodes.image`. */
   uploadImage(file: File): Observable<EventImageDto>;
 }

@@ -263,7 +263,7 @@ test.describe('Admin app, editing an event', () => {
     page,
     api,
   }) => {
-    answerEdit(api, { detail: () => problem(500, 'error') });
+    answerEdit(api, { detail: () => ({ abort: true }) });
     const events = new AdminEventsPage(page);
     const editor = new EventEditorDialog(page, 'Edit event');
     await events.open();

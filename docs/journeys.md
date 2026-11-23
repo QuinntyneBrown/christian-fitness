@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 43% (9 of 30 journeys; 39 of 91 days: journeys 1, 2, 3, 9, 10, 18, 20, 26 and 29 are done, and journey 30 has 1 of its 2 days)
+**% complete:** 44% (9 of 30 journeys; 40 of 91 days: journeys 1, 2, 3, 9, 10, 18, 20, 26 and 29 are done, and journeys 11 and 30 each have 1 of their 2 days)
 
 | #   | Journey                          | App    | Description                                                                                                        | Effort (days) |
 | --- | -------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |

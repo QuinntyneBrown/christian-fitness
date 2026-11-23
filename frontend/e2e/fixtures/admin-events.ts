@@ -128,7 +128,7 @@ export interface AdminEventDetailFixture {
   priceCents: number;
   capacity: number;
   summary: string;
-  imageKey: string;
+  imageKey: string | null;
   going: number;
   status: 'draft' | 'published';
 }
@@ -148,4 +148,22 @@ export const BOOTCAMP_DETAIL: AdminEventDetailFixture = {
   imageKey: '0123456789abcdef0123456789abcdef.jpg',
   going: 38,
   status: 'published',
+};
+
+/** Whole Life Retreat, the draft of the cast, as the editor opens it. */
+export const RETREAT_DETAIL: AdminEventDetailFixture = {
+  id: RETREAT_DRAFT.id,
+  title: 'Whole Life Retreat',
+  category: 'retreat',
+  date: '2026-05-22',
+  startTime: '16:00',
+  place: 'Muskoka Woods, Rosseau',
+  area: 'Muskoka Lakes',
+  priceCents: 34000,
+  capacity: 60,
+  summary:
+    'Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.',
+  imageKey: null,
+  going: 0,
+  status: 'draft',
 };

@@ -1,6 +1,7 @@
 import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { Component, DestroyRef, inject, type Injector, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, type Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import {
   ADMIN_EVENTS_SERVICE,
   type AdminEventDetailDto,
@@ -47,10 +48,19 @@ const IMAGE_TYPES = 'image/jpeg,image/png,image/webp';
 /** The editor's fields typed as text. */
 type TextFieldKey = Exclude<keyof EventEditorValues, 'category' | 'imageKey' | 'imageName'>;
 
-/** What the editor opens with: the values, and for a saved event its id and the members going. */
+/**
+ * What the editor opens with: the values, and for a saved event its id, status and the members
+ * going.
+ */
 export interface EventEditorData {
   values: EventEditorValues;
-  event?: { id: string; going: number };
+  event?: { id: string; going: number; status: AdminEventDto['status'] };
+}
+
+/** How an editor ended with a saved event: what the page says about it. */
+export interface EventEditorResult {
+  event: AdminEventDto;
+  outcome: 'created' | 'updated' | 'published';
 }
 
 /**
@@ -74,7 +84,7 @@ export interface EventEditorData {
 })
 export class EventEditorDialog {
   private readonly events = inject(ADMIN_EVENTS_SERVICE);
-  private readonly ref = inject<DialogRef<AdminEventDto, EventEditorDialog>>(DialogRef);
+  private readonly ref = inject<DialogRef<EventEditorResult, EventEditorDialog>>(DialogRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly data = inject<EventEditorData>(DIALOG_DATA);
 
@@ -82,8 +92,27 @@ export class EventEditorDialog {
   protected readonly imageTypes = IMAGE_TYPES;
   protected readonly categories = CATEGORY_OPTIONS;
   protected readonly editing = this.data.event !== undefined;
+  /** A new event and a draft can be published; a published event only takes changes. */
+  protected readonly canPublish = !this.data.event || this.data.event.status === 'draft';
+  protected readonly working = computed(() => this.saving() || this.publishing());
+  /** The event as last saved here, so a retry updates it and a close keeps it. */
+  private saved: AdminEventDto | null = null;
+
+  constructor() {
+    // Escape is ours: it waits for a save and closes with the saved draft (ADR 0026).
+    this.ref.disableClose = true;
+    this.ref.keydownEvents
+      .pipe(
+        filter((event) => event.key === 'Escape'),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.close());
+  }
   protected readonly values = signal<EventEditorValues>(this.data.values);
   protected readonly saving = signal(false);
+  protected readonly publishing = signal(false);
+  /** The save worked and the publish did not (ADR 0026). */
+  protected readonly publishFailed = signal(false);
   protected readonly uploading = signal(false);
   protected readonly failed = signal(false);
   protected readonly errors = signal<EventFieldErrors>({});
@@ -107,7 +136,8 @@ export class EventEditorDialog {
   }
 
   protected close(): void {
-    if (!this.saving()) this.ref.close();
+    if (this.working()) return;
+    this.ref.close(this.saved ? { event: this.saved, outcome: this.savedOutcome() } : undefined);
   }
 
   /** The image field's file: uploaded at once, kept by its key until the event is saved. */
@@ -138,27 +168,56 @@ export class EventEditorDialog {
   }
 
   protected save(): void {
-    if (this.saving() || this.uploading()) return;
-    this.saving.set(true);
+    this.run(false);
+  }
+
+  protected publish(): void {
+    this.run(true);
+  }
+
+  /** Saves the fields, then publishes when asked; a retry updates the draft already saved. */
+  private run(publish: boolean): void {
+    if (this.working() || this.uploading()) return;
+    (publish ? this.publishing : this.saving).set(true);
     this.failed.set(false);
+    this.publishFailed.set(false);
     // Cleared first, so a refusal again draws a new summary, which takes focus.
     this.errors.set({});
-    // Escape and the scrim wait for the answer, so it is never lost.
-    this.ref.disableClose = true;
     const request = eventDraftOf(this.values());
-    const saved = this.data.event
-      ? this.events.update(this.data.event.id, request)
-      : this.events.create(request);
-    saved.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (event) => this.ref.close(event),
-      error: (error: ApiError) => {
-        const refused = eventFieldErrorsOf(error, this.data.event?.going ?? 0);
-        if (refused) this.errors.set(refused);
-        else this.failed.set(true);
-        this.saving.set(false);
-        this.ref.disableClose = false;
+    const id = this.saved?.id ?? this.data.event?.id;
+    const saved$ = id ? this.events.update(id, request) : this.events.create(request);
+    saved$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (event) => {
+        this.saved = event;
+        if (publish) this.publishSaved(event.id);
+        else this.ref.close({ event, outcome: this.savedOutcome() });
       },
+      error: (error: ApiError) => this.refused(error, false),
     });
+  }
+
+  private publishSaved(id: string): void {
+    this.events
+      .publish(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (event) => this.ref.close({ event, outcome: 'published' }),
+        error: (error: ApiError) => this.refused(error, true),
+      });
+  }
+
+  private savedOutcome(): EventEditorResult['outcome'] {
+    return this.data.event ? 'updated' : 'created';
+  }
+
+  /** Shows what a failed save or publish says: fields it names, else one generic alert. */
+  private refused(error: ApiError, publishing: boolean): void {
+    const fields = eventFieldErrorsOf(error, this.data.event?.going ?? 0);
+    if (fields) this.errors.set(fields);
+    else if (publishing) this.publishFailed.set(true);
+    else this.failed.set(true);
+    this.saving.set(false);
+    this.publishing.set(false);
   }
 
   private clearError(field: EventFieldKey): void {
@@ -171,10 +230,10 @@ export class EventEditorDialog {
 function open(
   injector: Injector,
   data: EventEditorData,
-): DialogRef<AdminEventDto, EventEditorDialog> {
+): DialogRef<EventEditorResult, EventEditorDialog> {
   return injector
     .get(Dialog)
-    .open<AdminEventDto, EventEditorData, EventEditorDialog>(EventEditorDialog, {
+    .open<EventEditorResult, EventEditorData, EventEditorDialog>(EventEditorDialog, {
       injector,
       data,
       ariaLabelledBy: HEADING_ID,
@@ -197,7 +256,9 @@ function open(
  * imports this file on the first New event or Edit, so CDK Dialog stays out of every bundle until
  * then.
  */
-export function openEventEditor(injector: Injector): DialogRef<AdminEventDto, EventEditorDialog> {
+export function openEventEditor(
+  injector: Injector,
+): DialogRef<EventEditorResult, EventEditorDialog> {
   return open(injector, { values: EMPTY_EVENT_EDITOR });
 }
 
@@ -205,9 +266,9 @@ export function openEventEditor(injector: Injector): DialogRef<AdminEventDto, Ev
 export function openEventEditorFor(
   injector: Injector,
   event: AdminEventDetailDto,
-): DialogRef<AdminEventDto, EventEditorDialog> {
+): DialogRef<EventEditorResult, EventEditorDialog> {
   return open(injector, {
     values: eventEditorValuesOf(event),
-    event: { id: event.id, going: event.going },
+    event: { id: event.id, going: event.going, status: event.status },
   });
 }
