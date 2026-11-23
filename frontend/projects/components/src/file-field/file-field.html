@@ -1,0 +1,41 @@
+<div class="field file-field" role="group" [attr.aria-labelledby]="labelId">
+  <span class="field__label" [id]="labelId"
+    >{{ label() }}
+    @if (optional()) {
+      <span class="field__optional">(optional)</span>
+    }
+  </span>
+  <div class="file-field__row">
+    <cf-button
+      variant="secondary"
+      size="sm"
+      [buttonId]="fieldId()"
+      [describedBy]="describedBy()"
+      [disabled]="disabled()"
+      (click)="choose()"
+      >{{ chooseLabel() }}</cf-button
+    >
+    <input
+      class="file-field__input"
+      type="file"
+      hidden
+      [name]="name()"
+      [attr.accept]="accept() || null"
+      [disabled]="disabled()"
+      (change)="picked($event)"
+    />
+    @if (fileName(); as chosen) {
+      <span class="file-field__name">{{ chosen }}</span>
+      <cf-button variant="ghost" size="sm" [disabled]="disabled()" (click)="removed.emit()"
+        >Remove<span class="visually-hidden"> {{ noun() }}</span></cf-button
+      >
+    } @else {
+      <span class="file-field__name file-field__name--empty">{{ emptyText() }}</span>
+    }
+  </div>
+  @if (error(); as message) {
+    <span class="field__error" [id]="fieldId() + '-error'">{{ message }}</span>
+  } @else if (hint(); as text) {
+    <span class="field__hint" [id]="fieldId() + '-hint'">{{ text }}</span>
+  }
+</div>

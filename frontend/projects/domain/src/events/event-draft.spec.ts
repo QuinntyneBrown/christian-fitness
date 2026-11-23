@@ -1,4 +1,11 @@
-import { capacityOf, eventDraftOf, EMPTY_EVENT_EDITOR, priceCentsOf } from './event-draft';
+import {
+  capacityOf,
+  eventDraftOf,
+  eventEditorValuesOf,
+  EMPTY_EVENT_EDITOR,
+  priceCentsOf,
+  priceTextOf,
+} from './event-draft';
 
 // ADR 0021: the event editor's typed price, in cents. Blank is free; what is not an amount of
 // dollars and cents is sent as null for the API to refuse with price_invalid.
@@ -58,6 +65,8 @@ describe('eventDraftOf', () => {
         price: '$340',
         capacity: '60',
         summary: 'Meals and cabins included.',
+        imageKey: null,
+        imageName: null,
       }),
     ).toEqual({
       title: 'Whole Life Retreat',
@@ -69,6 +78,7 @@ describe('eventDraftOf', () => {
       priceCents: 34000,
       capacity: 60,
       summary: 'Meals and cabins included.',
+      imageKey: null,
     });
   });
 
@@ -83,6 +93,8 @@ describe('eventDraftOf', () => {
       price: '',
       capacity: '',
       summary: '',
+      imageKey: null,
+      imageName: null,
     });
     expect(eventDraftOf(EMPTY_EVENT_EDITOR)).toEqual({
       title: '',
@@ -94,6 +106,65 @@ describe('eventDraftOf', () => {
       priceCents: 0,
       capacity: null,
       summary: '',
+      imageKey: null,
+    });
+  });
+});
+
+// ADR 0021, ADR 0025: a stored price shown the way staff type it, so a save sends it back unchanged.
+describe('priceTextOf', () => {
+  it.each([
+    { why: 'free is blank', cents: 0, expected: '' },
+    { why: 'whole dollars', cents: 34000, expected: '$340' },
+    { why: 'dollars and cents', cents: 34050, expected: '$340.50' },
+    { why: 'cents below a dollar', cents: 5, expected: '$0.05' },
+    { why: 'a thousands comma', cents: 123450, expected: '$1,234.50' },
+    { why: 'millions', cents: 100000000, expected: '$1,000,000' },
+  ])('$why ($cents) is "$expected" and reads back as the same cents', ({ cents, expected }) => {
+    expect(priceTextOf(cents)).toBe(expected);
+    expect(priceCentsOf(priceTextOf(cents))).toBe(cents);
+  });
+});
+
+// L2-022 AC7: the editor opens with every saved field.
+describe('eventEditorValuesOf', () => {
+  const saved = {
+    id: 'e1',
+    title: 'Whole Life Retreat',
+    category: 'retreat' as const,
+    date: '2026-05-22',
+    startTime: '16:00',
+    place: 'Muskoka Woods, Rosseau',
+    area: 'Muskoka Lakes',
+    priceCents: 34000,
+    capacity: 60,
+    summary: 'Meals and cabins included.',
+    going: 36,
+    status: 'draft' as const,
+  };
+
+  it('shows the saved fields as typed, with the price text and the capacity as text', () => {
+    expect(eventEditorValuesOf(saved)).toEqual({
+      title: 'Whole Life Retreat',
+      category: 'retreat',
+      date: '2026-05-22',
+      startTime: '16:00',
+      place: 'Muskoka Woods, Rosseau',
+      area: 'Muskoka Lakes',
+      price: '$340',
+      capacity: '60',
+      summary: 'Meals and cabins included.',
+      imageKey: null,
+      imageName: null,
+    });
+  });
+
+  it('keeps the stored image by its key and names it for the image field', () => {
+    const key = '0123456789abcdef0123456789abcdef.jpg';
+
+    expect(eventEditorValuesOf({ ...saved, imageKey: key })).toMatchObject({
+      imageKey: key,
+      imageName: 'Current image',
     });
   });
 });

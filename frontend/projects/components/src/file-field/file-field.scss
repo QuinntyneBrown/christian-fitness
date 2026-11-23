@@ -1,0 +1,53 @@
+// The design system's file field (docs/design-system/assets/components.css, "Forms": file-field).
+// The label, optional marker, hint and error are the form field's; the buttons are the button's.
+:host {
+  display: block;
+}
+
+.field {
+  display: block;
+}
+
+.field__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.field__optional {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+.field__hint,
+.field__error {
+  margin-top: var(--space-1-5);
+  display: block;
+  font-size: var(--font-size-sm);
+}
+
+.field__hint {
+  color: var(--color-fg-muted);
+}
+
+// The words carry the meaning, never the colour alone (WCAG 3.3.1).
+.field__error {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-danger-fg);
+}
+
+.file-field__row {
+  margin-top: var(--space-1-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.file-field__name {
+  font-size: var(--font-size-md);
+  overflow-wrap: anywhere;
+}
+
+.file-field__name--empty {
+  color: var(--color-fg-muted);
+}

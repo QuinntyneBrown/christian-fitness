@@ -91,6 +91,7 @@ COMPONENTS = [
     # Inputs
     ("text-field", "Text field", "Inputs", "Text, e-mail, password, search and one-time code inputs."),
     ("textarea", "Textarea", "Inputs", "Multi-line text with optional counter."),
+    ("file-field", "File field", "Inputs", "Chooses one file, shows its name and lets people remove it."),
     ("select", "Select", "Inputs", "Native select for choosing one option."),
     ("checkbox", "Checkbox", "Inputs", "Single and grouped checkboxes."),
     ("radio-group", "Radio group", "Inputs", "One choice from a short list; list or card style."),

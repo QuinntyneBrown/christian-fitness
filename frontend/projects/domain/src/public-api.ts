@@ -29,6 +29,7 @@ export * from './members/admin-member-list';
 export * from './admin/session-expiry';
 export * from './events/admin-event-tabs';
 export * from './events/event-draft';
+export * from './events/event-refusal';
 export * from './events/event-when';
 export * from './notifications/toast-store';
 export * from './members/profile-rules';

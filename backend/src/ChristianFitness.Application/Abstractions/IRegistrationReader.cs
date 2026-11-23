@@ -15,5 +15,8 @@ public interface IRegistrationReader
     /// How many events each of <paramref name="memberIds"/> registered for, in one question for the
     /// whole page; a member with none may be left out (L2-028 AC1, "events attended").
     /// </summary>
+    /// <summary>How many members are registered for the event (L2-022 AC3; ADR 0025).</summary>
+    Task<int> GoingAsync(Guid eventId, CancellationToken cancellationToken);
+
     Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken);
 }

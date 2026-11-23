@@ -386,6 +386,23 @@ def field(label: str, name: str, value: str = "", *, type_: str = "text", hint: 
             f'<input {" ".join(attrs)}>{err_html}{hint_html}</div>')
 
 
+def file_field(label: str, name: str, *, filename: str = "", hint: str = "", error: str = "", optional: bool = False,
+               choose: str = "Choose image", empty: str = "No image chosen", readonly: bool = False) -> str:
+    fid = f"f-{name}"
+    msg_id = f"{fid}-error" if error else (f"{fid}-hint" if hint else "")
+    msg = (f'<span class="field__error" id="{fid}-error">{error}</span>' if error
+           else f'<span class="field__hint" id="{fid}-hint">{hint}</span>' if hint else "")
+    opt = ' <span class="field__optional">(optional)</span>' if optional else ""
+    d = " disabled" if readonly else ""
+    desc = f' aria-describedby="{msg_id}"' if msg_id else ""
+    shown = (f'<span class="file-field__name">{filename}</span>'
+             f'<button class="btn btn--ghost btn--sm" type="button"{d}>Remove<span class="visually-hidden"> {label.lower()}</span></button>' if filename
+             else f'<span class="file-field__name file-field__name--empty">{empty}</span>')
+    return (f'<div class="field file-field"><span class="field__label" id="{fid}-label">{label}{opt}</span>'
+            f'<div class="file-field__row"><button class="btn btn--secondary btn--sm" id="{fid}" type="button" aria-labelledby="{fid}-label {fid}"{desc}{d}>{choose}</button>'
+            f'<input class="file-field__input" id="{fid}-input" name="{name}" type="file" accept="image/jpeg,image/png,image/webp" hidden>{shown}</div>{msg}</div>')
+
+
 def textarea(label: str, name: str, value: str, *, rows: int = 4, error: str = "", hint: str = "", optional: bool = False,
              readonly: bool = False) -> str:
     fid = f"f-{name}"

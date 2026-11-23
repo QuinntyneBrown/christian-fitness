@@ -1,5 +1,12 @@
 import type { Locator, Page } from '@playwright/test';
 
+/** A file the editor's image field is given. */
+export interface ImageUpload {
+  name: string;
+  mimeType: string;
+  buffer: Buffer;
+}
+
 /** What the event editor's fields hold, by label. */
 export interface EventEditorValues {
   title: string;
@@ -14,9 +21,9 @@ export interface EventEditorValues {
 }
 
 /**
- * The event editor drawer, "New event" (mock `docs/mocks/dialogs/event-editor/`, states `default`
- * and `saving`): a CDK Dialog over the Events page with the event's fields, Save draft and Close.
- * Owns the selectors of that dialog.
+ * The event editor drawer, "New event" or "Edit event" (mock `docs/mocks/dialogs/event-editor/`): a
+ * CDK Dialog over the Events page with the event's fields and image, Save draft or Save changes,
+ * and Close. Owns the selectors of that dialog.
  */
 export class EventEditorDialog {
   readonly dialog: Locator;
@@ -37,12 +44,21 @@ export class EventEditorDialog {
   /** The text inputs and the text area, which turn read-only while saving. */
   readonly textInputs: Locator;
   readonly saveDraftButton: Locator;
+  /** The foot's save button, whichever the editor shows: Save draft, Save changes or Saving…. */
+  readonly saveButton: Locator;
+  readonly chooseImageButton: Locator;
+  readonly removeImageButton: Locator;
+  readonly imageName: Locator;
+  readonly alertLinks: Locator;
   readonly footButtons: Locator;
   readonly alert: Locator;
   readonly scrim: Locator;
 
-  constructor(private readonly page: Page) {
-    this.dialog = page.getByRole('dialog', { name: 'New event' });
+  constructor(
+    private readonly page: Page,
+    name: 'New event' | 'Edit event' = 'New event',
+  ) {
+    this.dialog = page.getByRole('dialog', { name });
     this.drawer = this.dialog.locator('.drawer');
     this.heading = this.dialog.locator('.drawer__title');
     this.closeButton = this.dialog.getByRole('button', { name: 'Close' });
@@ -62,6 +78,13 @@ export class EventEditorDialog {
       hasText: /Save draft|Saving/,
     });
     this.footButtons = this.dialog.locator('.drawer__foot .btn');
+    this.saveButton = this.dialog.locator('.drawer__foot .btn', {
+      hasText: /Save draft|Save changes|Saving/,
+    });
+    this.chooseImageButton = this.dialog.getByRole('button', { name: /^Choose image/ });
+    this.removeImageButton = this.dialog.getByRole('button', { name: 'Remove image' });
+    this.imageName = this.dialog.locator('.file-field__name');
+    this.alertLinks = this.dialog.locator('.form-alert__list a');
     this.alert = this.dialog.locator('.form-alert');
     this.scrim = this.dialog.locator('.scrim');
   }
@@ -81,6 +104,20 @@ export class EventEditorDialog {
 
   async saveDraft(): Promise<void> {
     await this.saveDraftButton.click();
+  }
+
+  async saveChanges(): Promise<void> {
+    await this.saveButton.click();
+  }
+
+  /** Chooses `file` in the image field, as a person does from the file picker. */
+  async chooseImage(file: ImageUpload): Promise<void> {
+    await this.dialog.locator('input[type=file]').setInputFiles(file);
+  }
+
+  /** The message under the field whose control has `id`, such as `f-title`. */
+  fieldError(id: string): Locator {
+    return this.dialog.locator(`#${id}-error`);
   }
 
   async pressEscape(): Promise<void> {

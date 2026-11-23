@@ -13,6 +13,8 @@ internal sealed class NoRegistrationsYet : IRegistrationReader
     public Task<IReadOnlyList<UpcomingEventDto>> UpcomingForAsync(Guid memberId, DateTimeOffset now, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<UpcomingEventDto>>([]);
 
+    public Task<int> GoingAsync(Guid eventId, CancellationToken cancellationToken) => Task.FromResult(0);
+
     public Task<IReadOnlyDictionary<Guid, int>> CountsForAsync(IReadOnlyCollection<Guid> memberIds, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyDictionary<Guid, int>>(new Dictionary<Guid, int>());
 }

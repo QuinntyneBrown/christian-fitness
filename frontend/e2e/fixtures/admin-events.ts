@@ -113,3 +113,39 @@ export function problem(
     json: { status, code, title: 'A sentence from the server the screen never shows', ...extra },
   };
 }
+
+/** An event as `GET /api/admin/events/{id}` opens it in the editor (ADR 0025). */
+export interface AdminEventDetailFixture {
+  id: string;
+  title: string;
+  category: string;
+  /** The Toronto date, `yyyy-MM-dd`. */
+  date: string;
+  /** The Toronto time, `HH:mm`. */
+  startTime: string;
+  place: string;
+  area: string;
+  priceCents: number;
+  capacity: number;
+  summary: string;
+  imageKey: string;
+  going: number;
+  status: 'draft' | 'published';
+}
+
+/** Saturday Park Bootcamp as the editor opens it: the second published event, with an image. */
+export const BOOTCAMP_DETAIL: AdminEventDetailFixture = {
+  id: PUBLISHED_EVENTS[1].id,
+  title: 'Saturday Park Bootcamp',
+  category: 'workout',
+  date: '2026-04-25',
+  startTime: '08:00',
+  place: 'Trillium Park, Ontario Place',
+  area: 'Waterfront, Toronto',
+  priceCents: 1000,
+  capacity: 50,
+  summary: 'An hour of bodyweight circuits in the park, then coffee together.',
+  imageKey: '0123456789abcdef0123456789abcdef.jpg',
+  going: 38,
+  status: 'published',
+};

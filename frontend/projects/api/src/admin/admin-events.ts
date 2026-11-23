@@ -55,9 +55,40 @@ export interface CreateEventRequestDto {
   priceCents: number | null;
   capacity: number | null;
   summary: string;
+  /** The image `uploadImage` kept, or none (ADR 0025). */
+  imageKey?: string | null;
 }
 
-/** Staff list events and create drafts (L2-022; ADR 0021). */
+/** `PUT /api/admin/events/{id}` sends the same fields as `POST` (ADR 0025). */
+export type UpdateEventRequestDto = CreateEventRequestDto;
+
+/**
+ * An event as the editor opens it (`GET /api/admin/events/{id}`, ADR 0025): the start as the
+ * Toronto date (`yyyy-MM-dd`) and time (`HH:mm`), the price in cents, the image key when it has one
+ * and how many are going.
+ */
+export interface AdminEventDetailDto {
+  id: string;
+  title: string;
+  category: EventCategory;
+  date: string;
+  startTime: string;
+  place: string;
+  area: string;
+  priceCents: number;
+  capacity: number;
+  summary: string;
+  imageKey?: string | null;
+  going: number;
+  status: EventStatus;
+}
+
+/** `POST /api/admin/events/images`: the key the image is kept under. */
+export interface EventImageDto {
+  imageKey: string;
+}
+
+/** Staff list events, create drafts, edit events and upload their image (L2-022; ADR 0021, ADR 0025). */
 export interface AdminEventsApi {
   /** The counts of every tab and the events of `tab`. A failure errors with an `ApiError`. */
   list(tab: AdminEventTab): Observable<AdminEventListDto>;
@@ -68,6 +99,18 @@ export interface AdminEventsApi {
    * slice 10.2's invalid state reads.
    */
   create(request: CreateEventRequestDto): Observable<AdminEventDto>;
+
+  /** The event as the editor opens it. An unknown id errors with code `not_found` (404). */
+  get(id: string): Observable<AdminEventDetailDto>;
+
+  /**
+   * Saves the editor's fields on the event and answers it (200). A refusal errors with an
+   * `ApiError`: `validation_failed` with `fieldCodes`, or 409 `capacity_below_going`.
+   */
+  update(id: string, request: UpdateEventRequestDto): Observable<AdminEventDto>;
+
+  /** Keeps a JPEG, PNG or WebP of up to 5 MB and answers its key; else `validation_failed` with `fieldCodes.image`. */
+  uploadImage(file: File): Observable<EventImageDto>;
 }
 
 /** Binds {@link AdminEventsApi}; the events page provides it on its routed component. */

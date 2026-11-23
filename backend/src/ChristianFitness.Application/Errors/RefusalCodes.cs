@@ -6,6 +6,9 @@ public static class RefusalCodes
     /// <summary>A suspended member gave the right password (L2-004 AC4).</summary>
     public const string AccountSuspended = "account_suspended";
 
+    /// <summary>An event's capacity was set below the members going (L2-022 AC3; ADR 0025).</summary>
+    public const string CapacityBelowGoing = "capacity_below_going";
+
     /// <summary>An account already has this email (L2-003 AC2).</summary>
     public const string EmailTaken = "email_taken";
 
@@ -31,6 +34,8 @@ public static class RefusalCodes
     public const string TwoStepNotSetUp = "two_step_not_set_up";
 
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
+    public const string NotFound = "not_found";
+
     public const string NotStaff = "not_staff";
 
     /// <summary>A staff member's role does not open this area of the admin console (L2-019 AC1; ADR 0020).</summary>

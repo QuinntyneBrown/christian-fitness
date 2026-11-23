@@ -22,4 +22,11 @@ public static class EventSchedule
         var offset = Toronto.IsInvalidTime(local) ? Toronto.BaseUtcOffset : Toronto.GetUtcOffset(local);
         return new DateTimeOffset(local, offset).ToUniversalTime();
     }
+
+    /// <summary>The Toronto date and time of an instant: what the editor shows and <see cref="StartOf"/> reads back.</summary>
+    public static (DateOnly Date, TimeOnly Time) TorontoOf(DateTimeOffset instant)
+    {
+        var local = TimeZoneInfo.ConvertTime(instant, Toronto).DateTime;
+        return (DateOnly.FromDateTime(local), TimeOnly.FromDateTime(local));
+    }
 }

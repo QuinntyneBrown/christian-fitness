@@ -29,3 +29,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0022](0022-find-members.md) | Find members: one paged search, the URL as the screen's state, a registration count that answers none yet, and stand-ins until 25.1 and 27.1 | Accepted |
 | [0023](0023-audit-staff-changes.md)                        | Audit staff changes: a marker on each staff command, a trail the handler fills and a behaviour that saves it | Accepted |
 | [0024](0024-edit-my-profile.md) | Edit my profile: an owner-only write by member id, one rule table in both stacks, and a CDK Dialog composed from the library and loaded on first use | Accepted |
+| [0025](0025-edit-an-event.md) | Edit an event: one body for create and edit, a going count behind the reader, an optional image kept by key and a file-field component | Accepted |

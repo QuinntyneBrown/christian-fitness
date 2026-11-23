@@ -61,7 +61,9 @@ internal static class AntiforgerySetup
     public static IApplicationBuilder UseAntiforgeryTokens(this IApplicationBuilder app) =>
         app.Use((context, next) =>
         {
-            if (context.Request.Path.StartsWithSegments("/api", StringComparison.Ordinal))
+            // An event image is public and immutable: a token would add no-store to it (ADR 0025).
+            if (context.Request.Path.StartsWithSegments("/api", StringComparison.Ordinal)
+                && !context.Request.Path.StartsWithSegments("/api/events/images", StringComparison.Ordinal))
             {
                 context.Response.OnStarting(() =>
                 {

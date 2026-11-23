@@ -27,6 +27,7 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Menu](components/menu.html) | Actions | A menu button that opens a list of actions. |
 | [Text field](components/text-field.html) | Inputs | Text, e-mail, password, search and one-time code inputs. |
 | [Textarea](components/textarea.html) | Inputs | Multi-line text with optional counter. |
+| [File field](components/file-field.html) | Inputs | Chooses one file, shows its name and lets people remove it. |
 | [Select](components/select.html) | Inputs | Native select for choosing one option. |
 | [Checkbox](components/checkbox.html) | Inputs | Single and grouped checkboxes. |
 | [Radio group](components/radio-group.html) | Inputs | One choice from a short list; list or card style. |

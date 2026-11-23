@@ -1,4 +1,4 @@
-import type { CreateEventRequestDto, EventCategory } from '@cf/api';
+import type { AdminEventDetailDto, CreateEventRequestDto, EventCategory } from '@cf/api';
 
 /** What the event editor's fields hold, as typed (mock `event-editor`). */
 export interface EventEditorValues {
@@ -14,6 +14,10 @@ export interface EventEditorValues {
   price: string;
   capacity: string;
   summary: string;
+  /** The stored image's key, or none (ADR 0025). */
+  imageKey: string | null;
+  /** What the image field shows: the chosen file's name, or none. */
+  imageName: string | null;
 }
 
 /** A new event: the first category, every other field blank. */
@@ -27,6 +31,8 @@ export const EMPTY_EVENT_EDITOR: EventEditorValues = {
   price: '',
   capacity: '',
   summary: '',
+  imageKey: null,
+  imageName: null,
 };
 
 /** Dollars, an optional thousands comma every three digits, and up to two decimals. */
@@ -70,5 +76,39 @@ export function eventDraftOf(values: EventEditorValues): CreateEventRequestDto {
     priceCents: priceCentsOf(values.price),
     capacity: capacityOf(values.capacity),
     summary: values.summary,
+    imageKey: values.imageKey,
+  };
+}
+
+/** The name the image field shows for an image already kept on an event, whose file name is not stored. */
+export const KEPT_IMAGE_NAME = 'Current image';
+
+/**
+ * A price in cents as the editor types it (ADR 0021): 0 is blank (free), 34000 is "$340", 34050 is
+ * "$340.50"; thousands are separated by commas, as {@link priceCentsOf} reads them.
+ */
+export function priceTextOf(cents: number): string {
+  if (cents <= 0) return '';
+  const dollars = Math.floor(cents / 100)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const rest = cents % 100;
+  return rest === 0 ? `$${dollars}` : `$${dollars}.${rest.toString().padStart(2, '0')}`;
+}
+
+/** What the editor opens with for a saved event (L2-022 AC7). */
+export function eventEditorValuesOf(event: AdminEventDetailDto): EventEditorValues {
+  return {
+    title: event.title,
+    category: event.category,
+    date: event.date,
+    startTime: event.startTime,
+    place: event.place,
+    area: event.area,
+    price: priceTextOf(event.priceCents),
+    capacity: String(event.capacity),
+    summary: event.summary,
+    imageKey: event.imageKey ?? null,
+    imageName: event.imageKey ? KEPT_IMAGE_NAME : null,
   };
 }

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Security.Cryptography;
+using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Email;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Persistence;
@@ -36,6 +37,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Every email the API sent, oldest first.</summary>
     public RecordingEmailSender Emails { get; } = new();
 
+    /// <summary>Every event image the API kept, in memory (ADR 0025).</summary>
+    public InMemoryImageStore Images { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Production");
@@ -51,6 +55,8 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(_store));
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
+            services.RemoveAll<IImageStore>();
+            services.AddSingleton<IImageStore>(Images);
             // No background service in the shared host (AGENTS.md); nothing is queued to deliver.
             services.RemoveAll<QueuedEmailSender>();
             foreach (var dispatcher in services.Where(d => d.ImplementationType == typeof(EmailDispatcher)).ToList())

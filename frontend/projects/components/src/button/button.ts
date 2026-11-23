@@ -34,6 +34,10 @@ export type ButtonType = 'button' | 'submit';
 })
 export class Button {
   readonly href = input<string>();
+  /** The `<button>`'s own id, for a link that moves focus to it (a field's error summary). */
+  readonly buttonId = input<string>();
+  /** The id of the text that describes the button, as `aria-describedby`. */
+  readonly describedBy = input<string | null>();
   readonly type = input<ButtonType>('button');
   readonly variant = input<ButtonVariant>('primary');
   readonly size = input<ButtonSize>('default');

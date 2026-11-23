@@ -39,9 +39,9 @@ internal static class AdminEvents
     }
 
     /// <summary>Sends <paramref name="body"/> as JSON with <paramref name="method"/> to <paramref name="path"/>, carrying <paramref name="cookie"/>.</summary>
-    public static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, string? cookie, object body)
+    public static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, string? cookie, object? body = null)
     {
-        using var request = new HttpRequestMessage(method, new Uri(path, UriKind.Relative)) { Content = JsonContent.Create(body) };
+        using var request = new HttpRequestMessage(method, new Uri(path, UriKind.Relative)) { Content = body is null ? null : JsonContent.Create(body) };
         if (cookie is not null)
         {
             request.Headers.Add("Cookie", cookie);
@@ -51,17 +51,27 @@ internal static class AdminEvents
     }
 
     /// <summary>Creates <paramref name="body"/> as a draft through the API.</summary>
+    /// <summary>Creates a draft and answers its id.</summary>
+    public static async Task<Guid> CreatedIdAsync(HttpClient client, string cookie, object body)
+    {
+        using var response = await CreateAsync(client, cookie, body).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        var created = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>(TestContext.Current.CancellationToken).ConfigureAwait(false);
+        return Guid.Parse(created.GetProperty("id").GetString()!);
+    }
+
     public static Task<HttpResponseMessage> CreateAsync(HttpClient client, string cookie, object body) =>
         SendAsync(client, HttpMethod.Post, "/api/admin/events", cookie, body);
 }
 
 /// <summary>The API with a clock the tests move (AGENTS.md: never sleep), starting at <see cref="AdminEvents.Today"/>.</summary>
-public sealed class AdminEventsFactory : ApiFactory
+public class AdminEventsFactory : ApiFactory
 {
     public FakeTimeProvider Time { get; } = new(AdminEvents.Today);
 
     protected override void ConfigureServices(IServiceCollection services)
     {
+        base.ConfigureServices(services);
         services.RemoveAll<TimeProvider>();
         services.AddSingleton<TimeProvider>(Time);
     }
