@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 5, "lines": ["Signing in is now guarded: against guessing, for suspended accounts, and on the way back to where you were going."] },
+    { "id": "paused", "bars": 5, "lines": ["Five wrong passwords for one email in fifteen minutes, and sign-in pauses. The next try is refused, even with the right password."] },
+    { "id": "window", "bars": 5, "lines": ["The pause lifts as the oldest failure leaves the fifteen minutes. An unknown email pauses too, so it never tells who has an account."] },
+    { "id": "suspended", "bars": 4, "lines": ["A suspended member who gives the right password is told so, and to contact the team."] },
+    { "id": "return", "bars": 5, "lines": ["Open a member page while signed out, sign in, and you are taken straight back to it."] },
+    { "id": "crafted", "bars": 4, "lines": ["A link that tries to send you to another site after sign-in opens Home instead."] },
+    { "id": "join", "bars": 5, "lines": ["And one network can create five profiles an hour. The sixth is refused, and everything typed stays."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice nine point one: staff sign-in."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice three point two. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

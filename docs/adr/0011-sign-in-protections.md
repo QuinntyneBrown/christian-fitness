@@ -102,3 +102,7 @@ accounts. Staff suspend members in slice 27.1; until then only the tests make a 
   address and only five accounts an hour can be created in all.
 - A member who is paused can still sign in with another account's email; the pause is per email,
   as AC3 states, not per device or address.
+- The rule for a path inside the app is shared: `isAppPath` (`domain`) serves the server-error
+  screen's "Try again" and the sign-in return alike. The initial bundle of the member app went
+  from 258.23 kB to 258.32 kB (the guard's `createUrlTree`); the sign-in screen grew from 2.85 kB
+  to 3.63 kB, lazily.

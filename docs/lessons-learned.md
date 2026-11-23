@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 18% (9 of 54 slices; 15 of 83 days)
+**% complete:** 19% (10 of 54 slices; 16 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -442,3 +442,66 @@ worked when applied. Newest entries go at the bottom.
   check each failed the specs or tests meant to catch them.
 - "A gate in a fixture handler" (2.1, 3.1) gave the signing-in and signing-out states without a
   clock.
+
+## Slice 3.2: Sign-in protections
+
+**What slowed it**
+
+- The account creation limit could not use ASP.NET Core's rate-limiting middleware: its limiters
+  count requests (a visitor who mistyped five times could create nothing), and they keep their own
+  clock, so the hour passing could only be proved by waiting. A lease in the handler on
+  `TimeProvider` counts accounts created and is tested with `FakeTimeProvider` (ADR 0011).
+- Every older API test that joins shares one in-memory server, and the in-memory server gives a
+  request no remote address, so a per-address limit would have refused the sixth join of every
+  test class. The base fixture's startup filter now gives each request a random IPv6 address
+  unless the test names one in `X-Test-Client-Address`.
+- ASP.NET Core has no default ProblemDetails `type` for 429, so the first 429 answered without one
+  and the exact-keys assertion caught it; the exception handler sets RFC 6585's.
+- `dotnet ef migrations add` wrote a composite index's columns as `new[] { … }`, which CA1861
+  refuses with warnings as errors; a `static readonly` field in the migration fixed it, as
+  `new string[0]` was fixed in slice 2.1.
+- A new `returnPathOf` in `domain` clashed with the server-error screen's helper of the same name
+  through `export *`; the build named it ("Ambiguous import"). The rule they share became
+  `isAppPath`, and the sign-in one `signInReturnPathOf`.
+- The first wording of the pause ("ends 15 minutes after the fifth failure") was wrong for a
+  sliding window: with failures a minute apart it ends when the oldest is 15 minutes old. The API
+  test that spaced the failures out found it before the code did.
+- The mock's paused state disabled the submit button, which would also have refused a member who
+  corrected a mistyped email; the mock was corrected before code.
+- Git Bash heredocs mangled backslashes in a TypeScript regex and in Python edit scripts again;
+  every file holding a backslash went through the editor tool.
+
+**New lessons**
+
+- A limit per email must answer an unknown email the same way as a known one, or the pause
+  itself tells which emails have accounts; and a refused attempt must not be recorded, or anyone
+  can keep a member out for as long as they keep trying.
+- Tell a suspended member only after the right password: a wrong password keeps the generic
+  answer, so the status is not a way to learn about an account.
+- A test helper that forces state the product cannot set yet (a suspended member before slice
+  27.1) can write through EF Core's `Entry(...).Property(...)`, leaving the domain without a
+  method nobody calls.
+- A test of a sliding window spaces its events out (a minute apart) and checks both sides of the
+  edge; events at one instant cannot tell a sliding window from a fixed one.
+- A per-address limit for IPv6 keys by the /64, since one host is usually given a whole /64.
+- Behind a reverse proxy, `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` is ASP.NET Core's own switch
+  for the client's address; it trusts any peer, so it belongs where only the proxy reaches the
+  API, and it is a setting the deployment must know (`docs/operations/settings.md`).
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1, 2.1, 2.2,
+  3.1): the base stats were saved before the first change; the diff showed `createUrlTree` in the
+  guard (53 bytes) and the shared `isAppPath` moving from one file to another. The total went from
+  258.23 kB to 258.32 kB.
+- "Prove a rule red by breaking it alone" (1.1, 30.1, 2.1, 2.2, 3.1) was applied with a script
+  that swaps one line, runs the test project and restores it: the limit, the window's edge, the
+  clearing on success, the pruning, the suspension's place, the lease's release, the /64, the
+  IPv4 mapping, and the return-path check (all six crafted addresses turned red).
+- "A record's `ToString` prints every property" (2.1, 2.2): the limiter's `Lease`, which holds the
+  client address, is a class.
+- "Write edit scripts to files, not heredocs" (1.2, 2.1, 2.2, 3.1) applied again, and was broken
+  again where a backslash was involved.
+- "Use free ports" (AGENTS.md): with other sessions running specs at the same time, the specs and
+  the take used ports of their own (`CF_WEB_PORT`), since Playwright reuses a server already on a
+  port.
