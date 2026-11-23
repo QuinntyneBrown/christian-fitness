@@ -27,7 +27,7 @@ public sealed record EventPageDto(IReadOnlyList<EventSummaryDto> Events, string?
 /// <summary>
 /// The published events that have not started, soonest first, 20 to a page after the opaque
 /// <paramref name="Cursor"/>, of one category when <paramref name="Category"/> names it (L2-009 AC1, AC2,
-/// AC4, AC5; ADR 0027, ADR 0028).
+/// AC4, AC5; ADR 0027, ADR 0030).
 /// </summary>
 public sealed record ListEventsQuery(string? Cursor, string? Category = null) : IRequest<EventPageDto>
 {

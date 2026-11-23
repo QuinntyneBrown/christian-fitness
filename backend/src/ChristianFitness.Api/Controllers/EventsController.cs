@@ -14,7 +14,7 @@ public sealed class EventsController(ISender sender) : ControllerBase
 {
     /// <summary>
     /// One page of the published events that have not started, after the cursor a page gave, of one
-    /// category when asked (ADR 0028).
+    /// category when asked (ADR 0030).
     /// </summary>
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? cursor, [FromQuery] string? category, CancellationToken cancellationToken) =>

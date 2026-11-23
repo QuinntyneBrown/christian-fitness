@@ -6,7 +6,7 @@ using ChristianFitness.Domain.Events;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-009 AC2, AC3 and AC10 (ADR 0028): a member narrows the list to one category, an unknown
+/// L2-009 AC2, AC3 and AC10 (ADR 0030): a member narrows the list to one category, an unknown
 /// category is refused with <c>category_invalid</c>, and the cursor pages inside the category. Its
 /// own store, so the events of each category are the test's.
 /// </summary>
@@ -63,7 +63,7 @@ public sealed class BrowseEventsCategoryTests(BrowseEventsFactory factory) : ICl
     }
 }
 
-/// <summary>L2-009 AC2 and AC5 (ADR 0028): a category pages by its own cursor, 20 then the rest. Its own store.</summary>
+/// <summary>L2-009 AC2 and AC5 (ADR 0030): a category pages by its own cursor, 20 then the rest. Its own store.</summary>
 public sealed class BrowseEventsCategoryPagingTests(BrowseEventsFactory factory) : IClassFixture<BrowseEventsFactory>
 {
     [Fact]
@@ -97,7 +97,7 @@ public sealed class BrowseEventsCategoryPagingTests(BrowseEventsFactory factory)
     }
 }
 
-/** L2-009 AC3 (ADR 0028): a category with no events answers an empty list, not a refusal. Its own store. */
+/** L2-009 AC3 (ADR 0030): a category with no events answers an empty list, not a refusal. Its own store. */
 public sealed class BrowseEventsNoMatchTests(BrowseEventsFactory factory) : IClassFixture<BrowseEventsFactory>
 {
     [Fact]
