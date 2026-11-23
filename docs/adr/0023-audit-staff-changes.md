@@ -1,4 +1,4 @@
-# 0021. Audit staff changes: a marker on each staff command, a trail the handler fills and a behaviour that saves it
+# 0023. Audit staff changes: a marker on each staff command, a trail the handler fills and a behaviour that saves it
 
 ## Status
 
