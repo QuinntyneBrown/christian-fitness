@@ -98,6 +98,35 @@ test.describe('Member app, my profile', () => {
   });
 });
 
+// L2-023 AC2 (ADR 0035): an event staff cancelled stays in "Going to", marked cancelled, and no
+// longer opens (the event is not published, so its page is not found).
+test.describe('Member app, a cancelled event on my profile', () => {
+  test('Going to marks the cancelled event and leaves the others as links', async ({
+    page,
+    api,
+  }) => {
+    const [sunrise, hoops] = FULL_PROFILE.upcomingEvents;
+    answerProfile(api, {
+      ...FULL_PROFILE,
+      upcomingEvents: [sunrise, { ...hoops, cancelled: true }],
+    });
+    const profile = new WebProfilePage(page);
+
+    await profile.open();
+
+    await expect(profile.goingItems).toHaveCount(2);
+    await expect(profile.cancelledBadges).toHaveText(['Cancelled']);
+    expect(await profile.goingRows()).toEqual([
+      {
+        date: 'Sat, Apr 18',
+        title: 'Easter Sunrise 5K',
+        href: '/events/0190c0de-0000-7000-8000-00000000e001',
+      },
+      { date: 'Thu, Apr 30', title: "Women's Hoops & Devotion Night", href: null },
+    ]);
+  });
+});
+
 // L2-005 AC2: a member going to nothing sees an empty state with a link to Events; every other
 // empty section says what goes there (mock `profile/empty`).
 test.describe('Member app, a new profile', () => {

@@ -125,6 +125,16 @@
     (fileChosen)="chooseImage($event)"
     (removed)="removeImage()"
   />
+  @if (canCancel) {
+    <cf-button
+      slot="foot"
+      variant="secondary"
+      [disabled]="working() || uploading()"
+      (click)="cancelEvent()"
+    >
+      Cancel event
+    </cf-button>
+  }
   <cf-button
     slot="foot"
     [variant]="canPublish ? 'secondary' : 'primary'"

@@ -11,7 +11,7 @@ export interface AdminEventFixture {
   priceCents: number;
   capacity: number;
   going: number;
-  status: 'draft' | 'published';
+  status: 'draft' | 'published' | 'cancelled';
 }
 
 /** The four published events of the mocks' cast (docs/mocks/README.md), soonest first, in UTC. */

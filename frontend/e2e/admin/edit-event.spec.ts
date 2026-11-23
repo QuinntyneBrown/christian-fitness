@@ -108,7 +108,7 @@ test.describe('Admin app, editing an event', () => {
     await expect(editor.summary).toHaveValue(BOOTCAMP_DETAIL.summary);
     await expect(editor.imageName).toHaveText('Current image');
     await expect(editor.removeImageButton).toBeVisible();
-    await expect(editor.footButtons).toHaveText(['Save changes']);
+    await expect(editor.footButtons).toHaveText(['Cancel event', 'Save changes']);
     await expect.poll(() => editor.titleIsFocused()).toBe(true);
   });
 

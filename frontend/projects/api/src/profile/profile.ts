@@ -9,6 +9,8 @@ export interface UpcomingEventDto {
   startsAt: string;
   /** Its picture, or none. */
   imageUrl: string | null;
+  /** Staff cancelled the event: it stays listed, marked, and no longer opens (ADR 0035). */
+  cancelled: boolean;
 }
 
 /**

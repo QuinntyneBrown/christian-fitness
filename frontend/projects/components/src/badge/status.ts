@@ -7,6 +7,7 @@ import { Component, input } from '@angular/core';
 export type StatusVariant =
   | 'published'
   | 'draft'
+  | 'cancelled'
   | 'active'
   | 'flagged'
   | 'suspended'

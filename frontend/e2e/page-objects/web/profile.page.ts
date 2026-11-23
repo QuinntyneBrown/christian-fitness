@@ -26,6 +26,8 @@ export class WebProfilePage {
   readonly goingHeading: Locator;
   /** One link per event in "Going to". */
   readonly goingItems: Locator;
+  /** The "Cancelled" badge of each event staff cancelled. */
+  readonly cancelledBadges: Locator;
   readonly goingEmpty: Locator;
   readonly browseEventsLink: Locator;
   /** The skeletons while the profile loads. */
@@ -60,6 +62,7 @@ export class WebProfilePage {
     this.going = this.main.getByRole('region', { name: 'Going to' });
     this.goingHeading = this.going.getByRole('heading', { level: 2 });
     this.goingItems = this.going.locator('.going-item');
+    this.cancelledBadges = this.going.locator('.going-item .status--cancelled');
     this.goingEmpty = this.going.locator('.empty-inline');
     this.browseEventsLink = this.going.getByRole('link', { name: 'Browse events' });
     this.loading = this.main.locator('[aria-busy="true"]');

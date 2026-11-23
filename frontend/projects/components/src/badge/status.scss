@@ -36,6 +36,11 @@
   color: var(--color-fg-default);
 }
 
+.status--cancelled {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+}
+
 .status--flagged {
   background: var(--color-accent);
   color: var(--color-fg-on-accent);

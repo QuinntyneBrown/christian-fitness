@@ -45,6 +45,7 @@ interface GoingRow {
   date: string;
   title: string;
   imageUrl: string | null;
+  cancelled: boolean;
 }
 
 /**
@@ -159,6 +160,7 @@ function viewOf(profile: OwnProfileDto, now: Date): ProfileView {
       date: goingDateOf(event.startsAt),
       title: event.title,
       imageUrl: event.imageUrl,
+      cancelled: event.cancelled,
     })),
   };
 }
