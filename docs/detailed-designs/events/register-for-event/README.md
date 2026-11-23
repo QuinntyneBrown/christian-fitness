@@ -23,11 +23,11 @@ The feature is a vertical slice from the register action to the database.
 - **`EventsController`** — `POST /api/events/{id}/registrations` sends one `RegisterForEventCommand`.
 - **`RegisterForEventHandler`** — loads the member and the event. It refuses a suspended member with `account_suspended`, returns the existing registration when one exists (idempotent), refuses with `event_full` when `GoingCount >= Capacity`, otherwise calls `Event.Register(member)`, adds a `ConversationParticipant` to the event's group `Conversation`, and saves in one unit of work.
 - **`Event.Register`** — domain method. It increments `GoingCount` and creates a `Registration` with status `Confirmed` for a free event or `Reserved` for a paid event.
-- **`Concurrency control`** — `Event` carries a concurrency token. When two saves race for the last place, the losing save raises a concurrency conflict; the handler reloads, re-checks capacity and returns `event_full`. A unique index on (`EventId`, `MemberId`) prevents a duplicate registration. The exact token type depends on the database engine (`<TO SUPPLY>`).
+- **`Concurrency control`** — `Event` carries a concurrency token. When two saves race for the last place, the losing save raises a concurrency conflict; the handler reloads, re-checks capacity and returns `event_full`. A unique index on (`EventId`, `MemberId`) prevents a duplicate registration. The token is an integer `RegistrationVersion` bumped by `Event.TakePlace()` (ADR 0033).
 
 ### Open questions
 
-- Slice 6.1 (ADR 0032) registers and shows "You're going"; the group chat membership and link wait for slices 12.x, "This event is full" on the page and the last-place race for slice 6.2. Mock states `reserved` and `failed` now exist; the payment instructions are placeholder copy until the team supplies them.
+- Slice 6.1 (ADR 0032) registers and shows "You're going"; the group chat membership and link wait for slices 12.x, "This event is full" on the page and the last-place race were slice 6.2 (ADR 0033: `Event.RegistrationVersion` is the concurrency token). Mock states `reserved` and `failed` now exist; the payment instructions are placeholder copy until the team supplies them.
 - Payment instructions shown for a reserved registration are not specified; `<TO SUPPLY>`.
 - The mock `docs/mocks/pages/event-detail/full.html` offers "Join the waitlist"; `L2-011` specifies only "This event is full" and no waitlist. The waitlist action is out of scope until a requirement states it.
 - The mocks show no reserved (paid) state; a mock state is needed before implementation.

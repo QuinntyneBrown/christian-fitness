@@ -73,6 +73,8 @@
                   @if (view.payNote; as note) {
                     <p class="event-detail__note">{{ note }}</p>
                   }
+                } @else if (view.full) {
+                  <p class="event-detail__full" role="status">This event is full</p>
                 } @else {
                   @if (registerFailed()) {
                     <p class="event-detail__error" role="alert">

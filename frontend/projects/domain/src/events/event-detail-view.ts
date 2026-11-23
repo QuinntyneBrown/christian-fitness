@@ -21,6 +21,8 @@ export interface EventDetailView {
   spots: string;
   /** "38 going". */
   going: string;
+  /** No place is left and the member holds none: the page says "This event is full" (ADR 0033). */
+  full: boolean;
   /** The member holds a place (ADR 0032). */
   registered: boolean;
   /** How to pay, for a reserved place of a paid event; otherwise none. */
@@ -59,6 +61,7 @@ export function eventDetailViewOf(event: EventDetailDto): EventDetailView {
     price: priceOf(event.priceCents),
     spots: `${left} of ${event.capacity} spots left`,
     going: `${event.going} going`,
+    full: event.registration === null && left === 0,
     registered: event.registration !== null,
     payNote: event.registration === 'reserved' ? PAY_NOTE : null,
   };

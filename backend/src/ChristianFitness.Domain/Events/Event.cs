@@ -55,6 +55,15 @@ public sealed class Event
 
     public DateTimeOffset CreatedAt { get; private set; }
 
+    /// <summary>
+    /// Counts the places taken; the store refuses a save whose count is no longer the one read, so
+    /// two registrations for the last place cannot both commit (L2-011 AC3; ADR 0033).
+    /// </summary>
+    public int RegistrationVersion { get; private set; }
+
+    /// <summary>Marks that a place is being taken, so a racing save is refused.</summary>
+    public void TakePlace() => RegistrationVersion++;
+
     /// <summary>A new draft with the given fields, trimmed; the validator has checked every limit.</summary>
     public static Event CreateDraft(
         string title,

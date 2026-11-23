@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { EVENTS_SERVICE } from '@cf/api';
+import { EVENTS_SERVICE, type EventDetailDto } from '@cf/api';
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import {
   Skeleton,
   SkeletonRegion,
 } from '@cf/components';
-import { type EventDetailView, eventDetailViewOf } from '@cf/domain';
+import { type EventDetailView, eventDetailViewOf, isEventFull } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpEventsService } from '../../services/http-events.service';
 
@@ -27,7 +27,8 @@ import { HttpEventsService } from '../../services/http-events.service';
  * shows "This event didn't load" with Try again (a 5xx is the server-error screen's, L2-043 AC4).
  * Register takes a place (L2-011; ADR 0032): the button is busy while it asks, then the panel says
  * "You're going" with the new count, and any refusal shows a generic message with Register still
- * usable. The group chat link and the full-event page wait for slices 12.x and 6.2.
+ * usable. A full event says "This event is full" in place of Register, also when another member takes the
+ * last place first (ADR 0033). The group chat link waits for slices 12.x.
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -52,6 +53,7 @@ export class EventDetailPage {
   private id = '';
   private request: Subscription | null = null;
   private registration: Subscription | null = null;
+  private current: EventDetailDto | null = null;
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly event = signal<EventDetailView | null>(null);
@@ -92,14 +94,24 @@ export class EventDetailPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (event) => {
-          this.event.set(eventDetailViewOf(event));
+          this.show(event);
           this.registering.set(false);
         },
-        error: () => {
-          this.registerFailed.set(true);
+        error: (error: unknown) => {
+          // Another member took the last place: the page now says the event is full (L2-011 AC3).
+          if (isEventFull(error) && this.current) {
+            this.show({ ...this.current, going: this.current.capacity });
+          } else {
+            this.registerFailed.set(true);
+          }
           this.registering.set(false);
         },
       });
+  }
+
+  private show(event: EventDetailDto): void {
+    this.current = event;
+    this.event.set(eventDetailViewOf(event));
   }
 
   private load(): void {
@@ -113,7 +125,7 @@ export class EventDetailPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (event) => {
-          this.event.set(eventDetailViewOf(event));
+          this.show(event);
           this.state.set('loaded');
         },
         // A 5xx has already opened the server-error screen; a 404 is "not found", anything else "failed".

@@ -15,6 +15,7 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.ToTable("Events");
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.RegistrationVersion).IsConcurrencyToken();
         builder.Property(e => e.Title).HasMaxLength(Event.TitleMaxLength).IsRequired();
         builder.Property(e => e.Category).HasConversion<string>().HasMaxLength(16).IsRequired();
         builder.Property(e => e.Place).HasMaxLength(Event.PlaceMaxLength).IsRequired();

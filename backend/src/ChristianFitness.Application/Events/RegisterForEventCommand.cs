@@ -28,27 +28,41 @@ internal sealed class RegisterForEventHandler(IAppDbContext db, ICurrentMember c
             throw new RefusalException(RefusalCodes.AccountSuspended, RefusalKind.Forbidden);
         }
 
-        var e = await db.Events.AsNoTracking()
+        var e = await db.Events
             .SingleOrDefaultAsync(x => x.Id == request.EventId && x.Status == EventStatus.Published, cancellationToken)
             .ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.EventNotFound, RefusalKind.NotFound);
-        var mine = await db.Registrations
-            .SingleOrDefaultAsync(r => r.EventId == e.Id && r.MemberId == memberId, cancellationToken)
-            .ConfigureAwait(false);
-        var going = await db.Registrations.CountAsync(r => r.EventId == e.Id, cancellationToken).ConfigureAwait(false);
-        if (mine is null)
+        while (true)
         {
+            var mine = await db.Registrations
+                .SingleOrDefaultAsync(r => r.EventId == e.Id && r.MemberId == memberId, cancellationToken)
+                .ConfigureAwait(false);
+            var going = await db.Registrations.CountAsync(r => r.EventId == e.Id, cancellationToken).ConfigureAwait(false);
+            if (mine is not null)
+            {
+                return EventDetailDto.Of(e, going, mine.Status);
+            }
+
             if (going >= e.Capacity)
             {
                 throw new RefusalException(RefusalCodes.EventFull, RefusalKind.Conflict);
             }
 
             mine = Registration.Of(e.Id, memberId, e.PriceCents, time.GetUtcNow());
+            e.TakePlace();
             db.Registrations.Add(mine);
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            going++;
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                return EventDetailDto.Of(e, going + 1, mine.Status);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Another member took a place between this read and write (L2-011 AC3; ADR 0033):
+                // forget this attempt, read the event as it now is and decide again.
+                db.Registrations.Entry(mine).State = EntityState.Detached;
+                await db.Events.Entry(e).ReloadAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
-
-        return EventDetailDto.Of(e, going, mine.Status);
     }
 }

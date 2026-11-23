@@ -52,6 +52,50 @@ test.describe('Member app, event detail', () => {
     await expect(detail.going).toHaveText('50 going');
   });
 
+  // L2-011 AC2, AC3 (ADR 0033): a full event offers no Register; losing the last place says so.
+  test('a full event says "This event is full" in place of Register', async ({ page, api }) => {
+    answerEvent(api, [FULL]);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(FULL.id);
+
+    await expect(detail.full).toHaveText('This event is full');
+    await expect(detail.registerButton).toHaveCount(0);
+  });
+
+  test('losing the last place to another member shows "This event is full" and no error', async ({
+    page,
+    api,
+  }) => {
+    answerEvent(api, [{ ...FULL, going: 49 }]);
+    const asked = answerRegistration(api, FULL, { status: 409, code: 'event_full' });
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(FULL.id);
+    await expect(detail.spots).toHaveText('1 of 50 spots left');
+    await detail.registerButton.click();
+
+    await expect(detail.full).toHaveText('This event is full');
+    await expect(detail.spots).toHaveText('0 of 50 spots left');
+    await expect(detail.going).toHaveText('50 going');
+    await expect(detail.registerButton).toHaveCount(0);
+    await expect(detail.registerError).toHaveCount(0);
+    expect(asked).toEqual([FULL.id]);
+  });
+
+  test("a member already going to a full event sees you're going, not full", async ({
+    page,
+    api,
+  }) => {
+    answerEvent(api, [{ ...FULL, registration: 'confirmed' }]);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(FULL.id);
+
+    await expect(detail.confirmed).toHaveText("You're going");
+    await expect(detail.full).toHaveCount(0);
+  });
+
   test('an event that is not there shows the not-found screen', async ({ page, api }) => {
     answerEvent(api, []);
     const detail = new WebEventDetailPage(page);

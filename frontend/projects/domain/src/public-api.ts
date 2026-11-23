@@ -31,6 +31,7 @@ export * from './admin/session-expiry';
 export * from './events/admin-event-tabs';
 export * from './events/event-card-view';
 export * from './events/event-detail-view';
+export * from './events/event-full';
 export * from './events/event-category-filter';
 export * from './events/event-draft';
 export * from './events/event-feed';
