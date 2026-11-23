@@ -17,6 +17,7 @@ skinparam package {
 actor "Staff member" as actor
 box "Frontend — Admin web app" #E0F2FE
   participant "SignInPage" as page
+  participant "TwoStepPage" as step
   participant "HttpStaffSessionService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
@@ -27,7 +28,6 @@ box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "MemberCredentials" as creds
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
-  participant "CookieStaffSessionSignIn" as cookie
   database "Christian Fitness database" as db
 end box
 actor -> page : Enter work email and password, Sign in
@@ -47,13 +47,16 @@ else credentials right
     handler --> ctrl : not_staff
     ctrl --> client : 403 ProblemDetails code not_staff, no cookie
     page --> actor : "This account isn't on the team"
-  else staff (L2-018 AC1)
-    handler -> cookie : SignInAsync(member, role)
-    cookie -> db : Store the session (Sessions)
-    handler --> ctrl : StaffSessionDto
-    ctrl --> client : 200 StaffSessionDto, __Host-cf-admin cookie
-    client --> page : Session
-    page --> actor : Navigate to the Dashboard
+  else staff without two-step set up (L2-046 AC6)
+    handler --> ctrl : two_step_not_set_up
+    ctrl --> client : 403 ProblemDetails, no cookie
+    page --> actor : "Two-step verification isn't set up"
+  else staff (L2-046 AC1)
+    handler -> db : Replace the account's TwoStepChallenge (token hash, 5 minutes)
+    handler --> ctrl : pending sign-in
+    ctrl --> client : 202, __Host-cf-admin-step cookie, no session
+    page -> step : Navigate to /sign-in/verify
+    step --> actor : "Enter your code" (sequence-two-step)
   end
 end
 @enduml

@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-two-step">
 <meta name="mock:state" content="default">
 <meta name="mock:source" content="Derived from the Sign In frame (its &quot;Two-step verification required&quot; notice).">
-<meta name="description" content="Second step: a 6-digit authenticator code, with an option to trust this browser.">
+<meta name="description" content="Second step: a 6-digit authenticator code; every sign-in asks for one (ADR 0012).">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -29,10 +29,9 @@
       <p class="staff__lead">Open the authenticator app on your phone and enter the 6-digit code for Christian Fitness.</p>
       <div class="auth__fields">
         <div class="field"><label class="field__label" for="f-code">Verification code</label><input class="input input--code" id="f-code" name="code" type="text" value="481 920" autocomplete="one-time-code" inputmode="numeric"></div>
-        <label class="check check--ui"><input class="check__box" type="checkbox" checked> Trust this browser for 30 days</label>
       </div>
       <button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Verify</button>
-      <p class="staff__note"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg> Lost your phone? <a class="text-link" href="#f-code">Use a backup code</a></p>
+      <p class="staff__note"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg> Lost your phone? Ask an Admin to set up two-step verification again.</p>
     </form>
   </div>
 </main>
@@ -43,6 +42,7 @@
     <li><a href="default.html" aria-current="page">default</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="submitting.html">submitting</a></li>
+    <li><a href="failed.html">failed</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

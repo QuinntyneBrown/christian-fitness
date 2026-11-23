@@ -5,27 +5,35 @@ title Components — Admin sign-in
 
 Container_Boundary(admin, "Admin web app") {
   Component(page, "SignInPage", "Angular page", "Staff sign in form and its alerts")
+  Component(step, "TwoStepPage", "Angular page", "Enter your code at /sign-in/verify")
   Component(svc, "HttpStaffSessionService", "STAFF_SESSION_SERVICE", "Implements StaffSessionApi")
   Component(guard, "staffAuthGuard", "Route guard", "Opens the shell only with a staff session")
   Component(icpt, "serverErrorInterceptor, antiforgeryInterceptor", "HTTP interceptors", "5xx screen; antiforgery token")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "POST/GET/DELETE /api/admin/session")
+  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "POST/GET/DELETE /api/admin/session, POST /api/admin/session/two-step")
   Component(policy, "Staff policy", "Authorization", "On every controller under api/admin")
-  Component(handler, "StaffSignInHandler", "MediatR handler", "Credentials, then staff role")
+  Component(handler, "StaffSignInHandler", "MediatR handler", "Credentials, staff role, then a pending sign-in")
+  Component(verify, "VerifyTwoStepHandler", "MediatR handler", "Window, then the TOTP code, then the session")
+  Component(stepcookie, "Step cookie", "ITwoStepCookie", "__Host-cf-admin-step, Strict, 5 minutes")
   Component(creds, "MemberCredentials", "Application service", "Shared with the member sign-in")
   Component(cookie, "Staff cookie scheme", "Cookie authentication", "__Host-cf-admin, Strict, not persistent")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members, staff roles, sessions")
+ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members, staff roles, two-step secrets, challenges and failures, sessions")
 
 Rel(page, svc, "Calls signIn")
 Rel(guard, svc, "Calls current")
+Rel(step, svc, "Calls verify")
 Rel(svc, icpt, "Requests pass through")
 Rel(icpt, ctrl, "Calls", "JSON/HTTPS")
 Rel(policy, ctrl, "Guards")
 Rel(ctrl, handler, "Sends StaffSignInCommand")
 Rel(handler, creds, "Verifies email and password")
-Rel(handler, cookie, "Signs in through IStaffSessionSignIn")
+Rel(handler, stepcookie, "Sets the pending sign-in")
+Rel(ctrl, verify, "Sends VerifyTwoStepCommand")
+Rel(verify, stepcookie, "Reads and clears")
+Rel(verify, cookie, "Signs in through IStaffSessionSignIn")
+Rel(verify, db, "Challenge, failures, secret", "EF Core")
 Rel(creds, db, "Reads member", "EF Core")
 Rel(cookie, db, "Keeps the session", "EF Core")
 @enduml

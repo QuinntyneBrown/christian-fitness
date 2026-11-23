@@ -17,3 +17,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0010](0010-password-reset-request-and-email.md)              | Password reset request: one answer for every email, hashed tokens and a queued email sender | Accepted |
 | [0011](0011-staff-sign-in-and-admin-shell.md)                  | Staff sign-in and the admin shell: a staff cookie scheme, a shared credential check and a navigation band | Accepted |
 | [0012](0012-sign-in-protections.md)                           | Sign-in protections: a failure window in the database, a suspended refusal, a checked return address and a join limit per address | Accepted |
+| [0013](0013-staff-two-step-verification.md)                   | Staff two-step verification: authenticator codes, a pending sign-in and a shared attempt window | Accepted |
