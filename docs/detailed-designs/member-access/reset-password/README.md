@@ -157,13 +157,16 @@ the Reset password screen that the link opens and sets the new password
   `SaveChanges` with the new password (ADR 0009, ADR 0014).
 - **Telemetry** — the routes are recorded as their templates; no span, metric or log
   carries the token, the password or the email (L2-045 AC8, L2-033 AC2).
+- **Per-address limit** — at most 10 reset requests from one client address in an hour,
+  whatever emails they name; the next is refused 429 `rate_limited` before any lookup and
+  sends nothing, and the Forgot password screen shows "Too many requests" (L2-034 AC3, mock
+  `forgot-password/limited`). It reuses slice 3.2's client address and sliding window
+  (`PasswordResetRequestLimiter`, designed in
+  [Limit request rates](../../security/limit-request-rates/README.md)). Link checks are
+  not limited: a 256-bit token cannot be guessed.
 
 ### Open questions
 
-- A per-address (IP) limit on reset requests and link checks belongs with the limits of
-  `L2-034` and is not built here: slice 3.2's rate limiting had not merged when slice
-  20.2 did. The per-account window already stops one inbox being flooded, and a 256-bit
-  token cannot be guessed.
 - The queue is in process: a mail not yet delivered when the API stops is lost, and the
   member asks again. A durable outbox may replace it when other emails need one.
 
@@ -176,6 +179,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 |-------|--------------|-------------|
 | `L2-044` | `L1-002`, `L1-013` | A member who has forgotten their password shall ask for a reset link by email from the Sign in screen, and the answer shall never reveal whether an account has the email given (acceptance criteria 1–8). |
 | `L2-045` | `L1-002`, `L1-013` | A member who opens a valid, unexpired reset link shall set a new password once, which signs them out everywhere (acceptance criteria 1–8). |
+| `L2-034` | `L1-013` | 3. Given 10 password reset requests from one IP address in one hour, whatever emails they named, when the next is made, then it is refused with HTTP 429 and code `rate_limited`, no email is sent, and the Forgot password screen shows "Too many requests" and keeps the email typed. |
 
 ## Diagrams
 

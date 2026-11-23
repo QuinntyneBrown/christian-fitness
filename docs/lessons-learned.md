@@ -576,11 +576,16 @@ worked when applied. Newest entries go at the bottom.
 
 **What slowed it**
 
-- It was built out of order again, beside slices 3.2 and 9.1. Slice 9.1 merged mid-slice with
-  ADR 0011, so the rebase renumbered this slice's ADR to 0012 in the record, the design, the code
-  comments and the film; it also met 9.1's new `RefusalKind.Forbidden`, `not_staff` code and staff
-  cookie scheme in the same lines as this slice's `Gone`, `reset_link_expired` and session
-  revocation, all kept side by side. Appending to every shared table kept the rest automatic.
+- It was built out of order again, beside slices 3.2 and 9.1, and both merged while it was open.
+  Slice 9.1 took ADR 0011 and slice 3.2 then took 0012, so this slice's ADR was renumbered twice,
+  ending at 0013, in the record, the design, the code comments and the film. Each rebase met the
+  other slice's new `RefusalKind` (`Forbidden`, then `TooManyRequests`), codes and service
+  registrations in the same lines as this slice's `Gone`, `reset_link_expired` and session
+  revocation, all kept side by side; 3.2 also added `SignInFailures` to `IAppDbContext`, which
+  this slice's race decorator then had to implement, a break the merge itself never showed.
+- Slice 3.2's rate limiting landing mid-slice brought the per-address limit on reset requests into
+  scope (L2-034 AC3), with its own requirement, mock state (`forgot-password/limited`), design and
+  diagrams, tests and a rebuilt film's proof scene, after the slice had looked finished.
 - The mock named the account above the fields ("For grace.thompson@gmail.com."), which the token
   alone cannot do: a second endpoint checks the link first. That brought three mock states the
   mocks lacked (`loading`, `failed`, `unchecked`), drawn before code.
@@ -606,7 +611,14 @@ worked when applied. Newest entries go at the bottom.
   `Location.replaceState`, which `main` already pays for: the whole screen cost the initial bundle
   0.45 kB, all of it the route and the two service methods.
 - A breaking script must leave the code compiling: change a condition (`=== 'nothing'`), never
-  delete half of a chain.
+  delete half of a chain. Analysers count as compiling: an unread primary-constructor parameter
+  (CS9113) or a member that turns static (CA1822) fails the build, so pass the value through a
+  condition, or run that one break with `-p:RunAnalyzers=false`.
+- A second limit on the same key reuses the first one's window by moving it into an abstract base
+  (`AddressRateLimiter`) whose subclasses set the limit; each is its own singleton, and a test that
+  fills one and asks the other proves they count apart (the break was a `static` map).
+- A limit that must reveal nothing counts every request and gives none back: the reset limit
+  takes its lease before the email is looked up, so the answer depends only on the address.
 
 **How earlier lessons worked**
 
@@ -620,6 +632,7 @@ worked when applied. Newest entries go at the bottom.
   rows sit in `new-password-rules.spec.ts` and `CompletePasswordResetValidatorTests.cs`.
 - "A gate in a fixture handler" (2.1) gave "Checking your link…" and "Saving…" and the film's
   busy shots with no clock.
-- "Rebase onto origin/main before the PR" applied: rows 8 and 9 were still unmerged, so nothing
-  of slice 3.2's rate limiting could be reused; the per-IP limit on reset requests is recorded
-  for L2-034 in the design's open questions and ADR 0012.
+- "Rebase onto origin/main before the PR" applied twice and paid off: the second fetch found
+  slice 3.2 merged, so its client address and sliding window were reused for the per-address
+  reset limit instead of recording it for later, and its new `IAppDbContext` member surfaced in
+  this slice's own test double before CI did.

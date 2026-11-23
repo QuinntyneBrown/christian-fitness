@@ -27,7 +27,7 @@ public static class RefusalCodes
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
     public const string NotStaff = "not_staff";
 
-    /// <summary>Too many accounts were created from one address in an hour (L2-034 AC2).</summary>
+    /// <summary>Too many accounts were created, or reset links asked for, from one address in an hour (L2-034 AC2, AC3).</summary>
     public const string RateLimited = "rate_limited";
 
     /// <summary>A reset link is unknown, used or expired (L2-045 AC4): one code for all three.</summary>

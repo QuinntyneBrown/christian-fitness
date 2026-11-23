@@ -45,6 +45,17 @@ automatically, which keeps the reset flow apart from the sign-in flow (and the p
   keeps it in a field and replaces the URL with `/reset-password` (`Location.replaceState`), so it
   is not left in history or on screen. A reload after that shows the expired state: the member asks
   for a new link.
+- **A limit per address on reset requests.** Slice 3.2 (ADR 0012) merged while this slice was
+  open, with a client address keyed by IPv4 address or IPv6 /64 and an in-memory sliding hour.
+  Its window moves into an abstract `AddressRateLimiter`, which `AccountCreationLimiter` (5 an
+  hour) and a new `PasswordResetRequestLimiter` (10 an hour) extend. `RequestPasswordResetHandler`
+  takes a lease before it looks up the email and, with 10 requests from the address in the hour,
+  refuses 429 `rate_limited` with no lookup and no email (L2-034 AC3). Every request counts,
+  whether the email has an account or not, and none is given back, so the refusal depends only on
+  the address and reveals no account. Ten leaves room for a household or a church network
+  sharing one address, while the per-account window of ADR 0010 (3 emails an hour) still guards
+  each inbox. Link checks and saves are not limited: a 256-bit token cannot be guessed. The
+  Forgot password screen shows "Too many requests" for a 429 (mock `forgot-password/limited`).
 - **Screen states.** The mock gains `loading` ("Checking your link…"), `failed` ("We couldn't save
   your password", fields kept) and `unchecked` ("We couldn't check your link", "Try again"), drawn
   before code. A write that fails is the screen's to show; the server-error interceptor only acts
@@ -57,6 +68,6 @@ automatically, which keeps the reset flow apart from the sign-in flow (and the p
   sessions (ADR 0011) live in the same `Sessions` table, so a staff member's admin sessions end
   too.
 - A suspended member can reset a password; slice 3.2's sign-in refusal still keeps them out.
-- There is still no per-address (IP) limit on reset requests or link checks: slice 3.2's rate
-  limiting had not merged. It joins the limits of L2-034 when that lands; a 256-bit token cannot be
-  guessed, and the per-account window of ADR 0010 still guards each inbox.
+- The counts of reset requests per address live in memory, like the account creations of ADR
+  0012: a restart forgets them, and each instance counts its own if the API ever runs on more
+  than one.

@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Refuse the 11th reset request from one address
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ForgotPasswordPage" as page
+  participant "HttpAccountService" as http
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AccountController" as ctrl
+end box
+box "Backend — Christian Fitness Application" #ECFDF3
+  participant "RequestPasswordResetHandler" as h
+  participant "PasswordResetRequestLimiter" as lim
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "HttpClientAddress" as addr
+end box
+actor -> page : Submit email
+page -> http : requestPasswordReset(dto)
+http -> ctrl : POST /api/account/password-reset
+ctrl -> h : Send RequestPasswordResetCommand (after validation)
+h -> addr : PartitionKey
+addr --> h : IPv4, or IPv6 /64
+h -> lim : TryAcquire(address)
+alt fewer than 10 requests from this address in the last hour
+  lim --> h : Lease (request recorded now, whatever the email)
+  h --> ctrl : done (an email only for an account, at most 3 an hour)
+  ctrl --> http : 202, no body (L2-044 AC2, AC3)
+else 10 requests in the last hour
+  lim --> h : none
+  h --> ctrl : RefusalException rate_limited (no lookup, no email)
+  ctrl --> http : 429 ProblemDetails code rate_limited (L2-034 AC3)
+  http --> page : ApiError
+  page --> actor : "Too many requests", email kept
+end
+@enduml

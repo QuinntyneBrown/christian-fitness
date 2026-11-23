@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Email;
+using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Members;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +11,26 @@ namespace ChristianFitness.Application.Account;
 /// Sends a reset link to a registered member (L2-044 AC2; ADR 0010). The caller learns nothing:
 /// whether the email has an account or not, the request completes the same way and the API answers
 /// 202 (L2-044 AC3). Only the hash of the link's token is stored, and one account is sent at most
-/// 3 links an hour (L2-044 AC6); the body was validated before this runs.
+/// 3 links an hour (L2-044 AC6); the body was validated before this runs. One client address makes
+/// at most 10 requests an hour, whatever emails they name: the next is refused <c>rate_limited</c>
+/// before any lookup, so the refusal says nothing of accounts (L2-034 AC3; ADR 0013).
 /// </summary>
-internal sealed class RequestPasswordResetHandler(IAppDbContext db, IEmailSender email, MemberAppAddress app, TimeProvider time)
+internal sealed class RequestPasswordResetHandler(
+    IAppDbContext db,
+    IEmailSender email,
+    MemberAppAddress app,
+    TimeProvider time,
+    PasswordResetRequestLimiter limiter,
+    IClientAddress clientAddress)
     : IRequestHandler<RequestPasswordResetCommand>
 {
     public const string Subject = "Reset your Christian Fitness password";
 
     public async Task Handle(RequestPasswordResetCommand request, CancellationToken cancellationToken)
     {
+        // Every request counts and none is given back (ADR 0013).
+        _ = limiter.TryAcquire(clientAddress.PartitionKey)
+            ?? throw new RefusalException(RefusalCodes.RateLimited, RefusalKind.TooManyRequests);
         var normalizedEmail = Member.NormalizeEmail(request.Email ?? string.Empty);
         var member = await db.Members
             .SingleOrDefaultAsync(m => m.NormalizedEmail == normalizedEmail, cancellationToken)

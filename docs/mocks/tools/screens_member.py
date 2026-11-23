@@ -312,12 +312,15 @@ def _():
 
 
 # --- Forgot password -----------------------------------------------------------
-def forgot(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
+def forgot(*, invalid: bool = False, busy: bool = False, failed: bool = False, limited: bool = False) -> str:
     alert = ""
     if invalid:
         alert = '<div class="auth__alert">' + error_summary("Check your email address", [("Enter an email address like name@example.com", "f-email")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
     if failed:
         alert = '<div class="auth__alert">' + form_alert("We couldn't send the email", "Something went wrong on our side. Try again in a minute.") + "</div>"
+    if limited:
+        alert = '<div class="auth__alert">' + form_alert(
+            "Too many requests", "Too many reset links were asked for from this network in the last hour. Try again later.").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1) + "</div>"
     value = "grace.thompson@gmail" if invalid else ME["email"]
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Send reset link</button>')
@@ -365,6 +368,11 @@ def _():
 @s("error", "Sending failed: message above the form; the email stays filled in.")
 def _():
     return forgot(failed=True)
+
+
+@s("limited", "Too many reset requests from one network in an hour (L2-034 AC3): a message above the form (focused); the email stays filled in.")
+def _():
+    return forgot(limited=True)
 
 
 # --- Reset password -----------------------------------------------------------

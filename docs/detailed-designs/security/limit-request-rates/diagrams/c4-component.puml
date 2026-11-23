@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Components — Limit request rates
 
-Container(web, "Member web app", "Angular", "ChatStore, JoinPage")
+Container(web, "Member web app", "Angular", "ChatStore, JoinPage, ForgotPasswordPage")
 Container_Boundary(api, "Christian Fitness API") {
   Component(hub, "ChatHub", "SignalR hub", "SendMessage -> one MediatR send")
   Component(h, "SendMessageHandler", "MediatR", "Participant check, rate check, save")
@@ -11,6 +11,9 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "AccountController.Join", "Controller", "One MediatR send")
   Component(ch, "CreateAccountHandler", "MediatR", "Lease, email check, save")
   Component(al, "AccountCreationLimiter", "Application singleton", "5 per client address per hour, in memory")
+  Component(rctrl, "AccountController.RequestPasswordReset", "Controller", "One MediatR send")
+  Component(rh, "RequestPasswordResetHandler", "MediatR", "Lease, account lookup, email")
+  Component(rl2, "PasswordResetRequestLimiter", "Application singleton", "10 per client address per hour, in memory")
   Component(ca, "HttpClientAddress", "Infrastructure", "IPv4 or IPv6 /64 of the peer")
   ComponentDb(db, "Christian Fitness database", "EF Core", "Messages")
 }
@@ -22,4 +25,8 @@ Rel(web, ctrl, "POST /api/account/join", "JSON/HTTPS")
 Rel(ctrl, ch, "Sends CreateAccountCommand")
 Rel(ch, ca, "Reads the client address")
 Rel(ch, al, "TryAcquire / Release")
+Rel(web, rctrl, "POST /api/account/password-reset", "JSON/HTTPS")
+Rel(rctrl, rh, "Sends RequestPasswordResetCommand")
+Rel(rh, ca, "Reads the client address")
+Rel(rh, rl2, "TryAcquire")
 @enduml
