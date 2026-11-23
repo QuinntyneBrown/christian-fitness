@@ -1,0 +1,19 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Slice one point five builds the design system's feedback, overlays and content, once."] },
+    { "id": "catalogue", "bars": 6, "lines": ["Twenty-one components, each under its design-system name: alerts, toasts, dialogs, menus, cards, lists, tables, tabs and messages.", "Every screen will reuse them."] },
+    { "id": "feedback", "bars": 6, "lines": ["A danger alert is announced at once, with role alert. Good news waits politely, as a status.", "The toast region keeps one polite live region, and an alert for each failure."] },
+    { "id": "overlays", "bars": 6, "lines": ["The dialog and drawer are shells for the CDK Dialog a screen will open.", "The menu button moves with the arrow keys, Home and End, and Escape returns focus to its trigger."] },
+    { "id": "content", "bars": 6, "lines": ["Pagination and tabs are real links, marked with aria current, so Back and new tabs still work.", "The table has a caption and column headers, and scrolls in its own region."] },
+    { "id": "tests", "bars": 6, "lines": ["No screen uses them yet, so each is proven through the page: roles, names, focus and keys.", "A hundred and forty tests pass. Each key rule was broken on purpose, and its test went red."] },
+    { "id": "budget", "bars": 5, "lines": ["And nothing grew. Both apps start exactly as before, well inside their two hundred and seventy-five kilobyte budgets."] },
+    { "id": "next", "bars": 4, "lines": ["Next, slice one point six moves every built screen onto these components."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice one point five. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
