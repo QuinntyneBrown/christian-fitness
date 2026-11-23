@@ -1,0 +1,21 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Staff can now flag a member for attention, or suspend them, always with a reason."] },
+    { "id": "rows", "bars": 4, "lines": ["Each row that can be moderated has one action, and shows its note under the status."] },
+    { "id": "flag", "bars": 5, "lines": ["Moderate opens a dialog. Flag is chosen first, the milder step. A note is all it needs."] },
+    { "id": "flagged", "bars": 4, "lines": ["A toast confirms it, and the list shows the member flagged, with the note."] },
+    { "id": "suspend", "bars": 5, "lines": ["Suspend asks for more: the note, and a confirmation that their sessions will end."] },
+    { "id": "invalid", "bars": 4, "lines": ["Leave something out, and the dialog names it before anything is sent."] },
+    { "id": "ends", "bars": 5, "lines": ["On the server, suspending ends every session in the same save, and sign-in is refused in both apps."] },
+    { "id": "who", "bars": 5, "lines": ["Nobody moderates their own account, and only an Admin moderates staff. Each refusal has its own code."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, reinstating a member."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice twenty-seven point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
