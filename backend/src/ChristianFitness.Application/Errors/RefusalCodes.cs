@@ -30,6 +30,9 @@ public static class RefusalCodes
     /// <summary>Too many accounts were created from one address in an hour (L2-034 AC2).</summary>
     public const string RateLimited = "rate_limited";
 
+    /// <summary>A reset link is unknown, used or expired (L2-045 AC4): one code for all three.</summary>
+    public const string ResetLinkExpired = "reset_link_expired";
+
     /// <summary>
     /// 5 sign-ins for one email failed in the last 15 minutes (L2-004 AC3), or 5 second-step codes
     /// for one staff account were wrong in 15 minutes (L2-046 AC4).

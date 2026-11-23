@@ -14,6 +14,9 @@ public enum RefusalKind
 
     /// <summary>The caller has tried too often in a window, such as failed sign-ins or wrong second-step codes (429).</summary>
     TooManyRequests,
+
+    /// <summary>What the request names is no longer there to use, such as a spent reset link (410).</summary>
+    Gone,
 }
 
 /// <summary>

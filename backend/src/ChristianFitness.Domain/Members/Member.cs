@@ -63,6 +63,13 @@ public sealed class Member
         };
     }
 
+    /// <summary>Replaces the password with <paramref name="passwordHash"/>, a hash, never the password (L2-030 AC1, L2-045 AC2).</summary>
+    public void ChangePassword(string passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(passwordHash);
+        PasswordHash = passwordHash;
+    }
+
     public static string NormalizeEmail(string email)
     {
         ArgumentNullException.ThrowIfNull(email);
