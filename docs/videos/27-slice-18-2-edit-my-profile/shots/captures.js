@@ -8,17 +8,17 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 373,
-    "total": 373
+    "passed": 396,
+    "total": 396
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 177,
-    "files": 25
+    "tests": 183,
+    "files": 26
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 434,
+    "passed": 461,
     "edit": [
       "Given a member When they save a profile that is not theirs Then it is refused with 403 and nothing changes",
       "Given a visitor When they save a profile Then it is refused with 401",
