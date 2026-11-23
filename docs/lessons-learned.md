@@ -1141,6 +1141,12 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 
 **What slowed it**
 
+- A second rebase, onto slices 10.1, 26.1 and 29.2: the ADR became 0024 (0021 to 0023 were taken),
+  `AddHomeChurchVisibility` was deleted and regenerated after `AddAuditEntries`, the mock coverage
+  matrix and `index.html` were merged by hand (the generator writes neither), and the 26.1 handler
+  test's `Profiles.` prefix began to name the new test namespace, so it takes a `using` instead.
+  The film's slide still says ADR 0021; it was rendered before the renumbering.
+
 - The slice was paused mid-film while slices 1.4 to 1.6 put every design-system component in the
   library and AGENTS.md made reusing them mandatory. Its own `cf-dialog` (a native `<dialog>`),
   `cf-text-area`, `cf-check` and changes to `cf-text-field` and `cf-text-link` duplicated library
