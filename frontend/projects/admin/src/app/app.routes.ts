@@ -29,7 +29,7 @@ export const routes: Routes = [
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {
-        // Stand-ins until slices 28.1, 21.1 and 26.1 (ADR 0011).
+        // Stand-ins until slices 28.1 and 21.1 (ADR 0011).
         path: '',
         pathMatch: 'full',
         title: 'Dashboard · Christian Fitness Admin',
@@ -49,10 +49,10 @@ export const routes: Routes = [
         loadComponent: area,
       },
       {
+        // The members, searched, filtered by status and paged (slice 26.1; ADR 0022).
         path: 'members',
         title: 'Members · Christian Fitness Admin',
-        data: { heading: 'Members' },
-        loadComponent: area,
+        loadComponent: () => import('./pages/members/members-page').then((m) => m.AdminMembersPage),
       },
     ],
   },

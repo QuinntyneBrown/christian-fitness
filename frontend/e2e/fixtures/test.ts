@@ -6,6 +6,7 @@ export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
 export {
   MODERATOR_SIGNED_IN,
   NO_ADMIN_EVENTS,
+  NO_ADMIN_MEMBERS,
   SIGNED_IN,
   STAFF_SIGNED_IN,
   XSRF_TOKEN,
