@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Your profile now has a page of its own. It starts with your initials."] },
+    { "id": "avatar", "bars": 4, "lines": ["Your initials sit in the header. Choose them, and Profile opens without reloading the page."] },
+    { "id": "profile", "bars": 5, "lines": ["It shows your name, when you joined, your home church and city, your bio, your goals and what you are into, on phone and desktop."] },
+    { "id": "going", "bars": 4, "lines": ["Going to lists the events you registered for, soonest first, each on its day in Toronto."] },
+    { "id": "empty", "bars": 5, "lines": ["A brand new profile says what belongs in each section. Not going to anything yet? Browse events is one tap away."] },
+    { "id": "states", "bars": 5, "lines": ["While it loads, the page keeps its shape. If it cannot load, you can try again right where you are."] },
+    { "id": "private", "bars": 5, "lines": ["Only you see this page. The server takes the member from your session, never from the address, and your home church never reaches a log."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice eighteen point two: edit your profile."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice eighteen point one. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}
