@@ -16,7 +16,19 @@ internal sealed class CookieTwoStepCookie(IHttpContextAccessor accessor) : ITwoS
 
     public string? Read() => Current.Request.Cookies.TryGetValue(Name, out var token) && token.Length > 0 ? token : null;
 
-    public void Clear() => Current.Response.Cookies.Delete(Name, Options(null));
+    /// <summary>
+    /// Expires the cookie when the response starts: a refusal is thrown after this, and the exception
+    /// handler clears every header set before it, but not what <c>OnStarting</c> writes.
+    /// </summary>
+    public void Clear()
+    {
+        var response = Current.Response;
+        response.OnStarting(() =>
+        {
+            response.Cookies.Delete(Name, Options(null));
+            return Task.CompletedTask;
+        });
+    }
 
     private HttpContext Current =>
         accessor.HttpContext ?? throw new InvalidOperationException("The step cookie is read or set only during a request.");
