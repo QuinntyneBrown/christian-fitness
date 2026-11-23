@@ -12,39 +12,43 @@ skinparam class {
 title Class structure — Navigate the admin app
 
 class AdminShell {
-  -menuOpen: WritableSignal<boolean>
-  -currentPath: Signal<string>
-  -items: Signal<AdminNavItem[]>
-  +toggleMenu(): void
+  -items: AdminNavItem[]
+  -current: WritableSignal<AdminAreaKey | null>
+  -staff: WritableSignal<StaffSessionDto | null>
+  -signingOut: WritableSignal<boolean>
+  +navigate(href: string): void
+  +signOut(): void
+}
+class AdminLayout {
+  +items: InputSignal<AdminNavItem[]>
+  +current: InputSignal<string | null>
+  +navigate: OutputEmitterRef<string>
+  +signOut: OutputEmitterRef<void>
 }
 class AdminNav {
   +items: InputSignal<AdminNavItem[]>
-  +currentPath: InputSignal<string>
+  +current: InputSignal<string | null>
+  +navigate: OutputEmitterRef<string>
 }
-class MenuButton {
-  +expanded: InputSignal<boolean>
-  +toggled: OutputEmitterRef<void>
+class AdminUser {
+  +name, role, initials: InputSignal<string>
+  +signOut: OutputEmitterRef<void>
 }
-class DataTable {
-  +columns: InputSignal<Column[]>
-  +rows: InputSignal<Row[]>
+class AreaPage {
+  -heading: string
 }
 class AdminNavItem {
+  +key: string
   +label: string
-  +path: string
-  +area: AdminArea
-  +count?: number
+  +href: string
 }
-enum AdminArea {
-  Dashboard
-  Events
-  Services
-  Members
-}
-interface StaffAuthApi
-AdminShell *-- AdminNav
-AdminShell *-- MenuButton
-AdminShell ..> StaffAuthApi : injects STAFF_AUTH_SERVICE
+class "ADMIN_AREAS, currentAdminArea(), initialsOf()" as domain
+interface StaffSessionApi
+AdminShell *-- AdminLayout
+AdminLayout *-- AdminNav
+AdminLayout *-- AdminUser
+AdminShell ..> AreaPage : router outlet
+AdminShell ..> StaffSessionApi : injects STAFF_SESSION_SERVICE
+AdminShell ..> domain
 AdminNav --> AdminNavItem
-AdminNavItem --> AdminArea
 @enduml

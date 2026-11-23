@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 16% (8 of 54 slices; 13 of 83 days)
+**% complete:** 18% (9 of 54 slices; 15 of 83 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -394,3 +394,51 @@ worked when applied. Newest entries go at the bottom.
   all three reset telemetry tests red, refusals included.
 - "A gate in a fixture handler" (2.1) gave the "Sending…" state and the film's busy shot with no
   clock and no sleep.
+
+## Slice 9.1: Staff sign-in and admin shell
+
+**What slowed it**
+
+- The mocks and the requirement disagreed twice: the sign-in `invalid` state named the password
+  (against L2-018 AC3), and L2-021 AC2 asked for a menu button while the design system and every
+  admin mock draw a scrolling band that hid Sign out. Both were settled in the mock, the design
+  system and L2 before any code, with ADR 0011 saying why.
+- The first antiforgery selector also chose the staff scheme for every `/api/admin` path, which
+  made the `Staff` policy convention impossible to see fail: with it removed, the member-session
+  tests still passed. Dropping that branch left the selector on `/api/antiforgery` alone and gave
+  the convention a test that goes red.
+- Moving the sidebar's user block into the layout pushed its stylesheet past the 3 kB component
+  budget; `AdminUser` became its own component, which was the right seam anyway.
+- Apostrophes inside a quoted Git Bash heredoc ended the quoting and the whole command failed to
+  parse, twice, before anything ran; prose files went through the editor tool after that.
+- The design-system and mock builders write CRLF on Windows; their output was normalised before
+  staging.
+
+**New lessons**
+
+- A second app on the same host needs its own cookie scheme and name: the dev servers share
+  `localhost`, so one cookie would let a member session and a staff session replace each other.
+- Put an authorization rule that must hold for a whole area in a convention keyed on the route
+  prefix, and prove it with a request that only the convention can refuse (a member session on an
+  admin endpoint).
+- A credential check shared by two sign-ins (`MemberCredentials`) means the lockout another slice
+  adds covers both without either slice touching the other's handler.
+- A shell that hands plain clicks to the router keeps real `href`s; a spec that marks the
+  document and checks the mark after the click proves there was no reload.
+- Shots of a small region need no padding when the region sits against another colour: the
+  padding brought in a strip of the page beside the sidebar.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1, 2.1, 2.2,
+  3.1): the base was saved first; the diff put 24.2 kB in `@angular/common` (the client) and
+  11.5 kB in `@angular/core`, which justified the budget raise in ADR 0011 to 260/275 kB, as the
+  member app's was.
+- "A guard on a parent route changes every spec that opens a child" (3.1): the shared fixture
+  answers `GET /api/admin/session` as signed in by default, and the boot, not-found and
+  server-error specs were run again with it.
+- "Prove a rule red by breaking it alone" (1.1 to 3.1): breaking `preventDefault`, the
+  `NavigationEnd` update, the server-error interceptor, the convention, the selector and the role
+  check each failed the specs or tests meant to catch them.
+- "A gate in a fixture handler" (2.1, 3.1) gave the signing-in and signing-out states without a
+  clock.

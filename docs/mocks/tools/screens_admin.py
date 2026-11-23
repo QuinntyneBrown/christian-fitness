@@ -28,11 +28,18 @@ def staff(inner: str) -> str:
 </main>"""
 
 
-def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False) -> str:
+def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, not_staff: bool = False, failed: bool = False) -> str:
     alert = ""
     if locked:
         alert = '<div class="auth__alert">' + form_alert("This account is locked", "Too many attempts. Ask another admin to unlock it, or wait 30 minutes and try again.") + "</div>"
-    err = "That password doesn't match. Two tries left before the account locks." if invalid else ""
+    elif invalid:
+        # L2-018 AC3: one generic message that names neither field (ADR 0011).
+        alert = '<div class="auth__alert">' + form_alert("Email or password is incorrect", "Check both and try again.") + "</div>"
+    elif not_staff:
+        alert = '<div class="auth__alert">' + form_alert("This account isn't on the team", "The admin console is for the Christian Fitness team. On the team? Ask a community director to give you staff access.") + "</div>"
+    elif failed:
+        alert = '<div class="auth__alert">' + form_alert("We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
+    err = ""
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
               if busy else f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit"{" disabled" if locked else ""}>Sign in</button>')
     return staff(f"""    <form action="{href("admin-two-step")}" novalidate>
@@ -57,7 +64,7 @@ def _():
     return signin()
 
 
-@s("invalid", "Wrong password: the prototype's inline error with the attempts left.")
+@s("invalid", "Wrong email or password: one generic alert that names neither field (L2-018 AC3).")
 def _():
     return signin(invalid=True)
 
@@ -70,6 +77,16 @@ def _():
 @s("error", "Account locked after too many attempts: who can unlock it and when to retry.")
 def _():
     return signin(locked=True)
+
+
+@s("not-staff", "A member account without a staff role: refused with not_staff (L2-018 AC2); who can give access.")
+def _():
+    return signin(not_staff=True)
+
+
+@s("failed", "The server failed or did not answer: what was typed stays; try again.")
+def _():
+    return signin(failed=True)
 
 
 def two_step(*, invalid: bool = False, busy: bool = False) -> str:

@@ -1,15 +1,16 @@
 import { expect, test } from '../fixtures/test';
-import { AdminStartPage } from '../page-objects/admin/start.page';
+import { AdminShell } from '../page-objects/admin/admin-shell.page';
 
-// L2-038 AC6: the document title names the app and the content sits in one main landmark.
-// The shared fixture fails the spec on a page error or an unanswered request.
+// L2-038 AC6: the document title names the screen and the app, and the content sits in one main
+// landmark. Signed-in staff land on the Dashboard (ADR 0011). The shared fixture fails the spec on
+// a page error or an unanswered request.
 test.describe('Admin app', () => {
-  test('boots with the title "Christian Fitness Admin" and one main landmark', async ({ page }) => {
-    const start = new AdminStartPage(page);
+  test('boots on the Dashboard with its title and one main landmark', async ({ page }) => {
+    const shell = new AdminShell(page);
 
-    await start.open();
+    await shell.open();
 
-    await expect.poll(() => start.title()).toBe('Christian Fitness Admin');
-    await expect(start.main).toHaveCount(1);
+    await expect.poll(() => shell.title()).toBe('Dashboard · Christian Fitness Admin');
+    await expect(shell.main).toHaveCount(1);
   });
 });

@@ -4,21 +4,23 @@ LAYOUT_WITH_LEGEND()
 title Components — Navigate the admin app
 
 Container_Boundary(admin, "Admin web app") {
-  Component(shell, "AdminShell", "Angular layout", "Hosts child routes")
-  Component(nav, "AdminNav", "components", "admin-nav block")
-  Component(menu, "MenuButton", "components", "Accessible menu toggle")
-  Component(table, "DataTable", "components", "Rows to stacked cards below LG")
-  Component(svc, "HttpStaffAuthService", "STAFF_AUTH_SERVICE", "Session and role")
+  Component(shell, "AdminShell", "Angular layout route", "Hosts the staff routes")
+  Component(layout, "AdminLayout", "components", "admin block: sidebar or band, main")
+  Component(nav, "AdminNav", "components", "admin-nav block, aria-current")
+  Component(user, "AdminUser", "components", "Staff member and Sign out")
+  Component(area, "AreaPage", "Angular page", "Stand-in heading per area")
+  Component(svc, "HttpStaffSessionService", "STAFF_SESSION_SERVICE", "Session and sign-out")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "GET /api/admin/session")
+  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "GET, DELETE /api/admin/session")
 }
 ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
 
-Rel(shell, nav, "Renders")
-Rel(shell, menu, "Renders below LG")
-Rel(shell, table, "Pages render")
-Rel(shell, svc, "Reads session")
+Rel(shell, layout, "Renders")
+Rel(layout, nav, "Renders")
+Rel(layout, user, "Renders")
+Rel(shell, area, "Routes to")
+Rel(shell, svc, "Reads session, signs out")
 Rel(svc, ctrl, "Calls", "JSON/HTTPS")
-Rel(ctrl, db, "Reads staff role", "EF Core")
+Rel(ctrl, db, "Reads staff role, ends the session", "EF Core")
 @enduml

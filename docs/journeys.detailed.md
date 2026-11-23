@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 16% (8 of 54 slices; 13 of 83 days)
+**% complete:** 18% (9 of 54 slices; 15 of 83 days)
 
 | #   | Slice | Root journey                        | Name                          | Description                                                                          | Effort (days) |
 | --- | ----- | ----------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ | ------------- |
@@ -17,7 +17,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 6   | 2.2   | 2 Join the community                | ✅ Join refusals              | Invalid fields and a taken email are refused with clear messages.                    | 1             |
 | 7   | 3.1   | 3 Sign in and out                   | ✅ Sign in and sign out       | Members sign in with a secure session cookie and sign out.                           | 2             |
 | 8   | 3.2   | 3 Sign in and out                   | Sign-in protections           | Lockout after failures, suspended refusal, redirect back after sign-in.              | 1             |
-| 9   | 9.1   | 9 Staff sign-in with two-step       | Staff sign-in and admin shell | Staff sign in to the admin layout; members are refused.                              | 2             |
+| 9   | 9.1   | 9 Staff sign-in with two-step       | ✅ Staff sign-in and admin shell | Staff sign in to the admin layout; members are refused.                              | 2             |
 | 10  | 9.2   | 9 Staff sign-in with two-step       | Two-step verification         | Staff confirm sign-in with a second-step code.                                       | 1             |
 | 11  | 9.3   | 9 Staff sign-in with two-step       | Idle expiry and forbidden     | Idle admin sessions expire; forbidden actions show the forbidden screen.             | 1             |
 | 12  | 29.1  | 29 Staff roles and audit            | Admin and Moderator roles     | Staff policies allow Admins everything and Moderators only moderation.               | 1             |

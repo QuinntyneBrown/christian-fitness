@@ -28,17 +28,22 @@ public static class InfrastructureServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Signing a member in and out with the session cookie, keeping each session on the server, and
-    /// reading the signed-in member back. Only the API, which configures the cookie scheme, adds
-    /// these (ADR 0007, ADR 0009).
+    /// Signing a member in and out with the session cookie, and staff with the admin session cookie,
+    /// keeping each session on the server, and reading the signed-in member back. Only the API, which
+    /// configures the cookie schemes, adds these (ADR 0007, ADR 0009, ADR 0011).
     /// </summary>
     public static IServiceCollection AddSessions(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
         services.AddSingleton<ITicketStore, DatabaseTicketStore>();
-        services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
-            .Configure<ITicketStore>((options, store) => options.SessionStore = store);
+        foreach (var scheme in new[] { SessionSchemes.Member, SessionSchemes.Staff })
+        {
+            services.AddOptions<CookieAuthenticationOptions>(scheme)
+                .Configure<ITicketStore>((options, store) => options.SessionStore = store);
+        }
+
         services.AddScoped<ISessionSignIn, CookieSessionSignIn>();
+        services.AddScoped<IStaffSessionSignIn, CookieStaffSessionSignIn>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         return services;
     }

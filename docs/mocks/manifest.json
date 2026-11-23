@@ -288,7 +288,9 @@
         "default",
         "invalid",
         "submitting",
-        "error"
+        "error",
+        "not-staff",
+        "failed"
       ],
       "not_applicable": {
         "loading": "Static form.",

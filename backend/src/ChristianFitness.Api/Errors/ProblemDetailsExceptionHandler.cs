@@ -34,6 +34,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(IProblemDetailsServ
         {
             RefusalKind.Conflict => StatusCodes.Status409Conflict,
             RefusalKind.Unauthenticated => StatusCodes.Status401Unauthorized,
+            RefusalKind.Forbidden => StatusCodes.Status403Forbidden,
             _ => StatusCodes.Status400BadRequest,
         },
         Extensions = { ["code"] = refusal.Code },

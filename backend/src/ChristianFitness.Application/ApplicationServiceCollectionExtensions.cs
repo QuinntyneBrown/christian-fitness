@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Behaviors;
+using ChristianFitness.Application.Sessions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,7 @@ public static class ApplicationServiceCollectionExtensions
             configuration.RegisterServicesFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly);
             configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+        services.AddScoped<MemberCredentials>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         return services;
     }

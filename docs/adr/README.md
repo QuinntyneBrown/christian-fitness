@@ -15,3 +15,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0008](0008-join-refusals.md)                                 | Join refusals: one rule table in both stacks, a validation behaviour and a 409 for a taken email | Accepted |
 | [0009](0009-sign-in-sign-out-and-request-protections.md)      | Sign in and sign out: a session endpoint, antiforgery tokens, security headers and a member shell | Accepted |
 | [0010](0010-password-reset-request-and-email.md)              | Password reset request: one answer for every email, hashed tokens and a queued email sender | Accepted |
+| [0011](0011-staff-sign-in-and-admin-shell.md)                  | Staff sign-in and the admin shell: a staff cookie scheme, a shared credential check and a navigation band | Accepted |

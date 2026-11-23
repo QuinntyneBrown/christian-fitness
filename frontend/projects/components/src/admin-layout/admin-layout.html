@@ -1,0 +1,32 @@
+<div class="admin">
+  <aside class="admin__sidebar">
+    <div class="admin__brand">
+      <svg class="seal seal--lockup seal--light" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7" />
+        <rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2" />
+        <rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2" />
+      </svg>
+      <div>
+        <p class="admin__brand-name">Christian Fitness</p>
+        <p class="admin__brand-sub">Admin console</p>
+      </div>
+    </div>
+    <cf-admin-nav
+      class="admin__nav"
+      [items]="items()"
+      [current]="current()"
+      (navigate)="navigate.emit($event)"
+    />
+    <cf-admin-user
+      class="admin__user"
+      [name]="userName()"
+      [role]="userRole()"
+      [initials]="userInitials()"
+      [signingOut]="signingOut()"
+      (signOut)="signOut.emit()"
+    />
+  </aside>
+  <main id="main" class="admin__main">
+    <div class="admin__page"><ng-content /></div>
+  </main>
+</div>

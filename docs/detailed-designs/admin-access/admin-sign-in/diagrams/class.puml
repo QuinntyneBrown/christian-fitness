@@ -11,35 +11,46 @@ skinparam class {
 }
 title Class structure — Admin sign-in
 
-interface StaffAuthApi {
-  +signIn(email: string, password: string): Promise<StaffSignInResult>
-  +signOut(): Promise<void>
-  +me(): Promise<StaffSessionDto>
+interface StaffSessionApi {
+  +current(): Observable<StaffSessionDto>
+  +signIn(request: SignInRequestDto): Observable<StaffSessionDto>
+  +signOut(): Observable<void>
 }
-class HttpStaffAuthService
-class StaffSignInPage {
-  -email: Signal<string>
-  -state: Signal<'idle'|'submitting'|'error'>
+class HttpStaffSessionService
+class SignInPage {
+  -email: WritableSignal<string>
+  -password: WritableSignal<string>
+  -submitting: WritableSignal<boolean>
+  -refusal: WritableSignal<StaffSignInRefusal | null>
   +submit(): void
 }
+class "staffSignInRefusalOf()" as refusalOf
+class "staffAuthGuard" as guard
 class StaffSignInCommand {
   +string Email
   +string Password
 }
-class StaffSignInValidator
 class StaffSignInHandler {
-  +Handle(cmd: StaffSignInCommand): Task<Result<StaffSessionDto>>
+  +Handle(cmd): Task<StaffSessionDto>
+}
+class MemberCredentials {
+  +VerifyAsync(email, password): Task<Member>
 }
 class StaffSessionDto {
   +Guid MemberId
-  +string DisplayName
-  +StaffRoleName Role
+  +string Name
+  +string Role
 }
+interface IStaffSessionSignIn {
+  +SignInAsync(member, role): Task
+  +SignOutAsync(): Task
+}
+class CookieStaffSessionSignIn
+class DatabaseTicketStore
 class Member {
   +Guid Id
-  +string Email
+  +string NormalizedEmail
   +string PasswordHash
-  +MemberStatus Status
 }
 class StaffRole {
   +Guid MemberId
@@ -49,23 +60,24 @@ enum StaffRoleName {
   Admin
   Moderator
 }
-class SignInAttempt {
-  +string NormalisedEmail
-  +DateTimeOffset At
-}
-interface IPasswordHasher {
+interface IPasswordHasherService {
   +Verify(hash: string, password: string): bool
 }
 interface IAppDbContext
 
-HttpStaffAuthService ..|> StaffAuthApi
-StaffSignInPage ..> StaffAuthApi : injects STAFF_AUTH_SERVICE
-StaffSignInValidator ..> StaffSignInCommand : validates
+HttpStaffSessionService ..|> StaffSessionApi
+SignInPage ..> StaffSessionApi : injects STAFF_SESSION_SERVICE
+SignInPage ..> refusalOf : chooses the alert
+guard ..> StaffSessionApi : current()
 StaffSignInHandler ..> StaffSignInCommand : handles
-StaffSignInHandler ..> IAppDbContext
-StaffSignInHandler ..> IPasswordHasher
+StaffSignInHandler ..> MemberCredentials : verifies
+StaffSignInHandler ..> IAppDbContext : reads StaffRole
+StaffSignInHandler ..> IStaffSessionSignIn : signs in
 StaffSignInHandler ..> StaffSessionDto : returns
+MemberCredentials ..> IAppDbContext
+MemberCredentials ..> IPasswordHasherService
+CookieStaffSessionSignIn ..|> IStaffSessionSignIn
+CookieStaffSessionSignIn ..> DatabaseTicketStore : session kept on the server
 Member "1" --> "0..1" StaffRole
 StaffRole --> StaffRoleName
-StaffSignInHandler ..> SignInAttempt : counts / records
 @enduml

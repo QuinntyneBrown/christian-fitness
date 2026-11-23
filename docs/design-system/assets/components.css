@@ -806,13 +806,17 @@ table { border-collapse: collapse; }
   background: var(--color-bg-chrome-badge); color: var(--color-fg-on-chrome-badge);
 }
 .admin-nav__item[aria-current="page"] .admin-nav__count { background: var(--color-bg-brand-inverse); color: var(--color-fg-brand-inverse); }
-.admin__user { margin-top: auto; display: none; align-items: center; gap: var(--space-3); border-top: var(--border-width-hairline) solid var(--color-border-on-chrome); padding: var(--space-5) var(--space-6); }
-@media (min-width: 64rem) { .admin__user { display: flex; } }
-.admin__user-avatar { display: flex; width: var(--size-avatar-sm); height: var(--size-avatar-sm); align-items: center; justify-content: center; border-radius: var(--radius-full); background: var(--color-bg-chrome-current); font-family: var(--font-family-display); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
-.admin__user-body { min-width: 0; flex: 1 1 0%; }
+/* Below 1024px the sidebar is a band: the brand and Sign out on one row, the links in a row under them. */
+.admin__sidebar { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.admin-nav { grid-column: 1 / -1; }
+.admin__user { grid-row: 1; grid-column: 2; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); }
+@media (min-width: 64rem) { .admin__user { margin-top: auto; border-top: var(--border-width-hairline) solid var(--color-border-on-chrome); padding: var(--space-5) var(--space-6); } }
+.admin__user-avatar { display: none; width: var(--size-avatar-sm); height: var(--size-avatar-sm); align-items: center; justify-content: center; border-radius: var(--radius-full); background: var(--color-bg-chrome-current); font-family: var(--font-family-display); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.admin__user-body { display: none; min-width: 0; flex: 1 1 0%; }
+@media (min-width: 64rem) { .admin__user-avatar { display: flex; } .admin__user-body { display: block; } }
 .admin__user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .admin__user-role { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-xs); color: var(--color-fg-on-chrome-subtle); }
-.admin__signout { border-radius: var(--radius-sm); padding: var(--space-1-5); color: var(--color-fg-on-chrome-subtle); }
+.admin__signout { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; min-width: var(--target-comfortable); min-height: var(--target-comfortable); border-radius: var(--radius-sm); color: var(--color-fg-on-chrome-subtle); }
 .admin__signout:hover { background: var(--color-bg-on-chrome-hover); color: var(--color-fg-on-chrome); }
 .admin__signout:focus-visible { outline-color: var(--color-focus-ring-on-dark); }
 .admin__main { min-width: 0; flex: 1 1 0%; }

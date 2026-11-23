@@ -19,6 +19,9 @@ internal static class AntiforgerySetup
     public const string Header = "X-XSRF-TOKEN";
     public const string Code = "antiforgery_failed";
 
+    /// <summary>Where a visitor gets their first token.</summary>
+    public const string TokenPath = "/api/antiforgery";
+
     public static IServiceCollection AddRequestAntiforgery(this IServiceCollection services)
     {
         services.AddAntiforgery(options =>
@@ -48,7 +51,7 @@ internal static class AntiforgerySetup
     /// carries a fresh one anyway (<see cref="UseAntiforgeryTokens"/>).
     /// </summary>
     public static void MapAntiforgeryToken(this IEndpointRouteBuilder endpoints) =>
-        endpoints.MapGet("/api/antiforgery", () => Results.NoContent()).AllowAnonymous();
+        endpoints.MapGet(TokenPath, () => Results.NoContent()).AllowAnonymous();
 
     /// <summary>
     /// Sets the readable token cookie on every <c>/api/</c> response, for whoever the request ends

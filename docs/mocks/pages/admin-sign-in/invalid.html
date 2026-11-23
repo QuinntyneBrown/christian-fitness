@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-sign-in">
 <meta name="mock:state" content="invalid">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Sign In (x7rTtnFLo7JruWBh3LepjD)">
-<meta name="description" content="Wrong password: the prototype&#x27;s inline error with the attempts left.">
+<meta name="description" content="Wrong email or password: one generic alert that names neither field (L2-018 AC3).">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -27,10 +27,13 @@
     <form action="../../pages/admin-two-step/default.html" novalidate>
       <h1 class="display staff__title">Staff sign in</h1>
       <p class="staff__lead">For the Christian Fitness team only.</p>
-      
+      <div class="auth__alert"><div class="form-alert" role="alert" tabindex="-1">
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+  <div><p class="form-alert__title">Email or password is incorrect</p><p>Check both and try again.</p></div>
+</div></div>
       <div class="auth__fields">
         <div class="field"><label class="field__label" for="f-email">Work email</label><input class="input" id="f-email" name="email" type="email" value="dana@christianfitness.ca" autocomplete="username"></div>
-        <div class="field"><label class="field__label" for="f-password">Password</label><input class="input" id="f-password" name="password" type="password" value="••••••••••" autocomplete="current-password" aria-describedby="f-password-error" aria-invalid="true"><span class="field__error" id="f-password-error">That password doesn't match. Two tries left before the account locks.</span></div>
+        <div class="field"><label class="field__label" for="f-password">Password</label><input class="input" id="f-password" name="password" type="password" value="••••••••••" autocomplete="current-password"></div>
       </div>
       <button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign in</button>
       <p class="staff__note"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Two-step verification required</p>
@@ -45,6 +48,8 @@
     <li><a href="invalid.html" aria-current="page">invalid</a></li>
     <li><a href="submitting.html">submitting</a></li>
     <li><a href="error.html">error</a></li>
+    <li><a href="not-staff.html">not-staff</a></li>
+    <li><a href="failed.html">failed</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

@@ -26,12 +26,23 @@ export const SIGNED_IN = {
 };
 
 /**
+ * The signed-in staff member the fixture answers `GET /api/admin/session` with unless a spec says
+ * otherwise (ADR 0011).
+ */
+export const STAFF_SIGNED_IN = {
+  memberId: '0190c0de-0000-7000-8000-000000000002',
+  name: 'Dana Reyes',
+  role: 'Admin',
+};
+
+/**
  * The answers a spec gives to the app's API requests. A spec registers a handler with `on`; the
  * latest registration for a method and path wins, so a spec can override a default. A request
  * no handler matches is unanswered, and the shared fixture fails the spec for it.
  *
  * Defaults, which any spec can override: `GET /api/antiforgery` sets the token cookie, and
- * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open.
+ * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
+ * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open.
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -44,6 +55,7 @@ export class ApiHandlers {
       }),
     },
     { method: 'GET', path: '/api/session', handler: () => ({ json: SIGNED_IN }) },
+    { method: 'GET', path: '/api/admin/session', handler: () => ({ json: STAFF_SIGNED_IN }) },
   ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */

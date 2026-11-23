@@ -1,0 +1,22 @@
+<main id="main" class="staff">
+  <div class="staff__card">
+    <div class="staff__brand">
+      <svg class="seal seal--signin" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7" />
+        <rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2" />
+        <rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2" />
+      </svg>
+      <div>
+        <p class="staff__name">Christian Fitness</p>
+        <p class="admin-eyebrow">Admin console</p>
+      </div>
+    </div>
+    <form class="staff__form" novalidate (submit)="onSubmit($event)">
+      <h1 class="display staff__title">{{ heading() }}</h1>
+      <p class="staff__lead">{{ lead() }}</p>
+      <div class="auth__alert"><ng-content select="[slot=alert]" /></div>
+      <div class="auth__fields"><ng-content select="[slot=fields]" /></div>
+      <div class="auth__submit"><ng-content select="[slot=submit]" /></div>
+    </form>
+  </div>
+</main>

@@ -1,4 +1,8 @@
 import type { Routes } from '@angular/router';
+import { staffAuthGuard } from '@cf/domain';
+
+/** An area's routed stand-in until its slice: the area's heading, nothing else (ADR 0011). */
+const area = () => import('./pages/area/area-page').then((m) => m.AreaPage);
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -6,10 +10,43 @@ import type { Routes } from '@angular/router';
  */
 export const routes: Routes = [
   {
+    path: 'sign-in',
+    title: 'Staff sign in · Christian Fitness Admin',
+    loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
+  },
+  {
+    // Every staff route is a child of the shell, which opens only with a staff session (ADR 0011).
     path: '',
-    pathMatch: 'full',
-    title: 'Christian Fitness Admin',
-    loadComponent: () => import('./pages/start/start-page').then((m) => m.StartPage),
+    canActivate: [staffAuthGuard],
+    loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
+    children: [
+      {
+        // Stand-ins until slices 28.1, 10.1, 21.1 and 26.1 (ADR 0011).
+        path: '',
+        pathMatch: 'full',
+        title: 'Dashboard · Christian Fitness Admin',
+        data: { heading: 'Dashboard' },
+        loadComponent: area,
+      },
+      {
+        path: 'events',
+        title: 'Events · Christian Fitness Admin',
+        data: { heading: 'Events' },
+        loadComponent: area,
+      },
+      {
+        path: 'services',
+        title: 'Services · Christian Fitness Admin',
+        data: { heading: 'Services' },
+        loadComponent: area,
+      },
+      {
+        path: 'members',
+        title: 'Members · Christian Fitness Admin',
+        data: { heading: 'Members' },
+        loadComponent: area,
+      },
+    ],
   },
   {
     path: 'server-error',
