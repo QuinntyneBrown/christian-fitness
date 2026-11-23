@@ -1,0 +1,52 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:07.378
+Two kinds of staff now share the admin console. Admins can do everything; Moderators
+
+00:00:07.378 --> 00:00:08.895
+look after members.
+
+00:00:10.000 --> 00:00:15.385
+A Moderator's navigation lists only the Dashboard and Members. Events and Services
+
+00:00:15.385 --> 00:00:16.539
+never appear.
+
+00:00:20.000 --> 00:00:25.067
+Open Events or Services by its address, and Admins only takes its place. The heading
+
+00:00:25.067 --> 00:00:28.987
+takes focus, and the address bar keeps where you were going.
+
+00:00:30.000 --> 00:00:33.533
+Go to dashboard takes a Moderator straight back to their work.
+
+00:00:38.000 --> 00:00:42.228
+Change someone's role while they work, and their next move follows the new role,
+
+00:00:42.228 --> 00:00:43.585
+with no new sign-in.
+
+00:00:48.000 --> 00:00:52.762
+On the server, every admin endpoint takes the rule of its area from where it is
+
+00:00:52.762 --> 00:00:56.919
+routed, and the role is read from the database on every request.
+
+00:00:58.000 --> 00:01:03.367
+One table decides it, the same in both stacks. A new area stays closed to Moderators
+
+00:01:03.367 --> 00:01:04.817
+until it is named.
+
+00:01:06.000 --> 00:01:08.922
+Every test failed first. Now they all pass.
+
+00:01:12.000 --> 00:01:14.412
+Next, an audit of every staff change.
+
+00:01:18.000 --> 00:01:22.814
+That's slice twenty-nine point one. Christian Fitness: a Christian community for
+
+00:01:22.814 --> 00:01:24.679
+health in body and spirit.

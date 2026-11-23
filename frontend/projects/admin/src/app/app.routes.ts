@@ -63,6 +63,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),
   },
   {
+    // The same screen for a role the area refuses: staffAuthGuard and forbiddenInterceptor open it
+    // with the URL asked for kept (L2-019 AC5; ADR 0020). The words come from the route data.
+    path: 'admins-only',
+    title: 'Admins only · Christian Fitness Admin',
+    data: { reason: 'role' },
+    loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),
+  },
+  {
     path: 'server-error',
     title: 'Something went wrong · Christian Fitness Admin',
     loadComponent: () =>

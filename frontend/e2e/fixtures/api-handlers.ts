@@ -35,6 +35,13 @@ export const STAFF_SIGNED_IN = {
   role: 'Admin',
 };
 
+/** A signed-in Moderator, for a spec to answer `GET /api/admin/session` with (L2-019; ADR 0020). */
+export const MODERATOR_SIGNED_IN = {
+  memberId: '0190c0de-0000-7000-8000-000000000003',
+  name: 'Joel Mensah',
+  role: 'Moderator',
+};
+
 /**
  * The answers a spec gives to the app's API requests. A spec registers a handler with `on`; the
  * latest registration for a method and path wins, so a spec can override a default. A request

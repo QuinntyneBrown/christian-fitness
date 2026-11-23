@@ -8,7 +8,7 @@ import {
 import { Injector, runInInjectionContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom, type Observable, of, throwError } from 'rxjs';
-import { FORBIDDEN_PATH, forbiddenInterceptor } from './forbidden-interceptor';
+import { ADMINS_ONLY_PATH, FORBIDDEN_PATH, forbiddenInterceptor } from './forbidden-interceptor';
 
 interface Navigation {
   url: string;
@@ -23,6 +23,8 @@ async function intercept(options: {
   routerUrl?: string;
   /** Where a navigation still in flight is going, as a guard holds it. */
   navigatingTo?: string;
+  /** The refusal's ProblemDetails code (`not_staff` unless named). */
+  code?: string;
 }): Promise<{ navigations: Navigation[]; outcome: unknown }> {
   const navigations: Navigation[] = [];
   const router = {
@@ -45,7 +47,7 @@ async function intercept(options: {
             new HttpErrorResponse({
               status: options.status,
               url: options.url,
-              error: { status: options.status, code: 'not_staff' },
+              error: { status: options.status, code: options.code ?? 'not_staff' },
             }),
         );
   const result = runInInjectionContext(injector, () => forbiddenInterceptor(request, next));
@@ -100,6 +102,47 @@ describe('forbiddenInterceptor', () => {
     { why: 'a success', method: 'GET', url: '/api/admin/session', status: 200 },
   ])('$why is left alone', async ({ method, url, status }) => {
     const { navigations } = await intercept({ method, url, status });
+
+    expect(navigations).toEqual([]);
+  });
+
+  // L2-019 AC5 (ADR 0020): a role the area refuses shows "Admins only" instead.
+  it('a GET refused forbidden_role shows "Admins only" with the URL asked for', async () => {
+    const { navigations, outcome } = await intercept({
+      method: 'GET',
+      url: '/api/admin/events',
+      status: 403,
+      code: 'forbidden_role',
+      routerUrl: '/',
+      navigatingTo: '/events',
+    });
+
+    expect(navigations).toEqual([{ url: ADMINS_ONLY_PATH, extras: { browserUrl: '/events' } }]);
+    expect(outcome).toBeInstanceOf(HttpErrorResponse);
+  });
+
+  it('a write refused forbidden_role is left to its screen', async () => {
+    const { navigations } = await intercept({
+      method: 'POST',
+      url: '/api/admin/events',
+      status: 403,
+      code: 'forbidden_role',
+    });
+
+    expect(navigations).toEqual([]);
+  });
+
+  it.each([
+    { why: '"Admins only"', routerUrl: '/admins-only' },
+    { why: '"Staff only" with a query', routerUrl: '/forbidden?from=events' },
+  ])('does not open a screen over $why', async ({ routerUrl }) => {
+    const { navigations } = await intercept({
+      method: 'GET',
+      url: '/api/admin/services',
+      status: 403,
+      code: 'forbidden_role',
+      routerUrl,
+    });
 
     expect(navigations).toEqual([]);
   });

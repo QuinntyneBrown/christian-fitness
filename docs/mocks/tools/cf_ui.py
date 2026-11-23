@@ -230,10 +230,18 @@ ADMIN_NAV = [("admin-dashboard", "Dashboard", "layout-dashboard", 0), ("admin-ev
              ("admin-services", "Services", "heart-handshake", 3), ("admin-members", "Members", "users", 1)]
 
 
-def admin_shell(active: str, content: str, *, after: str = "", inert: bool = False, counts: dict | None = None) -> str:
+# The areas a Moderator opens (L2-019 AC5; ADR 0020); an Admin opens all four.
+MODERATOR_AREAS = ("admin-dashboard", "admin-members")
+
+
+def admin_shell(active: str, content: str, *, after: str = "", inert: bool = False, counts: dict | None = None,
+                staff: dict | None = None) -> str:
     counts = counts or {}
+    staff = staff or ADMIN
     items = []
     for key, label, ic, n in ADMIN_NAV:
+        if staff["role"] == "Moderator" and key not in MODERATOR_AREAS:
+            continue
         n = counts.get(key, n)
         cur = ' aria-current="page"' if key == active else ""
         what = "applications waiting" if key == "admin-services" else "report to review" if n == 1 else "reports to review"
@@ -252,10 +260,10 @@ def admin_shell(active: str, content: str, *, after: str = "", inert: bool = Fal
       {''.join(items)}
     </nav>
     <div class="admin__user">
-      <span class="admin__user-avatar" aria-hidden="true">{ADMIN["initials"]}</span>
+      <span class="admin__user-avatar" aria-hidden="true">{staff["initials"]}</span>
       <div class="admin__user-body">
-        <p class="admin__user-name">{ADMIN["name"]}</p>
-        <p class="admin__user-role">{ADMIN["role"]}</p>
+        <p class="admin__user-name">{staff["name"]}</p>
+        <p class="admin__user-role">{staff["role"]}</p>
       </div>
       <button class="admin__signout" type="button" aria-label="Sign out">{icon("log-out")}</button>
     </div>

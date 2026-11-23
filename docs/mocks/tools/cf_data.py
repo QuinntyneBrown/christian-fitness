@@ -129,6 +129,8 @@ CONVERSATIONS = [
 CV = {c["id"]: c for c in CONVERSATIONS}
 
 ADMIN = {"name": "Dana Reyes", "first": "Dana", "initials": "DR", "role": "Community director", "email": "dana@christianfitness.ca"}
+# A Moderator (L2-019; ADR 0020): Dashboard and Members only.
+MODERATOR = {"name": "Joel Mensah", "first": "Joel", "initials": "JM", "role": "Moderator", "email": "joel@christianfitness.ca"}
 
 MEMBERS = [
     {"id": "gt", "name": "Grace Thompson", "initials": "GT", "email": "grace.thompson@gmail.com", "church": "Grace Fellowship, Scarborough", "joined": "Jan 12, 2026", "events": 9, "status": "Active"},

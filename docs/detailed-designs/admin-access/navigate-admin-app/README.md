@@ -7,7 +7,7 @@ member and a main area. This feature defines that shell and how it adapts to sma
 has no backend behaviour of its own; it calls only the session endpoint from `admin-sign-in`.
 
 - **admin shell** — layout component that hosts every admin route
-- **side navigation** — list of the four areas Dashboard, Events, Services and Members
+- **side navigation** — list of the four areas Dashboard, Events, Services and Members (a Moderator sees Dashboard and Members)
 - **stacked card** — table row rendered as a vertical card below viewport LG (992 px)
 
 ## Description
@@ -16,7 +16,8 @@ has no backend behaviour of its own; it calls only the session endpoint from `ad
   behind `staffAuthGuard`, a `canActivateChild` guard, so every move between areas checks the
   staff session: an expired one returns staff to Staff sign in and a refused one (403) shows the
   "Staff only" screen (`admin-sign-in`; [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)). It reads the staff session once for the name, role and initials
-  (`initialsOf`), keeps the current area (`currentAdminArea` over the router's URL after each
+  (`initialsOf`) and lists only the areas that role opens (`areasFor`, `staff-roles`;
+  [ADR 0020](../../../adr/0020-staff-roles-by-area.md)), keeps the current area (`currentAdminArea` over the router's URL after each
   `NavigationEnd`), hands a plain click on a link to the router and signs out
   ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
 - **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):

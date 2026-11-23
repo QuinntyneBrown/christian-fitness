@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — A Moderator in the admin app
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Moderator" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "staffAuthGuard" as guard
+  participant "AdminShell" as shell
+  participant "canManage / areasFor" as rule
+  participant "ForbiddenPage (/admins-only)" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Staff policy" as pol
+  participant "StaffSessionController" as ctrl
+end box
+actor -> guard : Open /
+guard -> pol : GET /api/admin/session
+pol -> ctrl : Allowed (Console)
+ctrl --> guard : 200 { role: Moderator }
+guard -> rule : canManage(Moderator, dashboard)
+rule --> guard : true
+guard --> shell : Activate
+shell -> rule : areasFor(Moderator)
+rule --> shell : Dashboard, Members
+shell --> actor : Navigation with two links (L2-019 AC5)
+actor -> guard : Open /events by its address
+guard -> pol : GET /api/admin/session
+pol -> ctrl : Allowed (Console)
+ctrl --> guard : 200 { role: Moderator }
+guard -> rule : canManage(Moderator, events)
+rule --> guard : false
+guard --> page : RedirectCommand /admins-only, browserUrl /events
+page --> actor : "Admins only", heading focused, Go to dashboard
+note over page : A GET refused 403 forbidden_role opens\nthe same screen (forbiddenInterceptor)
+@enduml

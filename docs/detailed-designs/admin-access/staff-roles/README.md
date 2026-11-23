@@ -6,37 +6,82 @@ The Admin web app serves two kinds of staff with different duties. This feature 
 roles, enforces them on every admin endpoint, and records an audit entry for each staff change.
 
 - **Admin** — staff role allowed every admin action
-- **Moderator** — staff role allowed to moderate members and refused event and service management
+- **Moderator** — staff role allowed the staff session, the Dashboard and Members, and refused
+  event and service management
+- **staff area** — part of the admin console an endpoint belongs to, named by the first segment
+  of its route under `api/admin`: the console itself (the session), Dashboard, Members, Events,
+  Services, or none yet (unlisted)
 - **audit entry** — stored record of who changed which record, what changed and when
 
-Enforcement happens on the server: the Admin web app hides controls a Moderator cannot use, but
-the API decides. Audit entries live in the database; telemetry carries only the action name and
-outcome, never personal data.
+Enforcement happens on the server: the Admin web app hides what a Moderator cannot use, but the
+API decides, and it reads the role from the database on every admin request, so a role changed or
+taken away applies at the next request without a new sign-in. Audit entries live in the database;
+telemetry carries only the action name and outcome, never personal data.
 
 ## Description
 
-- **`StaffRole`** — domain entity linking a `Member` to `StaffRoleName` (`Admin`, `Moderator`).
-  Assignment is seeded by the CLI; a screen to assign roles is `<TO SUPPLY>`.
-- **Authorization policies** — `StaffOnly` (any staff role) and `AdminOnly` (role Admin). Event and service
-  controllers use `AdminOnly`; member moderation and dashboard controllers use `StaffOnly`. A refused request returns HTTP 403 ProblemDetails with code
-  `forbidden_role` `<TO SUPPLY: code not named in the spec>`.
-- **`StaffRoleClaimsTransformation`** — Infrastructure component that adds the role claim from
-  `StaffRole` at each request, so a role change applies without a new sign-in.
-- **`IAuditableCommand`** — marker interface on each data-changing staff command, exposing
-  `AuditAction` and `RecordType`.
-- **`AuditBehavior`** — MediatR pipeline behaviour. After a successful auditable command it adds
-  an `AuditEntry` in the same unit of work.
-- **`AuditEntry`** — entity: `ActorMemberId`, `Action`, `RecordType`, `RecordId`, `OccurredAt`
-  (from `TimeProvider`). Retention is `<TO SUPPLY>`.
-- **`StaffSessionDto.Role`** and **`canManage(role, area)`** — the `domain` library helper the
-  admin navigation uses to hide Events and Services for a Moderator. The forbidden screen
-  (`docs/mocks/pages/admin-forbidden/`) shows when a Moderator opens such a route directly.
+Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
+[ADR 0020](../../../adr/0020-staff-roles-by-area.md)); slice 29.2 builds the audit (AC3).
+
+- **`StaffRole`** — domain entity linking a `Member` to `StaffRoleName` (`Admin`, `Moderator`),
+  one per member. `cf seed` grants the first account Admin; a screen to grant or change roles is
+  not in scope (open question 1).
+- **`StaffArea`** and **`StaffAccess.Allows(role, area)`** — the Domain rule, one table: an Admin
+  may use every area; a Moderator may use `Console`, `Dashboard` and `Members` and nothing else, so
+  `Events`, `Services` and `Unlisted` are closed to them. The same table, without `Console` and
+  `Unlisted`, is the `domain` library's `canManage` (below), and both suites hold its rows.
+- **`StaffAreaConvention`** (Api) — replaces slice 9.1's staff area convention: every controller
+  routed under `api/admin` gets the policy of its area, read from the segment after the prefix
+  (`session` → `Console`, `dashboard`, `members`, `events`, `services`; any other segment →
+  `Unlisted`, so a new area is closed to Moderators until its slice names it). No controller
+  names a policy, so slice 10.1's `api/admin/events` and every later admin endpoint are covered
+  without a change. `[AllowAnonymous]` (the two sign-in steps) still opts out.
+- **Area policies** — one per `StaffArea`, `Staff` for `Console` (the name slice 9.1 gave the
+  staff policy) and `Staff:{Area}` for the others: the staff cookie scheme, an authenticated user
+  and a `StaffAreaRequirement(area)`. The `StaffOnly` and `AdminOnly` of other designs are these
+  policies: `Staff:Dashboard` and `Staff:Members` admit both roles, `Staff:Events` and
+  `Staff:Services` only Admins.
+- **`StaffAreaAuthorizationHandler`** (Infrastructure) — reads the member id from the session and
+  that member's `StaffRole` through `IAppDbContext`, once per request, and asks
+  `StaffAccess.Allows`. No role fails with the reason `not_staff`; a role the area refuses fails
+  with `forbidden_role`. The role claim the staff cookie carries from sign-in is no longer read
+  for access.
+- **`StaffRefusalResultHandler`** (Api) — the `IAuthorizationMiddlewareResultHandler`: when a staff
+  policy forbids, it puts the failure's code on the request (`ProblemCodes.Override`), and the
+  default handler's 403 becomes ProblemDetails with that `code` and nothing else (`L2-032`). No
+  log, metric or span records the role or the member.
+- **`canManage(role, area)`** (`domain`, `admin-areas.ts`) — the frontend half of the table, for
+  the four `AdminAreaKey`s. `areasFor(role)` lists `ADMIN_AREAS` that role may open.
+- **`AdminShell`** — builds the navigation from `areasFor(staff.role)` once the session has
+  loaded, and shows no link before that, so a Moderator never sees Events or Services
+  (`L2-019` AC5, `L2-021` AC1).
+- **`staffAuthGuard`** — besides the session, checks `canManage` for the area of the URL the
+  navigation is going to; a refused area redirects (`RedirectCommand`) to `/admins-only` with
+  `browserUrl` set to that URL, so the address bar keeps `/events` and a reload asks again.
+- **`forbiddenInterceptor`** — a 403 to a GET whose code is `forbidden_role` opens `/admins-only`
+  instead of `/forbidden`, with the same `browserUrl` rule (ADR 0016). Every other 403 still opens
+  "Staff only".
+- **`ForbiddenPage`** at `/admins-only` — the same lazy screen with the route data
+  `{ reason: 'role' }` and the title "Admins only · Christian Fitness Admin": the heading "Admins
+  only", which takes focus, "Events and Services are run by admins. As a moderator, you look
+  after members from the Dashboard and Members.", a "Go to dashboard" link (`Button` with `href`,
+  a whole-document load, as the error screens do) and the note "Need to manage events or
+  services? Ask a community director to make you an admin." (mock
+  `docs/mocks/pages/admin-forbidden/role.html`). A Moderator's session is valid, so there is no
+  Sign out here; the shell has one.
+- **`IAuditableCommand`**, **`AuditBehavior`**, **`AuditEntry`** — slice 29.2: a marker interface
+  on each data-changing staff command (`AuditAction`, `RecordType`), a MediatR pipeline behaviour
+  that adds an `AuditEntry` (`ActorMemberId`, `Action`, `RecordType`, `RecordId`, `OccurredAt` from
+  `TimeProvider`) in the same unit of work after a successful auditable command. Retention is
+  `<TO SUPPLY>` (slice 29.2).
 
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members but cannot manage events or services (HTTP 403). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry. |
+| `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members but cannot manage events or services (HTTP 403, code `forbidden_role`). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry. Given a role changed or taken away, the next request applies it (`not_staff` when taken away). Given a Moderator, the navigation lists only Dashboard and Members, and Events or Services by address shows "Admins only". |
+| `L2-021` | `L1-009` | The navigation shows the areas the signed-in role opens, `aria-current="page"` on the current one. |
+| `L2-047` | `L1-008`, `L1-015` | A 403 to a read shows "Staff only", except `forbidden_role`, which shows "Admins only". |
 
 ## Diagrams
 
@@ -56,20 +101,34 @@ what it shows.
 
 ### Components
 
-Policies gate controllers; the audit behaviour wraps each auditable handler.
+The convention gives each admin controller its area's policy; the area handler reads the role
+from the database and asks the domain rule; the audit behaviour wraps each auditable handler.
 
 ![C4 component view for staff roles](diagrams/c4-component.png)
 
 ### Class structure
 
-`StaffRole` gives a `Member` a `StaffRoleName`; `AuditBehavior` writes an `AuditEntry` for each
-`IAuditableCommand`.
+`StaffRole` gives a `Member` a `StaffRoleName`; `StaffAccess` decides each `StaffArea`;
+`AuditBehavior` writes an `AuditEntry` for each `IAuditableCommand`.
 
 ![Class diagram for staff roles](diagrams/class.png)
 
 ### Behaviour — role check and audit
 
-A Moderator is refused on an event endpoint; an Admin succeeds and the change is audited in the
-same commit (`L2-019` AC1–AC3).
+A Moderator is refused on an event endpoint with `forbidden_role`; an Admin succeeds and the
+change is audited in the same commit (`L2-019` AC1–AC4).
 
 ![Sequence diagram for role enforcement and audit](diagrams/sequence-authorize-and-audit.png)
+
+### Behaviour — a Moderator in the admin app
+
+The navigation lists Dashboard and Members; Events by its address shows "Admins only" with the
+address kept (`L2-019` AC5).
+
+![Sequence diagram for a Moderator in the admin app](diagrams/sequence-moderator-navigation.png)
+
+## Open questions
+
+1. Granting, changing and taking away roles has no screen: `cf seed` grants the first Admin, and
+   anything else is a change in the database until a later slice adds one. The API already applies
+   such a change at the next request.
