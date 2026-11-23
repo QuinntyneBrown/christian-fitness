@@ -28,10 +28,10 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> client : Craft request for another member's id
-client -> ctrl : PUT profile of member {otherId}
-ctrl -> h : Send UpdateProfileCommand(caller id, target id)
-h -> h : Target differs from caller (L2-006 AC5)
-h --> ctrl : Forbidden
-ctrl --> client : 403 ProblemDetails, code <TO SUPPLY>
-note over db : No read or write of the target member
+client -> ctrl : PUT /api/members/{otherId}/profile
+ctrl -> h : Send UpdateProfileCommand(otherId)
+h -> h : otherId is not the session's member (L2-006 AC5)
+h --> ctrl : RefusalException(forbidden, Forbidden)
+ctrl --> client : 403 ProblemDetails, code forbidden
+note over db : No read or write of any member; the same answer whether otherId exists or not (L2-031 AC3)
 @enduml

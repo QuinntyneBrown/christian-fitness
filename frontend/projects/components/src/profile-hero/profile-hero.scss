@@ -73,3 +73,29 @@
     color: var(--color-fg-accent);
   }
 }
+
+.profile-hero__action {
+  align-self: flex-start;
+
+  @media (min-width: 40rem) {
+    align-self: center;
+  }
+
+  // No action projected: no gap beside the body.
+  &:empty {
+    display: none;
+  }
+}
+
+.profile-hero__action {
+  align-self: flex-start;
+
+  @media (min-width: 40rem) {
+    align-self: center;
+  }
+
+  // No action projected: no gap beside the body.
+  &:empty {
+    display: none;
+  }
+}

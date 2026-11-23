@@ -1,0 +1,20 @@
+{
+  "voice": "af_heart",
+  "bpm": 120,
+  "beatsPerBar": 4,
+  "gapBeats": 1,
+  "outroSeconds": 3,
+  "music": { "file": "../assets/music/en-la-playa-soca.mp3", "offset": 0.27, "duckDb": 16, "betweenDb": 5, "fadeSeconds": 2 },
+  "scenes": [
+    { "id": "hook", "bars": 4, "lines": ["Your profile is yours to change now, right on the page."] },
+    { "id": "open", "bars": 5, "lines": ["Choose Edit profile, or Add a bio on a new profile. The dialog, built from the design system's own components, opens with what you have, ready at your name."] },
+    { "id": "church", "bars": 4, "lines": ["Your home church stays hidden from other members, unless you tick the box to show it."] },
+    { "id": "save", "bars": 5, "lines": ["Save changes, and your profile shows the new values at once, on phone and desktop."] },
+    { "id": "limits", "bars": 5, "lines": ["Clear your name, write more than three hundred characters, or list a sixth goal, and the dialog names each one before anything is sent."] },
+    { "id": "refused", "bars": 5, "lines": ["If a save is refused, or never answered, the dialog stays open and keeps everything you typed."] },
+    { "id": "private", "bars": 5, "lines": ["Only you can change your profile. A request for anyone else's is refused as forbidden, and nothing changes."] },
+    { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice nineteen point one: another member's profile."] },
+    { "id": "close", "bars": 5, "lines": ["That's slice eighteen point two. Christian Fitness: a Christian community for health in body and spirit."] }
+  ]
+}

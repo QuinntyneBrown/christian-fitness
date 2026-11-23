@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 38% (21 of 57 slices; 35 of 91 days)
+**% complete:** 41% (22 of 57 slices; 37 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1136,3 +1136,54 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   deleted and regenerated on main's snapshot (`dotnet ef` with Infrastructure as the startup
   project, since the CLI one has no Design package).
 - "Use free ports" (3.2 to 29.1): specs and shots ran on 4530/4531 beside two other sessions.
+
+## Slice 18.2: Edit my profile
+
+**What slowed it**
+
+- The slice was paused mid-film while slices 1.4 to 1.6 put every design-system component in the
+  library and AGENTS.md made reusing them mandatory. Its own `cf-dialog` (a native `<dialog>`),
+  `cf-text-area`, `cf-check` and changes to `cf-text-field` and `cf-text-link` duplicated library
+  components; the rebase took the library's side of every one, deleted the duplicates and
+  rebuilt the dialog from library parts.
+- The first draft had avoided a CDK Dialog because it grew `main` by 14.9 kB. Measured again on
+  the new `main` with a `--stats-json` diff: 15.5 kB (view queries, `afterNextRender`, RxJS's
+  async scheduler, and `linkedSignal` from the library textarea), 261.59 kB to 277.05 kB, past
+  the 275 kB error budget. With the library's shell made for a CDK Dialog and slice 10.1 raising
+  the admin budget for the same cost, the member budget rose to 280/290 kB (ADR 0021).
+- CDK Dialog's defaults fought the library shell: `ariaModal` is false unless set, and the
+  container had no size (the shell's panel is `position: fixed`), so Playwright called the
+  `role="dialog"` element hidden. Sizing the container to the viewport fixed both checks.
+- With the CDK hiding the page behind from assistive technology, role locators on Profile stopped
+  matching while the dialog was open; the specs check the page after Cancel instead.
+- The design left the refusal code `<TO SUPPLY>`, the mock had no control for the home church
+  visibility AC4 requires, and its only refusal was a cleared name. Requirement, ADR, design and
+  mock (`invalid-limits`, `refused`) were aligned before code.
+- `HasDefaultValue(false)` on a bool made EF treat it as store-generated; the migration was
+  regenerated without it.
+
+**New lessons**
+
+- Before building a component, look in `frontend/projects/components/src/` first; a rebase that
+  meets a library twin keeps the library's and deletes the slice's.
+- Open a CDK Dialog around the library's `cf-dialog` with `hasBackdrop: false`, `ariaModal: true`,
+  `ariaLabelledBy` the shell's title id, a viewport-sized container, `autoFocus` on the first
+  field and `disableClose`, handling Escape from `keydownEvents` so a busy save can refuse it.
+- Keep `@angular/cdk/dialog` in the dialog's own file with an `open…` function, imported by the
+  screen with `import()`: neither the CDK nor the dialog lands in the screen's chunk.
+- Wrap the shell in one `<form>` so Enter in a field and the footer's submit button share a submit.
+- Serve an owner-only write at a URL that names the owner, and refuse every other id, unknown and
+  malformed ones included, with the same 403 before reading anything.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 1.6): a
+  base build in a throwaway worktree of `origin/main` named the cost by module in one diff.
+- "One rule table in both stacks" (ADR 0008, 2.2): `UpdateProfileValidator` and `validateProfile`
+  carry the same 21 rows; breaking the trim, the limits, the goal precedence and the blank-line
+  rule each turned a row red in both suites.
+- "Prove a rule red by breaking it alone" (1.1 to 1.6): dropping `ariaModal` and the busy guard in
+  `dismiss` each turned its own spec red after the rework.
+- "A gate in a fixture handler" (2.1) gave the busy state with no clock.
+- "Keep the mocks' BEM classes" (1.1 to 1.6): the library kept `dialog`, `field-grid`, `check`,
+  `interest` and `form-alert`, so the page object changed two locators.

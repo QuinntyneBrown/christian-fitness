@@ -9,6 +9,12 @@ public static class RefusalCodes
     /// <summary>An account already has this email (L2-003 AC2).</summary>
     public const string EmailTaken = "email_taken";
 
+    /// <summary>
+    /// The caller may not change what the request names, such as another member's profile
+    /// (L2-006 AC5): the code the authorization policies give every other 403.
+    /// </summary>
+    public const string Forbidden = "forbidden";
+
     /// <summary>A field is longer than its limit (L2-003 AC6).</summary>
     public const string FieldTooLong = "field_too_long";
 
@@ -41,6 +47,9 @@ public static class RefusalCodes
     /// for one staff account were wrong in 15 minutes (L2-046 AC4).
     /// </summary>
     public const string TooManyAttempts = "too_many_attempts";
+
+    /// <summary>A profile names more than 5 goals (L2-006 AC3).</summary>
+    public const string TooManyGoals = "too_many_goals";
 
     /// <summary>A body failed validation for any other reason (L2-032 AC1).</summary>
     public const string ValidationFailed = "validation_failed";

@@ -31,3 +31,4 @@ export * from './events/admin-event-tabs';
 export * from './events/event-draft';
 export * from './events/event-when';
 export * from './notifications/toast-store';
+export * from './members/profile-rules';

@@ -1,0 +1,98 @@
+<form class="edit-profile" novalidate (submit)="save($event)">
+  <cf-dialog heading="Edit profile" titleId="dlg-title" (closed)="dismiss()">
+    <cf-form-layout>
+      @if (summary().length) {
+        <cf-alert slot="alert" heading="Check your profile" [items]="summary()" />
+      }
+      @if (!summary().length && refusal() === 'refused') {
+        <cf-alert slot="alert" heading="Check your profile"
+          ><p>Some of your changes weren't accepted. Check each field and try again.</p></cf-alert
+        >
+      }
+      @if (!summary().length && refusal() === 'failed') {
+        <cf-alert slot="alert" heading="We couldn't save your changes"
+          ><p>Nothing was lost. Check your connection and try again.</p></cf-alert
+        >
+      }
+      <cf-text-field
+        fieldId="f-name"
+        label="Full name"
+        name="name"
+        autocomplete="name"
+        [value]="values().name"
+        [error]="fieldErrors().name"
+        [readonly]="saving()"
+        (valueChange)="edit('name', $event)"
+      />
+      <cf-form-layout layout="grid">
+        <cf-text-field
+          fieldId="f-church"
+          label="Home church"
+          name="church"
+          optional
+          hint="Hidden from other members unless you show it"
+          [value]="values().homeChurch"
+          [error]="fieldErrors().homeChurch"
+          [readonly]="saving()"
+          (valueChange)="edit('homeChurch', $event)"
+        />
+        <cf-text-field
+          fieldId="f-city"
+          label="City"
+          name="city"
+          autocomplete="address-level2"
+          optional
+          [value]="values().city"
+          [error]="fieldErrors().city"
+          [readonly]="saving()"
+          (valueChange)="edit('city', $event)"
+        />
+      </cf-form-layout>
+      <cf-checkbox
+        label="Show my home church to other members"
+        name="showChurch"
+        [checked]="values().showHomeChurch"
+        [disabled]="saving()"
+        (checkedChange)="show($event)"
+      />
+      <cf-textarea
+        fieldId="f-bio"
+        label="About"
+        name="bio"
+        rows="3"
+        [hint]="bioHint()"
+        [value]="values().bio"
+        [error]="fieldErrors().bio"
+        [readonly]="saving()"
+        (valueChange)="edit('bio', $event)"
+      />
+      <cf-textarea
+        fieldId="f-goals"
+        label="Goals this year"
+        name="goals"
+        rows="3"
+        hint="One per line, up to 5"
+        [value]="values().goals"
+        [error]="fieldErrors().goals"
+        [readonly]="saving()"
+        (valueChange)="edit('goals', $event)"
+      />
+      <cf-interest-list fieldId="f-interests" legend="Into">
+        @for (option of options; track option.key) {
+          <cf-interest
+            [pressed]="values().interests.includes(option.key)"
+            [disabled]="saving()"
+            (pressedChange)="toggle(option.key)"
+            >{{ option.label }}</cf-interest
+          >
+        }
+      </cf-interest-list>
+    </cf-form-layout>
+    <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="dismiss()"
+      >Cancel</cf-button
+    >
+    <cf-button slot="foot" type="submit" grow [disabled]="saving()" [busy]="saving()">{{
+      saving() ? 'Saving…' : 'Save changes'
+    }}</cf-button>
+  </cf-dialog>
+</form>

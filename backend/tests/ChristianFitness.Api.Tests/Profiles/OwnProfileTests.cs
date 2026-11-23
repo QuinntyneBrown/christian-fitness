@@ -25,7 +25,7 @@ public sealed class OwnProfileTests(ProfileApiFactory factory) : IClassFixture<P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var profile = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal(
-            ["bio", "city", "goals", "homeChurch", "interests", "joinedAt", "name", "upcomingEvents"],
+            ["bio", "city", "goals", "homeChurch", "interests", "joinedAt", "memberId", "name", "showHomeChurch", "upcomingEvents"],
             profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal("Grace Thompson", profile.GetProperty("name").GetString());
         Assert.Equal("Grace Fellowship, Scarborough", profile.GetProperty("homeChurch").GetString());

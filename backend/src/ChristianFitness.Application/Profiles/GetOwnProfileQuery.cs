@@ -20,14 +20,6 @@ internal sealed class GetOwnProfileHandler(IAppDbContext db, ICurrentMember curr
         var id = current.Id;
         var member = await db.Members.AsNoTracking().SingleAsync(m => m.Id == id, cancellationToken).ConfigureAwait(false);
         var upcoming = await registrations.UpcomingForAsync(id, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
-        return new OwnProfileDto(
-            member.Name,
-            member.City,
-            member.JoinedAt,
-            member.Bio,
-            member.HomeChurch,
-            member.Goals,
-            member.Interests,
-            upcoming);
+        return OwnProfileDto.Of(member, upcoming);
     }
 }

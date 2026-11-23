@@ -52,7 +52,8 @@ public static class ProblemCodes
     /// <summary>
     /// The 400 answer to a body that failed validation (L2-032 AC1): the field errors keyed by the
     /// camel-case field name, each with its fixed sentence, and the code <c>field_too_long</c> when
-    /// any field is over its limit (L2-003 AC6), else <c>validation_failed</c>. A failure whose code
+    /// any field is over its limit (L2-003 AC6, L2-006 AC3), else <c>too_many_goals</c> when a
+    /// profile names more than 5 goals (L2-006 AC3), else <c>validation_failed</c>. A failure whose code
     /// is a field's own code, such as an event's <c>title_required</c> (L2-022 AC2; ADR 0021), is also
     /// named in a <c>fieldCodes</c> extension: the field's camel-case name and its first code. A body
     /// with no such failure, such as Join's, has no <c>fieldCodes</c>.
@@ -80,9 +81,18 @@ public static class ProblemCodes
         return problem;
     }
 
-    /// <summary>The code of a refused body, from the error codes of its failures.</summary>
-    public static string CodeFor(IEnumerable<string> failureCodes) =>
-        failureCodes.Contains(RefusalCodes.FieldTooLong, StringComparer.Ordinal) ? RefusalCodes.FieldTooLong : RefusalCodes.ValidationFailed;
+    /// <summary>
+    /// The code of a refused body, from the error codes of its failures: the first of
+    /// <see cref="Precedence"/> any failure carries, else <c>validation_failed</c> (ADR 0021).
+    /// </summary>
+    public static string CodeFor(IEnumerable<string> failureCodes)
+    {
+        var codes = failureCodes.ToHashSet(StringComparer.Ordinal);
+        return Precedence.FirstOrDefault(codes.Contains) ?? RefusalCodes.ValidationFailed;
+    }
+
+    /// <summary>The specific refusal codes, the one a client most needs first.</summary>
+    private static readonly string[] Precedence = [RefusalCodes.FieldTooLong, RefusalCodes.TooManyGoals];
 
     /// <summary>A body that could not be read at all: no field to name, nothing of it repeated.</summary>
     public static ValidationProblemDetails Unreadable() =>

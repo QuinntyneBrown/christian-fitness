@@ -84,13 +84,14 @@
     
     <div class="field"><label class="field__label" for="f-name">Full name</label><input class="input" id="f-name" autofocus name="name" type="text" value="Grace Thompson" autocomplete="name" readonly></div>
     <div class="field-grid">
-      <div class="field"><label class="field__label" for="f-church">Home church <span class="field__optional">(optional)</span></label><input class="input" id="f-church" name="church" type="text" value="Grace Fellowship, Scarborough" aria-describedby="f-church-hint" readonly><span class="field__hint" id="f-church-hint">Only shown on your profile</span></div>
-      <div class="field"><label class="field__label" for="f-city">City</label><input class="input" id="f-city" name="city" type="text" value="Toronto, ON" autocomplete="address-level2" readonly></div>
+      <div class="field"><label class="field__label" for="f-church">Home church <span class="field__optional">(optional)</span></label><input class="input" id="f-church" name="church" type="text" value="Grace Fellowship, Scarborough" aria-describedby="f-church-hint" readonly><span class="field__hint" id="f-church-hint">Hidden from other members unless you show it</span></div>
+      <div class="field"><label class="field__label" for="f-city">City <span class="field__optional">(optional)</span></label><input class="input" id="f-city" name="city" type="text" value="Toronto, ON" autocomplete="address-level2" readonly></div>
     </div>
-    <div class="field"><label class="field__label" for="f-bio">About</label><textarea class="textarea" id="f-bio" name="bio" rows="3" aria-describedby="f-bio-hint" readonly>Mom of two, recovering couch-to-5K runner. Training for my first half marathon and praying my knees agree.</textarea><span class="field__hint" id="f-bio-hint">A sentence or two. 160 characters left.</span></div>
+    <label class="check check--ui"><input class="check__box" type="checkbox" id="f-show-church" name="showChurch" disabled> Show my home church to other members</label>
+    <div class="field"><label class="field__label" for="f-bio">About</label><textarea class="textarea" id="f-bio" name="bio" rows="3" aria-describedby="f-bio-hint" readonly>Mom of two, recovering couch-to-5K runner. Training for my first half marathon and praying my knees agree.</textarea><span class="field__hint" id="f-bio-hint">A sentence or two. 194 characters left.</span></div>
     <div class="field"><label class="field__label" for="f-goals">Goals this year</label><textarea class="textarea" id="f-goals" name="goals" rows="3" aria-describedby="f-goals-hint" readonly>Half marathon in the fall
 Strength twice a week
-Sleep before 11</textarea><span class="field__hint" id="f-goals-hint">One per line</span></div>
+Sleep before 11</textarea><span class="field__hint" id="f-goals-hint">One per line, up to 5</span></div>
     <fieldset><legend class="field__legend">Into</legend><div class="interest-list"><button class="interest" type="button" aria-pressed="true" disabled>Running</button><button class="interest" type="button" aria-pressed="true" disabled>Strength</button><button class="interest" type="button" aria-pressed="true" disabled>Basketball</button><button class="interest" type="button" aria-pressed="false" disabled>Walking groups</button><button class="interest" type="button" aria-pressed="false" disabled>Mobility</button><button class="interest" type="button" aria-pressed="true" disabled>Nutrition</button><button class="interest" type="button" aria-pressed="false" disabled>Cycling</button><button class="interest" type="button" aria-pressed="false" disabled>Retreats</button></div></fieldset>
   </div>
   <div class="dialog__foot">
@@ -104,6 +105,8 @@ Sleep before 11</textarea><span class="field__hint" id="f-goals-hint">One per li
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
     <li><a href="invalid.html">invalid</a></li>
+    <li><a href="invalid-limits.html">invalid-limits</a></li>
+    <li><a href="refused.html">refused</a></li>
     <li><a href="busy.html" aria-current="page">busy</a></li>
     <li><a href="failed.html">failed</a></li>
   </ul>

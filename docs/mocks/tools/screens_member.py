@@ -1081,7 +1081,7 @@ def profile(p: dict, *, self_view: bool, going=None, groups=None, empty: bool = 
         action = f'<a class="btn btn--primary btn--wide profile-hero__action" href="{href("messages")}">Message</a>'
     if empty:
         about = f"""<div class="empty-inline"><p class="empty-inline__text">Add a short bio so people at events know who you are.</p>
-            <p class="empty-inline__action"><button class="text-link" type="button" data-mock-href="{href("edit-profile")}">Add a bio</button></p></div>"""
+            <p class="empty-inline__action"><button class="btn btn--link btn--sm" type="button" data-mock-href="{href("edit-profile")}">Add a bio</button></p></div>"""
         goals = '<div class="empty-inline"><p class="empty-inline__text">What are you working toward this year? Goals you add show here.</p></div>'
         tags = '<div class="empty-inline"><p class="empty-inline__text">No interests yet.</p></div>'
     else:

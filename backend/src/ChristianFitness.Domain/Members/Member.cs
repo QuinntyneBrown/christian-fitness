@@ -44,6 +44,12 @@ public sealed class Member
     /// <summary>What the member is working toward this year: at most 5, of at most 80 characters (L2-006 AC3).</summary>
     public IReadOnlyList<string> Goals { get; private set; } = [];
 
+    /// <summary>
+    /// Whether other members may see the home church: false until the member shows it (L2-006 AC4).
+    /// Only the public profile (slice 19.1) reads it; the member always sees their own.
+    /// </summary>
+    public bool ShowHomeChurch { get; private set; }
+
     public MemberStatus Status { get; private set; }
 
     public DateTimeOffset JoinedAt { get; private set; }
@@ -76,12 +82,40 @@ public sealed class Member
         };
     }
 
+    /// <summary>
+    /// Replaces what the member says about themselves (L2-006 AC2; ADR 0024). Each value is trimmed;
+    /// a blank city, home church or bio is stored as none, blank goals are dropped and each interest
+    /// is kept once, in the order given. The limits are the validator's, checked before this.
+    /// </summary>
+    public void EditProfile(
+        string name,
+        string? city,
+        string? homeChurch,
+        bool showHomeChurch,
+        string? bio,
+        IEnumerable<string> goals,
+        IEnumerable<string> interests)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(goals);
+        ArgumentNullException.ThrowIfNull(interests);
+        Name = name.Trim();
+        City = NoneIfBlank(city);
+        HomeChurch = NoneIfBlank(homeChurch);
+        ShowHomeChurch = showHomeChurch;
+        Bio = NoneIfBlank(bio);
+        Goals = [.. goals.Where(goal => !string.IsNullOrWhiteSpace(goal)).Select(goal => goal.Trim())];
+        Interests = [.. interests.Distinct(StringComparer.Ordinal)];
+    }
+
     /// <summary>Replaces the password with <paramref name="passwordHash"/>, a hash, never the password (L2-030 AC1, L2-045 AC2).</summary>
     public void ChangePassword(string passwordHash)
     {
         ArgumentException.ThrowIfNullOrEmpty(passwordHash);
         PasswordHash = passwordHash;
     }
+
+    private static string? NoneIfBlank(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
 
     public static string NormalizeEmail(string email)
     {

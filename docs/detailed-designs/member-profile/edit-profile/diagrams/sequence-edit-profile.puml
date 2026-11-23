@@ -31,29 +31,35 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> page : Choose Edit profile
-page -> dlg : Open CDK Dialog with current values (L2-006 AC1)
-actor -> dlg : Change fields, choose home church visibility (default hidden, L2-006 AC4)
-actor -> dlg : Save
-dlg --> actor : Busy state
-dlg -> client : update(UpdateProfileDto)
-client -> ctrl : PUT /api/profile/me
-ctrl -> v : Validate UpdateProfileCommand
-alt Bio > 300, goal > 80 or more than 5 goals (L2-006 AC3)
-  v --> ctrl : field_too_long or too_many_goals
-  ctrl --> client : 400 ProblemDetails with code
-  client --> dlg : Error code
-  dlg --> actor : Invalid state; nothing changes
-else Valid
-  ctrl -> h : Send UpdateProfileCommand(caller id from session)
-  h -> db : Load caller Member
-  db --> h : Member
-  h -> h : Apply changes
-  h -> db : Save in one unit of work
-  db --> h : Saved
-  h --> ctrl : OwnProfileDto
-  ctrl --> client : 200 JSON
-  client --> dlg : Updated profile
-  dlg -> page : Close by DialogRef with result (L2-006 AC2)
-  page --> actor : Show new values
+page -> page : import() EditProfileDialog (first use only), open it in a CDK Dialog with the screen's injector
+page -> dlg : Open with current values, focus Full name (L2-006 AC1)
+actor -> dlg : Change fields, choose home church visibility (unchecked by default, AC4)
+actor -> dlg : Save changes
+alt validateProfile names a field (AC6)
+  dlg --> actor : Error summary and inline errors; nothing sent
+else Valid in the dialog
+  dlg --> actor : "Saving…", fields read-only, Cancel and Escape held
+  dlg -> client : update(memberId, UpdateProfileDto)
+  client -> ctrl : PUT /api/members/{memberId}/profile
+  ctrl -> v : Validate UpdateProfileCommand
+  alt Over a limit or too many goals (AC3)
+    v --> ctrl : field_too_long or too_many_goals
+    ctrl --> client : 400 ProblemDetails with code
+    client --> dlg : ApiError
+    dlg --> actor : "Check your profile", values kept (AC7)
+  else Valid
+    ctrl -> h : Send UpdateProfileCommand
+    h -> h : memberId is the session's member
+    h -> db : Load caller Member
+    db --> h : Member
+    h -> h : Member.EditProfile(...)
+    h -> db : Save once
+    db --> h : Saved
+    h --> ctrl : OwnProfileDto
+    ctrl --> client : 200 JSON
+    client --> dlg : Saved profile
+    dlg -> page : closed with the saved profile (AC2)
+    page --> actor : Show new values; focus back on Edit profile
+  end
 end
 @enduml
