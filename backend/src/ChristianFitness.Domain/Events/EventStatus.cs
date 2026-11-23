@@ -8,4 +8,7 @@ public enum EventStatus
 
     /// <summary>Visible to members (L2-023 AC1, slice 11.1).</summary>
     Published,
+
+    /// <summary>Withdrawn by staff after it was published; hidden from lists, kept on registered members' Profile (L2-023 AC2, slice 11.2).</summary>
+    Cancelled,
 }

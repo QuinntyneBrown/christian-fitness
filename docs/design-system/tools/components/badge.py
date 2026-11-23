@@ -1,6 +1,6 @@
 from dslib import ex, kbd, matrix, mock, themes
 
-STATUSES = ('<span class="status status--published">Published</span><span class="status status--draft">Draft</span>'
+STATUSES = ('<span class="status status--published">Published</span><span class="status status--draft">Draft</span><span class="status status--cancelled">Cancelled</span>'
             '<span class="status status--active">Active</span><span class="status status--flagged">Flagged</span>'
             '<span class="status status--suspended">Suspended</span>')
 
@@ -9,7 +9,7 @@ SPEC = {
     "meta": ["Status: stable", "Inline <code>&lt;span&gt;</code>", "Not interactive"],
     "overview": """<p>Use a badge to show something's status or how many new things wait. It never acts; to filter, use a <a href="chip.html">chip</a>.</p>
 <ul>
-<li><b>Status</b> (<code>.status</code>): admin rows: Published, Draft (events); Active, Flagged, Suspended (members).</li>
+<li><b>Status</b> (<code>.status</code>): admin rows: Published, Draft, Cancelled (events); Active, Flagged, Suspended (members).</li>
 <li><b>Count badge</b> (<code>.count-badge</code>): unread total beside the Messages nav link.</li>
 <li><b>Count pill</b> (<code>.count-pill</code>): unread total at the end of a conversation row.</li>
 <li><b>Unread dot</b> (<code>.unread-dot</code>): a labelled dot when the exact number does not matter.</li>

@@ -14,12 +14,12 @@ internal sealed class DatabaseRegistrations(AppDbContext db) : IRegistrationRead
         var events = await db.Registrations.AsNoTracking()
             .Where(r => r.MemberId == memberId)
             .Join(db.Events, r => r.EventId, e => e.Id, (_, e) => e)
-            .Where(e => e.Status == EventStatus.Published && e.StartsAt > now)
+            .Where(e => e.Status != EventStatus.Draft && e.StartsAt > now)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         return [.. events
             .OrderBy(e => e.StartsAt)
-            .Select(e => new UpcomingEventDto(e.Id, e.Title, e.StartsAt, e.ImageKey is null ? null : $"/api/events/images/{e.ImageKey}"))];
+            .Select(e => new UpcomingEventDto(e.Id, e.Title, e.StartsAt, e.ImageKey is null ? null : $"/api/events/images/{e.ImageKey}", e.Status == EventStatus.Cancelled))];
     }
 
     public Task<int> GoingAsync(Guid eventId, CancellationToken cancellationToken) =>

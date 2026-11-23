@@ -89,7 +89,7 @@ public sealed class OwnProfileTests(ProfileApiFactory factory) : IClassFixture<P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var events = (await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)).GetProperty("upcomingEvents").EnumerateArray().ToList();
         Assert.Equal(2, events.Count);
-        Assert.Equal(["eventId", "imageUrl", "startsAt", "title"], events[0].EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(["cancelled", "eventId", "imageUrl", "startsAt", "title"], events[0].EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(sunrise.EventId, events[0].GetProperty("eventId").GetGuid());
         Assert.Equal("Easter Sunrise 5K", events[0].GetProperty("title").GetString());
         Assert.Equal(sunrise.StartsAt, events[0].GetProperty("startsAt").GetDateTimeOffset());

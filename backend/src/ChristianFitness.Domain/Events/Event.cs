@@ -144,4 +144,20 @@ public sealed class Event
 
         Status = EventStatus.Published;
     }
+
+    /// <summary>
+    /// Withdraws a published event (L2-023 AC2; ADR 0035). Only a published event can be cancelled; the
+    /// handler refuses any other status before it asks. It marks the registrations token, so a
+    /// registration racing the cancel cannot commit (ADR 0033).
+    /// </summary>
+    public void Cancel()
+    {
+        if (Status != EventStatus.Published)
+        {
+            throw new InvalidOperationException("Only a published event can be cancelled.");
+        }
+
+        Status = EventStatus.Cancelled;
+        RegistrationVersion++;
+    }
 }

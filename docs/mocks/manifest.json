@@ -228,6 +228,7 @@
       "requirements": [],
       "states": [
         "default",
+        "cancelled",
         "member",
         "loading",
         "empty",
@@ -505,6 +506,7 @@
         "edit-invalid",
         "edit-failed",
         "edit-draft",
+        "edit-published",
         "publish-failed",
         "image-invalid",
         "invalid",
@@ -576,6 +578,20 @@
       ]
     },
     {
+      "id": "cancel-event",
+      "kind": "dialog",
+      "title": "Cancel an event",
+      "group": "Admin console",
+      "opens_from": "event-editor",
+      "source": "Derived: the Manage Events frame's editor, with a confirmation before an event is cancelled (L2-023; ADR 0035).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ]
+    },
+    {
       "id": "moderate-member",
       "kind": "dialog",
       "title": "Moderate a member",
@@ -608,6 +624,7 @@
         "success",
         "draft-saved",
         "changes-saved",
+        "event-cancelled",
         "load-failed",
         "member-flagged",
         "member-suspended",

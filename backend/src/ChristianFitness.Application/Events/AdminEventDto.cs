@@ -56,6 +56,7 @@ public static class EventNames
     {
         EventStatus.Draft => "draft",
         EventStatus.Published => "published",
+        EventStatus.Cancelled => "cancelled",
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, "An event status with no name."),
     };
 }
