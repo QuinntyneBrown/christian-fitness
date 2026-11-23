@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using ChristianFitness.Domain.Members;
 
 namespace ChristianFitness.Domain.Sessions;
 
@@ -10,14 +11,11 @@ namespace ChristianFitness.Domain.Sessions;
 /// </summary>
 public sealed class SignInFailure
 {
-    /// <summary>How many failures inside <see cref="Window"/> pause sign-in for the email.</summary>
-    public const int Limit = 5;
-
     /// <summary>The length of SHA-256 in hex.</summary>
     public const int EmailKeyLength = 64;
 
-    /// <summary>How long a failure counts.</summary>
-    public static readonly TimeSpan Window = TimeSpan.FromMinutes(15);
+    /// <summary>5 failures for the email within 15 minutes pause sign-in for it.</summary>
+    public static readonly AttemptWindow Attempts = new(5, TimeSpan.FromMinutes(15));
 
     private SignInFailure()
     {
@@ -43,7 +41,4 @@ public sealed class SignInFailure
         ArgumentNullException.ThrowIfNull(normalizedEmail);
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(normalizedEmail)));
     }
-
-    /// <summary>The earliest instant a failure still counts at <paramref name="now"/>: it counts when it is later than this.</summary>
-    public static DateTimeOffset WindowStart(DateTimeOffset now) => now - Window;
 }

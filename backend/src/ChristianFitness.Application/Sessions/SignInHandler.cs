@@ -10,8 +10,8 @@ namespace ChristianFitness.Application.Sessions;
 /// <summary>
 /// Signs a member in with their email and password (L2-004 AC1; ADR 0009, ADR 0011). In order:
 /// <list type="number">
-/// <item>with <see cref="SignInFailure.Limit"/> failures for the email in the last 15 minutes the
-/// attempt is refused <c>too_many_attempts</c> before the password is checked, and not recorded
+/// <item>with <see cref="SignInFailure.Attempts"/> full, 5 failures for the email in the last 15
+/// minutes, the attempt is refused <c>too_many_attempts</c> before the password is checked, and not recorded
 /// (L2-004 AC3);</item>
 /// <item>the credentials are checked by <see cref="MemberCredentials"/>, which the admin sign-in
 /// shares (ADR 0011): an unknown email, a wrong password or a blank field is refused
@@ -31,13 +31,13 @@ internal sealed class SignInHandler(IAppDbContext db, MemberCredentials credenti
         var normalizedEmail = blank ? string.Empty : Member.NormalizeEmail(request.Email!);
         var emailKey = SignInFailure.KeyOf(normalizedEmail);
         var now = time.GetUtcNow();
-        var windowStart = SignInFailure.WindowStart(now);
+        var windowStart = SignInFailure.Attempts.Since(now);
         if (!blank)
         {
             var recentFailures = await db.SignInFailures
                 .CountAsync(f => f.EmailKey == emailKey && f.FailedAt > windowStart, cancellationToken)
                 .ConfigureAwait(false);
-            if (recentFailures >= SignInFailure.Limit)
+            if (SignInFailure.Attempts.IsFull(recentFailures))
             {
                 throw new RefusalException(RefusalCodes.TooManyAttempts, RefusalKind.TooManyRequests);
             }
