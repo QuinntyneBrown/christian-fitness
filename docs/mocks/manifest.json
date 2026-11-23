@@ -549,6 +549,24 @@
       ]
     },
     {
+      "id": "moderate-member",
+      "kind": "dialog",
+      "title": "Moderate a member",
+      "group": "Admin console",
+      "opens_from": "admin-members",
+      "source": "Derived: the Members frame's rows; the prototype draws no flag, suspend or note control (ADR 0023).",
+      "requirements": [],
+      "states": [
+        "default",
+        "suspend",
+        "flagged",
+        "invalid",
+        "busy",
+        "failed",
+        "refused"
+      ]
+    },
+    {
       "id": "admin-toast",
       "kind": "notification",
       "title": "Admin toast",
@@ -560,6 +578,8 @@
         "info",
         "success",
         "draft-saved",
+        "member-flagged",
+        "member-suspended",
         "warning",
         "danger",
         "with-action",

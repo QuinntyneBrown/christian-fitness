@@ -406,6 +406,104 @@ def _():
 
 
 # ===========================================================================
+# Moderate a member (admin · Members)
+# ===========================================================================
+MODERATE_ACTIONS = [
+    ("Flag", "Marks them for staff attention. They can still use the app."),
+    ("Suspend", "Signs them out everywhere. They cannot sign in until they are reinstated."),
+]
+
+
+def moderate(*, member: str = "pn", action: str = "flag", invalid=False, busy=False, failed=False, refused=False) -> str:
+    """The moderation dialog (L2-029 AC1, AC2, AC4; ADR 0023): an Active member can be flagged or
+    suspended, a Flagged one suspended; a note is required, and suspending asks for confirmation."""
+    m = next(x for x in A.MEMBERS if x["id"] == member)
+    flagged = m["status"] == "Flagged"
+    suspend = flagged or action == "suspend"
+    note_err = "Write a note so other staff know why" if invalid else ""
+    check_err = f"Confirm that {m['name']} should be suspended" if invalid and suspend else ""
+    alert = ""
+    if invalid:
+        items = [(note_err, "f-note")] + ([(check_err, "f-confirmed")] if check_err else [])
+        alert = error_summary(f"{len(items)} thing{'s' if len(items) > 1 else ''} to fix", items).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Couldn't save the change", "The server didn't respond. Your note is still here; try again.")
+    if refused:
+        alert = form_alert("You can't flag or suspend your own account", "Ask another Admin if your own account needs attention.")
+    d = " disabled" if busy else ""
+    choices = ""
+    if not flagged:
+        items = "".join(
+            f'<label class="choice"><input class="choice__input" type="radio" name="action" value="{l.lower()}"'
+            f'{" checked" if (l == "Suspend") == suspend else ""}{d}><span><span class="choice__label">{l}</span>'
+            f'<span class="choice__desc">{desc}</span></span></label>' for l, desc in MODERATE_ACTIONS)
+        choices = (f'<fieldset class="field"><legend class="field__legend">What do you want to do?</legend>'
+                   f'<div class="choice-group">{items}</div></fieldset>')
+    typed = "" if invalid else ("Spam messages to the Sunrise 5K group" if suspend else "Two members asked about messages from this account")
+    note_field = textarea("Note", "note", typed, rows=3, error=note_err,
+                          hint=f"Staff see this on the member's row. {500 - len(typed)} characters left.", readonly=busy)
+    check_html = ""
+    if suspend:
+        check_desc = ' aria-describedby="f-confirmed-error" aria-invalid="true"' if check_err else ""
+        check_html = (f'<div class="field"><label class="check check--ui"><input class="check__box" id="f-confirmed" type="checkbox"'
+                      f'{"" if invalid else " checked"}{d}{check_desc}> Suspend {m["name"]} and end their sessions</label>'
+                      + (f'<span class="field__error" id="f-confirmed-error">{check_err}</span>' if check_err else "") + "</div>")
+    body = f"""    {alert}
+    {choices}
+    {note_field}
+    {check_html}"""
+    label = "Suspend member" if suspend else "Flag member"
+    toast_state = "member-suspended" if suspend else "member-flagged"
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-toast", toast_state)}">{label}</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-members")}">Cancel</button>\n    {go}'
+    title = f"Suspend {m['name']}" if flagged else f"Moderate {m['name']}"
+    html = dialog(title, body, foot, sub=f"{m['email']} · {m['status']}")
+    if not invalid and not busy and not failed and not refused:
+        html = autofocus_first(html, 'id="f-note"' if flagged else 'name="action" value="flag"')
+    return over_admin("admin-members", A.members_page(A.member_table(A.MEMBERS) + A.member_pagination()), html)
+
+
+s = screen("moderate-member", "dialog", "Moderate a member", opens_from="admin-members", group="Admin console",
+           source="Derived: the Members frame's rows; the prototype draws no flag, suspend or note control (ADR 0023).")
+
+
+@s("default", "Moderate Priya Nair, an Active member: Flag chosen, a note to write; focus on the first choice.")
+def _():
+    return moderate()
+
+
+@s("suspend", "Suspend chosen: the note, and a confirmation that their sessions end.")
+def _():
+    return moderate(action="suspend")
+
+
+@s("flagged", "A Flagged member (Kevin Brooks) can only be suspended: no choice, focus on the note.")
+def _():
+    return moderate(member="kb")
+
+
+@s("invalid", "Suspend pressed with no note and no confirmation: summary focused, both named.")
+def _():
+    return moderate(action="suspend", invalid=True)
+
+
+@s("busy", "Suspend member pressed: busy, the fields hold still, Cancel disabled.")
+def _():
+    return moderate(action="suspend", busy=True)
+
+
+@s("failed", "Saving failed: message at the top, the note kept.")
+def _():
+    return moderate(action="suspend", failed=True)
+
+
+@s("refused", "Staff chose their own row: the API refuses with cannot_moderate_self and the dialog says so.")
+def _():
+    return moderate(refused=True)
+
+
+# ===========================================================================
 # Admin toasts
 # ===========================================================================
 s = screen("admin-toast", "notification", "Admin toast", opens_from="admin-events", group="Admin console",
@@ -433,6 +531,18 @@ def _():
 def _():
     t = toast("info", "Draft saved", "Whole Life Retreat isn't visible to members yet.")
     return admin_shell("admin-events", events_admin_page(), after=toast_region(t, admin=True))
+
+
+@s("member-flagged", "A member flagged from the moderation dialog: the note is on their row; leaves after about 6 seconds.")
+def _():
+    t = toast("info", "Priya Nair flagged", "They can still use the app. Your note is on their row.")
+    return admin_shell("admin-members", A.members_page(A.member_table(A.MEMBERS) + A.member_pagination()), after=toast_region(t, admin=True))
+
+
+@s("member-suspended", "A member suspended from the moderation dialog: signed out everywhere.")
+def _():
+    t = toast("info", "Priya Nair suspended", "They are signed out everywhere and cannot sign in.")
+    return admin_shell("admin-members", A.members_page(A.member_table(A.MEMBERS) + A.member_pagination()), after=toast_region(t, admin=True))
 
 
 @s("warning", "An event is nearly full.")

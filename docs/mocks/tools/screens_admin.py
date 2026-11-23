@@ -581,14 +581,14 @@ def member_pagination() -> str:
     """Page 1 of 98: 2,431 members, 25 to a page (L2-028 AC1; ADR 0022)."""
     def num(n: int, cur: bool = False) -> str:
         c = ' aria-current="page"' if cur else ""
-        return f'<li class="pagination__number"><a class="pagination__link" href="default.html" aria-label="Page {n}"{c}>{n}</a></li>'
+        return f'<li class="pagination__number"><a class="pagination__link" href="{href("admin-members")}" aria-label="Page {n}"{c}>{n}</a></li>'
     return f"""<nav class="pagination mt-3" aria-label="Pagination">
           <p class="pagination__summary">Showing 1–25 of 2,431 members</p>
           <ol class="pagination__list">
             <li><a class="pagination__link" aria-label="Previous page" aria-disabled="true">{icon("arrow-left")}</a></li>
             {num(1, True)}{num(2)}<li class="pagination__number pagination__gap" aria-hidden="true">…</li>{num(98)}
             <li class="pagination__page-only">Page 1 of 98</li>
-            <li><a class="pagination__link" href="default.html" aria-label="Next page">{icon("arrow-right")}</a></li>
+            <li><a class="pagination__link" href="{href("admin-members")}" aria-label="Next page">{icon("arrow-right")}</a></li>
           </ol>
         </nav>"""
 
@@ -599,12 +599,13 @@ def member_table(rows) -> str:
                 <td class="muted">{m["church"] if m["church"] != "—" else '<span aria-hidden="true">—</span><span class="visually-hidden">Not given</span>'}</td>
                 <td class="table__nowrap">{m["joined"]}</td>
                 <td class="table__num">{m["events"]}</td>
-                <td><span class="status status--{m["status"].lower()}">{m["status"]}</span></td>
+                <td><span class="status status--{m["status"].lower()}">{m["status"]}</span>{f'<p class="table__sub">{m["note"]}</p>' if m.get("note") else ""}</td>
+                <td class="table__end">{f'<button class="row-link" type="button" data-mock-href="{href("moderate-member", "flagged" if m["status"] == "Flagged" else "default")}">Moderate<span class="visually-hidden"> {m["name"]}</span></button>' if m["status"] != "Suspended" else ""}</td>
               </tr>""" for m in rows)
     return f"""<div class="table-wrap">
           <table class="table table--wider">
             <caption class="visually-hidden">Members</caption>
-            <thead><tr><th scope="col">Member</th><th scope="col">Church</th><th scope="col">Joined</th><th scope="col">Events</th><th scope="col">Status</th></tr></thead>
+            <thead><tr><th scope="col">Member</th><th scope="col">Church</th><th scope="col">Joined</th><th scope="col">Events</th><th scope="col">Status</th><th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th></tr></thead>
             <tbody>{trs}</tbody>
           </table>
         </div>"""
@@ -654,7 +655,7 @@ def _():
 
 @s("loading", "Members table loading: skeleton rows.")
 def _():
-    return admin_shell("admin-members", members_page(loading_region("Loading members", table_skeleton(5, 7)), show_report=False))
+    return admin_shell("admin-members", members_page(loading_region("Loading members", table_skeleton(6, 7)), show_report=False))
 
 
 @s("empty", "No members yet (a fresh community): explains where members come from.")
