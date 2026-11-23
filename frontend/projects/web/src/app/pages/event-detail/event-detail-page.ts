@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import type { DialogRef } from '@angular/cdk/dialog';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { EVENTS_SERVICE, type EventDetailDto } from '@cf/api';
@@ -17,6 +18,10 @@ import {
 } from '@cf/components';
 import { type EventDetailView, eventDetailViewOf, isEventFull } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import type {
+  CancelRegistrationDialog,
+  CancelRegistrationResult,
+} from '../../dialogs/cancel-registration/cancel-registration-dialog';
 import { HttpEventsService } from '../../services/http-events.service';
 
 /**
@@ -28,7 +33,9 @@ import { HttpEventsService } from '../../services/http-events.service';
  * Register takes a place (L2-011; ADR 0032): the button is busy while it asks, then the panel says
  * "You're going" with the new count, and any refusal shows a generic message with Register still
  * usable. A full event says "This event is full" in place of Register, also when another member takes the
- * last place first (ADR 0033). The group chat link waits for slices 12.x.
+ * last place first (ADR 0033). "Can't make it" opens the Cancel registration dialog (L2-012; ADR 0034),
+ * whose code and the CDK Dialog load on first use; confirming frees the place and the page shows
+ * Register again. The group chat link waits for slices 12.x.
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -54,6 +61,10 @@ export class EventDetailPage {
   private request: Subscription | null = null;
   private registration: Subscription | null = null;
   private current: EventDetailDto | null = null;
+  private readonly injector = inject(Injector);
+  /** The Cancel registration dialog while it shows, or `true` while its code loads: one at a time. */
+  private dialog: DialogRef<CancelRegistrationResult, CancelRegistrationDialog> | true | null =
+    null;
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly event = signal<EventDetailView | null>(null);
@@ -70,6 +81,9 @@ export class EventDetailPage {
   });
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.dialog && this.dialog !== true) this.dialog.close(null);
+    });
     inject(ActivatedRoute)
       .paramMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
@@ -107,6 +121,25 @@ export class EventDetailPage {
           this.registering.set(false);
         },
       });
+  }
+
+  /** Asks, in a dialog, whether to give up the place (L2-012 AC1). */
+  protected async cancelRegistration(): Promise<void> {
+    const view = this.event();
+    if (!view?.registered || this.dialog) return;
+    this.dialog = true;
+    const { openCancelRegistrationDialog } =
+      await import('../../dialogs/cancel-registration/cancel-registration-dialog');
+    if (this.destroyRef.destroyed) return;
+    const dialog = openCancelRegistrationDialog(this.injector, {
+      id: this.id,
+      subtitle: `${view.heading} · ${view.day}`,
+    });
+    this.dialog = dialog;
+    dialog.closed.subscribe((event) => {
+      this.dialog = null;
+      if (event) this.show(event);
+    });
   }
 
   private show(event: EventDetailDto): void {

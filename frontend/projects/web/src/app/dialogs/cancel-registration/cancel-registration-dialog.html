@@ -1,0 +1,21 @@
+<cf-dialog
+  heading="Cancel your registration?"
+  titleId="dlg-title"
+  [subtitle]="subtitle"
+  (closed)="keep()"
+>
+  @if (failed()) {
+    <cf-alert heading="Couldn't cancel your registration"
+      ><p>Your place is still yours. Try again in a moment.</p></cf-alert
+    >
+  }
+  <p class="cancel-registration__text">
+    Your place goes back to other members. You can register again while places are left.
+  </p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="cancelling()" (click)="keep()"
+    >Keep my place</cf-button
+  >
+  <cf-button slot="foot" grow [disabled]="cancelling()" [busy]="cancelling()" (click)="cancel()">{{
+    cancelling() ? 'Cancelling…' : 'Cancel registration'
+  }}</cf-button>
+</cf-dialog>

@@ -26,11 +26,11 @@ public sealed class RegisterForEventFactory : ApiFactory
         services.AddSingleton<TimeProvider>(Time);
     }
 
-    public async Task<Guid> AddEventAsync(string title, bool published = true, int priceCents = 0, int capacity = 50)
+    public async Task<Guid> AddEventAsync(string title, bool published = true, int priceCents = 0, int capacity = 50, TimeSpan? startsIn = null)
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var e = Event.CreateDraft(title, EventCategory.Run, Now.AddDays(3), "Martin Goodman Trail", "Waterfront, Toronto", priceCents, capacity, "Come run with us.", Now);
+        var e = Event.CreateDraft(title, EventCategory.Run, Now + (startsIn ?? TimeSpan.FromDays(3)), "Martin Goodman Trail", "Waterfront, Toronto", priceCents, capacity, "Come run with us.", Now);
         if (published)
         {
             e.Publish();
