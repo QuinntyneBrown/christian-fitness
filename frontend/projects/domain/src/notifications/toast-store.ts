@@ -1,7 +1,7 @@
 import { Injectable, type OnDestroy, signal } from '@angular/core';
 import type { Toast, ToastsApi } from '@cf/api';
 
-/** How long a toast shows before it leaves by itself (mock `admin-toast`; ADR 0015). */
+/** How long a toast shows before it leaves by itself (mock `admin-toast`; ADR 0017). */
 export const TOAST_LIFETIME_MS = 6_000;
 
 /** The most toasts on screen at once; a newer one pushes the oldest out. */

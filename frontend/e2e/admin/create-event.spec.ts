@@ -61,7 +61,7 @@ function answerCreate(
   return state;
 }
 
-// L2-022 AC1 (ADR 0015): New event opens the event editor drawer; Save draft saves the event as a
+// L2-022 AC1 (ADR 0017): New event opens the event editor drawer; Save draft saves the event as a
 // draft, closes the drawer, says so in a toast and shows the draft in the list.
 test.describe('Admin app, creating a draft event', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -281,7 +281,7 @@ test.describe('Admin app, creating a draft event', () => {
   });
 });
 
-// L2-039 (ADR 0015): on a phone the drawer fills the width.
+// L2-039 (ADR 0017): on a phone the drawer fills the width.
 test.describe('Admin app, the event editor on a phone', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 

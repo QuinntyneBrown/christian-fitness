@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC2 (ADR 0015): an event with a field missing or out of its limits is refused with 400
+/// L2-022 AC2 (ADR 0017): an event with a field missing or out of its limits is refused with 400
 /// <c>validation_failed</c>, each failed field named with its own code in <c>fieldCodes</c>, and
 /// nothing is saved. One row per code; the limits' edges are rows of
 /// <c>CreateEventValidatorTests</c>.
@@ -78,19 +78,20 @@ public sealed class CreateEventRefusalTests(AdminEventsFactory factory) : IClass
             problem.GetProperty("fieldCodes").EnumerateObject().Select(p => $"{p.Name}:{p.Value.GetString()}").Order(StringComparer.Ordinal));
     }
 
-    // The start is checked against the API's clock, not the client's: an hour later the same start is past.
+    // The start is checked against the API's clock, not the client's: 20 minutes later the same start is
+    // past. The step stays under the staff idle timeout (30 minutes), so the session still holds.
     [Fact]
     public async Task Given_a_start_that_was_ahead_When_the_clock_passes_it_Then_the_same_event_is_refused_with_start_in_past()
     {
         using var client = Browser.CreateClient(factory);
         var cookie = await AdminEvents.SignInStaffAsync(factory, client, "dana.refused.clock@example.org");
         var now = factory.Time.GetUtcNow();
-        var start = TimeZoneInfo.ConvertTime(now.AddMinutes(30), Domain.Events.EventSchedule.Toronto);
+        var start = TimeZoneInfo.ConvertTime(now.AddMinutes(10), Domain.Events.EventSchedule.Toronto);
         var body = AdminEvents.Retreat();
         body["date"] = start.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
         body["startTime"] = start.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture);
         body["title"] = "Ahead, then past";
-        factory.Time.Advance(TimeSpan.FromHours(1));
+        factory.Time.Advance(TimeSpan.FromMinutes(20));
 
         using var response = await AdminEvents.CreateAsync(client, cookie, body);
 

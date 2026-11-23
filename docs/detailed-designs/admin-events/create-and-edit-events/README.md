@@ -63,7 +63,7 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   extension naming each field's code: `title_required`, `title_too_long`, `category_required`,
   `date_required`, `start_time_required`, `start_in_past`, `place_required`, `place_too_long`,
   `area_required`, `area_too_long`, `price_invalid`, `capacity_required`,
-  `capacity_out_of_range`, `summary_required`, `summary_too_long` (ADR 0015).
+  `capacity_out_of_range`, `summary_required`, `summary_too_long` (ADR 0017).
 - **`UpdateEventCommand`** / **`UpdateEventHandler`** (10.2) — counts `Registration` rows that are
   going and refuses a lower capacity with `capacity_below_going`.
 - **`UploadEventImageCommand`** / handler (10.2) — checks the content signature (JPEG, PNG, WebP)
@@ -73,7 +73,7 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
   **`EventSchedule`** turns a Toronto date and time into the UTC instant (`America/Toronto`; a time
   inside the spring-forward gap takes the standard offset).
 
-The mock gaps are settled (ADR 0015): the editor has Place and Area, Summary for the summary and
+The mock gaps are settled (ADR 0017): the editor has Place and Area, Summary for the summary and
 no group chat checkbox (every event has a group chat members join by registering, L2-011); the
 image field arrives with slice 10.2.
 

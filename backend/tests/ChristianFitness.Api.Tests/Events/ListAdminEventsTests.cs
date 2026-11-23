@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC5 (ADR 0015): staff see the events soonest first with each tab's count; a tab asks
+/// L2-022 AC5 (ADR 0017): staff see the events soonest first with each tab's count; a tab asks
 /// only for its own events, and the list holds at most 100. Each test starts its own API, so the
 /// counts it asserts are exactly the events it made.
 /// </summary>

@@ -1,4 +1,4 @@
-# 0015. Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1
+# 0017. Create a draft event: Toronto start times, field codes, a lazy CDK drawer and stand-ins until 10.2 and 11.1
 
 ## Status
 
@@ -11,8 +11,9 @@ AC6). It is the first admin screen with data and the first CDK Dialog in either 
 left the field codes and the image store `<TO SUPPLY>`, and its "Gaps against the mock" listed
 four disagreements between L2-022 and the event editor mock: the mock had Location but no area, no
 image, "Description" for the summary, and a "Create a group chat" checkbox L2-022 does not
-mention. Slices 29.1 (roles) and 29.2 (audit) are not built yet, and slice 9.3 (idle expiry and
-the forbidden screen) is being built at the same time. Editing (10.2) and publishing (11.1) come
+mention. Slices 29.1 (roles) and 29.2 (audit) are not built yet; slice 9.3 (idle expiry and the
+forbidden screen, ADR 0016) was built at the same time and covers these endpoints as it covers
+every staff endpoint. Editing (10.2) and publishing (11.1) come
 next.
 
 ## Decision
@@ -73,12 +74,14 @@ next.
   is lazy, but the parts of `@angular/core` that CDK Dialog uses to create a component in a portal
   (about 14 kB) and rxjs's async scheduler (about 2 kB) are bundled with the rest of
   `@angular/core` and rxjs in `main`, which a lazy chunk cannot split. The events page adds
-  2.4 kB of core. The admin initial total goes from 257.70 kB to 274.73 kB, within 0.27 kB of the
-  old error budget; every later dialog reuses what is now paid for.
+  2.4 kB of core. The admin initial total goes from 258.98 kB to 275.88 kB, past the old error
+  budget of 275 kB; every later dialog reuses what is now paid for.
 - **Toasts are a screen's service.** `TOASTS_SERVICE` (`ToastsApi`, `api`) is bound to
   `ToastStore` (`domain`) on the events page: a toast leaves after 6 seconds, Dismiss removes it at
   once, at most three show, and the store's timers end with the page. `ToastRegion`
   (`components`) draws the region, always present so its polite status is announced.
+- **The list's error state is slice 18.1's `ErrorState`,** whose back link becomes optional, since
+  the Events page has nowhere to go back to.
 - **Two stand-ins in the list's states.** The error state leaves out the mock's reference line
   ("Reference CF-A2E4"): a failed `GET` that got no answer has no trace id to show. The Draft tab
   with no drafts, which no mock draws, reuses the `tab-empty` layout with "No drafts" / "Save an

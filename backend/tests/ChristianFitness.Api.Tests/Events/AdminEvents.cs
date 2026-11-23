@@ -9,7 +9,7 @@ namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
 /// What the admin event tests need: the API with a clock they move, a signed-in staff member, and
-/// the event the event editor mock draws, as the admin app sends it (ADR 0015).
+/// the event the event editor mock draws, as the admin app sends it (ADR 0017).
 /// </summary>
 internal static class AdminEvents
 {

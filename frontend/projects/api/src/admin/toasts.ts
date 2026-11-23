@@ -8,7 +8,7 @@ export interface Toast {
 }
 
 /**
- * The toasts a screen shows (ADR 0015): `show` adds one that leaves by itself after about 6
+ * The toasts a screen shows (ADR 0017): `show` adds one that leaves by itself after about 6
  * seconds, `dismiss` removes one at once. At most three show at a time; a fourth pushes the oldest
  * out. Its timers end with the screen that provides it.
  */

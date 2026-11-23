@@ -4,7 +4,7 @@ using FluentValidation;
 namespace ChristianFitness.Application.Events;
 
 /// <summary>
-/// The event editor's rules (L2-022 AC2; ADR 0015). Every field is required; each failure carries
+/// The event editor's rules (L2-022 AC2; ADR 0017). Every field is required; each failure carries
 /// its field's own code, which the API names in the refusal's <c>fieldCodes</c>, and a fixed
 /// sentence that never repeats the value. One failure per field: the first rule that fails.
 /// </summary>

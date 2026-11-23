@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Events;
 namespace ChristianFitness.Application.Events;
 
 /// <summary>
-/// An event as the admin app shows it (ADR 0015): the start as an instant in UTC, which the app
+/// An event as the admin app shows it (ADR 0017): the start as an instant in UTC, which the app
 /// shows in Toronto, the price in cents, and the category and status by their lower-case names.
 /// Numbers are fields, never words (AGENTS.md).
 /// </summary>

@@ -1,6 +1,6 @@
 import { eventWhen } from './event-when';
 
-// ADR 0015: the staff list shows each event's start in Toronto, as the mock draws it
+// ADR 0017: the staff list shows each event's start in Toronto, as the mock draws it
 // ("May 06 · 9:30 AM"), wherever the browser is. The API's EventScheduleTests
 // (backend/tests/ChristianFitness.Application.Tests/Events) compute the same instants.
 describe('eventWhen', () => {

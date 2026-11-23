@@ -1,6 +1,6 @@
 import { adminEventTabOf, adminEventTabs, eventCategoryLabel } from './admin-event-tabs';
 
-// L2-022 AC5 (ADR 0015): the tab a URL's `status` names; anything else is All.
+// L2-022 AC5 (ADR 0017): the tab a URL's `status` names; anything else is All.
 describe('adminEventTabOf', () => {
   it.each([
     { why: 'no status', status: null, expected: 'all' },

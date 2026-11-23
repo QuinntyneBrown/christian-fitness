@@ -11,7 +11,7 @@ export type EventStatus = 'draft' | 'published';
 export type AdminEventTab = 'all' | 'published' | 'draft';
 
 /**
- * An event as staff see it (`AdminEventDto`, ADR 0015): the start as an ISO instant in UTC, shown
+ * An event as staff see it (`AdminEventDto`, ADR 0017): the start as an ISO instant in UTC, shown
  * in Toronto; the price in cents (0 is free).
  */
 export interface AdminEventDto {
@@ -57,7 +57,7 @@ export interface CreateEventRequestDto {
   summary: string;
 }
 
-/** Staff list events and create drafts (L2-022; ADR 0015). */
+/** Staff list events and create drafts (L2-022; ADR 0017). */
 export interface AdminEventsApi {
   /** The counts of every tab and the events of `tab`. A failure errors with an `ApiError`. */
   list(tab: AdminEventTab): Observable<AdminEventListDto>;

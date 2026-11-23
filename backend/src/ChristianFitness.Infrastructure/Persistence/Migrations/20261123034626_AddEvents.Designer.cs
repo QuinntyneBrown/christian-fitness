@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261123025910_AddEvents")]
+    [Migration("20261123034626_AddEvents")]
     partial class AddEvents
     {
         /// <inheritdoc />
@@ -86,10 +86,22 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Bio")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
+
+                    b.PrimitiveCollection<string[]>("Goals")
+                        .IsRequired()
+                        .HasColumnType("text[]");
 
                     b.Property<string>("HomeChurch")
                         .HasMaxLength(120)

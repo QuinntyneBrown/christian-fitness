@@ -37,7 +37,7 @@ export const routes: Routes = [
         loadComponent: area,
       },
       {
-        // Every event under All, Published and Draft, and the event editor (slice 10.1; ADR 0015).
+        // Every event under All, Published and Draft, and the event editor (slice 10.1; ADR 0017).
         path: 'events',
         title: 'Events · Christian Fitness Admin',
         loadComponent: () => import('./pages/events/events-page').then((m) => m.AdminEventsPage),

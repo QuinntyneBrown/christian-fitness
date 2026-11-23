@@ -6,7 +6,7 @@ using MediatR;
 namespace ChristianFitness.Application.Events;
 
 /// <summary>
-/// The event editor's fields, as the admin app sends them (L2-022 AC1; ADR 0015): the start as the
+/// The event editor's fields, as the admin app sends them (L2-022 AC1; ADR 0017): the start as the
 /// Toronto date (<c>yyyy-MM-dd</c>) and time (<c>HH:mm</c>) staff typed, the price in cents (0 is
 /// free) and the category by its lower-case name. A plain staff command: Admin-only access and its
 /// audit entry are slices 29.1 and 29.2.

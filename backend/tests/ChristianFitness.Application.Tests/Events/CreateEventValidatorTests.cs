@@ -4,7 +4,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Events;
 
 /// <summary>
-/// L2-022 AC2 (ADR 0015): the event editor's rules, one case per row: each limit on both sides of
+/// L2-022 AC2 (ADR 0017): the event editor's rules, one case per row: each limit on both sides of
 /// its edge, and the code of the one field that fails. The clock is the mocks' today, Wednesday,
 /// April 15, 2026, 8:45 AM in Toronto (12:45 UTC).
 /// </summary>
