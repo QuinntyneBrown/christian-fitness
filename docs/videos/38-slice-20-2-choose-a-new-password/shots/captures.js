@@ -7,17 +7,17 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 215,
-    "total": 215
+    "passed": 244,
+    "total": 244
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 117,
-    "files": 18
+    "tests": 131,
+    "files": 19
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 240,
+    "passed": 300,
     "complete": [
       "Given a new password was saved When the member signs in Then the new password works and the old one does not",
       "Given a usable link When a new password is saved Then it answers 204 with no body",
@@ -42,7 +42,7 @@ window.FILM_CAPTURES = {
   },
   "build": {
     "command": "npx ng build web",
-    "raw": 258.95,
+    "raw": 259.04,
     "transfer": 67.61
   }
 };
