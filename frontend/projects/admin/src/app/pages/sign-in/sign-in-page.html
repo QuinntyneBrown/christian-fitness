@@ -40,6 +40,12 @@
       heading="Too many codes tried"
       text="For your security, wait 15 minutes, then sign in again."
     />
+  } @else if (refusal() === 'session-expired') {
+    <cf-form-alert
+      slot="alert"
+      heading="Your session expired"
+      text="You were signed out after 30 minutes without activity. Sign in again to carry on."
+    />
   } @else if (refusal() === 'failed') {
     <cf-form-alert
       slot="alert"

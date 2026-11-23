@@ -23,8 +23,9 @@ export const routes: Routes = [
   },
   {
     // Every staff route is a child of the shell, which opens only with a staff session (ADR 0011).
+    // The guard runs for every child, so each move between areas checks the session (ADR 0014).
     path: '',
-    canActivate: [staffAuthGuard],
+    canActivateChild: [staffAuthGuard],
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {

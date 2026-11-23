@@ -24,3 +24,4 @@ export * from './admin/two-step-refusal';
 export * from './events/going-date';
 export * from './members/interest-labels';
 export * from './members/member-since';
+export * from './admin/session-expiry';
