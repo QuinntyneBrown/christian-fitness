@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="moderate-member">
 <meta name="mock:state" content="flagged">
 <meta name="mock:source" content="Derived: the Members frame&#x27;s rows; the prototype draws no flag, suspend or note control (ADR 0025).">
-<meta name="description" content="A Flagged member (Kevin Brooks) can only be suspended: no choice, focus on the note.">
+<meta name="description" content="A Flagged member (Kevin Brooks) can be reinstated or suspended: Reinstate chosen, no note to write.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -110,7 +110,7 @@
                 <td class="table__nowrap">Mar 30, 2026</td>
                 <td class="table__num">0</td>
                 <td><span class="status status--suspended">Suspended</span><p class="table__sub">Spam messages, suspended Apr 4</p></td>
-                <td class="table__end"></td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/moderate-member/suspended.html">Moderate<span class="visually-hidden"> Tyler Simmons</span></button></td>
               </tr></tbody>
           </table>
         </div><nav class="pagination mt-3" aria-label="Pagination">
@@ -129,18 +129,18 @@
 <div class="scrim" aria-hidden="true"></div>
 <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc" data-dismiss-on-escape>
   <div class="dialog__head">
-    <div><h2 class="display dialog__title" id="dlg-title">Suspend Kevin Brooks</h2><p class="dialog__sub" id="dlg-desc">kbrooks.fit@gmail.com · Flagged</p></div>
+    <div><h2 class="display dialog__title" id="dlg-title">Moderate Kevin Brooks</h2><p class="dialog__sub" id="dlg-desc">kbrooks.fit@gmail.com · Flagged</p></div>
     <button class="icon-button dialog__close" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
   <div class="dialog__body">
     
+    <fieldset class="field"><legend class="field__legend">What do you want to do?</legend><div class="choice-group"><label class="choice"><input class="choice__input" type="radio" name="action" value="reinstate" autofocus checked><span><span class="choice__label">Reinstate</span><span class="choice__desc">Returns them to Active and clears the note on their row.</span></span></label><label class="choice"><input class="choice__input" type="radio" name="action" value="suspend"><span><span class="choice__label">Suspend</span><span class="choice__desc">Signs them out everywhere. They cannot sign in until they are reinstated.</span></span></label></div></fieldset>
     
-    <div class="field"><label class="field__label" for="f-note">Note</label><textarea class="textarea" id="f-note" autofocus name="note" rows="3" aria-describedby="f-note-hint">Spam messages to the Sunrise 5K group</textarea><span class="field__hint" id="f-note-hint">Staff see this on the member's row. 463 characters left.</span></div>
-    <fieldset class="field"><legend class="field__legend">Confirm</legend><label class="check check--ui"><input class="check__box" id="f-confirmed" type="checkbox" checked> Suspend Kevin Brooks and end their sessions</label></fieldset>
+    
   </div>
   <div class="dialog__foot">
     <button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-members/default.html">Cancel</button>
-    <button class="btn btn--primary btn--grow" type="submit" data-mock-href="../../notifications/admin-toast/member-suspended.html">Suspend member</button>
+    <button class="btn btn--primary btn--grow" type="submit" data-mock-href="../../notifications/admin-toast/member-reinstated.html">Reinstate member</button>
   </div>
 </div>
 <nav class="mock-bar" aria-label="Mock navigation">
@@ -150,6 +150,8 @@
     <li><a href="default.html">default</a></li>
     <li><a href="suspend.html">suspend</a></li>
     <li><a href="flagged.html" aria-current="page">flagged</a></li>
+    <li><a href="flagged-suspend.html">flagged-suspend</a></li>
+    <li><a href="suspended.html">suspended</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="busy.html">busy</a></li>
     <li><a href="failed.html">failed</a></li>

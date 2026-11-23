@@ -6,6 +6,7 @@ import { ModerateMemberDialog } from '../page-objects/admin/moderate-member.dial
 
 const PRIYA = CAST_MEMBERS[2]!;
 const KEVIN = CAST_MEMBERS[3]!;
+const TYLER = CAST_MEMBERS[6]!;
 const NOTE = 'Two members asked about messages from this account';
 
 interface Sent {
@@ -14,7 +15,7 @@ interface Sent {
 }
 
 /**
- * Answers the list from a copy of the cast and each flag or suspend as the API does: the member
+ * Answers the list from a copy of the cast and each flag, suspend or reinstate as the API does: the member
  * changes, their row is answered, and the list shows them changed from then on. Records what was
  * sent.
  */
@@ -22,14 +23,14 @@ function answerModeration(api: ApiHandlers, all: AdminMemberFixture[] = CAST_MEM
   const members = all.map((m) => ({ ...m }));
   const sent: Sent[] = [];
   answerMembers(api, members);
-  api.on('POST', /^\/api\/admin\/members\/[^/]+\/(flag|suspend)$/, (request) => {
+  api.on('POST', /^\/api\/admin\/members\/[^/]+\/(flag|suspend|reinstate)$/, (request) => {
     const path = new URL(request.url()).pathname;
-    const body = request.postDataJSON() as { note: string };
+    const body = request.postDataJSON() as { note: string } | null;
     sent.push({ path, body });
     const [, , , , id, action] = path.split('/');
     const member = members.find((m) => m.id === id)!;
-    member.status = action === 'flag' ? 'flagged' : 'suspended';
-    member.note = body.note;
+    member.status = action === 'flag' ? 'flagged' : action === 'suspend' ? 'suspended' : 'active';
+    member.note = body?.note ?? null;
     return { json: member };
   });
   return sent;
@@ -37,10 +38,7 @@ function answerModeration(api: ApiHandlers, all: AdminMemberFixture[] = CAST_MEM
 
 // L2-029 AC1 and AC9 (ADR 0025): each row shows its note and offers what its status allows.
 test.describe('Admin app, the Members page before moderating', () => {
-  test('a note shows under its status, and only rows that can be moderated have Moderate', async ({
-    page,
-    api,
-  }) => {
+  test('a note shows under its status, and every row has Moderate', async ({ page, api }) => {
     answerMembers(api);
     const members = new AdminMembersPage(page);
 
@@ -56,11 +54,11 @@ test.describe('Admin app, the Members page before moderating', () => {
       '',
       'Spam messages, suspended Apr 4',
     ]);
-    // Six rows are Active or Flagged; Tyler Simmons is Suspended, and reinstating is slice 27.2.
-    await expect(members.moderateButtons()).toHaveCount(6);
+    // Every status allows something: Tyler Simmons, Suspended, can be reinstated.
+    await expect(members.moderateButtons()).toHaveCount(7);
     await expect(members.moderateButton('Priya Nair')).toBeVisible();
     await expect(members.moderateButton('Kevin Brooks')).toBeVisible();
-    await expect(members.moderateButton('Tyler Simmons')).toHaveCount(0);
+    await expect(members.moderateButton('Tyler Simmons')).toBeVisible();
   });
 
   test('a note is rendered as text, never as HTML', async ({ page, api }) => {
@@ -235,8 +233,8 @@ test.describe('Admin app, suspending a member', () => {
       'They are signed out everywhere and cannot sign in.',
     );
     expect((await members.rowTexts())[2]?.[5]).toBe('Suspended');
-    // A suspended row has nothing left to moderate.
-    await expect(members.moderateButton('Priya Nair')).toHaveCount(0);
+    // A suspended row can still be moderated: it can be reinstated.
+    await expect(members.moderateButton('Priya Nair')).toBeVisible();
   });
 
   test('a flag with no note names only the note', async ({ page, api }) => {
@@ -288,7 +286,8 @@ test.describe('Admin app, suspending a member', () => {
     expect(sent).toEqual([]);
   });
 
-  test('a Flagged member can only be suspended: no choice, focus on the note', async ({
+  // Mock moderate-member/flagged-suspend.
+  test('a Flagged member can be suspended once Suspend is chosen over Reinstate', async ({
     page,
     api,
   }) => {
@@ -296,16 +295,14 @@ test.describe('Admin app, suspending a member', () => {
     const members = new AdminMembersPage(page);
     const dialog = new ModerateMemberDialog(page);
     await members.open();
-
     await members.moderateButton('Kevin Brooks').click();
+    await expect(dialog.dialog).toHaveAccessibleName('Moderate Kevin Brooks');
+    await expect(dialog.note).toHaveCount(0);
 
-    await expect(dialog.dialog).toHaveAccessibleName('Suspend Kevin Brooks');
-    await expect(dialog.dialog).toHaveAccessibleDescription('kbrooks.fit@gmail.com · Flagged');
-    await expect(dialog.actions).toHaveCount(0);
-    await expect(dialog.note).toBeFocused();
+    await dialog.suspendChoice.check();
+
     await expect(dialog.note).toHaveValue('');
     await expect(dialog.confirmation).toBeVisible();
-
     await dialog.note.fill('Still promoting supplements');
     await dialog.confirmation.check();
     await dialog.submitButton.click();
@@ -366,12 +363,12 @@ test.describe('Admin app, a moderation the API refuses', () => {
     [
       "staff's own account",
       problem(403, 'cannot_moderate_self'),
-      "You can't flag or suspend your own account",
+      "You can't moderate your own account",
     ],
     [
       'a Moderator moderating staff',
       problem(403, 'forbidden_role'),
-      'Only an Admin can flag or suspend staff',
+      'Only an Admin can moderate staff',
     ],
     ['a status that moved', problem(409, 'status_conflict'), 'This member has changed'],
     ['a member who is gone', problem(404, 'member_not_found'), 'This member has changed'],
@@ -424,5 +421,113 @@ test.describe('Admin app, a moderation the API refuses', () => {
     await expect(dialog.dialog).toHaveCount(0);
     expect(sent).toEqual([{ path: `/api/admin/members/${PRIYA.id}/flag`, body: { note: NOTE } }]);
     await expect(members.toastTitle).toHaveText('Priya Nair flagged');
+  });
+});
+
+// L2-029 AC3 (ADR 0026; mocks moderate-member/flagged, suspended).
+test.describe('Admin app, reinstating a member', () => {
+  test('a Flagged member is offered Reinstate first, with no note, and is Active again', async ({
+    page,
+    api,
+  }) => {
+    const sent = answerModeration(api);
+    const members = new AdminMembersPage(page);
+    const dialog = new ModerateMemberDialog(page);
+    await members.open();
+
+    await members.moderateButton('Kevin Brooks').click();
+
+    await expect(dialog.dialog).toHaveAccessibleName('Moderate Kevin Brooks');
+    await expect(dialog.dialog).toHaveAccessibleDescription('kbrooks.fit@gmail.com · Flagged');
+    await expect(dialog.reinstateChoice).toBeChecked();
+    await expect.poll(() => dialog.isFocused(dialog.reinstateChoice)).toBe(true);
+    await expect(dialog.flagChoice).toHaveCount(0);
+    await expect(dialog.suspendChoice).not.toBeChecked();
+    await expect(dialog.note).toHaveCount(0);
+    await expect(dialog.confirmation).toHaveCount(0);
+    await expect(dialog.submitButton).toHaveText('Reinstate member');
+
+    await dialog.submitButton.click();
+
+    await expect(dialog.dialog).toHaveCount(0);
+    expect(sent).toEqual([{ path: `/api/admin/members/${KEVIN.id}/reinstate`, body: null }]);
+    await expect(members.toastTitle).toHaveText('Kevin Brooks reinstated');
+    await expect(members.toastText).toHaveText('They are Active again and can sign in.');
+    expect((await members.rowTexts())[3]?.[5]).toBe('Active');
+    expect((await members.notes())[3]).toBe('');
+    await expect(members.tableRegion).toBeFocused();
+  });
+
+  test('a Suspended member can only be reinstated: no choice, no field, and the dialog says what it means', async ({
+    page,
+    api,
+  }) => {
+    const sent = answerModeration(api);
+    const members = new AdminMembersPage(page);
+    const dialog = new ModerateMemberDialog(page);
+    await members.open();
+
+    await members.moderateButton('Tyler Simmons').click();
+
+    await expect(dialog.dialog).toHaveAccessibleName('Reinstate Tyler Simmons');
+    await expect(dialog.dialog).toHaveAccessibleDescription('tsimmons22@gmail.com · Suspended');
+    await expect(dialog.dialog).toBeFocused();
+    await expect(dialog.actions).toHaveCount(0);
+    await expect(dialog.note).toHaveCount(0);
+    await expect(dialog.confirmation).toHaveCount(0);
+    await expect(dialog.info).toHaveAttribute('role', 'status');
+    await expect(dialog.info).toContainText('Tyler Simmons will be able to sign in again');
+    await expect(dialog.info).toContainText(
+      'Their status goes back to Active and the note on their row is cleared.',
+    );
+    await expect(dialog.submitButton).toHaveText('Reinstate member');
+
+    await dialog.submitButton.click();
+
+    await expect(dialog.dialog).toHaveCount(0);
+    expect(sent).toEqual([{ path: `/api/admin/members/${TYLER.id}/reinstate`, body: null }]);
+    await expect(members.toastTitle).toHaveText('Tyler Simmons reinstated');
+    expect((await members.rowTexts())[6]?.[5]).toBe('Active');
+    expect((await members.notes())[6]).toBe('');
+  });
+
+  test('switching from Suspend back to Reinstate drops what Suspend asked for', async ({
+    page,
+    api,
+  }) => {
+    const sent = answerModeration(api);
+    const members = new AdminMembersPage(page);
+    const dialog = new ModerateMemberDialog(page);
+    await members.open();
+    await members.moderateButton('Kevin Brooks').click();
+    await dialog.suspendChoice.check();
+    await dialog.submitButton.click();
+    await expect(dialog.alertTitle).toHaveText('2 things to fix');
+
+    await dialog.reinstateChoice.check();
+
+    await expect(dialog.alert).toHaveCount(0);
+    await expect(dialog.note).toHaveCount(0);
+    await dialog.submitButton.click();
+    await expect(dialog.dialog).toHaveCount(0);
+    expect(sent).toEqual([{ path: `/api/admin/members/${KEVIN.id}/reinstate`, body: null }]);
+  });
+
+  test('a reinstatement the API refuses says the member has changed', async ({ page, api }) => {
+    answerMembers(api);
+    api.on('POST', `/api/admin/members/${TYLER.id}/reinstate`, () =>
+      problem(409, 'status_conflict'),
+    );
+    const members = new AdminMembersPage(page);
+    const dialog = new ModerateMemberDialog(page);
+    await members.open();
+    await members.moderateButton('Tyler Simmons').click();
+
+    await dialog.submitButton.click();
+
+    await expect(dialog.alertTitle).toHaveText('This member has changed');
+    await expect(dialog.alert).toBeFocused();
+    await expect(dialog.submitButton).toBeEnabled();
+    await expect(members.toast).toHaveCount(0);
   });
 });

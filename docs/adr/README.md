@@ -30,3 +30,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0023](0023-audit-staff-changes.md)                        | Audit staff changes: a marker on each staff command, a trail the handler fills and a behaviour that saves it | Accepted |
 | [0024](0024-edit-my-profile.md) | Edit my profile: an owner-only write by member id, one rule table in both stacks, and a CDK Dialog composed from the library and loaded on first use | Accepted |
 | [0025](0025-flag-and-suspend-members.md) | Flag and suspend members: one moderation dialog, a note on the member, refusals by code, and who may moderate whom | Accepted |
+| [0026](0026-reinstate-members.md) | Reinstate members: no note, the earlier note cleared, and the same dialog | Accepted |
