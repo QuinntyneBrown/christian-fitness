@@ -20,8 +20,10 @@ export class WebEventChatPage {
   readonly latestButton: Locator;
   readonly notSent: Locator;
   readonly retrySendButton: Locator;
+  readonly cancelledNotice: Locator;
 
   constructor(private readonly page: Page) {
+    this.cancelledNotice = page.getByRole('status').filter({ hasText: 'This event was cancelled' });
     this.chatTitle = page.locator('.chat-page__name');
     this.subtitle = page.locator('.chat-page__sub');
     this.backLink = page.getByRole('link', { name: 'Back to event' });

@@ -24,14 +24,14 @@ internal sealed class JoinChatHandler(IAppDbContext db, IChatChannel channel) : 
     public async Task<ChatAnswer> Handle(JoinChatCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var title = await ChatMembership.TitleForAsync(db, request.EventId, request.MemberId, cancellationToken).ConfigureAwait(false);
-        if (title is null)
+        var seat = await ChatMembership.SeatAsync(db, request.EventId, request.MemberId, cancellationToken).ConfigureAwait(false);
+        if (seat is null)
         {
             return ChatAnswer.Refused(RefusalCodes.NotAParticipant);
         }
 
-        await channel.JoinAsync(request.ConnectionId, request.EventId, cancellationToken).ConfigureAwait(false);
-        return new ChatAnswer(null, title, request.MemberId);
+        await channel.JoinAsync(request.ConnectionId, request.MemberId, request.EventId, cancellationToken).ConfigureAwait(false);
+        return new ChatAnswer(null, seat.Title, request.MemberId);
     }
 }
 
@@ -44,9 +44,15 @@ internal sealed class SendChatMessageHandler(IAppDbContext db, IChatChannel chan
     public async Task<ChatAnswer> Handle(SendChatMessageCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (await ChatMembership.TitleForAsync(db, request.EventId, request.MemberId, cancellationToken).ConfigureAwait(false) is null)
+        var seat = await ChatMembership.SeatAsync(db, request.EventId, request.MemberId, cancellationToken).ConfigureAwait(false);
+        if (seat is null)
         {
             return ChatAnswer.Refused(RefusalCodes.NotAParticipant);
+        }
+
+        if (seat.Cancelled)
+        {
+            return ChatAnswer.Refused(RefusalCodes.EventCancelled);
         }
 
         if (string.IsNullOrWhiteSpace(request.Text) || request.Text.Length > MaxLength)
@@ -68,13 +74,16 @@ internal sealed class SendChatMessageHandler(IAppDbContext db, IChatChannel chan
     }
 }
 
+/// <summary>An event's chat as a participant sees it: its title and whether the event was cancelled.</summary>
+internal sealed record ChatSeat(string Title, bool Cancelled);
+
 internal static class ChatMembership
 {
-    /// <summary>The event's title when the member is registered for it, else <c>null</c>.</summary>
-    public static Task<string?> TitleForAsync(IAppDbContext db, Guid eventId, Guid memberId, CancellationToken cancellationToken) =>
+    /// <summary>The event's chat when the member is registered for it, else <c>null</c>: a registration is the membership (ADR 0041).</summary>
+    public static Task<ChatSeat?> SeatAsync(IAppDbContext db, Guid eventId, Guid memberId, CancellationToken cancellationToken) =>
         db.Registrations.AsNoTracking()
             .Where(r => r.EventId == eventId && r.MemberId == memberId)
-            .Join(db.Events, r => r.EventId, e => e.Id, (_, e) => e.Title)
-            .Cast<string?>()
+            .Join(db.Events, r => r.EventId, e => e.Id, (_, e) => new ChatSeat(e.Title, e.Status == EventStatus.Cancelled))
+            .Cast<ChatSeat?>()
             .FirstOrDefaultAsync(cancellationToken);
 }

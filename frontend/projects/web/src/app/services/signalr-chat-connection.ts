@@ -14,12 +14,14 @@ import { Subject } from 'rxjs';
 export class SignalRChatConnection implements ChatConnection, OnDestroy {
   private readonly current = signal<ChatConnectionState>('connecting');
   private readonly incoming = new Subject<ChatMessageDto>();
+  private readonly cancelledEvents = new Subject<string>();
   private connection: HubConnection | null = null;
   private starting: Promise<HubConnection> | null = null;
   private destroyed = false;
 
   readonly state = this.current.asReadonly();
   readonly messages = this.incoming.asObservable();
+  readonly cancelled = this.cancelledEvents.asObservable();
 
   async join(eventId: string): Promise<ChatAnswerDto> {
     const connection = await this.connect();
@@ -34,9 +36,11 @@ export class SignalRChatConnection implements ChatConnection, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed = true;
     this.connection?.off('MessageReceived');
+    this.connection?.off('EventCancelled');
     void this.connection?.stop();
     this.connection = null;
     this.incoming.complete();
+    this.cancelledEvents.complete();
   }
 
   private connect(): Promise<HubConnection> {
@@ -58,6 +62,7 @@ export class SignalRChatConnection implements ChatConnection, OnDestroy {
       .withAutomaticReconnect()
       .build();
     connection.on('MessageReceived', (message: ChatMessageDto) => this.incoming.next(message));
+    connection.on('EventCancelled', (eventId: string) => this.cancelledEvents.next(eventId));
     connection.onreconnecting(() => this.current.set('reconnecting'));
     connection.onreconnected(() => this.current.set('connected'));
     connection.onclose(() => this.current.set('closed'));

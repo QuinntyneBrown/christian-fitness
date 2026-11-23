@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Chat;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Events;
 using MediatR;
@@ -14,7 +15,7 @@ namespace ChristianFitness.Application.Events;
 /// </summary>
 public sealed record CancelRegistrationCommand(Guid EventId) : IRequest<EventDetailDto>;
 
-internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember current, TimeProvider time)
+internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember current, TimeProvider time, IChatChannel chat)
     : IRequestHandler<CancelRegistrationCommand, EventDetailDto>
 {
     public async Task<EventDetailDto> Handle(CancelRegistrationCommand request, CancellationToken cancellationToken)
@@ -46,6 +47,7 @@ internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember
             try
             {
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await chat.LeaveAsync(memberId, e.Id, cancellationToken).ConfigureAwait(false);
                 return EventDetailDto.Of(e, going - 1, null);
             }
             catch (DbUpdateConcurrencyException)

@@ -45,6 +45,9 @@ public static class RefusalCodes
     /// <summary>The member is not registered for the event whose chat they asked for (L2-016; ADR 0039).</summary>
     public const string NotAParticipant = "not_a_participant";
 
+    /// <summary>The event whose chat a message was sent to has been cancelled (L2-023 AC2; ADR 0041).</summary>
+    public const string EventCancelled = "event_cancelled";
+
     /// <summary>A chat message is empty or longer than 2,000 characters (L2-016; ADR 0039).</summary>
     public const string MessageInvalid = "message_invalid";
 

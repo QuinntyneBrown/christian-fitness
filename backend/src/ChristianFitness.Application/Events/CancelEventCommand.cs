@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Audit;
+using ChristianFitness.Application.Chat;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Sessions;
 using ChristianFitness.Domain.Events;
@@ -18,7 +19,7 @@ public sealed record CancelEventCommand(Guid Id) : IRequest<AdminEventDto>, IAud
     string IAuditableCommand.AuditAction => "event.cancelled";
 }
 
-internal sealed class CancelEventHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, AuditTrail audit)
+internal sealed class CancelEventHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, AuditTrail audit, IChatChannel chat)
     : IRequestHandler<CancelEventCommand, AdminEventDto>
 {
     public async Task<AdminEventDto> Handle(CancelEventCommand request, CancellationToken cancellationToken)
@@ -51,6 +52,7 @@ internal sealed class CancelEventHandler(IAppDbContext db, IRegistrationReader r
             }
         }
 
+        await chat.NotifyCancelledAsync(stored.Id, cancellationToken).ConfigureAwait(false);
         var going = await registrations.GoingAsync(stored.Id, cancellationToken).ConfigureAwait(false);
         return AdminEventDto.Of(stored, going);
     }

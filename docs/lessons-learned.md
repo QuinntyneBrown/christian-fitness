@@ -1778,3 +1778,30 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Use the Edit and Write tools" (7.1 on): followed except for the one script above.
 - "Count a slice's new specs against the CI budget" (24.1): six specs added (four history, two failed sends); the run is now
   faster than before the slice.
+
+## Slice 12.3: Group membership
+
+**What slowed it**
+
+- The deferred work was larger than the row: 7.1 and 11.2 had left leaving the chat and a cancelled-event notice to this
+  slice. A SignalR group needs a connection id to remove, and a cancel arrives over HTTP, so `HubChatChannel` keeps a map from
+  member and event to connection ids (dropped in `OnDisconnectedAsync`). ADR 0041 records it with the notice design.
+- No mock drew a cancelled chat: `messages/cancelled` was added first (the design system's info alert in place of the composer).
+- Shell mishaps: a pipe in a Prettier call hit "Resource temporarily unavailable" forks once; rerun without it passed.
+
+**New lessons**
+
+- The registration already was the membership, so no table: leaving is "remove this member's connections from the group", and
+  the history and join checks needed no change except one shared `ChatMembership.SeatAsync` that also reports `cancelled`.
+- Prove a member left with a second member as the witness: the other member receives first, then the leaver's inbox is empty.
+- A new hub push (`EventCancelled`) needs the fake hub's `cancelEvent`, and a new history field needs the fixture's default, or
+  every chat spec would read `undefined`.
+- Lazy chat code costs `main` nothing: both initial totals stayed under 280 kB (web 279.25 kB); `cf-alert` was already in the library.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 12.2): the two new API tests failed before the code for the right reasons
+  (Grace received after leaving; no `EventCancelled` arrived); the two specs failed on the missing notice.
+- "Read the initial total after each new API" (30.1 to 12.2): no new Angular API was used in `main`.
+- "Use the Edit and Write tools" (7.1 on): mostly followed; a few multi-file edits went through Node snippets that threw on a
+  missing match, and none failed.

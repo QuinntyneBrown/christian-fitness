@@ -37,6 +37,9 @@ export interface ChatConnection {
   /** Every message the chat receives, mine included, once `join` has been answered without a code. */
   readonly messages: Observable<ChatMessageDto>;
 
+  /** The id of an event whose chat the member is in when staff cancel it (slice 12.3; ADR 0041). */
+  readonly cancelled: Observable<string>;
+
   /** Connects if need be and joins the event's chat. Rejects when the connection cannot be made. */
   join(eventId: string): Promise<ChatAnswerDto>;
 
@@ -51,6 +54,8 @@ export const CHAT_CONNECTION = new InjectionToken<ChatConnection>('CHAT_CONNECTI
 export interface ChatHistoryDto {
   messages: ChatMessageDto[];
   hasMore: boolean;
+  /** True when staff cancelled the event: the chat is read-only (ADR 0041). */
+  cancelled: boolean;
 }
 
 /**

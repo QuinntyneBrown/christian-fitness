@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Chat;
 
 /// <summary>One page of an event chat's stored messages, oldest first, and whether earlier ones remain.</summary>
-public sealed record ChatHistoryDto(IReadOnlyList<ChatMessageDto> Messages, bool HasMore);
+public sealed record ChatHistoryDto(IReadOnlyList<ChatMessageDto> Messages, bool HasMore, bool Cancelled);
 
 /// <summary>
 /// The latest <see cref="PageSize"/> messages of an event's chat, or the page before the message
@@ -23,7 +23,8 @@ internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember cur
     public async Task<ChatHistoryDto> Handle(GetChatHistoryQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (await ChatMembership.TitleForAsync(db, request.EventId, current.Id, cancellationToken).ConfigureAwait(false) is null)
+        var seat = await ChatMembership.SeatAsync(db, request.EventId, current.Id, cancellationToken).ConfigureAwait(false);
+        if (seat is null)
         {
             throw new RefusalException(RefusalCodes.NotAParticipant, RefusalKind.Forbidden);
         }
@@ -36,7 +37,7 @@ internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember cur
                 .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
             if (cut is null)
             {
-                return new ChatHistoryDto([], false);
+                return new ChatHistoryDto([], false, seat.Cancelled);
             }
 
             messages = messages.Where(m => m.SentAt < cut.SentAt);
@@ -55,6 +56,6 @@ internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember cur
             .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
             .ConfigureAwait(false);
         var page = held.Select(m => new ChatMessageDto(m.Id, m.EventId, m.AuthorId, names[m.AuthorId], m.Text, m.SentAt)).ToList();
-        return new ChatHistoryDto(page, hasMore);
+        return new ChatHistoryDto(page, hasMore, seat.Cancelled);
     }
 }
