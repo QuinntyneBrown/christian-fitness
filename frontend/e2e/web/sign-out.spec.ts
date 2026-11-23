@@ -54,6 +54,28 @@ test.describe('Member app, member routes need a session', () => {
   });
 });
 
+// L2-038 AC2 and AC7: the shell starts the page with the design system's skip link, so the
+// keyboard reaches the screen's content without going through the top bar.
+test.describe('Member app, skip link', () => {
+  test('the first Tab reaches "Skip to content", and Enter moves focus to the screen', async ({
+    page,
+  }) => {
+    const home = new WebHomePage(page);
+    const shell = new WebMemberShell(page);
+
+    await home.open();
+    await expect(home.greeting).toHaveText('Welcome, Grace');
+    await shell.press('Tab');
+
+    await expect(shell.skipLink).toBeFocused();
+    await expect(shell.skipLink).toBeInViewport();
+    await shell.press('Enter');
+
+    await expect(home.main).toBeFocused();
+    expect(home.location()).toBe('/home');
+  });
+});
+
 // L2-004 AC5, L2-008 AC4: Sign out in the app header ends the session on the server.
 test.describe('Member app, sign out', () => {
   test('Sign out ends the session and returns the member to the start', async ({ page, api }) => {

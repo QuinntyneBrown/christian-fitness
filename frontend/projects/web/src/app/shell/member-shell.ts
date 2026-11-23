@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { SESSION_SERVICE } from '@cf/api';
-import { AppHeader } from '@cf/components';
+import { SkipLink, TopBar } from '@cf/components';
 import { initialsOf } from '@cf/domain';
 import { filter } from 'rxjs';
 
@@ -10,16 +10,16 @@ import { filter } from 'rxjs';
 const PROFILE_PATH = '/profile';
 
 /**
- * The routed layout around every member route, behind `memberAuthGuard` (ADR 0007, 0009): the app
- * header above the route. Sign out ends the session on the server and returns the member to the
+ * The routed layout around every member route, behind `memberAuthGuard` (ADR 0007, 0009): the
+ * design system's skip link, then the top bar's app header above the route (ADR 0019). Sign out ends the session on the server and returns the member to the
  * start, a session that had already ended included (L2-004 AC5); any other failure keeps them where
- * they are with Sign out enabled. The header's profile avatar shows the member's initials, read once
+ * they are with Sign out enabled. The header's profile button shows the member's initials, read once
  * from `SESSION_SERVICE`, is current while Profile shows, and a plain click on it moves the router
  * (ADR 0015).
  */
 @Component({
   selector: 'cf-member-shell',
-  imports: [AppHeader, RouterOutlet],
+  imports: [RouterOutlet, SkipLink, TopBar],
   templateUrl: './member-shell.html',
   styleUrl: './member-shell.scss',
 })

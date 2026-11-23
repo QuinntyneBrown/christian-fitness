@@ -1,0 +1,63 @@
+// The design system's tab bar (docs/design-system/assets/components.css, "Member app shell"):
+// fixed to the bottom below MD, hidden from MD, where the top bar's links take over.
+:host {
+  display: contents;
+}
+
+.tab-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  padding-bottom: env(safe-area-inset-bottom);
+
+  @media (min-width: 48rem) {
+    display: none;
+  }
+}
+
+.tab-bar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: var(--layout-tabbar-height);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+
+  &[aria-current='page'] {
+    color: var(--color-fg-accent);
+  }
+
+  // The ring stays inside the bar.
+  &:focus-visible {
+    outline-offset: calc(-1 * var(--focus-ring-width) - var(--space-0-5));
+  }
+}
+
+.tab-bar__dot {
+  position: absolute;
+  right: calc(50% - var(--space-4) - var(--space-0-5));
+  top: var(--space-2);
+  width: var(--size-dot);
+  height: var(--size-dot);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+.icon--lg {
+  width: var(--size-icon-lg);
+  height: var(--size-icon-lg);
+}

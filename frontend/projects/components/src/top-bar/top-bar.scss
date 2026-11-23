@@ -1,5 +1,5 @@
-// The design system's app-header block, with the brand's lockup and seal
-// (docs/design-system/assets/components.css: "App header", "Brand: seal and lockup").
+// The design system's top bars (docs/design-system/assets/components.css: "Member app shell",
+// "Public header (landing)"). The lockup is cf-brand-lockup's.
 :host {
   display: contents;
 }
@@ -27,7 +27,44 @@
   }
 }
 
-// The profile avatar and Sign out sit together at the header's end.
+// Below MD the links hide and the tab bar carries navigation.
+.app-nav {
+  margin-left: var(--space-4);
+  display: none;
+  align-items: center;
+  gap: var(--space-1);
+
+  @media (min-width: 48rem) {
+    display: flex;
+  }
+}
+
+.app-nav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-3-5);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-canvas);
+    color: var(--color-fg-default);
+  }
+
+  &[aria-current='page'] {
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+}
+
+// The profile button and Sign out sit together at the bar's end.
 .app-header__end {
   margin-left: auto;
   display: flex;
@@ -62,7 +99,6 @@
   }
 
   &:focus-visible {
-    outline-color: var(--color-focus-ring);
     outline-offset: var(--space-1);
   }
 
@@ -80,47 +116,32 @@
   }
 }
 
-.lockup {
+.site-header {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  min-height: var(--layout-landing-header-height);
   display: flex;
-  flex-shrink: 0;
   align-items: center;
-  gap: var(--space-2-5);
-  min-height: var(--target-comfortable);
-  border-radius: var(--radius-sm);
-  color: var(--color-fg-default);
+  gap: var(--space-4);
+  padding: var(--space-4);
 
-  &:focus-visible {
-    outline-color: var(--color-focus-ring);
-    outline-offset: var(--space-1);
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
   }
 }
 
-.lockup__name {
-  white-space: nowrap;
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-medium);
-  font-style: italic;
-  text-transform: uppercase;
-  line-height: var(--line-height-none);
-  letter-spacing: var(--letter-spacing-wide);
+.site-header__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.seal {
-  flex-shrink: 0;
-  color: var(--color-fg-default);
-}
+// Below 640 px only "Join free" shows; the hero links to sign in.
+.site-header__signin {
+  display: none;
 
-.seal__ring {
-  fill: none;
-  stroke: currentColor;
-}
-
-.seal__cross {
-  fill: var(--color-fg-accent);
-}
-
-.seal--lockup {
-  width: var(--size-seal-lockup);
-  height: var(--size-seal-lockup);
+  @media (min-width: 40rem) {
+    display: inline-flex;
+  }
 }

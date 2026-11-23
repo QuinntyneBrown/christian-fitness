@@ -6,6 +6,8 @@ import type { Locator, Page } from '@playwright/test';
  * shell.
  */
 export class WebMemberShell {
+  /** The design system's skip link, the page's first stop. */
+  readonly skipLink: Locator;
   readonly header: Locator;
   readonly lockup: Locator;
   /** The `profile-button`: the member's initials, a link to Profile. */
@@ -13,10 +15,16 @@ export class WebMemberShell {
   readonly signOutButton: Locator;
 
   constructor(private readonly page: Page) {
+    this.skipLink = page.getByRole('link', { name: 'Skip to content' });
     this.header = page.locator('.app-header');
     this.lockup = this.header.locator('.lockup');
     this.profileButton = this.header.getByRole('link', { name: 'Your profile' });
     this.signOutButton = this.header.getByRole('button', { name: 'Sign out' });
+  }
+
+  /** Presses one key, such as Tab or Enter, wherever focus is. */
+  async press(key: string): Promise<void> {
+    await this.page.keyboard.press(key);
   }
 
   async openProfile(): Promise<void> {

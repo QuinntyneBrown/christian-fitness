@@ -1,21 +1,9 @@
-// The design system's admin block and the brand's light seal
-// (docs/design-system/assets/components.css: "Admin shell", "Brand: seal and lockup").
+// The design system's admin sidebar (docs/design-system/assets/components.css, "Admin shell").
 // Mobile first: below LG the sidebar is a band, the brand and Sign out on one row and the links
-// in a row under them; from LG, a sticky column with the staff member at its foot.
+// in a row under them; from LG, a sticky full-height column with the staff member at its foot.
+// The host takes no box, so the sidebar is the layout's flex item and can stick.
 :host {
-  display: block;
-}
-
-.admin {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  background: var(--color-bg-canvas);
-  color: var(--color-fg-default);
-
-  @media (min-width: 64rem) {
-    flex-direction: row;
-  }
+  display: contents;
 }
 
 .admin__sidebar {
@@ -38,6 +26,7 @@
   }
 }
 
+// In the dark theme the chrome stays dark and gains a hairline so it parts from the canvas.
 :host-context([data-theme='dark']) .admin__sidebar {
   border-right: var(--border-width-hairline) solid var(--color-border-default);
 }
@@ -80,7 +69,7 @@
   min-width: 0;
 }
 
-// The staff member (AdminUser) sits at the end of the brand row below LG, at the foot from LG.
+// The staff member sits at the end of the brand row below LG, at the foot from LG.
 .admin__user {
   grid-row: 1;
   grid-column: 2;
@@ -91,45 +80,4 @@
     border-top: var(--border-width-hairline) solid var(--color-border-on-chrome);
     padding: var(--space-5) var(--space-6);
   }
-}
-
-.admin__main {
-  min-width: 0;
-  flex: 1 1 0%;
-}
-
-.admin__page {
-  max-width: var(--layout-admin-max);
-  margin-inline: auto;
-  padding: var(--space-8) var(--space-4);
-
-  @media (min-width: 40rem) {
-    padding-inline: var(--space-8);
-  }
-
-  @media (min-width: 64rem) {
-    padding-block: var(--space-10);
-  }
-}
-
-.seal {
-  flex-shrink: 0;
-}
-
-.seal__ring {
-  fill: none;
-  stroke: currentColor;
-}
-
-.seal--light {
-  color: var(--color-fg-on-brand);
-
-  .seal__cross {
-    fill: var(--color-highlight);
-  }
-}
-
-.seal--lockup {
-  width: var(--size-seal-lockup);
-  height: var(--size-seal-lockup);
 }

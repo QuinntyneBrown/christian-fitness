@@ -50,7 +50,12 @@
           </svg>
         }
       }
-      {{ item.label }}</a
-    >
+      {{ item.label }}
+      @if (item.count && item.count > 0) {
+        <span class="admin-nav__count" [attr.aria-label]="item.countLabel ?? null">{{
+          item.count
+        }}</span>
+      }
+    </a>
   }
 </nav>

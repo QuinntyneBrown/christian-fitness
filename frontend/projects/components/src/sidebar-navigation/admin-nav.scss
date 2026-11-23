@@ -53,6 +53,23 @@
   }
 }
 
+// Work waiting: a pill at the end of the link; on the current link it turns white.
+.admin-nav__count {
+  margin-left: auto;
+  border-radius: var(--radius-full);
+  padding-inline: var(--space-1-5);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-sm);
+  background: var(--color-bg-chrome-badge);
+  color: var(--color-fg-on-chrome-badge);
+
+  [aria-current='page'] > & {
+    background: var(--color-bg-brand-inverse);
+    color: var(--color-fg-brand-inverse);
+  }
+}
+
 .icon--md {
   width: var(--size-icon-md);
   height: var(--size-icon-md);

@@ -1,0 +1,23 @@
+<aside class="admin__sidebar">
+  <div class="admin__brand">
+    <cf-seal size="lockup" light decorative />
+    <div>
+      <p class="admin__brand-name">Christian Fitness</p>
+      <p class="admin__brand-sub">Admin console</p>
+    </div>
+  </div>
+  <cf-admin-nav
+    class="admin__nav"
+    [items]="items()"
+    [current]="current()"
+    (navigate)="navigate.emit($event)"
+  />
+  <cf-admin-user
+    class="admin__user"
+    [name]="userName()"
+    [role]="userRole()"
+    [initials]="userInitials()"
+    [signingOut]="signingOut()"
+    (signOut)="signOut.emit()"
+  />
+</aside>

@@ -1,4 +1,5 @@
 import { type AfterViewInit, Component, ElementRef, inject, input, output } from '@angular/core';
+import { isPlainClick } from '../link/plain-click';
 
 /** One filter: its label, its URL and an optional count that helps people decide. */
 export interface TabItem {
@@ -39,9 +40,7 @@ export class Tabs implements AfterViewInit {
   }
 
   protected follow(event: MouseEvent, href: string): void {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-      return;
-    }
+    if (!isPlainClick(event)) return;
     event.preventDefault();
     this.navigate.emit(href);
   }
