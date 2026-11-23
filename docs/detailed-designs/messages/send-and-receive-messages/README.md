@@ -118,3 +118,13 @@ While the connection is down the page shows "Reconnecting…". On return the sto
 messages after the newest one it holds and merges them by id (L2-016).
 
 ![Sequence diagram for reconnecting and catching up](diagrams/sequence-reconnect.png)
+
+## Direct messages (slice 14.1; ADR 0043)
+
+A direct conversation is the pair of members, keyed in the route (`/messages/:id`), the hub and the
+history by the other member's id. The same page, thread and composer serve it. `ChatHub.JoinDirect` and
+`SendDirect` answer `recipient_unavailable` for an unknown, Suspended or own id; a send is stored in
+`DirectMessages` and pushed with `MessageReceived` to both members' connections, whose `eventId` is the
+other member's id. History is `GET /api/messages/{memberId}/messages?before=` and the read marker
+`POST /api/messages/{memberId}/read` (a `ChatReadMarkers` row keyed by the other member). The profile's
+Message button starts it; the list's `direct` rows open it.

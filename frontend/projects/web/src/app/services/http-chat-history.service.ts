@@ -4,28 +4,33 @@ import type { ChatHistory, ChatHistoryDto } from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
- * {@link ChatHistory} over HTTP: `GET /api/events/{id}/chat/messages?before=` (ADR 0040). It holds
+ * {@link ChatHistory} over HTTP: `GET /api/events/{id}/chat/messages?before=` (ADR 0040), or with
+ * `direct` the private conversation's `GET /api/messages/{memberId}/messages` (ADR 0043). It holds
  * no state and is provided on the chat screen, so it lives only while the screen does.
  */
 @Injectable()
 export class HttpChatHistoryService implements ChatHistory {
   private readonly http = inject(HttpClient);
 
-  latest(eventId: string): Observable<ChatHistoryDto> {
-    return this.http.get<ChatHistoryDto>(this.url(eventId));
+  latest(eventId: string, direct = false): Observable<ChatHistoryDto> {
+    return this.http.get<ChatHistoryDto>(this.url(eventId, direct));
   }
 
-  before(eventId: string, messageId: string): Observable<ChatHistoryDto> {
-    return this.http.get<ChatHistoryDto>(this.url(eventId), {
+  before(eventId: string, messageId: string, direct = false): Observable<ChatHistoryDto> {
+    return this.http.get<ChatHistoryDto>(this.url(eventId, direct), {
       params: new HttpParams().set('before', messageId),
     });
   }
 
-  markRead(eventId: string): Observable<void> {
-    return this.http.post<void>(`${this.url(eventId).replace(/\/messages$/, '')}/read`, null);
+  markRead(eventId: string, direct = false): Observable<void> {
+    return this.http.post<void>(
+      `${this.url(eventId, direct).replace(/\/messages$/, '')}/read`,
+      null,
+    );
   }
 
-  private url(eventId: string): string {
-    return `/api/events/${encodeURIComponent(eventId)}/chat/messages`;
+  private url(eventId: string, direct: boolean): string {
+    const id = encodeURIComponent(eventId);
+    return direct ? `/api/messages/${id}/messages` : `/api/events/${id}/chat/messages`;
   }
 }

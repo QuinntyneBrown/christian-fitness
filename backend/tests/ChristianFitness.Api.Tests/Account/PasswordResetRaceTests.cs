@@ -55,6 +55,7 @@ public sealed class PasswordResetRaceTests(PasswordResetRaceTests.Factory factor
 
         public DbSet<ChristianFitness.Domain.Events.ChatMessage> ChatMessages => db.ChatMessages;
         public DbSet<ChristianFitness.Domain.Events.ChatReadMarker> ChatReadMarkers => db.ChatReadMarkers;
+        public DbSet<ChristianFitness.Domain.Events.DirectMessage> DirectMessages => db.DirectMessages;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);

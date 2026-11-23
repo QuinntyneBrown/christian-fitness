@@ -21,9 +21,14 @@ export class WebEventChatPage {
   readonly notSent: Locator;
   readonly retrySendButton: Locator;
   readonly cancelledNotice: Locator;
+  /** A direct conversation (slice 14.1): the way back to Messages, and the refusal for a member who cannot be messaged. */
+  readonly messagesLink: Locator;
+  readonly unavailable: Locator;
 
   constructor(private readonly page: Page) {
     this.cancelledNotice = page.getByRole('status').filter({ hasText: 'This event was cancelled' });
+    this.messagesLink = page.getByRole('link', { name: 'Back to messages' });
+    this.unavailable = page.getByRole('heading', { name: "You can't message this member" });
     this.chatTitle = page.locator('.chat-page__name');
     this.subtitle = page.locator('.chat-page__sub');
     this.backLink = page.getByRole('link', { name: 'Back to event' });
@@ -66,6 +71,10 @@ export class WebEventChatPage {
     await this.page.locator('.thread__messages').evaluate((list) => {
       list.scrollTop = 0;
     });
+  }
+
+  async openDirect(memberId: string): Promise<void> {
+    await this.page.goto(`/messages/${memberId}`);
   }
 
   async open(eventId: string): Promise<void> {

@@ -51,6 +51,9 @@ public static class RefusalCodes
     /// <summary>A chat message is empty or longer than 2,000 characters (L2-016; ADR 0039).</summary>
     public const string MessageInvalid = "message_invalid";
 
+    /// <summary>The member a direct message goes to is unknown, suspended or the sender (L2-014; ADR 0043).</summary>
+    public const string RecipientUnavailable = "recipient_unavailable";
+
     /// <summary>A field is longer than its limit (L2-003 AC6).</summary>
     public const string FieldTooLong = "field_too_long";
 
