@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.Sessions;
 using ChristianFitness.Infrastructure.Persistence;
@@ -49,6 +50,7 @@ public sealed class PasswordResetRaceTests(PasswordResetRaceTests.Factory factor
         public DbSet<TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
 
         public DbSet<ChristianFitness.Domain.Events.Event> Events => db.Events;
+        public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 

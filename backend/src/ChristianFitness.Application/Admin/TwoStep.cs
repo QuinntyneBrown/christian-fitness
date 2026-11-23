@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Members;
 using MediatR;
@@ -9,9 +10,13 @@ namespace ChristianFitness.Application.Admin;
 /// <summary>
 /// The second step of staff sign-in: the code from the authenticator app (L2-046 AC2). A class, not
 /// a record, so the code can never reach a log through a generated <c>ToString</c> (L2-046 AC8).
+/// Starting a staff session is a staff change, audited as <c>staff_session.started</c> (L2-019 AC3;
+/// ADR 0021).
 /// </summary>
-public sealed class VerifyTwoStepCommand : IRequest<StaffSessionDto>
+public sealed class VerifyTwoStepCommand : IRequest<StaffSessionDto>, IAuditableCommand
 {
+    string IAuditableCommand.AuditAction => "staff_session.started";
+
     public string? Code { get; init; }
 }
 
@@ -20,9 +25,10 @@ public sealed class VerifyTwoStepCommand : IRequest<StaffSessionDto>
 /// in this order: no cookie or an unknown or expired challenge with <c>two_step_expired</c> (L2-046
 /// AC5); a full failure window with <c>too_many_attempts</c>, right code or not, ending the
 /// challenge (AC4); a wrong, malformed or used code with <c>invalid_code</c>, recording one failure
-/// (AC3). A right code ends the challenge and its cookie and starts the staff session (AC2).
+/// (AC3). A right code ends the challenge and its cookie and starts the staff session (AC2), which
+/// the audit trail records as the staff member's own change to their session (ADR 0021).
 /// </summary>
-internal sealed class VerifyTwoStepHandler(IAppDbContext db, ITwoStepCookie cookie, IStaffSessionSignIn session, TimeProvider time)
+internal sealed class VerifyTwoStepHandler(IAppDbContext db, ITwoStepCookie cookie, IStaffSessionSignIn session, AuditTrail audit, TimeProvider time)
     : IRequestHandler<VerifyTwoStepCommand, StaffSessionDto>
 {
     public async Task<StaffSessionDto> Handle(VerifyTwoStepCommand request, CancellationToken cancellationToken)
@@ -66,6 +72,7 @@ internal sealed class VerifyTwoStepHandler(IAppDbContext db, ITwoStepCookie cook
         var member = await db.Members.SingleAsync(m => m.Id == memberId, cancellationToken).ConfigureAwait(false);
         await EndAsync(challenge, cancellationToken).ConfigureAwait(false);
         await session.SignInAsync(member, role.Value).ConfigureAwait(false);
+        audit.Record(member.Id, StaffSessionDto.RecordType, member.Id);
         return new StaffSessionDto(member.Id, member.Name, role.Value.ToString());
     }
 

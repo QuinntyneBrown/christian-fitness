@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Events;
+using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<TwoStepFailure> TwoStepFailures => Set<TwoStepFailure>();
 
     public DbSet<Event> Events => Set<Event>();
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
