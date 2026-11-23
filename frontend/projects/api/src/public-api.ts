@@ -14,4 +14,5 @@ export * from './conversations/conversations';
 export * from './errors/api-error';
 export * from './events/events';
 export * from './events/public-events';
+export * from './home/home';
 export * from './profile/profile';

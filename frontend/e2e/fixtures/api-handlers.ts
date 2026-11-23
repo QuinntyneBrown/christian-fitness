@@ -64,7 +64,8 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
  * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021), and
- * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022).
+ * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
+ * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -81,6 +82,11 @@ export class ApiHandlers {
     { method: 'GET', path: '/api/admin/events', handler: () => ({ json: NO_ADMIN_EVENTS }) },
     { method: 'GET', path: '/api/public/events/upcoming', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },
+    {
+      method: 'GET',
+      path: '/api/home',
+      handler: () => ({ json: { nextEvent: null, suggested: [] } }),
+    },
   ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */

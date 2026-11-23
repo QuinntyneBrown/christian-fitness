@@ -2,7 +2,7 @@
 
 ## Overview
 
-*Home* is the first screen a member sees after signing in, at `/home`. It gathers
+_Home_ is the first screen a member sees after signing in, at `/home`. It gathers
 what matters now: the next event the member is registered for, up to three suggested
 events and the unread message count. It belongs to the member-home subsystem.
 
@@ -35,8 +35,10 @@ error with Try again is shown.
   `Registration`, up to 3 published upcoming `Event` rows whose category matches an
   interest and is not already registered, and the unread count across the
   `ConversationParticipant` rows of the caller. It returns `HomeSummaryDto` with the
-  count as a number. The ordering of suggestions beyond "matching interests" is
-  `<TO SUPPLY>`; soonest first is proposed.
+  count as a number. Slice 13.1 built the events part as `GetHomeQuery` and `GetHomeHandler`
+  (`HomeDto`: `nextEvent`, `suggested`); suggestions are soonest first, and the interest to
+  category table is `InterestCategories` (ADR 0044). The page uses `NextEvent` (library) and the
+  session's greeting in place of `HomeStore` and `firstNameOf`; unread is slice 13.2.
 - **Unread count source** — the mock also offers a `partial` state; the rule that
   decides which parts may fail independently is `<TO SUPPLY>`.
 
@@ -45,9 +47,9 @@ error with Try again is shown.
 The feature realizes the following level-2 (L2) requirements. Each L2
 requirement refines a level-1 (L1) requirement, cited by identifier.
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-007` | `L1-004` | Given a signed-in member, when they open Home, then it greets them by first name and shows their next registered event, up to three suggested events matching their interests and their unread message count; with no registered events the next-event area invites them to browse Events; when the home data request fails a generic error with Try again is shown and Try again reloads it (acceptance criteria 1–3). |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-007` | `L1-004`     | Given a signed-in member, when they open Home, then it greets them by first name and shows their next registered event, up to three suggested events matching their interests and their unread message count; with no registered events the next-event area invites them to browse Events; when the home data request fails a generic error with Try again is shown and Try again reloads it (acceptance criteria 1–3). |
 
 ## Diagrams
 

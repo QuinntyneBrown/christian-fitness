@@ -43,5 +43,6 @@ export * from './events/event-toast';
 export * from './events/cancel-event-text';
 export * from './events/capacity-used';
 export * from './events/event-when';
+export * from './events/home-events';
 export * from './notifications/toast-store';
 export * from './members/profile-rules';

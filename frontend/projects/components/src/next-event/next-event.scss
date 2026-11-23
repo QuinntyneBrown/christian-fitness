@@ -1,0 +1,104 @@
+// The next-event block (docs/design-system/assets/components.css, "Next event"), with the display
+// face of its title; the skeletons bring their own look.
+:host {
+  display: block;
+}
+
+.next-event {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  box-shadow:
+    var(--shadow-1),
+    inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.next-event__media {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.next-event__image {
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  object-fit: cover;
+}
+
+.next-event__pill {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.next-event__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+
+  @media (min-width: 40rem) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: var(--space-8);
+  }
+}
+
+.next-event__info {
+  min-width: 0;
+}
+
+.next-event__lines {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.next-event__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-2);
+}
+
+.next-event__when {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-fg-accent);
+}
+
+.next-event__title {
+  margin-top: var(--space-1);
+  overflow-wrap: anywhere;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  line-height: var(--line-height-none);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.place {
+  margin-top: var(--space-3);
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-1-5);
+  color: var(--color-fg-muted);
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
