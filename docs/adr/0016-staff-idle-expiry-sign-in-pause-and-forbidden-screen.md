@@ -62,8 +62,10 @@ is the 15-minute sliding pause of L2-004 AC3. No mock drew an expired session.
   navigation has succeeded yet, and the reason cannot be told apart from a state restored by the
   browser.
 - **The "Staff only" screen for a 403 to a read (L2-047).** `forbiddenInterceptor` (`domain`)
-  opens `/forbidden` with `skipLocationChange`, as `serverErrorInterceptor` opens the server-error
-  screen, when a GET to `/api/` answers 403; a write's 403 stays with the screen that sent it, so
+  opens `/forbidden` when a GET to `/api/` answers 403, with the router's `browserUrl` set to the
+  URL staff asked for: where the navigation in flight was going (the guard's request is the one
+  refused when staff move to another area) or else the current URL. `skipLocationChange`, which
+  the server-error screen uses, would leave the address bar on the area staff were leaving; a write's 403 stays with the screen that sent it, so
   Staff sign in keeps showing `not_staff` and `two_step_not_set_up` itself. The guard already
   leaves a 403 where it is. The screen is `ForbiddenPage`, lazy, in the `StaffLayout` card: the
   heading "Staff only", which takes focus (`StaffLayout`'s new `focusHeading` input), "The admin

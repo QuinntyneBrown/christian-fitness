@@ -55,6 +55,12 @@
 
 .staff__title {
   margin-top: var(--space-10);
+
+  // Focused by script only (tabindex -1), when the card replaces another screen.
+  &:focus {
+    outline: none;
+  }
+
   font-size: var(--font-size-4xl);
   line-height: var(--line-height-4xl);
 }
@@ -79,6 +85,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+
+  // A card with no fields (the "Staff only" screen) goes from the lead to its button.
+  &:empty {
+    display: none;
+  }
 }
 
 .auth__submit {

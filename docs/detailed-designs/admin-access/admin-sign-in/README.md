@@ -64,7 +64,8 @@ the code screen (mock `docs/mocks/pages/admin-two-step/`) to the member store
   to `/api/admin/` refused 401 with code `session_expired` navigates to `/sign-in` with the state
   `{ session: 'expired' }`, unless Staff sign in already shows; the error passes on (L2-018 AC5).
 - **`forbiddenInterceptor`** (`domain`) — registered beside it. A GET to `/api/` answered 403 opens
-  `/forbidden` with `skipLocationChange`, so the URL stays, unless it already shows; a write's 403
+  `/forbidden` with `browserUrl` set to the URL asked for (the navigation in flight, or else the
+  current URL), unless it already shows; a write's 403
   passes on to its screen (L2-047 AC1, AC3).
 - **`ForbiddenPage`** — routed page `/forbidden` in `projects/admin`, loaded with
   `loadComponent`, title "Staff only · Christian Fitness Admin", in the `StaffLayout` card (mock
@@ -132,7 +133,7 @@ outcome code, never the email, the code, the secret or the step cookie (L2-046 A
 |-------|--------------|-------------|
 | `L2-046` | `L1-008`, `L1-013` | Given a staff account with two-step verification set up, when it signs in with correct credentials, then the API answers 202 and the app opens "Enter your code" at `/sign-in/verify`. Given the current authenticator code (or one 30 seconds either side) within 5 minutes, then the staff session starts; a used code is refused. A wrong code is refused `invalid_code` (401) with the field marked; after 5 wrong codes in 15 minutes, `too_many_attempts` (429); after 5 minutes, `two_step_expired` (401); staff without two-step set up are refused `two_step_not_set_up` (403); "Verifying…" while checking; no telemetry carries the code, the secret or the cookie. |
 | `L2-018` | `L1-008` | Given a staff account, when it signs in to the admin app with correct credentials and confirms with its second-step code (L2-046), then it lands on the Dashboard. Given a member account without a staff role, when it signs in to the admin app, then it is refused with code `not_staff` and HTTP 403. Given wrong credentials, when signing in, then one generic message is shown, and the L2-004 AC3 lockout applies: 5 failed sign-ins for one email within 15 minutes, in either app, refuse the next with `too_many_attempts` (429) and "Sign-in paused for 15 minutes". Given a request to any admin endpoint without a staff session, when it arrives, then it is refused with HTTP 401 or 403 and no data is returned. Given an admin session idle for 30 minutes, when the next request arrives, then it is refused `session_expired` (401), the session ends on the server and the admin app opens Staff sign in with "Your session expired"; every request within 30 minutes of the one before keeps the session open. Given a signed-in staff member, when they choose Sign out, then the staff session is ended on the server and they return to Staff sign in. |
-| `L2-047` | `L1-008`, `L1-015` | Given a GET from the admin app answered 403, then the "Staff only" screen shows in place of the current screen without changing the URL, its heading focused, with the lead, Sign out and the note; Sign out reads "Signing out…" while it waits, ends the staff session and opens Staff sign in; a write's 403 is left to its screen. |
+| `L2-047` | `L1-008`, `L1-015` | Given a GET from the admin app answered 403, then the "Staff only" screen shows in place of the current screen with the URL asked for in the address bar, its heading focused, with the lead, Sign out and the note; Sign out reads "Signing out…" while it waits, ends the staff session and opens Staff sign in; a write's 403 is left to its screen. |
 
 ## Diagrams
 

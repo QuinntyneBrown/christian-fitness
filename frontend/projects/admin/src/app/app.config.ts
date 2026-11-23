@@ -6,6 +6,7 @@ import {
   ANTIFORGERY_COOKIE,
   ANTIFORGERY_HEADER,
   antiforgeryInterceptor,
+  forbiddenInterceptor,
   serverErrorInterceptor,
   sessionExpiredInterceptor,
 } from '@cf/domain';
@@ -17,7 +18,8 @@ import { HttpStaffSessionService } from './services/http-staff-session.service';
  * change detection is Angular's default, so no zone provider appears here. The HTTP client is the
  * member app's (ADR 0007, 0010): a 5xx to a GET opens the server-error screen (L2-043 AC4, ADR
  * 0006), every state-changing request carries the antiforgery token (L2-030 AC3, ADR 0009), and
- * an expired staff session returns staff to sign in (L2-018 AC5, ADR 0014).
+ * an expired staff session returns staff to sign in (L2-018 AC5, ADR 0014) and a 403 to a GET
+ * opens the "Staff only" screen (L2-047, ADR 0014).
  */
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,7 +27,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withXsrfConfiguration({ cookieName: ANTIFORGERY_COOKIE, headerName: ANTIFORGERY_HEADER }),
-      withInterceptors([serverErrorInterceptor, sessionExpiredInterceptor, antiforgeryInterceptor]),
+      withInterceptors([
+        serverErrorInterceptor,
+        sessionExpiredInterceptor,
+        forbiddenInterceptor,
+        antiforgeryInterceptor,
+      ]),
     ),
     { provide: STAFF_SESSION_SERVICE, useClass: HttpStaffSessionService },
   ],

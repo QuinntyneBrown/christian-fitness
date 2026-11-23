@@ -37,8 +37,8 @@ ctrl -> handler : Send GetStaffSessionQuery
 handler -> db : Read StaffRole
 handler --> ctrl : not_staff
 ctrl --> icpt : 403 ProblemDetails, no data
-icpt -> forbidden : Navigate to /forbidden, skipLocationChange (L2-047 AC1)
-forbidden --> actor : "Staff only", heading focused, URL unchanged
+icpt -> forbidden : Navigate to /forbidden, browserUrl = the URL asked for (L2-047 AC1)
+forbidden --> actor : "Staff only", heading focused, the URL asked for in the address bar
 actor -> forbidden : Sign out
 forbidden --> actor : "Signing out…", disabled (L2-047 AC2)
 forbidden -> client : signOut()

@@ -57,6 +57,12 @@ export const routes: Routes = [
     ],
   },
   {
+    // Opened by forbiddenInterceptor on a 403 to a read, the URL asked for kept (L2-047; ADR 0014).
+    path: 'forbidden',
+    title: 'Staff only · Christian Fitness Admin',
+    loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),
+  },
+  {
     path: 'server-error',
     title: 'Something went wrong · Christian Fitness Admin',
     loadComponent: () =>
