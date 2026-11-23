@@ -1,6 +1,6 @@
 namespace ChristianFitness.Application.Abstractions;
 
-/// <summary>Ends sessions on the server (ADR 0009), such as when a password is reset (L2-045 AC3; ADR 0012).</summary>
+/// <summary>Ends sessions on the server (ADR 0009), such as when a password is reset (L2-045 AC3; ADR 0013).</summary>
 public interface ISessionRevocation
 {
     /// <summary>

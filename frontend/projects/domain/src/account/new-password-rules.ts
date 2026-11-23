@@ -16,7 +16,7 @@ const PASSWORD_MIN = 8;
 const MISMATCH = 'Type the same password in both fields';
 
 /**
- * The new password's rules (L2-045 AC5; ADR 0012): at least 8 characters as typed, Join's rule,
+ * The new password's rules (L2-045 AC5; ADR 0013): at least 8 characters as typed, Join's rule,
  * which the API's `CompletePasswordResetValidator` checks with the same rows; and the confirmation
  * typed the same, which only the screen checks.
  */
