@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Sessions;
 
 /// <summary>
-/// Signs a member in with their email and password (L2-004 AC1; ADR 0009, ADR 0010). In order:
+/// Signs a member in with their email and password (L2-004 AC1; ADR 0009, ADR 0011). In order:
 /// <list type="number">
 /// <item>with <see cref="SignInFailure.Limit"/> failures for the email in the last 15 minutes the
 /// attempt is refused <c>too_many_attempts</c> before the password is checked, and not recorded

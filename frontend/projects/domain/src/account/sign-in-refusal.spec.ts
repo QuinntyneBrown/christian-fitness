@@ -2,7 +2,7 @@ import type { ApiError } from '@cf/api';
 import { signInRefusalOf, type SignInRefusal } from './sign-in-refusal';
 
 // L2-004 AC2 to AC4, L2-032 AC1 and the mock's `invalid`, `error`, `suspended` and `failed`
-// states (ADR 0009, ADR 0010).
+// states (ADR 0009, ADR 0011).
 describe('signInRefusalOf', () => {
   it.each<{ error: ApiError; expected: SignInRefusal }>([
     { error: { status: 401, code: 'invalid_credentials' }, expected: 'invalid-credentials' },

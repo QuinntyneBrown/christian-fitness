@@ -19,7 +19,7 @@ function answerAsVisitor(api: ApiHandlers): void {
 }
 
 // L2-004 AC6: a visitor who opens a member route is sent to sign in and returned to that route
-// afterwards; a return address that is not a path inside the app opens Home (ADR 0010).
+// afterwards; a return address that is not a path inside the app opens Home (ADR 0011).
 test.describe('Member app, returning after sign-in', () => {
   test('a visitor opening a member route signs in and is returned to it', async ({ page, api }) => {
     answerAsVisitor(api);

@@ -205,7 +205,7 @@ test.describe('Member app, join refusals: what the API answers', () => {
     await expect(join.submitButton).toBeEnabled();
   });
 
-  // L2-034 AC2: the sixth account from one address in an hour (mock `limited`, ADR 0010).
+  // L2-034 AC2: the sixth account from one address in an hour (mock `limited`, ADR 0011).
   test('too many new profiles from one network say so and keep the form', async ({ page, api }) => {
     const sent = answerJoin(api, problem(429, 'rate_limited'));
     const join = new WebJoinPage(page);

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace ChristianFitness.Application.Abstractions;
 
-/// <summary>Where the current request comes from, as rate limits count it (L2-034; ADR 0010).</summary>
+/// <summary>Where the current request comes from, as rate limits count it (L2-034; ADR 0011).</summary>
 public interface IClientAddress
 {
     /// <summary>The key the request is counted under: see <see cref="ClientAddressPartition.Of"/>. Never logged.</summary>

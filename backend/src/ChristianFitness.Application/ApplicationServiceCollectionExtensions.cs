@@ -11,7 +11,7 @@ public static class ApplicationServiceCollectionExtensions
     /// <summary>
     /// MediatR handlers and FluentValidation validators of this assembly; every request is validated
     /// before its handler runs (<see cref="ValidationBehavior{TRequest, TResponse}"/>). The
-    /// account creation limit is one per process, as its counts are (ADR 0010).
+    /// account creation limit is one per process, as its counts are (ADR 0011).
     /// </summary>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {

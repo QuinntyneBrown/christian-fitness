@@ -10,7 +10,7 @@ namespace ChristianFitness.Api.Tests.Sessions;
 /// <summary>
 /// The API on a clock the tests move (never sleep): <see cref="Time"/> starts on a fixed instant
 /// and only <see cref="FakeTimeProvider.Advance"/> moves it. It can also suspend a member, as staff
-/// will in slice 27.1 (ADR 0010).
+/// will in slice 27.1 (ADR 0011).
 /// </summary>
 public sealed class ProtectionsApiFactory : ApiFactory
 {

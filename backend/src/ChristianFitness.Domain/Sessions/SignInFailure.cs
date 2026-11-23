@@ -4,7 +4,7 @@ using System.Text;
 namespace ChristianFitness.Domain.Sessions;
 
 /// <summary>
-/// One failed sign-in, counted against its email for 15 minutes (L2-004 AC3; ADR 0010). The email
+/// One failed sign-in, counted against its email for 15 minutes (L2-004 AC3; ADR 0011). The email
 /// is kept only as <see cref="EmailKey"/>, a SHA-256 of its lookup key, so an address a stranger
 /// typed is not stored.
 /// </summary>

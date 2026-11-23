@@ -4,7 +4,7 @@ import { isAppPath } from './app-path';
 export const SIGN_IN_DEFAULT_PATH = '/home';
 
 /**
- * The address to open after sign-in, from the `returnUrl` the guard set (L2-004 AC6; ADR 0010):
+ * The address to open after sign-in, from the `returnUrl` the guard set (L2-004 AC6; ADR 0011):
  * followed only when it is a path inside the app other than the sign-in screen itself; anything
  * else, or none, opens Home. So a crafted link to sign in cannot send a member to another site.
  */

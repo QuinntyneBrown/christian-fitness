@@ -14,7 +14,7 @@ namespace ChristianFitness.Application.Tests.Sessions;
 
 /// <summary>
 /// L2-004 AC1 to AC4: which sign-ins open a session and which are refused, and with what, one
-/// case per row (ADR 0009, ADR 0010). Each test has its own store and clock.
+/// case per row (ADR 0009, ADR 0011). Each test has its own store and clock.
 /// </summary>
 public sealed class SignInHandlerTests : IAsyncDisposable
 {

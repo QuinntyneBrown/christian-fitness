@@ -10,7 +10,7 @@ namespace ChristianFitness.Api.Tests.Account;
 
 /// <summary>
 /// L2-034 AC2: more than 5 account creations from one IP address in one hour refuse the next with
-/// HTTP 429 and code <c>rate_limited</c> (ADR 0010). Each test joins from its own address, named in
+/// HTTP 429 and code <c>rate_limited</c> (ADR 0011). Each test joins from its own address, named in
 /// <see cref="ApiFactory.ClientAddressHeader"/>, and moves the shared clock only forward.
 /// </summary>
 public sealed class JoinRateLimitTests(ProtectionsApiFactory factory) : IClassFixture<ProtectionsApiFactory>

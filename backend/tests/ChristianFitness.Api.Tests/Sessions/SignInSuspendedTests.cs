@@ -7,7 +7,7 @@ namespace ChristianFitness.Api.Tests.Sessions;
 /// <summary>
 /// L2-004 AC4: a suspended member who signs in with correct credentials is refused with code
 /// <c>account_suspended</c> and HTTP 403, and gets no session; a wrong password gets the same
-/// answer as anyone's, so the suspension is told only to whoever knows the password (ADR 0010).
+/// answer as anyone's, so the suspension is told only to whoever knows the password (ADR 0011).
 /// The fixture suspends the member through the store, as staff will in slice 27.1.
 /// </summary>
 public sealed class SignInSuspendedTests(ProtectionsApiFactory factory) : IClassFixture<ProtectionsApiFactory>
