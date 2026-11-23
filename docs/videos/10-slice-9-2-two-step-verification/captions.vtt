@@ -1,0 +1,49 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:07.009
+A password alone no longer opens the admin console. Staff now confirm it's them,
+
+00:00:07.009 --> 00:00:09.125
+with a code from their phone.
+
+00:00:10.000 --> 00:00:15.043
+After the password, staff open their authenticator app and enter the six-digit code.
+
+00:00:15.043 --> 00:00:19.665
+While it's checked, the button says Verifying, then the Dashboard opens.
+
+00:00:20.000 --> 00:00:24.775
+A wrong code is said under the field, which keeps what was typed and takes focus.
+
+00:00:24.775 --> 00:00:28.553
+Codes change every thirty seconds, so enter the newest one.
+
+00:00:30.000 --> 00:00:34.392
+After five wrong codes in fifteen minutes, the sign-in ends. Wait more than five
+
+00:00:34.392 --> 00:00:37.053
+minutes, and you're asked to sign in again.
+
+00:00:40.000 --> 00:00:44.539
+Staff without an authenticator are told to ask an Admin, who sets one up with a
+
+00:00:44.539 --> 00:00:45.701
+single command.
+
+00:00:48.000 --> 00:00:53.380
+On the server, the right password starts no session, only a short pending sign-in. A
+
+00:00:53.380 --> 00:00:57.587
+used code is refused, and no code or secret is ever recorded.
+
+00:00:58.000 --> 00:01:00.922
+Every test failed first. Now they all pass.
+
+00:01:04.000 --> 00:01:06.102
+Next, idle sessions expire.
+
+00:01:10.000 --> 00:01:15.051
+That's slice nine point two. Christian Fitness: a Christian community for health in
+
+00:01:15.051 --> 00:01:16.325
+body and spirit.
