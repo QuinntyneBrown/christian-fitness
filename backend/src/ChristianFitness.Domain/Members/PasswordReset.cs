@@ -33,6 +33,15 @@ public sealed class PasswordReset
 
     public DateTimeOffset ExpiresAt { get; private set; }
 
+    /// <summary>When the link set a password, or was spent by another that did; empty while unused (L2-045 AC2).</summary>
+    public DateTimeOffset? UsedAt { get; private set; }
+
+    /// <summary>Whether the link can still set a password at <paramref name="now"/>.</summary>
+    public bool IsUsableAt(DateTimeOffset now) => UsedAt is null && now < ExpiresAt;
+
+    /// <summary>Spends the link at <paramref name="now"/>: it never works again.</summary>
+    public void Use(DateTimeOffset now) => UsedAt = now;
+
     /// <summary>
     /// A new reset for <paramref name="memberId"/> and its token: 32 random bytes in base64url, for
     /// the link only. The reset keeps the token's hash and expires <see cref="Lifetime"/> after

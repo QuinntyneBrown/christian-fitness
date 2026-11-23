@@ -1,0 +1,52 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.691
+The reset email is in your inbox. One tap, and you choose a new password.
+
+00:00:08.000 --> 00:00:12.901
+The link opens the Reset password screen. It checks the link first, then names the
+
+00:00:12.901 --> 00:00:14.516
+account it belongs to.
+
+00:00:18.000 --> 00:00:22.893
+The link's secret sits after the hash sign, so no server ever logs it. The screen
+
+00:00:22.893 --> 00:00:25.912
+reads it, then wipes it from the address bar.
+
+00:00:28.000 --> 00:00:32.771
+Type the new password twice and press save. The button says, saving, then your
+
+00:00:32.771 --> 00:00:34.172
+password is saved.
+
+00:00:38.000 --> 00:00:42.762
+Saving signs you out on every device, this one too. You sign in again with the new
+
+00:00:42.762 --> 00:00:43.585
+password.
+
+00:00:48.000 --> 00:00:53.450
+A link works once, for thirty minutes. Used, expired or unknown, it shows the same
+
+00:00:53.450 --> 00:00:56.076
+page, with a new link one tap away.
+
+00:00:58.000 --> 00:01:02.645
+Passwords that don't match, or are too short, are named before anything is sent.
+
+00:01:06.000 --> 00:01:11.154
+If the server fails, a message says so, and both passwords stay, ready to try again.
+
+00:01:14.000 --> 00:01:19.573
+Even two saves at the same moment can't use one link twice. The second is refused.
+
+00:01:22.000 --> 00:01:24.922
+Every test failed first. Now they all pass.
+
+00:01:28.000 --> 00:01:32.243
+That's slice twenty point two, and journey twenty is done. Christian Fitness: a
+
+00:01:32.243 --> 00:01:35.229
+Christian community for health in body and spirit.

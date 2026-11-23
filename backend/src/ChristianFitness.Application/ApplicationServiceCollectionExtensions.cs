@@ -23,6 +23,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<MemberCredentials>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
+        services.AddSingleton<PasswordResetRequestLimiter>();
         return services;
     }
 }

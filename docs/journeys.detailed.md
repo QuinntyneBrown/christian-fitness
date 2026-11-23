@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 20% (11 of 54 slices; 17 of 83 days)
+**% complete:** 22% (12 of 54 slices; 18 of 83 days)
 
 | #   | Slice | Root journey                        | Name                          | Description                                                                          | Effort (days) |
 | --- | ----- | ----------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------ | ------------- |
@@ -46,7 +46,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 35  | 13.2  | 13 See my home                      | Unread messages on home       | Home shows unread messages, with partial and empty states.                           | 1             |
 | 36  | 30.2  | 30 Recover from errors and offline  | Offline                       | Losing the network shows an offline banner and screen.                               | 1             |
 | 37  | 20.1  | 20 Reset a forgotten password       | ✅ Request a reset link       | Members request a reset email without revealing which emails exist.                  | 2             |
-| 38  | 20.2  | 20 Reset a forgotten password       | Choose a new password         | A valid, unexpired link sets a new password once.                                    | 1             |
+| 38  | 20.2  | 20 Reset a forgotten password       | ✅ Choose a new password      | A valid, unexpired link sets a new password once.                                    | 1             |
 | 39  | 22.1  | 22 Apply to be listed               | Apply to be listed            | A member applies as a professional; a pending application is refused.                | 2             |
 | 40  | 21.1  | 21 Review professional applications | Application queue             | Staff see pending applications, oldest first, or an empty state.                     | 1             |
 | 41  | 21.2  | 21 Review professional applications | Approve or decline            | Approving publishes a listing; declining records a reason.                           | 2             |

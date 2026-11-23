@@ -92,7 +92,8 @@
         "invalid",
         "submitting",
         "success",
-        "error"
+        "error",
+        "limited"
       ],
       "not_applicable": {
         "loading": "Static form.",
@@ -109,13 +110,15 @@
       "requirements": [],
       "states": [
         "default",
+        "loading",
         "invalid",
         "submitting",
         "success",
+        "failed",
+        "unchecked",
         "error"
       ],
       "not_applicable": {
-        "loading": "Static form.",
         "empty": "A form, not a collection."
       }
     },

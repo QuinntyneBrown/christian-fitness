@@ -312,12 +312,15 @@ def _():
 
 
 # --- Forgot password -----------------------------------------------------------
-def forgot(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
+def forgot(*, invalid: bool = False, busy: bool = False, failed: bool = False, limited: bool = False) -> str:
     alert = ""
     if invalid:
         alert = '<div class="auth__alert">' + error_summary("Check your email address", [("Enter an email address like name@example.com", "f-email")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
     if failed:
         alert = '<div class="auth__alert">' + form_alert("We couldn't send the email", "Something went wrong on our side. Try again in a minute.") + "</div>"
+    if limited:
+        alert = '<div class="auth__alert">' + form_alert(
+            "Too many requests", "Too many reset links were asked for from this network in the last hour. Try again later.").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1) + "</div>"
     value = "grace.thompson@gmail" if invalid else ME["email"]
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Send reset link</button>')
@@ -367,9 +370,16 @@ def _():
     return forgot(failed=True)
 
 
+@s("limited", "Too many reset requests from one network in an hour (L2-034 AC3): a message above the form (focused); the email stays filled in.")
+def _():
+    return forgot(limited=True)
+
+
 # --- Reset password -----------------------------------------------------------
-def reset(*, invalid: bool = False, busy: bool = False) -> str:
+def reset(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
     alert = ('<div class="auth__alert">' + error_summary("Your passwords don't match", [("Type the same password in both fields", "f-confirm")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>") if invalid else ""
+    if failed:
+        alert = '<div class="auth__alert">' + form_alert("We couldn't save your password", "Something went wrong on our side. Try again in a minute.") + "</div>"
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Save password</button>')
     return auth(f"""    <form class="auth__form" action="success.html" novalidate>
@@ -378,19 +388,27 @@ def reset(*, invalid: bool = False, busy: bool = False) -> str:
       {alert}
       <div class="auth__fields">
         {field("New password", "password", "graceandgrit", type_="password", autocomplete="new-password", hint="At least 8 characters", readonly=busy)}
-        {field("Confirm new password", "confirm", "graceandgrt", type_="password", autocomplete="new-password", error="Type the same password in both fields" if invalid else "", readonly=busy)}
+        {field("Confirm new password", "confirm", "graceandgrit" if failed else "graceandgrt", type_="password", autocomplete="new-password", error="Type the same password in both fields" if invalid else "", readonly=busy)}
       </div>
       {submit}
     </form>""")
 
 
 s = screen("reset-password", "page", "Reset password", route="/reset-password", group="Public",
-           source="Derived from the Join layout.", not_applicable={"loading": "Static form.", "empty": "A form, not a collection."})
+           source="Derived from the Join layout.", not_applicable={"empty": "A form, not a collection."})
 
 
 @s("default", "Choose and confirm a new password from the emailed link.")
 def _():
     return reset()
+
+
+@s("loading", "The link is being checked before the form shows (the token has left the address bar).")
+def _():
+    return auth(f"""    <div class="auth__form" aria-busy="true">
+      <h1 class="display auth__title">Choose a new password</h1>
+      <p class="auth__lead" role="status">{busy_label("Checking your link…")}</p>
+    </div>""")
 
 
 @s("invalid", "Passwords don't match: summary and inline error on the confirm field.")
@@ -412,7 +430,22 @@ def _():
     </div>""")
 
 
-@s("error", "The link has expired: explains and offers a new one.")
+@s("failed", "Saving failed: message above the form; both passwords stay filled in.")
+def _():
+    return reset(failed=True)
+
+
+@s("unchecked", "Checking the link failed: says so and offers to try again.")
+def _():
+    return auth(f"""    <div class="auth__form">
+      <h1 class="display auth__title">We couldn't check your link</h1>
+      <p class="auth__lead">Something went wrong on our side. Try again in a minute.</p>
+      <button class="btn btn--primary btn--lg btn--block auth__submit" type="button" data-mock-href="loading.html">Try again</button>
+      <p class="auth__alt"><a href="{href("sign-in")}">Back to sign in</a></p>
+    </div>""")
+
+
+@s("error", "The link has expired, was used or is unknown: explains and offers a new one.")
 def _():
     return auth(f"""    <div class="auth__form">
       <h1 class="display auth__title">This link has expired</h1>

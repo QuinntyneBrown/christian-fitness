@@ -72,4 +72,37 @@ public sealed class PasswordResetTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new AttemptWindow(limit, TimeSpan.FromMinutes(minutes)));
     }
+
+    public static TheoryData<string, int, bool, bool> UsableCases() => new()
+    {
+        // why, seconds after the request, used before, expected usable (L2-045 AC2, AC4)
+        { "just requested", 0, false, true },
+        { "one second short of 30 minutes", (30 * 60) - 1, false, true },
+        { "at 30 minutes", 30 * 60, false, false },
+        { "an hour later", 60 * 60, false, false },
+        { "just requested but used", 0, true, false },
+    };
+
+    [Theory]
+    [MemberData(nameof(UsableCases))]
+    public void Given_a_reset_When_it_is_asked_whether_it_is_usable_Then_only_an_unused_one_younger_than_30_minutes_is(string why, int seconds, bool used, bool expected)
+    {
+        var (reset, _) = PasswordReset.Issue(Guid.CreateVersion7(), Now);
+        if (used)
+        {
+            reset.Use(Now);
+        }
+
+        Assert.True(expected == reset.IsUsableAt(Now.AddSeconds(seconds)), why);
+    }
+
+    [Fact]
+    public void Given_a_reset_When_it_is_used_Then_it_records_when()
+    {
+        var (reset, _) = PasswordReset.Issue(Guid.CreateVersion7(), Now);
+
+        reset.Use(Now.AddMinutes(5));
+
+        Assert.Equal(Now.AddMinutes(5), reset.UsedAt);
+    }
 }

@@ -11,7 +11,8 @@ import { EMAIL_INVALID, emailErrorOf, resetRequestRefusalOf } from '@cf/domain';
  * it. While the request is on its way the button reads "Sending…" and the field holds still (AC7,
  * mock `submitting`). Once accepted, the form gives way to "Check your email", naming the email
  * as typed, whatever the API knows of it (AC3, AC4, mock `success`); "send it again" sends it once
- * more. A failure keeps the email and says the email could not be sent (AC7, mock `error`).
+ * more. A failure keeps the email and says the email could not be sent (AC7, mock `error`); too
+ * many requests from the network say so and keep it too (L2-034 AC3, mock `limited`).
  */
 @Component({
   selector: 'cf-forgot-password-page',
@@ -27,6 +28,7 @@ export class ForgotPasswordPage {
   protected readonly emailError = signal<string | null>(null);
   protected readonly submitting = signal(false);
   protected readonly failed = signal(false);
+  protected readonly limited = signal(false);
   /** The email the link went to, as typed; `null` while the form shows. */
   protected readonly sentTo = signal<string | null>(null);
   protected readonly summary = computed(() => {
@@ -42,6 +44,7 @@ export class ForgotPasswordPage {
   protected submit(): void {
     if (this.submitting()) return;
     this.failed.set(false);
+    this.limited.set(false);
     const error = emailErrorOf(this.email());
     this.emailError.set(error);
     if (error) return;
@@ -59,7 +62,9 @@ export class ForgotPasswordPage {
         // The form comes back as it was, so the member can try again.
         error: (failure: unknown) => {
           this.submitting.set(false);
-          if (resetRequestRefusalOf(failure) === 'invalid') this.emailError.set(EMAIL_INVALID);
+          const refusal = resetRequestRefusalOf(failure);
+          if (refusal === 'invalid') this.emailError.set(EMAIL_INVALID);
+          else if (refusal === 'rate-limited') this.limited.set(true);
           else this.failed.set(true);
         },
       });

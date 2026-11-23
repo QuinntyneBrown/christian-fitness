@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="reset-password">
 <meta name="mock:state" content="error">
 <meta name="mock:source" content="Derived from the Join layout.">
-<meta name="description" content="The link has expired: explains and offers a new one.">
+<meta name="description" content="The link has expired, was used or is unknown: explains and offers a new one.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -38,9 +38,12 @@
   <span class="mock-bar__screen">Reset password</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="submitting.html">submitting</a></li>
     <li><a href="success.html">success</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="unchecked.html">unchecked</a></li>
     <li><a href="error.html" aria-current="page">error</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>

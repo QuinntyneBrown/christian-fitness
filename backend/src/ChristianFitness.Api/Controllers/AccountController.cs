@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
 
-/// <summary>Joining the community (L2-003) and asking for a reset link (L2-044). Anonymous: a visitor has no session yet (L2-031 AC1).</summary>
+/// <summary>Joining the community (L2-003), asking for a reset link (L2-044) and choosing a new password (L2-045). Anonymous: a visitor has no session yet (L2-031 AC1).</summary>
 [ApiController]
 [Route("api/account")]
 public sealed class AccountController(ISender sender) : ControllerBase
@@ -26,5 +26,23 @@ public sealed class AccountController(ISender sender) : ControllerBase
     {
         await sender.Send(command, cancellationToken).ConfigureAwait(false);
         return Accepted();
+    }
+
+    /// <summary>
+    /// Answers the email of the account a usable reset link belongs to (L2-045 AC1; ADR 0014). The
+    /// token travels in the body, never in a URL.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("password-reset/check")]
+    public async Task<ActionResult<PasswordResetCheckDto>> CheckPasswordReset(CheckPasswordResetQuery query, CancellationToken cancellationToken) =>
+        await sender.Send(query, cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Sets a new password through a usable reset link and answers 204 (L2-045 AC2; ADR 0014).</summary>
+    [AllowAnonymous]
+    [HttpPost("password-reset/complete")]
+    public async Task<IActionResult> CompletePasswordReset(CompletePasswordResetCommand command, CancellationToken cancellationToken)
+    {
+        await sender.Send(command, cancellationToken).ConfigureAwait(false);
+        return NoContent();
     }
 }

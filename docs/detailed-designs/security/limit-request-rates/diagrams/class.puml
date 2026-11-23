@@ -25,13 +25,26 @@ class SendResult {
   +string? Code
   +MessageDto? Message
 }
-class AccountCreationLimiter {
-  +Limit = 5
-  +Window = 1 hour
+abstract class AddressRateLimiter {
+  +Limit: int
+  +Window: TimeSpan
   -TimeProvider clock
   +TryAcquire(address: string): Lease?
   +Release(lease: Lease): void
 }
+class AccountCreationLimiter {
+  +Limit = 5
+  +Window = 1 hour
+}
+class PasswordResetRequestLimiter {
+  +Limit = 10
+  +Window = 1 hour
+}
+class RequestPasswordResetHandler {
+  +Handle(c: RequestPasswordResetCommand): Task
+}
+AddressRateLimiter <|-- AccountCreationLimiter
+AddressRateLimiter <|-- PasswordResetRequestLimiter
 interface IClientAddress {
   +PartitionKey: string
 }
@@ -42,4 +55,6 @@ SendMessageHandler ..> MessageRateLimiter
 SendMessageHandler ..> SendResult
 CreateAccountHandler ..> AccountCreationLimiter
 CreateAccountHandler ..> IClientAddress
+RequestPasswordResetHandler ..> PasswordResetRequestLimiter
+RequestPasswordResetHandler ..> IClientAddress
 @enduml

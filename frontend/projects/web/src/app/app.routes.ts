@@ -29,6 +29,13 @@ export const routes: Routes = [
       import('./pages/forgot-password/forgot-password-page').then((m) => m.ForgotPasswordPage),
   },
   {
+    // The emailed link: the token rides in the fragment, which the page reads and drops (ADR 0014).
+    path: 'reset-password',
+    title: 'Reset password · Christian Fitness',
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password-page').then((m) => m.ResetPasswordPage),
+  },
+  {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).
     path: '',
     canActivate: [memberAuthGuard],

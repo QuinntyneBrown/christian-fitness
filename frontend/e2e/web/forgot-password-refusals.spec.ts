@@ -132,6 +132,29 @@ test.describe('Member app, reset request refusals', () => {
     });
   }
 
+  // L2-034 AC3: the eleventh reset request from one address in an hour (mock `limited`, ADR 0014).
+  test('too many requests from one network say so and keep the email', async ({ page, api }) => {
+    const sent = answerReset(api, problem(429, 'rate_limited'));
+    const forgot = new WebForgotPasswordPage(page);
+
+    await forgot.open();
+    await forgot.fill(EMAIL);
+    await forgot.awaitAnswer(() => forgot.submit());
+
+    await expect(forgot.alertTitle).toHaveText('Too many requests');
+    await expect(forgot.alertText).toHaveText(
+      'Too many reset links were asked for from this network in the last hour. Try again later.',
+    );
+    await expect(forgot.alert).toBeFocused();
+    await expect(forgot.alertLinks).toHaveCount(0);
+    await expect(forgot.email).toHaveValue(EMAIL);
+    await expect(forgot.email).not.toHaveAttribute('aria-invalid');
+    await expect(forgot.submitButton).toBeEnabled();
+    await expect(forgot.form).not.toContainText('Server');
+    expect(forgot.location()).toBe('/forgot-password');
+    expect(sent()).toBe(1);
+  });
+
   test('after a failure, trying again sends the link', async ({ page, api }) => {
     const sent = answerReset(api, problem(503, 'server_error'), { status: 202 });
     const forgot = new WebForgotPasswordPage(page);
