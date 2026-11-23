@@ -54,6 +54,13 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/events/events-page').then((m) => m.EventsPage),
       },
       {
+        // One published event in full (L2-010; ADR 0031).
+        path: 'events/:id',
+        title: 'Event · Christian Fitness',
+        loadComponent: () =>
+          import('./pages/event-detail/event-detail-page').then((m) => m.EventDetailPage),
+      },
+      {
         // The signed-in member's own profile (L2-005; ADR 0015).
         path: 'profile',
         title: 'Profile · Christian Fitness',

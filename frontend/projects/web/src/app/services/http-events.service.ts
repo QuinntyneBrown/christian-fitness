@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { EventCategory, EventPageDto, EventsApi } from '@cf/api';
+import type { EventCategory, EventDetailDto, EventPageDto, EventsApi } from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
@@ -16,5 +16,9 @@ export class HttpEventsService implements EventsApi {
     let params = cursor === null ? new HttpParams() : new HttpParams().set('cursor', cursor);
     if (category !== null) params = params.set('category', category);
     return this.http.get<EventPageDto>('/api/events', { params });
+  }
+
+  get(id: string): Observable<EventDetailDto> {
+    return this.http.get<EventDetailDto>(`/api/events/${encodeURIComponent(id)}`);
   }
 }

@@ -19,4 +19,9 @@ public sealed class EventsController(ISender sender) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? cursor, [FromQuery] string? category, CancellationToken cancellationToken) =>
         Ok(await sender.Send(new ListEventsQuery(cursor, category), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>One published event in full (L2-010; ADR 0031).</summary>
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new GetEventQuery(id), cancellationToken).ConfigureAwait(false));
 }

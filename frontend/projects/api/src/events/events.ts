@@ -27,6 +27,11 @@ export interface EventPageDto {
   nextCursor: string | null;
 }
 
+/** One event in full (`EventDetailDto`, ADR 0031): the summary's fields and its summary text. */
+export interface EventDetailDto extends EventSummaryDto {
+  summary: string;
+}
+
 /** The events a member browses (L2-009; ADR 0027). */
 export interface EventsApi {
   /**
@@ -35,6 +40,13 @@ export interface EventsApi {
    * with the `HttpErrorResponse`, so the screen shows its own failed state.
    */
   page(cursor: string | null, category?: EventCategory | null): Observable<EventPageDto>;
+
+  /**
+   * One published event (L2-010). An unknown or unpublished id fails with a 404 whose `code` is
+   * `event_not_found`; a 5xx opens the server-error screen, and any failure errors with the
+   * `HttpErrorResponse`.
+   */
+  get(id: string): Observable<EventDetailDto>;
 }
 
 /** Binds {@link EventsApi}; the Events screen provides it on its own route component. */

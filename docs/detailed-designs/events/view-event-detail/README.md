@@ -26,8 +26,9 @@ The feature is a vertical slice from the Event detail screen to the database.
 
 ### Open questions
 
-- The error code for a missing or unpublished event is not named in `L2-010`; this design uses `event_not_found` pending confirmation (`<TO SUPPLY>`).
-- `L2-010` says an event that is not published shows not-found; whether a past published event remains viewable is not stated (`<TO SUPPLY>`).
+- The error code for a missing or unpublished event is `event_not_found` (ADR 0031).
+- A past published event stays viewable (ADR 0031).
+- Slice 5.1 builds the read-only screen; the registration action and the "You're going" state arrive with slice 6.1 (ADR 0031).
 
 ## Requirements
 

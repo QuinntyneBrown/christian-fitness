@@ -9,6 +9,9 @@ public static class RefusalCodes
     /// <summary>An event's capacity was set below the members going (L2-022 AC3; ADR 0025).</summary>
     public const string CapacityBelowGoing = "capacity_below_going";
 
+    /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
+    public const string EventNotFound = "event_not_found";
+
     /// <summary>Only a draft event can be published (L2-023 AC4; ADR 0026).</summary>
     public const string EventNotDraft = "event_not_draft";
     /// <summary>Staff tried to flag or suspend their own account (L2-029 AC4; ADR 0028).</summary>

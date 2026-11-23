@@ -28,7 +28,7 @@ export interface EventCardView {
 /** Spots left at or under this many are said in words on the card. */
 export const FEW_SPOTS_LEFT = 10;
 
-const CATEGORY_LABELS: Record<EventCategory, string> = {
+export const CATEGORY_LABELS: Record<EventCategory, string> = {
   run: 'Run',
   workout: 'Workout',
   basketball: 'Basketball',
@@ -50,6 +50,13 @@ const FALLBACK_IMAGES: Record<EventCategory, string> = {
 // Made once on first use, not at import: the formatter is costly to create.
 let parts: Intl.DateTimeFormat | undefined;
 
+/** Where an event's picture loads from: its own, or its category's bundled photo. */
+export function eventImageSrc(event: Pick<EventSummaryDto, 'category' | 'imageKey'>): string {
+  return event.imageKey
+    ? `/api/events/images/${encodeURIComponent(event.imageKey)}`
+    : `/images/events/${FALLBACK_IMAGES[event.category]}.jpg`;
+}
+
 /** The event as its card shows it, in Toronto time whatever the browser's zone. */
 export function eventCardViewOf(event: EventSummaryDto): EventCardView {
   parts ??= new Intl.DateTimeFormat('en-US', {
@@ -67,9 +74,7 @@ export function eventCardViewOf(event: EventSummaryDto): EventCardView {
   return {
     id: event.id,
     href: `/events/${encodeURIComponent(event.id)}`,
-    imageSrc: event.imageKey
-      ? `/api/events/images/${encodeURIComponent(event.imageKey)}`
-      : `/images/events/${FALLBACK_IMAGES[event.category]}.jpg`,
+    imageSrc: eventImageSrc(event),
     month: at['month'] ?? '',
     day: at['day'] ?? '',
     date: `${at['month']} ${Number(at['day'])}`,
@@ -83,7 +88,7 @@ export function eventCardViewOf(event: EventSummaryDto): EventCardView {
   };
 }
 
-function priceOf(cents: number): string {
+export function priceOf(cents: number): string {
   if (cents <= 0) return 'Free';
   return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
 }

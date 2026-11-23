@@ -108,3 +108,29 @@ export function answerEvents(
   });
   return asked;
 }
+
+/** An event as `GET /api/events/{id}` answers it (ADR 0031): the summary's fields and its summary text. */
+export interface EventDetail extends EventSummary {
+  summary: string;
+}
+
+/** The first event in full: the mock `event-detail/unregistered`, 12 of 50 spots left. */
+export const BOOTCAMP_DETAIL: EventDetail = {
+  ...BOOTCAMP,
+  summary: 'Forty-five minutes of full-body circuits for every level. Bring a mat and water.',
+};
+
+/**
+ * Answers `GET /api/events/{id}` for each of `events`, and 404 `event_not_found` for any other id,
+ * as the API does (ADR 0031). Returns the ids asked for, in order.
+ */
+export function answerEvent(api: ApiHandlers, events: EventDetail[]): string[] {
+  const asked: string[] = [];
+  api.on('GET', /^\/api\/events\/[0-9a-f-]{36}$/, (request) => {
+    const id = new URL(request.url()).pathname.split('/').pop() ?? '';
+    asked.push(id);
+    const found = events.find((event) => event.id === id);
+    return found ? { json: found } : { status: 404, json: { code: 'event_not_found' } };
+  });
+  return asked;
+}
