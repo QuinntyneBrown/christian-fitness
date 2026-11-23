@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 31% (17 of 57 slices; 28 of 91 days)
+**% complete:** 32% (18 of 57 slices; 29 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -884,3 +884,55 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   names, so all 164 behaviour specs passed with four locator changes.
 - "A free port per worktree" (CF_WEB_PORT 4361, CF_ADMIN_PORT 4362) kept the e2e runs and the film
   clear of the paused worktrees.
+
+## Slice 29.1: Admin and Moderator roles
+
+**What slowed it**
+
+- No admin endpoint but the staff session existed on `main`, and slice 10.1's events endpoint was
+  being built beside this one, so AC1 could not be proved on a real Events, Services, Members or
+  Dashboard endpoint. Probe controllers in the test assembly, added to one fixture's host with
+  `AddApplicationPart`, go through the same convention, policies, handler and refusal writer.
+- The design named a claims transformation and `[Authorize]` per controller; the first runs on
+  every authentication of both schemes and the second can be forgotten. A requirement per staff
+  area, read from where the controller is routed, replaced both (ADR 0020).
+- The first edit script for the frontend was a quoted heredoc holding "doesn't"; Git Bash failed
+  the parse and nothing was applied. Scripts written by the editor tool and run from a file took
+  every edit after that, as slices 2.1 to 9.3 had found.
+- A breaking script run from the scratchpad failed to build: the analysers' code-style rules
+  read the `.editorconfig` of the working directory's tree. Running it with `cwd` set to
+  `backend/` fixed it.
+
+**New lessons**
+
+- An `AuthorizationHandler` that fails with `AuthorizationFailureReason(this, code)` and an
+  `IAuthorizationMiddlewareResultHandler` that passes the code to `ProblemCodes.Override` before
+  the default handler forbids give a policy's 403 its own ProblemDetails `code` without writing
+  the body anywhere else.
+- Fail closed for areas nobody has named yet: a route segment the convention does not know is
+  `Unlisted`, Admins only, so a slice that forgets to name its area cannot open it to Moderators.
+- A guard's `RedirectCommand` takes `browserUrl` in its navigation options, so a refused area can
+  show its screen while the address bar keeps the URL asked for, with no navigation state to read.
+- Route data, not navigation state, is the simplest carrier for a screen's variant when a reload of
+  the kept address must show it again: `/admins-only` is the forbidden page with
+  `{ reason: 'role' }` and its own title.
+- Importing a `domain` helper into a guard bound in the routes moves it into `main`: `canManage`
+  and `currentAdminArea` cost 0.7 kB of the 0.95 kB this slice added.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new Angular API, and diff `--stats-json`" (30.1 to 9.3): the
+  base was saved before the first change; the admin total went from 258.98 kB to 259.93 kB, under
+  the 260 kB warning, and the diff named `admin-areas.ts` (0.70 kB), the route (0.21 kB), the
+  interceptor (0.20 kB) and the guard (0.11 kB). `RedirectCommand` was already in the router.
+- "Prove a rule red by breaking it alone" (1.1 to 9.3), with a script that swaps one line, runs the
+  tests and restores it: the role read from the claim, a Moderator managing events, the missing
+  code override, `Unlisted` mapped to the console and a missing role allowed each turned the right
+  backend tests red; the interceptor's code check and screen list, the guard's role and
+  `browserUrl`, and the Moderator's areas turned the right unit tests red.
+- "A rule computed in both stacks shares one inline case table" (2.2, 20.1): `canManage` and
+  `StaffAccess` hold the same eight rows with the same reasons.
+- "A guard on a parent route changes every spec that opens a child" (3.1, 9.1): the guard now
+  reads the role, so the whole Playwright suite ran again; the default Admin session kept every
+  earlier spec green.
+- "Use free ports" (3.2, 18.1): the specs ran on 4520/4521 beside the two other sessions.
