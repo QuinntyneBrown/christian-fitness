@@ -12,8 +12,11 @@ namespace ChristianFitness.Api.Controllers;
 [Route("api/admin/members")]
 public sealed class AdminMembersController(ISender sender) : ControllerBase
 {
-    /// <summary>One page of members, newest joined first.</summary>
+    /// <summary>
+    /// One page of the members whose name or email contains <paramref name="q"/> and whose status is
+    /// <paramref name="status"/> (all, active, flagged or suspended), newest joined first.
+    /// </summary>
     [HttpGet]
-    public async Task<ActionResult<MemberListDto>> Search([FromQuery] int? page, CancellationToken cancellationToken) =>
-        await sender.Send(new SearchMembersQuery(page), cancellationToken).ConfigureAwait(false);
+    public async Task<ActionResult<MemberListDto>> Search([FromQuery] string? q, [FromQuery] string? status, [FromQuery] int? page, CancellationToken cancellationToken) =>
+        await sender.Send(new SearchMembersQuery(q, status, page), cancellationToken).ConfigureAwait(false);
 }

@@ -43,4 +43,13 @@ public static class MemberStatusNames
         MemberStatus.Suspended => "suspended",
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, "A member status with no name."),
     };
+
+    /// <summary>The status named <paramref name="name"/>, or none for anything else, <c>all</c> included.</summary>
+    public static MemberStatus? StatusOf(string? name) => name switch
+    {
+        "active" => MemberStatus.Active,
+        "flagged" => MemberStatus.Flagged,
+        "suspended" => MemberStatus.Suspended,
+        _ => null,
+    };
 }

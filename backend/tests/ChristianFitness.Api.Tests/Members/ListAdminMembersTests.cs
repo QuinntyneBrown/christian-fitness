@@ -119,7 +119,7 @@ public sealed class ListAdminMembersTests
         }
 
         var cookie = await AdminMembers.SignInStaffAsync(factory, client, "dana.pages@christianfitness.ca");
-        await RenameStaffAsync(factory, "Dana Reyes");
+        await AdminMembers.RenameAsync(factory, "dana.pages@christianfitness.ca", "Dana Reyes");
 
         var list = await AdminMembers.ListAsync(client, cookie, $"?page={asked}");
 
@@ -143,15 +143,5 @@ public sealed class ListAdminMembersTests
         using var response = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/members", Browser.SessionCookie(signedIn));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    /// <summary>The test staff account joins as "Grace Thompson"; the paging rows name it apart from the 30 members.</summary>
-    private static async Task RenameStaffAsync(AdminMembersFactory factory, string name)
-    {
-        using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var staff = db.Members.Single(m => m.NormalizedEmail == "dana.pages@christianfitness.ca");
-        db.Entry(staff).Property(m => m.Name).CurrentValue = name;
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 }

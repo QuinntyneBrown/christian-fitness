@@ -63,6 +63,20 @@ internal static class AdminMembers
         return Staff.Cookie(signedIn);
     }
 
+    /// <summary>
+    /// Renames the member with <paramref name="email"/> in the store: every test staff account joins
+    /// as "Grace Thompson", and a search by name must tell her from the cast's Grace.
+    /// </summary>
+    public static async Task RenameAsync(AdminMembersFactory factory, string email, string name)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var normalized = Member.NormalizeEmail(email);
+        var member = await db.Members.SingleAsync(m => m.NormalizedEmail == normalized, TestContext.Current.CancellationToken);
+        db.Entry(member).Property(m => m.Name).CurrentValue = name;
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     /// <summary>Asks for the list with <paramref name="query"/> (such as <c>?status=flagged</c>) and answers it, asserting 200.</summary>
     public static async Task<JsonElement> ListAsync(HttpClient client, string cookie, string query = "")
     {
