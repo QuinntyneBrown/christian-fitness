@@ -1,0 +1,31 @@
+// The design system's stat tiles (docs/design-system/assets/components.css, "Admin: dashboard").
+:host {
+  display: block;
+}
+
+.stat-grid {
+  margin-top: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.stat {
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  padding: var(--space-5);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+
+  dt {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  dd {
+    margin-top: var(--space-1);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-3xl);
+  }
+}

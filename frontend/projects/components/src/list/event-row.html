@@ -1,0 +1,15 @@
+<a [attr.class]="large() ? 'event-row event-row--lg' : 'event-row'" [href]="href()">
+  <div class="event-row__date">
+    <p class="event-row__month">{{ month() }}</p>
+    <p class="event-row__day">{{ day() }}</p>
+  </div>
+  <div class="event-row__body">
+    <p class="event-row__title">{{ heading() }}</p>
+    <p class="event-row__meta">{{ meta() }}</p>
+  </div>
+  @if (end(); as value) {
+    <span [attr.class]="going() ? 'event-row__end event-row__end--going' : 'event-row__end'">{{
+      value
+    }}</span>
+  }
+</a>

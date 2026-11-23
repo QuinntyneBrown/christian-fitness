@@ -1,0 +1,75 @@
+// The design system's fill list (docs/design-system/assets/components.css, "Admin: dashboard":
+// fill-list, with the event row's date column and text).
+:host {
+  display: block;
+}
+
+.fill-list {
+  margin-top: var(--space-4);
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+
+  > li {
+    display: grid;
+    grid-template-columns: var(--size-date-col) 1fr;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+  }
+
+  > li + li {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.fill-list__date {
+  text-align: center;
+}
+
+.fill-list__month {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  color: var(--color-fg-accent);
+  line-height: var(--line-height-xs);
+}
+
+.fill-list__day {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+}
+
+.fill-list__body {
+  min-width: 0;
+}
+
+.fill-list__title,
+.fill-list__meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fill-list__title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.fill-list__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.fill-list__fill {
+  grid-column: span 2;
+}
+
+@media (min-width: 40rem) {
+  .fill-list > li {
+    grid-template-columns: var(--size-date-col) 1fr var(--layout-meter-width);
+  }
+
+  .fill-list__fill {
+    grid-column: span 1;
+  }
+}

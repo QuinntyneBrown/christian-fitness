@@ -1,0 +1,29 @@
+// The design system's card (docs/design-system/assets/components.css, "Cards").
+:host {
+  display: block;
+}
+
+.card {
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.card--pad,
+.card--pad-sm {
+  padding: var(--space-6);
+}
+
+.card--clip {
+  overflow: hidden;
+}
+
+@media (min-width: 40rem) {
+  .card--pad {
+    padding: var(--space-8);
+  }
+
+  .card--pad-sm {
+    padding: var(--space-7);
+  }
+}

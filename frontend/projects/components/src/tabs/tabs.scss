@@ -1,0 +1,52 @@
+// The design system's tabs (docs/design-system/assets/components.css, "Admin: tabs, tables").
+:host {
+  display: block;
+}
+
+.tabs {
+  margin-top: var(--space-8);
+  display: flex;
+  gap: var(--space-6);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs__tab {
+  position: relative;
+  margin-bottom: calc(-1 * var(--border-width-hairline));
+  flex-shrink: 0;
+  border-bottom: var(--border-width-thick) solid transparent;
+  padding-bottom: var(--space-3);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  transition: color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+
+  &[aria-current='page'] {
+    border-bottom-color: var(--color-accent);
+    color: var(--color-fg-default);
+  }
+}
+
+.tabs__count {
+  margin-left: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+// The hit area reaches 44 px tall on coarse pointers (tabs.html, "Touch").
+@media (pointer: coarse) {
+  .tabs__tab::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: max(100%, var(--target-comfortable));
+    height: max(100%, var(--target-comfortable));
+  }
+}

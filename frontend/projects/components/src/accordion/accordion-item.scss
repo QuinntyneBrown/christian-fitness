@@ -1,0 +1,43 @@
+// One accordion item (docs/design-system/assets/components.css, "Accordion").
+:host {
+  display: block;
+}
+
+:host(:not(:first-child)) .accordion__item {
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.accordion__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--target-comfortable);
+  padding-block: var(--space-3);
+  cursor: pointer;
+  list-style: none;
+  font-weight: var(--font-weight-semibold);
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  .icon {
+    transition: rotate var(--duration-fast) var(--ease-standard);
+  }
+}
+
+.accordion__item[open] .accordion__summary .icon {
+  rotate: 180deg;
+}
+
+.accordion__body {
+  padding-bottom: var(--space-4);
+  color: var(--color-fg-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion__summary .icon {
+    transition: none;
+  }
+}

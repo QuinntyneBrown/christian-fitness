@@ -1,0 +1,13 @@
+@if (variant() === 'tile') {
+  <div class="date-tile" aria-hidden="true">
+    <span class="date-tile__month">{{ month() }}</span><span class="date-tile__day">{{
+      day()
+    }}</span>
+  </div>
+} @else {
+  <div class="date-badge" aria-hidden="true">
+    <span class="date-badge__month">{{ month() }}</span><span class="date-badge__day">{{
+      day()
+    }}</span>
+  </div>
+}

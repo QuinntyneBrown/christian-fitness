@@ -1,0 +1,45 @@
+// The design system's lists (docs/design-system/assets/components.css: list-ruled, list-divided,
+// mini-list, goals, and the list card, card--list).
+:host {
+  display: block;
+}
+
+.list-ruled,
+.goals {
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.list-ruled > li + li,
+.list-divided > li + li,
+.goals > li + li,
+.card--list > li + li {
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.mini-list {
+  margin-top: var(--space-3);
+
+  > li + li {
+    margin-top: var(--space-1);
+  }
+}
+
+.goals {
+  margin-top: var(--space-3);
+
+  > li {
+    padding-block: var(--space-3-5);
+    font-size: var(--font-size-lg);
+  }
+}
+
+.card {
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.card--list {
+  overflow: hidden;
+  align-self: start;
+}

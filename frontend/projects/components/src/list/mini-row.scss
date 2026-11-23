@@ -1,0 +1,105 @@
+// The design system's compact person and conversation rows (docs/design-system/assets/
+// components.css, "Compact person/conversation rows" and "Messages": conversation).
+:host {
+  display: block;
+}
+
+.mini-row {
+  display: flex;
+  width: 100%;
+  min-height: var(--space-14);
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2-5);
+  text-align: left;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-surface);
+  }
+}
+
+.conversation {
+  padding: var(--space-3);
+
+  &:hover {
+    background: var(--color-bg-canvas);
+  }
+
+  &[aria-current='true'] {
+    background: var(--color-accent-subtle);
+  }
+}
+
+.mini-row__avatar {
+  display: flex;
+  flex-shrink: 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.mini-row__body {
+  display: block;
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.mini-row__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.mini-row__name,
+.mini-row__text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-row__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.mini-row__name--unread {
+  font-weight: var(--font-weight-bold);
+}
+
+.mini-row__time {
+  flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
+.mini-row__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.mini-row__text--unread {
+  color: var(--color-fg-default);
+}
+
+.mini-row__count {
+  flex-shrink: 0;
+  min-width: var(--size-icon-md);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  padding: 0 var(--space-1-5);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--size-icon-md);
+  text-align: center;
+  color: var(--color-fg-on-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-row {
+    transition: none;
+  }
+}

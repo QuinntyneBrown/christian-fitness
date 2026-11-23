@@ -1,0 +1,22 @@
+<ul class="fill-list" [attr.aria-label]="label() ?? null">
+  @for (row of rows(); track row.id) {
+    <li>
+      <div class="fill-list__date">
+        <p class="fill-list__month">{{ row.month }}</p>
+        <p class="fill-list__day">{{ row.day }}</p>
+      </div>
+      <div class="fill-list__body">
+        <p class="fill-list__title">{{ row.heading }}</p>
+        @if (row.place) {
+          <p class="fill-list__meta">{{ row.place }}</p>
+        }
+      </div>
+      <cf-fill
+        class="fill-list__fill"
+        [label]="row.heading"
+        [count]="row.count"
+        [capacity]="row.capacity"
+      />
+    </li>
+  }
+</ul>

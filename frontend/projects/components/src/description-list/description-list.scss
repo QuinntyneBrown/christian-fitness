@@ -1,0 +1,64 @@
+// The design system's description lists (docs/design-system/assets/components.css, "Event
+// detail": facts; "Services": spec-list).
+:host {
+  display: block;
+}
+
+.facts {
+  margin-top: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+
+  dt {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  dd {
+    color: var(--color-fg-muted);
+  }
+}
+
+.facts__item {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.facts__icon {
+  margin-top: var(--space-0-5);
+  width: var(--size-icon-lg);
+  height: var(--size-icon-lg);
+  color: var(--color-fg-accent);
+}
+
+.spec-list {
+  margin-top: var(--space-6);
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+  font-size: var(--font-size-ui);
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+  }
+
+  > div + div {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+
+  dt {
+    color: var(--color-fg-muted);
+  }
+
+  dd {
+    text-align: right;
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+// "Not shared" reads in muted text, never as a value the person gave.
+.spec-list dd.missing,
+.facts dd.missing {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}

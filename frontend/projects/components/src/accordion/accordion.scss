@@ -1,0 +1,9 @@
+// The design system's accordion group (docs/design-system/assets/components.css, "Accordion").
+// Each item draws the rule between it and the item above.
+:host {
+  display: block;
+}
+
+.accordion {
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+}
