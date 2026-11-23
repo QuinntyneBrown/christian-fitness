@@ -1,0 +1,14 @@
+<nav class="tabs" [attr.aria-label]="label()">
+  @for (tab of tabs(); track tab.href) {
+    <a
+      class="tabs__tab"
+      [href]="tab.href"
+      [attr.aria-current]="tab.href === current() ? 'page' : null"
+      (click)="follow($event, tab.href)"
+      >{{ tab.label }}
+      @if (tab.count !== undefined) {
+        <span class="tabs__count">{{ tab.count }}</span>
+      }
+    </a>
+  }
+</nav>

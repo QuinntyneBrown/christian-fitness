@@ -1,0 +1,29 @@
+@startuml
+title UML sequence behaviour — Operate a menu button by keyboard
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Keyboard user" as actor
+box "Frontend — components library" #E0F2FE
+  participant "Menu (cf-menu)" as menu
+  participant "nextMenuIndex" as keys
+end box
+participant "Screen" as screen
+actor -> menu : Tab to the trigger, Enter
+menu -> menu : open; aria-expanded="true"; focus first enabled item
+actor -> menu : ArrowDown / ArrowUp / Home / End
+menu -> keys : nextMenuIndex(key, active, count)
+keys --> menu : next index (wraps at the ends)
+menu -> menu : move the roving tabindex and focus
+actor -> menu : Enter on an item
+alt item is unavailable (aria-disabled)
+  menu -> menu : stay open, do nothing
+else item is available
+  menu -> menu : close; focus returns to the trigger
+  menu -> screen : selected(id)
+end
+actor -> menu : Escape
+menu -> menu : close; focus returns to the trigger (L2-048 AC3)
+@enduml

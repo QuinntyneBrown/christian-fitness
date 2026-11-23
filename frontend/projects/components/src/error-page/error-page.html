@@ -1,6 +1,23 @@
-<div class="empty-state empty-state--system">
-  <p class="system__code" aria-hidden="true">{{ code() }}</p>
-  <h1 class="display page-title system__title" tabindex="-1">{{ heading() }}</h1>
-  <p class="empty-state__text">{{ text() }}</p>
-  <div class="empty-state__actions"><ng-content select="[slot=actions]" /></div>
-</div>
+<ng-template #actions><ng-content select="[slot=actions]" /></ng-template>
+@if (variant() === 'staff') {
+  <div class="staff__card">
+    @if (eyebrow(); as console) {
+      <p class="admin-eyebrow">{{ console }}</p>
+    }
+    <h1 class="display staff__title" tabindex="-1">{{ heading() }}</h1>
+    <p class="staff__lead">{{ text() }}</p>
+    <div class="staff__actions"><ng-container [ngTemplateOutlet]="actions" /></div>
+    @if (note(); as hint) {
+      <p class="staff__note">{{ hint }}</p>
+    }
+  </div>
+} @else {
+  <div class="empty-state empty-state--system">
+    @if (code(); as decorative) {
+      <p class="system__code" aria-hidden="true">{{ decorative }}</p>
+    }
+    <h1 class="display page-title system__title" tabindex="-1">{{ heading() }}</h1>
+    <p class="empty-state__text">{{ text() }}</p>
+    <div class="empty-state__actions"><ng-container [ngTemplateOutlet]="actions" /></div>
+  </div>
+}

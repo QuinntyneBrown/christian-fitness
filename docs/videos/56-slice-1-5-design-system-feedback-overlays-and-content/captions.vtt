@@ -1,0 +1,70 @@
+WEBVTT
+
+00:00:02.000 --> 00:00:06.916
+Slice one point five builds the design system's feedback, overlays and content,
+
+00:00:06.916 --> 00:00:07.527
+once.
+
+00:00:08.000 --> 00:00:13.742
+Twenty-one components, each under its design-system name: alerts, toasts, dialogs,
+
+00:00:13.742 --> 00:00:17.333
+menus, cards, lists, tables, tabs and messages.
+
+00:00:17.533 --> 00:00:19.235
+Every screen will reuse them.
+
+00:00:20.000 --> 00:00:25.387
+A danger alert is announced at once, with role alert. Good news waits politely, as a
+
+00:00:25.387 --> 00:00:26.136
+status.
+
+00:00:26.336 --> 00:00:30.913
+The toast region keeps one polite live region, and an alert for each failure.
+
+00:00:32.000 --> 00:00:37.063
+The dialog and drawer are shells for the CDK Dialog a screen will open.
+
+00:00:37.263 --> 00:00:42.398
+The menu button moves with the arrow keys, Home and End, and Escape returns focus to
+
+00:00:42.398 --> 00:00:43.432
+its trigger.
+
+00:00:44.000 --> 00:00:49.127
+Pagination and tabs are real links, marked with aria current, so Back and new tabs
+
+00:00:49.127 --> 00:00:50.115
+still work.
+
+00:00:50.315 --> 00:00:54.678
+The table has a caption and column headers, and scrolls in its own region.
+
+00:00:56.000 --> 00:01:01.183
+No screen uses them yet, so each is proven through the page: roles, names, focus and
+
+00:01:01.183 --> 00:01:01.792
+keys.
+
+00:01:01.992 --> 00:01:06.855
+A hundred and forty tests pass. Each key rule was broken on purpose, and its test
+
+00:01:06.855 --> 00:01:07.695
+went red.
+
+00:01:08.000 --> 00:01:13.095
+And nothing grew. Both apps start exactly as before, well inside their two hundred
+
+00:01:13.095 --> 00:01:15.508
+and seventy-five kilobyte budgets.
+
+00:01:18.000 --> 00:01:22.805
+Next, slice one point six moves every built screen onto these components.
+
+00:01:26.000 --> 00:01:31.093
+That's slice one point five. Christian Fitness: a Christian community for health in
+
+00:01:31.093 --> 00:01:32.375
+body and spirit.

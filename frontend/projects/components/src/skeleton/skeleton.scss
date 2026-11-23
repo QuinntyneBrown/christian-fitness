@@ -1,0 +1,186 @@
+// The design system's skeleton (docs/design-system/assets/components.css, "Skeletons"). The host
+// takes no box of its own, so the shape sits in the real layout and reflows with it.
+:host {
+  display: contents;
+}
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-skeleton);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0,
+    var(--color-skeleton-shine) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer var(--duration-deliberate) var(--ease-standard) infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+
+  to {
+    background-position: -50% 0;
+  }
+}
+
+.skeleton--text {
+  height: var(--font-size-sm);
+  width: 70%;
+}
+
+.skeleton--text-sm {
+  height: calc(var(--space-1) * 3);
+  width: 50%;
+}
+
+.skeleton--title {
+  height: calc(var(--space-1) * 8);
+  width: 60%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--title-lg {
+  height: calc(var(--space-1) * 11);
+  width: 75%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--block,
+.skeleton--image-16x8,
+.skeleton--image-16x9 {
+  border-radius: 0;
+  width: 100%;
+}
+
+.skeleton--image-16x8 {
+  aspect-ratio: 16 / 8;
+}
+
+.skeleton--image-16x9 {
+  aspect-ratio: 16 / 9;
+}
+
+.skeleton--image-banner {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+  margin-top: var(--space-4);
+}
+
+.skeleton--avatar,
+.skeleton--avatar-xl,
+.skeleton--avatar-2xl,
+.skeleton--avatar-profile,
+.skeleton--date {
+  flex-shrink: 0;
+}
+
+.skeleton--avatar {
+  width: var(--size-avatar-lg);
+  height: var(--size-avatar-lg);
+}
+
+.skeleton--avatar-xl {
+  width: var(--size-avatar-xl);
+  height: var(--size-avatar-xl);
+}
+
+.skeleton--avatar-2xl {
+  width: var(--size-avatar-2xl);
+  height: var(--size-avatar-2xl);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton--avatar-profile {
+  width: var(--size-avatar-3xl);
+  height: var(--size-avatar-3xl);
+}
+
+.skeleton--date {
+  width: var(--size-date-col);
+  height: calc(var(--space-1) * 10);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--button {
+  height: calc(var(--space-1) * 11);
+  width: calc(var(--space-1) * 28);
+}
+
+.skeleton--button-block {
+  height: calc(var(--space-1) * 13);
+  width: 100%;
+}
+
+.skeleton--chip {
+  height: calc(var(--space-1) * 9);
+  width: calc(var(--space-1) * 20);
+}
+
+.skeleton--bubble {
+  height: calc(var(--space-1) * 11);
+  width: calc(var(--space-1) * 64);
+  max-width: 70%;
+  border-radius: var(--radius-lg);
+}
+
+.skeleton--tile {
+  height: calc(var(--space-1) * 24);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton--stat {
+  height: calc(var(--space-1) * 38);
+  border-radius: var(--radius-xl);
+  margin-top: var(--space-4);
+}
+
+.w-10 {
+  width: 10%;
+}
+
+.w-20 {
+  width: 20%;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.w-40 {
+  width: 40%;
+}
+
+.w-50 {
+  width: 50%;
+}
+
+.w-55 {
+  width: 55%;
+}
+
+.w-80 {
+  width: 80%;
+}
+
+.w-90 {
+  width: 90%;
+}
+
+@media (min-width: 40rem) {
+  .skeleton--image-banner {
+    aspect-ratio: 21 / 8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

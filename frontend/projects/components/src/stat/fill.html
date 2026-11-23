@@ -1,0 +1,15 @@
+<div class="fill">
+  <div class="fill__nums">
+    <span class="fill__count">{{ count() }} / {{ capacity() }}</span>
+    <span [attr.class]="share().high ? 'fill__pct fill__pct--high' : 'fill__pct'"
+      >{{ share().percent }}%</span
+    >
+  </div>
+  <meter
+    class="fill__meter"
+    min="0"
+    [attr.max]="capacity()"
+    [attr.value]="count()"
+    [attr.aria-label]="label() + ': ' + count() + ' of ' + capacity() + ' registered'"
+  ></meter>
+</div>

@@ -10,19 +10,46 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Meet WCAG
+left to right direction
 
 class ButtonComponent <<components>> {
   +pressed: InputSignal<boolean>
   +disabled: InputSignal<boolean>
   min-size 44 x 44 px
 }
-class MiniRowComponent <<components>> {
-  +unreadCount: InputSignal<number>
+class MiniRow <<components>> {
+  +unread: InputSignal<number>
   +current: InputSignal<boolean>
+  "N unread" as text
 }
 class StatusChipComponent <<components>> {
   +status: InputSignal<MemberStatus>
   label text + icon
+}
+class Alert <<components>> {
+  +tone: InputSignal<'danger' | 'info' | 'success'>
+  +items: InputSignal<AlertItem[]>
+  role alert or status; takes focus
+}
+class ToastRegion <<components>> {
+  +toasts: InputSignal<ToastData[]>
+  +paused: OutputEmitterRef<boolean>
+  one status region; alert per danger toast
+}
+class Menu <<components>> {
+  +sections: InputSignal<MenuSection[]>
+  +selected: OutputEmitterRef<string>
+  roving tabindex; Escape returns focus
+}
+class Dialog <<components>> {
+  +titleId: InputSignal<string>
+  +closed: OutputEmitterRef<void>
+  shell inside a CDK Dialog
+}
+class Pagination <<components>> {
+  +page: InputSignal<number>
+  +navigate: OutputEmitterRef<number>
+  aria-current="page"
 }
 class Tokens <<design system>> {
   --color-text-*
@@ -34,7 +61,12 @@ class Foundations <<global styles>> {
   @media prefers-reduced-motion
 }
 ButtonComponent ..> Tokens
-MiniRowComponent ..> Tokens
+MiniRow ..> Tokens
 StatusChipComponent ..> Tokens
+Alert ..> Tokens
+ToastRegion ..> Tokens
+Menu ..> Tokens
+Dialog ..> Tokens
+Pagination ..> Tokens
 Foundations ..> Tokens
 @enduml

@@ -1,0 +1,133 @@
+// The design system's event card (docs/design-system/assets/components.css, "Event cards"). The
+// card fills its grid cell; the spacer pushes the footer to the bottom.
+:host {
+  display: flex;
+}
+
+.event-card {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+  text-align: left;
+  transition: box-shadow var(--duration-base) var(--ease-standard);
+
+  &:hover {
+    box-shadow:
+      inset 0 0 0 var(--border-width-hairline) var(--color-border-default),
+      var(--shadow-2);
+
+    .event-card__title {
+      color: var(--color-fg-accent);
+    }
+  }
+}
+
+.event-card__media {
+  position: relative;
+}
+
+.event-card__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.going-pill {
+  position: absolute;
+  right: var(--space-4);
+  top: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg-on-accent);
+  line-height: var(--line-height-xs);
+}
+
+.event-card__body {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  padding: var(--space-5);
+}
+
+.event-card__meta {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.event-card__title {
+  margin-top: var(--space-1);
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-none);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.event-card__place {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.event-card__spacer {
+  min-height: var(--space-5);
+  flex: 1 1 0%;
+}
+
+.event-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  padding-top: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+.event-card__going {
+  color: var(--color-fg-muted);
+}
+
+.event-card__price,
+.event-card__left {
+  font-weight: var(--font-weight-semibold);
+}
+
+.event-card__left {
+  color: var(--color-fg-accent);
+}
+
+@media (min-width: 40rem) {
+  .event-card__body {
+    padding: var(--space-6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-card,
+  .event-card__title {
+    transition: none;
+  }
+}

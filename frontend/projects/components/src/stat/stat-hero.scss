@@ -1,0 +1,40 @@
+// The design system's stat hero (docs/design-system/assets/components.css, "Admin: dashboard").
+:host {
+  display: block;
+}
+
+.stat-hero {
+  margin-top: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+  padding: var(--space-6);
+}
+
+.stat-hero__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-on-brand-highlight);
+}
+
+.stat-hero__value {
+  margin-top: var(--space-2);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-6xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+}
+
+.stat-hero__sub {
+  margin-top: var(--space-2);
+  color: var(--color-fg-on-brand-muted);
+}
+
+@media (min-width: 40rem) {
+  .stat-hero {
+    padding: var(--space-7);
+  }
+}

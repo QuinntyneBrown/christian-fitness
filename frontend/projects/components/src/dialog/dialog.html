@@ -1,0 +1,40 @@
+<div class="scrim" aria-hidden="true" (click)="closed.emit()"></div>
+<div class="dialog">
+  <div class="dialog__head">
+    <div>
+      <h2 class="dialog__title" [id]="titleId()">{{ heading() }}</h2>
+      @if (subtitle(); as sub) {
+        <p class="dialog__sub" [id]="descriptionId()">{{ sub }}</p>
+      }
+    </div>
+    <button
+      class="dialog__close"
+      type="button"
+      [attr.aria-label]="closeLabel()"
+      (click)="closed.emit()"
+    >
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="dialog__body">
+    @if (successHeading(); as done) {
+      <div class="dialog__success" role="status">
+        <span class="dialog__success-icon">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </span>
+        <p class="dialog__success-title">{{ done }}</p>
+        @if (successText(); as detail) {
+          <p class="dialog__success-text">{{ detail }}</p>
+        }
+      </div>
+    } @else {
+      <ng-content />
+    }
+  </div>
+  <div class="dialog__foot"><ng-content select="[slot=foot]" /></div>
+</div>

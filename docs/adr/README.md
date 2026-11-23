@@ -21,3 +21,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0014](0014-choosing-a-new-password.md)                      | Choosing a new password: a checked link, single use, every session ended and no sign-in | Accepted |
 | [0015](0015-view-my-profile.md)                              | View my profile: one own-profile endpoint, a registration reader that answers none yet, and a screen-scoped client | Accepted |
 | [0016](0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md) | Staff idle expiry, the staff sign-in pause and the forbidden screen: a renewal on every request, a session_expired code and a Staff only screen for a 403 | Accepted |
+| [0017](0017-design-system-feedback-overlays-and-content.md) | Design-system feedback, overlays and content: unit tests as acceptance for a slice with no screen, dialog and drawer shells for a later CDK Dialog, a menu without the CDK and a deferred toast store | Accepted |

@@ -6,11 +6,11 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 24% (5 of 30 journeys; 20 of 83 days: journeys 1, 2, 3, 9 and 20 are done, journey 18 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
+**% complete:** 25% (4 of 30 journeys; 23 of 91 days: journeys 2, 3, 9 and 20 are done, journey 1 has 8 of its 13 days, journey 18 has 1 of its 3 days, and journey 30 has 1 of its 2 days)
 
 | #   | Journey                          | App    | Description                                                                   | Effort (days) |
 | --- | -------------------------------- | ------ | ----------------------------------------------------------------------------- | ------------- |
-| 1   | ✅ Scaffold the apps             | Both   | Workspace, clean-architecture backend, auth, telemetry, test fixtures and CI. | 5             |
+| 1   | Scaffold the apps                | Both   | Workspace, clean-architecture backend, auth, telemetry, test fixtures, CI and the shared design-system components. | 13            |
 | 2   | ✅ Join the community            | Member | Create a member account with name, email and password.                        | 3             |
 | 3   | ✅ Sign in and out               | Member | Sign in securely, with lockout, suspension refusal and return-to-route.       | 3             |
 | 4   | Browse and filter events         | Member | Find upcoming events by type, date and location.                              | 3             |
@@ -50,4 +50,4 @@ telemetry), so those are not listed on their own.
 - **Apply to be listed** (22) is in L2-026 but has no mock yet; it needs one before
   implementation.
 - **Totals.** 18 member journeys (48 days), 10 admin journeys (28 days) and 2 shared
-  (7 days): 83 days in all.
+  (15 days): 91 days in all.

@@ -7,7 +7,7 @@
     "start:admin": "ng serve admin --port 4201",
     "build": "ng build web && ng build admin",
     "lint": "eslint .",
-    "test": "ng test domain --watch=false",
+    "test": "ng test domain --watch=false && ng test components --watch=false",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "playwright test"

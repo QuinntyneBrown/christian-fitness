@@ -1,0 +1,55 @@
+<div class="menu-anchor">
+  <button
+    [attr.class]="iconOnly() ? 'menu__trigger menu__trigger--icon' : 'menu__trigger'"
+    type="button"
+    [id]="triggerId"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="menuId"
+    [attr.aria-label]="iconOnly() ? label() : null"
+    (click)="toggle()"
+    (keydown)="triggerKey($event)"
+  >
+    @if (iconOnly()) {
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="19" cy="12" r="1" />
+        <circle cx="5" cy="12" r="1" />
+      </svg>
+    } @else {
+      {{ label() }}
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+    }
+  </button>
+  <div class="menu" [id]="menuId" role="menu" [attr.aria-labelledby]="triggerId" [hidden]="!open()">
+    @for (section of sections(); track $index) {
+      <div class="menu__section" role="none">
+        @if (section.heading) {
+          <p class="menu__heading" role="none">{{ section.heading }}</p>
+        }
+        @for (item of section.items; track item.id) {
+          <button
+            [attr.class]="item.danger ? 'menu__item menu__item--danger' : 'menu__item'"
+            type="button"
+            [attr.role]="kind() === 'choice' ? 'menuitemradio' : 'menuitem'"
+            [attr.aria-checked]="kind() === 'choice' ? !!item.checked : null"
+            [attr.aria-disabled]="item.disabled ? 'true' : null"
+            [tabIndex]="indexOf(item) === active() ? 0 : -1"
+            (click)="activate(item)"
+            (keydown)="itemKey($event, item)"
+          >
+            {{ item.label }}
+            @if (kind() === 'choice') {
+              <svg class="icon menu__check" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            }
+            @if (item.shortcut) {
+              <span class="menu__shortcut">{{ item.shortcut }}</span>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>

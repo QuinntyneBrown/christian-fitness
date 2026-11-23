@@ -1,0 +1,9 @@
+// The loading region of the design system's skeleton (docs/design-system/components/
+// skeleton.html): it adds no box of its own, so the projected layout reflows as the content will.
+:host {
+  display: contents;
+}
+
+.skeleton-region {
+  display: contents;
+}

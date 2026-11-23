@@ -1,0 +1,123 @@
+// The design system's banner (docs/design-system/assets/components.css, "Banner"). It pushes the
+// page down and never overlays it.
+:host {
+  display: block;
+}
+
+.banner {
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.banner__inner {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-ui);
+}
+
+.banner__icon {
+  margin-top: var(--space-0-5);
+  width: var(--size-icon-lg);
+  height: var(--size-icon-lg);
+}
+
+.banner__text {
+  min-width: 0;
+  flex: 1 1 0%;
+
+  strong {
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.banner__action {
+  flex-shrink: 0;
+  min-height: var(--target-min);
+  padding: 0;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+}
+
+// A 36 px icon button that reaches 44 × 44 px on coarse pointers (banner.html, "Touch").
+.banner__close {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: calc(-1 * var(--space-1-5)) calc(-1 * var(--space-1-5)) calc(-1 * var(--space-1-5)) 0;
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &:active {
+    background: var(--color-bg-subtle-hover);
+  }
+}
+
+.banner--info {
+  background: var(--color-info-bg);
+  color: var(--color-info-fg);
+}
+
+.banner--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-fg);
+}
+
+.banner--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-fg);
+}
+
+.banner--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+}
+
+.banner--brand {
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+  border-bottom-color: transparent;
+
+  .banner__action:focus-visible,
+  .banner__close:focus-visible {
+    outline-color: var(--color-focus-ring-on-dark);
+  }
+
+  .banner__close:hover {
+    background: var(--color-bg-on-brand-hover);
+  }
+}
+
+// From 640 px the icon, text, action and Dismiss centre on one row (banner.html, "Responsive").
+@media (min-width: 40rem) {
+  .banner__inner {
+    align-items: center;
+    padding-inline: var(--space-6);
+  }
+
+  .banner__icon {
+    margin-top: 0;
+  }
+}
+
+@media (pointer: coarse) {
+  .banner__close::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: max(100%, var(--target-comfortable));
+    height: max(100%, var(--target-comfortable));
+  }
+}

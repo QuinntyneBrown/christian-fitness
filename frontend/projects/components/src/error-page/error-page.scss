@@ -54,3 +54,64 @@
   flex-wrap: wrap;
   gap: var(--space-2);
 }
+
+// The admin console's 403 card (components.css, "Staff sign in": staff__card, staff__title,
+// staff__lead, staff__note, and admin-eyebrow): centred, full width with 32 px padding on phones
+// and 40 px from 640 px.
+.staff__card {
+  width: 100%;
+  max-width: var(--layout-form-max);
+  margin-inline: auto;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  padding: var(--space-8);
+}
+
+.admin-eyebrow {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  line-height: var(--line-height-xs);
+  color: var(--color-fg-accent);
+}
+
+.staff__title {
+  margin-top: var(--space-10);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-4xl);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.staff__lead {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.staff__actions {
+  margin-top: var(--space-8);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.staff__note {
+  margin-top: var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+
+@media (min-width: 40rem) {
+  .staff__card {
+    padding: var(--space-10);
+  }
+}

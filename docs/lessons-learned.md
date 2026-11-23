@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 24% (14 of 54 slices; 20 of 83 days)
+**% complete:** 25% (15 of 57 slices; 23 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -738,3 +738,54 @@ worked when applied. Newest entries go at the bottom.
   right tests red; "touch the restored file" (9.2) kept MSBuild honest.
 - "A gate in a fixture handler" (2.1 to 9.2) gave "Signing out…" with no clock; the backend moved a
   `FakeTimeProvider` past 29, 30 and 15 minutes, never sleeping.
+
+## Slice 1.5: Design-system feedback, overlays and content
+
+**What slowed it**
+
+- The components library had no test target, and `@angular/cdk` is not installed although the
+  dialog, drawer and menu pages assume it. ADR 0017 adds a Vitest target, makes the dialog and
+  drawer presentation shells for the CDK Dialog a later screen installs, and builds the menu
+  button without the CDK.
+- `angular-eslint`'s inline-declarations rule refused the host components that project content in
+  specs; lint now allows inline templates in `*.spec.ts` only.
+- happy-dom's `textContent` joins adjacent elements with no space and includes `aria-hidden`
+  text, so asserting a link's accessible name needed a small helper that walks the text nodes
+  outside `aria-hidden`.
+- Prettier rewraps a short interpolation inside `<caption>` onto its own lines, so the caption's
+  text gains whitespace; assert trimmed text where the markup is formatted.
+- Each component stylesheet repeated the `:focus-visible` outline the reset already gives every
+  control, which pushed the menu's stylesheet 75 bytes over its 3 kB budget.
+- Breaking the toast region's focus-out check left every test green: the spec only moved focus
+  out of the region. A case for focus moving between two toasts was added and proved red.
+- A coordinator rebase landed mid-slice ("every design-system component is built once and
+  reused"), which this slice already followed.
+
+**New lessons**
+
+- A slice with no screen proves its components through the DOM with TestBed: roles, names, focus,
+  keys and outputs, never structure or snapshots; Playwright takes over when a screen composes
+  them.
+- A component whose rules must reach its rows renders the rows itself (a `TemplateRef` input),
+  since encapsulated styles do not reach projected content.
+- A native `<details>` reports its state through the `toggle` event; drive it in a test by
+  clicking its `<summary>`, not by setting `open` and dispatching a synthetic event.
+- Leave focus rings to the foundations' `:focus-visible`; a component overrides only the colour
+  where its background needs it.
+- A navigation component renders real links and emits `navigate` only for a plain click, so new
+  tabs and Back keep working.
+
+**How earlier lessons worked**
+
+- "Diff the initial total after each new Angular API" (30.1 to 9.3): both apps' initial totals
+  stayed at 261.59 kB and 258.98 kB with and without this slice, checked by building the base's
+  error page in place and restoring it.
+- "Prove a rule red by breaking it alone" (1.1 to 9.3): every new spec failed first for its missing
+  component, and the tone roles, the busy guard, the menu's disabled check, `nextMenuIndex`'s
+  wrap, `fillOf`'s 90 % mark, the pagination gaps, the event card's count, the composer's trim and
+  the toast region's focus-out (after its new case) each turned their own test red when broken
+  alone.
+- "Write prose with the editor tool, apply edits with a script that asserts every match" (9.3)
+  kept every docs and spec edit to one attempt.
+- "Shared fixture: run the whole suite after touching a shared flow" (2.1): the error page's new
+  variant ran under all 162 behaviour specs, green.

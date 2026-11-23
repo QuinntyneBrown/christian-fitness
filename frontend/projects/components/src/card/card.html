@@ -1,0 +1,18 @@
+<ng-template #content><ng-content /></ng-template>
+@switch (element()) {
+  @case ('article') {
+    <article [attr.class]="classes()" [attr.aria-labelledby]="labelledBy() ?? null">
+      <ng-container [ngTemplateOutlet]="content" />
+    </article>
+  }
+  @case ('section') {
+    <section [attr.class]="classes()" [attr.aria-labelledby]="labelledBy() ?? null">
+      <ng-container [ngTemplateOutlet]="content" />
+    </section>
+  }
+  @default {
+    <div [attr.class]="classes()" [attr.aria-labelledby]="labelledBy() ?? null">
+      <ng-container [ngTemplateOutlet]="content" />
+    </div>
+  }
+}

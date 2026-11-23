@@ -1,0 +1,27 @@
+<a
+  [attr.class]="conversation() ? 'mini-row conversation' : 'mini-row'"
+  [href]="href()"
+  [attr.aria-current]="current() ? 'true' : null"
+>
+  <span class="mini-row__avatar"><ng-content select="[slot=avatar]" /></span>
+  <span class="mini-row__body">
+    <span class="mini-row__top">
+      <span [attr.class]="unread() ? 'mini-row__name mini-row__name--unread' : 'mini-row__name'">{{
+        name()
+      }}</span>
+      @if (time(); as when) {
+        <span class="mini-row__time">{{ when }}</span>
+      }
+    </span>
+    @if (text(); as line) {
+      <span [attr.class]="unread() ? 'mini-row__text mini-row__text--unread' : 'mini-row__text'">{{
+        line
+      }}</span>
+    }
+  </span>
+  @if (unread() > 0) {
+    <span class="mini-row__count" role="img" [attr.aria-label]="unread() + ' unread'">{{
+      unread()
+    }}</span>
+  }
+</a>

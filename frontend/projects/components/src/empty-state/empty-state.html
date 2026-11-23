@@ -1,0 +1,55 @@
+<ng-template #actions><ng-content select="[slot=actions]" /></ng-template>
+<ng-template #title let-block>
+  @if (headingTag() === 'p') {
+    <p [attr.class]="'display ' + block + '__title'">{{ heading() }}</p>
+  } @else {
+    <h2 [attr.class]="'display ' + block + '__title'">{{ heading() }}</h2>
+  }
+</ng-template>
+@switch (variant()) {
+  @case ('card') {
+    <div class="empty-card">
+      <ng-container *ngTemplateOutlet="title; context: { $implicit: 'empty-card' }" />
+      @if (text(); as sentence) {
+        <p class="empty-card__text">{{ sentence }}</p>
+      }
+      <div class="empty-card__actions"><ng-container [ngTemplateOutlet]="actions" /></div>
+    </div>
+  }
+  @case ('inline') {
+    <div class="empty-inline">
+      <p class="empty-inline__text">{{ heading() }}{{ text() ? ' ' + text() : '' }}</p>
+      <div class="empty-inline__action"><ng-container [ngTemplateOutlet]="actions" /></div>
+    </div>
+  }
+  @case ('error') {
+    <div class="error-state" role="alert">
+      <span class="error-state__icon">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" x2="12" y1="8" y2="12" />
+          <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+      </span>
+      <div>
+        <ng-container *ngTemplateOutlet="title; context: { $implicit: 'empty-state' }" />
+        @if (text(); as sentence) {
+          <p class="empty-state__text">{{ sentence }}</p>
+        }
+        <div class="empty-state__actions"><ng-container [ngTemplateOutlet]="actions" /></div>
+        @if (reference(); as ref) {
+          <p class="error-state__ref">Reference {{ ref }}</p>
+        }
+      </div>
+    </div>
+  }
+  @default {
+    <div [attr.class]="variant() === 'tight' ? 'empty-state empty-state--tight' : 'empty-state'">
+      <ng-container *ngTemplateOutlet="title; context: { $implicit: 'empty-state' }" />
+      @if (text(); as sentence) {
+        <p class="empty-state__text">{{ sentence }}</p>
+      }
+      <div class="empty-state__actions"><ng-container [ngTemplateOutlet]="actions" /></div>
+    </div>
+  }
+}

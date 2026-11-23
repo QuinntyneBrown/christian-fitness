@@ -1,0 +1,73 @@
+<div class="table-wrap" role="region" [attr.aria-label]="caption()" tabindex="0">
+  <table [attr.class]="tableClasses()" [attr.aria-busy]="loading() ? 'true' : null">
+    <caption [attr.class]="captionClass()">
+      {{
+        caption()
+      }}
+    </caption>
+    <thead>
+      <tr>
+        @for (column of columns(); track column.key) {
+          <th scope="col">{{ column.label }}</th>
+        }
+        @if (actionLabel()) {
+          <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @if (loading()) {
+        @for (n of skeletonRows; track n) {
+          <tr>
+            @for (column of columns(); track column.key) {
+              <td><cf-skeleton shape="text-sm" [width]="$first ? '80' : '50'" /></td>
+            }
+            @if (actionLabel()) {
+              <td class="table__end"><cf-skeleton shape="text-sm" width="40" /></td>
+            }
+          </tr>
+        }
+      } @else {
+        @for (row of rows(); track row.id) {
+          <tr>
+            @for (column of columns(); track column.key) {
+              <td [attr.class]="cellClass(column)">
+                @switch (column.kind) {
+                  @case ('custom') {
+                    @if (cell(); as template) {
+                      <ng-container
+                        *ngTemplateOutlet="template; context: { $implicit: row, column: column }"
+                      />
+                    }
+                  }
+                  @case ('primary') {
+                    <p class="table__strong">{{ row.cells[column.key]?.text }}</p>
+                    @if (row.cells[column.key]?.sub; as sub) {
+                      <p class="table__sub">{{ sub }}</p>
+                    }
+                  }
+                  @default {
+                    {{ row.cells[column.key]?.text }}
+                  }
+                }
+              </td>
+            }
+            @if (actionLabel(); as label) {
+              <td class="table__end">
+                @if (row.actionHref; as href) {
+                  <a class="row-link" [href]="href"
+                    >{{ label }}<span class="visually-hidden"> {{ row.name }}</span></a
+                  >
+                } @else {
+                  <button class="row-link" type="button" (click)="action.emit(row.id)">
+                    {{ label }}<span class="visually-hidden"> {{ row.name }}</span>
+                  </button>
+                }
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

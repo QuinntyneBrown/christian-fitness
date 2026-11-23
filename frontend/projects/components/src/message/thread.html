@@ -1,0 +1,31 @@
+<section class="thread" [attr.aria-label]="label()">
+  <ol class="thread__messages">
+    @for (entry of entries(); track entry.id) {
+      @if (entry.kind === 'day') {
+        <li class="thread__day">{{ entry.label }}</li>
+      } @else {
+        <li [attr.class]="classes(entry)">
+          <div class="message__wrap">
+            @if (entry.author && !entry.mine) {
+              <p class="message__author">{{ entry.author }}</p>
+            }
+            <p class="message__bubble">{{ entry.text }}</p>
+            @if (entry.failed) {
+              <p class="message__error" role="alert">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" x2="12" y1="8" y2="12" />
+                  <line x1="12" x2="12.01" y1="16" y2="16" />
+                </svg>
+                Not sent.
+                <button type="button" (click)="retry.emit(entry.id)">Try again</button>
+              </p>
+            } @else {
+              <p class="message__time">{{ entry.time }}</p>
+            }
+          </div>
+        </li>
+      }
+    }
+  </ol>
+</section>

@@ -17,7 +17,8 @@ non-colour state, contrast, touch target size and reduced motion.
 - **Design system tokens** — `docs/design-system/tokens` defines colour roles with contrast verified at 4.5:1 for text in light and dark themes; components read roles, never hex values.
 - **Focus** — a global foundation style sets `:focus-visible` outlines from a focus token; no component removes outlines without a replacement.
 - **Components library** — each control in `projects/components` meets 44 × 44 px; state uses attributes (`aria-current`, `aria-invalid`, `aria-pressed`, `aria-selected`, `disabled`) and the BEM stylesheet styles through them, adding an icon or text so colour is not the only carrier. Examples: unread conversations in `mini-row` carry a count badge with text; member status chips in `admin-members` carry the status word.
-- **Keyboard order** — DOM order follows visual order; dialogs use CDK Dialog with focus trap and return focus on close; the app shells provide a skip link, `<a class="skip-link" href="#main">Skip to content</a>`, as the first focusable element (confirmed by every page mock that has a header or navigation; it arrives with the first shell that has something to skip, the member and admin layouts).
+- **Feedback, overlays and content** — each design-system component is built once in `projects/components` and reused (`L2-048`, ADR 0017). Alerts, banners, inline messages and toasts take the role their tone needs (`alert` for danger, `status` otherwise); a form alert takes focus and links each item to its field; the toast region keeps one polite `status` region and an `alert` per danger toast, and asks its store to pause while hovered or focused. The menu button keeps one item in the tab order, moves with the arrow keys, Home and End (`nextMenuIndex`), and returns focus to its trigger on Escape. Pagination and tabs are labelled `nav`s of real links with `aria-current="page"`; the table is a native table with a caption and `th scope="col"` in a focusable, labelled region; a failed message says "Not sent." in an alert with Try again. Every control reaches 44 × 44 px on coarse pointers, words are rendered as text, and entrances, shimmer and turns stop under reduced motion.
+- **Keyboard order** — DOM order follows visual order; dialogs use CDK Dialog with focus trap and return focus on close, around the components library's dialog and drawer shells, whose heading ids the opener passes as `ariaLabelledBy` (ADR 0017); the app shells provide a skip link, `<a class="skip-link" href="#main">Skip to content</a>`, as the first focusable element (confirmed by every page mock that has a header or navigation; it arrives with the first shell that has something to skip, the member and admin layouts).
 - **Title and landmark** — each app's `index.html` names the app in `<title>` ("Christian Fitness", "Christian Fitness Admin") and every routed screen puts its content in one `<main id="main">`, the skip link's target (`L2-038` AC6).
 - **Error screens** — the not-found and server-error screens of both apps move focus to their heading when they open and hide the decorative code ("404", "500") from assistive technology (`L2-043` AC7; [show error screens](../../errors/show-error-screens/README.md)).
 - **Reduced motion** — a foundation media query `@media (prefers-reduced-motion: reduce)` in `tokens.css` sets the motion duration tokens to `0.01ms`; components use those tokens only, and the reset turns off smooth scrolling.
@@ -33,6 +34,7 @@ sentence, so the criteria are quoted.
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
+| `L2-048` | `L1-015` | 1. Alerts, banners, inline messages and toasts are announced with `alert` for danger and `status` otherwise, the toast region with one polite region and an `alert` per danger toast. 2. A form alert takes focus and links each invalid field. 3. A menu button focuses its first item, moves with ArrowUp, ArrowDown, Home and End and wraps, closes on Escape and Tab, returns focus on Escape, and an unavailable item cannot be chosen. 4. A dialog or drawer shell's heading carries the id its CDK Dialog is labelled by, and Close and the scrim report `closed`. 5. No state is carried by colour alone. 6. Targets reach 44 × 44 px on coarse pointers and motion stops for reduced motion. 7. Passed words render as text. |
 | `L2-038` | `L1-015` | 1. Given any screen, when checked with axe, then it has no WCAG 2.2 A or AA violations. 2. Given any interaction, when performed by keyboard only, then it is reachable in a logical order with a visible focus indicator. 3. Given any state (selected, invalid, unread, status), when shown, then it is not conveyed by colour alone. 4. Given text and controls, when measured, then text contrast is at least 4.5:1 and touch targets at least 44 × 44 px. 5. Given a user who prefers reduced motion, when they use the apps, then non-essential animation is disabled. 6. Given any screen of either app, when it loads, then the document title names the app ("Christian Fitness" in the member app, "Christian Fitness Admin" in the admin app) and the screen's content sits in one `main` landmark. |
 
 ## Diagrams
@@ -57,7 +59,7 @@ Both apps compose screens from the components library, which reads design tokens
 
 ### Class structure
 
-Presentation components expose state through ARIA inputs; foundations and tokens supply focus, contrast and motion.
+Presentation components expose state through ARIA inputs and report what people do through outputs; foundations and tokens supply focus, contrast and motion.
 
 ![Class diagram: meet wcag](diagrams/class.png)
 
@@ -72,3 +74,9 @@ The CDK Dialog traps focus while open and returns it to the trigger on close, wi
 The on-request sweep opens each screen through its page object and fails on any WCAG 2.2 A or AA violation.
 
 ![Sequence diagram: check every screen with axe](diagrams/sequence-axe-sweep.png)
+
+### Behaviour — operate a menu button by keyboard
+
+The menu keeps one item in the tab order, moves focus with the arrow keys, Home and End, ignores an unavailable item and returns focus to its trigger when it closes.
+
+![Sequence diagram: operate a menu button by keyboard](diagrams/sequence-menu-keyboard.png)

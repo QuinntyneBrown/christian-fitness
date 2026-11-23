@@ -1,0 +1,100 @@
+// The design system's table (docs/design-system/assets/components.css, "Admin: tabs, tables").
+// The table keeps its minimum width and the wrapper scrolls, so the page never does.
+:host {
+  display: block;
+}
+
+.table-wrap {
+  position: relative;
+  margin-top: var(--space-6);
+  overflow-x: auto;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.table {
+  width: 100%;
+  min-width: var(--layout-table-min);
+  text-align: left;
+  font-size: var(--font-size-ui);
+
+  thead {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  thead tr {
+    border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  }
+
+  th {
+    padding: var(--space-3) var(--space-5);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  td {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  tbody tr + tr {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.table--wide,
+.table--wider {
+  min-width: var(--layout-table-min-wide);
+}
+
+.table__caption {
+  padding: var(--space-4) var(--space-5) 0;
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+}
+
+.table__nowrap {
+  white-space: nowrap;
+}
+
+.table__end {
+  text-align: right;
+}
+
+.table__num {
+  font-variant-numeric: tabular-nums;
+}
+
+.table__strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.table__sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.row-link {
+  position: relative;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+  border-radius: var(--radius-xs);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+}
+
+@media (pointer: coarse) {
+  .row-link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: max(100%, var(--target-comfortable));
+    height: max(100%, var(--target-comfortable));
+  }
+}
