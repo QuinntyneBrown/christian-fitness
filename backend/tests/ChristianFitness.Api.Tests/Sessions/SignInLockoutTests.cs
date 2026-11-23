@@ -6,7 +6,7 @@ namespace ChristianFitness.Api.Tests.Sessions;
 
 /// <summary>
 /// L2-004 AC3: 5 failed sign-ins for one email within 15 minutes refuse a sixth with code
-/// <c>too_many_attempts</c> and HTTP 429 until the window passes (ADR 0011). The clock is a
+/// <c>too_many_attempts</c> and HTTP 429 until the window passes (ADR 0012). The clock is a
 /// <see cref="Microsoft.Extensions.Time.Testing.FakeTimeProvider"/> shared by the class: each test
 /// uses its own email and moves the clock only forward.
 /// </summary>

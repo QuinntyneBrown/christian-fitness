@@ -250,12 +250,12 @@ def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
         alert = '<div class="auth__alert">' + form_alert(
             "We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
     if locked:
-        # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0011).
+        # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
             f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
     if suspended:
-        # L2-004 AC4: shown only once the right password was given (ADR 0011).
+        # L2-004 AC4: shown only once the right password was given (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
             "Your account is suspended", "Contact the Christian Fitness team to talk it through.") + "</div>"
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'

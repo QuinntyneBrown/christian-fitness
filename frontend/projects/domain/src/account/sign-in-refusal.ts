@@ -2,7 +2,7 @@ import type { ApiError } from '@cf/api';
 
 /**
  * What the Sign in screen shows for a failed sign-in (L2-004 AC2 to AC4, L2-032 AC1; ADR 0009,
- * ADR 0011): `invalid-credentials` as "Email or password is incorrect", naming neither field (mock
+ * ADR 0012): `invalid-credentials` as "Email or password is incorrect", naming neither field (mock
  * `invalid`); `too-many-attempts` as "Sign-in paused for 15 minutes" (mock `error`); `suspended`
  * as "Your account is suspended" with whom to contact (mock `suspended`); and `failed` as "We
  * couldn't sign you in" (mock `failed`) for anything else.

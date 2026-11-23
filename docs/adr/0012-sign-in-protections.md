@@ -1,4 +1,4 @@
-# 0011. Sign-in protections: a failure window in the database, a suspended refusal, a checked return address and a join limit per address
+# 0012. Sign-in protections: a failure window in the database, a suspended refusal, a checked return address and a join limit per address
 
 ## Status
 
@@ -110,3 +110,7 @@ accounts. Staff suspend members in slice 27.1; until then only the tests make a 
   screen's lazy chunk carries the refusals and the reset link.
 - The failure window is slice 20.1's `AttemptWindow` (5 in 15 minutes), whose edges are the same
   as the ones this slice tested: one rule for "at most N attempts in a period".
+- The window and the suspension live in the member `SignInHandler`, around the credential check
+  `MemberCredentials` that slice 9.1 shares with staff sign-in (ADR 0011): a refusal from it records
+  a failure unless a field was blank. Staff sign-in is left as 9.1 built it; whether it should pause
+  too belongs to the staff two-step journey.

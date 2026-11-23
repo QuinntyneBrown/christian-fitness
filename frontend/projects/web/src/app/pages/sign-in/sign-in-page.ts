@@ -10,7 +10,7 @@ import { signInRefusalOf, signInReturnPathOf, type SignInRefusal } from '@cf/dom
  * password and lands on the route the guard recorded, or Home (L2-004 AC1, AC6). One signal per
  * field; while the request is on its way the button reads "Signing in…" and is disabled, and the
  * fields hold still. Each refusal shows one alert that names neither field (L2-004 AC2 to AC4), the
- * form stays as typed and the button enabled (ADR 0009, ADR 0011). "Forgot your password?" under
+ * form stays as typed and the button enabled (ADR 0009, ADR 0012). "Forgot your password?" under
  * the password field opens the Forgot password screen (L2-044 AC1).
  */
 @Component({

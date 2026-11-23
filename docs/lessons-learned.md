@@ -450,7 +450,7 @@ worked when applied. Newest entries go at the bottom.
 - The account creation limit could not use ASP.NET Core's rate-limiting middleware: its limiters
   count requests (a visitor who mistyped five times could create nothing), and they keep their own
   clock, so the hour passing could only be proved by waiting. A lease in the handler on
-  `TimeProvider` counts accounts created and is tested with `FakeTimeProvider` (ADR 0011).
+  `TimeProvider` counts accounts created and is tested with `FakeTimeProvider` (ADR 0012).
 - Every older API test that joins shares one in-memory server, and the in-memory server gives a
   request no remote address, so a per-address limit would have refused the sixth join of every
   test class. The base fixture's startup filter now gives each request a random IPv6 address
@@ -474,7 +474,11 @@ worked when applied. Newest entries go at the bottom.
   had taken ADR 0010 (this one became 0011, with every reference in code renumbered by the lines
   this branch added), both added a `DbSet` and a migration (mine was dated before theirs, so it
   was deleted and generated again after theirs), both changed `ApiFactory`, and the sign-in
-  screen had gained "Forgot your password?". The video was shot again afterwards.
+  screen had gained "Forgot your password?". Then slice 9.1 merged with ADR 0011 (this one became
+  0012, sparing the two added lines that cite 9.1's), its own `RefusalKind.Forbidden`, and the
+  credential check moved into `MemberCredentials`, which staff sign-in shares; the member
+  `SignInHandler` now wraps that check with the window and the suspension, so staff sign-in kept
+  its behaviour. The video was shot again after each rebase.
 
 **New lessons**
 

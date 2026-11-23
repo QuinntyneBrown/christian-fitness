@@ -27,7 +27,7 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>
     /// The client address a request comes from, as the test names it. A request without it comes
     /// from an address of its own, so the joins of different tests never share the limit of
-    /// account creations per address (L2-034 AC2; ADR 0011).
+    /// account creations per address (L2-034 AC2; ADR 0012).
     /// </summary>
     public const string ClientAddressHeader = "X-Test-Client-Address";
 

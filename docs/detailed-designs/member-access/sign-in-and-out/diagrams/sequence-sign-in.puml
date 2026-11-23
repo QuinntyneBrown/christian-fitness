@@ -26,6 +26,7 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SignInHandler" as h
+  participant "MemberCredentials" as cred
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "IPasswordHasherService" as hash
@@ -53,10 +54,12 @@ alt 5 or more failures in the window (L2-004 AC3)
   client --> page : ApiError
   page --> actor : "Sign-in paused for 15 minutes"
 end
-h -> db : Load Member by NormalizedEmail
-db --> h : Member or none
-h -> hash : Verify password (a fixed hash when none)
-hash --> h : Match result
+h -> cred : VerifyAsync(email, password)
+cred -> db : Load Member by NormalizedEmail
+db --> cred : Member or none
+cred -> hash : Verify password (a fixed hash when none)
+hash --> cred : Match result
+cred --> h : Member, or RefusalException invalid_credentials
 alt Unknown email or wrong password (L2-004 AC2)
   h -> db : Delete failures older than the window;\nadd SignInFailure (email key, now)
   h --> ctrl : RefusalException invalid_credentials

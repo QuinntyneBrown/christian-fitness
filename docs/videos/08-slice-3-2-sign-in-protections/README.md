@@ -6,7 +6,7 @@ right password, until the oldest failure leaves the window; an unknown email pau
 suspended member who gives the right password is refused 403 `account_suspended` and told to
 contact the team. A visitor sent to sign in from a member route is returned to it afterwards, and
 a return address that is not a path inside the app opens Home. Carried over from slice 2.2, the
-sixth account created from one address in an hour is refused 429 `rate_limited` (ADR 0011).
+sixth account created from one address in an hour is refused 429 `rate_limited` (ADR 0012).
 
 - **Film:** [`08-slice-3-2-sign-in-protections.mp4`](08-slice-3-2-sign-in-protections.mp4),
   1920×1080, 30 fps, 1:28. Captions: [`captions.vtt`](captions.vtt), not burned in.
@@ -14,7 +14,7 @@ sixth account created from one address in an hour is refused 429 `rate_limited` 
 - **Music:** _En La Playa – Trinidad and Tobago Soca_ by JuliusH, from Pixabay
   ([credits](../assets/music/CREDITS.md)). 120 BPM; a bar is two seconds and every scene is a
   whole number of bars.
-- **Requirements shown:** L2-004 (AC3, AC4, AC6), L2-034 (AC2); ADR 0011.
+- **Requirements shown:** L2-004 (AC3, AC4, AC6), L2-034 (AC2); ADR 0012.
 
 ## Run sheet
 

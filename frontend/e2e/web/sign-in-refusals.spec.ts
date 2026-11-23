@@ -69,7 +69,7 @@ test.describe('Member app, sign-in refusals', () => {
     expect(sent()).toBe(2);
   });
 
-  // L2-004 AC3: 5 failures for the email in 15 minutes pause sign-in (mock `error`, ADR 0011).
+  // L2-004 AC3: 5 failures for the email in 15 minutes pause sign-in (mock `error`, ADR 0012).
   test('too many attempts show "Sign-in paused for 15 minutes" and keep the form', async ({
     page,
     api,
@@ -123,7 +123,7 @@ test.describe('Member app, sign-in refusals', () => {
     expect(signIn.location()).toBe('/forgot-password');
   });
 
-  // L2-004 AC4: a suspended member is told to contact the team (mock `suspended`, ADR 0011).
+  // L2-004 AC4: a suspended member is told to contact the team (mock `suspended`, ADR 0012).
   test('a suspended account shows "Your account is suspended" with whom to contact', async ({
     page,
     api,

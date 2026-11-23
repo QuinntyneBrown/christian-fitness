@@ -5,7 +5,7 @@ import { SESSION_SERVICE } from '@cf/api';
 import { catchError, map, of } from 'rxjs';
 
 /**
- * Lets a member route open only with a session (ADR 0007, 0009, 0011): it asks `SESSION_SERVICE`
+ * Lets a member route open only with a session (ADR 0007, 0009, 0012): it asks `SESSION_SERVICE`
  * for the current session. A session opens the route; a 401 sends the visitor to `/sign-in` with
  * the URL they asked for as `returnUrl`, so the sign-in screen brings them back (L2-004 AC6); any
  * other failure keeps them where they are, since a 5xx already opens the server-error screen.

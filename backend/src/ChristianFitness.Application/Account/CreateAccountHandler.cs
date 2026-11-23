@@ -13,7 +13,7 @@ namespace ChristianFitness.Application.Account;
 /// compared by its lookup key, is refused with <c>email_taken</c> and creates nothing (L2-003 AC2);
 /// the body was validated before this runs (<see cref="CreateAccountValidator"/>). The sixth
 /// account from one client address in an hour is refused with <c>rate_limited</c> before anything
-/// else (L2-034 AC2); a join that creates nothing gives its place back (ADR 0011).
+/// else (L2-034 AC2); a join that creates nothing gives its place back (ADR 0012).
 /// </summary>
 internal sealed class CreateAccountHandler(
     IAppDbContext db,

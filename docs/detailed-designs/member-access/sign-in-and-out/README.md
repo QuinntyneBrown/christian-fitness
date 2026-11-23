@@ -21,7 +21,7 @@ error codes the screen branches on. Sign out ends the session on the server.
 Slice 3.1 builds sign-in with the generic refusal, sign-out and the guard's
 redirect ([ADR 0009](../../../adr/0009-sign-in-sign-out-and-request-protections.md));
 slice 3.2 adds the failure window, the suspension refusal and the return to the
-route first asked for ([ADR 0011](../../../adr/0011-sign-in-protections.md)).
+route first asked for ([ADR 0012](../../../adr/0012-sign-in-protections.md)).
 
 - **`SignInPage`** — routed, lazy page at `/sign-in` using the mock's `auth`,
   `field`, `input` and `form-alert` blocks, with one signal per field. While the
@@ -63,20 +63,20 @@ route first asked for ([ADR 0011](../../../adr/0011-sign-in-protections.md)).
   MediatR request. Both writes need the antiforgery token
   ([secure sessions](../../security/secure-sessions/README.md)).
 - **`SignInHandler`** — in this order:
-  1. a blank email or password is refused `invalid_credentials` (401);
-  2. it counts the email's `SignInFailure` rows of the last 15 minutes, read from
+  1. unless a field is blank, it counts the email's `SignInFailure` rows of the last 15 minutes, read from
      `TimeProvider`; at 5 or more the attempt is refused with `too_many_attempts` and
      HTTP 429 before the password is checked, right or wrong, and is not recorded, so
      the pause ends when the oldest of the five is 15 minutes old (L2-004 AC3);
-  3. it looks the member up by the email's lookup key and verifies the password
-     through `IPasswordHasherService`; an unknown email is verified against a fixed
-     hash, so the answer takes as long as for a wrong password. Either failure records
-     a `SignInFailure` (an unknown email too, so the pause never says whether an
-     account exists) and is refused `invalid_credentials`, 401 (L2-004 AC2);
-  4. a `Suspended` member with the right password is refused with `account_suspended`
-     and HTTP 403 (L2-004 AC4); a wrong password for them is step 3's answer, so the
+  2. `MemberCredentials`, the check staff sign-in shares (slice 9.1, ADR 0011), refuses a
+     blank field, an unknown email or a wrong password with `invalid_credentials`, 401
+     (L2-004 AC2); it verifies an unknown email against a fixed hash, so the answer takes
+     as long as for a wrong password. An unknown email or a wrong password records a
+     `SignInFailure` (an unknown email too, so the pause never says whether an account
+     exists); a blank field records nothing;
+  3. a `Suspended` member with the right password is refused with `account_suspended`
+     and HTTP 403 (L2-004 AC4); a wrong password for them is step 2's answer, so the
      suspension is told only to whoever knows the password;
-  5. otherwise the email's failures are deleted and the member is signed in through
+  4. otherwise the email's failures are deleted and the member is signed in through
      `ISessionSignIn`.
 - **`SignInFailure`** — `Domain` entity, one failed sign-in: `Id`, `EmailKey` (the
   SHA-256 of the email's lookup key, in hex, so an address typed by a stranger is not

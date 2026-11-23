@@ -7,7 +7,7 @@ namespace ChristianFitness.Application.Tests.Account;
 
 /// <summary>
 /// L2-034 AC2: the key an address is counted under, and the sliding hour of 5 creations per key,
-/// one case per row (ADR 0011).
+/// one case per row (ADR 0012).
 /// </summary>
 public sealed class AccountCreationLimiterTests
 {

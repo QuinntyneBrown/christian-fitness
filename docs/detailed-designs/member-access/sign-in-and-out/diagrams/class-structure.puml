@@ -63,6 +63,9 @@ package "Christian Fitness API, Application and Domain" {
   class SignInHandler {
     +Handle(c: SignInCommand): Task<SessionDto>
   }
+  class MemberCredentials {
+    +VerifyAsync(email, password): Task<Member>
+  }
   class SignOutCommand
   class SignOutHandler
   interface ISessionSignIn {
@@ -103,10 +106,11 @@ SessionController ..> SignInCommand : sends
 SessionController ..> SignOutCommand : sends
 SignInHandler ..> SignInCommand : handles
 SignOutHandler ..> SignOutCommand : handles
-SignInHandler ..> IPasswordHasherService : verifies
+SignInHandler ..> MemberCredentials : verifies
+MemberCredentials ..> IPasswordHasherService : verifies
 SignInHandler ..> ISessionSignIn : signs in
 SignOutHandler ..> ISessionSignIn : signs out
-SignInHandler ..> Member : loads by NormalizedEmail
+MemberCredentials ..> Member : loads by NormalizedEmail
 SignInHandler ..> SignInFailure : counts last 15 min, records, clears
 SignInHandler ..> TimeProvider : now
 Member --> MemberStatus

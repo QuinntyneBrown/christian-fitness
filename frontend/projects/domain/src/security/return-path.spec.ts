@@ -1,6 +1,6 @@
 import { signInReturnPathOf } from './return-path';
 
-// L2-004 AC6 (ADR 0011): only a path inside the app is followed after sign-in; anything else opens
+// L2-004 AC6 (ADR 0012): only a path inside the app is followed after sign-in; anything else opens
 // Home, so a crafted link cannot send a member to another site. One row per case.
 describe('signInReturnPathOf', () => {
   it.each<{ why: string; value: string | null; expected: string }>([
