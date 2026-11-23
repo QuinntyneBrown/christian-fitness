@@ -201,3 +201,107 @@ test.describe('Admin app, the Members page when the members do not load', () => 
     await expect(members.error).not.toContainText('A sentence from the server');
   });
 });
+
+// L2-028 AC3 and AC4 (ADR 0022): a status tab keeps the members with that status; the URL names it.
+test.describe('Admin app, the Members page filtered by status', () => {
+  test('the tabs are links to each status, All current at first', async ({ page, api }) => {
+    answerMembers(api);
+    const members = new AdminMembersPage(page);
+
+    await members.open();
+
+    await expect(members.tabLinks).toHaveText(['All', 'Active', 'Flagged', 'Suspended']);
+    await expect(members.currentTab).toHaveText('All');
+    await expect(members.tab('All')).toHaveAttribute('href', '/members');
+    await expect(members.tab('Active')).toHaveAttribute('href', '/members?status=active');
+    await expect(members.tab('Flagged')).toHaveAttribute('href', '/members?status=flagged');
+    await expect(members.tab('Suspended')).toHaveAttribute('href', '/members?status=suspended');
+  });
+
+  test('the Flagged tab asks for flagged members only and marks itself current, without reloading', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(7);
+    await members.mark();
+
+    await members.tab('Flagged').click();
+
+    await expect(members.currentTab).toHaveText('Flagged');
+    await expect(members.rows).toHaveCount(1);
+    expect(await members.rowTexts()).toEqual([
+      ['Kevin Brooks', 'kbrooks.fit@gmail.com', 'Not given', 'Apr 2, 2026', '0', 'Flagged'],
+    ]);
+    expect(members.location()).toBe('/members?status=flagged');
+    // The count is the community's, whatever the tab.
+    await expect(members.subtitle).toHaveText('7 members');
+    expect(asked).toEqual([
+      { status: 'all', q: null, page: null },
+      { status: 'flagged', q: null, page: null },
+    ]);
+    expect(await members.marked()).toBe(true);
+  });
+
+  test('the keyboard opens a tab too', async ({ page, api }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.rows).toHaveCount(7);
+
+    await members.focusAndPressEnter(members.tab('Active'));
+
+    await expect(members.currentTab).toHaveText('Active');
+    await expect(members.rows).toHaveCount(5);
+    expect(asked.at(-1)).toEqual({ status: 'active', q: null, page: null });
+  });
+
+  test('opening /members?status=suspended shows the Suspended tab at once', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerMembers(api);
+    const members = new AdminMembersPage(page);
+
+    await members.open('?status=suspended');
+
+    await expect(members.currentTab).toHaveText('Suspended');
+    expect(await members.names()).toEqual(['Tyler Simmons']);
+    expect(asked).toEqual([{ status: 'suspended', q: null, page: null }]);
+  });
+
+  test('Back returns to the tab before', async ({ page, api }) => {
+    answerMembers(api);
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await members.tab('Flagged').click();
+    await expect(members.rows).toHaveCount(1);
+
+    await page.goBack();
+
+    await expect(members.currentTab).toHaveText('All');
+    await expect(members.rows).toHaveCount(7);
+  });
+
+  // Mock admin-members/tab-empty.
+  test('a status with nobody in it says so, with nothing to clear', async ({ page, api }) => {
+    answerMembers(
+      api,
+      CAST_MEMBERS.filter((m) => m.status === 'active'),
+    );
+    const members = new AdminMembersPage(page);
+
+    await members.open('?status=flagged');
+
+    await expect(members.currentTab).toHaveText('Flagged');
+    await expect(members.emptyTitle).toHaveText('No flagged members');
+    await expect(members.emptyText).toHaveText(
+      'A member staff flag appears here until they are reinstated or suspended.',
+    );
+    await expect(members.clearSearchButton).toHaveCount(0);
+    await expect(members.table).toHaveCount(0);
+    await expect(members.subtitle).toHaveText('5 members');
+  });
+});

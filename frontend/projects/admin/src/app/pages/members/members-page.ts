@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ADMIN_MEMBERS_SERVICE,
   type AdminMemberDto,
@@ -21,11 +22,12 @@ import {
 import {
   joinedOn,
   memberCountLabel,
+  memberListQueryOf,
   memberStatusLabel,
   memberTabs,
   noMembersMessage,
 } from '@cf/domain';
-import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
+import { catchError, combineLatest, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { HttpAdminMembersService } from '../../services/http-admin-members.service';
 
 /** The table's columns (mock `admin-members`); a member with no home church reads "Not given". */
@@ -46,7 +48,9 @@ type ListState =
 
 /**
  * The Members page (mock docs/mocks/pages/admin-members/; L2-028; ADR 0022): the members newest
- * joined first, with the number of members in the community. While the list loads, skeleton rows;
+ * joined first, with the number of members in the community. The URL is its state: `status` names
+ * the tab, and a tab moves without reloading and asks for that list. While the list loads,
+ * skeleton rows;
  * with nobody to list, an empty state; when it does not load, the error state with Try again.
  * Every part is the design system's, composed from the library: search field, tabs, table with a
  * person cell and a status badge, skeleton region and empty and error states.
@@ -61,6 +65,7 @@ type ListState =
 })
 export class AdminMembersPage {
   private readonly members = inject(ADMIN_MEMBERS_SERVICE);
+  private readonly router = inject(Router);
 
   private readonly reload = new Subject<void>();
 
@@ -87,12 +92,13 @@ export class AdminMembersPage {
   protected readonly empty = computed(() => noMembersMessage(this.query()));
 
   constructor() {
-    this.reload
+    const query$ = inject(ActivatedRoute).queryParamMap.pipe(map(memberListQueryOf));
+    combineLatest([query$, this.reload.pipe(startWith(undefined))])
       .pipe(
-        startWith(undefined),
-        switchMap(() => {
+        switchMap(([query]) => {
+          this.query.set(query);
           this.state.set({ kind: 'loading' });
-          return this.members.search(this.query()).pipe(
+          return this.members.search(query).pipe(
             map((list) => ({ list })),
             catchError(() => of({ list: null })),
           );
@@ -103,6 +109,10 @@ export class AdminMembersPage {
         this.total.set(list ? list.total : null);
         this.state.set(list ? { kind: 'ready', list } : { kind: 'failed' });
       });
+  }
+
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
   }
 
   /** The status badge's variant for the row `id`. */

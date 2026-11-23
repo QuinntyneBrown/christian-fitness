@@ -8,7 +8,12 @@
   <cf-search-field label="Search members" placeholder="Search name or email" />
 </div>
 
-<cf-tabs label="Filter members" [tabs]="tabs()" [current]="currentHref()" />
+<cf-tabs
+  label="Filter members"
+  [tabs]="tabs()"
+  [current]="currentHref()"
+  (navigate)="navigate($event)"
+/>
 
 <ng-template #statusCell let-row>
   <cf-status [variant]="statusOf(row.id)">{{ row.cells.status?.text }}</cf-status>
@@ -51,8 +56,10 @@
         [rows]="rows()"
         [cell]="statusCell"
       />
-    } @else {
+    } @else if (query().status === 'all') {
       <cf-empty-state [heading]="empty().heading" [text]="empty().text" />
+    } @else {
+      <cf-empty-state variant="tight" [heading]="empty().heading" [text]="empty().text" />
     }
   }
 }
