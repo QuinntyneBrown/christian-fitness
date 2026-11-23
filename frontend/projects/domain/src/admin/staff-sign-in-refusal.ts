@@ -8,9 +8,13 @@ import { signInRefusalOf } from '../account/sign-in-refusal';
  */
 export type StaffSignInRefusal = 'invalid-credentials' | 'not-staff' | 'failed';
 
-/** Wrong credentials read as on the member sign-in; only a 403 with `not_staff` is not staff. */
+/**
+ * Wrong credentials read as on the member sign-in; only a 403 with `not_staff` is not staff. The
+ * member sign-in's pause and suspension (ADR 0012) are not answers of the staff session, so they
+ * read as a failure here.
+ */
 export function staffSignInRefusalOf(error: unknown): StaffSignInRefusal {
   const { status, code } = (error ?? {}) as { status?: unknown; code?: unknown };
   if (status === 403 && code === 'not_staff') return 'not-staff';
-  return signInRefusalOf(error);
+  return signInRefusalOf(error) === 'invalid-credentials' ? 'invalid-credentials' : 'failed';
 }
