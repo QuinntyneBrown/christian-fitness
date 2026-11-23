@@ -32,6 +32,7 @@ describe('eventDetailViewOf', () => {
       price: '$10',
       spots: '12 of 50 spots left',
       going: '38 going',
+      full: false,
       registered: false,
       payNote: null,
     });
@@ -74,5 +75,19 @@ describe('eventDetailViewOf', () => {
     },
   ])('reads registration $registration', ({ registration, registered, payNote }) => {
     expect(eventDetailViewOf({ ...BOOTCAMP, registration })).toMatchObject({ registered, payNote });
+  });
+});
+
+// ADR 0033: a place is left until going reaches capacity; a member who holds one is going, not turned away.
+describe('eventDetailViewOf full', () => {
+  it.each([
+    { going: 49, registration: null, full: false },
+    { going: 50, registration: null, full: true },
+    { going: 51, registration: null, full: true },
+    { going: 50, registration: 'confirmed' as const, full: false },
+    { going: 50, registration: 'reserved' as const, full: false },
+  ])('reads $going going and registration $registration as full $full', (row) => {
+    const { full, ...event } = row;
+    expect(eventDetailViewOf({ ...BOOTCAMP, ...event }).full).toBe(full);
   });
 });

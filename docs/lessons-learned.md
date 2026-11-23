@@ -6,7 +6,7 @@ merges. Read this file before starting a slice and apply what fits.
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
 
-**% complete:** 55% (30 of 57 slices; 50 of 91 days)
+**% complete:** 56% (31 of 57 slices; 51 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1517,3 +1517,32 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "Read the initial total after each new Angular API" (30.1): no new API was used; `main` grew 0.16 kB.
 - "A screen's service goes on its routed component's providers" (4.1): `register` joined the service
   already provided on the detail page.
+
+## Slice 6.2: Full events
+
+**What slowed it**
+
+- The deterministic race test first failed with two registrations, then a retry answered OK: EF InMemory
+  enforces a concurrency token but is not transactional, so it writes the new registration before it
+  refuses the event's stale version, and the retry found the member's own leaked registration. A probe
+  with two contexts proved the token itself works.
+- A python edit script opened a file for writing before encoding its content (a check mark) and
+  emptied it; restore from git and open files as UTF-8 on Windows.
+- The apostrophe in a TypeScript test title ("You're") broke the parse again (1.2, 5.1, 6.1).
+
+**New lessons**
+
+- A last-place rule needs a row both savers must change: `Event.RegistrationVersion` is a concurrency
+  token bumped by `TakePlace()` in the same save as the registration, so PostgreSQL refuses the second
+  save whole (ADR 0033). A unique index on (event, member) cannot stop two different members.
+- Prove it in two parts: the handler's answer to a lost race (the store stands in for the winner and
+  raises `DbUpdateConcurrencyException`, as in the join race) and the token itself (two contexts read one
+  event, the second save is refused). A real `Task.WhenAll` of two requests proves nothing on InMemory.
+- After a refused save the handler detaches its registration and reloads the event before deciding again.
+- The page learns "full" from the 409 `event_full` itself (`isEventFull`) and shows the event at capacity.
+
+**How earlier lessons worked**
+
+- "InMemory raises no `DbUpdateException`, so inject it" (6.1): applied unchanged to the version conflict.
+- "Prove a rule red by breaking it alone" (1.1 to 6.1): removing the token mapping turned the version test red.
+- "A screen's service goes on its routed component's providers" (4.1): nothing new; `register` was already there.

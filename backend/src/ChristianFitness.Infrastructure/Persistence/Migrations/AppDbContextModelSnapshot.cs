@@ -88,6 +88,10 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<int>("PriceCents")
                         .HasColumnType("integer");
 
+                    b.Property<int>("RegistrationVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("StartsAt")
                         .HasColumnType("timestamp with time zone");
 
