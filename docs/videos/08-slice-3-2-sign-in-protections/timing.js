@@ -170,10 +170,10 @@ window.FILM_TIMING = {
   },
   {
    "scene": "left",
-   "text": "Next, slice nine point one: staff sign-in.",
-   "caption": "Next, slice nine point one: staff sign-in.",
+   "text": "Next, slice nine point two: two-step verification for staff.",
+   "caption": "Next, slice nine point two: two-step verification for staff.",
    "start": 72.0,
-   "end": 74.73,
+   "end": 75.831,
    "speed": 1.0,
    "window": [
     72.0,
@@ -256,8 +256,8 @@ window.FILM_TIMING = {
   },
   {
    "start": 72.0,
-   "end": 75.03,
-   "text": "Next, slice nine point one: staff sign-in."
+   "end": 76.131,
+   "text": "Next, slice nine point two: two-step verification for staff."
   },
   {
    "start": 78.0,

@@ -36,7 +36,7 @@ Every test failed first. Now they all pass.
 
 **left** (3 bars)
 
-Next, slice nine point one: staff sign-in.
+Next, slice nine point two: two-step verification for staff.
 
 **close** (5 bars)
 

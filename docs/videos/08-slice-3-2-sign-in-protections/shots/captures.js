@@ -10,17 +10,17 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 176,
-    "total": 176
+    "passed": 215,
+    "total": 215
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 82,
-    "files": 14
+    "tests": 105,
+    "files": 17
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 227,
+    "passed": 252,
     "lockout": [
       "Given 4 failed sign ins When the fifth attempt has the right password Then the member signs in",
       "Given 5 failed sign ins for an unknown email When a sixth is attempted Then it is refused with too many attempts",

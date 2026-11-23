@@ -14,7 +14,7 @@
     { "id": "crafted", "bars": 4, "lines": ["A link that tries to send you to another site after sign-in opens Home instead."] },
     { "id": "join", "bars": 5, "lines": ["And one network can create five profiles an hour. The sixth is refused, and everything typed stays."] },
     { "id": "proof", "bars": 3, "lines": ["Every test failed first. Now they all pass."] },
-    { "id": "left", "bars": 3, "lines": ["Next, slice nine point one: staff sign-in."] },
+    { "id": "left", "bars": 3, "lines": ["Next, slice nine point two: two-step verification for staff."] },
     { "id": "close", "bars": 5, "lines": ["That's slice three point two. Christian Fitness: a Christian community for health in body and spirit."] }
   ]
 }

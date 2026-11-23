@@ -28,7 +28,7 @@ sixth account created from one address in an hour is refused 429 `rate_limited` 
 | 0:48 | 4    | `crafted`   | A `returnUrl` to another site, signed in at 390 px, landing on `/home`            | Never **off-site.**               |
 | 0:56 | 5    | `join`      | "Too many new profiles" close up and at 390 px, and the 429 `rate_limited`        | Five **an hour.**                 |
 | 1:06 | 3    | `proof`     | The test counts the runners printed and the initial total                         | Red, then **green.**              |
-| 1:12 | 3    | `left`      | Slice 9.1: staff sign-in, the admin shell, members refused                        | Staff **sign-in.**                |
+| 1:12 | 3    | `left`      | Slice 9.2: staff confirm sign-in with a second-step code                          | Two-step **verification.**        |
 | 1:18 | 5    | `close`     | The name over the aurora                                                          | Christian Fitness                 |
 
 A wipe in a brand colour marks each change of act (into `return`, `proof` and `close`); inside an

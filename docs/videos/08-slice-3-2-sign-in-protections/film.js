@@ -196,13 +196,13 @@ Film.scene('proof', (S) => {
 Film.scene('left', (S) => `
   <div class="fill field--canvas">
   <div style="${at(110, 130, 1200)}">
-    <p class="kicker accent" ${S.rise(S.beat(1))}>Next · slice 9.1</p>
-    <h1 class="headline headline--md" style="margin-top:24px">${S.words(S.beat(1.5), 'Staff')} ${S.words(S.beat(2), '', { accent: 'sign-in.' })}</h1>
+    <p class="kicker accent" ${S.rise(S.beat(1))}>Next · slice 9.2</p>
+    <h1 class="headline headline--md" style="margin-top:24px">${S.words(S.beat(1.5), 'Two-step')} ${S.words(S.beat(2), '', { accent: 'verification.' })}</h1>
   </div>
   <div style="${at(110, 520, 1700)};display:flex;flex-wrap:wrap;gap:26px">
-    <span ${pop(S, S.beat(2))}>${chip('/admin/sign-in', 'var(--palette-stone-0)', 'var(--palette-stone-950)')}</span>
-    <span ${pop(S, S.beat(2.5))}>${chip('admin shell', 'var(--palette-bordeaux-700)', 'var(--palette-stone-0)')}</span>
-    <span ${pop(S, S.beat(3))}>${chip('members refused', 'var(--palette-stone-0)', 'var(--palette-stone-950)')}</span>
+    <span ${pop(S, S.beat(2))}>${chip('staff sign-in', 'var(--palette-stone-0)', 'var(--palette-stone-950)')}</span>
+    <span ${pop(S, S.beat(2.5))}>${chip('a second-step code', 'var(--palette-bordeaux-700)', 'var(--palette-stone-0)')}</span>
+    <span ${pop(S, S.beat(3))}>${chip('then the admin app', 'var(--palette-stone-0)', 'var(--palette-stone-950)')}</span>
   </div>
   </div>
 `);
