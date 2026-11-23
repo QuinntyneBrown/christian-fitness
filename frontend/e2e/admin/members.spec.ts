@@ -191,6 +191,40 @@ test.describe('Admin app, the Members page when the members do not load', () => 
     await expect(members.subtitle).toHaveText('7 members');
   });
 
+  test('a tab that does not load keeps the search and the tabs, and Try again asks for that tab', async ({
+    page,
+    api,
+  }) => {
+    let fail = false;
+    const asked: (string | null)[] = [];
+    api.on('GET', '/api/admin/members', (request) => {
+      const status = new URL(request.url()).searchParams.get('status');
+      asked.push(status);
+      if (fail) return { abort: true };
+      return memberList(
+        CAST_MEMBERS.filter((m) => status === 'all' || m.status === status),
+        { total: 7 },
+      );
+    });
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.subtitle).toHaveText('7 members');
+    fail = true;
+
+    await members.tab('Flagged').click();
+
+    await expect(members.errorTitle).toHaveText("Members didn't load");
+    // The count goes with the list it came with.
+    await expect(members.subtitle).toHaveCount(0);
+    await expect(members.search).toBeVisible();
+    await expect(members.currentTab).toHaveText('Flagged');
+    fail = false;
+    await members.tryAgainButton.click();
+    expect(await members.names()).toEqual(['Kevin Brooks']);
+    await expect(members.subtitle).toHaveText('7 members');
+    expect(asked).toEqual(['all', 'flagged', 'flagged']);
+  });
+
   test("a refusal shows the same error state, never the server's words", async ({ page, api }) => {
     api.on('GET', '/api/admin/members', () => problem(400, 'validation_failed'));
     const members = new AdminMembersPage(page);
@@ -514,6 +548,30 @@ test.describe('Admin app, the Members page in pages', () => {
     release();
     await expect(members.rows).toHaveCount(6);
     await expect(members.paginationSummary).toHaveText('Showing 26–31 of 31 members');
+  });
+
+  test('the pages of one list do not stand under another while it loads', async ({ page, api }) => {
+    const all = manyMembers(31);
+    let release = (): void => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    api.on('GET', '/api/admin/members', async (request) => {
+      if (new URL(request.url()).searchParams.get('status') === 'all') {
+        return memberList(all.slice(0, 25), { matches: 31, total: 31 });
+      }
+      await gate;
+      return memberList([], { matches: 0, total: 31 });
+    });
+    const members = new AdminMembersPage(page);
+    await members.open();
+    await expect(members.pagination).toBeVisible();
+
+    await members.tab('Flagged').click();
+
+    await expect(members.loading).toBeVisible();
+    await expect(members.pagination).toHaveCount(0);
+    release();
+    await expect(members.emptyTitle).toHaveText('No flagged members');
+    await expect(members.pagination).toHaveCount(0);
   });
 
   test('a page past the last shows the last page the API answers', async ({ page, api }) => {

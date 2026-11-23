@@ -204,9 +204,11 @@ export class AdminMembersPage {
     this.typed.next(text);
   }
 
-  /** Empties the search and returns focus to it, so the next search can be typed. */
+  /**
+   * Empties the search in the URL, which empties the field, and returns focus to the field, so
+   * the next search can be typed.
+   */
   protected clearSearch(): void {
-    this.term.set('');
     this.searchFor('');
     this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
   }
