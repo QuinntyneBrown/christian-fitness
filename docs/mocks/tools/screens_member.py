@@ -1103,13 +1103,15 @@ def profile(p: dict, *, self_view: bool, going=None, groups=None, empty: bool = 
     else:
         groups_html = '<div class="empty-inline"><p class="empty-inline__text">Event group chats you join show here.</p></div>'
     church = f'<span>{icon("church")}{p["church"]}</span>' if p.get("church") else ""
+    city = f'<span>{icon("map-pin")}{p["city"]}</span>' if p.get("city") else ""
+    facts = f'<div class="profile-hero__facts">{church}{city}</div>' if church or city else ""
     return f"""    <section class="profile-hero">
       <div class="profile-hero__inner">
         <span class="profile-hero__avatar" aria-hidden="true">{p["initials"]}</span>
         <div class="profile-hero__body">
           <h1 class="display page-title">{p["name"]}</h1>
-          <p class="profile-hero__meta">{p["handle"]} · {p["joined"]}</p>
-          <div class="profile-hero__facts">{church}<span>{icon("map-pin")}{p["city"]}</span></div>
+          <p class="profile-hero__meta">{p["joined"]}</p>
+          {facts}
         </div>
         {action}
       </div>
@@ -1158,7 +1160,7 @@ def _():
 
 @s("empty", "A brand-new profile: each empty section says what goes there; Edit profile is the one action.")
 def _():
-    p = dict(ME, church="", joined="Member since today")
+    p = dict(ME, church="", city="", joined="Member since today")
     return member_shell("profile", profile(p, self_view=True, going=[], groups=[], empty=True), unread=0)
 
 
@@ -1166,7 +1168,7 @@ def _():
 def _():
     body = f"""    <div class="container page">
       <h1 class="display page-title">Profile</h1>
-      {error_block("Your profile didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", back=("Back to home", href("home")), ref="CF-P5R3")}
+      {error_block("Your profile didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", back=("Back to home", href("home")))}
     </div>"""
     return member_shell("profile", body, unread=0)
 

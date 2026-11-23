@@ -18,23 +18,76 @@ home church only when its owner made it visible (L2-006).
 
 ## Description
 
-- **`ProfilePage`** — routed page at `/profile` in `projects/web`. It renders the
-  mock's `profile-hero`, `avatar`, `prose`, `goals`, `tag-list` and `going-list`
-  blocks, with `skeleton` while loading, `error-state` on failure and
-  `empty-inline` linking to Events when `upcomingEvents` is empty (L2-005 AC2).
+Slice 18.1 builds the own profile (L2-005 AC1, AC2;
+[ADR 0013](../../../adr/0013-view-my-profile.md)); slice 19.1 builds the public
+profile (AC3). Editing, and the Edit profile button and "Add a bio" action that open
+it, come with slice 18.2 ([edit own profile](../edit-profile/README.md)); the mock's
+Groups section comes with group membership (slice 12.3).
+
+- **`ProfilePage`** — routed, lazy page at `/profile` in `projects/web`, a child of
+  `MemberShell`, titled "Profile · Christian Fitness". It binds `PROFILE_SERVICE` to
+  `HttpProfileService` on its own `providers`, so the client lives only while the
+  screen does. Its `state` signal is `loading`, `loaded` or `failed`:
+  - `loading` — the mock's skeletons inside `aria-busy="true"`, with a visually
+    hidden "Loading profile" heading;
+  - `loaded` — `ProfileHero` (initials avatar from `initialsOf`, name as the `h1`,
+    "Member since …", then home church and city when present), the About, "Goals this
+    year" and Into sections, and the "Going to" section as a `GoingList`. Each empty
+    section shows the mock's `empty-inline` sentence; an empty "Going to" adds
+    "Browse events", a link to `/events` (L2-005 AC2);
+  - `failed` — a 4xx answer or no answer: the mock's `error-state` with "Your profile
+    didn't load", **Try again**, which asks again in place, and **Back to home**
+    (`/home`). A 5xx shows the server-error screen instead (L2-043 AC4, AC5).
+- **`ProfileHero`, `GoingList`, `TagList`, `EmptyInline`, `ProfileSkeleton`** —
+  presentation components in `components` (inputs only), each one encapsulated BEM
+  stylesheet named as in the design system. Every name, bio, goal, church, city and
+  event title is rendered as text.
+- **`AppHeader`** — gains the mock's `profile-button`: the signed-in member's
+  initials, labelled "Your profile", linking to `/profile`, with
+  `aria-current="page"` while Profile shows. A plain click emits `navigate`, so
+  `MemberShell` moves the router without a reload; the shell reads the name once from
+  `SESSION_SERVICE`.
+- **`initialsOf`, `memberSinceOf`, `goingDateOf`, `interestLabelsOf`** — pure helpers
+  in `domain` with unit tests: the avatar's initials; "today" when the member joined
+  on today's date in Toronto, otherwise the month and year ("January 2026"); an
+  event's day as "Sat, Apr 18" in Toronto time; interest keys as their labels, in the
+  order given, unknown keys left out.
+- **`ProfileApi` / `PROFILE_SERVICE`** — contract and token in `api`; `own()` answers
+  `OwnProfileDto`. `HttpProfileService` calls `GET /api/profile/me` and holds no
+  state.
+- **`ProfileController`** — `GET /api/profile/me` sends one `GetOwnProfileQuery`. It
+  takes no member id: the member is the session's (`ICurrentMember`), so nobody can
+  ask for another member's own profile. A visitor is refused 401 by the fallback
+  policy.
+- **`GetOwnProfileHandler`** — reads the caller's `Member` and asks
+  `IRegistrationReader.UpcomingForAsync(memberId, now)` for the events they are going
+  to, soonest first, with `now` from `TimeProvider`. Until registration exists (slice
+  6.1) the reader is `NoRegistrationsYet`, which answers none, so every member sees
+  the empty "Going to"; slice 6.1 replaces it with a query of `Registration` rows of
+  upcoming, published events. It logs nothing: home church and bio are never in a
+  log or span (L2-033 AC2).
+- **`Member`** — gains `City` (at most 100 characters), `Bio` (at most 300) and
+  `Goals` (at most 5 of at most 80), empty for every member until slice 18.2 lets
+  them be edited (migration `AddMemberProfile`).
+
+The answer of `GET /api/profile/me` is
+
+| Field            | Type                    | Notes                                                    |
+|------------------|-------------------------|----------------------------------------------------------|
+| `name`           | string                  | Full name                                                |
+| `city`           | string or null          | Null until the member gives one (slice 18.2)            |
+| `joinedAt`       | string (ISO 8601)       | When the account was created                             |
+| `bio`            | string or null          | Null until the member writes one                         |
+| `homeChurch`     | string or null          | Optional, sensitive; shown only to its owner here        |
+| `goals`          | string[]                | Up to 5                                                  |
+| `interests`      | string[]                | Interest keys (`running`, `strength`, …)                 |
+| `upcomingEvents` | `{ eventId, title, startsAt, imageUrl }[]` | Soonest first; `imageUrl` may be null |
+
+The public profile (slice 19.1):
+
 - **`MemberProfilePage`** — routed page for another member, matching the mock
   `pages/profile/member.html`. The route path is not listed in the mock manifest;
   `/members/:id` is proposed, `<TO SUPPLY>` for confirmation.
-- **`ProfileHero`, `Avatar`, `TagList`, `GoingList`** — presentation components in
-  `components`.
-- **`initialsOf`** — pure helper in `domain` that derives the initials from a full
-  name, with unit tests.
-- **`ProfileApi` / `PROFILE_SERVICE`** — contract and token; `HttpProfileService`
-  calls `GET /api/profile/me` and `GET /api/members/{id}/profile`. Services are
-  provided on the routed component.
-- **`ProfileController`** — sends `GetOwnProfileQuery` or `GetPublicProfileQuery`.
-- **`GetOwnProfileHandler`** — reads the caller's `Member` and their `Registration`
-  rows for upcoming events, returning `OwnProfileDto`.
 - **`GetPublicProfileHandler`** — returns `PublicProfileDto` with name, initials, bio
   and interests. It adds `homeChurch` only when `Member.ShowHomeChurch` is true, and
   never includes email (L2-005 AC3). The DTO has no email field by construction.
