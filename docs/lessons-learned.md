@@ -703,6 +703,9 @@ worked when applied. Newest entries go at the bottom.
   for 30 minutes until another admin unlocked it and disabled Sign in, which slice 3.2's pause does
   not do. The mock and ADR 0016 were corrected before code: Sign out, and "Sign-in paused for 15
   minutes".
+- Slices 20.2 and 18.1 merged while this one was open, taking ADRs 0014 and 0015; this slice's ADR
+  became 0016 in the record, the code comments, the designs, the mocks and the film, which was
+  filmed and built again with the counts after the rebase.
 - Apostrophes in a quoted heredoc failed the parse twice more; edit specs written by the editor tool
   and applied by a script that asserts every match took every edit after that.
 

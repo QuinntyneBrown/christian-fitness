@@ -9,15 +9,15 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 283
+    "passed": 329
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 125
+    "tests": 162
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 316,
+    "passed": 371,
     "idle": [
       "Given a request 10 minutes after sign in When another arrives 25 minutes later Then the session is still open",
       "Given a staff session idle for 30 minutes When the next request arrives Then it is refused with session expired and the session ends",
