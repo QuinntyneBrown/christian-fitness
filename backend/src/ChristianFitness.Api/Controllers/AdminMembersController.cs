@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Staff find members (L2-028; ADR 0022) and flag or suspend them (L2-029; ADR 0023). Routed under
+/// Staff find members (L2-028; ADR 0022) and flag, suspend or reinstate them (L2-029; ADR 0023, ADR 0024). Routed under
 /// <c>api/admin/members</c>, so the Members area's policy admits Admins and Moderators (ADR 0020).
 /// Each action sends one MediatR request.
 /// </summary>
@@ -30,6 +30,11 @@ public sealed class AdminMembersController(ISender sender) : ControllerBase
     [HttpPost("{id:guid}/suspend")]
     public async Task<ActionResult<MemberRowDto>> Suspend(Guid id, ModerateMemberBody body, CancellationToken cancellationToken) =>
         await sender.Send(new SuspendMemberCommand(id, body?.Note, body?.Confirmed), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Returns the Flagged or Suspended member to Active and answers their row.</summary>
+    [HttpPost("{id:guid}/reinstate")]
+    public async Task<ActionResult<MemberRowDto>> Reinstate(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new ReinstateMemberCommand(id), cancellationToken).ConfigureAwait(false);
 }
 
 /// <summary>
