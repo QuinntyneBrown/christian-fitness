@@ -116,6 +116,7 @@ test.describe('Member app, sign out', () => {
     const answered = new Promise<void>((resolve) => (answer = resolve));
     api.on('DELETE', '/api/session', async () => {
       await answered;
+      api.on('GET', '/api/session', () => SIGNED_OUT);
       return { status: 204 };
     });
     const home = new WebHomePage(page);

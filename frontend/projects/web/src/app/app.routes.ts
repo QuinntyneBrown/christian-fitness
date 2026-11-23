@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { memberAuthGuard } from '@cf/domain';
+import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -10,7 +10,8 @@ export const routes: Routes = [
     path: '',
     pathMatch: 'full',
     title: 'Christian Fitness',
-    loadComponent: () => import('./pages/start/start-page').then((m) => m.StartPage),
+    canActivate: [redirectSignedInGuard],
+    loadComponent: () => import('./pages/landing/landing-page').then((m) => m.LandingPage),
   },
   {
     path: 'join',

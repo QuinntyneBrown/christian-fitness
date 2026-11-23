@@ -122,7 +122,7 @@ def _():
 @s("empty", "Landing when no events are posted yet: the list explains and points to joining.")
 def _():
     return landing(f"""<div class="empty-inline landing-list">
-            <p class="empty-inline__text">New runs and workouts are posted every week. Join free and we'll let you know when the next one is up.</p>
+            <p class="empty-inline__text">No events posted yet. Check back soon.</p>
             <p class="empty-inline__action"><a class="text-link" href="{href("join")}">Join to hear first {icon("arrow-right")}</a></p>
           </div>""")
 

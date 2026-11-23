@@ -5,7 +5,7 @@ merges. Read this file before starting a slice and apply what fits.
 
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-
+**% complete:** 62% (35 of 57 slices; 56 of 91 days)
 **% complete:** 60% (34 of 57 slices; 55 of 91 days)
 
 ## Slice 1.1: Frontend workspace
@@ -1648,3 +1648,31 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
 - "Read the initial total after each new Angular API" (30.1): this is what caught the progress bar.
 - "Use the Edit tool, not scripts" (7.1, 11.2): a quoting mistake in a `node -e` command did it again; the Edit tool fixed it.
 - "Wait for a lazy dialog before a key press" (11.2): the new spec presses no key; it waits for the button to be visible.
+
+## Slice 8.1: Landing with upcoming events
+
+**What slowed it**
+
+- The landing mock draws a floating event card and "2,400+ members" that no data feeds; both are left out
+  (ADR 0037) rather than invented. The empty mock's words differed from L2-001 AC3, so the mock and its
+  generator took the requirement's words.
+- `UpcomingEventDto` already named the profile's upcoming list in `@cf/api`; the landing one is `LandingEventDto`.
+- Landing is now the first route, so the shared fixture's signed-in default sent every spec that opens `/`
+  to Home: the boot spec still passed by title, but one sign-out spec ended on `/home` and needed the
+  session to end when its delayed sign-out answered. The fixture answers the new public request with an empty list.
+- A Git Bash heredoc with an apostrophe in a spec failed again and wrote nothing; the Write tool was used.
+
+**New lessons**
+
+- An anonymous endpoint answers its own DTO with exact keys (`id`, `title`, `category`, `startsAt`, `place`):
+  no going, price, capacity or member detail. One test class per scenario gives each its own store.
+- A guard on `/` that fails open (any session error shows the page) keeps the public page up when the
+  session read fails; breaking it to `false` turned five specs red.
+- Hero, band and verse have no design-system page, so they are page-scoped BEM blocks in the page stylesheet,
+  with their numbers taken from the design system's `components.css`.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1): the lazy landing chunk is 13.6 kB; `main` is 277.7 kB, under 280.
+- "Undo with the inverse edit" (10.1 on): both mutations were reverted with `sed` of the same unique text and the diff checked.
+- "Count a slice's new specs against the CI budget" (24.1): six specs, no redundant ones added.
