@@ -7,17 +7,17 @@ window.FILM_CAPTURES = {
   },
   "unit": {
     "command": "npm test",
-    "passed": 178,
-    "total": 178
+    "passed": 215,
+    "total": 215
   },
   "specs": {
     "command": "npx playwright test --list",
-    "tests": 94,
-    "files": 15
+    "tests": 117,
+    "files": 18
   },
   "backend": {
     "command": "dotnet test",
-    "passed": 215,
+    "passed": 240,
     "complete": [
       "Given a new password was saved When the member signs in Then the new password works and the old one does not",
       "Given a usable link When a new password is saved Then it answers 204 with no body",

@@ -576,9 +576,11 @@ worked when applied. Newest entries go at the bottom.
 
 **What slowed it**
 
-- It was built out of order again, beside slices 3.2 and 9.1, which both held an ADR 0010 of
-  their own; this slice took 0011 and L2-045 and kept every shared table to appended rows, so a
-  rebase only renumbers.
+- It was built out of order again, beside slices 3.2 and 9.1. Slice 9.1 merged mid-slice with
+  ADR 0011, so the rebase renumbered this slice's ADR to 0012 in the record, the design, the code
+  comments and the film; it also met 9.1's new `RefusalKind.Forbidden`, `not_staff` code and staff
+  cookie scheme in the same lines as this slice's `Gone`, `reset_link_expired` and session
+  revocation, all kept side by side. Appending to every shared table kept the rest automatic.
 - The mock named the account above the fields ("For grace.thompson@gmail.com."), which the token
   alone cannot do: a second endpoint checks the link first. That brought three mock states the
   mocks lacked (`loading`, `failed`, `unchecked`), drawn before code.
@@ -620,4 +622,4 @@ worked when applied. Newest entries go at the bottom.
   busy shots with no clock.
 - "Rebase onto origin/main before the PR" applied: rows 8 and 9 were still unmerged, so nothing
   of slice 3.2's rate limiting could be reused; the per-IP limit on reset requests is recorded
-  for L2-034 in the design's open questions and ADR 0011.
+  for L2-034 in the design's open questions and ADR 0012.

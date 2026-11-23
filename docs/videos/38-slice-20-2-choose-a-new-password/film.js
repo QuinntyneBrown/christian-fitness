@@ -69,7 +69,7 @@ Film.scene('open', (S) => `
 Film.scene('token', (S) => `
   <div class="fill field--ink">
   <div style="${at(110, 120, 640)}">
-    <p class="kicker" style="color:var(--palette-borealis-300)" ${S.rise(S.beat(1))}>L2-045 · AC1 · ADR 0011</p>
+    <p class="kicker" style="color:var(--palette-borealis-300)" ${S.rise(S.beat(1))}>L2-045 · AC1 · ADR 0012</p>
     <h1 class="headline headline--md" style="margin-top:24px">${S.words(S.beat(2), 'Out of the')}<br>${S.words(S.beat(2.5), '', { accent: 'address bar.' })}</h1>
   </div>
   <div style="${at(820, 170, 1000)};${terminal};font-size:26px" ${pop(S, S.beat(2))}>
@@ -80,7 +80,7 @@ Film.scene('token', (S) => `
     <div style="${dim}">POST ${esc(C.check.address)}/check · body</div>
     <div><span style="${green}">{ "token": "…" }</span> · never in a URL</div>
   </div>
-  <div style="${at(820, 670, 1000)};${terminal};font-size:26px" ${pop(S, onBeat(S, part('token', 1, 0.3)))}>
+  <div style="${at(820, 670, 1000)};${terminal};font-size:26px" ${pop(S, onBeat(S, part('token', 0, 0.65)))}>
     <div style="${dim}">The address bar, once read</div>
     <div>localhost:4310<span style="${green}">${esc(C.check.address)}</span></div>
   </div>
@@ -94,7 +94,7 @@ Film.scene('save', (S) => `
     <h1 class="headline headline--md" style="margin-top:24px">${S.words(S.beat(2), 'Password')}<br>${S.words(S.beat(2.5), '', { accent: 'saved.' })}</h1>
   </div>
   ${closeUp('shots/web-saving.png', 110, 470, 520, pop(S, onBeat(S, part('save', 0, 0.3)), -1))}
-  ${browser('shots/web-saved-xl-light.png', { width: 1100, title: TITLE, url: url('/reset-password'), style: at(720, 230, 1100), attrs: arrive(S, onBeat(S, part('save', 1, 0.2)), 1, 6) })}
+  ${browser('shots/web-saved-xl-light.png', { width: 1100, title: TITLE, url: url('/reset-password'), style: at(720, 230, 1100), attrs: arrive(S, onBeat(S, part('save', 0, 0.6)), 1, 6) })}
   </div>
 `, { before: 0.3 });
 
@@ -107,16 +107,16 @@ Film.scene('everywhere', (S) => {
   return `
   <div class="fill field--borealis">
   <div style="${at(110, 120, 640)}">
-    <p class="kicker accent" ${S.rise(S.beat(1))}>L2-045 · AC3 · ADR 0011</p>
+    <p class="kicker accent" ${S.rise(S.beat(1))}>L2-045 · AC3 · ADR 0012</p>
     <h1 class="headline headline--md" style="margin-top:24px">${S.words(S.beat(2), 'Signed out')}<br>${S.words(S.beat(2.5), '', { accent: 'everywhere.' })}</h1>
   </div>
   <div style="${at(820, 170, 1000)};${terminal};font-size:28px">
     <div style="${dim};margin-bottom:16px" ${S.rise(S.beat(2), { y: 20 })}>Sessions of the member · one save with the new password</div>
     ${rows.map(([device, state], i) => `
       <div ${S.rise(S.beat(3 + i * 0.5), { y: 20 })}>${esc(device)} · GET /api/session · <span style="${rose}">401</span> ${esc(state)}</div>`).join('')}
-    <div style="margin-top:16px" ${S.rise(onBeat(S, part('everywhere', 1, 0.2)), { y: 20 })}>another member · <span style="${green}">200</span> still signed in</div>
+    <div style="margin-top:16px" ${S.rise(onBeat(S, part('everywhere', 0, 0.6)), { y: 20 })}>another member · <span style="${green}">200</span> still signed in</div>
   </div>
-  ${closeUp('shots/web-saved.png', 820, 600, 560, pop(S, onBeat(S, part('everywhere', 1, 0.5)), 1))}
+  ${closeUp('shots/web-saved.png', 820, 600, 560, pop(S, onBeat(S, part('everywhere', 0, 0.75)), 1))}
   </div>`;
 }, { before: 0.3 });
 
@@ -131,7 +131,7 @@ Film.scene('once', (S) => `
     <div><span style="${rose}">410</span> reset_link_expired</div>
   </div>
   ${browser('shots/web-expired-xl-light.png', { width: 800, title: TITLE, url: url('/reset-password'), style: at(820, 170, 800), attrs: arrive(S, onBeat(S, part('once', 0, 0.6)), 1, 6) })}
-  ${phone('shots/web-expired-xs-light.png', { width: 260, style: at(1580, 400, 260), attrs: arrive(S, onBeat(S, part('once', 1, 0.3)), 4, 10) })}
+  ${phone('shots/web-expired-xs-light.png', { width: 260, style: at(1580, 400, 260), attrs: arrive(S, onBeat(S, part('once', 0, 0.65)), 4, 10) })}
   </div>
 `, { before: 0.3 });
 
@@ -169,8 +169,8 @@ Film.scene('race', (S) => `
     <div ${S.rise(S.beat(2), { y: 20 })}>save A · reads the link · <span style="${green}">unused</span></div>
     <div ${S.rise(S.beat(2.5), { y: 20 })}>save B · reads the link · <span style="${green}">unused</span></div>
     <div ${S.rise(S.beat(3.5), { y: 20 })}>save A · writes · <span style="${green}">204</span></div>
-    <div ${S.rise(onBeat(S, part('race', 1, 0.2)), { y: 20 })}>save B · writes · <span style="${rose}">410 reset_link_expired</span></div>
-    <div style="${dim};margin-top:18px" ${S.rise(onBeat(S, part('race', 1, 0.6)), { y: 20 })}>nothing of save B is kept</div>
+    <div ${S.rise(onBeat(S, part('race', 0, 0.6)), { y: 20 })}>save B · writes · <span style="${rose}">410 reset_link_expired</span></div>
+    <div style="${dim};margin-top:18px" ${S.rise(onBeat(S, part('race', 0, 0.8)), { y: 20 })}>nothing of save B is kept</div>
   </div>
   </div>
 `, { before: 0.3 });

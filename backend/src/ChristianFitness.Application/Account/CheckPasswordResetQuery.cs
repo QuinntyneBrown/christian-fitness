@@ -3,7 +3,7 @@ using MediatR;
 namespace ChristianFitness.Application.Account;
 
 /// <summary>
-/// Whether the link holding <see cref="Token"/> can still set a password (L2-045 AC1; ADR 0011). A
+/// Whether the link holding <see cref="Token"/> can still set a password (L2-045 AC1; ADR 0012). A
 /// class, not a record: a record's generated <c>ToString</c> would print the token if it were ever
 /// logged (L2-033 AC2).
 /// </summary>

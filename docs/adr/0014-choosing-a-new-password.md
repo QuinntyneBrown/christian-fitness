@@ -53,7 +53,9 @@ automatically, which keeps the reset flow apart from the sign-in flow (and the p
 ## Consequences
 
 - A token holder learns the account's email; only the inbox owner holds the token.
-- Resetting signs the member out of every device, this browser included, as the mock says.
+- Resetting signs the member out of every device, this browser included, as the mock says. Staff
+  sessions (ADR 0011) live in the same `Sessions` table, so a staff member's admin sessions end
+  too.
 - A suspended member can reset a password; slice 3.2's sign-in refusal still keeps them out.
 - There is still no per-address (IP) limit on reset requests or link checks: slice 3.2's rate
   limiting had not merged. It joins the limits of L2-034 when that lands; a 256-bit token cannot be

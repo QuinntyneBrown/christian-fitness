@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Account;
 
 /// <summary>
-/// Sets a new password through a usable link (L2-045 AC2; ADR 0011). The password is stored only as
+/// Sets a new password through a usable link (L2-045 AC2; ADR 0012). The password is stored only as
 /// its PBKDF2 hash (L2-030 AC1), the member's links are spent and every session of the member ends,
 /// in one save (L2-045 AC3). Nobody is signed in: the member signs in with
 /// the new password. An unknown, used or expired link is refused 410 <c>reset_link_expired</c> and

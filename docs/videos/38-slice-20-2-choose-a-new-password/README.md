@@ -7,16 +7,16 @@ least 8 characters are saved through "Saving…" to "Password saved"; saving spe
 link of the member and ends every session, this browser's included, and signs nobody in. A used,
 expired or unknown link shows "This link has expired" with "Send a new link"; a short or
 mismatched password is named first; a failure keeps both fields; two saves with one link cannot
-both win (ADR 0011). The film is numbered by the slice's row in `docs/journeys.detailed.md`, as its
+both win (ADR 0012). The film is numbered by the slice's row in `docs/journeys.detailed.md`, as its
 prompt asked, since it was made while rows 8 to 36 were still being built.
 
 - **Film:** [`38-slice-20-2-choose-a-new-password.mp4`](38-slice-20-2-choose-a-new-password.mp4),
-  1920×1080, 30 fps, RUNTIME. Captions: [`captions.vtt`](captions.vtt), not burned in.
+  1920×1080, 30 fps, 1 min 38 s. Captions: [`captions.vtt`](captions.vtt), not burned in.
 - **Voice:** Kokoro-82M (`af_heart`), run locally.
 - **Music:** _En La Playa – Trinidad and Tobago Soca_ by JuliusH, from Pixabay
   ([credits](../assets/music/CREDITS.md)). 120 BPM; a bar is two seconds and every scene is a
   whole number of bars.
-- **Requirements shown:** L2-045 (AC1 to AC7); ADR 0011.
+- **Requirements shown:** L2-045 (AC1 to AC7); ADR 0012.
 
 ## Run sheet
 
@@ -53,7 +53,7 @@ act the cuts are hard.
 - It leaves out, though they are built: the keyboard-only save, the dark theme (shot, not shown),
   the failed check with "Try again", the 400 for a short password, the other links of the account
   stopping, and the telemetry test (no token, password or email in a span or log). A per-address
-  limit on reset requests is not built: it waits for L2-034's rate limiting (ADR 0011).
+  limit on reset requests is not built: it waits for L2-034's rate limiting (ADR 0012).
 
 ## Build it again
 
