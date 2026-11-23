@@ -16,6 +16,7 @@ export * from './errors/api-error';
 export * from './security/antiforgery-interceptor';
 export * from './security/app-path';
 export * from './security/member-auth-guard';
+export * from './security/redirect-signed-in-guard';
 export * from './security/staff-auth-guard';
 export * from './admin/admin-areas';
 export * from './admin/initials';

@@ -1,0 +1,104 @@
+<cf-top-bar variant="site" homeHref="/" />
+<main id="main" class="landing">
+  <section class="hero" aria-labelledby="hero-title">
+    <div>
+      <h1 class="display hero__title" id="hero-title">Life to the full.</h1>
+      <p class="hero__lead">
+        A Christian community for health in body and spirit. Find events, train with friends, and
+        meet professionals who share your faith.
+      </p>
+      <div class="hero__actions">
+        <cf-button size="lg" href="/join">Join the community</cf-button>
+      </div>
+    </div>
+    <div class="hero__media">
+      <img
+        class="hero__image"
+        src="/images/events/run.jpg"
+        alt="A group running together along the Toronto waterfront at sunrise"
+        width="1376"
+        height="768"
+      />
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="coming-title">
+    <div class="band__inner">
+      <div>
+        <h2 class="display band__title" id="coming-title">Coming up</h2>
+        <p class="subtitle">Runs, workouts and gatherings posted by our team every week.</p>
+        <div class="landing-list">
+          @if (state() === 'loading') {
+            <cf-skeleton-region label="Loading upcoming events">
+              <cf-list [items]="skeletons" [template]="skeletonRow" />
+            </cf-skeleton-region>
+          } @else if (state() === 'failed') {
+            <cf-inline-message
+              heading="Upcoming events didn't load."
+              text="Check your connection, then try again."
+              (retry)="load()"
+            />
+          } @else if (rows().length === 0) {
+            <cf-empty-state
+              variant="inline"
+              headingTag="p"
+              heading="No events posted yet."
+              text="Check back soon."
+            >
+              <cf-button slot="actions" variant="ghost" size="sm" href="/join"
+                >Join to hear first</cf-button
+              >
+            </cf-empty-state>
+          } @else {
+            <cf-list [items]="rows()" [template]="eventRow" />
+          }
+        </div>
+      </div>
+      <div class="band__aside">
+        <div>
+          <h3 class="display band__point-title">Train together</h3>
+          <p class="band__point-text">
+            Build a profile, find people at your pace, and keep each other going in group chats for
+            every event.
+          </p>
+        </div>
+        <div>
+          <h3 class="display band__point-title">Trusted professionals</h3>
+          <p class="band__point-text">
+            Trainers, dietitians, physios and counsellors, each one vetted and listed by our team.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="verse" aria-label="Scripture">
+    <div class="verse__inner">
+      <cf-seal size="verse" light />
+      <blockquote>
+        <p class="verse__quote">“I came that they may have life and have it abundantly.”</p>
+        <cite class="verse__cite">John 10:10</cite>
+      </blockquote>
+    </div>
+  </section>
+</main>
+<cf-footer />
+<ng-template #eventRow let-row>
+  <cf-event-row
+    href="/join"
+    large
+    [month]="row.month"
+    [day]="row.day"
+    [heading]="row.heading"
+    [meta]="row.meta"
+  />
+</ng-template>
+<ng-template #skeletonRow>
+  <div class="landing-skeleton">
+    <cf-skeleton shape="date" />
+    <div class="landing-skeleton__body">
+      <cf-skeleton width="55" />
+      <cf-skeleton shape="text-sm" width="80" />
+    </div>
+  </div>
+</ng-template>

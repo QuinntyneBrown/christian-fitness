@@ -1,0 +1,215 @@
+/* The landing page's three sections, from the mock `landing` (L2-002): hero, band, verse. */
+.landing-list {
+  margin-top: var(--space-8);
+}
+
+.landing-skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}
+
+.hero {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-10);
+  padding: var(--space-8) var(--space-4) var(--space-16);
+
+  &__title {
+    font-size: var(--font-size-6xl);
+    line-height: var(--line-height-display);
+  }
+
+  &__lead {
+    margin-top: var(--space-6);
+    max-width: var(--layout-lead-max);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-fg-muted);
+  }
+
+  &__actions {
+    margin-top: var(--space-8);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  &__media {
+    position: relative;
+  }
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+  }
+}
+
+@media (min-width: 40rem) {
+  .hero {
+    padding-inline: var(--space-6);
+
+    &__title {
+      font-size: var(--font-size-7xl);
+    }
+
+    &__lead {
+      font-size: var(--font-size-xl);
+    }
+  }
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    grid-template-columns: 1fr 1.15fr;
+    align-items: center;
+    gap: var(--space-14);
+    padding-top: var(--space-12);
+
+    &__image {
+      aspect-ratio: 5 / 4;
+    }
+  }
+}
+
+@media (min-width: 80rem) {
+  .hero__title {
+    font-size: var(--font-size-8xl);
+  }
+}
+
+.band {
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-canvas);
+
+  &__inner {
+    max-width: var(--layout-container-max);
+    margin-inline: auto;
+    display: grid;
+    gap: var(--space-12);
+    padding: var(--space-16) var(--space-4);
+
+    > * {
+      min-width: 0;
+    }
+  }
+
+  &__title {
+    font-size: var(--font-size-4xl);
+    line-height: var(--line-height-4xl);
+  }
+
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+
+    > * + * {
+      border-top: var(--border-width-hairline) solid var(--color-border-default);
+      padding-top: var(--space-10);
+    }
+  }
+
+  &__point-title {
+    font-size: var(--font-size-3xl);
+    line-height: var(--line-height-3xl);
+  }
+
+  &__point-text {
+    margin-top: var(--space-2);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-fg-muted);
+  }
+}
+
+@media (min-width: 40rem) {
+  .band__inner {
+    padding-inline: var(--space-6);
+  }
+
+  .band__title {
+    font-size: var(--font-size-5xl);
+    line-height: var(--line-height-none);
+  }
+}
+
+@media (min-width: 64rem) {
+  .band__inner {
+    grid-template-columns: 1.3fr 1fr;
+    padding-block: var(--space-20);
+  }
+
+  .band__aside {
+    padding-top: var(--space-2);
+  }
+}
+
+.verse {
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+
+  &__inner {
+    max-width: var(--layout-container-max);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+    padding: var(--space-16) var(--space-4);
+  }
+
+  &__quote {
+    font-family: var(--font-family-display);
+    font-style: italic;
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-3xl);
+    line-height: var(--line-height-tight);
+  }
+
+  &__cite {
+    margin-top: var(--space-4);
+    color: var(--color-fg-on-brand-highlight);
+    font-style: normal;
+    display: block;
+  }
+}
+
+@media (min-width: 40rem) {
+  .verse__inner {
+    padding-inline: var(--space-6);
+  }
+
+  .verse__quote {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+@media (min-width: 48rem) {
+  .verse__inner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-14);
+  }
+}
+
+@media (min-width: 64rem) {
+  .verse__inner {
+    padding-block: var(--space-20);
+  }
+
+  .verse__quote {
+    font-size: var(--font-size-5xl);
+  }
+}
