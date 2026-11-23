@@ -1232,3 +1232,37 @@ Period)`, fed by each feature's own count, so 3.2 can share it whatever store it
   page object's locators came straight from the mock.
 - "Read the initial total after each new API" (30.1): no new core API; the admin initial total
   stayed at 279.20 kB and the editor stays in its lazy chunk.
+
+## Slice 11.1: Publish an event
+
+**What slowed it**
+
+- The mock drew Publish only on a new event, so a saved draft could not be published, and its
+  failure was a danger toast with a Try again action the toast store cannot carry. ADR 0026 added
+  the mock states `edit-draft` and `publish-failed` and moved the failure into the drawer.
+- Two backend classes (`PublishEventTests`, and slice 10.2's `EditEventRulesTests`) each had a test
+  that advanced the class's shared `FakeTimeProvider` past the retreat's start, so every sibling
+  that created the retreat failed or not by run order. A test that moves the clock gets a class of
+  its own; the 10.2 one was fixed here.
+- A spec that answered an event's GET with a 500 raced the global server-error screen (a 5xx to a
+  GET opens it, L2-043); the mock's "couldn't reach the server" is a no-answer, so the spec aborts
+  the request.
+
+**New lessons**
+
+- Publish is "save, then publish" with the saved id kept in the dialog: a retry updates the draft,
+  never creates a second event, and closing after a failed publish returns the saved draft.
+- The dialog closes with a result (`event` and `outcome`) and the page words the toast from a
+  tested helper, so the dialog never knows about toasts.
+- Handle Escape from `keydownEvents` with `disableClose` so a save in flight, or a saved draft,
+  decides what the editor closes with.
+
+**How earlier lessons worked**
+
+- "A test that moves the clock gets its own class" is new here; "A class's tests share a store and a
+  clock in any order" (AGENTS.md) predicted the failure.
+- "Prove a rule red by breaking it alone" (1.1 to 1.6): the draft-only and start-in-past rules each
+  turned only their own tests red.
+- "A gate in a fixture handler" (2.1) gave the Publishing… state with no clock.
+- "Read the initial total after each new API" (30.1): no new core API; the initial total stayed at
+  279.20 kB.

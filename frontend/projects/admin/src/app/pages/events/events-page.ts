@@ -22,8 +22,15 @@ import {
   type ToastData,
   ToastRegion,
 } from '@cf/components';
-import { adminEventTabOf, adminEventTabs, eventWhen, ToastStore } from '@cf/domain';
+import {
+  adminEventTabOf,
+  adminEventTabs,
+  eventSavedToast,
+  eventWhen,
+  ToastStore,
+} from '@cf/domain';
 import { catchError, combineLatest, map, of, startWith, Subject, switchMap } from 'rxjs';
+import type { EventEditorResult } from '../../dialogs/event-editor/event-editor-dialog';
 import { HttpAdminEventsService } from '../../services/http-admin-events.service';
 
 /** The list's columns (mock `admin-events`); the Edit action is the table's last column. */
@@ -162,10 +169,10 @@ export class AdminEventsPage {
     if (this.destroyRef.destroyed) return;
     openEventEditor(this.injector)
       .closed.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((created) => {
+      .subscribe((result) => {
         this.editorOpen = false;
-        if (!created) return;
-        this.toasts.show('Draft saved', `${created.title} isn't visible to members yet.`);
+        if (!result) return;
+        this.say(result);
         this.reload.next(false);
       });
   }
@@ -193,15 +200,20 @@ export class AdminEventsPage {
       });
   }
 
+  private say(result: EventEditorResult): void {
+    const { title, text } = eventSavedToast(result.event.title, result.outcome);
+    this.toasts.show(title, text);
+  }
+
   private async openEditor(event: AdminEventDetailDto): Promise<void> {
     const { openEventEditorFor } = await import('../../dialogs/event-editor/event-editor-dialog');
     if (this.destroyRef.destroyed) return;
     openEventEditorFor(this.injector, event)
       .closed.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((saved) => {
+      .subscribe((result) => {
         this.editorOpen = false;
-        if (!saved) return;
-        this.toasts.show('Changes saved', `${saved.title} is updated.`);
+        if (!result) return;
+        this.say(result);
         this.reload.next(true);
       });
   }

@@ -68,29 +68,30 @@ does not draw, fits; and two places where the design system disagrees with itsel
   the admin navigation, top bar, tab bar, breadcrumb, pagination and tabs.
 - **The migration, old to new:**
 
-  | Removed | Replaced by |
-  | --- | --- |
-  | `form-alert` | `cf-alert` (its sentence and link projected, the link a `cf-link`) |
-  | `text-link` | `cf-link variant="text"` |
-  | `tag-list` | `cf-tag-list` of `cf-tag` (chip page) |
-  | `auth-brand` | `cf-auth-layout`'s brand panel, from `cf-brand-lockup` and `cf-seal` |
-  | `app-header` | `cf-top-bar` (`app`) |
-  | `admin-nav`, `admin-user` | `cf-sidebar-navigation` with `cf-admin-nav` and `cf-admin-user` |
-  | `admin-layout` | `cf-admin-layout` in `layout/`, with `cf-skip-link` and `cf-sidebar-navigation` |
-  | `staff-layout` | `cf-staff-layout` in `layout/`, its seal a `cf-seal` |
-  | `profile-skeleton` | `cf-skeleton-region` around `cf-profile-hero loading` and `cf-skeleton`s in `cf-container` and `cf-split` |
-  | `empty-inline` | `cf-empty-state variant="inline"` |
-  | `error-state` | `cf-empty-state variant="error"` with its actions projected |
-  | `going-list` | `cf-list variant="going"` of `cf-going-item` |
-  | `interest-picker` | `cf-interest-list` of `cf-interest` |
-  | the profile's goals list | `cf-list variant="goals"` |
-  | hand-written `container`, `page`, `split`, `aside-stack` | `cf-container`, `cf-split`, `cf-stack` |
-  | the busy icon each screen drew in its submit button | `cf-button busy`, which draws the spinning loader icon before its label (spinner.html, "In a button") |
-  | the member error screens' own `container page` styles | `cf-container page="default"` |
-  | `mini-row__count` (slice 1.5) | `cf-unread-dot` on a mini row, `cf-count-badge pill` on a conversation (list.html, "States") |
+  | Removed                                                  | Replaced by                                                                                               |
+  | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+  | `form-alert`                                             | `cf-alert` (its sentence and link projected, the link a `cf-link`)                                        |
+  | `text-link`                                              | `cf-link variant="text"`                                                                                  |
+  | `tag-list`                                               | `cf-tag-list` of `cf-tag` (chip page)                                                                     |
+  | `auth-brand`                                             | `cf-auth-layout`'s brand panel, from `cf-brand-lockup` and `cf-seal`                                      |
+  | `app-header`                                             | `cf-top-bar` (`app`)                                                                                      |
+  | `admin-nav`, `admin-user`                                | `cf-sidebar-navigation` with `cf-admin-nav` and `cf-admin-user`                                           |
+  | `admin-layout`                                           | `cf-admin-layout` in `layout/`, with `cf-skip-link` and `cf-sidebar-navigation`                           |
+  | `staff-layout`                                           | `cf-staff-layout` in `layout/`, its seal a `cf-seal`                                                      |
+  | `profile-skeleton`                                       | `cf-skeleton-region` around `cf-profile-hero loading` and `cf-skeleton`s in `cf-container` and `cf-split` |
+  | `empty-inline`                                           | `cf-empty-state variant="inline"`                                                                         |
+  | `error-state`                                            | `cf-empty-state variant="error"` with its actions projected                                               |
+  | `going-list`                                             | `cf-list variant="going"` of `cf-going-item`                                                              |
+  | `interest-picker`                                        | `cf-interest-list` of `cf-interest`                                                                       |
+  | the profile's goals list                                 | `cf-list variant="goals"`                                                                                 |
+  | hand-written `container`, `page`, `split`, `aside-stack` | `cf-container`, `cf-split`, `cf-stack`                                                                    |
+  | the busy icon each screen drew in its submit button      | `cf-button busy`, which draws the spinning loader icon before its label (spinner.html, "In a button")     |
+  | the member error screens' own `container page` styles    | `cf-container page="default"`                                                                             |
+  | `mini-row__count` (slice 1.5)                            | `cf-unread-dot` on a mini row, `cf-count-badge pill` on a conversation (list.html, "States")              |
 
   `cf-profile-hero` stays a screen composite, since no design-system page covers it, and is now
   built from `cf-avatar` and `cf-skeleton`.
+
 - **`cf-skeleton-region` can name itself with a heading.** With `heading`, its hidden label is an
   `h1`, so a screen that is all skeletons (the profile while it loads) still has its one heading,
   as the profile mock does.

@@ -17,12 +17,12 @@ Use **eslint-plugin-boundaries** (v7, rule `boundaries/dependencies`) in
 `frontend/eslint.config.js`, resolving the `@cf/*` path aliases with
 `eslint-import-resolver-typescript`:
 
-| From                        | May import                                                                        |
-| --------------------------- | --------------------------------------------------------------------------------- |
-| `web`, `admin` (type `app`) | `components`, `domain`, `api`                                                     |
-| `components`                | `api`, **type imports only** (`import type`): no token, service or other value    |
-| `domain`                    | `api`                                                                             |
-| `api`                       | nothing in the workspace                                                          |
+| From                        | May import                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `web`, `admin` (type `app`) | `components`, `domain`, `api`                                                  |
+| `components`                | `api`, **type imports only** (`import type`): no token, service or other value |
+| `domain`                    | `api`                                                                          |
+| `api`                       | nothing in the workspace                                                       |
 
 The default is `disallow`, so an app importing the other app, or any library importing an app,
 is an error. Imports inside one project are not checked. A new library is added to

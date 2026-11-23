@@ -5,6 +5,10 @@
 >
   @if (errorItems().length > 0) {
     <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+  } @else if (publishFailed()) {
+    <cf-alert heading="Couldn't publish the event">
+      Your changes are saved as a draft. Try again.
+    </cf-alert>
   } @else if (failed()) {
     <cf-alert [heading]="editing ? 'Couldn\'t save the changes' : 'Couldn\'t save the draft'">
       @if (editing) {
@@ -20,7 +24,7 @@
     name="title"
     [value]="values().title"
     [error]="errors().title"
-    [readonly]="saving()"
+    [readonly]="working()"
     (valueChange)="set('title', $event)"
   />
   <cf-select
@@ -30,7 +34,7 @@
     [options]="categories"
     [value]="values().category"
     [error]="errors().category"
-    [disabled]="saving()"
+    [disabled]="working()"
     (valueChange)="setCategory($event)"
   />
   <cf-form-layout layout="grid">
@@ -41,7 +45,7 @@
       type="date"
       [value]="values().date"
       [error]="errors().date"
-      [readonly]="saving()"
+      [readonly]="working()"
       (valueChange)="set('date', $event)"
     />
     <cf-text-field
@@ -51,7 +55,7 @@
       type="time"
       [value]="values().startTime"
       [error]="errors().startTime"
-      [readonly]="saving()"
+      [readonly]="working()"
       (valueChange)="set('startTime', $event)"
     />
   </cf-form-layout>
@@ -61,7 +65,7 @@
     name="place"
     [value]="values().place"
     [error]="errors().place"
-    [readonly]="saving()"
+    [readonly]="working()"
     (valueChange)="set('place', $event)"
   />
   <cf-text-field
@@ -71,7 +75,7 @@
     hint="Neighbourhood and city, like Waterfront, Toronto"
     [value]="values().area"
     [error]="errors().area"
-    [readonly]="saving()"
+    [readonly]="working()"
     (valueChange)="set('area', $event)"
   />
   <cf-form-layout layout="grid">
@@ -82,7 +86,7 @@
       hint="Leave blank for free"
       [value]="values().price"
       [error]="errors().price"
-      [readonly]="saving()"
+      [readonly]="working()"
       (valueChange)="set('price', $event)"
     />
     <cf-text-field
@@ -94,7 +98,7 @@
       [min]="1"
       [value]="values().capacity"
       [error]="errors().capacity"
-      [readonly]="saving()"
+      [readonly]="working()"
       (valueChange)="set('capacity', $event)"
     />
   </cf-form-layout>
@@ -105,7 +109,7 @@
     hint="Up to 1,000 characters"
     [value]="values().summary"
     [error]="errors().summary"
-    [readonly]="saving()"
+    [readonly]="working()"
     (valueChange)="set('summary', $event)"
   />
   <cf-file-field
@@ -117,15 +121,15 @@
     [accept]="imageTypes"
     [fileName]="values().imageName"
     [error]="errors().image"
-    [disabled]="saving() || uploading()"
+    [disabled]="working() || uploading()"
     (fileChosen)="chooseImage($event)"
     (removed)="removeImage()"
   />
   <cf-button
     slot="foot"
-    [variant]="editing ? 'primary' : 'secondary'"
+    [variant]="canPublish ? 'secondary' : 'primary'"
     [busy]="saving()"
-    [disabled]="saving() || uploading()"
+    [disabled]="working() || uploading()"
     (click)="save()"
   >
     @if (saving()) {
@@ -136,4 +140,18 @@
       Save draft
     }
   </cf-button>
+  @if (canPublish) {
+    <cf-button
+      slot="foot"
+      [busy]="publishing()"
+      [disabled]="working() || uploading()"
+      (click)="publish()"
+    >
+      @if (publishing()) {
+        Publishing…
+      } @else {
+        Publish
+      }
+    </cf-button>
+  }
 </cf-drawer>

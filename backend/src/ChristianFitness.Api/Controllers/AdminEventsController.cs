@@ -37,6 +37,11 @@ public sealed class AdminEventsController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>Publishes a draft and answers 200 with the event (L2-023 AC3).</summary>
+    [HttpPost("{id:guid}/publish")]
+    public async Task<ActionResult<AdminEventDto>> Publish(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new PublishEventCommand(id), cancellationToken).ConfigureAwait(false);
+
     /// <summary>Stores one image and answers 201 with its key. Larger bodies than the limit are refused before this runs.</summary>
     [HttpPost("images")]
     [RequestSizeLimit(ImageBodyLimit)]

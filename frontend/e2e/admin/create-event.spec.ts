@@ -107,7 +107,7 @@ test.describe('Admin app, creating a draft event', () => {
     await expect(editor.capacity).toHaveAttribute('min', '1');
     await expect(editor.priceHint).toHaveText('Leave blank for free');
     await expect(editor.price).toHaveAttribute('aria-describedby', 'f-price-hint');
-    await expect(editor.footButtons).toHaveText(['Save draft']);
+    await expect(editor.footButtons).toHaveText(['Save draft', 'Publish']);
     await expect(editor.scrim).toBeVisible();
     await expect.poll(() => editor.titleIsFocused()).toBe(true);
     // The drawer slides in over 260 ms: its box settles at the right edge.

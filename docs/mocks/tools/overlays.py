@@ -201,8 +201,8 @@ def _():
 CATS = ["Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 
 
-def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False, image_invalid=False, capacity_below=False) -> str:
-    if edit:
+def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False, image_invalid=False, capacity_below=False, draft=False, publish_failed=False) -> str:
+    if edit and not draft:
         v = dict(title="Saturday Park Bootcamp", cat="Workout", date="2026-04-25", time="08:00", place="Trillium Park, Ontario Place",
                  area="Waterfront, Toronto", price="$10", cap="50", desc=EV["park-bootcamp"]["summary"])
     else:
@@ -225,6 +225,8 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
     if failed:
         alert = form_alert("Couldn't save the changes" if edit else "Couldn't save the draft",
                            "The server didn't respond. Your changes are still here; try again.")
+    if publish_failed:
+        alert = form_alert("Couldn't publish the event", "Your changes are saved as a draft. Try again.")
     ro = busy or saving
     body = f"""    {alert}
     {field("Title", "title", v["title"], error=title_err, readonly=ro)}
@@ -240,17 +242,17 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
       {field("Capacity", "capacity", v["cap"], type_="number", extra='min="1" inputmode="numeric"', error=capacity_err, readonly=ro)}
     </div>
     {textarea("Summary", "summary", v["desc"], rows=4, hint="Up to 1,000 characters", readonly=ro)}
-    {file_field("Image", "image", filename="park-bootcamp.jpg" if edit and not image_invalid else "", hint="JPEG, PNG or WebP, up to 5 MB", error=image_err, optional=True, readonly=ro)}"""
-    publish_label = "Save changes" if edit else "Publish"
+    {file_field("Image", "image", filename="park-bootcamp.jpg" if edit and not draft and not image_invalid else "", hint="JPEG, PNG or WebP, up to 5 MB", error=image_err, optional=True, readonly=ro)}"""
+    publish_label = "Save changes" if edit and not draft else "Publish"
     publish = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Publishing…")}</button>' if busy
                else f'<button class="btn btn--primary btn--grow" type="button" disabled>{publish_label}</button>' if saving
                else f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("admin-toast", "success")}">{publish_label}</button>')
-    second = "Move to drafts" if edit else "Save draft"
-    toast_state = "info" if edit else "draft-saved"
+    second = "Save changes" if draft else "Move to drafts" if edit else "Save draft"
+    toast_state = "changes-saved" if draft else "info" if edit else "draft-saved"
     second_html = (f'<button class="btn btn--secondary btn--grow" type="button" disabled aria-busy="true">{busy_label("Saving…")}</button>' if saving
                    else f'<button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("admin-toast", toast_state)}">{second}</button>')
     foot = f'    {second_html}\n    {publish}'
-    if edit:
+    if edit and not draft:
         save = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Saving…")}</button>' if saving
                 else f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("admin-toast", "changes-saved")}">Save changes</button>')
         foot = f'    {save}'
@@ -288,6 +290,16 @@ def _():
 @s("edit-failed", "Saving failed: message at the top of the drawer, everything kept.")
 def _():
     return event_editor(edit=True, failed=True)
+
+
+@s("edit-draft", "Editing the Whole Life Retreat draft: Save changes keeps it a draft, Publish makes it live.")
+def _():
+    return event_editor(edit=True, draft=True)
+
+
+@s("publish-failed", "Publishing failed after the fields were saved: message at the top of the drawer, everything kept, Publish tries again.")
+def _():
+    return event_editor(publish_failed=True)
 
 
 @s("image-invalid", "An image that is not JPEG, PNG or WebP, or over 5 MB: the message under the image field.")
