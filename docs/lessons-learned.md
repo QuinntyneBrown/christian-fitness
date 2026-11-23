@@ -1868,3 +1868,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Advance `FakeTimeProvider` between sends" (15.1): every `SayAsync` advances it, so ordering and unread are by instant.
 - "Pin the browser clock for screens that show time" (15.1): the new spec pins it.
 - "Count a slice's new specs against the CI budget" (24.1): three short specs.
+
+## Slice 13.1: Next and suggested events
+
+**What slowed it**
+
+- The design left the suggestion order and the interest to category rule open; ADR 0044 fixes them (soonest first, one table in the domain with a direct test per row).
+- The mock's `.next-event` block had no design-system page, so the library got a `next-event` component named after the block, and `event-row` a `loading` form for the mock's skeleton rows.
+- A command that began with `cat > /dev/null` hung the harness for two minutes and none of its edits ran. Use the Edit and Write tools, one change per call, and never read stdin.
+- One admin Members spec failed once in the full parallel run and passed alone and on the rerun; it is load-sensitive, not caused by this slice.
+
+**New lessons**
+
+- A landing page is a shared flow: the fixture now answers `GET /api/home` by default, or every sign-in and join spec would fail on an unanswered request.
+- A Playwright link by name matches the picture link too: the card's media link is "{title} details", so the page object asks for `Details` with `exact: true`.
+- Bound two sibling lists in the database (soonest first, take 1 and take 3) and count going for the at most four events in one question.
+- Initial bundle: web 279.12 kB (was 279.14), admin 279.25 kB, both under 280; the page, the service and the helper are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 14.1): dropping the "not already going" condition failed only the suggestion test; adding a day to "in N days" failed three domain cases. Each was undone with the inverse edit.
+- "Read the initial total after each new API" (30.1 to 14.1): no new Angular API in `main`.
+- "A fixture default for a new call" (15.1): the `GET /api/home` default.
+- "Use the Edit and Write tools" (7.1 on): followed except for the one hung command above.
+- "Count a slice's new specs against the CI budget" (24.1): four short specs.

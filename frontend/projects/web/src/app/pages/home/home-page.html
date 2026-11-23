@@ -1,5 +1,79 @@
 <main id="main" class="home-page">
   <cf-container page="default">
     <h1 class="display page-title--greeting">{{ greeting() }}</h1>
+    @if (state() === 'failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Your home page didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+      </cf-empty-state>
+    } @else {
+      <cf-split variant="home">
+        <div>
+          @if (state() === 'loading') {
+            <cf-skeleton-region label="Loading your home page">
+              <cf-next-event loading />
+              <div class="section-head mt-section">
+                <h2 class="display section-title">Coming up</h2>
+              </div>
+              <cf-list variant="ruled" [items]="skeletons" [template]="skeletonRow" />
+            </cf-skeleton-region>
+          } @else {
+            @if (next(); as event) {
+              <cf-next-event
+                [href]="event.href"
+                [imageSrc]="event.imageSrc"
+                [pill]="event.pill"
+                [when]="event.when"
+                [heading]="event.heading"
+                [place]="event.place"
+              >
+                <div slot="actions" class="actions">
+                  <cf-button size="sm" variant="secondary" [href]="event.chatHref">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg
+                    >Group chat
+                  </cf-button>
+                  <cf-button size="sm" [href]="event.href">Details</cf-button>
+                </div>
+              </cf-next-event>
+            } @else {
+              <cf-empty-state
+                variant="card"
+                heading="No events yet"
+                text="Find a run, workout or gathering near you. Your next one will show here, with its group chat one tap away."
+              >
+                <cf-button slot="actions" size="sm" href="/events">Browse events</cf-button>
+              </cf-empty-state>
+            }
+            @if (suggested().length > 0) {
+              <div class="section-head mt-section">
+                <h2 class="display section-title">Coming up</h2>
+                <cf-link variant="text" href="/events"
+                  >All events
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" /></svg
+                ></cf-link>
+              </div>
+              <cf-list variant="ruled" [items]="suggested()" [template]="row" label="Coming up" />
+            }
+          }
+        </div>
+      </cf-split>
+    }
   </cf-container>
 </main>
+<ng-template #skeletonRow><cf-event-row loading /></ng-template>
+<ng-template #row let-event>
+  <cf-event-row
+    [href]="event.href"
+    [month]="event.month"
+    [day]="event.day"
+    [heading]="event.heading"
+    [meta]="event.meta"
+    [end]="event.price"
+  />
+</ng-template>

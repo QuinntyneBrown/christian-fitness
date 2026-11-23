@@ -59,6 +59,7 @@ export * from './menu/menu';
 export * from './menu/menu-keys';
 export * from './message/composer';
 export * from './message/thread';
+export * from './next-event/next-event';
 export * from './pagination/pagination';
 export * from './pagination/pagination-items';
 export * from './profile-hero/profile-hero';

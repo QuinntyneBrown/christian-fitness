@@ -188,3 +188,28 @@ export function answerCancellation(
   });
   return asked;
 }
+
+/** Home's events as `GET /api/home` answers them (ADR 0044). */
+export interface HomeEvents {
+  nextEvent: EventSummary | null;
+  suggested: EventSummary[];
+}
+
+/**
+ * Answers `GET /api/home` with `home`. `fail` may refuse a request, by its zero-based number, as a
+ * reply. Returns how many requests were asked.
+ */
+export function answerHome(
+  api: ApiHandlers,
+  home: HomeEvents,
+  fail: (requestNumber: number) => { status?: number; abort?: boolean } | null = () => null,
+): { count: number } {
+  const asked = { count: 0 };
+  api.on('GET', '/api/home', () => {
+    const refusal = fail(asked.count++);
+    if (refusal?.abort) return { abort: true };
+    if (refusal) return { status: refusal.status ?? 400, json: { code: 'error' } };
+    return { json: home };
+  });
+  return asked;
+}

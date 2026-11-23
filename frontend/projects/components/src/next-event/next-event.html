@@ -1,0 +1,38 @@
+@if (loading()) {
+  <div class="next-event">
+    <cf-skeleton shape="image-16x8" />
+    <div class="next-event__body">
+      <div class="next-event__info next-event__lines">
+        <cf-skeleton shape="text-sm" width="40" />
+        <cf-skeleton shape="title-lg" />
+        <cf-skeleton width="55" />
+      </div>
+      <div class="next-event__actions">
+        <cf-skeleton shape="button" /><cf-skeleton shape="button" />
+      </div>
+    </div>
+  </div>
+} @else {
+  <article class="next-event">
+    <a class="next-event__media" [href]="href()" [attr.aria-label]="heading() + ' details'">
+      <img class="next-event__image" [src]="imageSrc()" alt="" width="1376" height="768" />
+      <span class="next-event__pill">{{ pill() }}</span>
+    </a>
+    <div class="next-event__body">
+      <div class="next-event__info">
+        <p class="next-event__when">{{ when() }}</p>
+        <h2 class="next-event__title">{{ heading() }}</h2>
+        <p class="place">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+            />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span>{{ place() }}</span>
+        </p>
+      </div>
+      <div class="next-event__actions"><ng-content select="[slot=actions]" /></div>
+    </div>
+  </article>
+}
