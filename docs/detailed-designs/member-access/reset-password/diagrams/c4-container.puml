@@ -5,17 +5,17 @@ title Containers — Reset a forgotten password
 
 Person(user, "Member", "Person with a member account")
 System_Boundary(cf, "Christian Fitness") {
-  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; /sign-in and /forgot-password")
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; /sign-in, /forgot-password and /reset-password")
   Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers; background email dispatcher")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members and password resets (token hashes)")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, password resets (token hashes) and sessions")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
 }
 System_Ext(smtp, "Email service", "SMTP relay")
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 
-Rel(user, web, "Opens /forgot-password", "HTTPS")
-Rel(web, api, "Posts the email", "JSON/HTTPS")
-Rel(api, db, "Reads members; writes password resets", "EF Core")
+Rel(user, web, "Opens /forgot-password and the emailed link", "HTTPS")
+Rel(web, api, "Posts the email; the token and new password", "JSON/HTTPS")
+Rel(api, db, "Reads members; writes password resets; ends sessions", "EF Core")
 Rel(api, smtp, "Sends the reset email", "SMTP, TLS")
 Rel(cli, db, "Migrates", "EF Core")
 Rel(api, otel, "Exports telemetry", "OTLP")

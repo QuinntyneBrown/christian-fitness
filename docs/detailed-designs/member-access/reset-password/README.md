@@ -13,16 +13,23 @@ answers and the reset email. It belongs to the member-access subsystem.
 - **password reset** — the stored record of one issued link: the member, a hash of the
   token, when it was requested and when it expires
 - **reset window** — one hour in which one account is sent at most 3 reset emails
+- **usable link** — a reset link whose password reset is unused and was requested less
+  than 30 minutes ago
 
 The answer to a reset request never says whether an account has the email: a
 registered email and an unknown one get the same 202 and the same "Check your email"
-screen. Only a registered email, inside its reset window, is sent a link.
+screen. Only a registered email, inside its reset window, is sent a link. A usable link
+sets a new password once; doing so ends every session of the member, who then signs in
+with the new password.
 
 ## Description
 
 Slice 20.1 builds the request, the screen and the email
 ([ADR 0010](../../../adr/0010-password-reset-request-and-email.md)); slice 20.2 builds
-the Reset password screen that the link opens and sets the new password.
+the Reset password screen that the link opens and sets the new password
+([ADR 0014](../../../adr/0014-choosing-a-new-password.md)).
+
+#### Request a reset link (slice 20.1)
 
 - **`SignInPage`** — gains the mock's "Forgot your password?" link under the password
   field, a `TextLink` to `/forgot-password` (L2-044 AC1). It loads the document, as the
@@ -67,7 +74,7 @@ the Reset password screen that the link opens and sets the new password.
 - **`PasswordReset`** (Domain) — `Issue(memberId, now)` makes 32 random bytes from
   `RandomNumberGenerator`, encoded base64url, and keeps only their SHA-256 hash in hex
   (`HashOf`), with `ExpiresAt = RequestedAt + 30 minutes`. The token itself exists
-  only in the email (L2-044 AC2). Slice 20.2 adds its use.
+  only in the email (L2-044 AC2). Slice 20.2 adds its use (below).
 - **`AttemptWindow`** (Domain) — the rule "at most `Limit` attempts within `Period`":
   `Since(now)` is the oldest instant still inside the window, and `IsFull(count)` says
   whether `count` attempts since then reach the limit. It holds no state, so any store
@@ -90,11 +97,73 @@ the Reset password screen that the link opens and sets the new password.
   the email, the token or the link (L2-044 AC8, L2-033 AC2). A delivery failure is logged
   by the exception's type only.
 
+#### Choose a new password (slice 20.2)
+
+- **`ResetPasswordPage`** — routed, lazy page at `/reset-password`, title "Reset
+  password · Christian Fitness", built from the mock's `auth`, `field`, `input` and
+  `form-alert` blocks. On arrival it reads the token once from the route's fragment with
+  `resetTokenOf` (`domain`; `#token=…`), keeps it in a field and replaces the address with
+  `/reset-password` through `Location`, so the token is not left in history (L2-045 AC1).
+  With no token it shows the expired notice at once. Otherwise it shows "Checking your
+  link…" (mock `loading`) and calls `checkPasswordReset`; the answer's email completes the
+  lead "For …." as text, above "New password" (hint "At least 8 characters") and "Confirm
+  new password", both `autocomplete="new-password"` (mock `default`). Submitting checks
+  both fields with `newPasswordErrorsOf` (`domain`): a short password or a mismatch sends
+  nothing and shows the summary, which takes focus and links to each field ("Your
+  passwords don't match" when the mismatch is the only error, else "Check your new
+  password"), and marks each field `aria-invalid` (L2-045 AC5, mock `invalid`); editing a
+  field clears its error. While saving the button reads "Saving…", is disabled and busy,
+  and the fields are read-only (L2-045 AC6, mock `submitting`). A 204 replaces the form
+  with the notice "Password saved" and "Sign in" (`/sign-in`) (L2-045 AC3, mock
+  `success`). `resetPasswordRefusalOf` (`domain`) reads a failure: 410
+  `reset_link_expired` is the notice "This link has expired" with "Send a new link"
+  (`/forgot-password`) and "Back to sign in" (L2-045 AC4, mock `error`); a 400
+  `validation_failed` marks the new password; anything else, when saving, is "We couldn't
+  save your password" with both fields kept (mock `failed`), and, when checking, the
+  notice "We couldn't check your link" whose "Try again" checks the kept token again
+  (L2-045 AC6, mock `unchecked`). Each notice's heading takes focus.
+- **`AuthLayout`** (`components`) — the notices use its `notice` form; an empty
+  `altLink` leaves out the last line, for a notice that has none.
+- **`AccountApi.checkPasswordReset` / `completePasswordReset`** — the contract in `api`
+  takes a `PasswordResetTokenDto` (`token`) and answers a `PasswordResetCheckDto`
+  (`email`), and a `NewPasswordDto` (`token`, `password`) completing on 204. A refusal
+  errors with an `ApiError`. `HttpAccountService` implements both.
+- **`AccountController`** — `POST /api/account/password-reset/check` sends one
+  `CheckPasswordResetQuery` and answers 200 with its `PasswordResetCheckDto`;
+  `POST /api/account/password-reset/complete` sends one `CompletePasswordResetCommand` and
+  answers 204. Both `[AllowAnonymous]` with the antiforgery token. The token is never in a
+  URL.
+- **`CompletePasswordResetValidator`** — the password is at least 8 characters, Join's
+  rule and sentence ("Use at least 8 characters"); otherwise 400 `validation_failed`
+  (L2-045 AC5).
+- **`CheckPasswordResetHandler`** — finds the `PasswordReset` by `HashOf(token)` and its
+  member; when either is missing or the reset is not `IsUsableAt(now)` it refuses with
+  `RefusalKind.Gone` and code `reset_link_expired` (410). Else it answers the member's
+  email (L2-045 AC1, AC4).
+- **`CompletePasswordResetHandler`** — the same lookup and refusal; then
+  `Member.ChangePassword(hash)` with the PBKDF2 hash of the new password, `Use(now)` on
+  the reset and on every other unused reset of the member, and
+  `ISessionRevocation.EndAllAsync(memberId)`, all saved by one `SaveChanges`. A
+  `DbUpdateConcurrencyException` (another save used the link first) is refused
+  `reset_link_expired`, and nothing of this save is kept (L2-045 AC2, AC3, AC7). Nobody is
+  signed in.
+- **`PasswordReset`** (Domain) — gains `UsedAt`, an EF Core concurrency token, so the
+  database updates a reset only while it is still unused; `IsUsableAt(now)` is
+  `UsedAt is null && now < ExpiresAt`, and `Use(now)` sets `UsedAt`.
+- **`Member.ChangePassword`** (Domain) — replaces the password hash (L2-030 AC1).
+- **`ISessionRevocation`** (Application) — `EndAllAsync(memberId)` ends every session of
+  a member. `DatabaseSessionRevocation` (Infrastructure) removes the member's
+  `Sessions` rows through the request's `AppDbContext`, so they go in the handler's
+  `SaveChanges` with the new password (ADR 0009, ADR 0014).
+- **Telemetry** — the routes are recorded as their templates; no span, metric or log
+  carries the token, the password or the email (L2-045 AC8, L2-033 AC2).
+
 ### Open questions
 
-- A per-address (IP) limit on reset requests belongs with the account-creation limit of
-  `L2-034` AC2 and is not built here; the per-account window already stops one inbox
-  being flooded.
+- A per-address (IP) limit on reset requests and link checks belongs with the limits of
+  `L2-034` and is not built here: slice 3.2's rate limiting had not merged when slice
+  20.2 did. The per-account window already stops one inbox being flooded, and a 256-bit
+  token cannot be guessed.
 - The queue is in process: a mail not yet delivered when the API stops is lost, and the
   member asks again. A durable outbox may replace it when other emails need one.
 
@@ -106,6 +175,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-044` | `L1-002`, `L1-013` | A member who has forgotten their password shall ask for a reset link by email from the Sign in screen, and the answer shall never reveal whether an account has the email given (acceptance criteria 1–8). |
+| `L2-045` | `L1-002`, `L1-013` | A member who opens a valid, unexpired reset link shall set a new password once, which signs them out everywhere (acceptance criteria 1–8). |
 
 ## Diagrams
 
@@ -117,24 +187,30 @@ The member reaches Christian Fitness over HTTPS; the system sends the reset emai
 
 ### Containers
 
-The Member web app posts the email to the API, which reads members and writes password resets in the database and hands the email to the mail relay.
+The Member web app posts the email, and later the link's token and the new password, to the API, which reads members, writes password resets and ends sessions in the database and hands the email to the mail relay.
 
 ![C4 container view for reset a forgotten password](diagrams/c4-container.png)
 
 ### Components
 
-The components below are the parts slice 20.1 touches; the controller sends one MediatR request and the dispatcher delivers mail after the answer.
+The components below are the parts slices 20.1 and 20.2 touch; the controller sends one MediatR request per endpoint and the dispatcher delivers mail after the answer.
 
-![C4 component view for request a reset link](diagrams/c4-component.png)
+![C4 component view for reset a forgotten password](diagrams/c4-component.png)
 
 ### Class structure
 
-The class diagram shows the screen and its helpers, the contract, the request and handler, the domain types they use and the email senders.
+The class diagram shows both screens and their helpers, the contract, the requests and handlers, the domain types they use, the email senders and the session revocation.
 
-![Class diagram for request a reset link](diagrams/class-structure.png)
+![Class diagram for reset a forgotten password](diagrams/class-structure.png)
 
 ### Behaviour — request a reset link
 
 A malformed email never leaves the screen. Any other request is answered 202; only a registered email inside its reset window gets a new password reset and an email (`L2-044`).
 
 ![Sequence diagram for member requests a reset link](diagrams/sequence-request-reset-link.png)
+
+### Behaviour — choose a new password
+
+The screen checks the link before showing the form and never sends a password that is short or typed differently. Saving with a usable link changes the password, uses every link of the member and ends every session in one save; an unusable link is refused 410 `reset_link_expired` (`L2-045`).
+
+![Sequence diagram for member chooses a new password](diagrams/sequence-choose-new-password.png)

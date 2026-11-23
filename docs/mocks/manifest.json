@@ -109,13 +109,15 @@
       "requirements": [],
       "states": [
         "default",
+        "loading",
         "invalid",
         "submitting",
         "success",
+        "failed",
+        "unchecked",
         "error"
       ],
       "not_applicable": {
-        "loading": "Static form.",
         "empty": "A form, not a collection."
       }
     },

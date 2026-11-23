@@ -9,7 +9,7 @@ skinparam class {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-title Class structure — Request a reset link
+title Class structure — Reset a forgotten password
 package "Member web app and libraries" {
   class ForgotPasswordPage {
     +email: Signal<string>
@@ -19,6 +19,27 @@ package "Member web app and libraries" {
     +sentTo: Signal<string|null>
     +submit(): void
     +sendAgain(): void
+  }
+  class ResetPasswordPage {
+    -token: string|null
+    +state: Signal<checking|form|saved|expired|unchecked>
+    +email: Signal<string>
+    +password: Signal<string>
+    +confirm: Signal<string>
+    +errors: Signal<NewPasswordErrors>
+    +submitting: Signal<boolean>
+    +failed: Signal<boolean>
+    +submit(): void
+    +checkAgain(): void
+  }
+  class resetTokenOf <<domain>> {
+    +(fragment: string|null): string|null
+  }
+  class newPasswordErrorsOf <<domain>> {
+    +(password, confirm): NewPasswordErrors
+  }
+  class resetPasswordRefusalOf <<domain>> {
+    +(error): expired|invalid|failed
   }
   class AuthLayout <<components>> {
     +heading, lead, altText, altLink, altHref, altEnd: input
@@ -38,6 +59,12 @@ package "Member web app and libraries" {
   interface AccountApi <<api>> {
     +join(request: JoinRequestDto): Observable<SessionDto>
     +requestPasswordReset(request: PasswordResetRequestDto): Observable<void>
+    +checkPasswordReset(request: PasswordResetTokenDto): Observable<PasswordResetCheckDto>
+    +completePasswordReset(request: NewPasswordDto): Observable<void>
+  }
+  class NewPasswordDto <<api>> {
+    +token: string
+    +password: string
   }
   class PasswordResetRequestDto <<api>> {
     +email: string
@@ -55,6 +82,20 @@ package "Christian Fitness API, Application and Domain" {
   class RequestPasswordResetHandler {
     +Handle(c): Task
   }
+  class CheckPasswordResetHandler {
+    +Handle(q): Task<PasswordResetCheckDto>
+  }
+  class CompletePasswordResetCommand {
+    +string Token
+    +string Password
+  }
+  class CompletePasswordResetValidator
+  class CompletePasswordResetHandler {
+    +Handle(c): Task
+  }
+  interface ISessionRevocation {
+    +EndAllAsync(memberId, ct): Task
+  }
   interface IEmailSender {
     +SendAsync(message: EmailMessage, ct): Task
   }
@@ -69,6 +110,9 @@ package "Christian Fitness API, Application and Domain" {
     +string TokenHash
     +DateTimeOffset RequestedAt
     +DateTimeOffset ExpiresAt
+    +DateTimeOffset? UsedAt <<concurrency token>>
+    +IsUsableAt(now): bool
+    +Use(now): void
     +{static} Issue(memberId, now): IssuedPasswordReset
     +{static} HashOf(token): string
   }
@@ -82,6 +126,8 @@ package "Christian Fitness API, Application and Domain" {
     +Guid Id
     +string NormalizedEmail
     +string Email
+    +string PasswordHash
+    +ChangePassword(hash): void
   }
 }
 package "Infrastructure" {
@@ -89,6 +135,7 @@ package "Infrastructure" {
   class EmailDispatcher <<BackgroundService>>
   class SmtpEmailTransport <<MailKit>>
   class RecordingEmailSender
+  class DatabaseSessionRevocation
 }
 ForgotPasswordPage --> AuthLayout
 ForgotPasswordPage ..> emailErrorOf
@@ -109,4 +156,18 @@ RecordingEmailSender ..|> IEmailSender
 QueuedEmailSender --> EmailDispatcher : channel
 EmailDispatcher --> SmtpEmailTransport
 PasswordReset --> Member
+ResetPasswordPage --> AuthLayout
+ResetPasswordPage ..> resetTokenOf
+ResetPasswordPage ..> newPasswordErrorsOf
+ResetPasswordPage ..> resetPasswordRefusalOf
+ResetPasswordPage ..> AccountApi : injects ACCOUNT_SERVICE
+AccountApi ..> NewPasswordDto
+AccountController ..> CompletePasswordResetCommand : sends
+CompletePasswordResetValidator ..> CompletePasswordResetCommand : validates
+CompletePasswordResetHandler ..> CompletePasswordResetCommand : handles
+CheckPasswordResetHandler ..> PasswordReset : finds by hash
+CompletePasswordResetHandler ..> PasswordReset : uses
+CompletePasswordResetHandler ..> Member : changes password
+CompletePasswordResetHandler ..> ISessionRevocation
+DatabaseSessionRevocation ..|> ISessionRevocation
 @enduml
