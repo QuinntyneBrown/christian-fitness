@@ -39,7 +39,7 @@ export class WebJoinPage {
     this.form = this.main.locator('.auth__form');
     this.heading = this.form.getByRole('heading', { level: 1 });
     this.fullName = this.form.getByLabel('Full name');
-    this.email = this.form.getByLabel('Email');
+    this.email = this.form.getByLabel('Email', { exact: true });
     this.password = this.form.getByLabel('Password');
     this.homeChurch = this.form.getByLabel('Home church');
     this.inputs = this.form.locator('.field .input');

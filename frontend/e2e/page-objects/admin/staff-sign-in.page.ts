@@ -34,7 +34,7 @@ export class AdminStaffSignInPage {
     this.submitButton = this.card.locator('.auth__submit .btn');
     this.alert = this.card.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
-    this.alertText = this.alert.locator('.form-alert__title + p');
+    this.alertText = this.alert.locator('.form-alert__text');
     this.note = this.card.locator('.staff__note');
   }
 

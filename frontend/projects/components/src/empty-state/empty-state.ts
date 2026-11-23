@@ -30,4 +30,15 @@ export class EmptyState {
   readonly headingTag = input<'h2' | 'p'>('h2');
   /** A load error's reference, such as "CF-A2E4". */
   readonly reference = input<string>();
+
+  /** The inline sentence: the heading, then the text if there is one. */
+  protected inlineText(): string {
+    const text = this.text();
+    return text ? `${this.heading()} ${text}` : this.heading();
+  }
+
+  /** The title's classes: the card's own block for a card, the empty state's otherwise. */
+  protected titleClass(): string {
+    return this.variant() === 'card' ? 'display empty-card__title' : 'display empty-state__title';
+  }
 }

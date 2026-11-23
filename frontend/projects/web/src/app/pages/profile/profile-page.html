@@ -1,17 +1,41 @@
 <main id="main" class="profile-page">
   @if (state() === 'loading') {
-    <cf-profile-skeleton />
+    <cf-skeleton-region label="Loading profile" heading>
+      <cf-profile-hero loading />
+      <cf-container page="default">
+        <cf-split variant="profile" flush>
+          <cf-stack gap="sm">
+            <cf-skeleton shape="title" width="20" />
+            <cf-skeleton width="90" />
+            <cf-skeleton width="80" />
+          </cf-stack>
+          <cf-stack gap="sm">
+            <cf-skeleton shape="title" width="30" />
+            <cf-skeleton shape="tile" />
+            <cf-skeleton shape="tile" />
+          </cf-stack>
+        </cf-split>
+      </cf-container>
+    </cf-skeleton-region>
   } @else if (state() === 'failed') {
-    <div class="container page">
+    <cf-container page="default">
       <h1 class="display page-title">Profile</h1>
-      <cf-error-state
+      <cf-empty-state
+        variant="error"
         heading="Your profile didn't load"
         text="We couldn't reach Christian Fitness. Check your connection and try again."
-        backHref="/home"
-        backLabel="Back to home"
-        (retry)="retry()"
-      />
-    </div>
+      >
+        <cf-button slot="actions" size="sm" (click)="retry()"
+          ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" /></svg
+          >Try again</cf-button
+        >
+        <cf-button slot="actions" size="sm" variant="secondary" href="/home"
+          >Back to home</cf-button
+        >
+      </cf-empty-state>
+    </cf-container>
   } @else {
     @if (profile(); as p) {
       <cf-profile-hero
@@ -21,53 +45,64 @@
         [homeChurch]="p.homeChurch"
         [city]="p.city"
       />
-      <div class="container page">
-        <div class="split split--profile">
+      <cf-container page="default">
+        <cf-split variant="profile" flush>
           <div>
             <h2 class="display section-title">About</h2>
             @if (p.bio) {
               <p class="prose lead">{{ p.bio }}</p>
             } @else {
-              <cf-empty-inline text="Add a short bio so people at events know who you are." />
+              <cf-empty-state
+                variant="inline"
+                heading="Add a short bio so people at events know who you are."
+              />
             }
             <h2 class="display section-title mt-section">Goals this year</h2>
             @if (p.goals.length > 0) {
-              <ul class="goals">
-                @for (goal of p.goals; track $index) {
-                  <li>{{ goal }}</li>
-                }
-              </ul>
+              <cf-list variant="goals" [items]="p.goals" [template]="goalRow" />
             } @else {
-              <cf-empty-inline
-                text="What are you working toward this year? Goals you add show here."
+              <cf-empty-state
+                variant="inline"
+                heading="What are you working toward this year? Goals you add show here."
               />
             }
             <h2 class="display section-title mt-section">Into</h2>
             @if (p.interests.length > 0) {
               <cf-tag-list [tags]="p.interests" />
             } @else {
-              <cf-empty-inline text="No interests yet." />
+              <cf-empty-state variant="inline" heading="No interests yet." />
             }
           </div>
-          <aside class="aside-stack" aria-label="Events">
-            <section aria-labelledby="going-title">
-              <h2 class="display section-title" id="going-title">Going to</h2>
-              @if (p.going.length > 0) {
-                <cf-going-list [items]="p.going" />
-              } @else {
-                <cf-empty-inline text="Not going to anything yet.">
-                  <cf-text-link slot="action" href="/events"
-                    >Browse events
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M5 12h14" />
-                      <path d="m12 5 7 7-7 7" /></svg
-                  ></cf-text-link>
-                </cf-empty-inline>
-              }
-            </section>
+          <aside aria-label="Events">
+            <cf-stack gap="aside">
+              <section aria-labelledby="going-title">
+                <h2 class="display section-title" id="going-title">Going to</h2>
+                @if (p.going.length > 0) {
+                  <cf-list variant="going" [items]="p.going" [template]="goingRow" />
+                } @else {
+                  <cf-empty-state variant="inline" heading="Not going to anything yet.">
+                    <cf-link slot="actions" variant="text" href="/events"
+                      >Browse events
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" /></svg
+                    ></cf-link>
+                  </cf-empty-state>
+                }
+              </section>
+            </cf-stack>
           </aside>
-        </div>
-      </div>
+        </cf-split>
+      </cf-container>
     }
   }
 </main>
+<ng-template #goalRow let-goal>{{ goal.text }}</ng-template>
+<ng-template #goingRow let-event>
+  <cf-going-item
+    [href]="event.href"
+    [date]="event.date"
+    [title]="event.title"
+    [imageUrl]="event.imageUrl"
+  />
+</ng-template>

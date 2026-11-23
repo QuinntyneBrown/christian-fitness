@@ -47,7 +47,7 @@ export class WebResetPasswordPage {
     this.backLink = this.alt.getByRole('link', { name: 'Back to sign in' });
     this.alert = this.form.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
-    this.alertText = this.alert.locator('.form-alert__title + p');
+    this.alertText = this.alert.locator('.form-alert__text');
     this.alertLinks = this.alert.getByRole('link');
   }
 

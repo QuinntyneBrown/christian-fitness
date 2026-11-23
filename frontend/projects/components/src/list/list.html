@@ -1,5 +1,5 @@
 <ul [attr.class]="classes()" [attr.aria-label]="label() ?? null">
-  @for (item of items(); track item.id) {
-    <li><ng-container *ngTemplateOutlet="template(); context: { $implicit: item }" /></li>
+  @for (row of rows(); track row.$implicit.id) {
+    <li><ng-container [ngTemplateOutlet]="template()" [ngTemplateOutletContext]="row" /></li>
   }
 </ul>

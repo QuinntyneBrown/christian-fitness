@@ -1,0 +1,15 @@
+// The design system's grid (docs/design-system/assets/components.css, "Layout primitives: stack,
+// grid").
+:host {
+  display: block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr));
+  gap: var(--layout-gutter);
+}
+
+.grid--cards {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--space-24) * 3)), 1fr));
+}

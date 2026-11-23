@@ -1,0 +1,9 @@
+<a class="going-item" [href]="href()">
+  @if (imageUrl(); as image) {
+    <img class="going-item__image" [src]="image" alt="" width="128" height="72" />
+  }
+  <span class="mini-row__body">
+    <span class="going-item__date">{{ date() }}</span>
+    <span class="mini-row__name">{{ title() }}</span>
+  </span>
+</a>

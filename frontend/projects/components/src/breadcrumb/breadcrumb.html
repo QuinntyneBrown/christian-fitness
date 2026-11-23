@@ -1,0 +1,28 @@
+<nav
+  [attr.class]="collapsible() ? 'breadcrumb breadcrumb--collapsible' : 'breadcrumb'"
+  aria-label="Breadcrumb"
+>
+  <ol class="breadcrumb__list">
+    @for (item of items(); track $index; let last = $last) {
+      <li class="breadcrumb__item">
+        <a
+          class="breadcrumb__link"
+          [href]="item.href"
+          [attr.aria-current]="last ? 'page' : null"
+          (click)="follow($event, item.href)"
+          >{{ item.label }}</a
+        >
+      </li>
+    }
+    @if (collapsible() && parent(); as up) {
+      <li class="breadcrumb__item--parent-only">
+        <a class="breadcrumb__link" [href]="up.href" (click)="follow($event, up.href)"
+          ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" /></svg
+          >{{ up.label }}</a
+        >
+      </li>
+    }
+  </ol>
+</nav>

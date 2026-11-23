@@ -3,7 +3,7 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { ACCOUNT_SERVICE } from '@cf/api';
-import { AuthLayout, Button, FormAlert, TextField } from '@cf/components';
+import { Alert, AuthLayout, Button, TextField } from '@cf/components';
 import {
   newPasswordErrorsOf,
   newPasswordSummaryOf,
@@ -29,7 +29,7 @@ type ResetState = 'checking' | 'form' | 'saved' | 'expired' | 'unchecked';
  */
 @Component({
   selector: 'cf-reset-password-page',
-  imports: [AuthLayout, Button, FormAlert, TextField],
+  imports: [Alert, AuthLayout, Button, TextField],
   templateUrl: './reset-password-page.html',
   styleUrl: './reset-password-page.scss',
 })

@@ -19,9 +19,9 @@
       }}</span>
     }
   </span>
-  @if (unread() > 0) {
-    <span class="mini-row__count" role="img" [attr.aria-label]="unread() + ' unread'">{{
-      unread()
-    }}</span>
+  @if (conversation()) {
+    <cf-count-badge [count]="unread()" noun="unread" pill />
+  } @else if (unread() > 0) {
+    <cf-unread-dot [label]="unread() + ' unread'" />
   }
 </a>

@@ -1,5 +1,5 @@
 // The design system's lists (docs/design-system/assets/components.css: list-ruled, list-divided,
-// mini-list, goals, and the list card, card--list).
+// mini-list, goals, going-list, and the list card, card--list).
 :host {
   display: block;
 }
@@ -30,6 +30,15 @@
   > li {
     padding-block: var(--space-3-5);
     font-size: var(--font-size-lg);
+    overflow-wrap: anywhere;
+  }
+}
+
+.going-list {
+  margin-top: var(--space-3);
+
+  > li + li {
+    margin-top: var(--space-3);
   }
 }
 

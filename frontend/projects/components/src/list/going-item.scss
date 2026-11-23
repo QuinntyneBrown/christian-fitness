@@ -1,0 +1,53 @@
+// The design system's going item, with the mini-row body and name its text is set in
+// (docs/design-system/assets/components.css: "Profile", "Compact person/conversation rows").
+:host {
+  display: block;
+}
+
+.going-item {
+  display: flex;
+  width: 100%;
+  min-height: var(--target-comfortable);
+  align-items: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  padding: var(--space-3);
+  text-align: left;
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    box-shadow:
+      inset 0 0 0 var(--border-width-hairline) var(--color-border-default),
+      var(--shadow-2);
+  }
+}
+
+.going-item__image {
+  width: var(--size-thumb-w);
+  height: var(--size-thumb-h);
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.mini-row__body {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0%;
+  flex-direction: column;
+}
+
+.going-item__date {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.mini-row__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}

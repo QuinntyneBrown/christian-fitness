@@ -85,19 +85,6 @@
   color: var(--color-fg-default);
 }
 
-.mini-row__count {
-  flex-shrink: 0;
-  min-width: var(--size-icon-md);
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  padding: 0 var(--space-1-5);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--size-icon-md);
-  text-align: center;
-  color: var(--color-fg-on-accent);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mini-row {
     transition: none;

@@ -1,28 +1,9 @@
-// The page area the member shell will provide and the mock's greeting heading
-// (docs/design-system/assets/components.css: container, page, display, page-title--greeting).
+// The mock's greeting heading (docs/design-system/assets/components.css: display,
+// page-title--greeting); the container is cf-container.
 // Slice 13.1 replaces this stand-in (ADR 0007).
 .home-page {
   display: block;
   min-height: 100dvh;
-}
-
-.container {
-  width: 100%;
-  max-width: var(--layout-container-max);
-  margin-inline: auto;
-  padding-inline: var(--space-4);
-
-  @media (min-width: 40rem) {
-    padding-inline: var(--space-6);
-  }
-}
-
-.page {
-  padding-block: var(--space-8);
-
-  @media (min-width: 64rem) {
-    padding-block: var(--space-10);
-  }
 }
 
 .display {

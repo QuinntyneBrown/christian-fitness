@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Button, ErrorPage } from '@cf/components';
+import { Button, Container, ErrorPage } from '@cf/components';
 import { returnPathOf, serverErrorText } from '@cf/domain';
 
 /**
@@ -10,7 +10,7 @@ import { returnPathOf, serverErrorText } from '@cf/domain';
  */
 @Component({
   selector: 'cf-server-error-page',
-  imports: [Button, ErrorPage],
+  imports: [Button, Container, ErrorPage],
   templateUrl: './server-error-page.html',
   styleUrl: './server-error-page.scss',
 })

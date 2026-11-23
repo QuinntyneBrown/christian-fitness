@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Button, ErrorPage } from '@cf/components';
+import { Button, Container, ErrorPage } from '@cf/components';
 
 /**
  * The member app's not-found screen (mock docs/mocks/pages/not-found/), loaded by the wildcard
@@ -7,7 +7,7 @@ import { Button, ErrorPage } from '@cf/components';
  */
 @Component({
   selector: 'cf-not-found-page',
-  imports: [Button, ErrorPage],
+  imports: [Button, Container, ErrorPage],
   templateUrl: './not-found-page.html',
   styleUrl: './not-found-page.scss',
 })

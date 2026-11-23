@@ -91,14 +91,23 @@ describe('MiniRow', () => {
     expect((await miniRow({})).getAttribute('aria-current')).toBeNull();
   });
 
-  // Unread is weight plus a count in words, never weight alone (list.html, "States").
-  it.each<[number, string | null]>([
-    [0, null],
-    [1, '1 unread'],
-    [3, '3 unread'],
-  ])('with %i unread, the count reads %s', async (unread, label) => {
-    const row = await miniRow({ unread });
+  // Unread is weight plus a signal read in words, never weight alone (list.html, "States"): a
+  // person row shows the unread dot, a conversation the count pill (badge.html).
+  it.each<[boolean, number, string | null, string | null]>([
+    [false, 0, null, null],
+    [false, 3, 'unread-dot', ''],
+    [true, 0, null, null],
+    [true, 1, 'count-pill', '1'],
+    [true, 3, 'count-pill', '3'],
+  ])(
+    'as a conversation %s with %i unread, shows %s with text %j',
+    async (conversation, unread, block, text) => {
+      const row = await miniRow({ conversation, unread });
 
-    expect(row.querySelector('.mini-row__count')?.getAttribute('aria-label') ?? null).toBe(label);
-  });
+      const signal = row.querySelector('[aria-label$=" unread"]');
+      expect(signal?.getAttribute('class') ?? null).toBe(block);
+      expect(signal?.getAttribute('aria-label') ?? null).toBe(block ? `${unread} unread` : null);
+      expect(signal?.textContent?.trim() ?? null).toBe(text);
+    },
+  );
 });

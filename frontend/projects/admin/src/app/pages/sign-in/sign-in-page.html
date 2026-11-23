@@ -5,53 +5,39 @@
   (submitted)="submit()"
 >
   @if (refusal() === 'invalid-credentials') {
-    <cf-form-alert
-      slot="alert"
-      heading="Email or password is incorrect"
-      text="Check both and try again."
-    />
+    <cf-alert slot="alert" heading="Email or password is incorrect"
+      >Check both and try again.</cf-alert
+    >
   } @else if (refusal() === 'not-staff') {
-    <cf-form-alert
-      slot="alert"
-      heading="This account isn't on the team"
-      text="The admin console is for the Christian Fitness team. On the team? Ask a community director to give you staff access."
-    />
+    <cf-alert slot="alert" heading="This account isn't on the team"
+      >The admin console is for the Christian Fitness team. On the team? Ask a community director to
+      give you staff access.</cf-alert
+    >
   } @else if (refusal() === 'two-step-not-set-up') {
-    <cf-form-alert
-      slot="alert"
-      heading="Two-step verification isn't set up"
-      text="Ask an Admin to set it up for your account, then sign in again."
-    />
+    <cf-alert slot="alert" heading="Two-step verification isn't set up"
+      >Ask an Admin to set it up for your account, then sign in again.</cf-alert
+    >
   } @else if (refusal() === 'too-many-attempts') {
-    <cf-form-alert
-      slot="alert"
-      heading="Sign-in paused for 15 minutes"
-      text="Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again."
-    />
+    <cf-alert slot="alert" heading="Sign-in paused for 15 minutes"
+      >Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try
+      again.</cf-alert
+    >
   } @else if (refusal() === 'two-step-expired') {
-    <cf-form-alert
-      slot="alert"
-      heading="Sign in again"
-      text="Your sign-in timed out before a code was entered. Sign in again to get a new code."
-    />
+    <cf-alert slot="alert" heading="Sign in again"
+      >Your sign-in timed out before a code was entered. Sign in again to get a new code.</cf-alert
+    >
   } @else if (refusal() === 'two-step-locked') {
-    <cf-form-alert
-      slot="alert"
-      heading="Too many codes tried"
-      text="For your security, wait 15 minutes, then sign in again."
-    />
+    <cf-alert slot="alert" heading="Too many codes tried"
+      >For your security, wait 15 minutes, then sign in again.</cf-alert
+    >
   } @else if (refusal() === 'session-expired') {
-    <cf-form-alert
-      slot="alert"
-      heading="Your session expired"
-      text="You were signed out after 30 minutes without activity. Sign in again to carry on."
-    />
+    <cf-alert slot="alert" heading="Your session expired"
+      >You were signed out after 30 minutes without activity. Sign in again to carry on.</cf-alert
+    >
   } @else if (refusal() === 'failed') {
-    <cf-form-alert
-      slot="alert"
-      heading="We couldn't sign you in"
-      text="Something went wrong on our side. Try again in a moment."
-    />
+    <cf-alert slot="alert" heading="We couldn't sign you in"
+      >Something went wrong on our side. Try again in a moment.</cf-alert
+    >
   }
   <cf-text-field
     slot="fields"
@@ -84,9 +70,7 @@
     [busy]="submitting()"
   >
     @if (submitting()) {
-      <svg class="icon icon--spin" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg
-      >Signing in…
+      Signing in…
     } @else {
       Sign in
     }

@@ -1,14 +1,18 @@
 import { booleanAttribute, Component, input } from '@angular/core';
+import { CountBadge } from '../badge/count-badge';
+import { UnreadDot } from '../badge/unread-dot';
 
 /**
  * The design system's compact person row (docs/design-system/components/list.html, "Mini row"
  * and "Conversation"): one link that wraps the avatar (projected through `[slot=avatar]`, a
  * decorative `cf-avatar`), the name, the time and the last line. As a `conversation` (the inbox),
- * the open one is `current` (`aria-current="true"`). Unread is bold text plus a count in words
- * ("3 unread"), so weight is never the only signal. Words are rendered as text.
+ * the open one is `current` (`aria-current="true"`). Unread is bold text plus a signal read in
+ * words ("3 unread"), so weight is never the only signal: `cf-unread-dot` on a person row and the
+ * `cf-count-badge` pill on a conversation. Words are rendered as text.
  */
 @Component({
   selector: 'cf-mini-row',
+  imports: [CountBadge, UnreadDot],
   templateUrl: './mini-row.html',
   styleUrl: './mini-row.scss',
 })

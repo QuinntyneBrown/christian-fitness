@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { ACCOUNT_SERVICE, INTERESTS, type InterestKey } from '@cf/api';
-import { AuthLayout, Button, FormAlert, InterestPicker, TextField } from '@cf/components';
+import { Alert, AuthLayout, Button, Interest, InterestList, TextField } from '@cf/components';
 import {
   clearFieldError,
   errorSummaryOf,
@@ -34,7 +34,7 @@ import {
  */
 @Component({
   selector: 'cf-join-page',
-  imports: [AuthLayout, Button, FormAlert, InterestPicker, TextField],
+  imports: [Alert, AuthLayout, Button, Interest, InterestList, TextField],
   templateUrl: './join-page.html',
   styleUrl: './join-page.scss',
 })

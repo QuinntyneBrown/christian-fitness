@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { STAFF_SESSION_SERVICE } from '@cf/api';
-import { Button, FormAlert, StaffLayout, TextField } from '@cf/components';
+import { Alert, Button, StaffLayout, TextField } from '@cf/components';
 import {
   sessionEndingOf,
   staffSignInRefusalOf,
@@ -28,7 +28,7 @@ type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked' |
  */
 @Component({
   selector: 'cf-sign-in-page',
-  imports: [Button, FormAlert, StaffLayout, TextField],
+  imports: [Alert, Button, StaffLayout, TextField],
   templateUrl: './sign-in-page.html',
   styleUrl: './sign-in-page.scss',
 })

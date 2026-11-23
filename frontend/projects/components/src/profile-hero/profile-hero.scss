@@ -1,5 +1,5 @@
-// The design system's profile-hero block (docs/design-system/assets/components.css, "Profile"),
-// with the display face and page-title size of its heading.
+// The profile-hero block (docs/design-system/assets/components.css, "Profile"), with the display
+// face and page-title size of its heading; the avatar and skeletons bring their own look.
 :host {
   display: block;
 }
@@ -28,26 +28,15 @@
   }
 }
 
-.profile-hero__avatar {
-  display: flex;
-  width: var(--size-avatar-3xl);
-  height: var(--size-avatar-3xl);
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-fg-on-accent);
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-5xl);
-  font-style: italic;
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-none);
-}
-
 .profile-hero__body {
   min-width: 0;
   flex: 1 1 0%;
+}
+
+.profile-hero__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .profile-hero__name {

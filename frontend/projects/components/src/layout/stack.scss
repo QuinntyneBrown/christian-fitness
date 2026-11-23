@@ -1,0 +1,28 @@
+// The design system's stack and aside stack (docs/design-system/assets/components.css, "Layout
+// primitives: stack, grid", "Layout").
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, var(--space-4));
+}
+
+.stack--sm {
+  --stack-gap: var(--space-2);
+}
+
+.stack--section {
+  --stack-gap: var(--space-5);
+}
+
+.stack--lg {
+  --stack-gap: var(--space-8);
+}
+
+.stack--aside {
+  --stack-gap: var(--space-10);
+}
