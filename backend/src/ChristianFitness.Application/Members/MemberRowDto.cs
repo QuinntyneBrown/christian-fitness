@@ -5,11 +5,20 @@ namespace ChristianFitness.Application.Members;
 /// <summary>
 /// A member as the admin Members table shows them (L2-028 AC1; ADR 0022): the join date as an
 /// instant in UTC, which the app shows in Toronto, and the status by its lower-case name. The home
-/// church is optional and sensitive: it is answered for display and never logged (L2-033). This is
+/// church is optional and sensitive, and the note is staff's own words about a person: both are
+/// answered for display and never logged (L2-033). This is
 /// a class, not a record, so no generated <c>ToString</c> can print the email or the home church.
 /// </summary>
-public sealed class MemberRowDto(Guid id, string name, string email, string? homeChurch, DateTimeOffset joinedAt, int eventsAttended, string status)
+public sealed class MemberRowDto(Guid id, string name, string email, string? homeChurch, DateTimeOffset joinedAt, int eventsAttended, string status, string? note)
 {
+    /// <summary>The member as staff see them, with <paramref name="eventsAttended"/> from the registrations.</summary>
+    public static MemberRowDto Of(Member member, int eventsAttended)
+    {
+        ArgumentNullException.ThrowIfNull(member);
+        return new MemberRowDto(
+            member.Id, member.Name, member.Email, member.HomeChurch, member.JoinedAt, eventsAttended, MemberStatusNames.Of(member.Status), member.ModerationNote);
+    }
+
     public Guid Id { get; } = id;
 
     public string Name { get; } = name;
@@ -24,6 +33,9 @@ public sealed class MemberRowDto(Guid id, string name, string email, string? hom
     public int EventsAttended { get; } = eventsAttended;
 
     public string Status { get; } = status;
+
+    /// <summary>Why staff last flagged or suspended them, in staff's words; none otherwise (L2-029 AC1).</summary>
+    public string? Note { get; } = note;
 }
 
 /// <summary>

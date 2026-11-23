@@ -37,7 +37,7 @@ public sealed class ListAdminMembersTests
 
         var second = list.GetProperty("members")[1];
         Assert.Equal(
-            ["email", "eventsAttended", "homeChurch", "id", "joinedAt", "name", "status"],
+            ["email", "eventsAttended", "homeChurch", "id", "joinedAt", "name", "note", "status"],
             second.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(kevin, second.GetProperty("id").GetGuid());
         Assert.Equal("KBrooks.Fit@gmail.com", second.GetProperty("email").GetString());

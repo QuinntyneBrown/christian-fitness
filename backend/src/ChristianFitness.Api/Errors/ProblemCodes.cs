@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Events;
+using ChristianFitness.Application.Members;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,7 +54,8 @@ public static class ProblemCodes
     /// The 400 answer to a body that failed validation (L2-032 AC1): the field errors keyed by the
     /// camel-case field name, each with its fixed sentence, and the code <c>field_too_long</c> when
     /// any field is over its limit (L2-003 AC6), else <c>validation_failed</c>. A failure whose code
-    /// is a field's own code, such as an event's <c>title_required</c> (L2-022 AC2; ADR 0021), is also
+    /// is a field's own code, such as an event's <c>title_required</c> (L2-022 AC2; ADR 0021) or a
+    /// moderation's <c>note_required</c> (L2-029 AC5; ADR 0023), is also
     /// named in a <c>fieldCodes</c> extension: the field's camel-case name and its first code. A body
     /// with no such failure, such as Join's, has no <c>fieldCodes</c>.
     /// </summary>
@@ -69,7 +71,7 @@ public static class ProblemCodes
             Extensions = { ["code"] = CodeFor(list.Select(failure => failure.ErrorCode)) },
         };
         var fieldCodes = list
-            .Where(failure => CreateEventValidator.FieldCodes.Contains(failure.ErrorCode))
+            .Where(failure => CreateEventValidator.FieldCodes.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode))
             .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First().ErrorCode, StringComparer.Ordinal);
         if (fieldCodes.Count > 0)

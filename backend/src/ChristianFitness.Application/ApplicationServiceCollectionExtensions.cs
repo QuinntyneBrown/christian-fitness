@@ -1,3 +1,4 @@
+using ChristianFitness.Application.Members;
 using ChristianFitness.Application.Account;
 using ChristianFitness.Application.Behaviors;
 using ChristianFitness.Application.Sessions;
@@ -21,6 +22,7 @@ public static class ApplicationServiceCollectionExtensions
             configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
         services.AddScoped<MemberCredentials>();
+        services.AddScoped<ModerationTarget>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();
