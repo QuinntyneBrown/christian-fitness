@@ -38,7 +38,10 @@ interface Unsent {
  * up; when they push the newest off the end of the window, live messages are not added out of place
  * and "Back to the latest messages" reloads the end. A message that cannot be sent stays in the
  * thread marked "Not sent", and Try again sends it again. When staff cancel the event, from the
- * stored history or live (slice 12.3; ADR 0041), a notice replaces the composer.
+ * stored history or live (slice 12.3; ADR 0041), a notice replaces the composer. At
+ * `/messages/:id` it is a private conversation with that member (slice 14.1; ADR 0043): the same
+ * thread and composer, joined and sent through the direct hub methods, and a member who cannot be
+ * messaged (`recipient_unavailable`) is told so.
  */
 @Component({
   selector: 'cf-event-chat-page',
@@ -55,6 +58,8 @@ export class EventChatPage {
   private readonly history = inject(CHAT_HISTORY);
   private readonly destroyRef = inject(DestroyRef);
   private id = '';
+  /** A private conversation with the member `id` (slice 14.1; ADR 0043), not an event's group chat. */
+  protected readonly direct = inject(ActivatedRoute).snapshot.data['direct'] === true;
 
   protected readonly eventHref = signal('/events');
   protected readonly state = signal<'connecting' | 'open' | 'refused' | 'failed'>('connecting');
@@ -109,7 +114,7 @@ export class EventChatPage {
       .paramMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
         this.id = params.get('id') ?? '';
-        this.eventHref.set(`/events/${this.id}`);
+        this.eventHref.set(this.direct ? '/messages' : `/events/${this.id}`);
         void this.open();
       });
   }
@@ -122,7 +127,7 @@ export class EventChatPage {
   /** Sends the member's message; a refusal or failure leaves it in the thread, marked "Not sent". */
   protected async send(text: string): Promise<void> {
     try {
-      const answer = await this.chat.send(this.id, text);
+      const answer = await this.chat.send(this.id, text, this.direct);
       if (answer.code === null) return;
     } catch {
       // The connection is down: the message is kept below.
@@ -148,7 +153,7 @@ export class EventChatPage {
     this.loadingEarlier.set(true);
     this.earlierFailed.set(false);
     try {
-      const page = await this.once(this.history.before(this.id, oldest.id));
+      const page = await this.once(this.history.before(this.id, oldest.id, this.direct));
       if (this.destroyRef.destroyed) return;
       const next = withEarlierMessages(this.window(), page.messages);
       this.window.set(next.messages);
@@ -164,7 +169,7 @@ export class EventChatPage {
   /** Reloads the latest 50 after older messages pushed the newest out of the window. */
   protected async loadLatest(): Promise<void> {
     try {
-      const page = await this.once(this.history.latest(this.id));
+      const page = await this.once(this.history.latest(this.id, this.direct));
       if (this.destroyRef.destroyed) return;
       this.window.set(page.messages);
       this.hasEarlier.set(page.hasMore);
@@ -190,7 +195,7 @@ export class EventChatPage {
       this.marking = false;
       if (this.markAgain) this.markRead();
     };
-    this.history.markRead(this.id).subscribe({ complete: done, error: done });
+    this.history.markRead(this.id, this.direct).subscribe({ complete: done, error: done });
   }
 
   /** The one answer of an HTTP call, left unsettled if the screen is destroyed first. */
@@ -211,14 +216,14 @@ export class EventChatPage {
     this.atLatest.set(true);
     this.cancelled.set(false);
     try {
-      const answer = await this.chat.join(this.id);
+      const answer = await this.chat.join(this.id, this.direct);
       if (this.destroyRef.destroyed) return;
-      if (answer.code === 'not_a_participant') {
+      if (answer.code === 'not_a_participant' || answer.code === 'recipient_unavailable') {
         this.state.set('refused');
       } else if (answer.code !== null) {
         this.state.set('failed');
       } else {
-        const page = await this.once(this.history.latest(this.id));
+        const page = await this.once(this.history.latest(this.id, this.direct));
         if (this.destroyRef.destroyed) return;
         // Messages that arrived while the history loaded are already in the window; keep them.
         let held: readonly ChatMessageDto[] = page.messages;

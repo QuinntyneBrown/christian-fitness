@@ -77,6 +77,14 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/messages/messages-page').then((m) => m.MessagesPage),
       },
       {
+        // A private conversation with a member: the chat page in its direct form (L2-014; ADR 0043).
+        path: 'messages/:id',
+        title: titled('Direct message'),
+        data: { direct: true },
+        loadComponent: () =>
+          import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
+      },
+      {
         // Another member's public profile (L2-005 AC3; ADR 0038).
         path: 'members/:id',
         title: titled('Member'),

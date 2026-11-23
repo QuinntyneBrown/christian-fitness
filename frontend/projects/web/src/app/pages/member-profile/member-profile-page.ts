@@ -17,6 +17,7 @@ import { HttpProfileService } from '../../services/http-profile.service';
 
 /** What the screen shows of another member: only their public fields (ADR 0038). */
 interface MemberView {
+  id: string;
   name: string;
   initials: string;
   homeChurch: string | null;
@@ -39,6 +40,7 @@ interface MemberView {
 })
 export class MemberProfilePage {
   private readonly profiles = inject(PROFILE_SERVICE);
+  private memberId = '';
 
   protected readonly state = signal<'loading' | 'loaded' | 'failed'>('loading');
   protected readonly member = signal<MemberView | null>(null);
@@ -47,12 +49,16 @@ export class MemberProfilePage {
     inject(ActivatedRoute)
       .paramMap.pipe(
         tap(() => this.state.set('loading')),
-        switchMap((params) => this.profiles.member(params.get('id') ?? '')),
+        switchMap((params) => {
+          this.memberId = params.get('id') ?? '';
+          return this.profiles.member(this.memberId);
+        }),
         takeUntilDestroyed(inject(DestroyRef)),
       )
       .subscribe({
         next: (profile) => {
           this.member.set({
+            id: this.memberId,
             name: profile.name,
             initials: initialsOf(profile.name),
             homeChurch: profile.homeChurch ?? null,

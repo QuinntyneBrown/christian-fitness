@@ -107,6 +107,62 @@ internal sealed class ListConversationsHandler(IAppDbContext db, ICurrentMember 
             newest.TryGetValue(c.Id, out var message) ? new LastMessageDto(names[message.AuthorId], message.Text, message.SentAt) : null,
             unread.GetValueOrDefault(c.Id),
             c.ActivityAt)).ToList();
-        return new ConversationListDto(rows);
+        var direct = await DirectRowsAsync(me, cancellationToken).ConfigureAwait(false);
+        return new ConversationListDto([.. rows.Concat(direct).OrderByDescending(r => r.ActivityAt).ThenBy(r => r.Id).Take(Window)]);
+    }
+
+    /// <summary>
+    /// The caller's direct conversations, newest first, at most <see cref="Window"/> (slice 14.1; ADR 0043):
+    /// one row per member they have exchanged a message with, named for that member, with no member count.
+    /// </summary>
+    private async Task<List<ConversationSummaryDto>> DirectRowsAsync(Guid me, CancellationToken cancellationToken)
+    {
+        var partners = (await db.DirectMessages.AsNoTracking()
+                .Where(m => m.SenderId == me || m.RecipientId == me)
+                .Select(m => new { Partner = m.SenderId == me ? m.RecipientId : m.SenderId, m.SentAt })
+                .GroupBy(m => m.Partner)
+                .Select(g => new { Partner = g.Key, SentAt = g.Max(m => m.SentAt) })
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false))
+            .OrderByDescending(p => p.SentAt).ThenBy(p => p.Partner)
+            .Take(Window)
+            .ToList();
+        var ids = partners.Select(p => p.Partner).ToList();
+        var names = await db.Members.AsNoTracking()
+            .Where(m => ids.Contains(m.Id))
+            .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
+            .ConfigureAwait(false);
+        var unread = await (
+            from m in db.DirectMessages.AsNoTracking()
+            where m.RecipientId == me && ids.Contains(m.SenderId)
+            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == me) on m.SenderId equals k.EventId into markers
+            from k in markers.DefaultIfEmpty()
+            where k == null || m.SentAt > k.ReadAt
+            group m by m.SenderId into g
+            select new { Partner = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.Partner, g => g.Count, cancellationToken)
+            .ConfigureAwait(false);
+
+        var rows = new List<ConversationSummaryDto>(partners.Count);
+        foreach (var partner in partners)
+        {
+            var other = partner.Partner;
+            var last = await db.DirectMessages.AsNoTracking()
+                .Where(m => (m.SenderId == me && m.RecipientId == other) || (m.SenderId == other && m.RecipientId == me))
+                .OrderByDescending(m => m.SentAt).ThenByDescending(m => m.Id)
+                .FirstAsync(cancellationToken)
+                .ConfigureAwait(false);
+            var author = last.SenderId == me ? "You" : names.GetValueOrDefault(other, string.Empty);
+            rows.Add(new ConversationSummaryDto(
+                "direct",
+                other,
+                names.GetValueOrDefault(other, string.Empty),
+                null,
+                new LastMessageDto(author, last.Text, last.SentAt),
+                unread.GetValueOrDefault(other),
+                partner.SentAt));
+        }
+
+        return rows;
     }
 }

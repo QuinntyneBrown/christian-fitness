@@ -23,14 +23,14 @@ export class SignalRChatConnection implements ChatConnection, OnDestroy {
   readonly messages = this.incoming.asObservable();
   readonly cancelled = this.cancelledEvents.asObservable();
 
-  async join(eventId: string): Promise<ChatAnswerDto> {
+  async join(eventId: string, direct = false): Promise<ChatAnswerDto> {
     const connection = await this.connect();
-    return connection.invoke<ChatAnswerDto>('Join', eventId);
+    return connection.invoke<ChatAnswerDto>(direct ? 'JoinDirect' : 'Join', eventId);
   }
 
-  async send(eventId: string, text: string): Promise<ChatAnswerDto> {
+  async send(eventId: string, text: string, direct = false): Promise<ChatAnswerDto> {
     const connection = await this.connect();
-    return connection.invoke<ChatAnswerDto>('Send', eventId, text);
+    return connection.invoke<ChatAnswerDto>(direct ? 'SendDirect' : 'Send', eventId, text);
   }
 
   ngOnDestroy(): void {

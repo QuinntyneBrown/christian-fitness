@@ -1,10 +1,12 @@
 <main id="main" class="chat-page">
   @if (state() === 'open') {
     <header class="chat-page__head">
-      <cf-link [href]="eventHref()" variant="back">Back to event</cf-link>
+      <cf-link [href]="eventHref()" variant="back">{{
+        direct ? 'Back to messages' : 'Back to event'
+      }}</cf-link>
       <div class="chat-page__who">
         <h1 class="chat-page__name">{{ title() }}</h1>
-        <p class="chat-page__sub">Event group</p>
+        <p class="chat-page__sub">{{ direct ? 'Direct message' : 'Event group' }}</p>
       </div>
     </header>
     <cf-thread
@@ -41,13 +43,23 @@
       <cf-skeleton shape="text" width="50" />
     </cf-skeleton-region>
   } @else if (state() === 'refused') {
-    <cf-empty-state
-      variant="error"
-      heading="You're not in this group chat"
-      text="Only members registered for the event can read and send messages here."
-    >
-      <cf-button slot="actions" size="sm" [href]="eventHref()">Back to event</cf-button>
-    </cf-empty-state>
+    @if (direct) {
+      <cf-empty-state
+        variant="error"
+        heading="You can't message this member"
+        text="This member isn't available to message right now."
+      >
+        <cf-button slot="actions" size="sm" [href]="eventHref()">Back to messages</cf-button>
+      </cf-empty-state>
+    } @else {
+      <cf-empty-state
+        variant="error"
+        heading="You're not in this group chat"
+        text="Only members registered for the event can read and send messages here."
+      >
+        <cf-button slot="actions" size="sm" [href]="eventHref()">Back to event</cf-button>
+      </cf-empty-state>
+    }
   } @else {
     <cf-empty-state
       variant="error"
@@ -55,9 +67,9 @@
       text="We couldn't reach the chat. Check your connection and try again."
     >
       <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
-      <cf-button slot="actions" size="sm" variant="secondary" [href]="eventHref()"
-        >Back to event</cf-button
-      >
+      <cf-button slot="actions" size="sm" variant="secondary" [href]="eventHref()">{{
+        direct ? 'Back to messages' : 'Back to event'
+      }}</cf-button>
     </cf-empty-state>
   }
 </main>

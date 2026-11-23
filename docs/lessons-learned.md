@@ -5,7 +5,7 @@ merges. Read this file before starting a slice and apply what fits.
 
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 62% (35 of 57 slices; 56 of 91 days)
+**% complete:** 75% (41 of 57 slices; 68 of 91 days)
 **% complete:** 60% (34 of 57 slices; 55 of 91 days)
 
 ## Slice 1.1: Frontend workspace
@@ -1844,3 +1844,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Use the Edit and Write tools" (7.1 on): followed; two small Node replace snippets asserted every match.
 - "Count a slice's new specs against the CI budget" (24.1): six specs (list, open chat, read as it arrives, empty, failed and
   retry, header destination), each short.
+
+## Slice 14.1: Direct messages
+
+**What slowed it**
+
+- A shell command that began `cat > /tmp/x` hung the harness for two minutes and applied none of the edits chained after it. Use the Edit and Write tools, one change per call; two throwaway Node replace scripts also failed on regex and quote escaping and were abandoned.
+- The conversation is the pair, so the "conversation id" differs per viewer. Keying each pushed message by the other member's id (`Clients.User` to both sides) let the existing page filter by id with no group and no join bookkeeping.
+- Four test doubles of `IAppDbContext` each needed the new `DbSet` line, as for 15.1.
+- A direct row's last-message lookup is one query per partner (at most 50); a correlated subquery was not worth its risk here.
+- Side by side at LG (L2-015 AC3) is still deferred: it needs the list and the thread in one routed shell, and group chats live outside it (ADR 0043).
+
+**New lessons**
+
+- Reuse a generic key column rather than a table: `ChatReadMarkers` holds the other member's id for a direct chat, so unread counts and the marker rule come free.
+- Refuse unknown, suspended and own ids with one code so the answer reveals nothing; prove each with a loop over the three ids and break the Suspended condition alone to see only that test fail.
+- A route `data` flag plus an optional `direct` argument on the two contracts served both chat kinds without a second page; the fixture needed only wider URL regexes and target names.
+- Initial bundle: web 279.14 kB (was 279.01), admin 279.25 kB, both under 280; the page, the service and the route are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 15.1): removing the Suspended check failed only the unavailable test; undone with the inverse edit.
+- "Advance `FakeTimeProvider` between sends" (15.1): every `SayAsync` advances it, so ordering and unread are by instant.
+- "Pin the browser clock for screens that show time" (15.1): the new spec pins it.
+- "Count a slice's new specs against the CI budget" (24.1): three short specs.

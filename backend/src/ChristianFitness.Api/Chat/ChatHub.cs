@@ -23,6 +23,14 @@ public sealed class ChatHub(ISender sender, IChatChannel channel) : Hub
     public Task<ChatAnswer> Send(Guid eventId, string? text) =>
         sender.Send(new SendChatMessageCommand(Caller, eventId, text), Context.ConnectionAborted);
 
+    /// <summary>Opens a direct conversation with a member (slice 14.1; ADR 0043).</summary>
+    public Task<ChatAnswer> JoinDirect(Guid memberId) =>
+        sender.Send(new JoinDirectCommand(Caller, memberId), Context.ConnectionAborted);
+
+    /// <summary>Sends a direct message to a member.</summary>
+    public Task<ChatAnswer> SendDirect(Guid memberId, string? text) =>
+        sender.Send(new SendDirectMessageCommand(Caller, memberId, text), Context.ConnectionAborted);
+
     public override Task OnDisconnectedAsync(Exception? exception)
     {
         channel.Disconnected(Context.ConnectionId);
@@ -91,6 +99,9 @@ internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
             }
         }
     }
+
+    public Task SendToMemberAsync(Guid memberId, ChatMessageDto message, CancellationToken cancellationToken) =>
+        hub.Clients.User(memberId.ToString()).SendAsync("MessageReceived", message, cancellationToken);
 
     public Task SendAsync(ChatMessageDto message, CancellationToken cancellationToken) =>
         hub.Clients.Group(GroupOf(message.EventId)).SendAsync("MessageReceived", message, cancellationToken);

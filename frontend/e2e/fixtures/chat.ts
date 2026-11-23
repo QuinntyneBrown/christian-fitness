@@ -62,17 +62,25 @@ export class FakeChatHub {
     cancelled = false,
   ): Promise<FakeChatHub> {
     const hub = new FakeChatHub(join, history);
-    api.on('GET', /^\/api\/events\/[0-9a-f-]{36}\/chat\/messages$/, (request) => {
-      const before = new URL(request.url()).searchParams.get('before');
-      hub.pagesAsked.push(before);
-      const end = before === null ? history.length : history.findIndex((m) => m.id === before);
-      const start = Math.max(0, end - HISTORY_PAGE);
-      return { json: { messages: history.slice(start, end), hasMore: start > 0, cancelled } };
-    });
-    api.on('POST', /^\/api\/events\/[0-9a-f-]{36}\/chat\/read$/, (request) => {
-      hub.read.push(new URL(request.url()).pathname.split('/')[3]);
-      return { status: 204 };
-    });
+    api.on(
+      'GET',
+      /^\/api\/(events\/[0-9a-f-]{36}\/chat|messages\/[0-9a-f-]{36})\/messages$/,
+      (request) => {
+        const before = new URL(request.url()).searchParams.get('before');
+        hub.pagesAsked.push(before);
+        const end = before === null ? history.length : history.findIndex((m) => m.id === before);
+        const start = Math.max(0, end - HISTORY_PAGE);
+        return { json: { messages: history.slice(start, end), hasMore: start > 0, cancelled } };
+      },
+    );
+    api.on(
+      'POST',
+      /^\/api\/(events\/[0-9a-f-]{36}\/chat|messages\/[0-9a-f-]{36})\/read$/,
+      (request) => {
+        hub.read.push(new URL(request.url()).pathname.split('/')[3]);
+        return { status: 204 };
+      },
+    );
     api.on('POST', '/api/chat/negotiate', () => ({
       json: {
         negotiateVersion: 1,
@@ -128,20 +136,20 @@ export class FakeChatHub {
 
   private invoked(frame: { invocationId?: string; target?: string; arguments?: unknown[] }): void {
     const [eventId, text] = frame.arguments as [string, string?];
-    if (frame.target === 'Send' && this.failing > 0) {
+    if ((frame.target === 'Send' || frame.target === 'SendDirect') && this.failing > 0) {
       this.failing -= 1;
       this.frame({ type: 3, invocationId: frame.invocationId, error: 'The send failed.' });
       return;
     }
     let result: JoinAnswer = { code: null, title: null, memberId: null };
-    if (frame.target === 'Join') {
+    if (frame.target === 'Join' || frame.target === 'JoinDirect') {
       this.joined.push(eventId);
       result = this.join;
-    } else if (frame.target === 'Send') {
+    } else if (frame.target === 'Send' || frame.target === 'SendDirect') {
       this.sent.push(text ?? '');
     }
     this.frame({ type: 3, invocationId: frame.invocationId, result });
-    if (frame.target === 'Send') {
+    if (frame.target === 'Send' || frame.target === 'SendDirect') {
       this.push({
         eventId,
         authorId: SIGNED_IN.memberId,

@@ -40,11 +40,14 @@ export interface ChatConnection {
   /** The id of an event whose chat the member is in when staff cancel it (slice 12.3; ADR 0041). */
   readonly cancelled: Observable<string>;
 
-  /** Connects if need be and joins the event's chat. Rejects when the connection cannot be made. */
-  join(eventId: string): Promise<ChatAnswerDto>;
+  /**
+   * Connects if need be and joins the event's chat; with `direct`, opens the private conversation with
+   * the member `eventId` (slice 14.1; ADR 0043). Rejects when the connection cannot be made.
+   */
+  join(eventId: string, direct?: boolean): Promise<ChatAnswerDto>;
 
   /** Sends a message to the event's chat. Rejects when the connection is not up. */
-  send(eventId: string, text: string): Promise<ChatAnswerDto>;
+  send(eventId: string, text: string, direct?: boolean): Promise<ChatAnswerDto>;
 }
 
 /** Binds {@link ChatConnection}; the chat screen's providers provide it. */
@@ -65,16 +68,16 @@ export interface ChatHistoryDto {
  */
 export interface ChatHistory {
   /** The latest 50 messages. */
-  latest(eventId: string): Observable<ChatHistoryDto>;
+  latest(eventId: string, direct?: boolean): Observable<ChatHistoryDto>;
 
   /** The 50 messages before the message `messageId`. */
-  before(eventId: string, messageId: string): Observable<ChatHistoryDto>;
+  before(eventId: string, messageId: string, direct?: boolean): Observable<ChatHistoryDto>;
 
   /**
    * Tells the server the member has read the chat up to now, so its unread count on the Messages
    * list is zero (L2-016 AC7; ADR 0042).
    */
-  markRead(eventId: string): Observable<void>;
+  markRead(eventId: string, direct?: boolean): Observable<void>;
 }
 
 /** Binds {@link ChatHistory}; the chat screen's providers provide it. */

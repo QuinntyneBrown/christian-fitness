@@ -29,6 +29,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<ChatReadMarker> ChatReadMarkers => Set<ChatReadMarker>();
+    public DbSet<DirectMessage> DirectMessages => Set<DirectMessage>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 

@@ -32,4 +32,10 @@ public interface IChatChannel
 
     /// <summary>Delivers the message to every connection that joined its event's chat.</summary>
     Task SendAsync(ChatMessageDto message, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Delivers a direct message to every connection of one member (slice 14.1; ADR 0043). Its
+    /// <c>EventId</c> carries the other member's id, so each side keys the conversation by the other.
+    /// </summary>
+    Task SendToMemberAsync(Guid memberId, ChatMessageDto message, CancellationToken cancellationToken);
 }
