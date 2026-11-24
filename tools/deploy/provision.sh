@@ -6,8 +6,8 @@
 #   ./provision.sh domains    after the DNS records exist: verifies the email domain, links it and
 #                             binds www, admin and the bare domain with managed certificates
 #
-# It is safe to run again: an existing resource is left as it is, and passwords are made only when
-# the thing they protect is created. Nothing secret is printed.
+# It is safe to run again: an existing resource is left as it is, and the database passwords are
+# made anew only while the app or the release job is still to be created. Nothing secret is printed.
 set -euo pipefail
 
 REPOSITORY=QuinntyneBrown/christian-fitness
@@ -94,28 +94,36 @@ az identity federated-credential create --name github-main --identity-name "$DEP
   --audiences api://AzureADTokenExchange --output none
 
 echo "== PostgreSQL"
-owner_password=""
-api_password=""
-if ! exists az postgres flexible-server show --name "$POSTGRES" --resource-group "$RG"; then
-  owner_password=$(secret)
-  api_password=$(secret)
-  # 0.0.0.0 is Azure's "services inside Azure" rule: the replica, the release job and Cloud Shell.
+# 0.0.0.0 is Azure's "services inside Azure" rule: the replica, the release job and Cloud Shell.
+exists az postgres flexible-server show --name "$POSTGRES" --resource-group "$RG" ||
   az postgres flexible-server create --name "$POSTGRES" --resource-group "$RG" --location "$LOCATION" \
     --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 17 \
-    --admin-user cf_owner --admin-password "$owner_password" \
+    --admin-user cf_owner --admin-password "$(secret)" \
     --public-access 0.0.0.0 --yes --output none
-  az postgres flexible-server db create --server-name "$POSTGRES" --resource-group "$RG" --database-name "$DATABASE" --output none
-  host="$POSTGRES.postgres.database.azure.com"
+exists az postgres flexible-server db show --server-name "$POSTGRES" --resource-group "$RG" --name "$DATABASE" ||
+  az postgres flexible-server db create --server-name "$POSTGRES" --resource-group "$RG" --name "$DATABASE" --output none
+host="$POSTGRES.postgres.database.azure.com"
+# The passwords live only in the app's and the job's secrets. While either is still to be made,
+# both roles get new ones here; afterwards they are never read back or changed.
+owner_password=""
+api_password=""
+if ! exists az containerapp show --name "$APP" --resource-group "$RG" ||
+  ! exists az containerapp job show --name "$RELEASE_JOB" --resource-group "$RG"; then
+  owner_password=$(secret)
+  api_password=$(secret)
+  az postgres flexible-server update --name "$POSTGRES" --resource-group "$RG" --admin-password "$owner_password" --output none
   # The API's own role: rows only, never the schema (docs/operations/settings.md).
   PGPASSWORD="$owner_password" psql "host=$host dbname=$DATABASE user=cf_owner sslmode=require" --quiet --set ON_ERROR_STOP=1 <<SQL
-CREATE ROLE cf_api LOGIN PASSWORD '$api_password';
+DO \$\$ BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'cf_api') THEN CREATE ROLE cf_api LOGIN; END IF;
+END \$\$;
+ALTER ROLE cf_api PASSWORD '$api_password';
 GRANT CONNECT ON DATABASE $DATABASE TO cf_api;
 GRANT USAGE ON SCHEMA public TO cf_api;
 ALTER DEFAULT PRIVILEGES FOR ROLE cf_owner IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO cf_api;
 ALTER DEFAULT PRIVILEGES FOR ROLE cf_owner IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO cf_api;
 SQL
 fi
-host="$POSTGRES.postgres.database.azure.com"
 
 echo "== Storage for the Data Protection keys and event images"
 exists az storage account show --name "$STORAGE" --resource-group "$RG" ||
@@ -135,15 +143,17 @@ exists az communication email domain show --domain-name "$DOMAIN" --email-servic
 acs_id=$(az communication show --name "$ACS" --resource-group "$RG" --query id --output tsv)
 # SMTP signs in as an Entra application that may send through this one resource.
 smtp_client=$(az ad app list --display-name "$SMTP_APP" --query '[0].appId' --output tsv)
-smtp_password=""
 if [ -z "$smtp_client" ]; then
   smtp_client=$(az ad app create --display-name "$SMTP_APP" --sign-in-audience AzureADMyOrg --query appId --output tsv)
-  az ad sp create --id "$smtp_client" --output none
-  smtp_password=$(az ad app credential reset --id "$smtp_client" --years 2 --query password --output tsv --only-show-errors)
   sleep 20
-  smtp_principal=$(az ad sp show --id "$smtp_client" --query id --output tsv)
-  az role assignment create --assignee-object-id "$smtp_principal" --assignee-principal-type ServicePrincipal \
-    --role "Communication and Email Service Owner" --scope "$acs_id" --output none
+fi
+exists az ad sp show --id "$smtp_client" || { az ad sp create --id "$smtp_client" --output none; sleep 20; }
+smtp_principal=$(az ad sp show --id "$smtp_client" --query id --output tsv)
+az role assignment create --assignee-object-id "$smtp_principal" --assignee-principal-type ServicePrincipal \
+  --role "Communication and Email Service Owner" --scope "$acs_id" --output none
+smtp_password=""
+if ! exists az containerapp show --name "$APP" --resource-group "$RG"; then
+  smtp_password=$(az ad app credential reset --id "$smtp_client" --years 2 --query password --output tsv --only-show-errors)
 fi
 smtp_username="$ACS.$smtp_client.$TENANT"
 
@@ -155,7 +165,6 @@ az containerapp env storage set --name "$ENVIRONMENT" --resource-group "$RG" --s
   --access-mode ReadWrite --output none
 
 if ! exists az containerapp show --name "$APP" --resource-group "$RG"; then
-  [ -n "$api_password" ] && [ -n "$smtp_password" ] || { echo "The app is missing but its secrets were made earlier; set them by hand (deployment.md)."; exit 1; }
   az containerapp create --name "$APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
     --image "$PLACEHOLDER" --ingress external --target-port 8080 --transport auto \
     --min-replicas 1 --max-replicas 1 \
@@ -163,10 +172,12 @@ if ! exists az containerapp show --name "$APP" --resource-group "$RG"; then
     --secrets "db-connection=Host=$host;Port=5432;Database=$DATABASE;Username=cf_api;Password=$api_password;SSL Mode=Require" \
               "smtp-username=$smtp_username" "smtp-password=$smtp_password" \
     --output none
+elif [ -n "$api_password" ]; then
+  az containerapp secret set --name "$APP" --resource-group "$RG" --output none \
+    --secrets "db-connection=Host=$host;Port=5432;Database=$DATABASE;Username=cf_api;Password=$api_password;SSL Mode=Require"
 fi
 
 if ! exists az containerapp job show --name "$RELEASE_JOB" --resource-group "$RG"; then
-  [ -n "$owner_password" ] || { echo "The release job is missing but the owner password was made earlier; set it by hand (deployment.md)."; exit 1; }
   az containerapp job create --name "$RELEASE_JOB" --resource-group "$RG" --environment "$ENVIRONMENT" \
     --trigger-type Manual --replica-timeout 600 --replica-retry-limit 0 --parallelism 1 --replica-completion-count 1 \
     --image "$PLACEHOLDER" --cpu 0.25 --memory 0.5Gi \
@@ -177,6 +188,9 @@ if ! exists az containerapp job show --name "$RELEASE_JOB" --resource-group "$RG
                "Seed__StaffPassword=secretref:seed-staff-password" "Seed__StaffName=$STAFF_NAME" \
     --command /app/release.sh \
     --output none
+elif [ -n "$owner_password" ]; then
+  az containerapp job secret set --name "$RELEASE_JOB" --resource-group "$RG" --output none \
+    --secrets "db-owner-connection=Host=$host;Port=5432;Database=$DATABASE;Username=cf_owner;Password=$owner_password;SSL Mode=Require"
 fi
 
 fqdn=$(az containerapp show --name "$APP" --resource-group "$RG" --query properties.configuration.ingress.fqdn --output tsv)
