@@ -4,6 +4,8 @@ import { staffAuthGuard } from '@cf/domain';
 /** An area's routed stand-in until its slice: the area's heading, nothing else (ADR 0011). */
 const area = () => import('./pages/area/area-page').then((m) => m.AreaPage);
 const forbidden = () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage);
+const services = () =>
+  import('./pages/manage-services/manage-services-page').then((m) => m.ManageServicesPage);
 const offline = () => import('./pages/offline/offline-page').then((m) => m.OfflinePage);
 
 /**
@@ -33,7 +35,7 @@ export const routes: Routes = [
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {
-        // Stand-ins until slices 28.1 and 21.1 (ADR 0011).
+        // Stand-in until slice 28.1 (ADR 0011).
         path: '',
         pathMatch: 'full',
         title: titled('Dashboard'),
@@ -56,10 +58,10 @@ export const routes: Routes = [
           ),
       },
       {
+        // The application queue (slice 21.1; ADR 0048).
         path: 'services',
         title: titled('Services'),
-        data: { heading: 'Services' },
-        loadComponent: area,
+        loadComponent: services,
       },
       {
         // The members, searched, filtered by status and paged (slice 26.1; ADR 0022).

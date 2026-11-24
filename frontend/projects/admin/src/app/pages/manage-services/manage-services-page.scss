@@ -1,0 +1,108 @@
+// The admin page head and the Applications cards (docs/design-system/assets/components.css:
+// "page-head", "admin-title", "subtitle", "section-title", "applications", "application",
+// "note-card").
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-4xl);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-5xl);
+    line-height: var(--line-height-none);
+  }
+}
+
+.subtitle {
+  color: var(--color-fg-muted);
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.section-title__count {
+  color: var(--color-fg-accent);
+}
+
+.applications {
+  margin-top: var(--space-4);
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.application {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  padding: var(--space-5);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.application__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.application__who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.application__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
+
+.application__when {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.application__role {
+  font-weight: var(--font-weight-semibold);
+}
+
+.application__creds {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.applications__empty {
+  margin-top: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  padding: var(--space-6);
+  color: var(--color-fg-muted);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}

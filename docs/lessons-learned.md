@@ -1957,3 +1957,30 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Prove a rule red by breaking it alone" (1.1 to 30.2): replacing the Pending filter with `true` failed exactly the declined and approved re-apply cases and passed again when restored.
 - "Count a slice's new specs against the CI budget" (24.1): eight member specs in one file.
 - "A fixture default for a new call" (15.1, 13.1): the page makes no call on load, so no default was needed.
+
+## Slice 21.1: Application queue
+
+**What slowed it**
+
+- The Services area already had its policy (Admins only) and the admin app a stand-in page, so the backend slice was one query, one controller and the acceptance tests; the Moderator refusal came free from the area convention and is proved by a test.
+- A test that inserts rows straight into the store must give them real applicants: the queue joins members for the name, so rows with a random member id vanish. Join one member through the API and reuse its id.
+- A skeleton card that carries the real card's class (`application`) is counted by the page object's locator while loading; the skeleton carries a `--loading` modifier and the locator excludes it.
+- A `500` answered by a fixture opens the server-error screen, not the page's own error state; the error spec answers with `abort`, as the registrations and members specs do.
+- A new lazy page with its own `HttpClient` service added 410 bytes to the admin `main` (279.93 to 280.34 kB, 339 bytes over the 280 kB warning, under the 290 kB error). Bisecting by stubbing showed the route costs about 40 bytes (sharing a loader), a stub page 120, and the service importing `HttpClient` about 380; the page template, `Avatar`, the rxjs pipeline, `track` form and `catchError` cost nothing. No budget was raised (ADR 0048).
+- A heavy parallel run of the whole suite failed five unrelated offline, sign-out and two-step specs on this machine; they pass in a smaller run.
+- A command that began with a heredoc holding an apostrophe failed to parse; the Write tool is safer.
+
+**New lessons**
+
+- Bisect a bundle regression by stubbing, not by reading: replace the page with an empty component, then restore one import at a time; one build is about a minute.
+- Keep a list endpoint honest when capped: serve `total` beside the at most 50 rows, so a heading count never silently equals the cap.
+- A relative time ("2 days ago") is a pure helper with one table of cases and a pinned browser clock in the spec.
+- Initial bundle: web 280.30 kB (unchanged), admin 280.34 kB (279.93 before on the same machine, +410 bytes); the page, service, contract and helper are lazy.
+
+**How earlier lessons worked**
+
+- "Compare the initial total against a build of the unchanged tree on the same machine" (22.1): the +410 bytes was measured with a stash build, not read from the previous entry.
+- "Prove a rule red by breaking it alone" (1.1 to 22.1): replacing the Pending filter with `true` failed exactly the decided-application test and passed again when restored.
+- "A fixture default for a new call" (15.1, 13.1): `GET /api/admin/services/applications` answers an empty queue, so the shell specs that open `/services` stay green.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+- "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.

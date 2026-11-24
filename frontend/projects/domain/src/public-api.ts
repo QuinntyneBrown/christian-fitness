@@ -30,6 +30,7 @@ export * from './chat/conversation-row';
 export * from './events/going-date';
 export * from './members/interest-labels';
 export * from './members/member-since';
+export * from './services/application-sent';
 export * from './members/admin-member-list';
 export * from './members/member-moderation';
 export * from './admin/session-expiry';

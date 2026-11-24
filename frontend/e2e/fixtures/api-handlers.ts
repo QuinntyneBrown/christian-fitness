@@ -1,4 +1,5 @@
 import type { Request, Route } from '@playwright/test';
+import { NO_APPLICATIONS } from './admin-applications';
 
 /**
  * What a handler answers: a status (200 unless given) and a JSON body, or no body; or, with
@@ -65,6 +66,7 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
  * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021), and
  * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
+ * `GET /api/admin/services/applications` answers an empty queue (ADR 0048), and
  * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044).
  */
 export class ApiHandlers {
@@ -82,6 +84,11 @@ export class ApiHandlers {
     { method: 'GET', path: '/api/admin/events', handler: () => ({ json: NO_ADMIN_EVENTS }) },
     { method: 'GET', path: '/api/public/events/upcoming', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },
+    {
+      method: 'GET',
+      path: '/api/admin/services/applications',
+      handler: () => ({ json: NO_APPLICATIONS }),
+    },
     {
       method: 'GET',
       path: '/api/home',
