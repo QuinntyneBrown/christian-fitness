@@ -33,7 +33,7 @@ export const routes: Routes = [
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {
-        // The community's activity over the last weeks (slice 28.1; ADR 0058).
+        // The community's activity over the last weeks (slice 28.1; ADR 0000).
         path: '',
         pathMatch: 'full',
         title: titled('Dashboard'),
@@ -56,7 +56,7 @@ export const routes: Routes = [
           ),
       },
       {
-        // The application queue (slice 21.1; ADR 0048).
+        // The application queue (slice 21.1; ADR 0049).
         path: 'services',
         title: titled('Services'),
         loadComponent: services,

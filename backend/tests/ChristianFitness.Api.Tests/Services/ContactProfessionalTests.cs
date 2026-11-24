@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-014 (slice 17.1; ADR 0052): a member chooses Message on a listing and is given the direct
+/// L2-014 (slice 17.1; ADR 0000): a member chooses Message on a listing and is given the direct
 /// conversation with the professional the listing was published for (<c>POST /api/services/{id}/conversation</c>);
 /// a listing with a published contact link is not messaged here and serves its link only when asked
 /// (<c>GET /api/services/{id}/contact-link</c>), never in the list or the listing. Unknown listings,

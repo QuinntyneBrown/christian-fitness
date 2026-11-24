@@ -1,4 +1,4 @@
-/** One pending application as `GET /api/admin/services/applications` answers it (ADR 0048). */
+/** One pending application as `GET /api/admin/services/applications` answers it (ADR 0000). */
 export interface PendingApplicationFixture {
   id: string;
   name: string;
@@ -46,7 +46,7 @@ export function applicationQueue(
   return { json: { total, applications } };
 }
 
-/** The path of an application's decision: `approve` or `decline` (ADR 0049). */
+/** The path of an application's decision: `approve` or `decline` (ADR 0050). */
 export function decisionPath(id: string, action: 'approve' | 'decline'): string {
   return `/api/admin/services/applications/${id}/${action}`;
 }

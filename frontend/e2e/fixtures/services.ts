@@ -1,6 +1,6 @@
 import type { ApiHandlers } from './api-handlers';
 
-/** A listing as `GET /api/services` answers it (ADR 0050). */
+/** A listing as `GET /api/services` answers it (ADR 0000). */
 export interface ServiceListingFixture {
   id: string;
   name: string;
@@ -11,7 +11,7 @@ export interface ServiceListingFixture {
   credentials: string;
   about: string;
   publishedAt: string;
-  /** Whether the listing publishes a contact link instead of taking messages here (ADR 0052). */
+  /** Whether the listing publishes a contact link instead of taking messages here (ADR 0053). */
   hasContactLink: boolean;
 }
 
@@ -96,7 +96,7 @@ export interface ServicesAsked {
 
 /**
  * Answers `GET /api/services` from `services`, of the `category` asked for when there is one, as the
- * API does (ADR 0050). `fail` may refuse a request, by its zero-based number, as a reply.
+ * API does (ADR 0051). `fail` may refuse a request, by its zero-based number, as a reply.
  */
 export function answerServices(
   api: ApiHandlers,
@@ -119,7 +119,7 @@ export function answerServices(
 }
 
 /**
- * Answers `GET /api/services/{id}` from `services` as the API does (ADR 0051): the listing, or 404
+ * Answers `GET /api/services/{id}` from `services` as the API does (ADR 0052): the listing, or 404
  * `service_not_found`. Returns the ids asked for, in order.
  */
 export function answerService(api: ApiHandlers, services: ServiceListingFixture[]): string[] {
@@ -133,14 +133,14 @@ export function answerService(api: ApiHandlers, services: ServiceListingFixture[
   return asked;
 }
 
-/** The member id `POST /api/services/{id}/conversation` answers for each listing, as the API does (ADR 0052). */
+/** The member id `POST /api/services/{id}/conversation` answers for each listing, as the API does (ADR 0053). */
 export function professionalMemberOf(listing: ServiceListingFixture): string {
   return listing.id.replace(/-0000000b/, '-0000000c');
 }
 
 /**
  * Answers `POST /api/services/{id}/conversation` with the professional's member id, or with the
- * `refusal` when given (ADR 0052). Returns the listing ids asked for, in order.
+ * `refusal` when given (ADR 0053). Returns the listing ids asked for, in order.
  */
 export function answerConversation(
   api: ApiHandlers,
@@ -157,7 +157,7 @@ export function answerConversation(
 }
 
 /**
- * Answers `GET /api/services/{id}/contact-link` with `url`, as the API does (ADR 0052). Returns the
+ * Answers `GET /api/services/{id}/contact-link` with `url`, as the API does (ADR 0053). Returns the
  * listing ids asked for, in order.
  */
 export function answerContactLink(api: ApiHandlers, url: string): string[] {
@@ -169,14 +169,14 @@ export function answerContactLink(api: ApiHandlers, url: string): string[] {
   return asked;
 }
 
-/** What a booking request is sent with (`POST /api/services/{id}/booking-requests`; ADR 0053). */
+/** What a booking request is sent with (`POST /api/services/{id}/booking-requests`; ADR 0054). */
 export interface BookingSent {
   listing: string;
   body: unknown;
 }
 
 /**
- * Answers `POST /api/services/{id}/booking-requests` as the API does (ADR 0053): 201 with the
+ * Answers `POST /api/services/{id}/booking-requests` as the API does (ADR 0054): 201 with the
  * professional's member id, or each `refusals` entry in turn when given (the last one repeats; once
  * they are used up, none). Returns what was sent, in order.
  */

@@ -2,7 +2,7 @@ import { expect, test } from '../fixtures/test';
 import { answerServices, CAST, JAMES, MARCUS } from '../fixtures/services';
 import { WebServicesPage } from '../page-objects/web/services.page';
 
-// L2-013 AC1 to AC3 (ADR 0050): browse the professionals the team has listed, filter by category,
+// L2-013 AC1 to AC3 (ADR 0000): browse the professionals the team has listed, filter by category,
 // and read the selected one's card beside the list (mock `services/default`, `selected`, `filtered`).
 test.describe('Member app, browse professionals', () => {
   test('Services lists each professional with name, role, where and price, the first selected with its card', async ({

@@ -1,7 +1,7 @@
 namespace ChristianFitness.Domain.Services;
 
 /// <summary>
-/// A professional published on Services (L2-025 AC2; L2-027; ADR 0049): what the approved
+/// A professional published on Services (L2-025 AC2; L2-027; ADR 0000): what the approved
 /// application said, with the applicant's name as it was when staff approved. Members browse these
 /// in slice 16.1; staff edit and remove them in slice 23.
 /// </summary>
@@ -36,10 +36,10 @@ public sealed class ServiceListing
 
     public const int ContactUrlMaxLength = 2000;
 
-    /// <summary>The professional's published contact link, an absolute http or https address; none when they take messages here (ADR 0052).</summary>
+    /// <summary>The professional's published contact link, an absolute http or https address; none when they take messages here (ADR 0053).</summary>
     public string? ContactUrl { get; private set; }
 
-    /// <summary>Sets the contact link when <paramref name="url"/> is an absolute http or https address; a blank one clears it (ADR 0052).</summary>
+    /// <summary>Sets the contact link when <paramref name="url"/> is an absolute http or https address; a blank one clears it (ADR 0053).</summary>
     public bool TrySetContactUrl(string? url)
     {
         if (!TryNormalizeContactUrl(url, out var normalized))
@@ -74,7 +74,7 @@ public sealed class ServiceListing
         return true;
     }
 
-    /// <summary>Replaces what staff may edit (L2-027 AC1; ADR 0054); the values are already validated and are trimmed here.</summary>
+    /// <summary>Replaces what staff may edit (L2-027 AC1; ADR 0055); the values are already validated and are trimmed here.</summary>
     public void Update(string name, string role, ServiceCategory category, string where, string price, string credentials, string about, string? contactUrl)
     {
         ArgumentNullException.ThrowIfNull(name);

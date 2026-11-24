@@ -9,7 +9,7 @@ namespace ChristianFitness.Application.Chat;
 
 /// <summary>
 /// A member reports the message <see cref="MessageId"/>, a group or a direct one, with an optional
-/// reason (L2-017; ADR 0057). A class, not a record, so no generated <c>ToString</c> can print the reason.
+/// reason (L2-017; ADR 0000). A class, not a record, so no generated <c>ToString</c> can print the reason.
 /// </summary>
 public sealed class ReportMessageCommand(Guid messageId, string? reason) : IRequest
 {
@@ -29,7 +29,7 @@ internal sealed class ReportMessageValidator : AbstractValidator<ReportMessageCo
 }
 
 /// <summary>
-/// Records the report and flags the sender (L2-017; ADR 0057). The message is looked for among the
+/// Records the report and flags the sender (L2-017; ADR 0058). The message is looked for among the
 /// caller's group chats (a registration is the membership, ADR 0041) and among the direct messages they
 /// sent or received; anything else, even a real message, is <c>message_not_found</c>. Their own is
 /// <c>cannot_report_own_message</c>; a second report of one message is <c>already_reported</c>. Only an

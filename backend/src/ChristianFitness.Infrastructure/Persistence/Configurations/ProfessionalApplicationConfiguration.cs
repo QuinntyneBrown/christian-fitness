@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A stored professional application (ADR 0047): looked up by member and status.</summary>
+/// <summary>A stored professional application (ADR 0000): looked up by member and status.</summary>
 internal sealed class ProfessionalApplicationConfiguration : IEntityTypeConfiguration<ProfessionalApplication>
 {
     public void Configure(EntityTypeBuilder<ProfessionalApplication> builder)

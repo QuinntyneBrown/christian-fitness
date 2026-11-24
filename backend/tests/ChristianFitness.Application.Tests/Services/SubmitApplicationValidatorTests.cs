@@ -5,7 +5,7 @@ namespace ChristianFitness.Application.Tests.Services;
 /// <summary>
 /// L2-026: the Apply to be listed rules, one case per row. The member app's
 /// <c>validateApplication</c> (frontend/projects/domain/src/services/application-rules.spec.ts)
-/// carries the same table (ADR 0047).
+/// carries the same table (ADR 0000).
 /// </summary>
 public sealed class SubmitApplicationValidatorTests
 {

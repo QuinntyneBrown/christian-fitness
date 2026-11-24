@@ -1,4 +1,4 @@
-# 0053. Request a booking
+# 0000. Request a booking
 
 ## Status
 
@@ -24,7 +24,7 @@ request's storage, delivery, limits and codes to supply.
   `RequestBookingValidator` and `validateBooking`.
 - **Refusals.** Unknown listing 404 `service_not_found`; a listing that publishes a contact link 409
   `professional_not_linked` (so the card offers Request a booking only without one); a suspended
-  professional or the caller's own listing 403 `recipient_unavailable` (ADR 0043, 0052). A suspended
+  professional or the caller's own listing 403 `recipient_unavailable` (ADR 0043, 0053). A suspended
   caller is refused by the session. The dialog shows one sentence for `recipient_unavailable` ("<first
   name> can't take booking requests right now.", no mock) and the mock's `failed` message otherwise.
 - **Telemetry.** The command is a class, so its words never print; nothing is logged.

@@ -23,7 +23,7 @@ class ServiceListing {
   +DateTimeOffset VerifiedAt
   +Update(fields): void
 }
-note right of ServiceListing : Removal deletes the row (ADR 0055); no IsPublished or RemovedAt
+note right of ServiceListing : Removal deletes the row (ADR 0000); no IsPublished or RemovedAt
 class AuditEntry {
   +string Action = "listing.removed"
 }

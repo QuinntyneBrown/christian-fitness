@@ -1,0 +1,126 @@
+# Continuous deployment (ADR 0047; docs/operations/deployment.md). Every commit to main that CI
+# passes is built into two images, migrated and seeded by the release job, and then served: the
+# member app at www.christian.fitness and the admin app at admin.christian.fitness. CI itself
+# stays secret-free (L2-042 AC4); this workflow signs in to Azure with GitHub's OIDC token, so the
+# repository holds no credential either.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+# Releases run one at a time, in order; a release under way is never cancelled half-migrated.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  RESOURCE_GROUP: rg-christian-fitness
+  REGISTRY: crchristianfitness
+  APP: ca-christian-fitness
+  RELEASE_JOB: caj-christian-fitness-release
+
+jobs:
+  deploy:
+    name: Deploy
+    # Only a green CI run for a push to main (never a pull request's), or a person asking.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SHA }}
+          sparse-checkout: |
+            backend
+            frontend
+            tools/deploy
+
+      # Third-party, so pinned to a commit (ADR 0005): azure/login v2.3.1.
+      - name: Sign in to Azure
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign in to the registry
+        run: az acr login --name "$REGISTRY"
+
+      - name: Build and push the images
+        run: |
+          docker buildx create --use
+          for image in backend frontend; do
+            repository="$REGISTRY.azurecr.io/christian-fitness-$image"
+            docker buildx build "$image" \
+              --tag "$repository:$SHA" \
+              --cache-from "type=registry,ref=$repository:buildcache" \
+              --cache-to "type=registry,ref=$repository:buildcache,mode=max,image-manifest=true,oci-mediatypes=true" \
+              --push
+          done
+
+      # cf migrate, then cf seed, with the code about to be served; the API never migrates (L2-041).
+      - name: Migrate and seed
+        run: |
+          az containerapp job update --name "$RELEASE_JOB" --resource-group "$RESOURCE_GROUP" \
+            --image "$REGISTRY.azurecr.io/christian-fitness-backend:$SHA" --output none
+          execution=$(az containerapp job start --name "$RELEASE_JOB" --resource-group "$RESOURCE_GROUP" --query name --output tsv)
+          echo "Release job execution: $execution"
+          for _ in $(seq 1 90); do
+            status=$(az containerapp job execution show --name "$RELEASE_JOB" --resource-group "$RESOURCE_GROUP" \
+              --job-execution-name "$execution" --query properties.status --output tsv)
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed | Stopped | Degraded)
+                echo "::error::The release job ended as $status; its output is in the environment's Log Analytics workspace (ContainerAppConsoleLogs_CL)."
+                exit 1
+                ;;
+            esac
+            sleep 5
+          done
+          echo "::error::The release job did not finish in time (last status: $status)."
+          exit 1
+
+      - name: Deploy the apps and the API
+        run: |
+          export WEB_IMAGE="$REGISTRY.azurecr.io/christian-fitness-frontend:$SHA"
+          export API_IMAGE="$REGISTRY.azurecr.io/christian-fitness-backend:$SHA"
+          export REVISION_SUFFIX="r${GITHUB_RUN_NUMBER}-${SHA::7}"
+          envsubst '$WEB_IMAGE $API_IMAGE $REVISION_SUFFIX' < tools/deploy/containerapp.yaml > "$RUNNER_TEMP/containerapp.yaml"
+          az containerapp update --name "$APP" --resource-group "$RESOURCE_GROUP" \
+            --yaml "$RUNNER_TEMP/containerapp.yaml" --output none
+          echo "REVISION=$APP--$REVISION_SUFFIX" >> "$GITHUB_ENV"
+
+      # The new revision takes the traffic only once its probes pass; wait for that, then ask it
+      # for the member app's page and for an answer that needs the API and the database.
+      - name: Check the release
+        run: |
+          for _ in $(seq 1 60); do
+            read -r health running <<< "$(az containerapp revision show --name "$APP" --resource-group "$RESOURCE_GROUP" \
+              --revision "$REVISION" --query '[properties.healthState, properties.runningState]' --output tsv | tr '\n' ' ')"
+            [ "$health" = "Healthy" ] && break
+            if [ "$running" = "Failed" ] || [ "$running" = "Degraded" ]; then
+              echo "::error::Revision $REVISION is $running."
+              exit 1
+            fi
+            sleep 5
+          done
+          [ "$health" = "Healthy" ] || { echo "::error::Revision $REVISION did not become healthy (state: $running)."; exit 1; }
+          host=$(az containerapp show --name "$APP" --resource-group "$RESOURCE_GROUP" \
+            --query properties.configuration.ingress.fqdn --output tsv)
+          for path in / '/api/public/events/upcoming?take=1'; do
+            curl --fail --silent --show-error --output /dev/null \
+              --retry 6 --retry-delay 5 --retry-all-errors "https://$host$path"
+          done
+          echo "Released $SHA as $REVISION."

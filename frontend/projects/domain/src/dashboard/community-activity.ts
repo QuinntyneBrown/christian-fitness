@@ -18,7 +18,7 @@ const dayFormat = new Intl.DateTimeFormat('en-US', {
 const countFormat = new Intl.NumberFormat('en-US');
 
 /**
- * The weeks as table rows, newest first, so the current week leads (ADR 0058). A week is named by
+ * The weeks as table rows, newest first, so the current week leads (ADR 0000). A week is named by
  * the Monday that opens it, read in UTC where the API cut it ("Apr 13"); the current week, the
  * last the API answers, says so in words. Counts carry their thousands separator.
  */

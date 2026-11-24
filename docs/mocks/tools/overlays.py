@@ -681,7 +681,7 @@ DECLINE_APPLICANT = next(x for x in A.APPLICATIONS if x["id"] == "a3")
 
 
 def decline_application(*, invalid=False, busy=False, failed=False, decided=False) -> str:
-    """The reason a decline needs (L2-025 AC3; ADR 0049): required, at most 500 characters, kept
+    """The reason a decline needs (L2-025 AC3; ADR 0000): required, at most 500 characters, kept
     for staff and never sent to the applicant."""
     a = DECLINE_APPLICANT
     reason_err = "Write a reason for declining" if invalid else ""
@@ -707,7 +707,7 @@ def decline_application(*, invalid=False, busy=False, failed=False, decided=Fals
 
 
 s = screen("decline-application", "dialog", "Decline an application", opens_from="admin-services", group="Admin console",
-           source="Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0049).")
+           source="Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0050).")
 
 
 @s("default", "Decline Lena Park, RD: a reason to write; focus on the field.")

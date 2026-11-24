@@ -3,7 +3,7 @@ import type { Observable } from 'rxjs';
 
 /**
  * A professional as the public landing page shows one (`GET /api/public/services/featured`,
- * L2-001 AC5; ADR 0056): public fields only, with no id, member, contact link or credentials.
+ * L2-001 AC5; ADR 0000): public fields only, with no id, member, contact link or credentials.
  */
 export interface LandingProfessionalDto {
   name: string;
@@ -13,7 +13,7 @@ export interface LandingProfessionalDto {
   price: string;
 }
 
-/** What a visitor with no session may read about professionals (ADR 0056). */
+/** What a visitor with no session may read about professionals (ADR 0057). */
 export interface PublicProfessionalsApi {
   /**
    * The first published listings by name, at most 3. Any failure errors with the

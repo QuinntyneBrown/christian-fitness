@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// What the admin Dashboard shows (L2-020; ADR 0058). Routed under <c>api/admin/dashboard</c>, so
+/// What the admin Dashboard shows (L2-020; ADR 0000). Routed under <c>api/admin/dashboard</c>, so
 /// the Dashboard area's policy admits Admins and Moderators (ADR 0020). One MediatR request each.
 /// </summary>
 [ApiController]

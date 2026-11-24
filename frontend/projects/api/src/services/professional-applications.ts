@@ -13,7 +13,7 @@ export const SERVICE_CATEGORIES = [
 export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];
 
 /**
- * An application to be listed (`POST /api/professional-applications`, L2-026; ADR 0047): every value
+ * An application to be listed (`POST /api/professional-applications`, L2-026; ADR 0000): every value
  * trimmed and given. The credentials are plain text, never rendered as HTML.
  */
 export interface SubmitApplicationDto {
@@ -33,7 +33,7 @@ export interface ApplicationDto extends SubmitApplicationDto {
   submittedAt: string;
 }
 
-/** Professional applications (ADR 0047). */
+/** Professional applications (ADR 0048). */
 export interface ProfessionalApplicationsApi {
   /**
    * Sends the signed-in member's application and answers it as created (L2-026 AC1). A refusal or

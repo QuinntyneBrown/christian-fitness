@@ -1,6 +1,6 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
 
-/** One week as `GET /api/admin/dashboard/activity` answers it (ADR 0058). */
+/** One week as `GET /api/admin/dashboard/activity` answers it (ADR 0000). */
 export interface ActivityWeekFixture {
   start: string;
   newMembers: number;
@@ -60,7 +60,7 @@ export function answerActivity(
   return counter;
 }
 
-/** One pending application as `GET /api/admin/dashboard/awaiting` names it (ADR 0059). */
+/** One pending application as `GET /api/admin/dashboard/awaiting` names it (ADR 0060). */
 export interface AwaitingApplicationFixture {
   id: string;
   name: string;

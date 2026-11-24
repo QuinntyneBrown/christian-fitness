@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Dashboard;
 
 /// <summary>
-/// One week of community activity (L2-020 AC4; ADR 0058): a Monday 00:00 UTC start and three
+/// One week of community activity (L2-020 AC4; ADR 0000): a Monday 00:00 UTC start and three
 /// counts. Counts only: no message text, no names, no member ids.
 /// </summary>
 public sealed record CommunityActivityWeekDto(DateTimeOffset Start, int NewMembers, int Registrations, int Messages);
@@ -13,11 +13,11 @@ public sealed record CommunityActivityWeekDto(DateTimeOffset Start, int NewMembe
 /// <summary>The last weeks of activity, oldest first, the current week last.</summary>
 public sealed record CommunityActivityDto(IReadOnlyList<CommunityActivityWeekDto> Weeks);
 
-/// <summary>Staff ask for the weekly activity of the community (L2-020 AC4; ADR 0058).</summary>
+/// <summary>Staff ask for the weekly activity of the community (L2-020 AC4; ADR 0059).</summary>
 public sealed record GetCommunityActivityQuery : IRequest<CommunityActivityDto>;
 
 /// <summary>
-/// The weeks of the rule (ADR 0058): a week starts on Monday at 00:00 UTC; the last
+/// The weeks of the rule (ADR 0059): a week starts on Monday at 00:00 UTC; the last
 /// <see cref="Count"/> weeks end with the one that holds now, which runs to now.
 /// </summary>
 internal static class ActivityWeeks

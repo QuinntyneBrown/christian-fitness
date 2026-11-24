@@ -7,20 +7,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Services;
 
-/// <summary>One published listing as a member browses it (L2-013 AC1, AC3; ADR 0050).</summary>
+/// <summary>One published listing as a member browses it (L2-013 AC1, AC3; ADR 0000).</summary>
 public sealed record ServiceListingDto(
     Guid Id, string Name, string Role, string Category, string Where, string Price, string Credentials, string About, DateTimeOffset PublishedAt, bool HasContactLink);
 
-/// <summary>The published listings, at most <see cref="ListServicesQuery.Limit"/>, and how many match in all (ADR 0050).</summary>
+/// <summary>The published listings, at most <see cref="ListServicesQuery.Limit"/>, and how many match in all (ADR 0051).</summary>
 public sealed record ServiceListingsDto(int Total, IReadOnlyList<ServiceListingDto> Services);
 
-/// <summary>Lists the published listings, of one category when <paramref name="Category"/> names it (L2-013 AC1, AC2; ADR 0050).</summary>
+/// <summary>Lists the published listings, of one category when <paramref name="Category"/> names it (L2-013 AC1, AC2; ADR 0051).</summary>
 public sealed record ListServicesQuery(string? Category = null) : IRequest<ServiceListingsDto>
 {
     public const int Limit = 50;
 }
 
-/// <summary>The code a category this API does not know is refused with (L2-013 AC2; ADR 0050).</summary>
+/// <summary>The code a category this API does not know is refused with (L2-013 AC2; ADR 0051).</summary>
 public static class ListServicesRules
 {
     public const string CategoryInvalid = "category_invalid";
@@ -68,7 +68,7 @@ internal sealed class ListServicesHandler(IAppDbContext db) : IRequestHandler<Li
     }
 }
 
-/// <summary>Opens one published listing; an unknown id is 404 <c>service_not_found</c> (L2-013 AC4; ADR 0051).</summary>
+/// <summary>Opens one published listing; an unknown id is 404 <c>service_not_found</c> (L2-013 AC4; ADR 0052).</summary>
 public sealed record GetServiceQuery(Guid Id) : IRequest<ServiceListingDto>;
 
 internal sealed class GetServiceHandler(IAppDbContext db) : IRequestHandler<GetServiceQuery, ServiceListingDto>

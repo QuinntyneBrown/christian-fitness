@@ -5,7 +5,7 @@ import { RemoveListingDialog } from '../page-objects/admin/remove-listing.dialog
 
 const [DANIELLE, MARCUS] = CAST_LISTINGS;
 
-// L2-027 AC2 (slice 23.2; ADR 0055): staff remove a listing after confirming; it leaves the list.
+// L2-027 AC2 (slice 23.2; ADR 0000): staff remove a listing after confirming; it leaves the list.
 test.describe('Admin app, removing a listing', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 

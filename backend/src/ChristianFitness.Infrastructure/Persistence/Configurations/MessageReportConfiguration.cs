@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A member's report of a message (ADR 0057): one per reporter and message, which the unique index holds against a race.</summary>
+/// <summary>A member's report of a message (ADR 0000): one per reporter and message, which the unique index holds against a race.</summary>
 internal sealed class MessageReportConfiguration : IEntityTypeConfiguration<MessageReport>
 {
     public void Configure(EntityTypeBuilder<MessageReport> builder)

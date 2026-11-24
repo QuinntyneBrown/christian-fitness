@@ -16,7 +16,7 @@ import { HttpConversationsService } from '../services/http-conversations.service
 import { MemberInbox } from '../services/member-inbox';
 
 /**
- * The places of the member app so far (ADR 0027, 0042, 0045, 0050).
+ * The places of the member app so far (ADR 0027, 0042, 0045, 0000).
  * `TopBar` omits Profile from its link row (the avatar button covers it from MD up); `TabBar`
  * shows all five below MD (L2-008 AC1, AC2).
  */

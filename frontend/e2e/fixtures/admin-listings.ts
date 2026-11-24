@@ -1,6 +1,6 @@
 import type { ApiHandlers } from './api-handlers';
 
-/** One live listing as `GET /api/admin/services/listings` answers it (ADR 0054). */
+/** One live listing as `GET /api/admin/services/listings` answers it (ADR 0000). */
 export interface AdminListingFixture {
   id: string;
   name: string;
@@ -101,7 +101,7 @@ export interface ListingsSaved {
 
 /**
  * Answers `GET /api/admin/services/listings` and `PUT .../{id}` over `listings`, as the API does
- * (ADR 0054): a save replaces the listing's fields, and the next list shows them. `refuse` may answer
+ * (ADR 0055): a save replaces the listing's fields, and the next list shows them. `refuse` may answer
  * a save, by its zero-based number, with a refusal instead; `hold` holds each save until it settles.
  * `DELETE .../{id}` (slice 23.2) removes the listing and answers 204; `refuseRemove` answers one by its
  * number with a refusal instead and `holdRemove` holds each removal until it settles.

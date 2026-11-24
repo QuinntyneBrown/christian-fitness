@@ -32,7 +32,7 @@ export interface RequestBookingTarget {
 export type RequestBookingResult = string | null;
 
 /**
- * The Request a booking dialog (L2-014 AC3 to AC5; ADR 0053; mock `docs/mocks/dialogs/request-booking/`),
+ * The Request a booking dialog (L2-014 AC3 to AC5; ADR 0000; mock `docs/mocks/dialogs/request-booking/`),
  * a CDK Dialog that renders the library's `cf-dialog` shell around the library's form controls. It
  * opens on What would you like, the free intro call chosen. Before sending, `validateBooking` names
  * each field to fix and nothing is sent (mock `invalid`). While the send is on its way the button
@@ -137,7 +137,7 @@ export class RequestBookingDialog {
 }
 
 /**
- * Opens the Request a booking dialog with the CDK Dialog (ADR 0053). `injector` is the screen's, so
+ * Opens the Request a booking dialog with the CDK Dialog (ADR 0054). `injector` is the screen's, so
  * the dialog uses the screen's `SERVICES_SERVICE`. The library's `cf-dialog` draws the scrim, so
  * there is no CDK backdrop; the CDK container is the `role="dialog"`, `aria-modal` element named by
  * the dialog's title, hides the rest of the page from assistive technology, traps focus, starts it

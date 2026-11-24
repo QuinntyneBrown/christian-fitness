@@ -1,6 +1,6 @@
 import type { ApiError, BookingKind, RequestBookingDto } from '@cf/api';
 
-/** What the Request a booking dialog holds while the member types (ADR 0053). */
+/** What the Request a booking dialog holds while the member types (ADR 0000). */
 export interface BookingForm {
   kind: BookingKind;
   when: string;
@@ -50,7 +50,7 @@ export function bookingFirstName(name: string): string {
 }
 
 /**
- * The Request a booking rules (L2-014 AC3; ADR 0053): `when` is required and at most 200
+ * The Request a booking rules (L2-014 AC3; ADR 0054): `when` is required and at most 200
  * characters, the message at most 1,000, both counted trimmed. The API's `RequestBookingValidator`
  * checks the same table, so a request that passes here is not refused there.
  */
@@ -102,7 +102,7 @@ export function clearBookingError(
 }
 
 /**
- * What the dialog shows for a failed send (L2-014 AC5; ADR 0053): `unavailable` for the code
+ * What the dialog shows for a failed send (L2-014 AC5; ADR 0054): `unavailable` for the code
  * `recipient_unavailable` (the professional is suspended or the listing is the member's own);
  * `failed` (mock `failed`) for any other refusal or no answer. The server's words are never shown.
  */

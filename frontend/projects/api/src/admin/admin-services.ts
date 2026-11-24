@@ -3,7 +3,7 @@ import type { Observable } from 'rxjs';
 import type { ServiceCategory } from '../services/professional-applications';
 
 /**
- * One pending application as staff read it (`PendingApplicationDto`, ADR 0048): the applicant's
+ * One pending application as staff read it (`PendingApplicationDto`, ADR 0000): the applicant's
  * name, the role and credentials they wrote, and when it was sent as an ISO instant in UTC. Every
  * text is plain text, rendered as text (L2-032).
  */
@@ -25,7 +25,7 @@ export interface PendingApplicationsDto {
 }
 
 /**
- * How staff decided an application (`ApplicationDecisionDto`, ADR 0049): the application, whether it
+ * How staff decided an application (`ApplicationDecisionDto`, ADR 0050): the application, whether it
  * is `approved` or `declined`, and the published listing's id when it was approved.
  */
 export interface ApplicationDecisionDto {
@@ -35,7 +35,7 @@ export interface ApplicationDecisionDto {
 }
 
 /**
- * One live listing as staff read and edit it (`AdminListingDto`, ADR 0054): the fields members see on
+ * One live listing as staff read and edit it (`AdminListingDto`, ADR 0055): the fields members see on
  * Services, the contact link itself (or `null` when members message the professional here) and when
  * it was published, an ISO instant in UTC. Every text is plain text, rendered as text (L2-032).
  */
@@ -58,7 +58,7 @@ export interface AdminListingsDto {
   listings: AdminListingDto[];
 }
 
-/** What the listing editor saves (`PUT /api/admin/services/listings/{id}`, ADR 0054): every editable field. */
+/** What the listing editor saves (`PUT /api/admin/services/listings/{id}`, ADR 0055): every editable field. */
 export interface UpdateListingDto {
   name: string;
   role: string;
@@ -71,7 +71,7 @@ export interface UpdateListingDto {
   contactUrl: string | null;
 }
 
-/** Staff review professional applications and keep listings correct (L2-025, L2-027; ADR 0048, ADR 0049, ADR 0054). */
+/** Staff review professional applications and keep listings correct (L2-025, L2-027; ADR 0049, ADR 0050, ADR 0055). */
 export interface AdminServicesApi {
   /** The queue, oldest first. A failure errors with an `ApiError`. */
   applications(): Observable<PendingApplicationsDto>;
@@ -101,7 +101,7 @@ export interface AdminServicesApi {
   updateListing(id: string, listing: UpdateListingDto): Observable<AdminListingDto>;
 
   /**
-   * Removes the listing `id` (`DELETE .../listings/{id}`, slice 23.2; ADR 0055). A failure errors
+   * Removes the listing `id` (`DELETE .../listings/{id}`, slice 23.2; ADR 0056). A failure errors
    * with an `ApiError`: 404 `service_not_found` when the listing is gone already.
    */
   removeListing(id: string): Observable<void>;

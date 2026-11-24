@@ -58,8 +58,9 @@ is written. A missing connection string stops either command with exit code 2.
 
 ## Static host (the built member and admin apps)
 
-The apps are static files (`ng build`), served by any host that can set response headers; the
-deployment journey (L2-041) chooses it. The API sets the same protections on its own responses
+The apps are static files (`ng build`), served by any host that can set response headers. The
+deployed system uses nginx in the API's replica (`frontend/deploy/`, ADR 0047;
+[`deployment.md`](deployment.md) says where each setting on this page is set). The API sets the same protections on its own responses
 (L2-030 AC4, ADR 0009). The host sends, with every file:
 
 | Header                      | Value                                                                                                                                   |

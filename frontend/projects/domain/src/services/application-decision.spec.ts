@@ -6,7 +6,7 @@ import {
   decisionRefusalOf,
 } from './application-decision';
 
-// L2-025 AC3 (ADR 0049): a decline needs a reason of at most 500 characters once trimmed.
+// L2-025 AC3 (ADR 0000): a decline needs a reason of at most 500 characters once trimmed.
 describe('declineReasonProblem', () => {
   it.each([
     { why: 'nothing', reason: '', expected: 'Write a reason for declining' },

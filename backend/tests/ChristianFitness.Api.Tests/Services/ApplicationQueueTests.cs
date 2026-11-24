@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-025 AC1 and AC4 (slice 21.1; ADR 0048): an Admin opens <c>GET /api/admin/services/applications</c>
+/// L2-025 AC1 and AC4 (slice 21.1; ADR 0000): an Admin opens <c>GET /api/admin/services/applications</c>
 /// and sees each Pending application's name, role, credentials and submitted time, oldest first, with
 /// the number waiting; a decided application is not listed; with none the list is empty; a Moderator,
 /// a member and nobody are refused.

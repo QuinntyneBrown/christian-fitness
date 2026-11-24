@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-025 AC2 and AC3 (slice 21.2; ADR 0049): an Admin approves a Pending application and a published
+/// L2-025 AC2 and AC3 (slice 21.2; ADR 0000): an Admin approves a Pending application and a published
 /// listing is created, or declines it with a reason and none is; either leaves the queue and leaves one
 /// audit entry without the reason; deciding a decided or unknown application is refused with a code and
 /// changes nothing; a Moderator, a member and nobody are refused.

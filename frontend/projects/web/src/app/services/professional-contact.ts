@@ -12,13 +12,13 @@ import type {
 } from '../dialogs/request-booking/request-booking-dialog';
 
 /**
- * What a member does with a listing's contact action (L2-014; ADR 0052): Message asks the API for
+ * What a member does with a listing's contact action (L2-014; ADR 0000): Message asks the API for
  * the direct conversation with the professional and opens it in Messages; Contact asks for the
  * contact link, only now, and opens it in a new browsing context without access to this page
  * (`noopener,noreferrer`), and only when it is an http or https address. One action runs at a time;
  * a failure leaves a sentence in `problem` and the action can be pressed again. It is provided on
  * the screen that shows the card, so its request ends with the screen. Request a booking opens its
- * dialog (L2-014 AC3; ADR 0053): the dialog's code and the CDK Dialog are imported on first use, it
+ * dialog (L2-014 AC3; ADR 0054): the dialog's code and the CDK Dialog are imported on first use, it
  * opens with the screen's injector, and it is closed by its ref when the screen goes; Go to messages
  * in it closes it first and then opens the conversation.
  */

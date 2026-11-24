@@ -3,7 +3,7 @@ import { answerService, answerServices, CAST, MARCUS } from '../fixtures/service
 import { WebServiceDetailPage } from '../page-objects/web/service-detail.page';
 import { WebServicesPage } from '../page-objects/web/services.page';
 
-// L2-013 AC4 (ADR 0051): below LG a chosen professional opens as its own screen with a back action.
+// L2-013 AC4 (ADR 0000): below LG a chosen professional opens as its own screen with a back action.
 test.describe('Member app, listing detail', () => {
   test('The listing screen shows name, role, where, about, credentials, rate and the verified line', async ({
     page,

@@ -43,7 +43,7 @@ interface Unsent {
  * `/messages/:id` it is a private conversation with that member (slice 14.1; ADR 0043): the same
  * thread and composer, joined and sent through the direct hub methods, and a member who cannot be
  * messaged (`recipient_unavailable`) is told so. A message from another member can be reported
- * (slice 25.1; ADR 0057) from its Report button, which opens the dialog.
+ * (slice 25.1; ADR 0000) from its Report button, which opens the dialog.
  */
 @Component({
   selector: 'cf-event-chat-page',
@@ -144,7 +144,7 @@ export class EventChatPage {
 
   /**
    * Opens the Report a message dialog for a message from another member (L2-017; slice 25.1; ADR
-   * 0057). The dialog's code loads the first time it is wanted; it uses this screen's
+   * 0058). The dialog's code loads the first time it is wanted; it uses this screen's
    * `REPORTS_SERVICE`, and focus returns to the Report button when it closes.
    */
   protected async report(id: string): Promise<void> {

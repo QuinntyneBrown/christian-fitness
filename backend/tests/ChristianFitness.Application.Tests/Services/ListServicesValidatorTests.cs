@@ -3,7 +3,7 @@ using ChristianFitness.Application.Services;
 namespace ChristianFitness.Application.Tests.Services;
 
 /// <summary>
-/// L2-013 AC2 (ADR 0050): the same rows as <c>service-category-filter.spec.ts</c>; a category is
+/// L2-013 AC2 (ADR 0000): the same rows as <c>service-category-filter.spec.ts</c>; a category is
 /// optional, and a supplied name must be one of the five exactly, in its capitals.
 /// </summary>
 public sealed class ListServicesValidatorTests

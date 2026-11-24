@@ -9,7 +9,7 @@ import { listingGone } from '@cf/domain';
 export type RemoveListingResult = 'removed' | 'gone' | null;
 
 /**
- * The Remove listing confirmation (L2-027 AC2; ADR 0055; mock `docs/mocks/dialogs/remove-listing/`),
+ * The Remove listing confirmation (L2-027 AC2; ADR 0000; mock `docs/mocks/dialogs/remove-listing/`),
  * a CDK Dialog around the library's `cf-dialog`. "Keep listing", Close, Escape and the scrim leave
  * with the listing on Services; "Remove listing" asks the screen's `ADMIN_SERVICES_SERVICE` and,
  * while it is on its way, is busy and everything holds still. A refusal or no answer keeps the

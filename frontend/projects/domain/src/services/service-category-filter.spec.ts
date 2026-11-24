@@ -6,7 +6,7 @@ import {
   servicesHref,
 } from './service-category-filter';
 
-// L2-013 AC2 (ADR 0050): the same 11 rows as ListServicesValidatorTests.cs. What the API accepts as
+// L2-013 AC2 (ADR 0000): the same 11 rows as ListServicesValidatorTests.cs. What the API accepts as
 // a category, the URL reader keeps; anything else shows All (`null`), so a crafted URL never asks
 // the API a question it refuses.
 describe('serviceCategoryOf', () => {
@@ -71,7 +71,7 @@ describe('noCategoryServicesText', () => {
   });
 });
 
-// L2-013 AC4 (ADR 0051): a listing's own screen carries the category Back returns to.
+// L2-013 AC4 (ADR 0052): a listing's own screen carries the category Back returns to.
 describe('listingHref', () => {
   it.each([
     { why: 'no category', id: 'abc', category: null, expected: '/services/abc' },

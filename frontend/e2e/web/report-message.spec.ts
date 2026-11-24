@@ -30,7 +30,7 @@ const HISTORY: ChatMessage[] = [
   },
 ];
 
-// L2-017 (slice 25.1; ADR 0057): Report on a received message opens a dialog with an optional reason;
+// L2-017 (slice 25.1; ADR 0000): Report on a received message opens a dialog with an optional reason;
 // once recorded it says "Message reported" (mock `default`, `busy`, `failed`, `refused`, `success`).
 test.describe('Member app, report a message', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,4 +1,4 @@
-/** The longest reason a decline keeps, counted once trimmed (L2-025 AC3; ADR 0049). */
+/** The longest reason a decline keeps, counted once trimmed (L2-025 AC3; ADR 0000). */
 export const DECLINE_REASON_MAX = 500;
 
 /** Why a decision did not go through: someone decided it first, or it simply failed. */
@@ -13,7 +13,7 @@ export function declineReasonProblem(reason: string): string | null {
 }
 
 /**
- * Each refusal is its status and its code together (ADR 0049): the application is decided or no
+ * Each refusal is its status and its code together (ADR 0050): the application is decided or no
  * longer there, which staff meet the same way. Anything else is a failure.
  */
 export function decisionRefusalOf(error: unknown): DecisionRefusal {

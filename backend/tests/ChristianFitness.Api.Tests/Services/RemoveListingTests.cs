@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-027 AC2 (slice 23.2; ADR 0055): an Admin removes a live listing with <c>DELETE</c>; it is gone
+/// L2-027 AC2 (slice 23.2; ADR 0000): an Admin removes a live listing with <c>DELETE</c>; it is gone
 /// from the staff list and from the Services list of members, whose detail, contact, message and booking
 /// calls answer 404; the conversation a member already holds with the professional stays; the removal
 /// leaves one audit entry that holds no text; an unknown or already removed listing is refused 404

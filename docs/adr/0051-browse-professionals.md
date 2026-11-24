@@ -1,4 +1,4 @@
-# 0050. Browse professionals
+# 0000. Browse professionals
 
 ## Status
 
@@ -7,8 +7,8 @@ Accepted, 24 November 2026 (slice 16.1).
 ## Context
 
 L2-013 lets a member browse the published listings on Services, filter them by category and read the
-selected one's card. Approving an application already publishes a `ServiceListing` (ADR 0049) and the
-Services page already hosts "Apply to be listed" (ADR 0047). The detailed design
+selected one's card. Approving an application already publishes a `ServiceListing` (ADR 0050) and the
+Services page already hosts "Apply to be listed" (ADR 0048). The detailed design
 (`docs/detailed-designs/services/browse-services/`) left the paging, the category address, the
 error code for an unknown category and the narrow-screen behaviour to supply, and the mocks have no
 state for a category with nobody in it. The full listing screen (credentials and price on a route of
@@ -19,7 +19,7 @@ its own) is slice 16.2, and contacting or booking a professional is slices 17.1 
 - **Endpoint.** `GET /api/services?category=` for any signed-in member (the fallback policy refuses a
   visitor 401; there is no staff policy). One MediatR query answers `{ total, services }`: the listings
   in `Name` then `Id` order, at most 50, with `total` counting every match so the cap is never silent
-  (the same shape as the application queue, ADR 0048). Each listing carries `id`, `name`, `role`,
+  (the same shape as the application queue, ADR 0049). Each listing carries `id`, `name`, `role`,
   `category`, `where`, `price`, `credentials`, `about` and `publishedAt`; one DTO serves the row and
   the card, so choosing a row asks for nothing more. No contact detail, member id or application id is
   served.
@@ -31,7 +31,7 @@ its own) is slice 16.2, and contacting or booking a professional is slices 17.1 
   one, because it reads the address through `serviceCategoryOf`, which shows All for anything unknown.
   One table of 11 cases runs in both stacks (`ListServicesValidatorTests`, `service-category-filter.spec.ts`).
 - **Removed listings.** L2-013 AC5 (a removed listing is not shown) holds because a listing that exists
-  is published (ADR 0049); slice 23 deletes the row. There is nothing to filter and nothing to test
+  is published (ADR 0050); slice 23 deletes the row. There is nothing to filter and nothing to test
   until then.
 - **Address.** `/services?category=Nutrition&selected={id}`. Choosing a chip or a row is a navigation, so
   the address, the back button and a reload agree; only a category change asks the API again. A

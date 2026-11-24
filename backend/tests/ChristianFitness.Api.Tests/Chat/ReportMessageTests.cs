@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Chat;
 
 /// <summary>
-/// L2-017 (slice 25.1; ADR 0057): a member reports a message of a group chat or a direct conversation
+/// L2-017 (slice 25.1; ADR 0000): a member reports a message of a group chat or a direct conversation
 /// (<c>POST /api/messages/{id}/reports</c> with an optional reason). The report records who, which
 /// message and when; an Active sender becomes Flagged, and the staff Members list shows them so; a
 /// second report of the same message by the same member is refused <c>already_reported</c> with no new

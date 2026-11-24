@@ -19,7 +19,7 @@ export interface ReportMessageTarget {
 }
 
 /**
- * The Report a message dialog (L2-017; ADR 0057; mock `docs/mocks/dialogs/report-message/`), a CDK
+ * The Report a message dialog (L2-017; ADR 0000; mock `docs/mocks/dialogs/report-message/`), a CDK
  * Dialog that renders the library's `cf-dialog` shell around an optional Reason. Cancel, Close, Escape
  * and the scrim leave with nothing sent. While the report is on its way the button reads "Reporting…",
  * the reason holds still and everything else does nothing (mock `busy`). A refusal or no answer keeps
@@ -92,7 +92,7 @@ export class ReportMessageDialog {
 }
 
 /**
- * Opens the Report a message dialog with the CDK Dialog (ADR 0057). `injector` is the screen's, so the
+ * Opens the Report a message dialog with the CDK Dialog (ADR 0058). `injector` is the screen's, so the
  * dialog uses the screen's `REPORTS_SERVICE`. The library's `cf-dialog` draws the scrim, so there is
  * no CDK backdrop; the CDK container is the `role="dialog"`, `aria-modal` element named by the dialog's
  * title, traps focus, starts it in Reason and returns it to the Report button. Escape and the scrim go

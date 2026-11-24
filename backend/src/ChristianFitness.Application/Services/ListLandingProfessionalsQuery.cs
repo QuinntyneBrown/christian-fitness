@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Services;
 
-/// <summary>A professional as the public landing page shows one: the public fields of a listing and nothing that identifies or reaches the person (L2-001 AC5; ADR 0056).</summary>
+/// <summary>A professional as the public landing page shows one: the public fields of a listing and nothing that identifies or reaches the person (L2-001 AC5; ADR 0000).</summary>
 public sealed record LandingProfessionalDto(string Name, string Role, string Category, string Where, string Price);
 
-/// <summary>The first few published listings by name, at most <see cref="Limit"/> (L2-001 AC5 to AC7; ADR 0056).</summary>
+/// <summary>The first few published listings by name, at most <see cref="Limit"/> (L2-001 AC5 to AC7; ADR 0057).</summary>
 public sealed record ListLandingProfessionalsQuery : IRequest<IReadOnlyList<LandingProfessionalDto>>
 {
     public const int Limit = 3;

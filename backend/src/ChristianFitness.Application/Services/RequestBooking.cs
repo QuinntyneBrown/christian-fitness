@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Services;
 
-/// <summary>The professional the booking request went to: Messages opens the conversation at <c>/messages/{memberId}</c> (ADR 0053).</summary>
+/// <summary>The professional the booking request went to: Messages opens the conversation at <c>/messages/{memberId}</c> (ADR 0000).</summary>
 public sealed record BookingRequestDto(Guid MemberId);
 
 /// <summary>
-/// A member asks a listing's professional for a session (L2-014 AC3 to AC5; ADR 0053). A class, not a
+/// A member asks a listing's professional for a session (L2-014 AC3 to AC5; ADR 0054). A class, not a
 /// record, so a generated <c>ToString</c> never prints the member's words if one is logged.
 /// </summary>
 public sealed class RequestBookingCommand : IRequest<BookingRequestDto>
@@ -26,7 +26,7 @@ public sealed class RequestBookingCommand : IRequest<BookingRequestDto>
     public string? Message { get; init; }
 }
 
-/// <summary>The rules of the booking dialog (ADR 0053); the member app's <c>validateBookingRequest</c> checks the same table.</summary>
+/// <summary>The rules of the booking dialog (ADR 0054); the member app's <c>validateBookingRequest</c> checks the same table.</summary>
 public sealed class RequestBookingValidator : AbstractValidator<RequestBookingCommand>
 {
     public const string KindUnknown = "Choose what you would like";
@@ -61,7 +61,7 @@ public sealed class RequestBookingValidator : AbstractValidator<RequestBookingCo
 /// <summary>
 /// Delivers the request as a direct message from the member to the listing's professional by sending
 /// the direct-message command of slice 14.1, so the conversation starts and the professional is
-/// notified as for any message (ADR 0053). A listing that publishes a contact link is 409
+/// notified as for any message (ADR 0054). A listing that publishes a contact link is 409
 /// <c>professional_not_linked</c>; an unknown one 404 <c>service_not_found</c>; a suspended professional
 /// or the caller's own listing 403 <c>recipient_unavailable</c>. Nothing is logged.
 /// </summary>

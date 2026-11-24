@@ -39,7 +39,7 @@ function answerSends(api: ApiHandlers, ...replies: ApiReply[]): { bodies: unknow
   return sent;
 }
 
-// L2-026 AC1 (ADR 0047): "Apply to be listed" on Services opens a dialog; a filled-in application is
+// L2-026 AC1 (ADR 0000): "Apply to be listed" on Services opens a dialog; a filled-in application is
 // sent trimmed and the member is told it was sent (mock `default`, `success`).
 test.describe('Member app, apply to be listed', () => {
   test('Services shows the Apply to be listed button, which opens the dialog on Role', async ({
@@ -140,7 +140,7 @@ test.describe('Member app, apply to be listed', () => {
   });
 });
 
-// L2-026 (ADR 0047): a blank role or credentials is named in the dialog and nothing is sent
+// L2-026 (ADR 0048): a blank role or credentials is named in the dialog and nothing is sent
 // (mock `invalid`).
 test.describe('Member app, apply to be listed: the dialog names each field to fix', () => {
   test('a blank role and credentials are named, nothing is sent, and typing clears each', async ({
@@ -203,7 +203,7 @@ test.describe('Member app, apply to be listed: the dialog names each field to fi
   });
 });
 
-// L2-026 AC2 (ADR 0047): a second application while one is pending, a refused or an unanswered send
+// L2-026 AC2 (ADR 0048): a second application while one is pending, a refused or an unanswered send
 // keeps the dialog and every value with a generic message (mock `refused`, `failed`).
 test.describe('Member app, apply to be listed: a send that does not go through', () => {
   test('a pending application is explained, and every value is kept', async ({ page, api }) => {

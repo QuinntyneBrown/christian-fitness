@@ -15,9 +15,9 @@ const QUEUE = '/api/admin/services/applications';
 const LISTINGS = '/api/admin/services/listings';
 
 /**
- * {@link AdminServicesApi} over HTTP: `GET /api/admin/services/applications` (ADR 0048) and
- * `POST .../{id}/approve` and `.../{id}/decline` (ADR 0049), and `GET` and `PUT
- * /api/admin/services/listings` (ADR 0054). A failure
+ * {@link AdminServicesApi} over HTTP: `GET /api/admin/services/applications` (ADR 0000) and
+ * `POST .../{id}/approve` and `.../{id}/decline` (ADR 0050), and `GET` and `PUT
+ * /api/admin/services/listings` (ADR 0055). A failure
  * errors with an `ApiError` (`apiErrorOf`), so no screen handles an `HttpErrorResponse`. It holds
  * no state.
  */

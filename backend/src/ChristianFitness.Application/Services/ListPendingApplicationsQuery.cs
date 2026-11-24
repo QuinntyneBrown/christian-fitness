@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Services;
 
-/// <summary>One Pending application as staff read it: who, the role, the credentials and when it was sent (L2-025 AC1; ADR 0048).</summary>
+/// <summary>One Pending application as staff read it: who, the role, the credentials and when it was sent (L2-025 AC1; ADR 0000).</summary>
 public sealed record PendingApplicationDto(Guid Id, string Name, string Role, string Credentials, DateTimeOffset SubmittedAt);
 
-/// <summary>The oldest Pending applications and how many are waiting in all (L2-025 AC1, AC4; ADR 0048).</summary>
+/// <summary>The oldest Pending applications and how many are waiting in all (L2-025 AC1, AC4; ADR 0049).</summary>
 public sealed record PendingApplicationsDto(int Total, IReadOnlyList<PendingApplicationDto> Applications);
 
 /// <summary>Lists the Pending applications, oldest first, at most <see cref="Limit"/>.</summary>
 public sealed record ListPendingApplicationsQuery : IRequest<PendingApplicationsDto>
 {
-    /// <summary>The most applications one answer holds; <see cref="PendingApplicationsDto.Total"/> still counts every one (ADR 0048).</summary>
+    /// <summary>The most applications one answer holds; <see cref="PendingApplicationsDto.Total"/> still counts every one (ADR 0049).</summary>
     public const int Limit = 50;
 }
 

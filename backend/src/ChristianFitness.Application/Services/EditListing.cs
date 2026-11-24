@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Services;
 
-/// <summary>One live listing as staff read and edit it, with the contact link itself (L2-027 AC1; ADR 0054).</summary>
+/// <summary>One live listing as staff read and edit it, with the contact link itself (L2-027 AC1; ADR 0000).</summary>
 public sealed record AdminListingDto(
     Guid Id, string Name, string Role, string Category, string Where, string Price, string Credentials, string About, string? ContactUrl, DateTimeOffset PublishedAt);
 
-/// <summary>The live listings, at most <see cref="ListAdminListingsQuery.Limit"/>, and how many exist in all (ADR 0054).</summary>
+/// <summary>The live listings, at most <see cref="ListAdminListingsQuery.Limit"/>, and how many exist in all (ADR 0055).</summary>
 public sealed record AdminListingsDto(int Total, IReadOnlyList<AdminListingDto> Listings);
 
 /// <summary>Lists the live listings for staff in name order.</summary>
@@ -41,7 +41,7 @@ internal sealed class ListAdminListingsHandler(IAppDbContext db) : IRequestHandl
 }
 
 /// <summary>
-/// Replaces every editable field of the live listing <see cref="Id"/> (L2-027 AC1; ADR 0054). A class, not a
+/// Replaces every editable field of the live listing <see cref="Id"/> (L2-027 AC1; ADR 0055). A class, not a
 /// record, so no generated <c>ToString</c> can print the values. Audited as <c>listing.updated</c>; the entry
 /// keeps no field value.
 /// </summary>
@@ -68,7 +68,7 @@ public sealed class UpdateListingCommand : IRequest<AdminListingDto>, IAuditable
     public string? ContactUrl { get; init; }
 }
 
-/// <summary>The field codes a listing edit is refused with, named in the <c>fieldCodes</c> of the refusal (ADR 0054); the sentences never repeat a value.</summary>
+/// <summary>The field codes a listing edit is refused with, named in the <c>fieldCodes</c> of the refusal (ADR 0055); the sentences never repeat a value.</summary>
 public static class EditListingRules
 {
     public const string CategoryInvalid = "category_invalid";

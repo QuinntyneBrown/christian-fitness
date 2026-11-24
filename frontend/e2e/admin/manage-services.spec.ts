@@ -8,7 +8,7 @@ import { ManageServicesPage } from '../page-objects/admin/manage-services.page';
 
 const PATH = '/api/admin/services/applications';
 
-// L2-025 AC1 and AC4 (slice 21.1; ADR 0048): the Services page shows the application queue.
+// L2-025 AC1 and AC4 (slice 21.1; ADR 0000): the Services page shows the application queue.
 test.describe('Admin app, the application queue', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 

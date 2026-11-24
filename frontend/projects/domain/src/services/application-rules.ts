@@ -5,7 +5,7 @@ import {
   type SubmitApplicationDto,
 } from '@cf/api';
 
-/** What the Apply to be listed dialog holds while the member types (ADR 0047). */
+/** What the Apply to be listed dialog holds while the member types (ADR 0000). */
 export interface ApplicationForm {
   role: string;
   category: ServiceCategory;
@@ -78,7 +78,7 @@ export function emptyApplicationForm(): ApplicationForm {
 }
 
 /**
- * The Apply to be listed rules (L2-026; ADR 0047): each invalid field's message, in the dialog's
+ * The Apply to be listed rules (L2-026; ADR 0048): each invalid field's message, in the dialog's
  * order. The API's `SubmitApplicationValidator` checks the same table, so an application that
  * passes here is not refused there. Every field is required; lengths count the trimmed text.
  */
@@ -127,7 +127,7 @@ export function clearApplicationError(
 }
 
 /**
- * What the dialog shows for a failed send (L2-026 AC2; ADR 0047): `pending` as "You already have an
+ * What the dialog shows for a failed send (L2-026 AC2; ADR 0048): `pending` as "You already have an
  * application" (mock `refused`) for the code `application_pending`; `failed` as "Your application
  * didn't send" (mock `failed`) for any other refusal or no answer. The server's words are never shown.
  */

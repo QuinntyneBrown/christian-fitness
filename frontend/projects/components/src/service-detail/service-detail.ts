@@ -11,7 +11,7 @@ import { Skeleton } from '../skeleton/skeleton';
  * `service-detail`): a large avatar, the role as an eyebrow, the name as the card's heading, where
  * they work, the about text, a `spec-list` of credentials and rate, the verified line and the
  * contact actions: Request a booking and Message, or Contact alone when the listing publishes a
- * contact link (`hasContactLink`; L2-014; ADR 0053). It emits `requestBooking`, `startMessage` or `openContact` and holds no contact detail; while `busy` the action
+ * contact link (`hasContactLink`; L2-014; ADR 0000). It emits `requestBooking`, `startMessage` or `openContact` and holds no contact detail; while `busy` the action
  * ignores presses, and a `problem` shows as an alert above it. Sticky from LG. With `loading` it is the same card of `cf-skeleton`s. Every text is rendered as text.
  */
 @Component({

@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Services;
 namespace ChristianFitness.Application.Tests.Services;
 
 /// <summary>
-/// L2-014 AC2 (ADR 0052): a contact link is an absolute http or https address, at most 2,000
+/// L2-014 AC2 (ADR 0000): a contact link is an absolute http or https address, at most 2,000
 /// characters, with no sign-in details in it; blank clears it. The same rows as <c>contact-link.spec.ts</c>.
 /// </summary>
 public sealed class ServiceListingContactUrlTests

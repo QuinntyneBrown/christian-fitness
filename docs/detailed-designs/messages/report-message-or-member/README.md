@@ -14,19 +14,19 @@ member when it breaks the community's standards, so staff can review the sender.
 A member chooses Report on another member's message and may give a reason. The system records
 the report, moves an Active sender to Flagged for staff review, and shows the reporter a
 confirmation. A second report of the same message by the same member is refused
-(`already_reported`) and creates no duplicate. ADR 0057 settles what this design left open.
+(`already_reported`) and creates no duplicate. ADR 0000 settles what this design left open.
 Staff review of Flagged members belongs to the admin moderation subsystem.
 
 The title of `L2-017` names a member as well as a message, but its acceptance criteria only
 describe reporting a message. Reporting a member directly, without a message, is
-out of scope (ADR 0057); this design covers the message path.
+out of scope (ADR 0058); this design covers the message path.
 
 ## Description
 
 The slice runs from the conversation screen to the database. The mock is
 `docs/mocks/dialogs/report-message/` (default, busy, failed, duplicate, success) over the
 Messages thread, whose received messages carry a Report button. The confirmation is the
-dialog's own success state, not a toast (ADR 0057).
+dialog's own success state, not a toast (ADR 0058).
 
 - **`ConversationPage`** — page from the send-and-receive-messages feature. It offers Report on
   messages whose sender is not the current member.
@@ -47,7 +47,7 @@ dialog's own success state, not a toast (ADR 0057).
 - **`Member`** — domain entity; `TryFlag` moves `Active` to `Flagged`; a member already `Flagged` or `Suspended` keeps
   their status (L2-017 AC4).
 
-The reason text and the reporter's identity are not logged or placed in telemetry. The error codes are in ADR 0057.
+The reason text and the reporter's identity are not logged or placed in telemetry. The error codes are in ADR 0058.
 
 ## Requirements
 

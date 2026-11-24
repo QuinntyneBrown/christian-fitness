@@ -7,28 +7,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Dashboard;
 
-/// <summary>One pending application as the Dashboard names it: who, the role they apply for and when (ADR 0059).</summary>
+/// <summary>One pending application as the Dashboard names it: who, the role they apply for and when (ADR 0000).</summary>
 public sealed record AwaitingApplicationDto(Guid Id, string Name, string Role, DateTimeOffset SubmittedAt);
 
-/// <summary>One flagged member as the Dashboard names it: who and staff's own note, as the Members screen shows them (ADR 0059).</summary>
+/// <summary>One flagged member as the Dashboard names it: who and staff's own note, as the Members screen shows them (ADR 0060).</summary>
 public sealed record AwaitingFlaggedMemberDto(Guid Id, string Name, string? Note);
 
 /// <summary>How many wait in all and the oldest few of them.</summary>
 public sealed record AwaitingListDto<T>(int Total, IReadOnlyList<T> Items);
 
-/// <summary>The work waiting for the caller; <see cref="Applications"/> is omitted for a Moderator (ADR 0059).</summary>
+/// <summary>The work waiting for the caller; <see cref="Applications"/> is omitted for a Moderator (ADR 0060).</summary>
 public sealed record WorkAwaitingStaffDto(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     AwaitingListDto<AwaitingApplicationDto>? Applications,
     AwaitingListDto<AwaitingFlaggedMemberDto> FlaggedMembers);
 
-/// <summary>Staff ask what is waiting for them (L2-020 AC7 to AC10; ADR 0059).</summary>
+/// <summary>Staff ask what is waiting for them (L2-020 AC7 to AC10; ADR 0060).</summary>
 public sealed record GetWorkAwaitingStaffQuery : IRequest<WorkAwaitingStaffDto>;
 
 /// <summary>
 /// Counts the Pending applications and the Flagged members and names the oldest <see cref="Shown"/> of each: applications by
 /// submitted time, members by join time (no flag time is kept). A Moderator's answer has no applications, so none is read
-/// for them (ADR 0059). Name, role and the staff note are what the Services and Members screens already show their role.
+/// for them (ADR 0060). Name, role and the staff note are what the Services and Members screens already show their role.
 /// </summary>
 internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMember current) : IRequestHandler<GetWorkAwaitingStaffQuery, WorkAwaitingStaffDto>
 {

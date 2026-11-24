@@ -69,11 +69,11 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
  * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021), and
  * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
- * `GET /api/admin/dashboard/activity` answers eight quiet weeks, so the Dashboard opens empty (ADR 0058), and
- * `GET /api/admin/dashboard/awaiting` answers nothing waiting (ADR 0059), and
- * `GET /api/admin/services/applications` answers an empty queue (ADR 0048), and
- * `GET /api/services` answers nobody listed, so Services opens empty (ADR 0050), and
- * `GET /api/services/{id}` answers 404 `service_not_found` (ADR 0051), and
+ * `GET /api/admin/dashboard/activity` answers eight quiet weeks, so the Dashboard opens empty (ADR 0000), and
+ * `GET /api/admin/dashboard/awaiting` answers nothing waiting (ADR 0060), and
+ * `GET /api/admin/services/applications` answers an empty queue (ADR 0049), and
+ * `GET /api/services` answers nobody listed, so Services opens empty (ADR 0051), and
+ * `GET /api/services/{id}` answers 404 `service_not_found` (ADR 0052), and
  * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044).
  */
 export class ApiHandlers {

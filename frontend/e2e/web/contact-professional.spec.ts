@@ -38,7 +38,7 @@ async function recordWindows(page: Page): Promise<() => Promise<OpenedWindow[]>>
   return () => page.evaluate(() => (window as unknown as { __opened: OpenedWindow[] }).__opened);
 }
 
-// L2-014 (slice 17.1; ADR 0052): Message opens the direct conversation; Contact opens the link.
+// L2-014 (slice 17.1; ADR 0000): Message opens the direct conversation; Contact opens the link.
 test.describe('Member app, message or contact a professional', () => {
   test.beforeEach(async ({ page }) => {
     await page.clock.setFixedTime(MESSAGES_NOW);

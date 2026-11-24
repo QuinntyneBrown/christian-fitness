@@ -49,7 +49,7 @@ export type ListingEditorResult = { saved: AdminListingDto } | { gone: true };
 
 /**
  * The listing editor, "Edit listing" (mock docs/mocks/dialogs/listing-editor/, states `edit` and
- * `edit-invalid`; L2-027 AC1; ADR 0054): a CDK Dialog rendering the library drawer, which draws its
+ * `edit-invalid`; L2-027 AC1; ADR 0000): a CDK Dialog rendering the library drawer, which draws its
  * own scrim and its panel at the right edge, so the CDK adds no backdrop (ADR 0017). Focus starts on
  * Name and goes back to what opened it. Save changes sends every field; while it is on its way the
  * button reads "Saving…", the fields hold still and the drawer stays open. A saved listing closes the

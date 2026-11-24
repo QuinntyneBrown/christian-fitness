@@ -1,4 +1,4 @@
-# 0054. Edit a listing
+# 0000. Edit a listing
 
 ## Status
 
@@ -20,11 +20,11 @@ a Massage category, and the Manage Services mock draws a "Live listings" table w
 - **Fields and rules.** Name (the name as members read it, at most 100 like a member name), role (80),
   category (one of the five, exact name), where (80), price (60), credentials (200), about (300), all
   required and counted trimmed; contact link optional (blank clears it), an absolute http or https
-  address of at most 2,000 characters with a host and no credentials (the rule of ADR 0052, now one
+  address of at most 2,000 characters with a host and no credentials (the rule of ADR 0053, now one
   method on `ServiceListing`). Each refusal is 400 `validation_failed` with `fieldCodes` by field
   (`name_required`, `name_too_long`, `category_invalid`, `contact_link_invalid`, and so on); sentences
   never repeat a value. The member app's names for the fields stay: the API's `price` is the mock's Rate.
-- **Missing listing.** 404 `service_not_found`, the code of ADR 0051; no new code.
+- **Missing listing.** 404 `service_not_found`, the code of ADR 0052; no new code.
 - **Audit.** `UpdateListingCommand` is an `IAuditableCommand` named `listing.updated`; the entry is the
   actor, the action, `ServiceListing`, the id and the time, as for every staff change (ADR 0023), so no
   text is kept. The command is a class, so its values never print; nothing is logged.

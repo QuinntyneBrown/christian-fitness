@@ -6,7 +6,7 @@ import { ManageServicesPage } from '../page-objects/admin/manage-services.page';
 const LISTINGS = '/api/admin/services/listings';
 const [DANIELLE, MARCUS] = CAST_LISTINGS;
 
-// L2-027 AC1 (slice 23.1; ADR 0054): staff see the live listings and edit one; members see the change.
+// L2-027 AC1 (slice 23.1; ADR 0000): staff see the live listings and edit one; members see the change.
 test.describe('Admin app, live listings and the listing editor', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 

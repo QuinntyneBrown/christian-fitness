@@ -1,6 +1,6 @@
 import { SERVICE_CATEGORIES, type ServiceCategory } from '@cf/api';
 
-/** One filter chip on the member Services screen (L2-013 AC2; ADR 0050). */
+/** One filter chip on the member Services screen (L2-013 AC2; ADR 0000). */
 export interface ServiceCategoryChipView {
   label: string;
   href: string;
@@ -27,7 +27,7 @@ export function servicesHref(category: ServiceCategory | null, selectedId: strin
 }
 
 /**
- * The address of one listing's own screen (L2-013 AC4; ADR 0051), carrying the category the list was
+ * The address of one listing's own screen (L2-013 AC4; ADR 0052), carrying the category the list was
  * filtered by so Back returns to it.
  */
 export function listingHref(id: string, category: ServiceCategory | null): string {
@@ -47,7 +47,7 @@ export function serviceCategoryChips(current: ServiceCategory | null): ServiceCa
   ];
 }
 
-/** The no-results sentence for a category nobody is listed in yet (a stand-in, ADR 0050). */
+/** The no-results sentence for a category nobody is listed in yet (a stand-in, ADR 0051). */
 export function noCategoryServicesText(category: ServiceCategory): string {
   return `No ${category} professionals right now. New ones are listed as the team approves them.`;
 }

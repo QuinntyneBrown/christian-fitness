@@ -5,7 +5,7 @@ import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link AdminDashboardApi} over HTTP: `GET /api/admin/dashboard/activity` (ADR 0058). A failure
+ * {@link AdminDashboardApi} over HTTP: `GET /api/admin/dashboard/activity` (ADR 0000). A failure
  * errors with an `ApiError` (`apiErrorOf`), so no screen handles an `HttpErrorResponse`. It holds
  * no state.
  */

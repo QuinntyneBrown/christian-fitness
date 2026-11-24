@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-013 AC1 and AC2 (slice 16.1; ADR 0050): a member opens <c>GET /api/services</c> and sees each
+/// L2-013 AC1 and AC2 (slice 16.1; ADR 0000): a member opens <c>GET /api/services</c> and sees each
 /// published listing's name, role, category, where, price, credentials and about, in name order, at most
 /// 50 with the number matching in all; a category narrows the list, an unknown one is refused with
 /// <c>category_invalid</c>; a pending or declined application is not listed; nobody signed in is refused.

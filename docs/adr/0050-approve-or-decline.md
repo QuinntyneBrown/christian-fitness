@@ -1,4 +1,4 @@
-# 0049. Approve or decline an application
+# 0000. Approve or decline an application
 
 ## Status
 
@@ -11,7 +11,7 @@ listing, or decline it with a reason, which publishes nothing; either leaves the
 design (`docs/detailed-designs/admin-services/review-applications/`) left the refusal code, the
 longest reason, the decline dialog and whether the applicant is told to supply, and the mocks drew
 Approve and Decline buttons that went straight to the `decided` state with no reason field. The
-queue (ADR 0048) and the application (ADR 0047) already exist; browsing listings (slice 16.1) and
+queue (ADR 0049) and the application (ADR 0048) already exist; browsing listings (slice 16.1) and
 editing and removing them (slice 23) are later slices.
 
 ## Decision
@@ -34,7 +34,7 @@ editing and removing them (slice 23) are later slices.
   application so staff can read it later, is never logged or put in an audit entry, never
   appears in a response, and the command is a class so no generated `ToString` can print it. The
   applicant is not sent it, and is not notified of the decision in this slice: members reach no
-  notification system yet and a declined member may apply again (ADR 0047).
+  notification system yet and a declined member may apply again (ADR 0048).
 - **Refusals.** An unknown id is 404 `application_not_found`; one already approved or declined is
   409 `application_decided`. Neither changes anything and neither leaves an audit entry. The
   screen treats both the same way: someone else decided it, so it says so and shows the queue as it
@@ -58,7 +58,7 @@ editing and removing them (slice 23) are later slices.
   lowers the count it holds by the cards decided in this visit and the next load is exact.
 - **No design-system component.** The decision line and the button pair follow the mock's
   `decision` and `btn-grid`, styled in the page's stylesheet over the library's `cf-button`,
-  `cf-alert`, `cf-dialog` and `cf-textarea`, as ADR 0048 did for the card.
+  `cf-alert`, `cf-dialog` and `cf-textarea`, as ADR 0049 did for the card.
 
 ## Consequences
 

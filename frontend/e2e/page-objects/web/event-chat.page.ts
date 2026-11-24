@@ -24,7 +24,7 @@ export class WebEventChatPage {
   /** A direct conversation (slice 14.1): the way back to Messages, and the refusal for a member who cannot be messaged. */
   readonly messagesLink: Locator;
   readonly unavailable: Locator;
-  /** Report on received messages (slice 25.1; ADR 0057): one button per message from another member. */
+  /** Report on received messages (slice 25.1; ADR 0000): one button per message from another member. */
   readonly reportButtons: Locator;
 
   constructor(private readonly page: Page) {

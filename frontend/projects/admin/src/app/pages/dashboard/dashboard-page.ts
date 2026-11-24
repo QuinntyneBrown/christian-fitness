@@ -40,7 +40,7 @@ type AttentionState =
   { kind: 'loading' } | { kind: 'ready'; awaiting: WorkAwaitingStaffDto } | { kind: 'failed' };
 
 /**
- * The Dashboard (mock docs/mocks/pages/admin-dashboard/; L2-020 AC4 to AC10; ADR 0058, ADR 0059).
+ * The Dashboard (mock docs/mocks/pages/admin-dashboard/; L2-020 AC4 to AC10; ADR 0000, ADR 0060).
  * "Needs attention" lists the oldest pending applications and flagged members, each with the link
  * that resolves it (a Moderator's answer has no applications); "Community activity" is the last
  * eight weeks, current week first. Each section loads, empties and fails on its own, with Try

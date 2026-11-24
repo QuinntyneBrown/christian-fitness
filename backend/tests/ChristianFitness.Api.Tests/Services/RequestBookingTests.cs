@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-014 AC3 to AC5 (slice 17.2; ADR 0053): a member asks a listing's professional for a session
+/// L2-014 AC3 to AC5 (slice 17.2; ADR 0000): a member asks a listing's professional for a session
 /// (<c>POST /api/services/{id}/booking-requests</c> with a kind, when it suits them and an optional
 /// message). The request is delivered as a direct message from the member to the professional, so the
 /// conversation starts; a blank <c>when</c>, an unknown kind or text over its limit is refused 400; an

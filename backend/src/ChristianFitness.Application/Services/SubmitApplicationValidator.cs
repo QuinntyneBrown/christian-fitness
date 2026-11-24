@@ -6,7 +6,7 @@ using FluentValidation;
 namespace ChristianFitness.Application.Services;
 
 /// <summary>
-/// The Apply to be listed rules (L2-026; ADR 0047). Every field is required; lengths count the
+/// The Apply to be listed rules (L2-026; ADR 0000). Every field is required; lengths count the
 /// trimmed text and fail with <see cref="RefusalCodes.FieldTooLong"/>; a category outside the list
 /// fails as a plain validation failure. The sentences are fixed and never repeat the value. The
 /// member app's <c>validateApplication</c> checks the same table.

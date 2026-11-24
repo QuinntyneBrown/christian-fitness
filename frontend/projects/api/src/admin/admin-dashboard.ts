@@ -2,7 +2,7 @@ import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 
 /**
- * One week of community activity (`CommunityActivityWeekDto`, ADR 0058): `start` is the Monday
+ * One week of community activity (`CommunityActivityWeekDto`, ADR 0000): `start` is the Monday
  * 00:00 UTC that opens the week as an ISO instant. Counts only, no message text and no names.
  */
 export interface ActivityWeekDto {
@@ -18,7 +18,7 @@ export interface CommunityActivityDto {
   weeks: ActivityWeekDto[];
 }
 
-/** One pending application as the Dashboard names it (`AwaitingApplicationDto`, ADR 0059). */
+/** One pending application as the Dashboard names it (`AwaitingApplicationDto`, ADR 0060). */
 export interface AwaitingApplicationDto {
   id: string;
   name: string;
@@ -41,7 +41,7 @@ export interface AwaitingListDto<T> {
 }
 
 /**
- * `GET /api/admin/dashboard/awaiting` (ADR 0059): `applications` is absent from a Moderator's
+ * `GET /api/admin/dashboard/awaiting` (ADR 0060): `applications` is absent from a Moderator's
  * answer, because a Moderator does not act on applications.
  */
 export interface WorkAwaitingStaffDto {
@@ -49,7 +49,7 @@ export interface WorkAwaitingStaffDto {
   flaggedMembers: AwaitingListDto<AwaitingFlaggedMemberDto>;
 }
 
-/** What the admin Dashboard reads (L2-020; ADR 0058, ADR 0059). */
+/** What the admin Dashboard reads (L2-020; ADR 0059, ADR 0060). */
 export interface AdminDashboardApi {
   /** The weekly activity. A failure errors with an `ApiError`. */
   activity(): Observable<CommunityActivityDto>;

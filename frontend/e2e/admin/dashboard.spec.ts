@@ -10,7 +10,7 @@ import { MODERATOR_SIGNED_IN } from '../fixtures/api-handlers';
 import { expect, test } from '../fixtures/test';
 import { AdminDashboardPage } from '../page-objects/admin/dashboard.page';
 
-// L2-020 AC4 (ADR 0058): staff see the new members, registrations and messages of each of the
+// L2-020 AC4 (ADR 0000): staff see the new members, registrations and messages of each of the
 // last eight weeks, the current week first.
 test.describe('Admin app, the Dashboard community activity', () => {
   test('shows each week newest first with its three counts, the current week named', async ({
@@ -116,7 +116,7 @@ test.describe('Admin app, the Dashboard community activity', () => {
   });
 });
 
-// L2-020 AC7 to AC10 (slice 28.2; ADR 0059): the work waiting for staff, each item linked to the
+// L2-020 AC7 to AC10 (slice 28.2; ADR 0060): the work waiting for staff, each item linked to the
 // screen that resolves it, whatever the community activity does.
 test.describe('Admin app, the Dashboard work awaiting staff', () => {
   test('lists the pending applications then the flagged members, each with its Review link', async ({

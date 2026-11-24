@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Services;
 
-/// <summary>What deciding an application answers: the application, how it ended and, if approved, its listing (ADR 0049).</summary>
+/// <summary>What deciding an application answers: the application, how it ended and, if approved, its listing (ADR 0000).</summary>
 public sealed record ApplicationDecisionDto(Guid ApplicationId, string Status, Guid? ListingId);
 
 /// <summary>
 /// Approves the Pending application <see cref="ApplicationId"/> and publishes its listing (L2-025 AC2;
-/// ADR 0049). Audited as <c>application.approved</c> (L2-019 AC3).
+/// ADR 0050). Audited as <c>application.approved</c> (L2-019 AC3).
 /// </summary>
 public sealed record ApproveApplicationCommand(Guid ApplicationId) : IRequest<ApplicationDecisionDto>, IAuditableCommand
 {
@@ -21,7 +21,7 @@ public sealed record ApproveApplicationCommand(Guid ApplicationId) : IRequest<Ap
 }
 
 /// <summary>
-/// Declines the Pending application <see cref="ApplicationId"/> with a reason (L2-025 AC3; ADR 0049). A
+/// Declines the Pending application <see cref="ApplicationId"/> with a reason (L2-025 AC3; ADR 0050). A
 /// class, not a record, so no generated <c>ToString</c> can print the reason. Audited as
 /// <c>application.declined</c>; the entry keeps no reason.
 /// </summary>
@@ -34,7 +34,7 @@ public sealed class DeclineApplicationCommand(Guid applicationId, string? reason
     public string? Reason { get; } = reason;
 }
 
-/// <summary>The decline reason's codes, named in the refusal's <c>fieldCodes</c> (ADR 0049); the sentences never repeat the reason.</summary>
+/// <summary>The decline reason's codes, named in the refusal's <c>fieldCodes</c> (ADR 0050); the sentences never repeat the reason.</summary>
 public static class DecideApplicationRules
 {
     public const string ReasonRequired = "reason_required";

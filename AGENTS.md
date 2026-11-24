@@ -24,7 +24,8 @@ Toronto Area, delivered as two web apps:
 ├── backend/
 │   ├── src/                 *.Domain, *.Application, *.Infrastructure, *.Api, *.Cli
 │   └── tests/               *.Application.Tests, *.Api.Tests (* = ChristianFitness)
-├── tools/                   video-record/, video-audio/, video-build/: make the slice films
+├── tools/                   video-record/, video-audio/, video-build/: make the slice films;
+│                            deploy/: what a release runs into (ADR 0047)
 └── docs/                    specs/, detailed-designs/, mocks/, design-system/, adr/, videos/
 ```
 

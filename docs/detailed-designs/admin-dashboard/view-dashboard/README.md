@@ -29,11 +29,11 @@ it. Admins and Moderators both see it.
   no-tracking queries through `IAppDbContext`: total members, members created in the 7-day window,
   upcoming events, registrations created in the 7-day window, pending applications and flagged
   members. It also returns the first pending items and the next upcoming events; the list sizes
-  are three (ADR 0059).
+  are three (ADR 0000).
 - **`DashboardSummaryDto`** — numeric fields only (`TotalMembers`, `NewMembers7d`,
   `UpcomingEvents`, `Registrations7d`, `PendingApplications`, `FlaggedMembers`) plus the two lists.
 
-### Community activity (slice 28.1, ADR 0058)
+### Community activity (slice 28.1, ADR 0059)
 
 - **`GET /api/admin/dashboard/activity`** — in `AdminDashboardController` under the Dashboard area, so
   Admins and Moderators both read it; one MediatR send of `GetCommunityActivityQuery`.
@@ -48,7 +48,7 @@ it. Admins and Moderators both see it.
   load", Try again; the mock's `partial` state). `activityRowsOf` and `hasActivity` in `domain` shape
   the rows. The rest of the mock's sections are slice 28.2's.
 
-### Work awaiting staff (slice 28.2, ADR 0059)
+### Work awaiting staff (slice 28.2, ADR 0060)
 
 - **`GET /api/admin/dashboard/awaiting`** — in `AdminDashboardController` under the Dashboard area; one
   MediatR send of `GetWorkAwaitingStaffQuery`. Admins and Moderators both read it, and the handler reads
@@ -66,7 +66,7 @@ it. Admins and Moderators both see it.
 
 A failed request shows the generic error with Try again, which repeats `getSummary()`. The mock
 labels "+86 joined in April", "Registrations, April" and shows "Live listings"; `L2-020` asks for
-7-day counts and no listing count, so the mock copy is to be aligned when the totals are built (ADR 0059 leaves them out).
+7-day counts and no listing count, so the mock copy is to be aligned when the totals are built (ADR 0060 leaves them out).
 
 ## Requirements
 

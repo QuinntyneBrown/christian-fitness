@@ -24,7 +24,7 @@ const REASON_ID = 'f-reason';
 export type DeclineResult = 'declined' | 'stale';
 
 /**
- * The decline dialog (mock docs/mocks/dialogs/decline-application/; L2-025 AC3; ADR 0049): a CDK
+ * The decline dialog (mock docs/mocks/dialogs/decline-application/; L2-025 AC3; ADR 0000): a CDK
  * Dialog rendering the library's dialog, which draws its own scrim and panel. A decline needs a
  * reason: an empty or over-long one is named in an error summary that takes focus and beside the
  * field, and nothing is sent. While the decline is on its way the field holds still and the dialog

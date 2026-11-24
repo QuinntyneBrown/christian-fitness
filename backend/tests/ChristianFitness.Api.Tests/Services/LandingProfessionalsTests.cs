@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-001 AC5 to AC7 (slice 8.2; ADR 0056): a visitor with no session asks <c>GET /api/public/services/featured</c>
+/// L2-001 AC5 to AC7 (slice 8.2; ADR 0000): a visitor with no session asks <c>GET /api/public/services/featured</c>
 /// and gets the first three published listings by name with public fields only (name, role, category, where,
 /// price); a pending or declined application is not listed; none answers an empty list.
 /// </summary>

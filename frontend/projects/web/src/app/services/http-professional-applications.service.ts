@@ -5,7 +5,7 @@ import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link ProfessionalApplicationsApi} over HTTP: `POST /api/professional-applications` (ADR 0047).
+ * {@link ProfessionalApplicationsApi} over HTTP: `POST /api/professional-applications` (ADR 0000).
  * A failed send errors with an `ApiError`. It holds no state, and is provided on the Services
  * screen, so it lives only while the screen does.
  */

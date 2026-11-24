@@ -2,7 +2,7 @@ namespace ChristianFitness.Domain.Events;
 
 /// <summary>
 /// One member's report of one message, group or direct, so staff can review its sender (L2-017; ADR
-/// 0057). It records who reported which message and when, with an optional reason that is staff's to
+/// 0000). It records who reported which message and when, with an optional reason that is staff's to
 /// read and is never logged. One reporter reports one message once.
 /// </summary>
 public sealed class MessageReport

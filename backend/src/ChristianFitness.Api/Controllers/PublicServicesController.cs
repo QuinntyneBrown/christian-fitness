@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
 
-/// <summary>What a visitor with no session may read about professionals: the landing page's short list (L2-001 AC5; ADR 0056).</summary>
+/// <summary>What a visitor with no session may read about professionals: the landing page's short list (L2-001 AC5; ADR 0000).</summary>
 [ApiController]
 [AllowAnonymous]
 [Route("api/public/services")]

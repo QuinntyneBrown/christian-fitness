@@ -39,7 +39,7 @@ The slice runs from the landing route to the events table.
 - **`GetUpcomingEventsHandler`** — reads `Event` rows that are published and start
   after `TimeProvider.GetUtcNow()`, orders them by `StartsAt` ascending and takes at
   most 3. Fewer rows return a shorter list; none return an empty list (L2-001 AC2, AC3).
-- **Professionals (slice 8.2, ADR 0056)** — `LandingProfessionals` (its own component, loaded by
+- **Professionals (slice 8.2, ADR 0000)** — `LandingProfessionals` (its own component, loaded by
   `cfLandingProfessionalsOnView` when its placeholder nears the viewport) reads
   `PUBLIC_PROFESSIONALS_SERVICE` and renders up to three `service-row`s in a card list, with the same
   loading, empty and error states as the events. `PublicServicesController`

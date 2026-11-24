@@ -1,0 +1,73 @@
+# The container app's template (ADR 0047): one replica holding the static host and proxy (web) and
+# the API (api). The Deploy workflow fills WEB_IMAGE, API_IMAGE and REVISION_SUFFIX with envsubst
+# and applies it with `az containerapp update --yaml`; ingress, the registry identity and the
+# secrets named here are set once by tools/deploy/provision.sh and are not part of the template.
+properties:
+  template:
+    revisionSuffix: ${REVISION_SUFFIX}
+    # One replica: the chat hub has no backplane and mail is queued in memory (docs/operations/settings.md).
+    scale:
+      minReplicas: 1
+      maxReplicas: 1
+    volumes:
+      - name: data
+        storageType: AzureFile
+        storageName: cfdata
+    containers:
+      - name: web
+        image: ${WEB_IMAGE}
+        resources:
+          cpu: 0.25
+          memory: 0.5Gi
+        probes:
+          - type: Liveness
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 30
+      - name: api
+        image: ${API_IMAGE}
+        resources:
+          cpu: 0.25
+          memory: 0.5Gi
+        env:
+          - name: ConnectionStrings__Default
+            secretRef: db-connection
+          - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+            value: "true"
+          - name: DataProtection__KeysPath
+            value: /data/keys
+          - name: Images__Directory
+            value: /data/images
+          - name: MemberApp__BaseUrl
+            value: https://www.christian.fitness
+          - name: Email__Smtp__Host
+            value: smtp.azurecomm.net
+          - name: Email__Smtp__Port
+            value: "587"
+          - name: Email__Smtp__UserName
+            secretRef: smtp-username
+          - name: Email__Smtp__Password
+            secretRef: smtp-password
+          - name: Email__From
+            value: Christian Fitness <no-reply@christian.fitness>
+        volumeMounts:
+          - volumeName: data
+            mountPath: /data
+        probes:
+          - type: Startup
+            httpGet:
+              path: /health/live
+              port: 5000
+            periodSeconds: 2
+            failureThreshold: 60
+          - type: Liveness
+            httpGet:
+              path: /health/live
+              port: 5000
+            periodSeconds: 30
+          - type: Readiness
+            httpGet:
+              path: /health/ready
+              port: 5000
+            periodSeconds: 10

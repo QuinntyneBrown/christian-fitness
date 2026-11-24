@@ -7,7 +7,7 @@ export interface ReportSent {
 }
 
 /**
- * Answers `POST /api/messages/{id}/reports` as the API does (ADR 0057): 201 with no body, or each
+ * Answers `POST /api/messages/{id}/reports` as the API does (ADR 0000): 201 with no body, or each
  * `refusals` entry in turn when given (the last one repeats; once they are used up, none). `hold`
  * keeps an answer back until it settles. Returns what was sent, in order.
  */

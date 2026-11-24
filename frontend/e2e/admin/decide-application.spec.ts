@@ -15,7 +15,7 @@ const QUEUE = '/api/admin/services/applications';
 const [LENA, SAMUEL, HANNAH] = CAST_APPLICATIONS;
 const REASON = 'We could not verify the CDO registration number you gave.';
 
-// L2-025 AC2 and AC3 (slice 21.2; ADR 0049): staff approve or decline each pending application.
+// L2-025 AC2 and AC3 (slice 21.2; ADR 0000): staff approve or decline each pending application.
 test.describe('Admin app, approving and declining applications', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 

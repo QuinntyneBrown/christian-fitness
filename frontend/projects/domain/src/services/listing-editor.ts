@@ -45,7 +45,7 @@ export const LISTING_FIELD_IDS: Record<ListingFieldKey, string> = {
   contactUrl: 'f-contact',
 };
 
-/** What each field code says to staff (ADR 0054); the sentences the server writes are never shown. */
+/** What each field code says to staff (ADR 0000); the sentences the server writes are never shown. */
 const MESSAGES: Record<string, string> = {
   name_required: 'Enter the name of the professional',
   name_too_long: 'Use 100 characters or fewer',

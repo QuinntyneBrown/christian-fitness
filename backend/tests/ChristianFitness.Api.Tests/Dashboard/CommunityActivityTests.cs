@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Dashboard;
 
 /// <summary>
-/// L2-020 AC4 to AC6 (ADR 0058): staff, Admin or Moderator, see the weekly counts of new members,
+/// L2-020 AC4 to AC6 (ADR 0000): staff, Admin or Moderator, see the weekly counts of new members,
 /// registrations and messages for the last eight weeks, oldest first. A week runs Monday 00:00 UTC
 /// to the next Monday; the current week is the last and runs to now. The clock is a
 /// <see cref="Microsoft.Extensions.Time.Testing.FakeTimeProvider"/> standing at Wednesday,
@@ -25,7 +25,7 @@ public sealed class CommunityActivityTests
     ];
 
     // The week rule's case table: an instant, and the week it falls in (0 is the oldest of eight),
-    // or -1 when no week has it. Only the API cuts weeks (ADR 0058), so the table is this suite's.
+    // or -1 when no week has it. Only the API cuts weeks (ADR 0059), so the table is this suite's.
     public static TheoryData<string, int> Cases => new()
     {
         { "2026-04-15T12:45:00+00:00", 7 },

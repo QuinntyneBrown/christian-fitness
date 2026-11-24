@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-026 (slice 22.1; ADR 0047): a signed-in member applies to be listed at
+/// L2-026 (slice 22.1; ADR 0000): a signed-in member applies to be listed at
 /// <c>POST /api/professional-applications</c>. The application is created Pending; a second one while
 /// one is Pending is refused 409 <c>application_pending</c>; a suspended member is refused 403
 /// <c>member_suspended</c>; a field that is blank, over its limit or not a category is refused 400

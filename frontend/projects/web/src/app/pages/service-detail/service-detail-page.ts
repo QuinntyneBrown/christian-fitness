@@ -18,14 +18,14 @@ import { HttpServicesService } from '../../services/http-services.service';
 import { ProfessionalContact } from '../../services/professional-contact';
 
 /**
- * One professional's listing at `/services/:id` (L2-013 AC4; ADR 0051): the card with name, role,
+ * One professional's listing at `/services/:id` (L2-013 AC4; ADR 0000): the card with name, role,
  * where, about, credentials, rate and the verified line, and a back action to Services in the
  * category the list was filtered by (`?category=`). Below LG a row on Services opens it; from LG
  * the card shows beside the list instead. `SERVICES_SERVICE` is bound here, so the client lives
  * only while the screen does. While it loads it shows a skeleton card; an id that is not there
  * (404) shows the not-found screen; any other failure shows "This professional didn't load" with
  * Try again (a 5xx is the server-error screen's, L2-043 AC4). The card's Message or Contact acts
- * through `ProfessionalContact` (L2-014; ADR 0052).
+ * through `ProfessionalContact` (L2-014; ADR 0053).
  */
 @Component({
   selector: 'cf-service-detail-page',

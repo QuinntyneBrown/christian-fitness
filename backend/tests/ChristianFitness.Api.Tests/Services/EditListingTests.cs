@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Services;
 
 /// <summary>
-/// L2-027 AC1 (slice 23.1; ADR 0054): an Admin lists the live listings and edits one; members then
+/// L2-027 AC1 (slice 23.1; ADR 0000): an Admin lists the live listings and edits one; members then
 /// see the change on Services; a bad field is refused with its code and changes nothing; the change leaves
 /// one audit entry that holds no text; a Moderator, a member and nobody are refused.
 /// </summary>

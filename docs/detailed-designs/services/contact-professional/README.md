@@ -25,10 +25,10 @@ The feature is a vertical slice from the listing detail to the database.
 - **`StartProfessionalConversationHandler`** — loads the published listing and its `ProfessionalMemberId`. It returns the existing direct `Conversation` between the member and the professional, or creates one with two `ConversationParticipant` rows. A listing without a linked account is refused with code `professional_not_linked`.
 - **`GetContactLinkHandler`** — returns the listing's `ContactUrl` for a published listing. Telemetry records the route template only, never the URL (`L2-040`).
 
-### Decisions (slice 17.1, ADR 0052)
+### Decisions (slice 17.1, ADR 0000)
 
 - Request a booking is slice 17.2 (below); the card has Message or Contact only until then.
-- The Contact variant has no mock; it is the same secondary button, recorded in ADR 0052.
+- The Contact variant has no mock; it is the same secondary button, recorded in ADR 0053.
 - A suspended professional or the caller's own listing is refused `recipient_unavailable` (as direct messages, ADR 0043); a suspended caller is refused by the session.
 - Codes: `service_not_found` (404), `professional_not_linked` (409), `contact_link_not_found` (404), `recipient_unavailable` (403).
 - A listing is linked unless it has a `ContactUrl`; the conversation is the pair, so `startConversation` answers the professional's `memberId` and Messages opens `/messages/{memberId}`.
@@ -79,7 +79,7 @@ The contact link stays on the server until the member chooses Contact; the page 
 
 ![Sequence diagram: open an unlinked professional's contact link](diagrams/sequence-contact-link.png)
 
-### Request a booking (slice 17.2, ADR 0053)
+### Request a booking (slice 17.2, ADR 0054)
 
 - **`ServiceDetail`** shows Request a booking (primary) beside Message for a listing without a contact link, and emits `requestBooking`.
 - **`RequestBookingDialog`** (CDK Dialog, mock `docs/mocks/dialogs/request-booking`) holds kind, `when` and message, validates with `validateBooking`, calls `requestBooking(listingId, request)`, and on success offers Done or Go to messages.

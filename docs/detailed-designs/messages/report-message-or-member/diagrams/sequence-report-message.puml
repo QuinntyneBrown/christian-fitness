@@ -37,7 +37,7 @@ dlg -> client : reportMessage(id, reason)
 client -> controller : POST /api/messages/{id}/reports
 controller -> controller : Authenticate (fallback policy)
 controller -> handler : Send ReportMessageCommand
-handler -> db : Load message in ChatMessages, then DirectMessages (ADR 0057)
+handler -> db : Load message in ChatMessages, then DirectMessages (ADR 0000)
 alt unknown message, or caller not in its conversation
   handler --> controller : code message_not_found
   controller --> client : 404 ProblemDetails (code message_not_found)

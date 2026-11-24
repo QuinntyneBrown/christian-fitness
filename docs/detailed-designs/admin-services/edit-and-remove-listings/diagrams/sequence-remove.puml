@@ -45,7 +45,7 @@ alt listing missing
   dlg --> actor : Generic message
 else listing found
   db --> h : Listing
-  h -> db : Delete ServiceListing row (hard delete, ADR 0055)
+  h -> db : Delete ServiceListing row (hard delete, ADR 0000)
   h -> db : Add audit entry listing.removed
   h -> db : Save changes in one unit of work
   db --> h : Committed

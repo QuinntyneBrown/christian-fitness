@@ -1,4 +1,4 @@
-# 0055. Remove a listing
+# 0000. Remove a listing
 
 ## Status
 
@@ -16,9 +16,9 @@ confirmation and whether removal is a soft or a hard delete. The mocks drew no R
   answers 204. The system has no `IsPublished` column, and every member call (Services list, detail,
   contact link, Message, booking request) already reads the table, so all of them answer 404
   `service_not_found` at once, with no filter to forget and no migration. A direct conversation is the
-  pair of members (ADR 0052), not the listing, so conversations and messages are untouched. The
+  pair of members (ADR 0053), not the listing, so conversations and messages are untouched. The
   approved application keeps its record; nothing re-lists it, and a professional may apply again.
-- **Errors and access.** A missing or already removed listing is 404 `service_not_found` (ADR 0051), so
+- **Errors and access.** A missing or already removed listing is 404 `service_not_found` (ADR 0052), so
   a repeated request is refused and leaves no second audit entry. The route sits under
   `api/admin/services`, so a Moderator gets 403 `forbidden_role` and a member or nobody gets 401.
 - **Audit.** `RemoveListingCommand` is an `IAuditableCommand` named `listing.removed`; the entry holds

@@ -18,7 +18,7 @@ import { WebServicesPage } from '../page-objects/web/services.page';
 const WHEN = 'Weekday evenings after 6, or Saturday mornings';
 const MESSAGE = "Hi Danielle, I'm getting back into strength training.";
 
-// L2-014 AC3 to AC5 (slice 17.2; ADR 0053): Request a booking on a professional's card opens a dialog;
+// L2-014 AC3 to AC5 (slice 17.2; ADR 0000): Request a booking on a professional's card opens a dialog;
 // the request is sent and the conversation starts (mock `default`, `invalid`, `busy`, `failed`, `success`).
 test.describe('Member app, request a booking', () => {
   test.beforeEach(async ({ page }) => {

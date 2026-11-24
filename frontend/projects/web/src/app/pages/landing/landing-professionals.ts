@@ -11,7 +11,7 @@ import {
 } from '@cf/components';
 import type { Subscription } from 'rxjs';
 
-/** How many professionals the landing page shows (L2-001 AC5; ADR 0056). */
+/** How many professionals the landing page shows (L2-001 AC5; ADR 0000). */
 const MAX = 3;
 const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }];
 
@@ -24,7 +24,7 @@ interface ProfessionalRow {
 }
 
 /**
- * The professionals part of the landing page (mock `landing`; L2-001 AC5 to AC7; ADR 0056). It
+ * The professionals part of the landing page (mock `landing`; L2-001 AC5 to AC7; ADR 0057). It
  * is deferred until it nears the viewport, and loads on its own, so a failure here never touches
  * the events beside it. Skeleton rows while loading, an inline empty message when none are listed
  * and an inline error with Try again when the request fails. Each row leads to Join.

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Staff keep the live listings correct (L2-027; slice 23.1; ADR 0054). Routed under
+/// Staff keep the live listings correct (L2-027; slice 23.1; ADR 0000). Routed under
 /// <c>api/admin/services/listings</c>, so the Services area's policy admits Admins only (ADR 0020).
 /// Each action sends one MediatR request.
 /// </summary>
@@ -36,7 +36,7 @@ public sealed class AdminListingsController(ISender sender) : ControllerBase
             },
             cancellationToken).ConfigureAwait(false);
 
-    /// <summary>Removes the listing; 204 when it is gone (L2-027 AC2; ADR 0055).</summary>
+    /// <summary>Removes the listing; 204 when it is gone (L2-027 AC2; ADR 0056).</summary>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Remove(Guid id, CancellationToken cancellationToken)
     {

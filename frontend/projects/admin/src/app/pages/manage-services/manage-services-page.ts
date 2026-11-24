@@ -63,18 +63,18 @@ type Decision = 'deciding' | 'approved' | 'declined';
 const SKELETON_CARDS = [0, 1, 2];
 
 /**
- * Manage Services (mock docs/mocks/pages/admin-services/; L2-025 AC1 and AC4; ADR 0048). The
+ * Manage Services (mock docs/mocks/pages/admin-services/; L2-025 AC1 and AC4; ADR 0000). The
  * Applications section lists each pending application oldest first with the applicant's name, when
  * it was sent, the role and the credentials, or says nothing is waiting. While it loads, skeleton
  * cards; when it does not load, the error state with Try again. It holds one answer of at most 50
  * applications and nothing else about an applicant, all as text. Each card offers Approve and
- * Decline (L2-025 AC2, AC3; slice 21.2; ADR 0049): Approve decides at once, Decline opens a
+ * Decline (L2-025 AC2, AC3; slice 21.2; ADR 0050): Approve decides at once, Decline opens a
  * dialog for the reason, imported on the first Decline. A decided card stays, saying how it was
  * decided, and the count falls; a decision that fails says so above the list, and one that was
  * decided already shows the queue as it is. The Live listings section (L2-027 AC1; slice 23.1; ADR
- * 0054) lists at most 50 live listings with Edit on each, which opens the listing editor, imported on
+ * 0055) lists at most 50 live listings with Edit on each, which opens the listing editor, imported on
  * the first Edit; a saved change says so in a toast and the list reloads with its rows kept. Remove
- * (slice 23.2; ADR 0055) opens a confirmation, imported on the first Remove, and a removed listing
+ * (slice 23.2; ADR 0056) opens a confirmation, imported on the first Remove, and a removed listing
  * leaves the list the same way. Its
  * service is this screen's own, provided here (AGENTS.md, "Scope state to its use").
  */
@@ -192,7 +192,7 @@ export class ManageServicesPage {
   }
 
   /**
-   * Opens the decline dialog for the application `id` (L2-025 AC3; ADR 0049), imported on the
+   * Opens the decline dialog for the application `id` (L2-025 AC3; ADR 0050), imported on the
    * first Decline. A decline marks the card; an application found already decided shows the
    * queue as it is now.
    */
@@ -222,7 +222,7 @@ export class ManageServicesPage {
   }
 
   /**
-   * Opens the listing editor on the listing `id` (L2-027 AC1; ADR 0054), imported on the first Edit.
+   * Opens the listing editor on the listing `id` (L2-027 AC1; ADR 0055), imported on the first Edit.
    * A saved change says so in a toast and shows the list as the API now holds it; a listing found
    * gone says so and does the same.
    */
@@ -253,7 +253,7 @@ export class ManageServicesPage {
   }
 
   /**
-   * Opens the Remove listing confirmation on the listing `id` (L2-027 AC2; ADR 0055), imported on
+   * Opens the Remove listing confirmation on the listing `id` (L2-027 AC2; ADR 0056), imported on
    * the first Remove. A removal says so in a toast and the list shows what is left; a listing found
    * gone says so and does the same. Keeping it changes nothing.
    */

@@ -3,7 +3,7 @@ using MediatR;
 namespace ChristianFitness.Application.Services;
 
 /// <summary>
-/// The Apply to be listed dialog's values for the signed-in member (L2-026; ADR 0047). A class, not
+/// The Apply to be listed dialog's values for the signed-in member (L2-026; ADR 0000). A class, not
 /// a record, so a generated <c>ToString</c> never prints the values if one is logged.
 /// </summary>
 public sealed class SubmitApplicationCommand : IRequest<ApplicationDto>

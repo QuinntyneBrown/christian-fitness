@@ -45,7 +45,7 @@ interface LandingRow {
  * they load, an inline empty message when there are none and an inline error with Try again when
  * they fail; the rest of the page does not wait for them. Each row leads to Join. The
  * professionals below are fetched, as code and data, only when they near the viewport
- * (`cfLandingProfessionalsOnView`; ADR 0056).
+ * (`cfLandingProfessionalsOnView`; ADR 0000).
  */
 @Component({
   selector: 'cf-landing-page',

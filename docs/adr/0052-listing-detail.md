@@ -1,4 +1,4 @@
-# 0051. Listing detail
+# 0000. Listing detail
 
 ## Status
 
@@ -7,7 +7,7 @@ Accepted, 24 November 2026 (slice 16.2).
 ## Context
 
 L2-013 AC4 opens a selected listing as its own screen with a back action below LG, and AC3 keeps the
-card beside the list from LG. Slice 16.1 served the full listing in the list (ADR 0050) and left the
+card beside the list from LG. Slice 16.1 served the full listing in the list (ADR 0051) and left the
 card under the list below LG as a stand-in. The mocks have the card (`services/selected`) but no
 screen of its own, and the detailed design left the id's error code to supply.
 
@@ -16,7 +16,7 @@ screen of its own, and the detailed design left the id's error code to supply.
 - **Endpoint.** `GET /api/services/{id:guid}` for any signed-in member answers the same listing
   shape as a list row. An id that is not a listing (unknown, or an application not yet approved) is
   404 `service_not_found` (`RefusalCodes`). A visitor is refused 401 by the fallback policy. There is
-  no "unpublished" listing state: a listing that exists is published (ADR 0049), and slice 23
+  no "unpublished" listing state: a listing that exists is published (ADR 0050), and slice 23
   deletes the row.
 - **Screen.** `/services/:id` (lazy, title "Professional") is `ServiceDetailPage`: a back link
   ("All services") and the `ServiceDetail` card, with a skeleton card while loading, the not-found

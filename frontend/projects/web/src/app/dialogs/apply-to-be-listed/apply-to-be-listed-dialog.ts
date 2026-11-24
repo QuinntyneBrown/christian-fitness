@@ -24,7 +24,7 @@ import {
 export type ApplyToBeListedResult = boolean;
 
 /**
- * The Apply to be listed dialog (L2-026; ADR 0047; mock `docs/mocks/dialogs/apply-to-be-listed/`), a
+ * The Apply to be listed dialog (L2-026; ADR 0000; mock `docs/mocks/dialogs/apply-to-be-listed/`), a
  * CDK Dialog that renders the library's `cf-dialog` shell around the library's form controls. It
  * opens empty on Role. Before sending, `validateApplication` names each field to fix and nothing is
  * sent (mock `invalid`). While the send is on its way the button reads "Sending…", the fields hold
@@ -106,7 +106,7 @@ export class ApplyToBeListedDialog {
 }
 
 /**
- * Opens the Apply to be listed dialog with the CDK Dialog (ADR 0047). `injector` is the screen's, so
+ * Opens the Apply to be listed dialog with the CDK Dialog (ADR 0048). `injector` is the screen's, so
  * the dialog uses the screen's `PROFESSIONAL_APPLICATIONS_SERVICE`. The library's `cf-dialog` draws
  * the scrim, so there is no CDK backdrop; the CDK container is the `role="dialog"`, `aria-modal`
  * element named by the dialog's title, hides the rest of the page from assistive technology, traps

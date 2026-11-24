@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Dashboard;
 
 /// <summary>
-/// L2-020 AC7 to AC10 (slice 28.2; ADR 0059): an Admin sees how many applications are pending and
+/// L2-020 AC7 to AC10 (slice 28.2; ADR 0000): an Admin sees how many applications are pending and
 /// how many members are flagged, and the oldest three of each (name, role or note); a Moderator is
 /// answered flagged members only, with no application, count or key; with nothing waiting both
 /// counts are zero; a decided application does not count; nobody is refused with anything but 401.

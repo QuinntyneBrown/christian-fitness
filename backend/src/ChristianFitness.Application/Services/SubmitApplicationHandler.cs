@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Services;
 
 /// <summary>
-/// Creates a Pending application for the signed-in member (L2-026 AC1; ADR 0047). A suspended
+/// Creates a Pending application for the signed-in member (L2-026 AC1; ADR 0000). A suspended
 /// member is refused <c>member_suspended</c> (403); a member who already has a Pending application
 /// is refused <c>application_pending</c> (409, AC2). A declined application does not block a new
 /// one. It logs nothing (L2-033).

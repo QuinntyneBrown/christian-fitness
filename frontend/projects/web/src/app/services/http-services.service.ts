@@ -14,7 +14,7 @@ import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link ServicesApi} over HTTP: `GET /api/services?category=` (ADR 0050) `GET /api/services/{id}` (ADR 0051), `POST /api/services/{id}/conversation` `GET /api/services/{id}/contact-link` (ADR 0052) and `POST /api/services/{id}/booking-requests` (ADR 0053). A 5xx opens the
+ * {@link ServicesApi} over HTTP: `GET /api/services?category=` (ADR 0000) `GET /api/services/{id}` (ADR 0052), `POST /api/services/{id}/conversation` `GET /api/services/{id}/contact-link` (ADR 0053) and `POST /api/services/{id}/booking-requests` (ADR 0054). A 5xx opens the
  * server-error screen through the interceptor; every failure passes on to the screen. It holds no
  * state, and is provided on the Services screen, so it lives only while the screen does.
  */
@@ -47,7 +47,7 @@ export class HttpServicesService implements ServicesApi {
     return this.http
       .post<BookingRequestDto>(`/api/services/${encodeURIComponent(id)}/booking-requests`, request)
       .pipe(
-        // The dialog branches on the `ApiError`'s code (ADR 0053).
+        // The dialog branches on the `ApiError`'s code (ADR 0054).
         catchError((error: unknown) =>
           throwError(() =>
             error instanceof HttpErrorResponse ? apiErrorOf(error.status, error.error) : error,

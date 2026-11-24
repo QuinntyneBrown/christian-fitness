@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Chat;
 
 /// <summary>
-/// L2-017 and L2-033 (ADR 0057): reporting a message leaves neither the reason, the reported text nor a
+/// L2-017 and L2-033 (ADR 0000): reporting a message leaves neither the reason, the reported text nor a
 /// name or email in any span or log; the span records the route template, the method and the status
 /// only. A refused report records none of them either.
 /// </summary>

@@ -9,7 +9,7 @@ import {
 
 /**
  * Below the fold: shows `cf-landing-professionals` after this placeholder only when it nears the
- * viewport, loading that component's code then (ADR 0056). An `IntersectionObserver` is used
+ * viewport, loading that component's code then (ADR 0000). An `IntersectionObserver` is used
  * rather than `@defer`, whose runtime would grow the initial bundle past its budget. The observer
  * is released when the page goes, and a component made here is destroyed with it.
  */

@@ -46,12 +46,12 @@ const LG_WIDTH = '64rem';
 const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }];
 
 /**
- * Services at `/services` (mock `docs/mocks/pages/services/`; L2-013 AC1 to AC3, L2-026; ADR 0047,
- * 0050): the professionals the team has listed, in name order and at most 50, filtered by the
+ * Services at `/services` (mock `docs/mocks/pages/services/`; L2-013 AC1 to AC3, L2-026; ADR 0000,
+ * 0051): the professionals the team has listed, in name order and at most 50, filtered by the
  * category in the address (`?category=`), with the selected one's card beside the list (`?selected=`;
  * the first when the address names none). Choosing a chip or a row navigates, so the address, the
  * back button and a reload agree; only a new category asks the API again. Below LG the card is
- * hidden and a row opens the listing's own screen at `/services/:id` (L2-013 AC4; ADR 0051). While the list loads it
+ * hidden and a row opens the listing's own screen at `/services/:id` (L2-013 AC4; ADR 0052). While the list loads it
  * shows skeleton rows; with nobody listed it says so and points to events; a 4xx or no answer
  * shows "Professionals didn't load" with Try again (a 5xx is the server-error screen's, L2-043
  * AC4). `SERVICES_SERVICE` and `PROFESSIONAL_APPLICATIONS_SERVICE` are bound here, so the clients

@@ -26,11 +26,11 @@ The feature is a vertical slice from the Services screen to the database.
 - **`ListServicesHandler / GetServiceHandler`** — return listings where `Status == Published`, excluding removed listings, filtered by category. A removed or unknown id yields 404 code `<TO SUPPLY>`.
 - **`ServiceListing`** — domain entity with `Name`, `Role`, `Category`, `Where`, `Price`, `PhotoUrl`, `Credentials`, `About`, `IsVerified`, `Status` and an optional `ProfessionalMemberId`.
 
-### Slice 16.1 (ADR 0050)
+### Slice 16.1 (ADR 0000)
 
 `GET /api/services?category=` answers `{ total, services }`, name order, at most 50 (no paging), and refuses an unknown category with `category_invalid`. The Services page keeps its state in `?category=` and `?selected=`; below LG the card follows the list in the page, and the separate `/services/:id` screen of `ServiceDetailPage` and `GetServiceHandler` arrive with slice 16.2. The card's contact action arrives with slices 17.1 and 17.2.
 
-### Slice 16.2 (ADR 0051)
+### Slice 16.2 (ADR 0052)
 
 `GET /api/services/{id}` answers the listing or 404 `service_not_found`. `ServiceDetailPage` at `/services/:id?category=` shows the `ServiceDetail` card with a back link to `/services` in that category. From LG a row changes `?selected=` and the card shows beside the list; below LG the card is hidden and a row opens the screen.
 

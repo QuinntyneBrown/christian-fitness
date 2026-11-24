@@ -515,7 +515,7 @@
       "title": "Report a message",
       "group": "Member app",
       "opens_from": "messages",
-      "source": "Derived: the Messages thread's Report button on a received message (L2-017; ADR 0057).",
+      "source": "Derived: the Messages thread's Report button on a received message (L2-017; ADR 0000).",
       "requirements": [],
       "states": [
         "default",
@@ -589,7 +589,7 @@
       "title": "Listing editor",
       "group": "Member app",
       "opens_from": "admin-services",
-      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor. Edit states hand-written for slice 23.1 (ADR 0054).",
+      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor. Edit states hand-written for slice 23.1 (ADR 0055).",
       "requirements": [],
       "states": [
         "default",
@@ -667,7 +667,7 @@
       "title": "Remove a listing",
       "group": "Admin console",
       "opens_from": "admin-services",
-      "source": "Derived: the Manage Services frame's live listings table, with a confirmation before a listing is removed (L2-027 AC2; ADR 0055).",
+      "source": "Derived: the Manage Services frame's live listings table, with a confirmation before a listing is removed (L2-027 AC2; ADR 0056).",
       "requirements": [],
       "states": [
         "default",
@@ -701,7 +701,7 @@
       "title": "Decline an application",
       "group": "Admin console",
       "opens_from": "admin-services",
-      "source": "Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0049).",
+      "source": "Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0050).",
       "requirements": [],
       "states": [
         "default",

@@ -1938,7 +1938,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The Services page did not exist and the member navigation has no Services entry, so the slice added a minimal lazy `/services` page (heading, subtitle, button) and the specs open it by address; slice 16.1 owns the list and the nav entry (ADR 0047).
+- The Services page did not exist and the member navigation has no Services entry, so the slice added a minimal lazy `/services` page (heading, subtitle, button) and the specs open it by address; slice 16.1 owns the list and the nav entry (ADR 0000).
 - A new `IAppDbContext` DbSet broke four hand-written test doubles (join and reset races, last place race, unreachable database); each needed one more property.
 - `dotnet ef migrations add` runs with the Infrastructure project as the startup project here; the Api project has no design-time package.
 - The initial web bundle measures 280.21 kB on this machine before any change, over the 280 kB warning the lessons record as under (279.81); the slice's route cost 90 bytes after sharing the event-chat loader between its two routes, so it was left alone and no budget raised.
@@ -1966,7 +1966,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - A test that inserts rows straight into the store must give them real applicants: the queue joins members for the name, so rows with a random member id vanish. Join one member through the API and reuse its id.
 - A skeleton card that carries the real card's class (`application`) is counted by the page object's locator while loading; the skeleton carries a `--loading` modifier and the locator excludes it.
 - A `500` answered by a fixture opens the server-error screen, not the page's own error state; the error spec answers with `abort`, as the registrations and members specs do.
-- A new lazy page with its own `HttpClient` service added 410 bytes to the admin `main` (279.93 to 280.34 kB, 339 bytes over the 280 kB warning, under the 290 kB error). Bisecting by stubbing showed the route costs about 40 bytes (sharing a loader), a stub page 120, and the service importing `HttpClient` about 380; the page template, `Avatar`, the rxjs pipeline, `track` form and `catchError` cost nothing. No budget was raised (ADR 0048).
+- A new lazy page with its own `HttpClient` service added 410 bytes to the admin `main` (279.93 to 280.34 kB, 339 bytes over the 280 kB warning, under the 290 kB error). Bisecting by stubbing showed the route costs about 40 bytes (sharing a loader), a stub page 120, and the service importing `HttpClient` about 380; the page template, `Avatar`, the rxjs pipeline, `track` form and `catchError` cost nothing. No budget was raised (ADR 0049).
 - A heavy parallel run of the whole suite failed five unrelated offline, sign-out and two-step specs on this machine; they pass in a smaller run.
 - A command that began with a heredoc holding an apostrophe failed to parse; the Write tool is safer.
 
@@ -2019,7 +2019,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 **What slowed it**
 
 - The design system has no `service-row` or `service-detail` page, only their CSS in `components.css`, and the mock's row borrowed `mini-row__*` classes of another block. Both became library components from `Avatar`, `Card`, `DescriptionList` and `Skeleton`, each with its own BEM elements, so the page object locates `service-row__name`, not `mini-row__name`.
-- The mocks draw "Request a booking" and "Message" on the card, which are slices 17.1 and 17.2; an inert button is a control that does nothing, so the card omits them (ADR 0050).
+- The mocks draw "Request a booking" and "Message" on the card, which are slices 17.1 and 17.2; an inert button is a control that does nothing, so the card omits them (ADR 0051).
 - The mocks have no state for a category with nobody in it; it reuses the empty state, as Events does, and the ADR records the stand-in.
 - The listing entity has no public constructor (`Publish` is internal), so the cap test builds listings through `ProfessionalApplication.TryApprove`, the public way a listing is made, instead of widening the domain.
 - A Python edit script that wrote a file holding a non-ASCII tick failed on the Windows code page after it had already truncated the file; read and write with `encoding='utf-8'` and restore with `git checkout`.
@@ -2044,7 +2044,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The web `main` grew 130 bytes with one more route (280.43 kB against 280.30). A barrel that re-exported both Services pages made it worse (280.77); letting the loader return a module's `default` export (`loadComponent: () => import('./pages/x')`) removes the `.then((m) => m.X)` of each route, so converting the new page and five existing ones brought it to 280.21 kB with no budget raised (ADR 0051).
+- The web `main` grew 130 bytes with one more route (280.43 kB against 280.30). A barrel that re-exported both Services pages made it worse (280.77); letting the loader return a module's `default` export (`loadComponent: () => import('./pages/x')`) removes the `.then((m) => m.X)` of each route, so converting the new page and five existing ones brought it to 280.21 kB with no budget raised (ADR 0052).
 - No mock draws the screen; it is the `selected` card under the Event detail back link, recorded in the ADR.
 - Choosing between "card beside the list" and "its own screen" is a viewport rule, so the row's click handler asks `matchMedia('(min-width: 64rem)')` and the card beside the list is hidden below LG by CSS.
 - A shell heredoc holding Python with backslash-regexes warned on the Windows shell; small edits through scripts that assert every match worked.
@@ -2067,7 +2067,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The design assumed a `Conversation` entity and a nullable `ProfessionalMemberId`; the system has neither (a direct conversation is the pair of members, and every listing has its applicant's `MemberId`). "Linked" became "has no contact link", with a new nullable `ContactUrl`, and `startConversation` answers the professional's member id (ADR 0052).
+- The design assumed a `Conversation` entity and a nullable `ProfessionalMemberId`; the system has neither (a direct conversation is the pair of members, and every listing has its applicant's `MemberId`). "Linked" became "has no contact link", with a new nullable `ContactUrl`, and `startConversation` answers the professional's member id (ADR 0053).
 - A component output named `message` is a DOM event name and fails `no-output-native`; the outputs are `startMessage` and `openContact`.
 - A link that must not be in the page until chosen cannot be an anchor, so Contact is a button that asks, re-checks http or https and calls `window.open(..., 'noopener,noreferrer')`; a spec records `window.open` with an init script, so no request leaves localhost.
 - Shell heredocs holding C# or TypeScript with quotes failed to parse; every file went through the Write tool.
@@ -2091,7 +2091,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The design and L2 had no booking request at all (only Message and Contact); L2-014 gained AC3 to AC5 and ADR 0053 records the choice to deliver the request as a direct message with no new table or migration.
+- The design and L2 had no booking request at all (only Message and Contact); L2-014 gained AC3 to AC5 and ADR 0054 records the choice to deliver the request as a direct message with no new table or migration.
 - The services client returned raw `HttpErrorResponse`s, so the dialog could not branch on `recipient_unavailable`; the new client method maps errors with `apiErrorOf` like the applications client. The spec failed for exactly that before the fix.
 - A Python script that reopened a UTF-8 doc with the default Windows encoding emptied `journeys.detailed.md`; `git checkout` restored it. Pass `encoding='utf-8'` or use the Edit tool.
 - Shell heredocs holding quotes failed to parse again; files went through the Write tool.
@@ -2113,7 +2113,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The listing editor mock was an "Add listing" drawer (a Massage category, a verification checkbox, no contact link), so two hand-written states, `edit` and `edit-invalid`, were added and the manifest, index and README updated by hand (ADR 0054). The mock table's initials ("ML") differ from the library avatar's rule ("MR"); the spec reads names and roles, not initials.
+- The listing editor mock was an "Add listing" drawer (a Massage category, a verification checkbox, no contact link), so two hand-written states, `edit` and `edit-invalid`, were added and the manifest, index and README updated by hand (ADR 0055). The mock table's initials ("ML") differ from the library avatar's rule ("MR"); the spec reads names and roles, not initials.
 - `forkJoin` in the page pushed 411 bytes of rxjs into `main` and took admin to 280.64 kB. Diffing `browser-stats.json` of the base and the change named it; `combineLatest`, already paid for by the Events page, restored 280.35 kB.
 - One rule had to live in two places (the contact link check in `ServiceListing.TrySetContactUrl` and the new validator), so it became one static method both call.
 - Shell heredocs holding quotes failed to parse again (a comment with an apostrophe emptied a whole command); files went through the Write tool and edits through scripts in the scratchpad.
@@ -2137,7 +2137,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The design drew a soft delete (`IsPublished`, `RemovedAt`) the code never had, and every member call already reads the listing table, so a hard delete (ADR 0055) made all of them answer 404 with no filter to forget and no migration. The sequence and class diagrams still draw the soft delete; PlantUML is not installed here, so they were not re-rendered and the design README says to read them with the ADR.
+- The design drew a soft delete (`IsPublished`, `RemovedAt`) the code never had, and every member call already reads the listing table, so a hard delete (ADR 0056) made all of them answer 404 with no filter to forget and no migration. The sequence and class diagrams still draw the soft delete; PlantUML is not installed here, so they were not re-rendered and the design README says to read them with the ADR.
 - No mock drew Remove, so a `remove-listing` dialog (default, busy, failed) was composed by hand from the edit mock and the cancel-event dialog, the Remove button was added to the Manage Services table mock rows, and the manifest, index and README were edited by hand.
 - The library `table` allowed one row action; it gained an optional `secondActionLabel` and `secondAction`.
 - A third separate `import()` in the Services page grew `main` by 90 bytes (admin 280.44 kB), whatever the module held (an empty module cost 160). Re-exporting `openRemoveListing` from the editor's lazy module, so the page imports both dialogs in one place, restored 280.35 kB. The cause inside esbuild's chunk graph was not found.
@@ -2161,7 +2161,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The landing mock drew no professionals list, so the four states were extended by hand (a Python edit of the four HTML files; `build_mocks.py` was not run) and the L2 acceptance criteria 5 to 7 and the design were added (ADR 0056).
+- The landing mock drew no professionals list, so the four states were extended by hand (a Python edit of the four HTML files; `build_mocks.py` was not run) and the L2 acceptance criteria 5 to 7 and the design were added (ADR 0057).
 - `@defer` took web to 289.86 kB (a 9.6 kB runtime), `on idle` still 288.11 kB, and `viewChild` plus `ViewContainerRef` in the page 280.89 kB. Only a small directive using `inject(ElementRef)`, `inject(ViewContainerRef)` and an `IntersectionObserver` held 280.21 kB, so AGENTS.md's "`@defer` below the fold" was met in spirit (code and data load only near the viewport) and the departure is in the ADR.
 - The library avatar's initials for "Marcus Lee, RD" are "MR" (the last word), not the mock's "ML"; the fixture uses "Marcus Lee".
 - A 5xx opens the server-error screen, so the failure spec uses 404, as the events spec does.
@@ -2184,7 +2184,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- No mock drew a Report action or dialog, and the design left the reason's limit, the error codes and the repeat report (it said "returns success") `<TO SUPPLY>`. Five hand-written dialog states over the Messages thread, a `message__report` button in the thread mock and the design-system `message` page, L2-017 AC3 to AC6 and ADR 0057 settled them before code. `build_mocks.py` was not run; a Python script that asserted every match wrote only new mock files and edited the two thread mocks, the manifest, the index and the README in place.
+- No mock drew a Report action or dialog, and the design left the reason's limit, the error codes and the repeat report (it said "returns success") `<TO SUPPLY>`. Five hand-written dialog states over the Messages thread, a `message__report` button in the thread mock and the design-system `message` page, L2-017 AC3 to AC6 and ADR 0058 settled them before code. `build_mocks.py` was not run; a Python script that asserted every match wrote only new mock files and edited the two thread mocks, the manifest, the index and the README in place.
 - The repeat report is refused `already_reported` (409), not answered with success: "never twice" and a dialog that must not claim a report was sent both need the code. The design's diagrams still show success; PlantUML is not installed here, so the README says to read them with the ADR.
 - The README matrix of dialogs has one column per state name, so the mock's "duplicate" state became `refused`, an existing column, rather than a new column in every row.
 - The library dialog's `successHeading` already draws the confirmation, so the design's toast was not built; the page needs no toast region and `main` did not grow (web 280.21 kB, admin 280.35 kB, both unchanged).
@@ -2210,7 +2210,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The mock drew April totals, not a weekly series, and the design left the length, the week rule and the endpoint `<TO SUPPLY>`. ADR 0058 settled eight Monday-start UTC weeks; the Community activity section was added to five mock states by a script that asserted its anchor once per file (`build_mocks.py` was not run), and the mock's `partial` state became this section's error.
+- The mock drew April totals, not a weekly series, and the design left the length, the week rule and the endpoint `<TO SUPPLY>`. ADR 0059 settled eight Monday-start UTC weeks; the Community activity section was added to five mock states by a script that asserted its anchor once per file (`build_mocks.py` was not run), and the mock's `partial` state became this section's error.
 - The shell specs, the boot spec and L2-021 all expect an h1 "Dashboard", so the page keeps it rather than the mock's greeting.
 - A 5xx opens the server-error screen (8.2's lesson again), so the failing-request spec uses 404.
 - `FakeTimeProvider` cannot go back, and a staff session idles out after days of advance: the "new week" test advances before it signs in.
@@ -2233,7 +2233,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The route-prefix policy (ADR 0020) admits a Moderator to the whole Dashboard area, so "no applications for a Moderator" could not be a route rule; the handler reads the caller's staff role and leaves the `applications` key out (ADR 0059), which the Moderator test proves by exact keys.
+- The route-prefix policy (ADR 0020) admits a Moderator to the whole Dashboard area, so "no applications for a Moderator" could not be a route rule; the handler reads the caller's staff role and leaves the `applications` key out (ADR 0060), which the Moderator test proves by exact keys.
 - The mock's `queue` block has no design-system component, and "2 days ago" needs a clock. The rows became a page composite of library `list`, `button` and `link` parts with the page's own BEM block, and the line shows an absolute UTC day. The mock gained an `attention-error` state for this section's own failure.
 - The existing page object's `.empty-state` and `.error-state` locators matched both sections once the page held two; they were scoped to their section by its `aria-labelledby`.
 - A heading locator by role found the empty state's `h2` too; the section's title is found by id.

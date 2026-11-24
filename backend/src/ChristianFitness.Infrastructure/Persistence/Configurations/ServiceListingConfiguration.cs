@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A stored published listing (ADR 0049): one per approved application, browsed by category.</summary>
+/// <summary>A stored published listing (ADR 0000): one per approved application, browsed by category.</summary>
 internal sealed class ServiceListingConfiguration : IEntityTypeConfiguration<ServiceListing>
 {
     public void Configure(EntityTypeBuilder<ServiceListing> builder)

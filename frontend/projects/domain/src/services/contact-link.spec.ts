@@ -1,6 +1,6 @@
 import { safeContactUrl } from './contact-link';
 
-// L2-014 AC2 (ADR 0052): the same rows as ServiceListingContactUrlTests.cs. What the API keeps as a
+// L2-014 AC2 (ADR 0000): the same rows as ServiceListingContactUrlTests.cs. What the API keeps as a
 // contact link, the page opens; anything else is never opened.
 describe('safeContactUrl', () => {
   it.each([

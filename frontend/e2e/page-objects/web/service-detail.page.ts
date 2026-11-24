@@ -12,7 +12,7 @@ export interface ListingView {
 }
 
 /**
- * The member app's listing screen at `/services/:id` (L2-013 AC4; ADR 0051): the back action to
+ * The member app's listing screen at `/services/:id` (L2-013 AC4; ADR 0000): the back action to
  * Services and one professional's card. Owns the selectors of that screen. An unknown listing shows
  * the not-found screen, read through {@link ErrorScreen}.
  */

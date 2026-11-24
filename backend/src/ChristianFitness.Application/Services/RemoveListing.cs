@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Services;
 
 /// <summary>
-/// Removes the live listing <see cref="Id"/> (L2-027 AC2; ADR 0055): the row is deleted, so Services, its
+/// Removes the live listing <see cref="Id"/> (L2-027 AC2; ADR 0000): the row is deleted, so Services, its
 /// detail, contact and booking calls no longer find it. Conversations hang on the two members, not on the
 /// listing, so they stay. Audited as <c>listing.removed</c>; the entry keeps no text.
 /// </summary>

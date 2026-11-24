@@ -65,13 +65,13 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/event-detail/event-detail-page'),
       },
       {
-        // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0047); the list is slice 16.1.
+        // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0000); the list is slice 16.1.
         path: 'services',
         title: titled('Services'),
         loadComponent: () => import('./pages/services/services-page'),
       },
       {
-        // One professional's listing in full: below LG a row on Services opens it (L2-013 AC4; ADR 0051).
+        // One professional's listing in full: below LG a row on Services opens it (L2-013 AC4; ADR 0052).
         path: 'services/:id',
         title: titled('Professional'),
         loadComponent: () => import('./pages/service-detail/service-detail-page'),
