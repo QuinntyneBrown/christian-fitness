@@ -41,8 +41,8 @@ The owner's other systems are on Azure and the domain is `christian.fitness`.
   answer that needs the database. A failure at any step fails the run and leaves the previous
   revision serving. Releases run one at a time and are never cancelled part-way.
 - **No stored credential.** The workflow signs in with GitHub's OIDC token as a user-assigned
-  managed identity that trusts only `repo:QuinntyneBrown/christian-fitness:ref:refs/heads/main`
-  and may change only the system's resource group. The repository holds three identifiers as
+  managed identity that trusts only this repository's `main` (the token's subject carries the
+  owner's and the repository's permanent ids) and may change only the system's resource group. The repository holds three identifiers as
   variables and no secret. `azure/login`, the one third-party action, is pinned to a commit.
 - **The resources are made by `tools/deploy/provision.sh`,** run once from Azure Cloud Shell; it
   prints the DNS records and the repository variables, and nothing secret.

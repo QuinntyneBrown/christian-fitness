@@ -94,10 +94,13 @@ rg_id=$(az group show --name "$RG" --query id --output tsv)
 az role assignment create --assignee-object-id "$app_principal" --assignee-principal-type ServicePrincipal --role AcrPull --scope "$registry_id" --output none
 az role assignment create --assignee-object-id "$deploy_principal" --assignee-principal-type ServicePrincipal --role Contributor --scope "$rg_id" --output none
 az role assignment create --assignee-object-id "$deploy_principal" --assignee-principal-type ServicePrincipal --role AcrPush --scope "$registry_id" --output none
-# GitHub's OIDC token for a run on main is the workflow's only credential.
+# GitHub's OIDC token for a run on main is the workflow's only credential. Its subject names the
+# owner and the repository with their permanent ids, so a renamed or re-created namesake never matches.
+owner_id=$(curl -fsSL "https://api.github.com/repos/$REPOSITORY" | jq -r .owner.id)
+repository_id=$(curl -fsSL "https://api.github.com/repos/$REPOSITORY" | jq -r .id)
 az identity federated-credential create --name github-main --identity-name "$DEPLOY_IDENTITY" --resource-group "$RG" \
-  --issuer https://token.actions.githubusercontent.com --subject "repo:$REPOSITORY:ref:refs/heads/main" \
-  --audiences api://AzureADTokenExchange --output none
+  --issuer https://token.actions.githubusercontent.com --audiences api://AzureADTokenExchange --output none \
+  --subject "repo:${REPOSITORY%/*}@$owner_id/${REPOSITORY#*/}@$repository_id:ref:refs/heads/main"
 
 echo "== PostgreSQL"
 # 0.0.0.0 is Azure's "services inside Azure" rule: the replica, the release job and Cloud Shell.
