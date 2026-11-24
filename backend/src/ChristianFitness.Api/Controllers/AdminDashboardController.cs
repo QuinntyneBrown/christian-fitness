@@ -16,4 +16,9 @@ public sealed class AdminDashboardController(ISender sender) : ControllerBase
     [HttpGet("activity")]
     public async Task<ActionResult<CommunityActivityDto>> Activity(CancellationToken cancellationToken) =>
         await sender.Send(new GetCommunityActivityQuery(), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>The pending applications (Admins only) and flagged members waiting for staff: counts and the oldest few.</summary>
+    [HttpGet("awaiting")]
+    public async Task<ActionResult<WorkAwaitingStaffDto>> Awaiting(CancellationToken cancellationToken) =>
+        await sender.Send(new GetWorkAwaitingStaffQuery(), cancellationToken).ConfigureAwait(false);
 }

@@ -418,7 +418,8 @@
         "empty",
         "error",
         "moderator",
-        "partial"
+        "partial",
+        "attention-error"
       ]
     },
     {

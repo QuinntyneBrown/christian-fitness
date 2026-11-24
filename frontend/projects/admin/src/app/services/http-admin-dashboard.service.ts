@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { AdminDashboardApi, CommunityActivityDto } from '@cf/api';
+import type { AdminDashboardApi, CommunityActivityDto, WorkAwaitingStaffDto } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
@@ -16,6 +16,12 @@ export class HttpAdminDashboardService implements AdminDashboardApi {
   activity(): Observable<CommunityActivityDto> {
     return this.http
       .get<CommunityActivityDto>('/api/admin/dashboard/activity')
+      .pipe(catchError(asApiError));
+  }
+
+  awaiting(): Observable<WorkAwaitingStaffDto> {
+    return this.http
+      .get<WorkAwaitingStaffDto>('/api/admin/dashboard/awaiting')
       .pipe(catchError(asApiError));
   }
 }

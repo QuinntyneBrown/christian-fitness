@@ -5,7 +5,7 @@ merges. Read this file before starting a slice and apply what fits.
 
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 79% (44 of 57 slices; 72 of 91 days)
+**% complete:** 100% (57 of 57 slices; 91 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2228,3 +2228,28 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Prove a rule red by breaking it alone" (1.1 to 25.1): dropping the registrations' upper bound failed five cases; restored.
 - "A fixture default for a new call" (15.1 on): the shared fixture answers eight quiet weeks, so every admin spec that lands on the Dashboard stays green; the whole suite was run.
 - "Count a slice's new specs against the CI budget" (24.1): five short specs in one file.
+
+## Slice 28.2: Work awaiting staff
+
+**What slowed it**
+
+- The route-prefix policy (ADR 0020) admits a Moderator to the whole Dashboard area, so "no applications for a Moderator" could not be a route rule; the handler reads the caller's staff role and leaves the `applications` key out (ADR 0059), which the Moderator test proves by exact keys.
+- The mock's `queue` block has no design-system component, and "2 days ago" needs a clock. The rows became a page composite of library `list`, `button` and `link` parts with the page's own BEM block, and the line shows an absolute UTC day. The mock gained an `attention-error` state for this section's own failure.
+- The existing page object's `.empty-state` and `.error-state` locators matched both sections once the page held two; they were scoped to their section by its `aria-labelledby`.
+- A heading locator by role found the empty state's `h2` too; the section's title is found by id.
+- The shell tool refused long commands that mixed heredocs with quotes; files were written with the file tools instead.
+- Journeys 1, 6, 7, 11, 12, 14 and 24 had every slice done but stood unticked in `journeys.md`; they were reconciled with this last slice.
+
+**New lessons**
+
+- A section on a shared page fails and loads on its own: one subject and one signal per section, so Try again asks for that section alone, and a spec fails one request and checks the other section still shows.
+- Read a locator's text only after a count has waited for the rows to render; reading `evaluateAll` straight after `open()` raced the render.
+- A list whose second list shares a page (the "All N" links) must not match the row locator: rows are found by the row's own class.
+- Moderator absence is a contract rule: the API leaves the key out and the client treats a missing list as none, so no screen branches on a role name.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 28.1): followed; the stub answered nothing, so three of four API tests failed for the missing keys and all nine new e2e specs failed for the missing section, with the five older specs green.
+- "Prove a rule red by breaking it alone" (1.1 to 28.1): treating every role as a Moderator in the handler failed the Admin test alone; restored.
+- "A fixture default for a new call" (15.1 on): the shared fixture answers nothing waiting, so every admin spec that lands on the Dashboard stays green; the whole suite was run.
+- "Section rendered with library parts costs no initial bundle" (28.1): admin stayed at 280.32 kB.

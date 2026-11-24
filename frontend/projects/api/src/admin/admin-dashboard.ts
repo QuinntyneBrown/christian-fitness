@@ -18,10 +18,43 @@ export interface CommunityActivityDto {
   weeks: ActivityWeekDto[];
 }
 
-/** What the admin Dashboard reads (L2-020; ADR 0058). */
+/** One pending application as the Dashboard names it (`AwaitingApplicationDto`, ADR 0059). */
+export interface AwaitingApplicationDto {
+  id: string;
+  name: string;
+  role: string;
+  /** An ISO instant. */
+  submittedAt: string;
+}
+
+/** One flagged member as the Dashboard names them: staff's own note, as the Members screen shows it. */
+export interface AwaitingFlaggedMemberDto {
+  id: string;
+  name: string;
+  note: string | null;
+}
+
+/** How many wait in all, and the oldest few of them. */
+export interface AwaitingListDto<T> {
+  total: number;
+  items: T[];
+}
+
+/**
+ * `GET /api/admin/dashboard/awaiting` (ADR 0059): `applications` is absent from a Moderator's
+ * answer, because a Moderator does not act on applications.
+ */
+export interface WorkAwaitingStaffDto {
+  applications?: AwaitingListDto<AwaitingApplicationDto>;
+  flaggedMembers: AwaitingListDto<AwaitingFlaggedMemberDto>;
+}
+
+/** What the admin Dashboard reads (L2-020; ADR 0058, ADR 0059). */
 export interface AdminDashboardApi {
   /** The weekly activity. A failure errors with an `ApiError`. */
   activity(): Observable<CommunityActivityDto>;
+  /** The applications and flagged members waiting for staff. A failure errors with an `ApiError`. */
+  awaiting(): Observable<WorkAwaitingStaffDto>;
 }
 
 /** Binds {@link AdminDashboardApi}; the Dashboard page provides it on its routed component. */

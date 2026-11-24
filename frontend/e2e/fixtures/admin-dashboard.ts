@@ -59,3 +59,80 @@ export function answerActivity(
   });
   return counter;
 }
+
+/** One pending application as `GET /api/admin/dashboard/awaiting` names it (ADR 0059). */
+export interface AwaitingApplicationFixture {
+  id: string;
+  name: string;
+  role: string;
+  submittedAt: string;
+}
+
+/** One flagged member as the same answer names them. */
+export interface AwaitingFlaggedFixture {
+  id: string;
+  name: string;
+  note: string | null;
+}
+
+/** What waits for staff; `applications` is absent in a Moderator's answer. */
+export interface AwaitingFixture {
+  applications?: { total: number; items: AwaitingApplicationFixture[] };
+  flaggedMembers: { total: number; items: AwaitingFlaggedFixture[] };
+}
+
+/** Nothing waiting, for an Admin: the fixture's default answer. */
+export const NOTHING_AWAITING: AwaitingFixture = {
+  applications: { total: 0, items: [] },
+  flaggedMembers: { total: 0, items: [] },
+};
+
+/** The mock's default: three applications and one flagged member. */
+export const SOME_AWAITING: AwaitingFixture = {
+  applications: {
+    total: 3,
+    items: [
+      {
+        id: '0190c0de-0000-7000-8000-0000000000a1',
+        name: 'Hannah Bergstrom',
+        role: 'Registered massage therapist',
+        submittedAt: '2026-04-13T09:00:00+00:00',
+      },
+      {
+        id: '0190c0de-0000-7000-8000-0000000000a2',
+        name: 'Samuel Osei',
+        role: 'Strength coach',
+        submittedAt: '2026-04-12T09:00:00+00:00',
+      },
+      {
+        id: '0190c0de-0000-7000-8000-0000000000a3',
+        name: 'Lena Park, RD',
+        role: 'Sports dietitian',
+        submittedAt: '2026-04-10T09:00:00+00:00',
+      },
+    ],
+  },
+  flaggedMembers: {
+    total: 1,
+    items: [
+      {
+        id: '0190c0de-0000-7000-8000-0000000000b1',
+        name: 'Kevin Brooks',
+        note: 'Promoting supplements in 3 group chats',
+      },
+    ],
+  },
+};
+
+/** Answers every request for the waiting work with `awaiting` and counts them. */
+export function answerAwaiting(
+  api: ApiHandlers,
+  awaiting: AwaitingFixture = SOME_AWAITING,
+): { asked: number } {
+  const counter = { asked: 0 };
+  api.on('GET', '/api/admin/dashboard/awaiting', () => {
+    counter.asked += 1;
+    return { json: awaiting };
+  });
+  return counter;
+}

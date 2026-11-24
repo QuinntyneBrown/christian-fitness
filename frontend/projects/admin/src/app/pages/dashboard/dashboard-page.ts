@@ -1,15 +1,25 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ADMIN_DASHBOARD_SERVICE, type ActivityWeekDto } from '@cf/api';
+import { ADMIN_DASHBOARD_SERVICE, type ActivityWeekDto, type WorkAwaitingStaffDto } from '@cf/api';
 import {
   Button,
   EmptyState,
+  Link,
+  List,
+  Skeleton,
   SkeletonRegion,
   Table,
   type TableColumn,
   type TableRow,
 } from '@cf/components';
-import { activityRowsOf, hasActivity } from '@cf/domain';
+import {
+  activityRowsOf,
+  awaitingMoreOf,
+  awaitingRowsOf,
+  awaitingTotalOf,
+  hasActivity,
+  seesApplications,
+} from '@cf/domain';
 import { catchError, of, startWith, Subject, switchMap } from 'rxjs';
 import { HttpAdminDashboardService } from '../../services/http-admin-dashboard.service';
 
@@ -25,16 +35,21 @@ const COLUMNS: readonly TableColumn[] = [
 type ActivityState =
   { kind: 'loading' } | { kind: 'ready'; weeks: ActivityWeekDto[] } | { kind: 'failed' };
 
+/** What the waiting work shows: skeleton rows, what waits, or the error state. */
+type AttentionState =
+  { kind: 'loading' } | { kind: 'ready'; awaiting: WorkAwaitingStaffDto } | { kind: 'failed' };
+
 /**
- * The Dashboard (mock docs/mocks/pages/admin-dashboard/; L2-020 AC4; ADR 0058), as far as slice
- * 28.1 builds it: the community's activity over the last eight weeks, current week first. While it
- * loads, skeleton rows; with no activity in any week, an empty state; when it does not load, the
- * error state with Try again. The work awaiting staff is slice 28.2's. The service is this
- * screen's own, provided here (AGENTS.md, "Scope state to its use").
+ * The Dashboard (mock docs/mocks/pages/admin-dashboard/; L2-020 AC4 to AC10; ADR 0058, ADR 0059).
+ * "Needs attention" lists the oldest pending applications and flagged members, each with the link
+ * that resolves it (a Moderator's answer has no applications); "Community activity" is the last
+ * eight weeks, current week first. Each section loads, empties and fails on its own, with Try
+ * again that asks only for itself. The service is this screen's own, provided here (AGENTS.md,
+ * "Scope state to its use").
  */
 @Component({
   selector: 'cf-admin-dashboard-page',
-  imports: [Button, EmptyState, SkeletonRegion, Table],
+  imports: [Button, EmptyState, Link, List, Skeleton, SkeletonRegion, Table],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.scss',
   providers: [{ provide: ADMIN_DASHBOARD_SERVICE, useClass: HttpAdminDashboardService }],
@@ -42,6 +57,7 @@ type ActivityState =
 export class AdminDashboardPage {
   private readonly dashboard = inject(ADMIN_DASHBOARD_SERVICE);
   private readonly reload = new Subject<void>();
+  private readonly reloadAttention = new Subject<void>();
 
   protected readonly columns = COLUMNS;
   protected readonly state = signal<ActivityState>({ kind: 'loading' });
@@ -60,12 +76,43 @@ export class AdminDashboardPage {
       noAction: true,
     }));
   });
+  protected readonly attention = signal<AttentionState>({ kind: 'loading' });
+  protected readonly attentionRows = computed(() => {
+    const state = this.attention();
+    return state.kind === 'ready' ? awaitingRowsOf(state.awaiting) : [];
+  });
+  protected readonly attentionMore = computed(() => {
+    const state = this.attention();
+    return state.kind === 'ready' ? awaitingMoreOf(state.awaiting) : [];
+  });
+  protected readonly attentionCount = computed(() => {
+    const state = this.attention();
+    return state.kind === 'ready' ? awaitingTotalOf(state.awaiting) : null;
+  });
+  protected readonly caughtUpText = computed(() => {
+    const state = this.attention();
+    return state.kind === 'ready' && !seesApplications(state.awaiting)
+      ? 'New member reports show up here as they come in.'
+      : 'New applications and member reports show up here as they come in.';
+  });
   protected readonly quiet = computed(() => {
     const state = this.state();
     return state.kind === 'ready' && !hasActivity(state.weeks);
   });
 
   constructor() {
+    this.reloadAttention
+      .pipe(
+        startWith(undefined),
+        switchMap(() => {
+          this.attention.set({ kind: 'loading' });
+          return this.dashboard.awaiting().pipe(catchError(() => of(null)));
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((awaiting) =>
+        this.attention.set(awaiting ? { kind: 'ready', awaiting } : { kind: 'failed' }),
+      );
     this.reload
       .pipe(
         startWith(undefined),
@@ -78,6 +125,10 @@ export class AdminDashboardPage {
       .subscribe((activity) =>
         this.state.set(activity ? { kind: 'ready', weeks: activity.weeks } : { kind: 'failed' }),
       );
+  }
+
+  protected tryAgainAttention(): void {
+    this.reloadAttention.next();
   }
 
   protected tryAgain(): void {

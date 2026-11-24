@@ -1,4 +1,11 @@
-import { activity, answerActivity, BUSY_WEEKS } from '../fixtures/admin-dashboard';
+import {
+  activity,
+  answerActivity,
+  answerAwaiting,
+  BUSY_WEEKS,
+  SOME_AWAITING,
+  type AwaitingFixture,
+} from '../fixtures/admin-dashboard';
 import { MODERATOR_SIGNED_IN } from '../fixtures/api-handlers';
 import { expect, test } from '../fixtures/test';
 import { AdminDashboardPage } from '../page-objects/admin/dashboard.page';
@@ -106,5 +113,197 @@ test.describe('Admin app, the Dashboard community activity', () => {
     await dashboard.open();
 
     await expect(dashboard.rows).toHaveCount(8);
+  });
+});
+
+// L2-020 AC7 to AC10 (slice 28.2; ADR 0059): the work waiting for staff, each item linked to the
+// screen that resolves it, whatever the community activity does.
+test.describe('Admin app, the Dashboard work awaiting staff', () => {
+  test('lists the pending applications then the flagged members, each with its Review link', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerAwaiting(api, SOME_AWAITING);
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 4');
+    await expect(dashboard.attentionItems).toHaveCount(4);
+    expect(await dashboard.attentionTexts()).toEqual([
+      {
+        title: 'Hannah Bergstrom applied to list services',
+        meta: 'Registered massage therapist · Apr 13',
+        href: '/services',
+      },
+      {
+        title: 'Samuel Osei applied to list services',
+        meta: 'Strength coach · Apr 12',
+        href: '/services',
+      },
+      {
+        title: 'Lena Park, RD applied to list services',
+        meta: 'Sports dietitian · Apr 10',
+        href: '/services',
+      },
+      {
+        title: 'Kevin Brooks was flagged',
+        meta: 'Promoting supplements in 3 group chats',
+        href: '/members?status=flagged',
+      },
+    ]);
+    await expect(dashboard.seeAllLinks).toHaveCount(0);
+    expect(asked.asked).toBe(1);
+  });
+
+  test('with more waiting than shown, says how many and links to all of them', async ({
+    page,
+    api,
+  }) => {
+    answerAwaiting(api, {
+      applications: { total: 7, items: SOME_AWAITING.applications!.items },
+      flaggedMembers: { total: 5, items: SOME_AWAITING.flaggedMembers.items },
+    });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 12');
+    await expect(dashboard.seeAllLinks).toHaveText([
+      'All 7 pending applications',
+      'All 5 flagged members',
+    ]);
+    await expect(dashboard.seeAllLinks.nth(0)).toHaveAttribute('href', '/services');
+    await expect(dashboard.seeAllLinks.nth(1)).toHaveAttribute('href', '/members?status=flagged');
+  });
+
+  test('renders what members wrote as text, never as markup', async ({ page, api }) => {
+    answerAwaiting(api, {
+      flaggedMembers: {
+        total: 1,
+        items: [{ id: 'x1', name: '<b>Kevin</b>', note: '<img src=x onerror=alert(1)>' }],
+      },
+    });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionItems).toHaveCount(1);
+    expect(await dashboard.attentionTexts()).toEqual([
+      {
+        title: '<b>Kevin</b> was flagged',
+        meta: '<img src=x onerror=alert(1)>',
+        href: '/members?status=flagged',
+      },
+    ]);
+    await expect(dashboard.attention.locator('b, img')).toHaveCount(0);
+  });
+
+  // Mock admin-dashboard/loading.
+  test('while it loads, the section is busy with skeleton rows', async ({ page, api }) => {
+    let release = (): void => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    api.on('GET', '/api/admin/dashboard/awaiting', async () => {
+      await gate;
+      return { json: SOME_AWAITING };
+    });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionLoading).toBeVisible();
+    release();
+    await expect(dashboard.attentionItems).toHaveCount(4);
+    await expect(dashboard.attentionLoading).toHaveCount(0);
+  });
+
+  // Mock admin-dashboard/empty; the fixture's default answer is nothing waiting.
+  test('with nothing waiting, says staff are all caught up', async ({ page }) => {
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 0');
+    await expect(dashboard.attentionEmpty.locator('.empty-state__title')).toHaveText(
+      "You're all caught up",
+    );
+    await expect(dashboard.attentionEmpty.locator('.empty-state__text')).toHaveText(
+      'New applications and member reports show up here as they come in.',
+    );
+    await expect(dashboard.attentionItems).toHaveCount(0);
+  });
+
+  // Mock admin-dashboard/partial, the other way round: the activity is up, this part is not.
+  test('when it does not load, shows a generic error that Try again repeats, and the activity stays', async ({
+    page,
+    api,
+  }) => {
+    answerActivity(api, BUSY_WEEKS);
+    let fail = true;
+    api.on('GET', '/api/admin/dashboard/awaiting', () =>
+      fail
+        ? { status: 404, json: { code: 'a_secret_code', detail: 'A sentence from the server' } }
+        : { json: SOME_AWAITING },
+    );
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionError).toHaveAttribute('role', 'alert');
+    await expect(dashboard.attentionError.locator('.empty-state__title')).toHaveText(
+      "Work waiting didn't load",
+    );
+    await expect(dashboard.attentionError).not.toContainText('A sentence from the server');
+    await expect(dashboard.rows).toHaveCount(8);
+    fail = false;
+    await dashboard.attentionTryAgain.click();
+    await expect(dashboard.attentionItems).toHaveCount(4);
+    await expect(dashboard.attentionError).toHaveCount(0);
+  });
+
+  test('when the activity does not load, the waiting work still shows', async ({ page, api }) => {
+    answerAwaiting(api, SOME_AWAITING);
+    api.on('GET', '/api/admin/dashboard/activity', () => ({
+      status: 404,
+      json: { code: 'a_secret_code' },
+    }));
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.errorTitle).toHaveText("Activity didn't load");
+    await expect(dashboard.attentionItems).toHaveCount(4);
+  });
+
+  // Mock admin-dashboard/moderator: only what a Moderator may act on, which is the flagged members.
+  test('a Moderator is shown the flagged members and no application', async ({ page, api }) => {
+    api.on('GET', '/api/admin/session', () => ({ json: MODERATOR_SIGNED_IN }));
+    const moderators: AwaitingFixture = { flaggedMembers: SOME_AWAITING.flaggedMembers };
+    answerAwaiting(api, moderators);
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 1');
+    expect(await dashboard.attentionTexts()).toEqual([
+      {
+        title: 'Kevin Brooks was flagged',
+        meta: 'Promoting supplements in 3 group chats',
+        href: '/members?status=flagged',
+      },
+    ]);
+    await expect(dashboard.attention).not.toContainText('applied to list services');
+  });
+
+  test('a Moderator with no flagged member is told only about reports', async ({ page, api }) => {
+    api.on('GET', '/api/admin/session', () => ({ json: MODERATOR_SIGNED_IN }));
+    answerAwaiting(api, { flaggedMembers: { total: 0, items: [] } });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionEmpty.locator('.empty-state__text')).toHaveText(
+      'New member reports show up here as they come in.',
+    );
   });
 });

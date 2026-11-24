@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 99% (56 of 57 slices; 90 of 91 days)
+**% complete:** 100% (57 of 57 slices; 91 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -65,7 +65,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 54  | 27.1  | 27 Flag, suspend and reinstate      | ✅ Flag and suspend                               | Staff flag or suspend a member with a recorded reason.                                                                                              | 2             |
 | 55  | 27.2  | 27 Flag, suspend and reinstate      | ✅ Reinstate                                      | Staff reinstate a flagged or suspended member to Active.                                                                                            | 1             |
 | 56  | 28.1  | 28 Watch the dashboard              | ✅ Community activity                             | Staff see members, registrations and messages over recent weeks.                                                                                    | 2             |
-| 57  | 28.2  | 28 Watch the dashboard              | Work awaiting staff                               | Dashboard shows pending applications and flagged members to handle.                                                                                 | 1             |
+| 57  | 28.2  | 28 Watch the dashboard              | ✅ Work awaiting staff                            | Dashboard shows pending applications and flagged members to handle.                                                                                 | 1             |
 
 ## Why this order
 
