@@ -508,6 +508,23 @@
       ]
     },
     {
+      "id": "apply-to-be-listed",
+      "kind": "dialog",
+      "title": "Apply to be listed",
+      "group": "Member app",
+      "opens_from": "services",
+      "source": "Derived: the Services frame's \"Apply to be listed\" button (L2-026).",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "refused",
+        "failed",
+        "success"
+      ]
+    },
+    {
       "id": "edit-profile",
       "kind": "dialog",
       "title": "Edit profile",

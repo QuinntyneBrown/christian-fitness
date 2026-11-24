@@ -117,6 +117,82 @@ def _():
 
 
 # ===========================================================================
+# Apply to be listed (member · Services; L2-026)
+# ===========================================================================
+APPLY_CATEGORIES = ["Training", "Nutrition", "Physio", "Coaching", "Counselling"]
+
+
+def apply_listed(*, invalid=False, busy=False, failed=False, pending=False) -> str:
+    alert = ""
+    if invalid:
+        alert = error_summary("Check your application", [("Enter your role, such as Personal trainer", "f-role"),
+                                                         ("Tell members about your credentials", "f-credentials")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if pending:
+        alert = form_alert("You already have an application", "Our team is still reviewing it. You can apply again once it has been decided.").replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Your application didn't send", "Nothing was lost. Check your connection and send it again.")
+    ro = busy
+    role = "" if invalid else "Personal trainer"
+    cred = "" if invalid else "NSCA-CPT, 8 years coaching"
+    body = f"""    {alert}
+    {field("Role", "role", role, error="Enter your role, such as Personal trainer" if invalid else "", readonly=ro)}
+    {select("Category", "category", APPLY_CATEGORIES, "Training", disabled=busy)}
+    {field("Credentials", "credentials", cred, error="Tell members about your credentials" if invalid else "", readonly=ro)}
+    <div class="field-grid">
+      {field("Where", "where", "Mississauga", readonly=ro)}
+      {field("Price", "price", "$70 / session", readonly=ro)}
+    </div>
+    {textarea("About", "about", "I help busy parents build strength without burning out.", rows=3, hint="A sentence or two for members", readonly=ro)}
+    <p class="field__hint">Our team reviews every application before anyone is listed.</p>"""
+    send = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
+            else '<button class="btn btn--primary btn--grow" type="submit" data-mock-href="success.html">Send application</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("services")}">Cancel</button>\n    {send}'
+    html = dialog("Apply to be listed", body, foot, sub="Share who you are and how you help members.")
+    if not (invalid or pending):
+        html = autofocus_first(html, 'id="f-role"')
+    return over_member("services", services_page_okafor(), html)
+
+
+s = screen("apply-to-be-listed", "dialog", "Apply to be listed", opens_from="services",
+           source="Derived: the Services frame's \"Apply to be listed\" button (L2-026).")
+
+
+@s("default", "Role, category, credentials, where, price and about; focus on the first field.")
+def _():
+    return apply_listed()
+
+
+@s("invalid", "Role and credentials left empty: summary focused, inline errors, nothing sent.")
+def _():
+    return apply_listed(invalid=True)
+
+
+@s("busy", "Send application pressed: busy, Cancel disabled, no second submit.")
+def _():
+    return apply_listed(busy=True)
+
+
+@s("refused", "A pending application exists (code application_pending): message at the top, details kept.")
+def _():
+    return apply_listed(pending=True)
+
+
+@s("failed", "Sending failed: message at the top, everything typed kept.")
+def _():
+    return apply_listed(failed=True)
+
+
+@s("success", "Sent: what happens next.")
+def _():
+    body = f"""    <div class="dialog__success" role="status">
+      <span class="dialog__success-icon">{icon("check", "icon--lg")}</span>
+      <p class="lead">Thanks. Our team will review your application and you'll hear from us in your messages.</p>
+    </div>"""
+    foot = f'    <button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("services")}" autofocus>Done</button>'
+    return over_member("services", services_page_okafor(), dialog("Application sent", body, foot))
+
+
+# ===========================================================================
 # Edit profile (member · Profile)
 # ===========================================================================
 BIO_MAX = 300
