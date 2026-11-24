@@ -11,14 +11,14 @@ This feature covers how an application enters the system. A signed-in member fil
 
 ## Description
 
-- **Application screen** — the Member web app screen or CDK Dialog that collects the fields. The mocks under `docs/mocks/` contain no member-facing application form, so its host screen, entry point and component names are `<TO SUPPLY>`. A mock state or an ADR stand-in shall exist before implementation.
+- **Application screen** — the Apply to be listed CDK Dialog (`ApplyToBeListedDialog`, mock `docs/mocks/dialogs/apply-to-be-listed/`), opened by the "Apply to be listed" button on the Services page (`ServicesPage`, route `/services`, lazy). It is built from the components library's `dialog`, `text-field`, `select`, `textarea` and `alert`, and shows the mock's `invalid`, `busy`, `refused`, `failed` and `success` states (ADR 0047).
 - **`ProfessionalApplicationsApi`** — contract in the `api` library behind the `PROFESSIONAL_APPLICATIONS_SERVICE` token. `HttpProfessionalApplicationsService` implements it and `app.config.ts` in `projects/web` binds it. The screen branches on the error `code` and shows a generic message.
 - **`ProfessionalApplicationsController`** — authenticated by the fallback policy. It sends one `SubmitApplicationCommand` for the caller and checks nothing itself.
-- **`SubmitApplicationValidator`** — FluentValidation rules for the six fields. Field lengths, the category list and the price format are `<TO SUPPLY>`.
-- **`SubmitApplicationHandler`** — refuses with code `application_pending` when the caller already has a `Pending` application. Otherwise it creates the application through `ProfessionalApplication.Submit` and saves it. The HTTP status for the refusal is `<TO SUPPLY>`; the sequence shows 409.
+- **`SubmitApplicationValidator`** — FluentValidation rules for the six fields. All six fields are required; lengths count the trimmed text (role 80, credentials 200, where 80, price 60, about 300); the category is one of Training, Nutrition, Physio, Coaching, Counselling; the price is free text. A blank field or an unknown category is `validation_failed`, a field over its length `field_too_long`, both as a 400 naming each field.
+- **`SubmitApplicationHandler`** — refuses with code `application_pending` when the caller already has a `Pending` application. Otherwise it creates the application through `ProfessionalApplication.Submit` and saves it. The refusal is HTTP 409.
 - **`ProfessionalApplication`** — domain entity created in the `Pending` state with `SubmittedAt` from the injected `TimeProvider`.
 
-Whether a member with a declined application may apply again, and whether a suspended member may apply, are `<TO SUPPLY>`. Credentials are rendered as text, never as HTML (L2-032).
+Only a `Pending` application blocks a new one, so a member whose application was declined may apply again. A suspended member is refused with code `member_suspended` (403). Credentials are rendered as text, never as HTML (L2-032).
 
 ## Requirements
 

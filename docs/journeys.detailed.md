@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 78% (43 of 57 slices; 71 of 91 days)
+**% complete:** 81% (45 of 57 slices; 74 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -50,7 +50,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 39  | 30.2  | 30 Recover from errors and offline  | ✅ Offline                                        | Losing the network shows an offline banner and screen.                                                                                              | 1             |
 | 40  | 20.1  | 20 Reset a forgotten password       | ✅ Request a reset link                           | Members request a reset email without revealing which emails exist.                                                                                 | 2             |
 | 41  | 20.2  | 20 Reset a forgotten password       | ✅ Choose a new password                          | A valid, unexpired link sets a new password once.                                                                                                   | 1             |
-| 42  | 22.1  | 22 Apply to be listed               | Apply to be listed                                | A member applies as a professional; a pending application is refused.                                                                               | 2             |
+| 42  | 22.1  | 22 Apply to be listed               | ✅ Apply to be listed                             | A member applies as a professional; a pending application is refused.                                                                               | 2             |
 | 43  | 21.1  | 21 Review professional applications | Application queue                                 | Staff see pending applications, oldest first, or an empty state.                                                                                    | 1             |
 | 44  | 21.2  | 21 Review professional applications | Approve or decline                                | Approving publishes a listing; declining records a reason.                                                                                          | 2             |
 | 45  | 16.1  | 16 Browse professionals             | Browse professionals                              | Members see vetted professionals and filter by category.                                                                                            | 2             |

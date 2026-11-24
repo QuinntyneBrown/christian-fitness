@@ -1,0 +1,33 @@
+// The member page head (docs/design-system/assets/components.css: "page-title", "subtitle",
+// "subtitle--narrow", display); the layout and the button are the library's.
+:host {
+  display: block;
+}
+
+.services-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  max-width: var(--layout-measure-narrow);
+  color: var(--color-fg-muted);
+}
+
+.services-page__apply {
+  margin-top: var(--space-4);
+}

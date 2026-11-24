@@ -16,7 +16,7 @@ skinparam package {
 }
 actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
-  participant "ApplyPage <TO SUPPLY>" as page
+  participant "ApplyToBeListedDialog" as page
   participant "HttpProfessionalApplicationsService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF

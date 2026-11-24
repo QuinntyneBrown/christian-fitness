@@ -95,6 +95,12 @@ public static class RefusalCodes
     /// <summary>A profile names more than 5 goals (L2-006 AC3).</summary>
     public const string TooManyGoals = "too_many_goals";
 
+    /// <summary>The member already has a Pending professional application (L2-026 AC2; ADR 0047).</summary>
+    public const string ApplicationPending = "application_pending";
+
+    /// <summary>A suspended member tried to apply to be listed (L2-026; ADR 0047).</summary>
+    public const string MemberSuspended = "member_suspended";
+
     /// <summary>A body failed validation for any other reason (L2-032 AC1).</summary>
     public const string ValidationFailed = "validation_failed";
 }

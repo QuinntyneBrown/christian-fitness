@@ -6,6 +6,7 @@ import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
  * router sets the document title on every navigation (L2-038 AC6). The wildcard comes last.
  */
 const titled = (page: string) => `${page} · Christian Fitness`;
+const eventChat = () => import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage);
 const offline = () => import('./pages/offline/offline-page').then((m) => m.OfflinePage);
 
 export const routes: Routes = [
@@ -65,11 +66,16 @@ export const routes: Routes = [
           import('./pages/event-detail/event-detail-page').then((m) => m.EventDetailPage),
       },
       {
+        // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0047); the list is slice 16.1.
+        path: 'services',
+        title: titled('Services'),
+        loadComponent: () => import('./pages/services/services-page').then((m) => m.ServicesPage),
+      },
+      {
         // An event's group chat, for the members registered for it (L2-016; ADR 0039).
         path: 'events/:id/chat',
         title: titled('Group chat'),
-        loadComponent: () =>
-          import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
+        loadComponent: eventChat,
       },
       {
         // The member's conversations, newest first, with unread counts (L2-015; ADR 0042).
@@ -82,8 +88,7 @@ export const routes: Routes = [
         path: 'messages/:id',
         title: titled('Direct message'),
         data: { direct: true },
-        loadComponent: () =>
-          import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
+        loadComponent: eventChat,
       },
       {
         // Another member's public profile (L2-005 AC3; ADR 0038).

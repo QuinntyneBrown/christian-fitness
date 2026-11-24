@@ -1,6 +1,7 @@
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,9 @@ public interface IAppDbContext
 
     /// <summary>What staff changed: who, what, which record and when (L2-019 AC3; ADR 0023).</summary>
     DbSet<AuditEntry> AuditEntries { get; }
+
+    /// <summary>The requests to be listed on Services (L2-026; ADR 0047).</summary>
+    DbSet<ProfessionalApplication> ProfessionalApplications { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

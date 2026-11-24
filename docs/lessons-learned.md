@@ -1933,3 +1933,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Read the initial total after each new API" (30.1, 12.2): caught the 272-byte admin budget warning immediately and guided sharing the interceptor helpers so both apps stayed under 280 kB without raising a budget.
 - "Prove a rule red by breaking it alone" (1.1 to 13.1): `breakcheck` verified `returnPathOf('/offline')`, `navigator.onLine === false` in `offlineInterceptor`, and `DestroyRef` listener cleanup in `NetworkStatus`.
 - "Count a slice's new specs against the CI budget" (24.1): five member specs and two admin specs.
+
+## Slice 22.1: Apply to be listed
+
+**What slowed it**
+
+- The Services page did not exist and the member navigation has no Services entry, so the slice added a minimal lazy `/services` page (heading, subtitle, button) and the specs open it by address; slice 16.1 owns the list and the nav entry (ADR 0047).
+- A new `IAppDbContext` DbSet broke four hand-written test doubles (join and reset races, last place race, unreachable database); each needed one more property.
+- `dotnet ef migrations add` runs with the Infrastructure project as the startup project here; the Api project has no design-time package.
+- The initial web bundle measures 280.21 kB on this machine before any change, over the 280 kB warning the lessons record as under (279.81); the slice's route cost 90 bytes after sharing the event-chat loader between its two routes, so it was left alone and no budget raised.
+- Shell here-documents holding C# and Python with apostrophes and `$` failed to parse; the Write tool is safer for source files.
+
+**New lessons**
+
+- A new member route costs bytes in `main` (the route object and a chunk name): share an existing loader between routes that load the same page before touching a budget.
+- Compare the initial total against a build of the unchanged tree on the same machine, not against the figure in an earlier entry.
+- Two or more `[slot=foot]` nodes under one `@else` raise NG8011: give each slot node its own `@if`.
+- Initial bundle: web 280.30 kB (280.21 before on the same machine, +90 bytes), admin 279.93 kB; the page, dialog, service and rules are lazy chunks.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1 to 30.2): the +90 bytes was seen at once and the loader sharing trimmed it.
+- "Prove a rule red by breaking it alone" (1.1 to 30.2): replacing the Pending filter with `true` failed exactly the declined and approved re-apply cases and passed again when restored.
+- "Count a slice's new specs against the CI budget" (24.1): eight member specs in one file.
+- "A fixture default for a new call" (15.1, 13.1): the page makes no call on load, so no default was needed.
