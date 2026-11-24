@@ -38,18 +38,6 @@ secret() { openssl rand -base64 36 | tr -d '/+=\n' | cut -c1-32; }
 exists() { "$@" --output none 2>/dev/null; }
 
 domains() {
-  echo "== Email domain: verify, link, sender"
-  for kind in Domain SPF DKIM DKIM2; do
-    az communication email domain initiate-verification --resource-group "$RG" --email-service-name "$EMAIL_SERVICE" \
-      --domain-name "$DOMAIN" --verification-type "$kind" --output none || echo "   $kind: not verified yet"
-  done
-  az communication email domain show --resource-group "$RG" --email-service-name "$EMAIL_SERVICE" --domain-name "$DOMAIN" \
-    --query verificationStates --output jsonc
-  domain_id=$(az communication email domain show --resource-group "$RG" --email-service-name "$EMAIL_SERVICE" --domain-name "$DOMAIN" --query id --output tsv)
-  az communication email domain sender-username create --resource-group "$RG" --email-service-name "$EMAIL_SERVICE" \
-    --domain-name "$DOMAIN" --sender-username no-reply --username no-reply --display-name "Christian Fitness" --output none
-  az communication update --resource-group "$RG" --name "$ACS" --linked-domains "$domain_id" --output none
-
   echo "== Host names and managed certificates"
   for host in "www.$DOMAIN" "admin.$DOMAIN" "$DOMAIN"; do
     method=CNAME
@@ -58,7 +46,25 @@ domains() {
     az containerapp hostname bind --resource-group "$RG" --name "$APP" --environment "$ENVIRONMENT" \
       --hostname "$host" --validation-method "$method" --output none || echo "   $host: not bound yet"
   done
-  az containerapp hostname list --resource-group "$RG" --name "$APP" --output table
+  az containerapp hostname list --resource-group "$RG" --name "$APP" --query '[].[name, bindingType]' --output tsv
+
+  echo "== Email domain: verify, sender, link"
+  email_domain() { az communication email domain "$@" --resource-group "$RG" --email-service-name "$EMAIL_SERVICE" --domain-name "$DOMAIN"; }
+  for kind in Domain SPF DKIM DKIM2; do
+    email_domain initiate-verification --verification-type "$kind" --output none 2>/dev/null || true
+  done
+  # The four checks finish on their own time; linking is refused until every one has.
+  for _ in $(seq 1 30); do
+    states=$(email_domain show --query 'verificationStates.[Domain.status, SPF.status, DKIM.status, DKIM2.status]' --output tsv | tr '\n\t' '  ')
+    echo "   Domain, SPF, DKIM, DKIM2: $states"
+    [ "$(echo "$states" | tr -s ' ' '\n' | grep -c '^Verified$')" = 4 ] && break
+    sleep 10
+  done
+  email_domain sender-username create --sender-username no-reply --username no-reply --display-name "Christian Fitness" --output none
+  domain_id=$(email_domain show --query id --output tsv)
+  az communication update --resource-group "$RG" --name "$ACS" --linked-domains "$domain_id" --output none &&
+    echo "   $DOMAIN is linked: mail can be sent as no-reply@$DOMAIN" ||
+    echo "   Not linked yet: run this step again once all four checks say Verified."
 }
 
 if [ "${1:-}" = "domains" ]; then
