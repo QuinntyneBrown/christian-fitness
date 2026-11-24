@@ -102,8 +102,9 @@ if ! exists az postgres flexible-server show --name "$POSTGRES" --resource-group
   # 0.0.0.0 is Azure's "services inside Azure" rule: the replica, the release job and Cloud Shell.
   az postgres flexible-server create --name "$POSTGRES" --resource-group "$RG" --location "$LOCATION" \
     --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 17 \
-    --admin-user cf_owner --admin-password "$owner_password" --database-name "$DATABASE" \
+    --admin-user cf_owner --admin-password "$owner_password" \
     --public-access 0.0.0.0 --yes --output none
+  az postgres flexible-server db create --server-name "$POSTGRES" --resource-group "$RG" --database-name "$DATABASE" --output none
   host="$POSTGRES.postgres.database.azure.com"
   # The API's own role: rows only, never the schema (docs/operations/settings.md).
   PGPASSWORD="$owner_password" psql "host=$host dbname=$DATABASE user=cf_owner sslmode=require" --quiet --set ON_ERROR_STOP=1 <<SQL
