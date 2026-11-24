@@ -41,6 +41,7 @@ describe('returnPathOf', () => {
     { value: 'javascript:alert(1)', expected: '/', why: 'a script URL' },
     { value: 'events/42', expected: '/', why: 'a relative path' },
     { value: '/server-error?from=/', expected: '/', why: 'the error screen itself would loop' },
+    { value: '/offline?from=/', expected: '/', why: 'the offline screen itself would loop' },
     { value: '', expected: '/', why: 'empty' },
     { value: undefined, expected: '/', why: 'absent' },
     { value: 42, expected: '/', why: 'not a string' },

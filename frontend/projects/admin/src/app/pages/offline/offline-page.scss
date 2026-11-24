@@ -1,0 +1,19 @@
+// The page area matching server-error-page until routed inside the shell.
+.offline-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.admin__page {
+  max-width: var(--layout-admin-max);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-8);
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-10);
+  }
+}

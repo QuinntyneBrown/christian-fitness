@@ -388,6 +388,23 @@
       }
     },
     {
+      "id": "admin-offline",
+      "kind": "page",
+      "title": "Offline (admin)",
+      "group": "Admin console",
+      "route": "(any admin route, offline)",
+      "source": "Derived: the member offline page in the admin shell.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A system page renders without loading data.",
+        "empty": "Not a collection.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
       "id": "admin-dashboard",
       "kind": "page",
       "title": "Dashboard",

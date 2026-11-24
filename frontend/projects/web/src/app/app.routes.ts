@@ -6,6 +6,7 @@ import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
  * router sets the document title on every navigation (L2-038 AC6). The wildcard comes last.
  */
 const titled = (page: string) => `${page} · Christian Fitness`;
+const offline = () => import('./pages/offline/offline-page').then((m) => m.OfflinePage);
 
 export const routes: Routes = [
   {
@@ -98,6 +99,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/profile/profile-page').then((m) => m.ProfilePage),
       },
     ],
+  },
+  {
+    path: 'offline',
+    title: titled("You're offline"),
+    loadComponent: offline,
   },
   {
     path: 'server-error',

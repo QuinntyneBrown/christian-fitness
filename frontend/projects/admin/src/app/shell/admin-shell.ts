@@ -2,8 +2,8 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { STAFF_SESSION_SERVICE, type StaffSessionDto } from '@cf/api';
-import { AdminLayout, type AdminNavItem } from '@cf/components';
-import { areasFor, currentAdminArea, initialsOf } from '@cf/domain';
+import { AdminLayout, type AdminNavItem, Banner } from '@cf/components';
+import { areasFor, currentAdminArea, initialsOf, NetworkStatus } from '@cf/domain';
 import { filter } from 'rxjs';
 
 /**
@@ -16,7 +16,7 @@ import { filter } from 'rxjs';
  */
 @Component({
   selector: 'cf-admin-shell',
-  imports: [AdminLayout, RouterOutlet],
+  imports: [AdminLayout, Banner, RouterOutlet],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.scss',
 })
@@ -24,6 +24,7 @@ export class AdminShell {
   private readonly session = inject(STAFF_SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly network = inject(NetworkStatus);
 
   protected readonly items = signal<readonly AdminNavItem[]>([]);
   protected readonly current = signal(currentAdminArea(this.urlNow()));
@@ -32,6 +33,7 @@ export class AdminShell {
   protected readonly signingOut = signal(false);
 
   constructor() {
+    if (this.network.online()) void import('../pages/offline/offline-page');
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),

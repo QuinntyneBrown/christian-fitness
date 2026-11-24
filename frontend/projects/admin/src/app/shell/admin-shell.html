@@ -8,5 +8,13 @@
   (navigate)="navigate($event)"
   (signOut)="signOut()"
 >
+  @if (!network.online()) {
+    <cf-banner
+      slot="banner"
+      tone="warning"
+      lead="You're offline."
+      text="Pages you've opened stay on screen. Check your connection to load new updates."
+    />
+  }
   <router-outlet />
 </cf-admin-layout>
