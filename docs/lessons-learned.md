@@ -1984,3 +1984,32 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A fixture default for a new call" (15.1, 13.1): `GET /api/admin/services/applications` answers an empty queue, so the shell specs that open `/services` stay green.
 - "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
 - "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.
+
+## Slice 21.2: Approve or decline
+
+**What slowed it**
+
+- The mocks drew Decline as a button straight to the `decided` state, with no reason field, though L2-025 AC3 needs a reason. A dialog mock (`decline-application`, five states) and a page `failed` state came first, written into the generator sources and rendered one screen at a time by importing the generator modules, never by its full build, so only the two Decline buttons and the mock bar of the sibling states changed.
+- A new table made four test doubles of `IAppDbContext` stop compiling (`ServiceListings`), as slice 22.1's did; each is one line.
+- `dotnet ef` needs a startup project that references `Microsoft.EntityFrameworkCore.Design`: the Infrastructure project is both project and startup (the CLI is not).
+- A staff session in the API tests does not survive an hour on the fake clock; advance by a minute between signing in and the request that needs the clock.
+- A JSON `null` is a property: a decline answering `listingId: null` has the same three keys as an approval, so the shape test lists all three rather than two.
+- The shared alert's sentence sits in `.form-alert__text`, not a `<p>`; the page objects locate it by that class.
+- Two heredocs holding apostrophes failed to parse again; edit scripts went through the Write tool.
+
+**New lessons**
+
+- An action that removes its own button needs a place for focus: the card's decision line takes it (`tabindex="-1"`, after the next render) and a spec asserts it.
+- A dialog that can learn the thing it was opened for is already decided closes with a result the page acts on (`stale`), not with an error: the page reloads the queue and the dialog never needs to know how.
+- A decision that two staff race for is refused with a code, not a message: 409 `application_decided` (and 404 for a missing one) maps to one sentence on both screens.
+- A secret-ish free text (the reason) is a class command, trimmed once, kept in one column and absent from every response, audit entry and log; the 400 names the field's code only.
+- Initial bundle: web 280.30 kB (unchanged), admin 280.35 kB (280.34 before, +10 bytes); the dialog, its helpers and the decision code are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 21.1): letting any status pass the Pending check failed exactly the four decided-twice cases; sending the untrimmed reason failed exactly the trimmed-reason spec; both passed again when restored.
+- "A gate in a fixture handler" (2.1): the approving and declining states are held by a gate, with no clock and no sleep.
+- "Bisect a bundle regression by stubbing" (21.1) was not needed: the first build was already within 10 bytes.
+- "Count a slice's new specs against the CI budget" (24.1): twelve short specs in one file.
+- "A fixture default for a new call" (15.1, 13.1): the decisions are POSTs a spec answers; no default was needed.
+- "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.

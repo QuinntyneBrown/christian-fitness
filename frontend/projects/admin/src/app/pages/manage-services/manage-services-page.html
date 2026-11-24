@@ -49,6 +49,9 @@
           <span class="section-title__count">{{ total() }}</span>
         }
       </h2>
+      @if (failure(); as message) {
+        <cf-alert [heading]="message.heading">{{ message.text }}</cf-alert>
+      }
       @if (cards().length > 0) {
         <ul class="applications">
           @for (card of cards(); track card.id) {
@@ -62,6 +65,52 @@
               </div>
               <p class="application__role">{{ card.role }}</p>
               <p class="application__creds">{{ card.credentials }}</p>
+              <div class="application__spacer"></div>
+              @switch (card.decision) {
+                @case ('approved') {
+                  <p
+                    class="decision decision--approved"
+                    role="status"
+                    tabindex="-1"
+                    [id]="'decision-' + card.id"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    Approved, now listed
+                  </p>
+                }
+                @case ('declined') {
+                  <p
+                    class="decision decision--declined"
+                    role="status"
+                    tabindex="-1"
+                    [id]="'decision-' + card.id"
+                  >
+                    Declined
+                  </p>
+                }
+                @default {
+                  <div class="btn-grid">
+                    <cf-button
+                      variant="secondary"
+                      size="sm"
+                      [disabled]="card.decision === 'deciding'"
+                      (click)="decline(card.id)"
+                    >
+                      Decline<span class="visually-hidden"> {{ card.name }}</span>
+                    </cf-button>
+                    <cf-button
+                      size="sm"
+                      [busy]="card.decision === 'deciding'"
+                      [disabled]="card.decision === 'deciding'"
+                      (click)="approve(card.id)"
+                    >
+                      Approve<span class="visually-hidden"> {{ card.name }}</span>
+                    </cf-button>
+                  </div>
+                }
+              }
             </li>
           }
         </ul>

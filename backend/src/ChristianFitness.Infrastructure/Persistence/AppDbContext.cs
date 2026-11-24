@@ -34,6 +34,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<ProfessionalApplication> ProfessionalApplications => Set<ProfessionalApplication>();
 
+    public DbSet<ServiceListing> ServiceListings => Set<ServiceListing>();
+
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>

@@ -23,10 +23,34 @@ export interface PendingApplicationsDto {
   applications: PendingApplicationDto[];
 }
 
-/** Staff review professional applications (L2-025; ADR 0048). */
+/**
+ * How staff decided an application (`ApplicationDecisionDto`, ADR 0049): the application, whether it
+ * is `approved` or `declined`, and the published listing's id when it was approved.
+ */
+export interface ApplicationDecisionDto {
+  applicationId: string;
+  status: 'approved' | 'declined';
+  listingId: string | null;
+}
+
+/** Staff review professional applications (L2-025; ADR 0048, ADR 0049). */
 export interface AdminServicesApi {
   /** The queue, oldest first. A failure errors with an `ApiError`. */
   applications(): Observable<PendingApplicationsDto>;
+
+  /**
+   * Approves the pending application `id`, which publishes its listing (`POST .../{id}/approve`).
+   * A failure errors with an `ApiError`: 404 `application_not_found` or 409 `application_decided`
+   * when it is not there to decide.
+   */
+  approve(id: string): Observable<ApplicationDecisionDto>;
+
+  /**
+   * Declines the pending application `id` with `reason`, which publishes nothing (`POST
+   * .../{id}/decline`). Refusals are those of {@link approve}, and 400 `validation_failed` with
+   * `fieldCodes.reason` when the reason is empty or too long.
+   */
+  decline(id: string, reason: string): Observable<ApplicationDecisionDto>;
 }
 
 /** Binds {@link AdminServicesApi}; the Services page provides it on its routed component. */

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decline an application · refused — Christian Fitness mocks</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="decline-application">
+<meta name="mock:state" content="refused">
+<meta name="mock:source" content="Derived: the Manage Services frame&#x27;s Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0049).">
+<meta name="description" content="Someone already decided it (code application_decided): the dialog says so.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div inert aria-hidden="true">
+<div class="admin">
+  <aside class="admin__sidebar">
+    <div class="admin__brand">
+      <svg class="seal seal--lockup seal--light" viewBox="0 0 200 200" aria-hidden="true"><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7"/><rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2"/><rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2"/></svg>
+      <div>
+        <p class="admin__brand-name">Christian Fitness</p>
+        <p class="admin__brand-sub">Admin console</p>
+      </div>
+    </div>
+    <nav class="admin-nav" aria-label="Admin">
+      <a class="admin-nav__item" href="../../pages/admin-dashboard/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a><a class="admin-nav__item" href="../../pages/admin-events/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a><a class="admin-nav__item" href="../../pages/admin-services/default.html" aria-current="page"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a><a class="admin-nav__item" href="../../pages/admin-members/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members<span class="admin-nav__count" aria-label="1 report to review">1</span></a>
+    </nav>
+    <div class="admin__user">
+      <span class="admin__user-avatar" aria-hidden="true">DR</span>
+      <div class="admin__user-body">
+        <p class="admin__user-name">Dana Reyes</p>
+        <p class="admin__user-role">Community director</p>
+      </div>
+      <button class="admin__signout" type="button" aria-label="Sign out"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></button>
+    </div>
+  </aside>
+  <main id="main" class="admin__main">
+    <div class="admin__page">
+<div class="page-head page-head--wrap">
+  <div>
+    <h1 class="display admin-title">Services</h1>
+    <p class="subtitle">Every professional is checked before members can see them.</p>
+  </div>
+  <button class="btn btn--primary btn--md" type="button" data-mock-href="../../dialogs/listing-editor/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add listing</button>
+</div>
+        <section class="mt-section" aria-labelledby="apps-title">
+          <h2 class="display section-title" id="apps-title">Applications <span class="section-title__count">3</span></h2>
+          <ul class="applications"><li class="application">
+              <div class="application__head"><span class="avatar" aria-hidden="true">HB</span><div class="mini-row__body"><p class="mini-row__name">Hannah Bergstrom</p><p class="mini-row__text">2 days ago</p></div></div>
+              <p class="application__role">Registered massage therapist</p>
+              <p class="application__creds">RMT, CMTO #T4471</p>
+              <div class="application__spacer"></div>
+              <div class="btn-grid"><button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/decline-application/default.html">Decline<span class="visually-hidden"> Hannah Bergstrom</span></button><button class="btn btn--primary btn--sm" type="button" data-mock-href="../../pages/admin-services/decided.html">Approve<span class="visually-hidden"> Hannah Bergstrom</span></button></div>
+            </li><li class="application">
+              <div class="application__head"><span class="avatar" aria-hidden="true">SO</span><div class="mini-row__body"><p class="mini-row__name">Samuel Osei</p><p class="mini-row__text">3 days ago</p></div></div>
+              <p class="application__role">Strength coach</p>
+              <p class="application__creds">CSCS · 6 years</p>
+              <div class="application__spacer"></div>
+              <div class="btn-grid"><button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/decline-application/default.html">Decline<span class="visually-hidden"> Samuel Osei</span></button><button class="btn btn--primary btn--sm" type="button" data-mock-href="../../pages/admin-services/decided.html">Approve<span class="visually-hidden"> Samuel Osei</span></button></div>
+            </li><li class="application">
+              <div class="application__head"><span class="avatar" aria-hidden="true">LP</span><div class="mini-row__body"><p class="mini-row__name">Lena Park, RD</p><p class="mini-row__text">5 days ago</p></div></div>
+              <p class="application__role">Sports dietitian</p>
+              <p class="application__creds">Registered Dietitian, CDO</p>
+              <div class="application__spacer"></div>
+              <div class="btn-grid"><button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/decline-application/default.html">Decline<span class="visually-hidden"> Lena Park, RD</span></button><button class="btn btn--primary btn--sm" type="button" data-mock-href="../../pages/admin-services/decided.html">Approve<span class="visually-hidden"> Lena Park, RD</span></button></div>
+            </li></ul>
+        </section>
+        <section class="mt-12" aria-labelledby="listings-title">
+          <h2 class="display section-title" id="listings-title">Live listings <span class="section-title__count--muted">5</span></h2>
+          <div class="table-wrap table-wrap--flush">
+            <table class="table table--wide">
+              <caption class="visually-hidden">Live listings</caption>
+              <thead><tr><th scope="col">Professional</th><th scope="col">Category</th><th scope="col">Rate</th><th scope="col">Verified</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+              <tbody><tr>
+                <td><div class="table__person"><img class="avatar avatar--md" src="../../assets/images/trainer.jpg" alt="" width="1024" height="1024"><div><p class="table__strong">Danielle Okafor</p><p class="table__sub">Personal trainer</p></div></div></td>
+                <td>Training</td>
+                <td class="table__nowrap">From $70 / session</td>
+                <td class="table__nowrap muted">Mar 2026</td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/listing-editor/default.html">Edit<span class="visually-hidden"> Danielle Okafor</span></button></td>
+              </tr><tr>
+                <td><div class="table__person"><span class="avatar avatar--md" aria-hidden="true">ML</span><div><p class="table__strong">Marcus Lee, RD</p><p class="table__sub">Registered dietitian</p></div></div></td>
+                <td>Nutrition</td>
+                <td class="table__nowrap">$95 first consult</td>
+                <td class="table__nowrap muted">Mar 2026</td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/listing-editor/default.html">Edit<span class="visually-hidden"> Marcus Lee, RD</span></button></td>
+              </tr><tr>
+                <td><div class="table__person"><span class="avatar avatar--md" aria-hidden="true">RA</span><div><p class="table__strong">Ruth Abernathy</p><p class="table__sub">Physiotherapist</p></div></div></td>
+                <td>Physio</td>
+                <td class="table__nowrap">$110 assessment</td>
+                <td class="table__nowrap muted">Mar 2026</td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/listing-editor/default.html">Edit<span class="visually-hidden"> Ruth Abernathy</span></button></td>
+              </tr><tr>
+                <td><div class="table__person"><span class="avatar avatar--md" aria-hidden="true">TG</span><div><p class="table__strong">Tasha Grant</p><p class="table__sub">Basketball skills coach</p></div></div></td>
+                <td>Coaching</td>
+                <td class="table__nowrap">From $45 / session</td>
+                <td class="table__nowrap muted">Mar 2026</td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/listing-editor/default.html">Edit<span class="visually-hidden"> Tasha Grant</span></button></td>
+              </tr><tr>
+                <td><div class="table__person"><span class="avatar avatar--md" aria-hidden="true">JW</span><div><p class="table__strong">Rev. James Whitfield</p><p class="table__sub">Faith & wellness counsellor</p></div></div></td>
+                <td>Counselling</td>
+                <td class="table__nowrap">Sliding scale</td>
+                <td class="table__nowrap muted">Mar 2026</td>
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/listing-editor/default.html">Edit<span class="visually-hidden"> Rev. James Whitfield</span></button></td>
+              </tr></tbody>
+            </table>
+          </div>
+        </section>
+    </div>
+  </main>
+</div>
+</div>
+<div class="scrim" aria-hidden="true"></div>
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc" data-dismiss-on-escape>
+  <div class="dialog__head">
+    <div><h2 class="display dialog__title" id="dlg-title">Decline Lena Park, RD</h2><p class="dialog__sub" id="dlg-desc">Sports dietitian · Registered Dietitian, CDO</p></div>
+    <button class="icon-button dialog__close" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </div>
+  <div class="dialog__body">
+    <div class="form-alert" role="alert" tabindex="-1">
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+  <div><p class="form-alert__title">This application was already decided</p><p>Someone else approved or declined it. Close this to see the queue as it is now.</p></div>
+</div>
+    <div class="field"><label class="field__label" for="f-reason">Reason</label><textarea class="textarea" id="f-reason" name="reason" rows="3" aria-describedby="f-reason-hint">We could not verify the CDO registration number you gave.</textarea><span class="field__hint" id="f-reason-hint">Staff keep this on file. The applicant is not sent it. 443 characters left.</span></div>
+  </div>
+  <div class="dialog__foot">
+    <button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-services/default.html">Cancel</button>
+    <button class="btn btn--primary btn--grow" type="submit" data-mock-href="../../pages/admin-services/decided.html">Decline application</button>
+  </div>
+</div>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Decline an application</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="refused.html" aria-current="page">refused</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

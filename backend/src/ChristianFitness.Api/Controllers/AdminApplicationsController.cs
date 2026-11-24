@@ -17,4 +17,20 @@ public sealed class AdminApplicationsController(ISender sender) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PendingApplicationsDto>> Pending(CancellationToken cancellationToken) =>
         await sender.Send(new ListPendingApplicationsQuery(), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Approves the application and publishes its listing (slice 21.2; ADR 0049).</summary>
+    [HttpPost("{id:guid}/approve")]
+    public async Task<ActionResult<ApplicationDecisionDto>> Approve(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new ApproveApplicationCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Declines the application with the body's reason; no listing is created (slice 21.2; ADR 0049).</summary>
+    [HttpPost("{id:guid}/decline")]
+    public async Task<ActionResult<ApplicationDecisionDto>> Decline(Guid id, DeclineApplicationBody body, CancellationToken cancellationToken) =>
+        await sender.Send(new DeclineApplicationCommand(id, body?.Reason), cancellationToken).ConfigureAwait(false);
+}
+
+/// <summary>What the decline dialog sends. A class, not a record, so no generated <c>ToString</c> can print the reason.</summary>
+public sealed class DeclineApplicationBody
+{
+    public string? Reason { get; init; }
 }

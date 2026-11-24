@@ -18,6 +18,7 @@ internal sealed class ProfessionalApplicationConfiguration : IEntityTypeConfigur
         builder.Property(a => a.Where).HasMaxLength(ProfessionalApplication.WhereMaxLength).IsRequired();
         builder.Property(a => a.Price).HasMaxLength(ProfessionalApplication.PriceMaxLength).IsRequired();
         builder.Property(a => a.About).HasMaxLength(ProfessionalApplication.AboutMaxLength).IsRequired();
+        builder.Property(a => a.DeclineReason).HasMaxLength(ProfessionalApplication.DeclineReasonMaxLength);
         builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasIndex(a => new { a.MemberId, a.Status });
     }

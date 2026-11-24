@@ -101,6 +101,12 @@ public static class RefusalCodes
     /// <summary>A suspended member tried to apply to be listed (L2-026; ADR 0047).</summary>
     public const string MemberSuspended = "member_suspended";
 
+    /// <summary>The application staff tried to decide does not exist (L2-025; ADR 0049).</summary>
+    public const string ApplicationNotFound = "application_not_found";
+
+    /// <summary>The application staff tried to decide was already approved or declined (L2-025; ADR 0049).</summary>
+    public const string ApplicationDecided = "application_decided";
+
     /// <summary>A body failed validation for any other reason (L2-032 AC1).</summary>
     public const string ValidationFailed = "validation_failed";
 }

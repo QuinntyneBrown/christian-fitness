@@ -11,6 +11,7 @@ public sealed class ProfessionalApplication
     public const int WhereMaxLength = 80;
     public const int PriceMaxLength = 60;
     public const int AboutMaxLength = 300;
+    public const int DeclineReasonMaxLength = 500;
 
     private ProfessionalApplication()
     {
@@ -37,6 +38,12 @@ public sealed class ProfessionalApplication
 
     public DateTimeOffset SubmittedAt { get; private set; }
 
+    /// <summary>When staff approved or declined it; none while Pending.</summary>
+    public DateTimeOffset? DecidedAt { get; private set; }
+
+    /// <summary>Why staff declined it, trimmed; sensitive text, never logged. None unless Declined.</summary>
+    public string? DeclineReason { get; private set; }
+
     /// <summary>A Pending application by <paramref name="memberId"/> at <paramref name="submittedAt"/>; every text is trimmed.</summary>
     public static ProfessionalApplication Submit(
         Guid memberId, string role, ServiceCategory category, string credentials, string where, string price, string about, DateTimeOffset submittedAt)
@@ -59,5 +66,38 @@ public sealed class ProfessionalApplication
             Status = ApplicationStatus.Pending,
             SubmittedAt = submittedAt,
         };
+    }
+
+    /// <summary>
+    /// Approves a Pending application and answers the published listing (L2-025 AC2; ADR 0049);
+    /// <paramref name="name"/> is the applicant's name now. A decided application is not approved again.
+    /// </summary>
+    public bool TryApprove(string name, DateTimeOffset now, out ServiceListing? listing)
+    {
+        listing = null;
+        if (Status != ApplicationStatus.Pending)
+        {
+            return false;
+        }
+
+        Status = ApplicationStatus.Approved;
+        DecidedAt = now;
+        listing = ServiceListing.Publish(this, name, now);
+        return true;
+    }
+
+    /// <summary>Declines a Pending application with <paramref name="reason"/> (L2-025 AC3; ADR 0049): no listing.</summary>
+    public bool TryDecline(string reason, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(reason);
+        if (Status != ApplicationStatus.Pending)
+        {
+            return false;
+        }
+
+        Status = ApplicationStatus.Declined;
+        DecidedAt = now;
+        DeclineReason = reason.Trim();
+        return true;
     }
 }

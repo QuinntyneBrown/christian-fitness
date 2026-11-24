@@ -52,6 +52,9 @@ public interface IAppDbContext
     /// <summary>The requests to be listed on Services (L2-026; ADR 0047).</summary>
     DbSet<ProfessionalApplication> ProfessionalApplications { get; }
 
+    /// <summary>The professionals published on Services (L2-025 AC2; ADR 0049).</summary>
+    DbSet<ServiceListing> ServiceListings { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

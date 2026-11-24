@@ -469,7 +469,7 @@ def application_cards(decided: dict | None = None) -> str:
         elif d == "declined":
             foot = '<p class="decision decision--declined" role="status">Declined</p>'
         else:
-            foot = (f'<div class="btn-grid"><button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("admin-services", "decided")}">Decline<span class="visually-hidden"> {a["name"]}</span></button>'
+            foot = (f'<div class="btn-grid"><button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("decline-application", "default")}">Decline<span class="visually-hidden"> {a["name"]}</span></button>'
                     f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("admin-services", "decided")}">Approve<span class="visually-hidden"> {a["name"]}</span></button></div>')
         cards.append(f"""<li class="application">
               <div class="application__head">{avatar(a["initials"])}<div class="mini-row__body"><p class="mini-row__name">{a["name"]}</p><p class="mini-row__text">{a["submitted"]}</p></div></div>
@@ -524,6 +524,13 @@ def _():
 @s("decided", "After deciding two: Hannah approved and listed, Samuel declined, Lena still waiting.")
 def _():
     return admin_shell("admin-services", manage_services(application_cards({"a1": "approved", "a2": "declined"}), "1"), counts={"admin-services": 1})
+
+
+@s("failed", "Approve pressed and the server did not answer: a message above the list, Lena still waiting.")
+def _():
+    alert = form_alert("Couldn't approve Lena Park, RD", "The server didn't respond. Nothing changed; try again.")
+    body = manage_services(alert + application_cards(), "3")
+    return admin_shell("admin-services", body)
 
 
 @s("no-applications", "No applications waiting (the prototype's empty queue); listings still shown.")

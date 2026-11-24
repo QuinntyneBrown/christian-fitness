@@ -675,6 +675,67 @@ def _():
 
 
 # ===========================================================================
+# Decline an application (admin · Manage services; L2-025 AC3)
+# ===========================================================================
+DECLINE_APPLICANT = next(x for x in A.APPLICATIONS if x["id"] == "a3")
+
+
+def decline_application(*, invalid=False, busy=False, failed=False, decided=False) -> str:
+    """The reason a decline needs (L2-025 AC3; ADR 0049): required, at most 500 characters, kept
+    for staff and never sent to the applicant."""
+    a = DECLINE_APPLICANT
+    reason_err = "Write a reason for declining" if invalid else ""
+    alert = ""
+    if invalid:
+        alert = error_summary("1 thing to fix", [(reason_err, "f-reason")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Couldn't decline the application", "The server didn't respond. Nothing was lost; try again.")
+    if decided:
+        alert = form_alert("This application was already decided", "Someone else approved or declined it. Close this to see the queue as it is now.")
+    typed = "" if invalid else "We could not verify the CDO registration number you gave."
+    body = f"""    {alert}
+    {textarea("Reason", "reason", typed, rows=3, error=reason_err,
+              hint=f"Staff keep this on file. The applicant is not sent it. {500 - len(typed)} characters left.", readonly=busy)}"""
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Declining…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-services", "decided")}">Decline application</button>')
+    d = " disabled" if busy else ""
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-services")}">Cancel</button>\n    {go}'
+    html = dialog(f"Decline {a['name']}", body, foot, sub=f"{a['role']} · {a['credentials']}")
+    if not (invalid or failed or decided or busy):
+        html = autofocus_first(html, 'id="f-reason"')
+    return over_admin("admin-services", A.manage_services(A.application_cards(), "3"), html)
+
+
+s = screen("decline-application", "dialog", "Decline an application", opens_from="admin-services", group="Admin console",
+           source="Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0049).")
+
+
+@s("default", "Decline Lena Park, RD: a reason to write; focus on the field.")
+def _():
+    return decline_application()
+
+
+@s("invalid", "Decline pressed with no reason: summary focused, the field named.")
+def _():
+    return decline_application(invalid=True)
+
+
+@s("busy", "Decline application pressed: busy, the field holds still, Cancel disabled.")
+def _():
+    return decline_application(busy=True)
+
+
+@s("failed", "Declining failed: message at the top, the reason kept.")
+def _():
+    return decline_application(failed=True)
+
+
+@s("refused", "Someone already decided it (code application_decided): the dialog says so.")
+def _():
+    return decline_application(decided=True)
+
+
+# ===========================================================================
 # Admin toasts
 # ===========================================================================
 s = screen("admin-toast", "notification", "Admin toast", opens_from="admin-events", group="Admin console",

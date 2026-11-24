@@ -19,28 +19,31 @@ enum ApplicationStatus {
 class ProfessionalApplication {
   +Guid Id
   +Guid MemberId
-  +string Name
   +string Role
-  +string Category
+  +ServiceCategory Category
   +string Credentials
   +string Where
   +string Price
   +string About
   +DateTimeOffset SubmittedAt
   +ApplicationStatus Status
+  +DateTimeOffset? DecidedAt
   +string? DeclineReason
-  +Approve(at: DateTimeOffset): ServiceListing
-  +Decline(reason: string, at: DateTimeOffset): void
+  +TryApprove(name, now, out listing): bool
+  +TryDecline(reason, now): bool
 }
 class ServiceListing {
   +Guid Id
-  +Guid ProfessionalMemberId
+  +Guid ApplicationId
+  +Guid MemberId
   +string Name
   +string Role
-  +string Category
+  +ServiceCategory Category
+  +string Credentials
+  +string Where
   +string Price
-  +bool IsPublished
-  +DateTimeOffset VerifiedAt
+  +string About
+  +DateTimeOffset PublishedAt
 }
 class ListPendingApplicationsQuery
 class PendingApplicationDto {
@@ -59,10 +62,10 @@ class DeclineApplicationCommand {
 }
 class DeclineApplicationValidator
 class ApproveApplicationHandler {
-  +Handle(cmd: ApproveApplicationCommand): Task<Result>
+  +Handle(cmd: ApproveApplicationCommand): Task<ApplicationDecisionDto>
 }
 class DeclineApplicationHandler {
-  +Handle(cmd: DeclineApplicationCommand): Task<Result>
+  +Handle(cmd: DeclineApplicationCommand): Task<ApplicationDecisionDto>
 }
 class ListPendingApplicationsHandler {
   +Handle(q: ListPendingApplicationsQuery): Task<IReadOnlyList<PendingApplicationDto>>
@@ -74,8 +77,8 @@ interface IAppDbContext {
 }
 interface AdminServicesApi {
   +pendingApplications(): Observable<PendingApplicationDto[]>
-  +approve(id: string): Observable<void>
-  +decline(id: string, reason: string): Observable<void>
+  +approve(id: string): Observable<ApplicationDecisionDto>
+  +decline(id: string, reason: string): Observable<ApplicationDecisionDto>
 }
 class HttpAdminServicesService
 class ManageServicesPage {

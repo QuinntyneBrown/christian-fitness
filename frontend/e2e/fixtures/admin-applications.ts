@@ -45,3 +45,29 @@ export function applicationQueue(
 ): { json: { total: number; applications: PendingApplicationFixture[] } } {
   return { json: { total, applications } };
 }
+
+/** The path of an application's decision: `approve` or `decline` (ADR 0049). */
+export function decisionPath(id: string, action: 'approve' | 'decline'): string {
+  return `/api/admin/services/applications/${id}/${action}`;
+}
+
+/** The answer to an approval: the application is Approved and its listing is published. */
+export function approved(id: string): { json: object } {
+  return {
+    json: {
+      applicationId: id,
+      status: 'approved',
+      listingId: '7c2d9a10-0000-4000-8000-0000000000aa',
+    },
+  };
+}
+
+/** The answer to a decline: the application is Declined and no listing exists. */
+export function declined(id: string): { json: object } {
+  return { json: { applicationId: id, status: 'declined', listingId: null } };
+}
+
+/** A refusal as the API gives it: its status and `code`. */
+export function refused(status: number, code: string): { status: number; json: object } {
+  return { status, json: { status, code } };
+}
