@@ -55,6 +55,8 @@ export * from './list/event-row';
 export * from './list/going-item';
 export * from './list/list';
 export * from './list/mini-row';
+export * from './list/service-row';
+export * from './service-detail/service-detail';
 export * from './menu/menu';
 export * from './menu/menu-keys';
 export * from './message/composer';

@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 85% (47 of 57 slices; 77 of 91 days)
+**% complete:** 87% (48 of 57 slices; 79 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -53,7 +53,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 42  | 22.1  | 22 Apply to be listed               | ✅ Apply to be listed                             | A member applies as a professional; a pending application is refused.                                                                               | 2             |
 | 43  | 21.1  | 21 Review professional applications | ✅ Application queue                              | Staff see pending applications, oldest first, or an empty state.                                                                                    | 1             |
 | 44  | 21.2  | 21 Review professional applications | ✅ Approve or decline                             | Approving publishes a listing; declining records a reason.                                                                                          | 2             |
-| 45  | 16.1  | 16 Browse professionals             | Browse professionals                              | Members see vetted professionals and filter by category.                                                                                            | 2             |
+| 45  | 16.1  | 16 Browse professionals             | ✅ Browse professionals                           | Members see vetted professionals and filter by category.                                                                                            | 2             |
 | 46  | 16.2  | 16 Browse professionals             | Listing detail                                    | Members open a professional's listing with credentials and price.                                                                                   | 1             |
 | 47  | 17.1  | 17 Book a professional              | Message or contact                                | Members message a linked professional or open their contact link.                                                                                   | 1             |
 | 48  | 17.2  | 17 Book a professional              | Request a booking                                 | Members send a booking request from the booking dialog.                                                                                             | 2             |

@@ -5,5 +5,67 @@
     <p class="services-page__apply">
       <cf-button variant="secondary" size="sm" (click)="apply()">Apply to be listed</cf-button>
     </p>
+    <cf-chip-bar label="Filter professionals">
+      @for (chip of chips(); track chip.href) {
+        <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate($event)">{{
+          chip.label
+        }}</cf-chip>
+      }
+    </cf-chip-bar>
+    @if (state() === 'loading') {
+      <cf-skeleton-region label="Loading professionals">
+        <cf-split variant="services">
+          <cf-list variant="card" [items]="skeletons" [template]="skeletonRow" />
+          <cf-service-detail loading />
+        </cf-split>
+      </cf-skeleton-region>
+    } @else if (state() === 'failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Professionals didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+      </cf-empty-state>
+    } @else if (rows().length === 0 && category() !== null) {
+      <cf-empty-state heading="Nothing here yet" [text]="noResultsText()">
+        <cf-button slot="actions" size="sm" (click)="navigate('/services')">Clear filter</cf-button>
+      </cf-empty-state>
+    } @else if (rows().length === 0) {
+      <cf-empty-state
+        heading="No professionals yet"
+        text="Every trainer, dietitian, physio and counsellor is checked by our team before they're listed. The first ones are on their way."
+      >
+        <cf-button slot="actions" size="sm" href="/events">Browse events</cf-button>
+      </cf-empty-state>
+    } @else {
+      <cf-split variant="services">
+        <cf-list variant="card" label="Professionals" [items]="rows()" [template]="serviceRow" />
+        @if (selected(); as listing) {
+          <cf-service-detail
+            [name]="listing.name"
+            [role]="listing.role"
+            [where]="listing.where"
+            [about]="listing.about"
+            [credentials]="listing.credentials"
+            [price]="listing.price"
+            [verified]="verified()"
+          />
+        }
+      </cf-split>
+    }
   </cf-container>
 </main>
+<ng-template #serviceRow let-row>
+  <cf-service-row
+    [href]="row.href"
+    [name]="row.name"
+    [text]="row.text"
+    [price]="row.price"
+    [current]="row.id === selected()?.id"
+    (navigate)="navigate($event)"
+  />
+</ng-template>
+<ng-template #skeletonRow>
+  <cf-service-row loading />
+</ng-template>

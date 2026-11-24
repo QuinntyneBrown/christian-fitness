@@ -1,0 +1,23 @@
+@if (loading()) {
+  <div class="service-row">
+    <cf-skeleton shape="avatar-xl" />
+    <div class="service-row__body service-row__lines">
+      <cf-skeleton width="55" />
+      <cf-skeleton shape="text-sm" width="80" />
+    </div>
+  </div>
+} @else {
+  <a
+    class="service-row"
+    [href]="href()"
+    [attr.aria-current]="current() ? 'true' : null"
+    (click)="follow($event)"
+  >
+    <cf-avatar [name]="name()" size="xl" />
+    <div class="service-row__body">
+      <p class="service-row__name">{{ name() }}</p>
+      <p class="service-row__text">{{ text() }}</p>
+    </div>
+    <span class="service-row__price">{{ price() }}</span>
+  </a>
+}

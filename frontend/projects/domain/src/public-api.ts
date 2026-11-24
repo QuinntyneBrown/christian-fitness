@@ -32,6 +32,8 @@ export * from './members/interest-labels';
 export * from './members/member-since';
 export * from './services/application-decision';
 export * from './services/application-sent';
+export * from './services/service-category-filter';
+export * from './services/service-listing-view';
 export * from './members/admin-member-list';
 export * from './members/member-moderation';
 export * from './admin/session-expiry';

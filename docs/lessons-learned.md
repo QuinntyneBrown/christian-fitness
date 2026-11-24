@@ -2013,3 +2013,29 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Count a slice's new specs against the CI budget" (24.1): twelve short specs in one file.
 - "A fixture default for a new call" (15.1, 13.1): the decisions are POSTs a spec answers; no default was needed.
 - "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.
+
+## Slice 16.1: Browse professionals
+
+**What slowed it**
+
+- The design system has no `service-row` or `service-detail` page, only their CSS in `components.css`, and the mock's row borrowed `mini-row__*` classes of another block. Both became library components from `Avatar`, `Card`, `DescriptionList` and `Skeleton`, each with its own BEM elements, so the page object locates `service-row__name`, not `mini-row__name`.
+- The mocks draw "Request a booking" and "Message" on the card, which are slices 17.1 and 17.2; an inert button is a control that does nothing, so the card omits them (ADR 0050).
+- The mocks have no state for a category with nobody in it; it reuses the empty state, as Events does, and the ADR records the stand-in.
+- The listing entity has no public constructor (`Publish` is internal), so the cap test builds listings through `ProfessionalApplication.TryApprove`, the public way a listing is made, instead of widening the domain.
+- A Python edit script that wrote a file holding a non-ASCII tick failed on the Windows code page after it had already truncated the file; read and write with `encoding='utf-8'` and restore with `git checkout`.
+- Three shell heredocs holding an apostrophe failed to parse again; every file went through the Write tool.
+
+**New lessons**
+
+- A shell component added to the member navigation changes every spec that counts the bars' links: grep for the old list (`'Home', 'Events', 'Messages'`) and the item counts before running the suite.
+- One query serving both the row and the card needs no second request, so choosing a row is a navigation that changes only `?selected=`; only a new category asks again, and the page tracks that with one flag and the last category.
+- A date shown by month and year needs a table of cases at a month boundary in the community's zone (04:30 UTC on April 1 is April in Toronto, 03:30 is still March).
+- Initial bundle: web 280.30 kB (unchanged), admin 280.35 kB (unchanged); the page, its two components and the client are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 21.2): replacing the category filter with `true` failed exactly the one category test and passed again when restored; the browse spec failed all eleven cases before the page existed, each for the missing rows.
+- "Keep a list endpoint honest when capped" (21.1): `total` beside the 50 rows, proved with 52 listings.
+- "A fixture default for a new call" (15.1, 13.1, 21.1): `GET /api/services` answers nobody listed, so the apply spec that opens `/services` stays green.
+- "Count a slice's new specs against the CI budget" (24.1): eleven short specs in one file.
+- "Use the Edit and Write tools" (7.1 on): followed except for three heredoc commands that failed to parse.
