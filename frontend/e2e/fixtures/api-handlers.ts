@@ -1,5 +1,6 @@
 import type { Request, Route } from '@playwright/test';
 import { NO_APPLICATIONS } from './admin-applications';
+import { NO_LISTINGS } from './admin-listings';
 import { NO_SERVICES } from './services';
 
 /**
@@ -91,6 +92,11 @@ export class ApiHandlers {
       method: 'GET',
       path: '/api/admin/services/applications',
       handler: () => ({ json: NO_APPLICATIONS }),
+    },
+    {
+      method: 'GET',
+      path: '/api/admin/services/listings',
+      handler: () => ({ json: NO_LISTINGS }),
     },
     { method: 'GET', path: '/api/services', handler: () => ({ json: NO_SERVICES }) },
     {

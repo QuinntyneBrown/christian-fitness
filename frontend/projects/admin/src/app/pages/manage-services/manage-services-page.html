@@ -24,6 +24,16 @@
           }
         </ul>
       </section>
+      <section aria-labelledby="listings-title">
+        <h2 class="section-title" id="listings-title">Live listings</h2>
+        <cf-table
+          caption="Live listings"
+          [columns]="listingColumns"
+          [rows]="[]"
+          [loading]="true"
+          [loadingRows]="skeletonRows"
+        />
+      </section>
     </cf-skeleton-region>
   }
   @case ('failed') {
@@ -120,5 +130,32 @@
         </p>
       }
     </section>
+    <section aria-labelledby="listings-title">
+      <h2 class="section-title" id="listings-title">
+        Live listings
+        <span class="section-title__count--muted">{{ listingTotal() }}</span>
+      </h2>
+      @if (listingRows().length > 0) {
+        <cf-table
+          caption="Live listings"
+          actionLabel="Edit"
+          [columns]="listingColumns"
+          [rows]="listingRows()"
+          (action)="editListing($event)"
+        />
+      } @else {
+        <cf-empty-state
+          heading="No listings yet"
+          text="Approve an application when one comes in. It appears here and on Services."
+        />
+      }
+    </section>
   }
 }
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
+import type { ServiceCategory } from '../services/professional-applications';
 
 /**
  * One pending application as staff read it (`PendingApplicationDto`, ADR 0048): the applicant's
@@ -33,7 +34,44 @@ export interface ApplicationDecisionDto {
   listingId: string | null;
 }
 
-/** Staff review professional applications (L2-025; ADR 0048, ADR 0049). */
+/**
+ * One live listing as staff read and edit it (`AdminListingDto`, ADR 0054): the fields members see on
+ * Services, the contact link itself (or `null` when members message the professional here) and when
+ * it was published, an ISO instant in UTC. Every text is plain text, rendered as text (L2-032).
+ */
+export interface AdminListingDto {
+  id: string;
+  name: string;
+  role: string;
+  category: ServiceCategory;
+  where: string;
+  price: string;
+  credentials: string;
+  about: string;
+  contactUrl: string | null;
+  publishedAt: string;
+}
+
+/** `GET /api/admin/services/listings`: the live listings in name order, at most 50, and how many exist in all. */
+export interface AdminListingsDto {
+  total: number;
+  listings: AdminListingDto[];
+}
+
+/** What the listing editor saves (`PUT /api/admin/services/listings/{id}`, ADR 0054): every editable field. */
+export interface UpdateListingDto {
+  name: string;
+  role: string;
+  category: ServiceCategory;
+  where: string;
+  price: string;
+  credentials: string;
+  about: string;
+  /** An http or https address, or `null` for none. */
+  contactUrl: string | null;
+}
+
+/** Staff review professional applications and keep listings correct (L2-025, L2-027; ADR 0048, ADR 0049, ADR 0054). */
 export interface AdminServicesApi {
   /** The queue, oldest first. A failure errors with an `ApiError`. */
   applications(): Observable<PendingApplicationsDto>;
@@ -51,6 +89,16 @@ export interface AdminServicesApi {
    * `fieldCodes.reason` when the reason is empty or too long.
    */
   decline(id: string, reason: string): Observable<ApplicationDecisionDto>;
+
+  /** The live listings, in name order. A failure errors with an `ApiError`. */
+  listings(): Observable<AdminListingsDto>;
+
+  /**
+   * Replaces the editable fields of the listing `id` (`PUT .../listings/{id}`) and answers it as
+   * saved. A failure errors with an `ApiError`: 400 `validation_failed` with `fieldCodes` naming each
+   * refused field, or 404 `service_not_found` when the listing is gone.
+   */
+  updateListing(id: string, listing: UpdateListingDto): Observable<AdminListingDto>;
 }
 
 /** Binds {@link AdminServicesApi}; the Services page provides it on its routed component. */

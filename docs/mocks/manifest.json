@@ -572,13 +572,15 @@
       "title": "Listing editor",
       "group": "Member app",
       "opens_from": "admin-services",
-      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor.",
+      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor. Edit states hand-written for slice 23.1 (ADR 0054).",
       "requirements": [],
       "states": [
         "default",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "edit",
+        "edit-invalid"
       ]
     },
     {

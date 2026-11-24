@@ -42,9 +42,21 @@ public sealed class ServiceListing
     /// <summary>Sets the contact link when <paramref name="url"/> is an absolute http or https address; a blank one clears it (ADR 0052).</summary>
     public bool TrySetContactUrl(string? url)
     {
+        if (!TryNormalizeContactUrl(url, out var normalized))
+        {
+            return false;
+        }
+
+        ContactUrl = normalized;
+        return true;
+    }
+
+    /// <summary>Reads a contact link: blank is none (<c>null</c>), else it must be an absolute http or https address with a host and no credentials.</summary>
+    public static bool TryNormalizeContactUrl(string? url, out string? normalized)
+    {
+        normalized = null;
         if (string.IsNullOrWhiteSpace(url))
         {
-            ContactUrl = null;
             return true;
         }
 
@@ -58,8 +70,32 @@ public sealed class ServiceListing
             return false;
         }
 
-        ContactUrl = trimmed;
+        normalized = trimmed;
         return true;
+    }
+
+    /// <summary>Replaces what staff may edit (L2-027 AC1; ADR 0054); the values are already validated and are trimmed here.</summary>
+    public void Update(string name, string role, ServiceCategory category, string where, string price, string credentials, string about, string? contactUrl)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(role);
+        ArgumentNullException.ThrowIfNull(where);
+        ArgumentNullException.ThrowIfNull(price);
+        ArgumentNullException.ThrowIfNull(credentials);
+        ArgumentNullException.ThrowIfNull(about);
+        if (!TryNormalizeContactUrl(contactUrl, out var normalized))
+        {
+            throw new ArgumentException("The contact link is not an http or https address.", nameof(contactUrl));
+        }
+
+        Name = name.Trim();
+        Role = role.Trim();
+        Category = category;
+        Where = where.Trim();
+        Price = price.Trim();
+        Credentials = credentials.Trim();
+        About = about.Trim();
+        ContactUrl = normalized;
     }
 
     internal static ServiceListing Publish(ProfessionalApplication application, string name, DateTimeOffset publishedAt)

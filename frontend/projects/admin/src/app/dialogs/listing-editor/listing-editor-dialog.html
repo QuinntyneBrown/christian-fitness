@@ -1,0 +1,102 @@
+<cf-drawer heading="Edit listing" [titleId]="headingId" (closed)="close()">
+  @if (errorItems().length > 0) {
+    <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+  } @else if (failed()) {
+    <cf-alert heading="Couldn't save the changes">
+      The server didn't respond. Your changes are still here; try again.
+    </cf-alert>
+  }
+  <cf-text-field
+    fieldId="f-name"
+    label="Name"
+    name="name"
+    [value]="values().name"
+    [error]="errors().name"
+    [readonly]="saving()"
+    (valueChange)="set('name', $event)"
+  />
+  <cf-form-layout layout="grid">
+    <cf-text-field
+      fieldId="f-role"
+      label="Role"
+      name="role"
+      [value]="values().role"
+      [error]="errors().role"
+      [readonly]="saving()"
+      (valueChange)="set('role', $event)"
+    />
+    <cf-select
+      fieldId="f-category"
+      label="Category"
+      name="category"
+      [options]="categories"
+      [value]="values().category"
+      [error]="errors().category"
+      [disabled]="saving()"
+      (valueChange)="setCategory($event)"
+    />
+  </cf-form-layout>
+  <cf-text-field
+    fieldId="f-where"
+    label="Where"
+    name="where"
+    hint="In person, virtual, or both, with the neighbourhood"
+    [value]="values().where"
+    [error]="errors().where"
+    [readonly]="saving()"
+    (valueChange)="set('where', $event)"
+  />
+  <cf-form-layout layout="grid">
+    <cf-text-field
+      fieldId="f-rate"
+      label="Rate"
+      name="rate"
+      [value]="values().price"
+      [error]="errors().price"
+      [readonly]="saving()"
+      (valueChange)="set('price', $event)"
+    />
+    <cf-text-field
+      fieldId="f-credentials"
+      label="Credentials"
+      name="credentials"
+      [value]="values().credentials"
+      [error]="errors().credentials"
+      [readonly]="saving()"
+      (valueChange)="set('credentials', $event)"
+    />
+  </cf-form-layout>
+  <cf-textarea
+    fieldId="f-about"
+    label="About"
+    name="about"
+    [rows]="3"
+    [value]="values().about"
+    [error]="errors().about"
+    [readonly]="saving()"
+    (valueChange)="set('about', $event)"
+  />
+  <cf-text-field
+    fieldId="f-contact"
+    label="Contact link"
+    name="contactUrl"
+    type="url"
+    inputmode="url"
+    optional
+    hint="An http or https address. Leave empty to take messages in the app"
+    [value]="values().contactUrl"
+    [error]="errors().contactUrl"
+    [readonly]="saving()"
+    (valueChange)="set('contactUrl', $event)"
+  />
+  <cf-button slot="foot" variant="secondary" [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button slot="foot" [busy]="saving()" [disabled]="saving()" (click)="save()">
+    @if (saving()) {
+      Saving…
+    } @else {
+      Save changes
+    }
+  </cf-button>
+</cf-drawer>

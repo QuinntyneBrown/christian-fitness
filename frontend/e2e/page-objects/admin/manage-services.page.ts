@@ -29,6 +29,13 @@ export class ManageServicesPage {
   readonly alert: Locator;
   readonly alertTitle: Locator;
   readonly alertText: Locator;
+  readonly listingsHeading: Locator;
+  readonly listingsCount: Locator;
+  readonly listingRows: Locator;
+  readonly listingsEmpty: Locator;
+  readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -47,6 +54,14 @@ export class ManageServicesPage {
     this.alert = this.main.locator('.form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertText = this.alert.locator('.form-alert__text');
+    this.listingsHeading = this.main.getByRole('heading', { level: 2, name: /^Live listings/ });
+    this.listingsCount = this.listingsHeading.locator('.section-title__count--muted');
+    this.listingRows = this.main.locator('.table tbody tr');
+    this.listingsEmpty = this.main.locator('.empty-state');
+    const toasts = page.getByRole('region', { name: 'Notifications' });
+    this.toast = toasts.locator('.toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
   }
 
   /** Opens the Services page by its address. */
@@ -97,5 +112,25 @@ export class ManageServicesPage {
   /** Whether `locator` has focus. */
   isFocused(locator: Locator): Promise<boolean> {
     return locator.evaluate((element) => element === document.activeElement);
+  }
+
+  /** Each live listing as its name and role (joined by a bar), category, rate and verified month. */
+  async listingTexts(): Promise<string[][]> {
+    return this.listingRows.evaluateAll((rows) =>
+      rows.map((row) =>
+        [...row.querySelectorAll('td:not(.table__end)')].map((cell) => {
+          const name = cell.querySelector('.table__strong')?.textContent?.trim();
+          const sub = cell.querySelector('.table__sub')?.textContent?.trim();
+          return name && sub
+            ? `${name} | ${sub}`
+            : (cell.textContent?.replace(/\s+/g, ' ').trim() ?? '');
+        }),
+      ),
+    );
+  }
+
+  /** The Edit button of the live listing of `name`; its name says whose it is. */
+  editButton(name: string): Locator {
+    return this.main.getByRole('button', { name: `Edit ${name}` });
   }
 }

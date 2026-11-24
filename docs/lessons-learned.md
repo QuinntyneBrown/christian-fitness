@@ -5,7 +5,7 @@ merges. Read this file before starting a slice and apply what fits.
 
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 78% (43 of 57 slices; 71 of 91 days)
+**% complete:** 79% (44 of 57 slices; 72 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2108,3 +2108,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Prove a rule red by breaking it alone": showing Request a booking for contact-link listings failed exactly the absence spec; restored.
 - "A fixture default for a new call" (15.1 on): the POST is answered by the specs that open the dialog; no default needed.
 - "Count a slice's new specs against the CI budget" (24.1): nine short specs in one file.
+
+## Slice 23.1: Edit a listing
+
+**What slowed it**
+
+- The listing editor mock was an "Add listing" drawer (a Massage category, a verification checkbox, no contact link), so two hand-written states, `edit` and `edit-invalid`, were added and the manifest, index and README updated by hand (ADR 0054). The mock table's initials ("ML") differ from the library avatar's rule ("MR"); the spec reads names and roles, not initials.
+- `forkJoin` in the page pushed 411 bytes of rxjs into `main` and took admin to 280.64 kB. Diffing `browser-stats.json` of the base and the change named it; `combineLatest`, already paid for by the Events page, restored 280.35 kB.
+- One rule had to live in two places (the contact link check in `ServiceListing.TrySetContactUrl` and the new validator), so it became one static method both call.
+- Shell heredocs holding quotes failed to parse again (a comment with an apostrophe emptied a whole command); files went through the Write tool and edits through scripts in the scratchpad.
+
+**New lessons**
+
+- A stub that compiles must not leave an unread constructor parameter (warnings are errors): the first stub handler dropped `IAppDbContext` and gained it back with the real code. The first red was for behaviour (13 of 20 failed; the refusals passed because the route already existed).
+- A bundle regression in an unrelated chunk shows in `main` inputs: diff `--stats-json` of the base (stash with `-u`, build, pop) against the change.
+- A theory that builds an account per row needs a unique email per row, not one per code (two rows shared a code and collided with 409).
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged); the dialog, its fields and the table rows ride in lazy chunks.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1, 17.2): followed.
+- "A fixture default for a new call" (15.1 on): `GET /api/admin/services/listings` got an empty default, so every earlier spec that opens Services still passes (428 specs).
+- "Prove a rule red": the e2e spec ran against the page without the section first and failed for the missing table before the section was restored.
+- "Use the Edit and Write tools" (7.1 on): followed except for the failed heredocs above.
+- "Count a slice's new specs against the CI budget" (24.1): ten short specs in one file; the full run took 1.6 minutes.

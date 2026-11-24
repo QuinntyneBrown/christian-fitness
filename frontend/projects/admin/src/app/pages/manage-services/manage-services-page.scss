@@ -1,6 +1,6 @@
 // The admin page head and the Applications cards (docs/design-system/assets/components.css:
 // "page-head", "admin-title", "subtitle", "section-title", "applications", "application",
-// "note-card").
+// "note-card"); the live listings table is the library's.
 :host {
   display: flex;
   flex-direction: column;
@@ -40,6 +40,10 @@
 
 .section-title__count {
   color: var(--color-fg-accent);
+}
+
+.section-title__count--muted {
+  color: var(--color-fg-muted);
 }
 
 .applications {
