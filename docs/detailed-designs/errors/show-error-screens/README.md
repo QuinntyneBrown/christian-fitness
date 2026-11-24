@@ -81,12 +81,15 @@ state that failed ([ADR 0006](../../../adr/0006-error-screens.md)).
 - **Foundations** — the global utilities add `.icon` (size and stroke of an inline SVG icon) for
   the "Try again" icon; the design system's iconography is a foundation.
 
-- **`OfflinePage`, `NetworkStatus` and `offlineInterceptor`** — `NetworkStatus` in `domain`
-  tracks `navigator.onLine` and browser `online`/`offline` events (listeners removed on destroy),
-  driving the warning `cf-banner` in `MemberShell` and `AdminShell` (`L2-043` AC8). When a GET to
-  `/api/` fails with status 0 while `navigator.onLine` is false, `offlineInterceptor` navigates to
-  `/offline` (`OfflinePage`, a lazy chunk in both apps) with `skipLocationChange` and `from`,
-  offering "Try again" (`returnPathOf(from)`) and "Go to home" / "Go to dashboard" (`L2-043` AC9;
+- **`OfflinePage`, `NetworkStatus`, `offlineInterceptor` and `offlineNavigationErrorHandler`** —
+  `NetworkStatus` in `domain` tracks `navigator.onLine` and browser `online`/`offline` events
+  (listeners removed on destroy), driving the warning `cf-banner` in `MemberShell` and `AdminShell`
+  (`L2-043` AC8). Both shells warm the lazy `OfflinePage` chunk while online so it is cached before
+  connectivity drops. When a GET to `/api/` fails with status 0 or a lazy route chunk fails to fetch
+  while `navigator.onLine` is false, `offlineInterceptor` or `offlineNavigationErrorHandler` opens
+  `/offline` with `skipLocationChange` and `from`, `OfflinePage` updates the address bar with
+  `history.replaceState(null, '', retry)`, and "Try again" (`returnPathOf(from)`) or "Go to home" /
+  "Go to dashboard" recovers cleanly once online (`L2-043` AC9;
   [ADR 0046](../../../adr/0046-offline-banner-and-screen.md)).
 
 The member shell and the admin shell (header, tab bar, sidebar) render the warning banner when

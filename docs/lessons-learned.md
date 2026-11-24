@@ -1912,3 +1912,24 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Pin the browser clock for screens that show time" (15.1): `home-messages.spec.ts` pins `MESSAGES_NOW` in UTC.
 - "Prove a rule red by breaking it alone" (1.1 to 13.1): `breakcheck` verified own-message exclusion, direct unread addition, the three-row cap and partial-state retry each fail when broken and pass when restored.
 - "Count a slice's new specs against the CI budget" (24.1): four focused specs.
+
+## Slice 30.2: Offline
+
+**What slowed it**
+
+- Navigating to an unvisited route while offline fails on the lazy JS chunk (`import(...)`) before any `HttpClient` request runs, and `/offline` itself cannot download its own lazy chunk once the network is gone. Warming `import('../pages/offline/offline-page')` when `MemberShell` or `AdminShell` mounts online caches the chunk ahead of time, and `withNavigationErrorHandler(offlineNavigationErrorHandler)` redirects offline chunk failures with `RedirectCommand` so Angular does not log an unhandled navigation error (ADR 0046).
+- Angular Router's `browserUrl` option writes `{ ɵrouterUrl: '/offline?from=...' }` into `window.history.state`, which Chromium preserves across a same-URL `<a href="/events">` reload, causing "Try again" to boot back into `/offline` even after reconnecting. Using `skipLocationChange: true` and `window.history.replaceState(null, '', retry)` in `OfflinePage` keeps the destination URL in the address bar with `null` history state so "Try again" loads the route cleanly.
+- `withNavigationErrorHandler` and `offlineInterceptor` nudged the admin initial bundle 272 bytes past 280 kB (`280.27 kB`); deduplicating `failedRouteOf` and `isApiUrl` across the error interceptors and sharing the `forbidden` loader in `admin/app.routes.ts` brought both initial bundles back under budget (web 279.81 kB, admin 279.90 kB).
+- Running `docs/mocks/tools/build_mocks.py` wiped hand-added mocks from earlier slices because it calls `shutil.rmtree` on `pages/`, `dialogs/` and `notifications/`; those directories were restored from `HEAD` and only the four offline mocks and index files were updated.
+
+**New lessons**
+
+- Never pass `browserUrl` to a screen whose recovery link is a plain `<a href>` to that same URL: Chromium keeps `history.state` on same-URL reloads and Angular Router boots into `history.state.ɵrouterUrl`. Use `skipLocationChange: true` plus `history.replaceState(null, '', url)`.
+- An offline fallback route must warm its lazy chunk while online (`if (network.online()) void import(...)`), or the browser cannot fetch the error screen when connectivity drops.
+- In Playwright's shared fixture, `route.fulfill` bypasses `context.setOffline(true)` unless the route handler aborts backend requests with `'internetdisconnected'` while offline.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1, 12.2): caught the 272-byte admin budget warning immediately and guided sharing the interceptor helpers so both apps stayed under 280 kB without raising a budget.
+- "Prove a rule red by breaking it alone" (1.1 to 13.1): `breakcheck` verified `returnPathOf('/offline')`, `navigator.onLine === false` in `offlineInterceptor`, and `DestroyRef` listener cleanup in `NetworkStatus`.
+- "Count a slice's new specs against the CI budget" (24.1): five member specs and two admin specs.

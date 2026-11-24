@@ -18,19 +18,25 @@ const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
 /**
  * Chromium logs every 4xx or 5xx response, and every request that got no answer, as a console
- * error. For a backend request that is what a handler chose to answer (a status, or `abort`), not a
- * fault of the page; an unanswered one is reported above.
+ * error. For a backend request (or a local chunk while offline) that is what a handler or
+ * `context.setOffline` chose, not a fault of the page; an unanswered one is reported below.
  */
-function isAnsweredBackendStatus(message: ConsoleMessage): boolean {
+function isAnsweredBackendStatus(message: ConsoleMessage, isOffline: boolean): boolean {
   const text = message.text();
+  const { url } = message.location();
+  if (!url) return false;
+  const parsed = new URL(url);
+  if (isOffline && text === 'Failed to load resource: net::ERR_INTERNET_DISCONNECTED') {
+    return LOCAL_HOSTS.has(parsed.hostname);
+  }
   if (
     !text.startsWith('Failed to load resource: the server responded with a status of') &&
-    text !== 'Failed to load resource: net::ERR_FAILED'
+    text !== 'Failed to load resource: net::ERR_FAILED' &&
+    text !== 'Failed to load resource: net::ERR_INTERNET_DISCONNECTED'
   ) {
     return false;
   }
-  const { url } = message.location();
-  return !!url && BACKEND.some((prefix) => new URL(url).pathname.startsWith(prefix));
+  return BACKEND.some((prefix) => parsed.pathname.startsWith(prefix));
 }
 
 interface Fixtures {
@@ -55,13 +61,21 @@ export const test = base.extend<Fixtures>({
 
   page: async ({ page, api }, use) => {
     const problems: string[] = [];
+    const context = page.context();
+    const originalSetOffline = context.setOffline.bind(context);
+    let isOffline = false;
+    context.setOffline = async (offline: boolean) => {
+      isOffline = offline;
+      await originalSetOffline(offline);
+    };
+
     page.on('pageerror', (error) => problems.push(`page error: ${error.message}`));
     page.on('console', (message) => {
-      if (message.type() !== 'error' || isAnsweredBackendStatus(message)) return;
+      if (message.type() !== 'error' || isAnsweredBackendStatus(message, isOffline)) return;
       problems.push(`console error: ${message.text()}`);
     });
 
-    await page.context().route('**/*', async (route) => {
+    await context.route('**/*', async (route) => {
       const request = route.request();
       const url = new URL(request.url());
       const what = `${request.method()} ${url.origin}${url.pathname}`;
@@ -71,6 +85,10 @@ export const test = base.extend<Fixtures>({
         return;
       }
       if (BACKEND.some((prefix) => url.pathname.startsWith(prefix))) {
+        if (isOffline) {
+          await route.abort('internetdisconnected');
+          return;
+        }
         if (!(await api.answer(route))) {
           problems.push(`unanswered request: ${what}`);
           await route.fulfill({ status: 501, body: 'Not answered by the e2e fixture' });

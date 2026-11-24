@@ -3,6 +3,8 @@ import { staffAuthGuard } from '@cf/domain';
 
 /** An area's routed stand-in until its slice: the area's heading, nothing else (ADR 0011). */
 const area = () => import('./pages/area/area-page').then((m) => m.AreaPage);
+const forbidden = () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage);
+const offline = () => import('./pages/offline/offline-page').then((m) => m.OfflinePage);
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -71,7 +73,7 @@ export const routes: Routes = [
     // Opened by forbiddenInterceptor on a 403 to a read, the URL asked for kept (L2-047; ADR 0016).
     path: 'forbidden',
     title: titled('Staff only'),
-    loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),
+    loadComponent: forbidden,
   },
   {
     // The same screen for a role the area refuses: staffAuthGuard and forbiddenInterceptor open it
@@ -79,7 +81,12 @@ export const routes: Routes = [
     path: 'admins-only',
     title: titled('Admins only'),
     data: { reason: 'role' },
-    loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),
+    loadComponent: forbidden,
+  },
+  {
+    path: 'offline',
+    title: titled("You're offline"),
+    loadComponent: offline,
   },
   {
     path: 'server-error',

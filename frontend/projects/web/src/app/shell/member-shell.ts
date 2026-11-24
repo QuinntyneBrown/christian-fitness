@@ -3,13 +3,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { CONVERSATIONS, SESSION_SERVICE } from '@cf/api';
 import {
+  Banner,
   type MemberDestination,
   type MemberDestinationKey,
   SkipLink,
   TabBar,
   TopBar,
 } from '@cf/components';
-import { initialsOf } from '@cf/domain';
+import { initialsOf, NetworkStatus } from '@cf/domain';
 import { filter } from 'rxjs';
 import { HttpConversationsService } from '../services/http-conversations.service';
 import { MemberInbox } from '../services/member-inbox';
@@ -37,7 +38,7 @@ const DESTINATIONS: readonly MemberDestination[] = [
  */
 @Component({
   selector: 'cf-member-shell',
-  imports: [RouterOutlet, SkipLink, TabBar, TopBar],
+  imports: [Banner, RouterOutlet, SkipLink, TabBar, TopBar],
   providers: [{ provide: CONVERSATIONS, useClass: HttpConversationsService }, MemberInbox],
   templateUrl: './member-shell.html',
   styleUrl: './member-shell.scss',
@@ -47,6 +48,7 @@ export class MemberShell {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly inbox = inject(MemberInbox);
+  protected readonly network = inject(NetworkStatus);
 
   protected readonly signingOut = signal(false);
   protected readonly initials = signal('');
@@ -57,6 +59,7 @@ export class MemberShell {
   constructor() {
     let lastUrl = this.urlNow();
     this.inbox.refresh();
+    if (this.network.online()) void import('../pages/offline/offline-page');
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),

@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 78% (21 of 30 journeys; 71 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 24, 26, 27 and 29 are done, journey 30 has 1 of its 2 days, journey 8 has 1 of its 2)
+**% complete:** 79% (22 of 30 journeys; 72 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 24, 26, 27, 29 and 30 are done, journey 8 has 1 of its 2)
 
 | #   | Journey                          | App    | Description                                                                                                        | Effort (days) |
 | --- | -------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -39,7 +39,7 @@ telemetry), so those are not listed on their own.
 | 27  | ✅ Flag, suspend and reinstate   | Admin  | Staff change a member's status, with a reason recorded.                                                            | 3             |
 | 28  | Watch the dashboard              | Admin  | Staff see community activity and the work awaiting them.                                                           | 3             |
 | 29  | ✅ Staff roles and audit         | Admin  | Moderators only moderate; every staff change is audited.                                                           | 3             |
-| 30  | Recover from errors and offline  | Both   | Clear not-found, server-error and offline screens with a way back.                                                 | 2             |
+| 30  | ✅ Recover from errors and offline | Both   | Clear not-found, server-error and offline screens with a way back.                                                 | 2             |
 
 ## Notes
 

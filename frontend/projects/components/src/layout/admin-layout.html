@@ -11,6 +11,7 @@
     (signOut)="signOut.emit()"
   />
   <main id="main" class="admin__main">
+    <ng-content select="[slot=banner]" />
     <div class="admin__page"><ng-content /></div>
   </main>
 </div>

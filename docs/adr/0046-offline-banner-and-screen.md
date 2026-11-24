@@ -30,15 +30,22 @@ because there is no connection. Two details in the earlier mocks needed settling
   (`cf-admin-layout` `[slot=banner]`) show `cf-banner` (`tone="warning"`) while `!online()`, and
   hide it as soon as `online` returns.
 - **When the offline screen opens.** `offlineInterceptor` watches failed `GET` requests to `/api/`
-  whose `HttpErrorResponse.status === 0` when `navigator.onLine === false`: it navigates to
-  `/offline` with `skipLocationChange: true` and `queryParams: { from }`, keeping the URL in the
-  address bar. When `navigator.onLine === true`, a `status === 0` failure passes on to the screen's
-  own error state (`L2-043` AC5), and a write (`POST`, `PUT`, `PATCH`, `DELETE`) never opens the
-  offline screen.
+  whose `HttpErrorResponse.status === 0` when `navigator.onLine === false`, and
+  `offlineNavigationErrorHandler` (`withNavigationErrorHandler`) catches lazy route chunks that
+  cannot be fetched while `navigator.onLine === false`: both route to `/offline` with
+  `skipLocationChange: true` and `queryParams: { from }`, and `OfflinePage` updates the address bar
+  via `history.replaceState(null, '', retry)` (avoiding `browserUrl`'s `history.state.ɵrouterUrl`,
+  which would otherwise reopen `/offline` on a same-URL reload). Both shells warm the tiny
+  `offline-page` chunk once mounted online so `/offline` resolves from memory after connectivity
+  drops. When `navigator.onLine === true`, a `status === 0` failure passes on to the screen's own
+  error state (`L2-043` AC5), and a write (`POST`, `PUT`, `PATCH`, `DELETE`) never opens the offline
+  screen.
 
 ## Consequences
 
-- `OfflinePage` in both apps is a lazy chunk (`loadComponent`); `returnPathOf` rejects `/offline`
-  alongside `/server-error`, so `Try again` never loops to `/offline`.
+- `OfflinePage` in both apps is a lazy chunk (`loadComponent`); sharing `failedRouteOf` and
+  `isApiUrl` across the error interceptors in `domain` keeps both initial bundles under the 280 kB
+  budget (web 279.81 kB, admin 279.90 kB). `returnPathOf` rejects `/offline` alongside
+  `/server-error`, so `Try again` never loops to `/offline`.
 - Existing Playwright specs that abort a backend request while the browser is online continue to
   reach each screen's own error state unchanged.
