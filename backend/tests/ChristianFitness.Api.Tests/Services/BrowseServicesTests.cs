@@ -92,7 +92,7 @@ public sealed class BrowseServicesTests(RegisterForEventFactory factory) : IClas
         Assert.Equal(3, answer.GetProperty("total").GetInt32());
         var rows = answer.GetProperty("services").EnumerateArray().ToArray();
         Assert.All(rows, row => Assert.Equal(
-            ["about", "category", "credentials", "id", "name", "price", "publishedAt", "role", "where"],
+            ["about", "category", "credentials", "hasContactLink", "id", "name", "price", "publishedAt", "role", "where"],
             row.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)));
         Assert.Equal(["<b>Marcus</b> Lee", "Danielle Okafor", "Ruth Abernathy"], NamesOf(answer));
         Assert.Equal(["Registered dietitian", "Personal trainer", "Physiotherapist"], rows.Select(r => r.GetProperty("role").GetString()!));
@@ -211,7 +211,7 @@ public sealed class BrowseServicesTests(RegisterForEventFactory factory) : IClas
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var listing = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal(
-            ["about", "category", "credentials", "id", "name", "price", "publishedAt", "role", "where"],
+            ["about", "category", "credentials", "hasContactLink", "id", "name", "price", "publishedAt", "role", "where"],
             listing.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(
             (id, "Marcus Lee", "Registered dietitian", "Nutrition", "$95 first consult", "Registered dietitian credentials", "Mississauga", "About Marcus Lee."),

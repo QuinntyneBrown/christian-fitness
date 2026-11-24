@@ -22,6 +22,10 @@ export class WebServiceDetailPage extends ErrorScreen {
   readonly loading: Locator;
   readonly errorHeading: Locator;
   readonly retryButton: Locator;
+  /** The card's contact actions (L2-014): Message, or Contact for a listing with a contact link, and a failure's alert. */
+  readonly messageButton: Locator;
+  readonly contactButton: Locator;
+  readonly problem: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -30,6 +34,9 @@ export class WebServiceDetailPage extends ErrorScreen {
     this.loading = this.main.locator('[aria-busy="true"]');
     this.errorHeading = page.getByRole('heading', { name: "This professional didn't load" });
     this.retryButton = page.getByRole('button', { name: 'Try again' });
+    this.messageButton = this.main.getByRole('button', { name: 'Message' });
+    this.contactButton = this.main.getByRole('button', { name: 'Contact' });
+    this.problem = this.main.getByRole('alert');
   }
 
   async open(id: string, query = ''): Promise<void> {

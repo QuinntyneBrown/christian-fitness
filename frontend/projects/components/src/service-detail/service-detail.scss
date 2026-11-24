@@ -84,3 +84,13 @@
 .service-detail__verified .service-detail__icon {
   color: var(--color-fg-accent);
 }
+
+.service-detail__problem {
+  margin-top: var(--space-5);
+}
+
+.service-detail__actions {
+  margin-top: var(--space-5);
+  display: flex;
+  gap: var(--space-3);
+}

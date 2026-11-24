@@ -11,6 +11,8 @@ export interface ServiceListingFixture {
   credentials: string;
   about: string;
   publishedAt: string;
+  /** Whether the listing publishes a contact link instead of taking messages here (ADR 0052). */
+  hasContactLink: boolean;
 }
 
 /** What the fixture answers unless a spec says otherwise: nobody listed (mock `services/empty`). */
@@ -27,6 +29,7 @@ export const DANIELLE: ServiceListingFixture = {
   credentials: 'NSCA-CPT, 8 years coaching',
   about: 'Strength training for busy parents.',
   publishedAt: '2026-02-10T15:00:00Z',
+  hasContactLink: false,
 };
 
 /** The mock `services/selected` listing: published March 2026. */
@@ -41,6 +44,7 @@ export const MARCUS: ServiceListingFixture = {
   about:
     'Practical meal planning for families and athletes. Covered by most extended health plans.',
   publishedAt: '2026-03-12T15:00:00Z',
+  hasContactLink: false,
 };
 
 export const JAMES: ServiceListingFixture = {
@@ -53,6 +57,7 @@ export const JAMES: ServiceListingFixture = {
   credentials: 'Registered Psychotherapist, CRPO',
   about: 'Care for the whole person.',
   publishedAt: '2026-03-20T15:00:00Z',
+  hasContactLink: false,
 };
 
 export const RUTH: ServiceListingFixture = {
@@ -65,6 +70,7 @@ export const RUTH: ServiceListingFixture = {
   credentials: 'Physiotherapist, CPO',
   about: 'Rehab after injury.',
   publishedAt: '2026-01-05T15:00:00Z',
+  hasContactLink: false,
 };
 
 export const TASHA: ServiceListingFixture = {
@@ -77,6 +83,7 @@ export const TASHA: ServiceListingFixture = {
   credentials: 'NCCP Community Coach',
   about: 'Drills for every level.',
   publishedAt: '2026-04-01T15:00:00Z',
+  hasContactLink: false,
 };
 
 export const CAST: ServiceListingFixture[] = [DANIELLE, MARCUS, JAMES, RUTH, TASHA];
@@ -122,6 +129,42 @@ export function answerService(api: ApiHandlers, services: ServiceListingFixture[
     asked.push(id);
     const found = services.find((service) => service.id === id);
     return found ? { json: found } : { status: 404, json: { code: 'service_not_found' } };
+  });
+  return asked;
+}
+
+/** The member id `POST /api/services/{id}/conversation` answers for each listing, as the API does (ADR 0052). */
+export function professionalMemberOf(listing: ServiceListingFixture): string {
+  return listing.id.replace(/-0000000b/, '-0000000c');
+}
+
+/**
+ * Answers `POST /api/services/{id}/conversation` with the professional's member id, or with the
+ * `refusal` when given (ADR 0052). Returns the listing ids asked for, in order.
+ */
+export function answerConversation(
+  api: ApiHandlers,
+  refusal: { status: number; code: string } | null = null,
+): string[] {
+  const asked: string[] = [];
+  api.on('POST', /^\/api\/services\/[0-9a-f-]{36}\/conversation$/, (request) => {
+    const id = new URL(request.url()).pathname.split('/')[3];
+    asked.push(id);
+    if (refusal) return { status: refusal.status, json: { code: refusal.code } };
+    return { json: { memberId: id.replace(/-0000000b/, '-0000000c') } };
+  });
+  return asked;
+}
+
+/**
+ * Answers `GET /api/services/{id}/contact-link` with `url`, as the API does (ADR 0052). Returns the
+ * listing ids asked for, in order.
+ */
+export function answerContactLink(api: ApiHandlers, url: string): string[] {
+  const asked: string[] = [];
+  api.on('GET', /^\/api\/services\/[0-9a-f-]{36}\/contact-link$/, (request) => {
+    asked.push(new URL(request.url()).pathname.split('/')[3]);
+    return { json: { url } };
   });
   return asked;
 }

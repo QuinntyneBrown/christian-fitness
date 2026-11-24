@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 88% (49 of 57 slices; 80 of 91 days)
+**% complete:** 89% (50 of 57 slices; 81 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -55,7 +55,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 44  | 21.2  | 21 Review professional applications | ✅ Approve or decline                             | Approving publishes a listing; declining records a reason.                                                                                          | 2             |
 | 45  | 16.1  | 16 Browse professionals             | ✅ Browse professionals                           | Members see vetted professionals and filter by category.                                                                                            | 2             |
 | 46  | 16.2  | 16 Browse professionals             | ✅ Listing detail                                 | Members open a professional's listing with credentials and price.                                                                                   | 1             |
-| 47  | 17.1  | 17 Book a professional              | Message or contact                                | Members message a linked professional or open their contact link.                                                                                   | 1             |
+| 47  | 17.1  | 17 Book a professional              | ✅ Message or contact                             | Members message a linked professional or open their contact link.                                                                                   | 1             |
 | 48  | 17.2  | 17 Book a professional              | Request a booking                                 | Members send a booking request from the booking dialog.                                                                                             | 2             |
 | 49  | 23.1  | 23 Edit and remove listings         | Edit a listing                                    | Staff edit a listing and members see the change.                                                                                                    | 1             |
 | 50  | 23.2  | 23 Edit and remove listings         | Remove a listing                                  | Staff remove a listing with confirmation; conversations remain.                                                                                     | 1             |

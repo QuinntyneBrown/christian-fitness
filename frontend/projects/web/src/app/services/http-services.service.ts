@@ -1,10 +1,17 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { ServiceCategory, ServiceListingDto, ServiceListingsDto, ServicesApi } from '@cf/api';
+import type {
+  ContactLinkDto,
+  ProfessionalConversationDto,
+  ServiceCategory,
+  ServiceListingDto,
+  ServiceListingsDto,
+  ServicesApi,
+} from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
- * {@link ServicesApi} over HTTP: `GET /api/services?category=` (ADR 0050) and `GET /api/services/{id}` (ADR 0051). A 5xx opens the
+ * {@link ServicesApi} over HTTP: `GET /api/services?category=` (ADR 0050) `GET /api/services/{id}` (ADR 0051), `POST /api/services/{id}/conversation` and `GET /api/services/{id}/contact-link` (ADR 0052). A 5xx opens the
  * server-error screen through the interceptor; every failure passes on to the screen. It holds no
  * state, and is provided on the Services screen, so it lives only while the screen does.
  */
@@ -20,5 +27,16 @@ export class HttpServicesService implements ServicesApi {
 
   get(id: string): Observable<ServiceListingDto> {
     return this.http.get<ServiceListingDto>(`/api/services/${encodeURIComponent(id)}`);
+  }
+
+  startConversation(id: string): Observable<ProfessionalConversationDto> {
+    return this.http.post<ProfessionalConversationDto>(
+      `/api/services/${encodeURIComponent(id)}/conversation`,
+      null,
+    );
+  }
+
+  getContactLink(id: string): Observable<ContactLinkDto> {
+    return this.http.get<ContactLinkDto>(`/api/services/${encodeURIComponent(id)}/contact-link`);
   }
 }

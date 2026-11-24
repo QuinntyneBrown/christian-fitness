@@ -9,7 +9,7 @@ namespace ChristianFitness.Application.Services;
 
 /// <summary>One published listing as a member browses it (L2-013 AC1, AC3; ADR 0050).</summary>
 public sealed record ServiceListingDto(
-    Guid Id, string Name, string Role, string Category, string Where, string Price, string Credentials, string About, DateTimeOffset PublishedAt);
+    Guid Id, string Name, string Role, string Category, string Where, string Price, string Credentials, string About, DateTimeOffset PublishedAt, bool HasContactLink);
 
 /// <summary>The published listings, at most <see cref="ListServicesQuery.Limit"/>, and how many match in all (ADR 0050).</summary>
 public sealed record ServiceListingsDto(int Total, IReadOnlyList<ServiceListingDto> Services);
@@ -64,7 +64,7 @@ internal sealed class ListServicesHandler(IAppDbContext db) : IRequestHandler<Li
             .ConfigureAwait(false);
         return new ServiceListingsDto(
             total,
-            [.. rows.Select(l => new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt))]);
+            [.. rows.Select(l => new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt, l.ContactUrl != null))]);
     }
 }
 
@@ -79,6 +79,6 @@ internal sealed class GetServiceHandler(IAppDbContext db) : IRequestHandler<GetS
             .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
             .ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.ServiceNotFound, RefusalKind.NotFound);
-        return new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt);
+        return new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt, l.ContactUrl != null);
     }
 }

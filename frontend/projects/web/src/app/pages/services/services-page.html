@@ -51,6 +51,11 @@
             [credentials]="listing.credentials"
             [price]="listing.price"
             [verified]="verified()"
+            [hasContactLink]="listing.hasContactLink"
+            [busy]="contact.busy()"
+            [problem]="contact.problem()"
+            (startMessage)="contact.message(listing.id)"
+            (openContact)="contact.contact(listing.id)"
           />
         }
       </cf-split>

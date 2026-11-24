@@ -42,6 +42,11 @@
             [credentials]="item.credentials"
             [price]="item.price"
             [verified]="verified()"
+            [hasContactLink]="item.hasContactLink"
+            [busy]="contact.busy()"
+            [problem]="contact.problem()"
+            (startMessage)="contact.message(item.id)"
+            (openContact)="contact.contact(item.id)"
           />
         </div>
       }

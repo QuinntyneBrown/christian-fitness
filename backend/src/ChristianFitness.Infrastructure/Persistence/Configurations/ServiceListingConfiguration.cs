@@ -20,6 +20,7 @@ internal sealed class ServiceListingConfiguration : IEntityTypeConfiguration<Ser
         builder.Property(l => l.Where).HasMaxLength(ProfessionalApplication.WhereMaxLength).IsRequired();
         builder.Property(l => l.Price).HasMaxLength(ProfessionalApplication.PriceMaxLength).IsRequired();
         builder.Property(l => l.About).HasMaxLength(ProfessionalApplication.AboutMaxLength).IsRequired();
+        builder.Property(l => l.ContactUrl).HasMaxLength(ServiceListing.ContactUrlMaxLength);
         builder.HasIndex(l => l.ApplicationId).IsUnique();
         builder.HasIndex(l => new { l.Category, l.PublishedAt });
     }

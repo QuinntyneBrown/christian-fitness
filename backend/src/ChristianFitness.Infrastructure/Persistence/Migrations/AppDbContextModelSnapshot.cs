@@ -479,6 +479,10 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("ContactUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("Credentials")
                         .IsRequired()
                         .HasMaxLength(200)

@@ -15,6 +15,7 @@ import {
 import { serviceCategoryOf, servicesHref, verifiedText } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpServicesService } from '../../services/http-services.service';
+import { ProfessionalContact } from '../../services/professional-contact';
 
 /**
  * One professional's listing at `/services/:id` (L2-013 AC4; ADR 0051): the card with name, role,
@@ -23,18 +24,20 @@ import { HttpServicesService } from '../../services/http-services.service';
  * the card shows beside the list instead. `SERVICES_SERVICE` is bound here, so the client lives
  * only while the screen does. While it loads it shows a skeleton card; an id that is not there
  * (404) shows the not-found screen; any other failure shows "This professional didn't load" with
- * Try again (a 5xx is the server-error screen's, L2-043 AC4).
+ * Try again (a 5xx is the server-error screen's, L2-043 AC4). The card's Message or Contact acts
+ * through `ProfessionalContact` (L2-014; ADR 0052).
  */
 @Component({
   selector: 'cf-service-detail-page',
   imports: [Button, Container, EmptyState, ErrorPage, Link, ServiceDetail, SkeletonRegion],
-  providers: [{ provide: SERVICES_SERVICE, useClass: HttpServicesService }],
+  providers: [{ provide: SERVICES_SERVICE, useClass: HttpServicesService }, ProfessionalContact],
   templateUrl: './service-detail-page.html',
   styleUrl: './service-detail-page.scss',
 })
 export default class ServiceDetailPage {
   private readonly services = inject(SERVICES_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly contact = inject(ProfessionalContact);
   private id = '';
   private request: Subscription | null = null;
 
@@ -64,6 +67,7 @@ export default class ServiceDetailPage {
 
   private load(): void {
     this.request?.unsubscribe();
+    this.contact.reset();
     this.state.set('loading');
     this.request = this.services
       .get(this.id)

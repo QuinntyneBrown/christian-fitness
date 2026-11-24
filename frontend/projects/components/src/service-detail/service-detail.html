@@ -42,5 +42,21 @@
       </svg>
       {{ verified() }}
     </p>
+    @if (problem()) {
+      <div class="service-detail__problem">
+        <cf-alert [heading]="problem()" />
+      </div>
+    }
+    <div class="service-detail__actions">
+      @if (hasContactLink()) {
+        <cf-button variant="secondary" size="md" grow [busy]="busy()" (click)="openContact.emit()"
+          >Contact</cf-button
+        >
+      } @else {
+        <cf-button variant="secondary" size="md" grow [busy]="busy()" (click)="startMessage.emit()"
+          >Message</cf-button
+        >
+      }
+    </div>
   </cf-card>
 }

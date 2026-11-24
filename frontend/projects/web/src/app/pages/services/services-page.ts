@@ -37,6 +37,7 @@ import type {
 } from '../../dialogs/apply-to-be-listed/apply-to-be-listed-dialog';
 import { HttpProfessionalApplicationsService } from '../../services/http-professional-applications.service';
 import { HttpServicesService } from '../../services/http-services.service';
+import { ProfessionalContact } from '../../services/professional-contact';
 
 /** The width from which the card shows beside the list (the design system's LG, 1024 px). */
 const LG_WIDTH = '64rem';
@@ -78,6 +79,7 @@ const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id:
       provide: PROFESSIONAL_APPLICATIONS_SERVICE,
       useClass: HttpProfessionalApplicationsService,
     },
+    ProfessionalContact,
   ],
   templateUrl: './services-page.html',
   styleUrl: './services-page.scss',
@@ -87,6 +89,7 @@ export default class ServicesPage {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
+  protected readonly contact = inject(ProfessionalContact);
   private request: Subscription | null = null;
   /** The Apply to be listed dialog while it shows, or `true` while its code loads: one at a time. */
   private dialog: DialogRef<ApplyToBeListedResult, ApplyToBeListedDialog> | true | null = null;
@@ -130,6 +133,7 @@ export default class ServicesPage {
   }
 
   protected navigate(href: string): void {
+    this.contact.reset();
     void this.router.navigateByUrl(href);
   }
 

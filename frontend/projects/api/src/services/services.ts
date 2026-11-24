@@ -17,12 +17,27 @@ export interface ServiceListingDto {
   about: string;
   /** An ISO 8601 instant: when staff approved the listing. */
   publishedAt: string;
+  /**
+   * Whether the professional publishes a contact link instead of taking messages here (L2-014;
+   * ADR 0052). The link itself is served only by `getContactLink`.
+   */
+  hasContactLink: boolean;
 }
 
 /** The listings, in name order, at most 50, and how many match in all (ADR 0050). */
 export interface ServiceListingsDto {
   total: number;
   services: ServiceListingDto[];
+}
+
+/** The member a listing's direct conversation is with: Messages opens it at `/messages/{memberId}` (ADR 0052). */
+export interface ProfessionalConversationDto {
+  memberId: string;
+}
+
+/** A professional's published contact link: an address the member's browser opens (ADR 0052). */
+export interface ContactLinkDto {
+  url: string;
 }
 
 /** The professionals a member browses (ADR 0050). */
@@ -37,6 +52,18 @@ export interface ServicesApi {
    * `ApiError` of status 404 and code `service_not_found`.
    */
   get(id: string): Observable<ServiceListingDto>;
+  /**
+   * Message: the direct conversation with the listing's professional (L2-014 AC1; ADR 0052). A
+   * refusal errors with an `ApiError`: 404 `service_not_found`, 409 `professional_not_linked`
+   * (the listing publishes a contact link), 403 `recipient_unavailable` (the professional is
+   * suspended, or the listing is the caller's own), status 0 for no answer.
+   */
+  startConversation(id: string): Observable<ProfessionalConversationDto>;
+  /**
+   * Contact: the listing's contact link, asked for only when the member chooses it (L2-014 AC2;
+   * ADR 0052). 404 `service_not_found` or `contact_link_not_found` when there is none.
+   */
+  getContactLink(id: string): Observable<ContactLinkDto>;
 }
 
 /** Binds {@link ServicesApi}; the Services screen provides it on its own route component. */

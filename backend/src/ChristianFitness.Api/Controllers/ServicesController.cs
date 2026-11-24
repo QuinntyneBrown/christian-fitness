@@ -21,4 +21,14 @@ public sealed class ServicesController(ISender sender) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ServiceListingDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetServiceQuery(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Message: the direct conversation with the listing's professional (L2-014 AC1; ADR 0052).</summary>
+    [HttpPost("{id:guid}/conversation")]
+    public async Task<ActionResult<ProfessionalConversationDto>> Conversation(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new StartProfessionalConversationCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Contact: the professional's published contact link, served only when asked (L2-014 AC2; ADR 0052).</summary>
+    [HttpGet("{id:guid}/contact-link")]
+    public async Task<ActionResult<ContactLinkDto>> ContactLink(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new GetContactLinkQuery(id), cancellationToken).ConfigureAwait(false);
 }

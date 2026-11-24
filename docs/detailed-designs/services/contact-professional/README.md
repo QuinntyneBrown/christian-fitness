@@ -22,15 +22,16 @@ The feature is a vertical slice from the listing detail to the database.
 - **`ServicesApi / SERVICES_SERVICE`** — `startConversation(listingId)` returns a conversation id; `getContactLink(listingId)` returns a `ContactLinkDto`.
 - **`HttpServicesService`** — calls `POST /api/services/{id}/conversation` and `GET /api/services/{id}/contact-link`.
 - **`ServicesController`** — sends one `StartProfessionalConversationCommand` or `GetContactLinkQuery`.
-- **`StartProfessionalConversationHandler`** — loads the published listing and its `ProfessionalMemberId`. It returns the existing direct `Conversation` between the member and the professional, or creates one with two `ConversationParticipant` rows. A listing without a linked account is refused with code `<TO SUPPLY>`.
+- **`StartProfessionalConversationHandler`** — loads the published listing and its `ProfessionalMemberId`. It returns the existing direct `Conversation` between the member and the professional, or creates one with two `ConversationParticipant` rows. A listing without a linked account is refused with code `professional_not_linked`.
 - **`GetContactLinkHandler`** — returns the listing's `ContactUrl` for a published listing. Telemetry records the route template only, never the URL (`L2-040`).
 
-### Open questions
+### Decisions (slice 17.1, ADR 0052)
 
-- The mock offers "Request a booking" (`docs/mocks/dialogs/request-booking/`) beside Message; `L2-014` specifies no booking request. Booking is out of scope until a requirement states it.
-- The mock shows no Contact (unlinked) variant; a mock state is needed before implementation.
-- Whether a suspended member may start a direct conversation is not stated in `L2-014`; `<TO SUPPLY>`.
-- Error codes for an unlinked listing on Message and for a removed listing are not specified; `<TO SUPPLY>`.
+- Request a booking is slice 17.2; the card has Message or Contact only.
+- The Contact variant has no mock; it is the same secondary button, recorded in ADR 0052.
+- A suspended professional or the caller's own listing is refused `recipient_unavailable` (as direct messages, ADR 0043); a suspended caller is refused by the session.
+- Codes: `service_not_found` (404), `professional_not_linked` (409), `contact_link_not_found` (404), `recipient_unavailable` (403).
+- A listing is linked unless it has a `ContactUrl`; the conversation is the pair, so `startConversation` answers the professional's `memberId` and Messages opens `/messages/{memberId}`.
 
 ## Requirements
 

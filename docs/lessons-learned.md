@@ -2062,3 +2062,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A fixture default for a new call" (15.1 on): `GET /api/services/{id}` answers 404 by default; no spec visits it without answering.
 - "Prove a rule red by breaking it alone": the new specs failed for the missing screen and the missing endpoint (a stub answering 404 for every id) before the code.
 - "Count a slice's new specs against the CI budget" (24.1): four short specs.
+
+## Slice 17.1: Message or contact
+
+**What slowed it**
+
+- The design assumed a `Conversation` entity and a nullable `ProfessionalMemberId`; the system has neither (a direct conversation is the pair of members, and every listing has its applicant's `MemberId`). "Linked" became "has no contact link", with a new nullable `ContactUrl`, and `startConversation` answers the professional's member id (ADR 0052).
+- A component output named `message` is a DOM event name and fails `no-output-native`; the outputs are `startMessage` and `openContact`.
+- A link that must not be in the page until chosen cannot be an anchor, so Contact is a button that asks, re-checks http or https and calls `window.open(..., 'noopener,noreferrer')`; a spec records `window.open` with an init script, so no request leaves localhost.
+- Shell heredocs holding C# or TypeScript with quotes failed to parse; every file went through the Write tool.
+
+**New lessons**
+
+- Add a stub that compiles (a domain method returning false) before the acceptance test, so the first red is for behaviour and not for a missing symbol.
+- One rule in both stacks (an http or https contact link) shares one table of rows; breaking the frontend check alone failed exactly the `ftp` row.
+- Listing and list rows serve a flag, never the link; the test searches the raw bodies for the host.
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged); the client methods, the contact class and the card's buttons ride in the lazy pages.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 16.2): ignoring the contact-link guard failed exactly the Message-refused test; restored, green.
+- "A fixture default for a new call" (15.1 on): the POST and the contact-link GET are answered by the specs that press the buttons; no default was needed, and `hasContactLink: false` joined every fixture listing.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+- "Prefer `default` exports" (16.2): no new route, so no growth.
+- "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.

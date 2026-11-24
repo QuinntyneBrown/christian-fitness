@@ -21,6 +21,12 @@ public static class RefusalCodes
     /// <summary>The listing asked for does not exist (L2-013 AC4; ADR 0051).</summary>
     public const string ServiceNotFound = "service_not_found";
 
+    /// <summary>The listing publishes a contact link, so Message is not offered (L2-014 AC2; ADR 0052).</summary>
+    public const string ProfessionalNotLinked = "professional_not_linked";
+
+    /// <summary>The listing has no contact link to open (L2-014 AC2; ADR 0052).</summary>
+    public const string ContactLinkNotFound = "contact_link_not_found";
+
     /// <summary>Only a draft event can be published (L2-023 AC4; ADR 0026).</summary>
     public const string EventNotDraft = "event_not_draft";
 

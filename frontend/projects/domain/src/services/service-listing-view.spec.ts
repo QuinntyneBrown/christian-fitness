@@ -12,6 +12,7 @@ function listing(id: string): ServiceListingDto {
     credentials: 'RD',
     about: 'About',
     publishedAt: '2026-03-12T15:00:00Z',
+    hasContactLink: false,
   };
 }
 

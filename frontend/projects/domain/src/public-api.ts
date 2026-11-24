@@ -31,6 +31,7 @@ export * from './events/going-date';
 export * from './members/interest-labels';
 export * from './members/member-since';
 export * from './services/application-decision';
+export * from './services/contact-link';
 export * from './services/application-sent';
 export * from './services/service-category-filter';
 export * from './services/service-listing-view';
