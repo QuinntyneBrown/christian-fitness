@@ -193,6 +193,7 @@ export function answerCancellation(
 export interface HomeEvents {
   nextEvent: EventSummary | null;
   suggested: EventSummary[];
+  unreadCount?: number;
 }
 
 /**
@@ -209,7 +210,7 @@ export function answerHome(
     const refusal = fail(asked.count++);
     if (refusal?.abort) return { abort: true };
     if (refusal) return { status: refusal.status ?? 400, json: { code: 'error' } };
-    return { json: home };
+    return { json: { unreadCount: 0, ...home } };
   });
   return asked;
 }

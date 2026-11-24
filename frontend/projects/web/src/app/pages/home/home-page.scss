@@ -1,6 +1,7 @@
-// The greeting and section heads of Home (docs/design-system/assets/components.css: display,
-// page-title--greeting, section-head, section-title, mt-section); the container, the split, the
-// next-event card, the empty state and the rows are the library's.
+// The greeting, section heads and aside stack of Home (docs/design-system/assets/components.css:
+// display, page-title--greeting, section-head, section-title, mt-section, aside-stack); the
+// container, the split, the next-event card, the empty state, the inline error and the rows are
+// the library's.
 .home-page {
   display: block;
   min-height: 100dvh;
@@ -41,7 +42,27 @@
   margin-top: var(--space-10);
 }
 
+.aside-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
 .actions {
   display: flex;
+  gap: var(--space-2);
+}
+
+.home-page__message-skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+}
+
+.home-page__message-skeleton-lines {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
   gap: var(--space-2);
 }

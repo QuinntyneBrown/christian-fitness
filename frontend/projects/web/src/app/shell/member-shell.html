@@ -5,8 +5,17 @@
   [profileInitials]="initials()"
   [destinations]="destinations"
   [current]="current()"
+  [unread]="inbox.unread()"
   [signingOut]="signingOut()"
   (navigate)="navigate($event)"
   (signOut)="signOut()"
 />
-<router-outlet />
+<div class="member-shell__body">
+  <router-outlet />
+</div>
+<cf-tab-bar
+  [destinations]="destinations"
+  [current]="current()"
+  [unread]="inbox.unread()"
+  (navigate)="navigate($event)"
+/>

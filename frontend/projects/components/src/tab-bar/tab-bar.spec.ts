@@ -28,7 +28,7 @@ function nameOf(link: Element): string {
     if ((node as Element).getAttribute?.('aria-hidden') === 'true') return '';
     return [...node.childNodes].map(walk).join('');
   };
-  return walk(link).replace(/\s+/g, ' ').replace(/ ,/g, ',').trim();
+  return walk(link).replace(/\s+/g, ' ').trim();
 }
 
 describe('TabBar', () => {

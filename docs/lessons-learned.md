@@ -5,8 +5,7 @@ merges. Read this file before starting a slice and apply what fits.
 
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 75% (41 of 57 slices; 68 of 91 days)
-**% complete:** 60% (34 of 57 slices; 55 of 91 days)
+**% complete:** 78% (43 of 57 slices; 71 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1892,3 +1891,24 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A fixture default for a new call" (15.1): the `GET /api/home` default.
 - "Use the Edit and Write tools" (7.1 on): followed except for the one hung command above.
 - "Count a slice's new specs against the CI budget" (24.1): four short specs.
+
+## Slice 13.2: Unread messages on home
+
+**What slowed it**
+
+- `MemberShell`, `HomePage` and `MessagesPage` all read `GET /api/conversations`: if both the shell and `/messages` called `CONVERSATIONS.list()` independently on arrival, the `messages.spec.ts` failure-and-retry test saw two requests instead of one. Providing `MemberInbox` on `MemberShell` let the header badge, the mobile tab bar, Home's Messages aside and Messages share one request per navigation (ADR 0045).
+- In `TabBar`, `<span class="visually-hidden">, 4 unread</span>` is `position: absolute`, which WAI-ARIA accessible-name computation treats as out-of-flow and separates with a space (`"Messages , 4 unread"`); `tab-bar.spec.ts` had masked that with `.replace(/ ,/g, ',')`. Rendering `<span aria-hidden="true">{{ item.label }}</span>` alongside `<span class="visually-hidden">{{ item.label }}, {{ unread() }} unread</span>` gives `"Messages, 4 unread"` in both the unit test and Chromium.
+- Under `CF_SERVE_BUILT=1`, `boot.spec.ts` raced `redirectSignedInGuard` on `/` because the default fixture signs Grace in and redirects `/` to `/home`; answering `401` on `GET /api/session` in `boot.spec.ts` keeps `/` on the start route deterministically.
+
+**New lessons**
+
+- Any `position: absolute` child (such as `.visually-hidden`) is blockified in WAI-ARIA `accname` and gets spaces inserted around it; put the full accessible phrase inside `.visually-hidden` and mark the visual label `aria-hidden="true"` when punctuation joins them.
+- When a layout shell and its child pages need the same bounded list (`GET /api/conversations`), scope one small state service to the shell's `providers` and refresh it on route changes after entry so initial open fires one request.
+- Initial bundle: web 279.49 kB, admin 279.25 kB, both under 280 kB; `MemberInbox` and the Home aside stay in lazy chunks.
+
+**How earlier lessons worked**
+
+- "A fixture default for a new call" (15.1, 13.1): adding `GET /api/conversations` (`[]`) and `unreadCount: 0` to `api-handlers.ts` kept every signed-in spec green.
+- "Pin the browser clock for screens that show time" (15.1): `home-messages.spec.ts` pins `MESSAGES_NOW` in UTC.
+- "Prove a rule red by breaking it alone" (1.1 to 13.1): `breakcheck` verified own-message exclusion, direct unread addition, the three-row cap and partial-state retry each fail when broken and pass when restored.
+- "Count a slice's new specs against the CI budget" (24.1): four focused specs.

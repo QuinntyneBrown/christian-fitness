@@ -54,10 +54,12 @@
             </svg>
           }
         }
-        {{ item.label }}
         @if (item.key === 'messages' && unread() > 0) {
-          <span class="tab-bar__dot" aria-hidden="true"></span
-          ><span class="visually-hidden">, {{ unread() }} unread</span>
+          <span class="tab-bar__dot" aria-hidden="true"></span>
+          <span aria-hidden="true">{{ item.label }}</span>
+          <span class="visually-hidden">{{ item.label }}, {{ unread() }} unread</span>
+        } @else {
+          {{ item.label }}
         }
       </a>
     }
