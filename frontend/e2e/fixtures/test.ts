@@ -64,14 +64,27 @@ export const test = base.extend<Fixtures>({
     const context = page.context();
     const originalSetOffline = context.setOffline.bind(context);
     let isOffline = false;
+    // Chromium logs a refused request when the log reaches the page, which can be after the spec
+    // is back online; `net::ERR_INTERNET_DISCONNECTED` exists only because the spec went offline.
+    let wasOffline = false;
     context.setOffline = async (offline: boolean) => {
+      if (offline) {
+        // The shell marks itself once the offline screen's lazy chunk (and its imports) has
+        // loaded; going offline earlier aborts that fetch and the screen could never open.
+        await expect(
+          page.locator(
+            'cf-admin-shell:not([data-offline-ready]), cf-member-shell:not([data-offline-ready])',
+          ),
+        ).toHaveCount(0);
+      }
       isOffline = offline;
+      wasOffline ||= offline;
       await originalSetOffline(offline);
     };
 
     page.on('pageerror', (error) => problems.push(`page error: ${error.message}`));
     page.on('console', (message) => {
-      if (message.type() !== 'error' || isAnsweredBackendStatus(message, isOffline)) return;
+      if (message.type() !== 'error' || isAnsweredBackendStatus(message, wasOffline)) return;
       problems.push(`console error: ${message.text()}`);
     });
 

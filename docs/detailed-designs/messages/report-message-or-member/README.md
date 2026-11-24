@@ -57,10 +57,6 @@ The reason text and the reporter's identity are not logged or placed in telemetr
 
 ## Diagrams
 
-The images were drawn before ADR 0057 and are not re-rendered (PlantUML is not installed): read
-`Report` as `MessageReport`, a repeat report as refused `already_reported`, and the confirmation
-as the dialog's success state.
-
 ### System context
 
 The member reports a message through Christian Fitness; a staff member later reviews the

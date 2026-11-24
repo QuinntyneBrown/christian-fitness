@@ -2253,3 +2253,25 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Prove a rule red by breaking it alone" (1.1 to 28.1): treating every role as a Moderator in the handler failed the Admin test alone; restored.
 - "A fixture default for a new call" (15.1 on): the shared fixture answers nothing waiting, so every admin spec that lands on the Dashboard stays green; the whole suite was run.
 - "Section rendered with library parts costs no initial bundle" (28.1): admin stayed at 280.32 kB.
+
+## Follow-up: offline flake and stale diagrams
+
+**What slowed it**
+
+- The offline specs failed about 1 run in 140 under load (`--repeat-each` with 8 or more workers), always the admin "navigating offline" spec, with `Failed to fetch dynamically imported module` for the offline screen's chunk. The shell warms that chunk with a fire-and-forget `import()` when it mounts online; the spec only waited for the Dashboard heading, so under load it called `setOffline(true)` while the chunk or its static imports were still downloading, the fixture then aborted them, and `/offline` could never open. Reproduced at 2 to 3 failures per 280 runs with 8 to 16 workers; none at 4 workers.
+- A first fix (wait until no static request is in flight) still failed: a chunk's own imports are requested only after it has been parsed, so the in-flight count reads zero between the chunk and its dependencies.
+- A second, rarer failure was a late `Failed to load resource: net::ERR_INTERNET_DISCONNECTED` console error logged after the spec had gone back online, which the fixture no longer treated as an answered request.
+- The other timeouts reported under load (forgot-password-refusals, home-messages, landing, remove-listing, edit-event) did not fail at 4 workers on a built app; they are machine load (Chromium and the dev server share the box with other work), not a timing assumption in the product.
+- A run of 16 workers on this machine was ten times slower than 8, so the stress was lowered rather than the machine blamed.
+
+**New lessons**
+
+- A warm-up the product starts must say when it is done: each shell sets `data-offline-ready` on its host once the offline chunk resolves, and the shared fixture waits for it before `context.setOffline(true)` (no sleep, no retry, assertion unchanged). Observing the network from outside cannot know the module graph is complete.
+- Judge a lazy-chunk race by the hashed chunk's content (`grep` the build for its text), not by guessing which route failed.
+- A browser console line about a refused request can arrive after the toggle back online; keep the allowance for the whole test once it has gone offline, never for a spec that did not.
+- Re-rendering PlantUML is part of the slice that changes the behaviour: five diagrams and two README caveats ("read with ADR ...") went stale because PlantUML was not installed at the time; `java -jar C:\tools\plantuml.jar -charset UTF-8` via `render_puml.py` works.
+
+**How earlier lessons worked**
+
+- "Warm the offline chunk while online" (30.2): right, but only half: it needs an observable completion.
+- "A heavy parallel run failed unrelated offline specs" (21.1): that was this race, not an unrelated cause.

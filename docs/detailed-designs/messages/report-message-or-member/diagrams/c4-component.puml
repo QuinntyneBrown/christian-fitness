@@ -11,15 +11,15 @@ Container_Boundary(web, "Member web app") {
 }
 Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "ReportsController", "ASP.NET Core controller", "One MediatR send")
-  Component(h, "ReportMessageHandler", "MediatR + ReportMessageValidator", "Creates one Report per reporter and message; flags sender")
-  Component(member, "Member", "Domain entity", "Flag() moves Active to Flagged")
-  ComponentDb(db, "Christian Fitness database", "EF Core", "Report, Member, Message")
+  Component(h, "ReportMessageHandler", "MediatR + ReportMessageValidator", "Creates one MessageReport per reporter and message; refuses repeats; flags sender")
+  Component(member, "Member", "Domain entity", "TryFlag() moves Active to Flagged")
+  ComponentDb(db, "Christian Fitness database", "EF Core", "MessageReport, Member, Message")
 }
 Rel(page, dlg, "Opens with the message id")
 Rel(dlg, svc, "Submits through REPORTS_SERVICE")
 Rel(page, toast, "Shows confirmation")
 Rel(svc, ctrl, "POST /api/messages/{id}/reports", "JSON/HTTPS")
 Rel(ctrl, h, "Sends ReportMessageCommand")
-Rel(h, member, "Calls Flag() on the sender")
+Rel(h, member, "Calls TryFlag() on the sender")
 Rel(h, db, "Reads and writes via IAppDbContext")
 @enduml

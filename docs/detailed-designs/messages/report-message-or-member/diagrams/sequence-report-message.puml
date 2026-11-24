@@ -37,28 +37,33 @@ dlg -> client : reportMessage(id, reason)
 client -> controller : POST /api/messages/{id}/reports
 controller -> controller : Authenticate (fallback policy)
 controller -> handler : Send ReportMessageCommand
-handler -> db : Load message; caller must be a participant
-alt caller not a participant
-  handler --> controller : code not_a_participant
-  controller --> client : 403 ProblemDetails
+handler -> db : Load message in ChatMessages, then DirectMessages (ADR 0057)
+alt unknown message, or caller not in its conversation
+  handler --> controller : code message_not_found
+  controller --> client : 404 ProblemDetails (code message_not_found)
   client --> dlg : Error with code
   dlg --> actor : Generic error message
-else report by same reporter for this message exists
-  db --> handler : Existing Report
-  handler --> controller : Success, no new Report (L2-017)
-  controller --> client : 200 OK
-  client --> dlg : Done
-  dlg -> dlg : Close by its ref
-  page --> actor : Confirmation toast
+else caller is the sender
+  handler --> controller : code cannot_report_own_message
+  controller --> client : 403 ProblemDetails (code cannot_report_own_message)
+  client --> dlg : Error with code
+  dlg --> actor : Generic error message
+else same reporter already reported this message
+  db --> handler : Existing MessageReport
+  handler --> controller : code already_reported, no second row
+  controller --> client : 409 ProblemDetails (code already_reported)
+  client --> dlg : Error with code
+  dlg --> actor : Already reported (generic message)
 else first report
-  handler -> db : Insert Report (ReporterId, MessageId, Reason)
-  handler -> sender : Flag() — Active to Flagged for staff review (L2-017)
+  handler -> db : Insert MessageReport (ReporterId, MessageId, SenderId, Reason)
+  handler -> sender : TryFlag("Reported by a member")
+  note right of sender : Active becomes Flagged; Flagged stays Flagged; Suspended stays Suspended
   handler -> db : Save changes in one unit of work
   db --> handler : Commit result
   handler --> controller : Success
   controller --> client : 201 Created
   client --> dlg : Done
+  dlg --> actor : Success state "Message reported"
   dlg -> dlg : Close by its ref
-  page --> actor : Confirmation toast (L2-017)
 end
 @enduml

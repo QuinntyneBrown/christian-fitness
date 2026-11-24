@@ -31,11 +31,17 @@ else valid
   db --> h : Listing
   alt unknown listing or contact link
     h --> ctrl : Refuse service_not_found or professional_not_linked
+    ctrl --> client : ProblemDetails with code
+    client --> dialog : Error code
+    dialog --> actor : Generic message, values kept
   else
     h -> dm : Send SendDirectMessageCommand (member, professional, composed text)
     alt professional suspended or own listing
       dm --> h : Refused
       h --> ctrl : Refuse recipient_unavailable
+      ctrl --> client : ProblemDetails with code recipient_unavailable
+      client --> dialog : Error code
+      dialog --> actor : Generic message, values kept
     else deliverable
       dm -> db : Store DirectMessage
       dm --> h : Ok
@@ -45,8 +51,5 @@ else valid
       dialog --> actor : Request sent, Go to messages (L2-014)
     end
   end
-  ctrl --> client : ProblemDetails (on a refusal)
-  client --> dialog : Error code
-  dialog --> actor : Generic message, values kept
 end
 @enduml

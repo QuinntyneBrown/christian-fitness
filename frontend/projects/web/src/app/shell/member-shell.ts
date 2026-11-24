@@ -39,6 +39,7 @@ const DESTINATIONS: readonly MemberDestination[] = [
  */
 @Component({
   selector: 'cf-member-shell',
+  host: { '[attr.data-offline-ready]': 'offlineReady() ? "" : null' },
   imports: [Banner, RouterOutlet, SkipLink, TabBar, TopBar],
   providers: [{ provide: CONVERSATIONS, useClass: HttpConversationsService }, MemberInbox],
   templateUrl: './member-shell.html',
@@ -52,6 +53,8 @@ export class MemberShell {
   protected readonly network = inject(NetworkStatus);
 
   protected readonly signingOut = signal(false);
+  /** True once the offline screen's lazy chunk is loaded, so it can open with no network. */
+  protected readonly offlineReady = signal(false);
   protected readonly initials = signal('');
   protected readonly destinations = DESTINATIONS;
   /** The place showing, read from the address; none on any other. */
@@ -60,7 +63,9 @@ export class MemberShell {
   constructor() {
     let lastUrl = this.urlNow();
     this.inbox.refresh();
-    if (this.network.online()) void import('../pages/offline/offline-page');
+    if (this.network.online()) {
+      void import('../pages/offline/offline-page').then(() => this.offlineReady.set(true));
+    }
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),

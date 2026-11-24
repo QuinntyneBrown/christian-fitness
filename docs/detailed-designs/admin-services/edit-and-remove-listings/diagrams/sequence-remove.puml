@@ -25,7 +25,6 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "RemoveListingHandler" as h
-  participant "ServiceListing" as ent
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
@@ -38,15 +37,25 @@ client -> ctrl : DELETE /api/admin/listings/{id}
 ctrl -> ctrl : Authenticate and apply AdminOnly policy
 ctrl -> h : Send RemoveListingCommand
 h -> db : Load listing
-db --> h : Listing
-h -> ent : Remove(now)
-ent --> h : IsPublished false; conversations untouched (L2-027 AC2)
-h -> db : Save changes
-db --> h : Committed
-h --> ctrl : Success
-ctrl --> client : 204 No Content
-client --> dlg : Done
-dlg -> dlg : Close by its ref
-dlg --> page : Removed
-page --> actor : Listing leaves Live listings; Services no longer shows it
+alt listing missing
+  db --> h : None
+  h --> ctrl : Refuse service_not_found
+  ctrl --> client : 404 ProblemDetails (code service_not_found)
+  client --> dlg : Error code
+  dlg --> actor : Generic message
+else listing found
+  db --> h : Listing
+  h -> db : Delete ServiceListing row (hard delete, ADR 0055)
+  h -> db : Add audit entry listing.removed
+  h -> db : Save changes in one unit of work
+  db --> h : Committed
+  note right of h : Conversations and messages untouched (L2-027 AC2)
+  h --> ctrl : Success
+  ctrl --> client : 204 No Content
+  client --> dlg : Done
+  dlg -> dlg : Close by its ref
+  dlg --> page : Removed
+  page --> actor : Listing leaves Live listings; Services no longer shows it
+  note over actor, db : Any later call on the removed id answers 404 service_not_found
+end
 @enduml
