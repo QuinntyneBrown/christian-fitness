@@ -1,7 +1,7 @@
 import { provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withNavigationErrorHandler } from '@angular/router';
-import { ACCOUNT_SERVICE, SESSION_SERVICE } from '@cf/api';
+import { SESSION_SERVICE } from '@cf/api';
 import {
   ANTIFORGERY_COOKIE,
   ANTIFORGERY_HEADER,
@@ -11,7 +11,6 @@ import {
   serverErrorInterceptor,
 } from '@cf/domain';
 import { routes } from './app.routes';
-import { HttpAccountService } from './services/http-account.service';
 import { HttpSessionService } from './services/http-session.service';
 
 /**
@@ -31,7 +30,6 @@ export const appConfig: ApplicationConfig = {
       withXsrfConfiguration({ cookieName: ANTIFORGERY_COOKIE, headerName: ANTIFORGERY_HEADER }),
       withInterceptors([offlineInterceptor, serverErrorInterceptor, antiforgeryInterceptor]),
     ),
-    { provide: ACCOUNT_SERVICE, useClass: HttpAccountService },
     { provide: SESSION_SERVICE, useClass: HttpSessionService },
   ],
 };

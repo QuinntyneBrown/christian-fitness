@@ -120,7 +120,7 @@ const listKeyOf = (query: AdminMemberQuery): string => `${query.status}\n${query
     { provide: TOASTS_SERVICE, useClass: ToastStore },
   ],
 })
-export class AdminMembersPage {
+export default class AdminMembersPage {
   private readonly members = inject(ADMIN_MEMBERS_SERVICE);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);

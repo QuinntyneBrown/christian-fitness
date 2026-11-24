@@ -20,7 +20,7 @@ import { Button, StaffLayout } from '@cf/components';
   templateUrl: './forbidden-page.html',
   styleUrl: './forbidden-page.scss',
 })
-export class ForbiddenPage {
+export default class ForbiddenPage {
   private readonly session = inject(STAFF_SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

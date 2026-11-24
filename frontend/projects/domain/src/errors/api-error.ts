@@ -21,21 +21,22 @@ export function apiErrorOf(status: number, body: unknown): ApiError {
 }
 
 function isFieldErrors(value: unknown): value is Record<string, string[]> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    !Array.isArray(value) &&
-    Object.values(value).every(
-      (messages) => Array.isArray(messages) && messages.every((m) => typeof m === 'string'),
-    )
+  return isRecordOf(
+    value,
+    (messages) => Array.isArray(messages) && messages.every((m) => typeof m === 'string'),
   );
 }
 
 function isFieldCodes(value: unknown): value is Record<string, string> {
+  return isRecordOf(value, (code) => typeof code === 'string');
+}
+
+/** True for a plain object whose every value passes `valid`. */
+function isRecordOf(value: unknown, valid: (entry: unknown) => boolean): boolean {
   return (
     typeof value === 'object' &&
     value !== null &&
     !Array.isArray(value) &&
-    Object.values(value).every((code) => typeof code === 'string')
+    Object.values(value).every(valid)
   );
 }

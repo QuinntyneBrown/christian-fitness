@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { HttpAccountService } from '../../services/http-account.service';
 import { ACCOUNT_SERVICE, INTERESTS, type InterestKey } from '@cf/api';
 import { Alert, AuthLayout, Button, Interest, InterestList, TextField } from '@cf/components';
 import {
@@ -37,8 +38,9 @@ import {
   imports: [Alert, AuthLayout, Button, Interest, InterestList, TextField],
   templateUrl: './join-page.html',
   styleUrl: './join-page.scss',
+  providers: [{ provide: ACCOUNT_SERVICE, useClass: HttpAccountService }],
 })
-export class JoinPage {
+export default class JoinPage {
   private readonly account = inject(ACCOUNT_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

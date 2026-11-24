@@ -21,7 +21,7 @@ import { filter } from 'rxjs';
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.scss',
 })
-export class AdminShell {
+export default class AdminShell {
   private readonly session = inject(STAFF_SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

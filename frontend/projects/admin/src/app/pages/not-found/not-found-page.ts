@@ -11,4 +11,4 @@ import { Button, ErrorPage } from '@cf/components';
   templateUrl: './not-found-page.html',
   styleUrl: './not-found-page.scss',
 })
-export class NotFoundPage {}
+export default class NotFoundPage {}

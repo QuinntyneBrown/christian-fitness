@@ -2,7 +2,7 @@ import { HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http'
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { failedRouteOf, isApiUrl } from './server-error';
+import { failedRouteOf, isApiUrl, pathOf } from './server-error';
 
 /** The route of the admin app's "Staff only" screen (L2-047). */
 export const FORBIDDEN_PATH = '/forbidden';
@@ -25,7 +25,7 @@ export const forbiddenInterceptor: HttpInterceptorFn = (request, next) => {
         error.status === 403 &&
         request.method === 'GET' &&
         isApiUrl(request.url) &&
-        !SCREENS.includes(router.url.split(/[?#]/, 1)[0])
+        !SCREENS.includes(pathOf(router.url))
       ) {
         const body: unknown = error.error;
         const code =

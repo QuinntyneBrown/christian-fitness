@@ -81,7 +81,7 @@ interface GoingRow {
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.scss',
 })
-export class ProfilePage {
+export default class ProfilePage {
   private readonly profiles = inject(PROFILE_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);

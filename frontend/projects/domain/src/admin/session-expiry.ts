@@ -2,6 +2,7 @@ import { HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http'
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { isApiUrl, pathOf } from '../errors/server-error';
 
 /** The admin app's Staff sign in route. */
 const SIGN_IN_PATH = '/sign-in';
@@ -49,7 +50,7 @@ export const sessionExpiredInterceptor: HttpInterceptorFn = (request, next) => {
       if (
         isSessionExpired(error) &&
         isAdminApi(request.url) &&
-        router.url.split(/[?#]/, 1)[0] !== SIGN_IN_PATH
+        pathOf(router.url) !== SIGN_IN_PATH
       ) {
         void router.navigateByUrl(SIGN_IN_PATH, { state: SESSION_EXPIRED_STATE });
       }
@@ -59,5 +60,5 @@ export const sessionExpiredInterceptor: HttpInterceptorFn = (request, next) => {
 };
 
 function isAdminApi(url: string): boolean {
-  return new URL(url, 'http://app.invalid').pathname.startsWith('/api/admin/');
+  return isApiUrl(url, '/api/admin/');
 }

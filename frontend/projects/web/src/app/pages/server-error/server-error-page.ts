@@ -14,7 +14,7 @@ import { returnPathOf, serverErrorText } from '@cf/domain';
   templateUrl: './server-error-page.html',
   styleUrl: './server-error-page.scss',
 })
-export class ServerErrorPage {
+export default class ServerErrorPage {
   // Read once: only the interceptor opens this screen, and it does not open it again while it is
   // showing. Binding query parameters to inputs (withComponentInputBinding) cost 2.4 kB initial.
   private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;

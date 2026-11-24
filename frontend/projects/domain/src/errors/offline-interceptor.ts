@@ -3,7 +3,7 @@ import { HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http'
 import { inject } from '@angular/core';
 import { type NavigationError, RedirectCommand, Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { failedRouteOf, isApiUrl, OFFLINE_PATH } from './server-error';
+import { failedRouteOf, isApiUrl, OFFLINE_PATH, pathOf } from './server-error';
 
 /**
  * Opens the offline screen when a GET to `/api/` fails without an answer (`status === 0`) while
@@ -53,5 +53,5 @@ export function offlineNavigationErrorHandler(error: NavigationError): RedirectC
 }
 
 function isOfflineScreen(url: string): boolean {
-  return url.split(/[?#]/, 1)[0] === OFFLINE_PATH;
+  return pathOf(url) === OFFLINE_PATH;
 }

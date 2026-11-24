@@ -54,7 +54,7 @@ type AttentionState =
   styleUrl: './dashboard-page.scss',
   providers: [{ provide: ADMIN_DASHBOARD_SERVICE, useClass: HttpAdminDashboardService }],
 })
-export class AdminDashboardPage {
+export default class AdminDashboardPage {
   private readonly dashboard = inject(ADMIN_DASHBOARD_SERVICE);
   private readonly reload = new Subject<void>();
   private readonly reloadAttention = new Subject<void>();
