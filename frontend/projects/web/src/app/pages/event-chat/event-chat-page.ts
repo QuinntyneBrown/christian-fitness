@@ -1,7 +1,7 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { CHAT_CONNECTION, CHAT_HISTORY, type ChatMessageDto } from '@cf/api';
+import { CHAT_CONNECTION, CHAT_HISTORY, type ChatMessageDto, REPORTS_SERVICE } from '@cf/api';
 import {
   Alert,
   Button,
@@ -16,6 +16,7 @@ import {
 import { chatTime, withChatMessage, withEarlierMessages } from '@cf/domain';
 import type { Observable } from 'rxjs';
 import { HttpChatHistoryService } from '../../services/http-chat-history.service';
+import { HttpReportsService } from '../../services/http-reports.service';
 import { SignalRChatConnection } from '../../services/signalr-chat-connection';
 
 /** The most messages that failed to send the screen keeps for the member to try again. */
@@ -41,7 +42,8 @@ interface Unsent {
  * stored history or live (slice 12.3; ADR 0041), a notice replaces the composer. At
  * `/messages/:id` it is a private conversation with that member (slice 14.1; ADR 0043): the same
  * thread and composer, joined and sent through the direct hub methods, and a member who cannot be
- * messaged (`recipient_unavailable`) is told so.
+ * messaged (`recipient_unavailable`) is told so. A message from another member can be reported
+ * (slice 25.1; ADR 0000) from its Report button, which opens the dialog.
  */
 @Component({
   selector: 'cf-event-chat-page',
@@ -49,6 +51,7 @@ interface Unsent {
   providers: [
     { provide: CHAT_CONNECTION, useClass: SignalRChatConnection },
     { provide: CHAT_HISTORY, useClass: HttpChatHistoryService },
+    { provide: REPORTS_SERVICE, useClass: HttpReportsService },
   ],
   templateUrl: './event-chat-page.html',
   styleUrl: './event-chat-page.scss',
@@ -57,6 +60,7 @@ export class EventChatPage {
   private readonly chat = inject(CHAT_CONNECTION);
   private readonly history = inject(CHAT_HISTORY);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private id = '';
   /** A private conversation with the member `id` (slice 14.1; ADR 0043), not an event's group chat. */
   protected readonly direct = inject(ActivatedRoute).snapshot.data['direct'] === true;
@@ -136,6 +140,24 @@ export class EventChatPage {
     this.unsentCount += 1;
     const kept = { id: `unsent-${this.unsentCount}`, text };
     this.unsent.update((held) => [...held, kept].slice(-MAX_UNSENT));
+  }
+
+  /**
+   * Opens the Report a message dialog for a message from another member (L2-017; slice 25.1; ADR
+   * 0058). The dialog's code loads the first time it is wanted; it uses this screen's
+   * `REPORTS_SERVICE`, and focus returns to the Report button when it closes.
+   */
+  protected async report(id: string): Promise<void> {
+    const message = this.window().find((held) => held.id === id);
+    if (!message) return;
+    const { openReportMessageDialog } =
+      await import('../../dialogs/report-message/report-message-dialog');
+    if (this.destroyRef.destroyed) return;
+    openReportMessageDialog(this.injector, {
+      id: message.id,
+      author: message.author,
+      time: chatTime(message.sentAt),
+    });
   }
 
   /** Sends a message that failed again; it leaves the thread's end until the send answers. */

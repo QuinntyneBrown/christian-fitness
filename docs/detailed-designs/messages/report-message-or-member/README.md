@@ -11,44 +11,43 @@ member when it breaks the community's standards, so staff can review the sender.
 - **Flagged** — member status meaning staff review is pending; one of `Active`, `Flagged`,
   `Suspended`
 
-A member chooses Report on another member's message and gives a reason. The system records
-the report, moves the sender to Flagged for staff review, and shows the reporter a
-confirmation. A second report of the same message by the same member creates no duplicate.
+A member chooses Report on another member's message and may give a reason. The system records
+the report, moves an Active sender to Flagged for staff review, and shows the reporter a
+confirmation. A second report of the same message by the same member is refused
+(`already_reported`) and creates no duplicate. ADR 0000 settles what this design left open.
 Staff review of Flagged members belongs to the admin moderation subsystem.
 
 The title of `L2-017` names a member as well as a message, but its acceptance criteria only
 describe reporting a message. Reporting a member directly, without a message, is
-`<TO SUPPLY>`; this design covers the message path.
+out of scope (ADR 0058); this design covers the message path.
 
 ## Description
 
-The slice runs from the conversation screen to the database. No mock exists yet for the
-report action or its dialog; the dialog's layout is `<TO SUPPLY>` until a mock is added under
-`docs/mocks/dialogs/`. The confirmation uses the `toast` notification
-(`docs/mocks/notifications/toast/success.html`).
+The slice runs from the conversation screen to the database. The mock is
+`docs/mocks/dialogs/report-message/` (default, busy, failed, duplicate, success) over the
+Messages thread, whose received messages carry a Report button. The confirmation is the
+dialog's own success state, not a toast (ADR 0058).
 
 - **`ConversationPage`** — page from the send-and-receive-messages feature. It offers Report on
   messages whose sender is not the current member.
 - **`ReportMessageDialog`** — CDK Dialog in `projects/web` that collects the reason. It closes
   by its ref on success and shows a generic message on any refusal.
-- **`Toast`** — presentation component in the `components` library for the confirmation.
 - **`ReportsApi`** / **`REPORTS_SERVICE`** — contract and token in the `api` library;
   **`HttpReportsService`** is bound in `app.config.ts`.
-- **`ReportsController`** — `POST /api/messages/{id}/reports`; sends one
-  `ReportMessageCommand`.
-- **`ReportMessageHandler`** with **`ReportMessageValidator`** — requires a reason (maximum
-  length `<TO SUPPLY>`) and requires the caller to be a participant of the message's
-  conversation. It creates a `Report` once per reporter and message, calls `Member.Flag()` on
-  the sender, and saves in one unit of work. A repeat report returns success without a new row.
-- **`Report`** — domain entity with a unique index on (`ReporterId`, `MessageId`), which also
+- **`ReportsController`** — `POST /api/messages/{id}/reports` (a group or a direct message id);
+  sends one `ReportMessageCommand`.
+- **`ReportMessageHandler`** with **`ReportMessageValidator`** — allows an optional reason of at
+  most 500 characters (`field_too_long`) and requires the caller to be a participant of the
+  message's conversation (`message_not_found` 404). It refuses the caller's own message
+  (`cannot_report_own_message` 403), creates a `MessageReport` once per reporter and message,
+  calls `Member.TryFlag` on the sender, and saves in one unit of work. A repeat report is refused
+  `already_reported` 409 with no new row.
+- **`MessageReport`** — domain entity with a unique index on (`ReporterId`, `MessageId`), which also
   guards against concurrent duplicates.
-- **`Member`** — domain entity; `Flag()` moves `Active` to `Flagged`. The effect on a member
-  already `Flagged` or `Suspended` is to leave the status unchanged; confirmation of this rule
-  is `<TO SUPPLY>`.
+- **`Member`** — domain entity; `TryFlag` moves `Active` to `Flagged`; a member already `Flagged` or `Suspended` keeps
+  their status (L2-017 AC4).
 
-The reason text and the reporter's identity are not logged or placed in telemetry. Error codes
-for a missing reason and for reporting one's own message are `<TO SUPPLY>`; the spec defines
-none.
+The reason text and the reporter's identity are not logged or placed in telemetry. The error codes are in ADR 0058.
 
 ## Requirements
 

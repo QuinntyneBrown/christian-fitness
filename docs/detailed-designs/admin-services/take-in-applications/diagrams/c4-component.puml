@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Components — Professional application intake
 
 Container_Boundary(fe, "Member web app") {
-  Component(page, "Application screen <TO SUPPLY>", "Routed Angular page or CDK Dialog", "Collects the application fields")
+  Component(page, "Apply to be listed dialog", "CDK Dialog opened from the Services page", "Collects the application fields")
   Component(svc, "PROFESSIONAL_APPLICATIONS_SERVICE / ProfessionalApplicationsApi", "Injection token and contract (api library)", "Typed submit call")
   Component(http, "HttpProfessionalApplicationsService", "HTTP implementation", "Bound in app.config.ts")
 }

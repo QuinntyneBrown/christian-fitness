@@ -6,6 +6,7 @@ import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
  * router sets the document title on every navigation (L2-038 AC6). The wildcard comes last.
  */
 const titled = (page: string) => `${page} · Christian Fitness`;
+const eventChat = () => import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage);
 const offline = () => import('./pages/offline/offline-page').then((m) => m.OfflinePage);
 
 export const routes: Routes = [
@@ -55,42 +56,50 @@ export const routes: Routes = [
         // The published events that have not started, paged (L2-009; ADR 0027).
         path: 'events',
         title: titled('Events'),
-        loadComponent: () => import('./pages/events/events-page').then((m) => m.EventsPage),
+        loadComponent: () => import('./pages/events/events-page'),
       },
       {
         // One published event in full (L2-010; ADR 0031).
         path: 'events/:id',
         title: titled('Event'),
-        loadComponent: () =>
-          import('./pages/event-detail/event-detail-page').then((m) => m.EventDetailPage),
+        loadComponent: () => import('./pages/event-detail/event-detail-page'),
+      },
+      {
+        // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0000); the list is slice 16.1.
+        path: 'services',
+        title: titled('Services'),
+        loadComponent: () => import('./pages/services/services-page'),
+      },
+      {
+        // One professional's listing in full: below LG a row on Services opens it (L2-013 AC4; ADR 0052).
+        path: 'services/:id',
+        title: titled('Professional'),
+        loadComponent: () => import('./pages/service-detail/service-detail-page'),
       },
       {
         // An event's group chat, for the members registered for it (L2-016; ADR 0039).
         path: 'events/:id/chat',
         title: titled('Group chat'),
-        loadComponent: () =>
-          import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
+        loadComponent: eventChat,
       },
       {
         // The member's conversations, newest first, with unread counts (L2-015; ADR 0042).
         path: 'messages',
         title: titled('Messages'),
-        loadComponent: () => import('./pages/messages/messages-page').then((m) => m.MessagesPage),
+        loadComponent: () => import('./pages/messages/messages-page'),
       },
       {
         // A private conversation with a member: the chat page in its direct form (L2-014; ADR 0043).
         path: 'messages/:id',
         title: titled('Direct message'),
         data: { direct: true },
-        loadComponent: () =>
-          import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage),
+        loadComponent: eventChat,
       },
       {
         // Another member's public profile (L2-005 AC3; ADR 0038).
         path: 'members/:id',
         title: titled('Member'),
-        loadComponent: () =>
-          import('./pages/member-profile/member-profile-page').then((m) => m.MemberProfilePage),
+        loadComponent: () => import('./pages/member-profile/member-profile-page'),
       },
       {
         // The signed-in member's own profile (L2-005; ADR 0015).

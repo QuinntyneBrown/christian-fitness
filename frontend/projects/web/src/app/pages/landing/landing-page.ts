@@ -1,6 +1,11 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { type EventSummaryDto, PUBLIC_EVENTS_SERVICE, type LandingEventDto } from '@cf/api';
+import {
+  type EventSummaryDto,
+  PUBLIC_EVENTS_SERVICE,
+  PUBLIC_PROFESSIONALS_SERVICE,
+  type LandingEventDto,
+} from '@cf/api';
 import {
   Button,
   EmptyState,
@@ -15,6 +20,8 @@ import {
 } from '@cf/components';
 import { type EventCardView, eventCardViewOf } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import { LandingProfessionalsOnView } from './landing-professionals-on-view';
+import { HttpPublicProfessionalsService } from '../../services/http-public-professionals.service';
 import { HttpPublicEventsService } from '../../services/http-public-events.service';
 
 /** How many events the landing page asks for (L2-001 AC1). */
@@ -36,7 +43,9 @@ interface LandingRow {
  * member never sees it (`redirectSignedInGuard`). `PUBLIC_EVENTS_SERVICE` is bound here, so the
  * client and its request live only while the page does. The events show as skeleton rows while
  * they load, an inline empty message when there are none and an inline error with Try again when
- * they fail; the rest of the page does not wait for them. Each row leads to Join.
+ * they fail; the rest of the page does not wait for them. Each row leads to Join. The
+ * professionals below are fetched, as code and data, only when they near the viewport
+ * (`cfLandingProfessionalsOnView`; ADR 0000).
  */
 @Component({
   selector: 'cf-landing-page',
@@ -46,13 +55,17 @@ interface LandingRow {
     EventRow,
     Footer,
     InlineMessage,
+    LandingProfessionalsOnView,
     List,
     Seal,
     Skeleton,
     SkeletonRegion,
     TopBar,
   ],
-  providers: [{ provide: PUBLIC_EVENTS_SERVICE, useClass: HttpPublicEventsService }],
+  providers: [
+    { provide: PUBLIC_EVENTS_SERVICE, useClass: HttpPublicEventsService },
+    { provide: PUBLIC_PROFESSIONALS_SERVICE, useClass: HttpPublicProfessionalsService },
+  ],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.scss',
 })

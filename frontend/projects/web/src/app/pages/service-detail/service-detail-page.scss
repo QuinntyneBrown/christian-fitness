@@ -1,0 +1,13 @@
+// The page's own layout; the back link, the card, the skeletons and the error screens are the library's.
+:host {
+  display: block;
+}
+
+.service-detail-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.service-detail-page__card {
+  margin-top: var(--space-6);
+}

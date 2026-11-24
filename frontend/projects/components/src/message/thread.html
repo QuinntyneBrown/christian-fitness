@@ -29,6 +29,16 @@
               </p>
             } @else {
               <p class="message__time">{{ entry.time }}</p>
+              @if (!entry.mine) {
+                <button
+                  class="message__report"
+                  type="button"
+                  [attr.aria-label]="'Report message from ' + (entry.author ?? 'this member')"
+                  (click)="report.emit(entry.id)"
+                >
+                  Report
+                </button>
+              }
             }
           </div>
         </li>

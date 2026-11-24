@@ -418,7 +418,8 @@
         "empty",
         "error",
         "moderator",
-        "partial"
+        "partial",
+        "attention-error"
       ]
     },
     {
@@ -465,6 +466,7 @@
       "states": [
         "default",
         "decided",
+        "failed",
         "no-applications",
         "loading",
         "empty",
@@ -503,6 +505,39 @@
         "default",
         "invalid",
         "busy",
+        "failed",
+        "success"
+      ]
+    },
+    {
+      "id": "report-message",
+      "kind": "dialog",
+      "title": "Report a message",
+      "group": "Member app",
+      "opens_from": "messages",
+      "source": "Derived: the Messages thread's Report button on a received message (L2-017; ADR 0000).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "refused",
+        "success"
+      ]
+    },
+    {
+      "id": "apply-to-be-listed",
+      "kind": "dialog",
+      "title": "Apply to be listed",
+      "group": "Member app",
+      "opens_from": "services",
+      "source": "Derived: the Services frame's \"Apply to be listed\" button (L2-026).",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "refused",
         "failed",
         "success"
       ]
@@ -554,13 +589,15 @@
       "title": "Listing editor",
       "group": "Member app",
       "opens_from": "admin-services",
-      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor.",
+      "source": "Derived: the Manage Services frame's \"Add listing\" and \"Edit\" buttons; same drawer as the event editor. Edit states hand-written for slice 23.1 (ADR 0055).",
       "requirements": [],
       "states": [
         "default",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "edit",
+        "edit-invalid"
       ]
     },
     {
@@ -625,6 +662,20 @@
       ]
     },
     {
+      "id": "remove-listing",
+      "kind": "dialog",
+      "title": "Remove a listing",
+      "group": "Admin console",
+      "opens_from": "admin-services",
+      "source": "Derived: the Manage Services frame's live listings table, with a confirmation before a listing is removed (L2-027 AC2; ADR 0056).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ]
+    },
+    {
       "id": "moderate-member",
       "kind": "dialog",
       "title": "Moderate a member",
@@ -638,6 +689,22 @@
         "flagged",
         "flagged-suspend",
         "suspended",
+        "invalid",
+        "busy",
+        "failed",
+        "refused"
+      ]
+    },
+    {
+      "id": "decline-application",
+      "kind": "dialog",
+      "title": "Decline an application",
+      "group": "Admin console",
+      "opens_from": "admin-services",
+      "source": "Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0050).",
+      "requirements": [],
+      "states": [
+        "default",
         "invalid",
         "busy",
         "failed",

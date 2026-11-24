@@ -1,0 +1,55 @@
+<form class="report-message" novalidate (submit)="send($event)">
+  <cf-dialog
+    [heading]="heading()"
+    titleId="dlg-title"
+    descriptionId="dlg-desc"
+    [subtitle]="subtitle"
+    [successHeading]="sent() ? 'Message reported' : undefined"
+    [successText]="sent() ? 'Thank you. Staff will review this message.' : undefined"
+    (closed)="dismiss()"
+  >
+    @if (refusal() === 'already') {
+      <cf-alert heading="You've already reported this message"
+        ><p>Staff have your report and will review it. There is nothing more to send.</p></cf-alert
+      >
+    }
+    @if (refusal() === 'failed') {
+      <cf-alert heading="Your report didn't send"
+        ><p>Nothing was lost. Check your connection and send it again.</p></cf-alert
+      >
+    }
+    @if (refusal() !== 'already') {
+      <cf-form-layout>
+        <p class="report-message__note">
+          Staff review every report and may contact the sender. They will not tell the sender who
+          reported.
+        </p>
+        <cf-textarea
+          fieldId="f-reason"
+          label="Reason"
+          name="reason"
+          rows="4"
+          optional
+          hint="Only staff see it."
+          [value]="reason()"
+          [error]="reasonError()"
+          [readonly]="sending()"
+          (valueChange)="reason.set($event)"
+        />
+      </cf-form-layout>
+    }
+    @if (finished()) {
+      <cf-button slot="foot" grow (click)="dismiss()">Done</cf-button>
+    }
+    @if (!finished()) {
+      <cf-button slot="foot" variant="secondary" grow [disabled]="sending()" (click)="dismiss()"
+        >Cancel</cf-button
+      >
+    }
+    @if (!finished()) {
+      <cf-button slot="foot" type="submit" grow [disabled]="sending()" [busy]="sending()">{{
+        sending() ? 'Reporting…' : 'Report message'
+      }}</cf-button>
+    }
+  </cf-dialog>
+</form>

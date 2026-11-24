@@ -1,6 +1,7 @@
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,8 +46,17 @@ public interface IAppDbContext
     /// <summary>What two members said to each other privately (L2-016; ADR 0043).</summary>
     DbSet<DirectMessage> DirectMessages { get; }
 
+    /// <summary>The messages members reported for staff to review (L2-017; ADR 0000).</summary>
+    DbSet<MessageReport> MessageReports { get; }
+
     /// <summary>What staff changed: who, what, which record and when (L2-019 AC3; ADR 0023).</summary>
     DbSet<AuditEntry> AuditEntries { get; }
+
+    /// <summary>The requests to be listed on Services (L2-026; ADR 0048).</summary>
+    DbSet<ProfessionalApplication> ProfessionalApplications { get; }
+
+    /// <summary>The professionals published on Services (L2-025 AC2; ADR 0050).</summary>
+    DbSet<ServiceListing> ServiceListings { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

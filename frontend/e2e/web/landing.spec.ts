@@ -1,5 +1,10 @@
 import { expect, test, type ApiHandlers, type ApiReply } from '../fixtures/test';
-import { answerLanding, NEXT_THREE } from '../fixtures/public-events';
+import {
+  answerFeatured,
+  answerLanding,
+  FEATURED_THREE,
+  NEXT_THREE,
+} from '../fixtures/public-events';
 import { WebHomePage } from '../page-objects/web/home.page';
 import { WebLandingPage } from '../page-objects/web/landing.page';
 
@@ -94,6 +99,92 @@ test.describe('Member app, landing page', () => {
 
     await expect(landing.rows).toHaveCount(3);
     await expect(landing.heading).toBeVisible();
+  });
+
+  // L2-001 AC5 to AC7: the professionals section, independent of the events.
+  test('a visitor sees up to three professionals with public fields and each leads to Join', async ({
+    page,
+    api,
+  }) => {
+    asVisitor(api);
+    answerLanding(api, NEXT_THREE);
+    const seen = answerFeatured(api, FEATURED_THREE);
+    const landing = new WebLandingPage(page);
+
+    await landing.open();
+    await landing.scrollToProfessionals();
+
+    await expect(landing.professionals).toHaveCount(3);
+    expect(await landing.professionalRows()).toEqual([
+      {
+        href: '/join',
+        name: 'Danielle Okafor',
+        text: 'Personal trainer · East York',
+        price: 'From $70 / session',
+        initials: 'DO',
+      },
+      {
+        href: '/join',
+        name: 'Marcus Lee',
+        text: 'Registered dietitian · Ontario-wide',
+        price: '$95 first consult',
+        initials: 'ML',
+      },
+      {
+        href: '/join',
+        name: 'Rachel Adeyemi',
+        text: 'Physiotherapist · Etobicoke',
+        price: '$110 / visit',
+        initials: 'RA',
+      },
+    ]);
+    expect(seen.asked).toBe(1);
+  });
+
+  test('no professionals say so and ask the visitor to check back', async ({ page, api }) => {
+    asVisitor(api);
+    answerLanding(api, NEXT_THREE);
+    answerFeatured(api, []);
+    const landing = new WebLandingPage(page);
+
+    await landing.open();
+    await landing.scrollToProfessionals();
+
+    await expect(landing.professionalsSection).toContainText('No professionals listed yet.');
+    await expect(landing.professionalsSection).toContainText('Check back soon.');
+    await expect(landing.professionals).toHaveCount(0);
+  });
+
+  test('a failed professionals list says so, Try again loads it and the events are unaffected', async ({
+    page,
+    api,
+  }) => {
+    asVisitor(api);
+    answerLanding(api, NEXT_THREE);
+    answerFeatured(api, [], 404);
+    const landing = new WebLandingPage(page);
+
+    await landing.open();
+    await landing.scrollToProfessionals();
+    await expect(landing.professionalsError).toContainText("Professionals didn't load.");
+    await expect(landing.rows).toHaveCount(3);
+    answerFeatured(api, FEATURED_THREE);
+    await landing.professionalsTryAgain.click();
+
+    await expect(landing.professionals).toHaveCount(3);
+  });
+
+  test('failed events leave the professionals showing', async ({ page, api }) => {
+    asVisitor(api);
+    answerLanding(api, [], 404);
+    answerFeatured(api, FEATURED_THREE);
+    const landing = new WebLandingPage(page);
+
+    await landing.open();
+    await landing.scrollToProfessionals();
+
+    await expect(landing.error).toContainText("Upcoming events didn't load.");
+    await expect(landing.professionals).toHaveCount(3);
   });
 
   test('a signed-in member is sent to Home', async ({ page }) => {

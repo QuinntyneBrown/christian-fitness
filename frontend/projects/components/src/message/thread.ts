@@ -41,6 +41,9 @@ export type ThreadEntry = ThreadDay | ThreadMessage;
  * the top asks the same, both emitting `loadEarlier` (L2-016 AC6); `loadingEarlier` disables the
  * button meanwhile. When earlier messages join the top the reader keeps their place; a new message
  * at the end scrolls to it.
+ *
+ * A message from another member carries a "Report" button that emits `report` with its id (L2-017;
+ * slice 25.1; ADR 0000); my own messages and failed ones do not.
  */
 @Component({
   selector: 'cf-thread',
@@ -62,6 +65,8 @@ export class Thread implements AfterViewChecked {
   readonly loadingEarlier = input(false, { transform: booleanAttribute });
 
   readonly retry = output<string>();
+  /** A received message's Report was pressed: emits its id (L2-017; ADR 0058). */
+  readonly report = output<string>();
   readonly loadEarlier = output<void>();
 
   /**

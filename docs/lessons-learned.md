@@ -5,7 +5,7 @@ merges. Read this file before starting a slice and apply what fits.
 
 Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 78% (43 of 57 slices; 71 of 91 days)
+**% complete:** 100% (57 of 57 slices; 91 of 91 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -1933,3 +1933,345 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Read the initial total after each new API" (30.1, 12.2): caught the 272-byte admin budget warning immediately and guided sharing the interceptor helpers so both apps stayed under 280 kB without raising a budget.
 - "Prove a rule red by breaking it alone" (1.1 to 13.1): `breakcheck` verified `returnPathOf('/offline')`, `navigator.onLine === false` in `offlineInterceptor`, and `DestroyRef` listener cleanup in `NetworkStatus`.
 - "Count a slice's new specs against the CI budget" (24.1): five member specs and two admin specs.
+
+## Slice 22.1: Apply to be listed
+
+**What slowed it**
+
+- The Services page did not exist and the member navigation has no Services entry, so the slice added a minimal lazy `/services` page (heading, subtitle, button) and the specs open it by address; slice 16.1 owns the list and the nav entry (ADR 0000).
+- A new `IAppDbContext` DbSet broke four hand-written test doubles (join and reset races, last place race, unreachable database); each needed one more property.
+- `dotnet ef migrations add` runs with the Infrastructure project as the startup project here; the Api project has no design-time package.
+- The initial web bundle measures 280.21 kB on this machine before any change, over the 280 kB warning the lessons record as under (279.81); the slice's route cost 90 bytes after sharing the event-chat loader between its two routes, so it was left alone and no budget raised.
+- Shell here-documents holding C# and Python with apostrophes and `$` failed to parse; the Write tool is safer for source files.
+
+**New lessons**
+
+- A new member route costs bytes in `main` (the route object and a chunk name): share an existing loader between routes that load the same page before touching a budget.
+- Compare the initial total against a build of the unchanged tree on the same machine, not against the figure in an earlier entry.
+- Two or more `[slot=foot]` nodes under one `@else` raise NG8011: give each slot node its own `@if`.
+- Initial bundle: web 280.30 kB (280.21 before on the same machine, +90 bytes), admin 279.93 kB; the page, dialog, service and rules are lazy chunks.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1 to 30.2): the +90 bytes was seen at once and the loader sharing trimmed it.
+- "Prove a rule red by breaking it alone" (1.1 to 30.2): replacing the Pending filter with `true` failed exactly the declined and approved re-apply cases and passed again when restored.
+- "Count a slice's new specs against the CI budget" (24.1): eight member specs in one file.
+- "A fixture default for a new call" (15.1, 13.1): the page makes no call on load, so no default was needed.
+
+## Slice 21.1: Application queue
+
+**What slowed it**
+
+- The Services area already had its policy (Admins only) and the admin app a stand-in page, so the backend slice was one query, one controller and the acceptance tests; the Moderator refusal came free from the area convention and is proved by a test.
+- A test that inserts rows straight into the store must give them real applicants: the queue joins members for the name, so rows with a random member id vanish. Join one member through the API and reuse its id.
+- A skeleton card that carries the real card's class (`application`) is counted by the page object's locator while loading; the skeleton carries a `--loading` modifier and the locator excludes it.
+- A `500` answered by a fixture opens the server-error screen, not the page's own error state; the error spec answers with `abort`, as the registrations and members specs do.
+- A new lazy page with its own `HttpClient` service added 410 bytes to the admin `main` (279.93 to 280.34 kB, 339 bytes over the 280 kB warning, under the 290 kB error). Bisecting by stubbing showed the route costs about 40 bytes (sharing a loader), a stub page 120, and the service importing `HttpClient` about 380; the page template, `Avatar`, the rxjs pipeline, `track` form and `catchError` cost nothing. No budget was raised (ADR 0049).
+- A heavy parallel run of the whole suite failed five unrelated offline, sign-out and two-step specs on this machine; they pass in a smaller run.
+- A command that began with a heredoc holding an apostrophe failed to parse; the Write tool is safer.
+
+**New lessons**
+
+- Bisect a bundle regression by stubbing, not by reading: replace the page with an empty component, then restore one import at a time; one build is about a minute.
+- Keep a list endpoint honest when capped: serve `total` beside the at most 50 rows, so a heading count never silently equals the cap.
+- A relative time ("2 days ago") is a pure helper with one table of cases and a pinned browser clock in the spec.
+- Initial bundle: web 280.30 kB (unchanged), admin 280.34 kB (279.93 before on the same machine, +410 bytes); the page, service, contract and helper are lazy.
+
+**How earlier lessons worked**
+
+- "Compare the initial total against a build of the unchanged tree on the same machine" (22.1): the +410 bytes was measured with a stash build, not read from the previous entry.
+- "Prove a rule red by breaking it alone" (1.1 to 22.1): replacing the Pending filter with `true` failed exactly the decided-application test and passed again when restored.
+- "A fixture default for a new call" (15.1, 13.1): `GET /api/admin/services/applications` answers an empty queue, so the shell specs that open `/services` stay green.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+- "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.
+
+## Slice 21.2: Approve or decline
+
+**What slowed it**
+
+- The mocks drew Decline as a button straight to the `decided` state, with no reason field, though L2-025 AC3 needs a reason. A dialog mock (`decline-application`, five states) and a page `failed` state came first, written into the generator sources and rendered one screen at a time by importing the generator modules, never by its full build, so only the two Decline buttons and the mock bar of the sibling states changed.
+- A new table made four test doubles of `IAppDbContext` stop compiling (`ServiceListings`), as slice 22.1's did; each is one line.
+- `dotnet ef` needs a startup project that references `Microsoft.EntityFrameworkCore.Design`: the Infrastructure project is both project and startup (the CLI is not).
+- A staff session in the API tests does not survive an hour on the fake clock; advance by a minute between signing in and the request that needs the clock.
+- A JSON `null` is a property: a decline answering `listingId: null` has the same three keys as an approval, so the shape test lists all three rather than two.
+- The shared alert's sentence sits in `.form-alert__text`, not a `<p>`; the page objects locate it by that class.
+- Two heredocs holding apostrophes failed to parse again; edit scripts went through the Write tool.
+
+**New lessons**
+
+- An action that removes its own button needs a place for focus: the card's decision line takes it (`tabindex="-1"`, after the next render) and a spec asserts it.
+- A dialog that can learn the thing it was opened for is already decided closes with a result the page acts on (`stale`), not with an error: the page reloads the queue and the dialog never needs to know how.
+- A decision that two staff race for is refused with a code, not a message: 409 `application_decided` (and 404 for a missing one) maps to one sentence on both screens.
+- A secret-ish free text (the reason) is a class command, trimmed once, kept in one column and absent from every response, audit entry and log; the 400 names the field's code only.
+- Initial bundle: web 280.30 kB (unchanged), admin 280.35 kB (280.34 before, +10 bytes); the dialog, its helpers and the decision code are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 21.1): letting any status pass the Pending check failed exactly the four decided-twice cases; sending the untrimmed reason failed exactly the trimmed-reason spec; both passed again when restored.
+- "A gate in a fixture handler" (2.1): the approving and declining states are held by a gate, with no clock and no sleep.
+- "Bisect a bundle regression by stubbing" (21.1) was not needed: the first build was already within 10 bytes.
+- "Count a slice's new specs against the CI budget" (24.1): twelve short specs in one file.
+- "A fixture default for a new call" (15.1, 13.1): the decisions are POSTs a spec answers; no default was needed.
+- "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.
+
+## Slice 16.1: Browse professionals
+
+**What slowed it**
+
+- The design system has no `service-row` or `service-detail` page, only their CSS in `components.css`, and the mock's row borrowed `mini-row__*` classes of another block. Both became library components from `Avatar`, `Card`, `DescriptionList` and `Skeleton`, each with its own BEM elements, so the page object locates `service-row__name`, not `mini-row__name`.
+- The mocks draw "Request a booking" and "Message" on the card, which are slices 17.1 and 17.2; an inert button is a control that does nothing, so the card omits them (ADR 0051).
+- The mocks have no state for a category with nobody in it; it reuses the empty state, as Events does, and the ADR records the stand-in.
+- The listing entity has no public constructor (`Publish` is internal), so the cap test builds listings through `ProfessionalApplication.TryApprove`, the public way a listing is made, instead of widening the domain.
+- A Python edit script that wrote a file holding a non-ASCII tick failed on the Windows code page after it had already truncated the file; read and write with `encoding='utf-8'` and restore with `git checkout`.
+- Three shell heredocs holding an apostrophe failed to parse again; every file went through the Write tool.
+
+**New lessons**
+
+- A shell component added to the member navigation changes every spec that counts the bars' links: grep for the old list (`'Home', 'Events', 'Messages'`) and the item counts before running the suite.
+- One query serving both the row and the card needs no second request, so choosing a row is a navigation that changes only `?selected=`; only a new category asks again, and the page tracks that with one flag and the last category.
+- A date shown by month and year needs a table of cases at a month boundary in the community's zone (04:30 UTC on April 1 is April in Toronto, 03:30 is still March).
+- Initial bundle: web 280.30 kB (unchanged), admin 280.35 kB (unchanged); the page, its two components and the client are lazy.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 21.2): replacing the category filter with `true` failed exactly the one category test and passed again when restored; the browse spec failed all eleven cases before the page existed, each for the missing rows.
+- "Keep a list endpoint honest when capped" (21.1): `total` beside the 50 rows, proved with 52 listings.
+- "A fixture default for a new call" (15.1, 13.1, 21.1): `GET /api/services` answers nobody listed, so the apply spec that opens `/services` stays green.
+- "Count a slice's new specs against the CI budget" (24.1): eleven short specs in one file.
+- "Use the Edit and Write tools" (7.1 on): followed except for three heredoc commands that failed to parse.
+
+## Slice 16.2: Listing detail
+
+**What slowed it**
+
+- The web `main` grew 130 bytes with one more route (280.43 kB against 280.30). A barrel that re-exported both Services pages made it worse (280.77); letting the loader return a module's `default` export (`loadComponent: () => import('./pages/x')`) removes the `.then((m) => m.X)` of each route, so converting the new page and five existing ones brought it to 280.21 kB with no budget raised (ADR 0052).
+- No mock draws the screen; it is the `selected` card under the Event detail back link, recorded in the ADR.
+- Choosing between "card beside the list" and "its own screen" is a viewport rule, so the row's click handler asks `matchMedia('(min-width: 64rem)')` and the card beside the list is hidden below LG by CSS.
+- A shell heredoc holding Python with backslash-regexes warned on the Windows shell; small edits through scripts that assert every match worked.
+
+**New lessons**
+
+- Prefer `default` exports on routed components: the route is shorter and `main` is smaller, which is cheaper than raising a budget.
+- A barrel for two lazy pages can grow `main`; measure before sharing a loader.
+- A listing's own address must work on reload, so it asks for itself rather than reading the list's state.
+- Initial bundle: web 280.21 kB (280.30 before, -90 bytes), admin 280.35 kB (unchanged).
+
+**How earlier lessons worked**
+
+- "Compare the initial total against a build of the unchanged tree" (22.1) and "Bisect by stubbing" (21.1): the 130-byte route cost was seen at once.
+- "A fixture default for a new call" (15.1 on): `GET /api/services/{id}` answers 404 by default; no spec visits it without answering.
+- "Prove a rule red by breaking it alone": the new specs failed for the missing screen and the missing endpoint (a stub answering 404 for every id) before the code.
+- "Count a slice's new specs against the CI budget" (24.1): four short specs.
+
+## Slice 17.1: Message or contact
+
+**What slowed it**
+
+- The design assumed a `Conversation` entity and a nullable `ProfessionalMemberId`; the system has neither (a direct conversation is the pair of members, and every listing has its applicant's `MemberId`). "Linked" became "has no contact link", with a new nullable `ContactUrl`, and `startConversation` answers the professional's member id (ADR 0053).
+- A component output named `message` is a DOM event name and fails `no-output-native`; the outputs are `startMessage` and `openContact`.
+- A link that must not be in the page until chosen cannot be an anchor, so Contact is a button that asks, re-checks http or https and calls `window.open(..., 'noopener,noreferrer')`; a spec records `window.open` with an init script, so no request leaves localhost.
+- Shell heredocs holding C# or TypeScript with quotes failed to parse; every file went through the Write tool.
+
+**New lessons**
+
+- Add a stub that compiles (a domain method returning false) before the acceptance test, so the first red is for behaviour and not for a missing symbol.
+- One rule in both stacks (an http or https contact link) shares one table of rows; breaking the frontend check alone failed exactly the `ftp` row.
+- Listing and list rows serve a flag, never the link; the test searches the raw bodies for the host.
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged); the client methods, the contact class and the card's buttons ride in the lazy pages.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 to 16.2): ignoring the contact-link guard failed exactly the Message-refused test; restored, green.
+- "A fixture default for a new call" (15.1 on): the POST and the contact-link GET are answered by the specs that press the buttons; no default was needed, and `hasContactLink: false` joined every fixture listing.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+- "Prefer `default` exports" (16.2): no new route, so no growth.
+- "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.
+
+## Slice 17.2: Request a booking
+
+**What slowed it**
+
+- The design and L2 had no booking request at all (only Message and Contact); L2-014 gained AC3 to AC5 and ADR 0054 records the choice to deliver the request as a direct message with no new table or migration.
+- The services client returned raw `HttpErrorResponse`s, so the dialog could not branch on `recipient_unavailable`; the new client method maps errors with `apiErrorOf` like the applications client. The spec failed for exactly that before the fix.
+- A Python script that reopened a UTF-8 doc with the default Windows encoding emptied `journeys.detailed.md`; `git checkout` restored it. Pass `encoding='utf-8'` or use the Edit tool.
+- Shell heredocs holding quotes failed to parse again; files went through the Write tool.
+
+**New lessons**
+
+- Reuse a handler through MediatR (`ISender`) when a feature is a different front door to an existing action: the booking request reused the direct-message rules and refusals unchanged.
+- A stub handler returning an empty answer compiles under warnings-as-errors only with no unread constructor parameters, so the first red was for behaviour (12 of 13 failed, the 401 passed).
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged); the dialog and its code load on first use.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1): followed.
+- "Prove a rule red by breaking it alone": showing Request a booking for contact-link listings failed exactly the absence spec; restored.
+- "A fixture default for a new call" (15.1 on): the POST is answered by the specs that open the dialog; no default needed.
+- "Count a slice's new specs against the CI budget" (24.1): nine short specs in one file.
+
+## Slice 23.1: Edit a listing
+
+**What slowed it**
+
+- The listing editor mock was an "Add listing" drawer (a Massage category, a verification checkbox, no contact link), so two hand-written states, `edit` and `edit-invalid`, were added and the manifest, index and README updated by hand (ADR 0055). The mock table's initials ("ML") differ from the library avatar's rule ("MR"); the spec reads names and roles, not initials.
+- `forkJoin` in the page pushed 411 bytes of rxjs into `main` and took admin to 280.64 kB. Diffing `browser-stats.json` of the base and the change named it; `combineLatest`, already paid for by the Events page, restored 280.35 kB.
+- One rule had to live in two places (the contact link check in `ServiceListing.TrySetContactUrl` and the new validator), so it became one static method both call.
+- Shell heredocs holding quotes failed to parse again (a comment with an apostrophe emptied a whole command); files went through the Write tool and edits through scripts in the scratchpad.
+
+**New lessons**
+
+- A stub that compiles must not leave an unread constructor parameter (warnings are errors): the first stub handler dropped `IAppDbContext` and gained it back with the real code. The first red was for behaviour (13 of 20 failed; the refusals passed because the route already existed).
+- A bundle regression in an unrelated chunk shows in `main` inputs: diff `--stats-json` of the base (stash with `-u`, build, pop) against the change.
+- A theory that builds an account per row needs a unique email per row, not one per code (two rows shared a code and collided with 409).
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged); the dialog, its fields and the table rows ride in lazy chunks.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1, 17.2): followed.
+- "A fixture default for a new call" (15.1 on): `GET /api/admin/services/listings` got an empty default, so every earlier spec that opens Services still passes (428 specs).
+- "Prove a rule red": the e2e spec ran against the page without the section first and failed for the missing table before the section was restored.
+- "Use the Edit and Write tools" (7.1 on): followed except for the failed heredocs above.
+- "Count a slice's new specs against the CI budget" (24.1): ten short specs in one file; the full run took 1.6 minutes.
+
+## Slice 23.2: Remove a listing
+
+**What slowed it**
+
+- The design drew a soft delete (`IsPublished`, `RemovedAt`) the code never had, and every member call already reads the listing table, so a hard delete (ADR 0056) made all of them answer 404 with no filter to forget and no migration. The sequence and class diagrams still draw the soft delete; PlantUML is not installed here, so they were not re-rendered and the design README says to read them with the ADR.
+- No mock drew Remove, so a `remove-listing` dialog (default, busy, failed) was composed by hand from the edit mock and the cancel-event dialog, the Remove button was added to the Manage Services table mock rows, and the manifest, index and README were edited by hand.
+- The library `table` allowed one row action; it gained an optional `secondActionLabel` and `secondAction`.
+- A third separate `import()` in the Services page grew `main` by 90 bytes (admin 280.44 kB), whatever the module held (an empty module cost 160). Re-exporting `openRemoveListing` from the editor's lazy module, so the page imports both dialogs in one place, restored 280.35 kB. The cause inside esbuild's chunk graph was not found.
+- Rows behind an open dialog are hidden from role queries (the page is `aria-hidden`), so a spec cannot count them until the dialog closes; Escape pressed before the dialog has focus is lost, so a spec waits for "Keep listing" to be focused first.
+- Heredocs holding an apostrophe failed to parse again; files went through the Write tool and edit scripts through files in the scratchpad.
+
+**New lessons**
+
+- A stub handler that only returns, for an auditable command, fails with 500 (no audit entry recorded), which is a behavioural red: 3 of 4 failed and the Moderator refusal passed because the route and policy already existed.
+- When the design and the code disagree on soft or hard delete, check what every reader of the table does before choosing; the simpler delete removed a whole class of "forgot the filter" bugs and made AC5 of the Services list (a removed listing is not shown) true by construction, proved by the new API test.
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged).
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 23.1): followed; the first red was for behaviour in both stacks (the e2e specs failed to find the Remove button, the API tests got 500 for 204).
+- "A bundle regression shows in `main` inputs: diff `--stats-json` of the base" (23.1): used again; the diff showed only router and common noise, so bisecting by stubbing the import found the cause.
+- "A fixture default for a new call" (15.1 on): no default needed; the DELETE is answered by `answerListings`, which the specs that press Remove use.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+
+## Slice 8.2: Landing with professionals
+
+**What slowed it**
+
+- The landing mock drew no professionals list, so the four states were extended by hand (a Python edit of the four HTML files; `build_mocks.py` was not run) and the L2 acceptance criteria 5 to 7 and the design were added (ADR 0057).
+- `@defer` took web to 289.86 kB (a 9.6 kB runtime), `on idle` still 288.11 kB, and `viewChild` plus `ViewContainerRef` in the page 280.89 kB. Only a small directive using `inject(ElementRef)`, `inject(ViewContainerRef)` and an `IntersectionObserver` held 280.21 kB, so AGENTS.md's "`@defer` below the fold" was met in spirit (code and data load only near the viewport) and the departure is in the ADR.
+- The library avatar's initials for "Marcus Lee, RD" are "MR" (the last word), not the mock's "ML"; the fixture uses "Marcus Lee".
+- A 5xx opens the server-error screen, so the failure spec uses 404, as the events spec does.
+- Running `dotnet test` while the full Playwright run was going starved the browsers: four unrelated specs timed out and passed alone. Run the two apart.
+
+**New lessons**
+
+- The first use of `@defer` costs about 8 to 10 kB of `main` even in a lazy route; check the initial total before choosing it, and prefer queries-free `inject` of `ElementRef` and `ViewContainerRef` in a directive.
+- A stub query that compiles must read its constructor parameter (warnings are errors): the first red was for behaviour (empty list against three names).
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged).
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 23.2): followed; the e2e red was run with the component hidden from the template, four specs failing for the missing rows and messages.
+- "A bundle regression shows in `main` inputs" (23.1): the `_debug_node-chunk` size pointed at core runtime, not at the page.
+- "A fixture default for a new call" (15.1 on): the shared fixture answers `/api/public/services/featured` with an empty list; the whole suite (434 specs) was run.
+- "Count a slice's new specs against the CI budget" (24.1): four short specs in the landing file.
+
+## Slice 25.1: Report a message
+
+**What slowed it**
+
+- No mock drew a Report action or dialog, and the design left the reason's limit, the error codes and the repeat report (it said "returns success") `<TO SUPPLY>`. Five hand-written dialog states over the Messages thread, a `message__report` button in the thread mock and the design-system `message` page, L2-017 AC3 to AC6 and ADR 0058 settled them before code. `build_mocks.py` was not run; a Python script that asserted every match wrote only new mock files and edited the two thread mocks, the manifest, the index and the README in place.
+- The repeat report is refused `already_reported` (409), not answered with success: "never twice" and a dialog that must not claim a report was sent both need the code. The design's diagrams still show success; PlantUML is not installed here, so the README says to read them with the ADR.
+- The README matrix of dialogs has one column per state name, so the mock's "duplicate" state became `refused`, an existing column, rather than a new column in every row.
+- The library dialog's `successHeading` already draws the confirmation, so the design's toast was not built; the page needs no toast region and `main` did not grow (web 280.21 kB, admin 280.35 kB, both unchanged).
+- `dotnet ef migrations add` failed with the Api project as startup (it lacks the Design package); the Infrastructure project as startup worked.
+- A shared-fixture run of the whole suite under load failed three unrelated specs (home messages, landing, admin edit event) that passed alone; run again, not retried in CI.
+
+**New lessons**
+
+- A message id is enough to find which table a message is in when both tables use v7 GUIDs: one route `POST /api/messages/{id}/reports` served group and direct messages, and an unknown message and one outside the caller's conversations share `message_not_found` so the answer reveals nothing.
+- Reuse the status rule, not the endpoint: `Member.TryFlag` from 27.1 flags only an Active sender, so a Suspended sender stays suspended and a reinstated member is not flagged again by the same reporter (the repeat is refused first). The staff Members list then showed "Reported by a member" with no staff-side change.
+- A unique index on (reporter, message) guards the race, and the handler turns the `DbUpdateException` into `already_reported` only after checking the row exists, as `EmailTaken` does.
+- A slot-bearing dialog footer needs one `@if` per `[slot=foot]` node (NG8011), so a "finished" computed drives Done and the Cancel and Report pair separately.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 8.2): followed; the entity, `DbSet`, migration, controller and an empty handler existed first, so nine of ten API tests failed for behaviour (201 with no row, no flag), and the e2e run failed because no dialog opened.
+- "Prove a rule red by breaking it alone" (1.1 to 23.2): removing the `TryFlag` call failed four tests, removing the membership check failed only the outsider test, a logged reason failed both telemetry cases, and showing Report on my own message failed only the group spec; each undone.
+- "A class, not a record, for anything personal" (2.1, 27.1): the command and the body are classes; the telemetry test proves neither the reason nor the text reaches a span or log.
+- "Load a dialog by a dynamic `import()` of a file whose function opens it with the page's injector" (10.1): the dialog is a lazy chunk and the initial total did not move.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+
+## Slice 28.1: Community activity
+
+**What slowed it**
+
+- The mock drew April totals, not a weekly series, and the design left the length, the week rule and the endpoint `<TO SUPPLY>`. ADR 0059 settled eight Monday-start UTC weeks; the Community activity section was added to five mock states by a script that asserted its anchor once per file (`build_mocks.py` was not run), and the mock's `partial` state became this section's error.
+- The shell specs, the boot spec and L2-021 all expect an h1 "Dashboard", so the page keeps it rather than the mock's greeting.
+- A 5xx opens the server-error screen (8.2's lesson again), so the failing-request spec uses 404.
+- `FakeTimeProvider` cannot go back, and a staff session idles out after days of advance: the "new week" test advances before it signs in.
+- One full Playwright run failed one unrelated web spec (home, then landing) under load; each passed alone and in the next full run.
+
+**New lessons**
+
+- Staff accounts are members and join at the fake time, so every activity test counts Dana in the current week; the case table adds her instead of avoiding her.
+- Week boundaries need a case at each edge (Monday 00:00, the second before, the first week's start, the second before that, now, a later instant); removing the upper bound alone failed five cases.
+- A section rendered with library parts (table, skeleton region, empty state) cost no initial bundle: admin 280.32 kB, under 280.35 kB.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 25.1): followed; the handler returned no weeks, so 11 of 12 API tests failed for behaviour and all five e2e specs failed for the missing section.
+- "Prove a rule red by breaking it alone" (1.1 to 25.1): dropping the registrations' upper bound failed five cases; restored.
+- "A fixture default for a new call" (15.1 on): the shared fixture answers eight quiet weeks, so every admin spec that lands on the Dashboard stays green; the whole suite was run.
+- "Count a slice's new specs against the CI budget" (24.1): five short specs in one file.
+
+## Slice 28.2: Work awaiting staff
+
+**What slowed it**
+
+- The route-prefix policy (ADR 0020) admits a Moderator to the whole Dashboard area, so "no applications for a Moderator" could not be a route rule; the handler reads the caller's staff role and leaves the `applications` key out (ADR 0060), which the Moderator test proves by exact keys.
+- The mock's `queue` block has no design-system component, and "2 days ago" needs a clock. The rows became a page composite of library `list`, `button` and `link` parts with the page's own BEM block, and the line shows an absolute UTC day. The mock gained an `attention-error` state for this section's own failure.
+- The existing page object's `.empty-state` and `.error-state` locators matched both sections once the page held two; they were scoped to their section by its `aria-labelledby`.
+- A heading locator by role found the empty state's `h2` too; the section's title is found by id.
+- The shell tool refused long commands that mixed heredocs with quotes; files were written with the file tools instead.
+- Journeys 1, 6, 7, 11, 12, 14 and 24 had every slice done but stood unticked in `journeys.md`; they were reconciled with this last slice.
+
+**New lessons**
+
+- A section on a shared page fails and loads on its own: one subject and one signal per section, so Try again asks for that section alone, and a spec fails one request and checks the other section still shows.
+- Read a locator's text only after a count has waited for the rows to render; reading `evaluateAll` straight after `open()` raced the render.
+- A list whose second list shares a page (the "All N" links) must not match the row locator: rows are found by the row's own class.
+- Moderator absence is a contract rule: the API leaves the key out and the client treats a missing list as none, so no screen branches on a role name.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 28.1): followed; the stub answered nothing, so three of four API tests failed for the missing keys and all nine new e2e specs failed for the missing section, with the five older specs green.
+- "Prove a rule red by breaking it alone" (1.1 to 28.1): treating every role as a Moderator in the handler failed the Admin test alone; restored.
+- "A fixture default for a new call" (15.1 on): the shared fixture answers nothing waiting, so every admin spec that lands on the Dashboard stays green; the whole suite was run.
+- "Section rendered with library parts costs no initial bundle" (28.1): admin stayed at 280.32 kB.
+
+## Follow-up: offline flake and stale diagrams
+
+**What slowed it**
+
+- The offline specs failed about 1 run in 140 under load (`--repeat-each` with 8 or more workers), always the admin "navigating offline" spec, with `Failed to fetch dynamically imported module` for the offline screen's chunk. The shell warms that chunk with a fire-and-forget `import()` when it mounts online; the spec only waited for the Dashboard heading, so under load it called `setOffline(true)` while the chunk or its static imports were still downloading, the fixture then aborted them, and `/offline` could never open. Reproduced at 2 to 3 failures per 280 runs with 8 to 16 workers; none at 4 workers.
+- A first fix (wait until no static request is in flight) still failed: a chunk's own imports are requested only after it has been parsed, so the in-flight count reads zero between the chunk and its dependencies.
+- A second, rarer failure was a late `Failed to load resource: net::ERR_INTERNET_DISCONNECTED` console error logged after the spec had gone back online, which the fixture no longer treated as an answered request.
+- The other timeouts reported under load (forgot-password-refusals, home-messages, landing, remove-listing, edit-event) did not fail at 4 workers on a built app; they are machine load (Chromium and the dev server share the box with other work), not a timing assumption in the product.
+- A run of 16 workers on this machine was ten times slower than 8, so the stress was lowered rather than the machine blamed.
+
+**New lessons**
+
+- A warm-up the product starts must say when it is done: each shell sets `data-offline-ready` on its host once the offline chunk resolves, and the shared fixture waits for it before `context.setOffline(true)` (no sleep, no retry, assertion unchanged). Observing the network from outside cannot know the module graph is complete.
+- Judge a lazy-chunk race by the hashed chunk's content (`grep` the build for its text), not by guessing which route failed.
+- A browser console line about a refused request can arrive after the toggle back online; keep the allowance for the whole test once it has gone offline, never for a spec that did not.
+- Re-rendering PlantUML is part of the slice that changes the behaviour: five diagrams and two README caveats ("read with ADR ...") went stale because PlantUML was not installed at the time; `java -jar C:\tools\plantuml.jar -charset UTF-8` via `render_puml.py` works.
+
+**How earlier lessons worked**
+
+- "Warm the offline chunk while online" (30.2): right, but only half: it needs an observable completion.
+- "A heavy parallel run failed unrelated offline specs" (21.1): that was this race, not an unrelated cause.

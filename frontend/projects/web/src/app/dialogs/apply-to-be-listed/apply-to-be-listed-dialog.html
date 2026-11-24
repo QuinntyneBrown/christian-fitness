@@ -1,0 +1,107 @@
+<form class="apply-to-be-listed" novalidate (submit)="send($event)">
+  <cf-dialog
+    [heading]="sent() ? 'Application sent' : 'Apply to be listed'"
+    titleId="dlg-title"
+    descriptionId="dlg-desc"
+    [subtitle]="sent() ? undefined : 'Share who you are and how you help members.'"
+    [successHeading]="sent() ? 'Application sent' : undefined"
+    [successText]="
+      sent()
+        ? 'Thanks. Our team will review your application and you\'ll hear from us in your messages.'
+        : undefined
+    "
+    (closed)="dismiss()"
+  >
+    <cf-form-layout>
+      @if (summary().length) {
+        <cf-alert slot="alert" heading="Check your application" [items]="summary()" />
+      }
+      @if (!summary().length && refusal() === 'pending') {
+        <cf-alert slot="alert" heading="You already have an application"
+          ><p>
+            Our team is still reviewing it. You can apply again once it has been decided.
+          </p></cf-alert
+        >
+      }
+      @if (!summary().length && refusal() === 'failed') {
+        <cf-alert slot="alert" heading="Your application didn't send"
+          ><p>Nothing was lost. Check your connection and send it again.</p></cf-alert
+        >
+      }
+      <cf-text-field
+        fieldId="f-role"
+        label="Role"
+        name="role"
+        [value]="values().role"
+        [error]="fieldErrors().role"
+        [readonly]="sending()"
+        (valueChange)="edit('role', $event)"
+      />
+      <cf-select
+        fieldId="f-category"
+        label="Category"
+        name="category"
+        [options]="categories"
+        [value]="values().category"
+        [disabled]="sending()"
+        (valueChange)="choose($event)"
+      />
+      <cf-text-field
+        fieldId="f-credentials"
+        label="Credentials"
+        name="credentials"
+        [value]="values().credentials"
+        [error]="fieldErrors().credentials"
+        [readonly]="sending()"
+        (valueChange)="edit('credentials', $event)"
+      />
+      <cf-form-layout layout="grid">
+        <cf-text-field
+          fieldId="f-where"
+          label="Where"
+          name="where"
+          [value]="values().where"
+          [error]="fieldErrors().where"
+          [readonly]="sending()"
+          (valueChange)="edit('where', $event)"
+        />
+        <cf-text-field
+          fieldId="f-price"
+          label="Price"
+          name="price"
+          [value]="values().price"
+          [error]="fieldErrors().price"
+          [readonly]="sending()"
+          (valueChange)="edit('price', $event)"
+        />
+      </cf-form-layout>
+      <cf-textarea
+        fieldId="f-about"
+        label="About"
+        name="about"
+        rows="3"
+        hint="A sentence or two for members"
+        [value]="values().about"
+        [error]="fieldErrors().about"
+        [readonly]="sending()"
+        (valueChange)="edit('about', $event)"
+      />
+      <p class="apply-to-be-listed__note">
+        Our team reviews every application before anyone is listed.
+      </p>
+    </cf-form-layout>
+    @if (sent()) {
+      <cf-button slot="foot" grow (click)="dismiss()">Done</cf-button>
+    }
+    @if (!sent()) {
+      <cf-button slot="foot" variant="secondary" grow [disabled]="sending()" (click)="dismiss()"
+        >Cancel</cf-button
+      >
+    }
+    @if (!sent()) {
+      <cf-button slot="foot" type="submit" grow [disabled]="sending()" [busy]="sending()">{{
+        sending() ? 'Sending…' : 'Send application'
+      }}</cf-button>
+    }
+  </cf-dialog>
+</form>

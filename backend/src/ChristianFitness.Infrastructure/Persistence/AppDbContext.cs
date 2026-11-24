@@ -2,6 +2,7 @@ using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<ChatReadMarker> ChatReadMarkers => Set<ChatReadMarker>();
     public DbSet<DirectMessage> DirectMessages => Set<DirectMessage>();
+    public DbSet<MessageReport> MessageReports => Set<MessageReport>();
+
+    public DbSet<ProfessionalApplication> ProfessionalApplications => Set<ProfessionalApplication>();
+
+    public DbSet<ServiceListing> ServiceListings => Set<ServiceListing>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 

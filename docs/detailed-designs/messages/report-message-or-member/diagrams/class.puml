@@ -20,31 +20,32 @@ class Member {
   +Guid Id
   +string DisplayName
   +MemberStatus Status
-  +Flag(): void
+  +TryFlag(note: string): bool
 }
 class Message {
   +Guid Id
   +Guid ConversationId
   +Guid SenderId
 }
-class Report {
+class MessageReport {
   +Guid Id
   +Guid ReporterId
   +Guid MessageId
-  +Guid ReportedMemberId
+  +Guid SenderId
   +string Reason
   +DateTimeOffset CreatedAt
 }
-note right of Report : Unique (ReporterId, MessageId)
+note right of MessageReport : Unique (ReporterId, MessageId)
 class ReportMessageCommand {
   +Guid MessageId
   +string Reason
 }
 class ReportMessageValidator {
-  Reason required, length <TO SUPPLY>
+  Reason optional, at most 500 characters (field_too_long)
 }
 class ReportMessageHandler {
-  +Handle(cmd: ReportMessageCommand): Task<ReportResult>
+  +Handle(cmd: ReportMessageCommand): Task<Result>
+  message_not_found 404, cannot_report_own_message 403, already_reported 409
 }
 class ReportsController {
   +Report(messageId, body): Task<IActionResult>
@@ -56,14 +57,14 @@ class HttpReportsService
 class ReportMessageDialog
 
 Member --> MemberStatus
-Report --> Message : about
-Report --> Member : reported member
+MessageReport --> Message : about
+MessageReport --> Member : sender
 Message --> Member : sender
 ReportsController ..> ReportMessageCommand : sends
 ReportMessageHandler ..> ReportMessageCommand : handles
 ReportMessageHandler ..> ReportMessageValidator : validates
-ReportMessageHandler ..> Report : creates once
-ReportMessageHandler ..> Member : Flag()
+ReportMessageHandler ..> MessageReport : creates once
+ReportMessageHandler ..> Member : TryFlag()
 HttpReportsService ..|> ReportsApi
 ReportMessageDialog ..> ReportsApi : REPORTS_SERVICE
 @enduml

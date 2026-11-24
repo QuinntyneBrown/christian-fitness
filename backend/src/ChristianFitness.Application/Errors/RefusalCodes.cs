@@ -18,6 +18,15 @@ public static class RefusalCodes
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
     public const string EventNotFound = "event_not_found";
 
+    /// <summary>The listing asked for does not exist (L2-013 AC4; ADR 0000).</summary>
+    public const string ServiceNotFound = "service_not_found";
+
+    /// <summary>The listing publishes a contact link, so Message is not offered (L2-014 AC2; ADR 0053).</summary>
+    public const string ProfessionalNotLinked = "professional_not_linked";
+
+    /// <summary>The listing has no contact link to open (L2-014 AC2; ADR 0053).</summary>
+    public const string ContactLinkNotFound = "contact_link_not_found";
+
     /// <summary>Only a draft event can be published (L2-023 AC4; ADR 0026).</summary>
     public const string EventNotDraft = "event_not_draft";
 
@@ -94,6 +103,27 @@ public static class RefusalCodes
 
     /// <summary>A profile names more than 5 goals (L2-006 AC3).</summary>
     public const string TooManyGoals = "too_many_goals";
+
+    /// <summary>The member already has a Pending professional application (L2-026 AC2; ADR 0048).</summary>
+    public const string ApplicationPending = "application_pending";
+
+    /// <summary>A suspended member tried to apply to be listed (L2-026; ADR 0048).</summary>
+    public const string MemberSuspended = "member_suspended";
+
+    /// <summary>The application staff tried to decide does not exist (L2-025; ADR 0050).</summary>
+    public const string ApplicationNotFound = "application_not_found";
+
+    /// <summary>The application staff tried to decide was already approved or declined (L2-025; ADR 0050).</summary>
+    public const string ApplicationDecided = "application_decided";
+
+    /// <summary>The caller reported their own message (L2-017 AC5; ADR 0058).</summary>
+    public const string CannotReportOwnMessage = "cannot_report_own_message";
+
+    /// <summary>The message does not exist or is not in a conversation the caller belongs to (L2-017 AC5; ADR 0058).</summary>
+    public const string MessageNotFound = "message_not_found";
+
+    /// <summary>The caller already reported this message (L2-017 AC2, AC5; ADR 0058).</summary>
+    public const string AlreadyReported = "already_reported";
 
     /// <summary>A body failed validation for any other reason (L2-032 AC1).</summary>
     public const string ValidationFailed = "validation_failed";

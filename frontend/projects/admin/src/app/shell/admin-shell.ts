@@ -16,6 +16,7 @@ import { filter } from 'rxjs';
  */
 @Component({
   selector: 'cf-admin-shell',
+  host: { '[attr.data-offline-ready]': 'offlineReady() ? "" : null' },
   imports: [AdminLayout, Banner, RouterOutlet],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.scss',
@@ -31,9 +32,13 @@ export class AdminShell {
   protected readonly staff = signal<StaffSessionDto | null>(null);
   protected readonly initials = signal('');
   protected readonly signingOut = signal(false);
+  /** True once the offline screen's lazy chunk is loaded, so it can open with no network. */
+  protected readonly offlineReady = signal(false);
 
   constructor() {
-    if (this.network.online()) void import('../pages/offline/offline-page');
+    if (this.network.online()) {
+      void import('../pages/offline/offline-page').then(() => this.offlineReady.set(true));
+    }
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),

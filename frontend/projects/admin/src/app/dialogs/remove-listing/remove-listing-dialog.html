@@ -1,0 +1,22 @@
+<cf-dialog
+  heading="Remove this listing?"
+  titleId="dlg-title"
+  [subtitle]="subtitle"
+  (closed)="keep()"
+>
+  @if (failed()) {
+    <cf-alert heading="Couldn't remove the listing"
+      ><p>It is still on Services. Try again in a moment.</p></cf-alert
+    >
+  }
+  <p class="remove-listing__text">
+    It leaves Services for members. Conversations they already have with this professional stay.
+    This can't be undone.
+  </p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="removing()" (click)="keep()"
+    >Keep listing</cf-button
+  >
+  <cf-button slot="foot" grow [disabled]="removing()" [busy]="removing()" (click)="remove()">{{
+    removing() ? 'Removing…' : 'Remove listing'
+  }}</cf-button>
+</cf-dialog>

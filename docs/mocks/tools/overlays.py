@@ -117,6 +117,82 @@ def _():
 
 
 # ===========================================================================
+# Apply to be listed (member · Services; L2-026)
+# ===========================================================================
+APPLY_CATEGORIES = ["Training", "Nutrition", "Physio", "Coaching", "Counselling"]
+
+
+def apply_listed(*, invalid=False, busy=False, failed=False, pending=False) -> str:
+    alert = ""
+    if invalid:
+        alert = error_summary("Check your application", [("Enter your role, such as Personal trainer", "f-role"),
+                                                         ("Tell members about your credentials", "f-credentials")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if pending:
+        alert = form_alert("You already have an application", "Our team is still reviewing it. You can apply again once it has been decided.").replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Your application didn't send", "Nothing was lost. Check your connection and send it again.")
+    ro = busy
+    role = "" if invalid else "Personal trainer"
+    cred = "" if invalid else "NSCA-CPT, 8 years coaching"
+    body = f"""    {alert}
+    {field("Role", "role", role, error="Enter your role, such as Personal trainer" if invalid else "", readonly=ro)}
+    {select("Category", "category", APPLY_CATEGORIES, "Training", disabled=busy)}
+    {field("Credentials", "credentials", cred, error="Tell members about your credentials" if invalid else "", readonly=ro)}
+    <div class="field-grid">
+      {field("Where", "where", "Mississauga", readonly=ro)}
+      {field("Price", "price", "$70 / session", readonly=ro)}
+    </div>
+    {textarea("About", "about", "I help busy parents build strength without burning out.", rows=3, hint="A sentence or two for members", readonly=ro)}
+    <p class="field__hint">Our team reviews every application before anyone is listed.</p>"""
+    send = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
+            else '<button class="btn btn--primary btn--grow" type="submit" data-mock-href="success.html">Send application</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{" disabled" if busy else ""} data-mock-href="{href("services")}">Cancel</button>\n    {send}'
+    html = dialog("Apply to be listed", body, foot, sub="Share who you are and how you help members.")
+    if not (invalid or pending):
+        html = autofocus_first(html, 'id="f-role"')
+    return over_member("services", services_page_okafor(), html)
+
+
+s = screen("apply-to-be-listed", "dialog", "Apply to be listed", opens_from="services",
+           source="Derived: the Services frame's \"Apply to be listed\" button (L2-026).")
+
+
+@s("default", "Role, category, credentials, where, price and about; focus on the first field.")
+def _():
+    return apply_listed()
+
+
+@s("invalid", "Role and credentials left empty: summary focused, inline errors, nothing sent.")
+def _():
+    return apply_listed(invalid=True)
+
+
+@s("busy", "Send application pressed: busy, Cancel disabled, no second submit.")
+def _():
+    return apply_listed(busy=True)
+
+
+@s("refused", "A pending application exists (code application_pending): message at the top, details kept.")
+def _():
+    return apply_listed(pending=True)
+
+
+@s("failed", "Sending failed: message at the top, everything typed kept.")
+def _():
+    return apply_listed(failed=True)
+
+
+@s("success", "Sent: what happens next.")
+def _():
+    body = f"""    <div class="dialog__success" role="status">
+      <span class="dialog__success-icon">{icon("check", "icon--lg")}</span>
+      <p class="lead">Thanks. Our team will review your application and you'll hear from us in your messages.</p>
+    </div>"""
+    foot = f'    <button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("services")}" autofocus>Done</button>'
+    return over_member("services", services_page_okafor(), dialog("Application sent", body, foot))
+
+
+# ===========================================================================
 # Edit profile (member · Profile)
 # ===========================================================================
 BIO_MAX = 300
@@ -596,6 +672,67 @@ def _():
 @s("refused", "Staff chose their own row: the API refuses with cannot_moderate_self and the dialog says so.")
 def _():
     return moderate(refused=True)
+
+
+# ===========================================================================
+# Decline an application (admin · Manage services; L2-025 AC3)
+# ===========================================================================
+DECLINE_APPLICANT = next(x for x in A.APPLICATIONS if x["id"] == "a3")
+
+
+def decline_application(*, invalid=False, busy=False, failed=False, decided=False) -> str:
+    """The reason a decline needs (L2-025 AC3; ADR 0000): required, at most 500 characters, kept
+    for staff and never sent to the applicant."""
+    a = DECLINE_APPLICANT
+    reason_err = "Write a reason for declining" if invalid else ""
+    alert = ""
+    if invalid:
+        alert = error_summary("1 thing to fix", [(reason_err, "f-reason")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Couldn't decline the application", "The server didn't respond. Nothing was lost; try again.")
+    if decided:
+        alert = form_alert("This application was already decided", "Someone else approved or declined it. Close this to see the queue as it is now.")
+    typed = "" if invalid else "We could not verify the CDO registration number you gave."
+    body = f"""    {alert}
+    {textarea("Reason", "reason", typed, rows=3, error=reason_err,
+              hint=f"Staff keep this on file. The applicant is not sent it. {500 - len(typed)} characters left.", readonly=busy)}"""
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Declining…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-services", "decided")}">Decline application</button>')
+    d = " disabled" if busy else ""
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-services")}">Cancel</button>\n    {go}'
+    html = dialog(f"Decline {a['name']}", body, foot, sub=f"{a['role']} · {a['credentials']}")
+    if not (invalid or failed or decided or busy):
+        html = autofocus_first(html, 'id="f-reason"')
+    return over_admin("admin-services", A.manage_services(A.application_cards(), "3"), html)
+
+
+s = screen("decline-application", "dialog", "Decline an application", opens_from="admin-services", group="Admin console",
+           source="Derived: the Manage Services frame's Decline button; the prototype draws no reason field (L2-025 AC3; ADR 0050).")
+
+
+@s("default", "Decline Lena Park, RD: a reason to write; focus on the field.")
+def _():
+    return decline_application()
+
+
+@s("invalid", "Decline pressed with no reason: summary focused, the field named.")
+def _():
+    return decline_application(invalid=True)
+
+
+@s("busy", "Decline application pressed: busy, the field holds still, Cancel disabled.")
+def _():
+    return decline_application(busy=True)
+
+
+@s("failed", "Declining failed: message at the top, the reason kept.")
+def _():
+    return decline_application(failed=True)
+
+
+@s("refused", "Someone already decided it (code application_decided): the dialog says so.")
+def _():
+    return decline_application(decided=True)
 
 
 # ===========================================================================

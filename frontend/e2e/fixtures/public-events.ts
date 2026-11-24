@@ -29,3 +29,44 @@ export function answerLanding(
   });
   return seen;
 }
+
+/** A professional as `GET /api/public/services/featured` answers it: public fields only. */
+export const FEATURED_THREE = [
+  {
+    name: 'Danielle Okafor',
+    role: 'Personal trainer',
+    category: 'Training',
+    where: 'East York',
+    price: 'From $70 / session',
+  },
+  {
+    name: 'Marcus Lee',
+    role: 'Registered dietitian',
+    category: 'Nutrition',
+    where: 'Ontario-wide',
+    price: '$95 first consult',
+  },
+  {
+    name: 'Rachel Adeyemi',
+    role: 'Physiotherapist',
+    category: 'Physio',
+    where: 'Etobicoke',
+    price: '$110 / visit',
+  },
+];
+
+/** Answers the landing page's professionals request with `professionals`, or with `status` when it is not 200. */
+export function answerFeatured(
+  api: ApiHandlers,
+  professionals: Record<string, string>[],
+  status = 200,
+): { asked: number } {
+  const seen = { asked: 0 };
+  api.on('GET', '/api/public/services/featured', () => {
+    seen.asked += 1;
+    return status === 200
+      ? { json: professionals }
+      : { status, headers: { 'content-type': 'application/problem+json' }, json: { status } };
+  });
+  return seen;
+}

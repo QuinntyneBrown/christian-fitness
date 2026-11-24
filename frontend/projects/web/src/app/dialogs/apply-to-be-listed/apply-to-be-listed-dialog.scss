@@ -1,0 +1,12 @@
+// The dialog's layout is the library's: `cf-dialog` draws the scrim and the panel, and
+// `cf-form-layout` spaces the fields and pairs Where with Price (`field-grid`). The form only
+// groups them, so Enter in a field submits.
+:host {
+  display: block;
+}
+
+// The closing note under the fields: the design system's `field__hint` type (muted, small).
+.apply-to-be-listed__note {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

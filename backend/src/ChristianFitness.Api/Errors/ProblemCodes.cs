@@ -1,6 +1,7 @@
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Events;
 using ChristianFitness.Application.Members;
+using ChristianFitness.Application.Services;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,7 +73,7 @@ public static class ProblemCodes
             Extensions = { ["code"] = CodeFor(list.Select(failure => failure.ErrorCode)) },
         };
         var fieldCodes = list
-            .Where(failure => EventFieldCodes.All.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode))
+            .Where(failure => EventFieldCodes.All.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode) || DecideApplicationRules.FieldCodes.Contains(failure.ErrorCode) || ListServicesRules.FieldCodes.Contains(failure.ErrorCode) || EditListingRules.FieldCodes.Contains(failure.ErrorCode))
             .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First().ErrorCode, StringComparer.Ordinal);
         if (fieldCodes.Count > 0)

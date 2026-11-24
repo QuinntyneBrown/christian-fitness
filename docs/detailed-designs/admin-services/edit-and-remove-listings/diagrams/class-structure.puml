@@ -20,11 +20,12 @@ class ServiceListing {
   +string Price
   +string Where
   +string About
-  +bool IsPublished
   +DateTimeOffset VerifiedAt
-  +DateTimeOffset? RemovedAt
   +Update(fields): void
-  +Remove(at: DateTimeOffset): void
+}
+note right of ServiceListing : Removal deletes the row (ADR 0000); no IsPublished or RemovedAt
+class AuditEntry {
+  +string Action = "listing.removed"
 }
 class Conversation {
   +Guid Id
@@ -68,5 +69,7 @@ UpdateListingHandler ..> UpdateListingCommand : handles
 RemoveListingHandler ..> RemoveListingCommand : handles
 UpdateListingHandler --> IAppDbContext
 RemoveListingHandler --> IAppDbContext
+RemoveListingHandler ..> ServiceListing : deletes
+RemoveListingHandler ..> AuditEntry : records listing.removed
 ListingEditorDialog --> AdminServicesApi : ADMIN_SERVICES_SERVICE
 @enduml

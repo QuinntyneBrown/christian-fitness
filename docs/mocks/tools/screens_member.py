@@ -921,6 +921,7 @@ def services_page(body: str, active: str = "All") -> str:
     return f"""    <div class="container page">
       <h1 class="display page-title">Services</h1>
       <p class="subtitle subtitle--narrow">Christian professionals, each one checked and listed by our team.</p>
+      <p><button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("apply-to-be-listed")}">Apply to be listed</button></p>
       {svc_chips(active)}
 {body}
     </div>"""

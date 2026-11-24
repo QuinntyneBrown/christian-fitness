@@ -29,19 +29,50 @@ it. Admins and Moderators both see it.
   no-tracking queries through `IAppDbContext`: total members, members created in the 7-day window,
   upcoming events, registrations created in the 7-day window, pending applications and flagged
   members. It also returns the first pending items and the next upcoming events; the list sizes
-  are `<TO SUPPLY>`.
+  are three (ADR 0000).
 - **`DashboardSummaryDto`** — numeric fields only (`TotalMembers`, `NewMembers7d`,
   `UpcomingEvents`, `Registrations7d`, `PendingApplications`, `FlaggedMembers`) plus the two lists.
 
+### Community activity (slice 28.1, ADR 0059)
+
+- **`GET /api/admin/dashboard/activity`** — in `AdminDashboardController` under the Dashboard area, so
+  Admins and Moderators both read it; one MediatR send of `GetCommunityActivityQuery`.
+- **`GetCommunityActivityHandler`** — reads `TimeProvider` and counts, for each of the last eight
+  weeks, members by `JoinedAt`, registrations by `CreatedAt` and chat plus direct messages by `SentAt`
+  through `IAppDbContext`; it loads no row, so no name, address or message text is read.
+- **Weeks** — Monday 00:00 UTC to the next Monday; the eighth is the current week, to now. The answer
+  is `{ weeks: [{ start, newMembers, registrations, messages }] }`, oldest first.
+- **Screen** — `AdminDashboardPage` heads the page "Dashboard" and shows "Community activity" as the
+  library `table` (Week of, New members, Registrations, Messages), newest week first, the current one
+  "(this week)". States: loading (skeleton rows), empty ("No activity yet"), error ("Activity didn't
+  load", Try again; the mock's `partial` state). `activityRowsOf` and `hasActivity` in `domain` shape
+  the rows. The rest of the mock's sections are slice 28.2's.
+
+### Work awaiting staff (slice 28.2, ADR 0060)
+
+- **`GET /api/admin/dashboard/awaiting`** — in `AdminDashboardController` under the Dashboard area; one
+  MediatR send of `GetWorkAwaitingStaffQuery`. Admins and Moderators both read it, and the handler reads
+  the caller's staff role through `StaffRoles`.
+- **`GetWorkAwaitingStaffHandler`** — counts Pending applications and Flagged members and names the oldest
+  three of each (`Shown` = 3): applications by `SubmittedAt`, flagged members by `JoinedAt`, then id. For
+  a Moderator it reads no application and the answer has no `applications` key.
+- **Answer** — `{ applications?: { total, items: [{ id, name, role, submittedAt }] }, flaggedMembers:
+  { total, items: [{ id, name, note }] } }`; nothing else, so no email, church or credentials.
+- **Screen** — "Needs attention" above "Community activity": the library `list` (card) of rows with a
+  Review `button` link (`/services`, `/members?status=flagged`), "All N" text links when more wait, and
+  its own loading (skeleton), empty ("You're all caught up") and error ("Work waiting didn't load", Try
+  again) states, apart from the activity section's. `awaitingRowsOf`, `awaitingTotalOf` and
+  `awaitingMoreOf` in `domain` shape the rows. The mock's extra state is `attention-error`.
+
 A failed request shows the generic error with Try again, which repeats `getSummary()`. The mock
 labels "+86 joined in April", "Registrations, April" and shows "Live listings"; `L2-020` asks for
-7-day counts and no listing count, so the mock copy is to be aligned `<TO SUPPLY>`.
+7-day counts and no listing count, so the mock copy is to be aligned when the totals are built (ADR 0060 leaves them out).
 
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-020` | `L1-009` | Given staff on the Dashboard, when it loads, then it shows total members, new members in the last 7 days, upcoming events, registrations in the last 7 days, pending applications and flagged members. Given pending applications or flagged members, when the Dashboard loads, then each shows a link to the screen that resolves it. Given the dashboard request fails, when it loads, then a generic error with Try again is shown. |
+| `L2-020` | `L1-009` | AC4 to AC6 (slice 28.1): the weekly community activity, its empty state and its error. AC7 to AC10 (slice 28.2): the work awaiting staff, a Moderator's flagged-only answer, its empty state and its error. Given staff on the Dashboard, when it loads, then it shows total members, new members in the last 7 days, upcoming events, registrations in the last 7 days, pending applications and flagged members. Given pending applications or flagged members, when the Dashboard loads, then each shows a link to the screen that resolves it. Given the dashboard request fails, when it loads, then a generic error with Try again is shown. |
 
 ## Diagrams
 

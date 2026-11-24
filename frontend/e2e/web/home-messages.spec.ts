@@ -152,7 +152,7 @@ test.describe('Member app, unread messages on Home', () => {
     expect(asked.asked).toBe(2);
   });
 
-  test('Below MD the bottom bar shows Home, Events, Messages and Profile with unread text and 44 px targets', async ({
+  test('Below MD the bottom bar shows Home, Events, Services, Messages and Profile with unread text and 44 px targets', async ({
     page,
     api,
   }) => {
@@ -164,7 +164,7 @@ test.describe('Member app, unread messages on Home', () => {
     await home.open();
 
     await expect(home.mobileNav).toBeVisible();
-    await expect(home.mobileItems).toHaveCount(4);
+    await expect(home.mobileItems).toHaveCount(5);
     await expect(home.mobileCurrentItem).toHaveText('Home');
     await expect(home.mobileMessagesLink).toHaveAccessibleName('Messages, 4 unread');
     const boxes = await home.mobileItems.evaluateAll((links) =>

@@ -16,6 +16,7 @@
       [loadingEarlier]="loadingEarlier()"
       (loadEarlier)="loadEarlier()"
       (retry)="retrySend($event)"
+      (report)="report($event)"
     />
     @if (earlierFailed()) {
       <p class="chat-page__error" role="alert">

@@ -1,0 +1,96 @@
+// The selected professional's card (docs/design-system/assets/components.css, "Services":
+// service-detail, verified, sticky-aside). The surface is the library's card.
+:host {
+  display: block;
+  align-self: start;
+}
+
+@media (min-width: 64rem) {
+  :host {
+    position: sticky;
+    top: var(--layout-sticky-offset);
+  }
+}
+
+.service-detail__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.service-detail__title,
+.service-detail__lines {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.service-detail__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.service-detail__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.service-detail__role {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.service-detail__name {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-none);
+  overflow-wrap: anywhere;
+}
+
+.service-detail__where {
+  margin-top: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.service-detail__about {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  overflow-wrap: anywhere;
+}
+
+.service-detail__verified {
+  margin-top: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.service-detail__icon {
+  flex-shrink: 0;
+}
+
+.service-detail__verified .service-detail__icon {
+  color: var(--color-fg-accent);
+}
+
+.service-detail__problem {
+  margin-top: var(--space-5);
+}
+
+.service-detail__actions {
+  margin-top: var(--space-5);
+  display: flex;
+  gap: var(--space-3);
+}

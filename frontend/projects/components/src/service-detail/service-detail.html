@@ -1,0 +1,63 @@
+@if (loading()) {
+  <cf-card>
+    <div class="service-detail__skeleton">
+      <div class="service-detail__head">
+        <cf-skeleton shape="avatar-2xl" />
+        <div class="service-detail__lines">
+          <cf-skeleton shape="text-sm" width="40" />
+          <cf-skeleton shape="title" />
+        </div>
+      </div>
+      <cf-skeleton width="90" />
+      <cf-skeleton width="80" />
+      <cf-skeleton shape="button-block" />
+    </div>
+  </cf-card>
+} @else {
+  <cf-card element="article" labelledBy="service-detail-name">
+    <div class="service-detail__head">
+      <cf-avatar [name]="name()" size="2xl" />
+      <div class="service-detail__title">
+        <p class="service-detail__role">{{ role() }}</p>
+        <h2 class="service-detail__name" id="service-detail-name">{{ name() }}</h2>
+        <p class="service-detail__where">
+          <svg class="icon service-detail__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+            />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          {{ where() }}
+        </p>
+      </div>
+    </div>
+    <p class="service-detail__about">{{ about() }}</p>
+    <cf-description-list variant="spec" [items]="facts()" />
+    <p class="service-detail__verified">
+      <svg class="icon service-detail__icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
+        />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+      {{ verified() }}
+    </p>
+    @if (problem()) {
+      <div class="service-detail__problem">
+        <cf-alert [heading]="problem()" />
+      </div>
+    }
+    <div class="service-detail__actions">
+      @if (hasContactLink()) {
+        <cf-button variant="secondary" size="md" grow [busy]="busy()" (click)="openContact.emit()"
+          >Contact</cf-button
+        >
+      } @else {
+        <cf-button size="md" grow (click)="requestBooking.emit()">Request a booking</cf-button>
+        <cf-button variant="secondary" size="md" grow [busy]="busy()" (click)="startMessage.emit()"
+          >Message</cf-button
+        >
+      }
+    </div>
+  </cf-card>
+}

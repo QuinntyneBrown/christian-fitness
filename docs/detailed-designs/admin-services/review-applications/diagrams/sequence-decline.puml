@@ -32,11 +32,11 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 actor -> page : Decline with a reason
 page -> client : decline(id, reason)
-client -> ctrl : POST /api/admin/applications/{id}/decline
+client -> ctrl : POST /api/admin/services/applications/{id}/decline
 ctrl -> ctrl : Authenticate and apply AdminOnly policy
 ctrl -> val : Validate DeclineApplicationCommand
-alt reason missing
-  val --> ctrl : 400 ProblemDetails with code and field errors
+alt reason missing or over 500 characters
+  val --> ctrl : 400 ProblemDetails, fieldCodes.reason
   ctrl --> client : 400
   client --> page : Error code
   page --> actor : Generic message
@@ -44,13 +44,13 @@ else valid
   ctrl -> h : Send DeclineApplicationCommand
   h -> db : Load application
   db --> h : Application
-  h -> ent : Decline(reason, now)
-  ent --> h : Status Declined; no listing created (L2-025 AC3)
-  h -> db : Save changes
+  h -> ent : TryDecline(reason, now)
+  ent --> h : Status Declined, reason kept; no listing created (L2-025 AC3); a decided application answers 409 application_decided
+  h -> db : Record audit entry (no reason) and save changes
   db --> h : Committed
   h --> ctrl : Success
-  ctrl --> client : 204 No Content
+  ctrl --> client : 200 ApplicationDecisionDto (declined)
   client --> page : Done
-  page --> actor : Row shows "Declined"; application leaves the queue
+  page --> actor : Card shows "Declined"; the count falls
 end
 @enduml

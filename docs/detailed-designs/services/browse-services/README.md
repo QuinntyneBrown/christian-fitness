@@ -2,7 +2,7 @@
 
 ## Overview
 
-Christian Fitness connects members with Christian professionals the team has vetted: trainers, dietitians, physios, coaches and counsellors. A *listing* is the published profile of one professional, created when staff approve an application. The services subsystem lets members browse listings by category and contact a professional (`L1-006`).
+Christian Fitness connects members with Christian professionals the team has vetted: trainers, dietitians, physios, coaches and counsellors. A _listing_ is the published profile of one professional, created when staff approve an application. The services subsystem lets members browse listings by category and contact a professional (`L1-006`).
 
 - **listing** — staff-approved, published profile of one professional (`ServiceListing`)
 - **service category** — one of Training, Nutrition, Physio, Coaching, Counselling
@@ -26,6 +26,14 @@ The feature is a vertical slice from the Services screen to the database.
 - **`ListServicesHandler / GetServiceHandler`** — return listings where `Status == Published`, excluding removed listings, filtered by category. A removed or unknown id yields 404 code `<TO SUPPLY>`.
 - **`ServiceListing`** — domain entity with `Name`, `Role`, `Category`, `Where`, `Price`, `PhotoUrl`, `Credentials`, `About`, `IsVerified`, `Status` and an optional `ProfessionalMemberId`.
 
+### Slice 16.1 (ADR 0000)
+
+`GET /api/services?category=` answers `{ total, services }`, name order, at most 50 (no paging), and refuses an unknown category with `category_invalid`. The Services page keeps its state in `?category=` and `?selected=`; below LG the card follows the list in the page, and the separate `/services/:id` screen of `ServiceDetailPage` and `GetServiceHandler` arrive with slice 16.2. The card's contact action arrives with slices 17.1 and 17.2.
+
+### Slice 16.2 (ADR 0052)
+
+`GET /api/services/{id}` answers the listing or 404 `service_not_found`. `ServiceDetailPage` at `/services/:id?category=` shows the `ServiceDetail` card with a back link to `/services` in that category. From LG a row changes `?selected=` and the card shows beside the list; below LG the card is hidden and a row opens the screen.
+
 ### Open questions
 
 - The viewport choice between side-by-side and separate screen is a responsive layout rule; the LG breakpoint value is taken from the design system tokens (`<TO SUPPLY>` if not 992 px).
@@ -36,9 +44,9 @@ The feature is a vertical slice from the Services screen to the database.
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. The L2 specification states its requirements as acceptance criteria; the text below condenses those criteria faithfully.
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-013` | `L1-006` | Each published listing on Services shall show name, role, where, price and avatar or photo. Selecting a category (All, Training, Nutrition, Physio, Coaching, Counselling) shall show only matching listings with `aria-pressed="true"` on the category. At LG or wider, a selected listing's detail (credentials, about, verified badge, contact action) shall show beside the list with `aria-current="true"` on the row. Below LG, a selected listing's detail shall open as its own screen with a back action. A listing that staff removed shall not be shown. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-013` | `L1-006`     | Each published listing on Services shall show name, role, where, price and avatar or photo. Selecting a category (All, Training, Nutrition, Physio, Coaching, Counselling) shall show only matching listings with `aria-pressed="true"` on the category. At LG or wider, a selected listing's detail (credentials, about, verified badge, contact action) shall show beside the list with `aria-current="true"` on the row. Below LG, a selected listing's detail shall open as its own screen with a back action. A listing that staff removed shall not be shown. |
 
 ## Diagrams
 

@@ -43,7 +43,7 @@ interface ConversationRow {
   templateUrl: './messages-page.html',
   styleUrl: './messages-page.scss',
 })
-export class MessagesPage {
+export default class MessagesPage {
   private readonly inbox = inject(MemberInbox);
 
   protected readonly state = this.inbox.state;

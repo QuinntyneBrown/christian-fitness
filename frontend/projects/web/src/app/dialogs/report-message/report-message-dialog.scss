@@ -1,0 +1,11 @@
+// The dialog's layout is the library's: `cf-dialog` draws the scrim and the panel, and
+// `cf-form-layout` spaces the fields. The form only groups them, so Enter in a field submits.
+:host {
+  display: block;
+}
+
+// The note above the reason: the design system's `prose` type (muted, small).
+.report-message__note {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}

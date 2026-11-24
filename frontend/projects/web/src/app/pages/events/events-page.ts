@@ -63,7 +63,7 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
   templateUrl: './events-page.html',
   styleUrl: './events-page.scss',
 })
-export class EventsPage {
+export default class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
   protected readonly category = signal<EventCategory | null>(null);

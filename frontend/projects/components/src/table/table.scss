@@ -61,6 +61,11 @@
   text-align: right;
 }
 
+.table__actions {
+  display: inline-flex;
+  gap: var(--space-4);
+}
+
 .table__num {
   font-variant-numeric: tabular-nums;
 }
