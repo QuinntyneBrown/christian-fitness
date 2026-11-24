@@ -33,14 +33,17 @@ error with Try again is shown.
 - **`HomeController`** — sends one `GetHomeSummaryQuery`.
 - **`GetHomeSummaryHandler`** — reads the caller's `Member`, their earliest upcoming
   `Registration`, up to 3 published upcoming `Event` rows whose category matches an
-  interest and is not already registered, and the unread count across the
-  `ConversationParticipant` rows of the caller. It returns `HomeSummaryDto` with the
-  count as a number. Slice 13.1 built the events part as `GetHomeQuery` and `GetHomeHandler`
-  (`HomeDto`: `nextEvent`, `suggested`); suggestions are soonest first, and the interest to
-  category table is `InterestCategories` (ADR 0044). The page uses `NextEvent` (library) and the
-  session's greeting in place of `HomeStore` and `firstNameOf`; unread is slice 13.2.
-- **Unread count source** — the mock also offers a `partial` state; the rule that
-  decides which parts may fail independently is `<TO SUPPLY>`.
+  interest and is not already registered, and the unread count across the caller's group
+  and direct conversations (`ChatReadMarkers`). Slice 13.1 built `GetHomeQuery` and
+  `GetHomeHandler`, and slice 13.2 adds `unreadCount` to `HomeDto` (`nextEvent`,
+  `suggested`, `unreadCount`; ADR 0044, ADR 0045).
+- **Messages section and partial state** — `HomePage` reads the caller's conversations
+  through the shell-scoped `MemberInbox` (`GET /api/conversations`), showing up to three
+  newest rows (`cf-mini-row` with `cf-avatar` and `cf-unread-dot`), the inline empty
+  invitation when none exist, or `cf-inline-message` ("Messages didn't load." / "Your
+  events are up to date.") with Try again when conversations fail while `GET /api/home`
+  succeeded (ADR 0045). `MemberShell` passes the summed unread count to both `cf-top-bar`
+  and mobile `cf-tab-bar` (`L2-008` AC1–AC3).
 
 ## Requirements
 

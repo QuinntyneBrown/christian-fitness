@@ -5,54 +5,46 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
-skinparam rectangle {
-  BorderColor #344054
-  FontColor #101828
-}
-skinparam package {
-  BorderColor #667085
-  FontColor #101828
-  BackgroundColor #F9FAFB
-}
 actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
+  participant "MemberShell / MemberInbox" as shell
   participant "HomePage" as page
-  participant "HomeStore" as store
-  participant "HttpHomeService" as client
+  participant "HttpHomeService" as homeClient
+  participant "HttpConversationsService" as convClient
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "HomeController" as ctrl
+  participant "HomeController" as homeCtrl
+  participant "ConversationsController" as convCtrl
 end box
-box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "GetHomeSummaryHandler" as h
+box "Backend — Christian Fitness Application" #ECFDF3
+  participant "GetHomeHandler" as homeH
+  participant "ListConversationsHandler" as convH
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
-actor -> page : Open /home
-page -> store : load()
-store --> page : loading (skeleton)
-store -> client : summary()
-client -> ctrl : GET /api/home
-alt Request succeeds
-  ctrl -> h : Send GetHomeSummaryQuery(caller id)
-  h -> db : Caller Member, earliest upcoming Registration
-  h -> db : Up to 3 published upcoming Events matching interests
-  h -> db : Unread count across caller's conversations
-  db --> h : Rows
-  h --> ctrl : HomeSummaryDto
-  ctrl --> client : 200 JSON
-  client --> store : Summary
-  alt Has next event (L2-007 AC1)
-    page --> actor : Greeting by first name, next event, suggestions, unread count
-  else No registration (L2-007 AC2)
-    page --> actor : Invitation to browse Events
-  end
-else Request fails (L2-007 AC3)
-  client --> store : Error
-  store --> page : error
-  page --> actor : Generic error with Try again
+actor -> shell : Open /home
+shell -> convClient : list()
+convClient -> convCtrl : GET /api/conversations
+page -> homeClient : home()
+homeClient -> homeCtrl : GET /api/home
+homeCtrl -> homeH : Send GetHomeQuery
+homeH -> db : Next registered event, up to 3 suggested events, unreadCount
+db --> homeH : Rows + unread total
+homeH --> homeCtrl : HomeDto (nextEvent, suggested, unreadCount)
+homeCtrl --> homeClient : 200 JSON
+alt Conversations succeed (L2-007 AC4, L2-008 AC3)
+  convCtrl -> convH : Send ListConversationsQuery
+  convH -> db : Group and direct conversations + unread counts
+  db --> convH : ConversationListDto
+  convH --> convCtrl : 200 JSON
+  convCtrl --> convClient : Conversations
+  convClient --> shell : Unread badge on TopBar + TabBar; top 3 rows on HomePage
+  page --> actor : Greeting, next event (or invite), suggestions, and Messages aside (or empty invite)
+else Conversations fail while Home succeeded (L2-007 AC5)
+  convClient --> shell : Error
+  page --> actor : Events shown; Messages aside shows "Messages didn't load." + Try again
   actor -> page : Try again
-  page -> store : retry() reloads summary
+  page -> shell : retry() reloads GET /api/conversations in place
 end
 @enduml
