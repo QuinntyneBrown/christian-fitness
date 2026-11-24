@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from urllib.parse import quote
 
-from cf_data import ADD_ONS, FEEDS, GOOGLE_MEMBER, GOOGLE_STAFF, MEMBER_EVENTS, NEWSLETTER, STORIES
+from cf_data import ADD_ONS, FEEDS, GOOGLE_MEMBER, GOOGLE_STAFF, MEMBER_EVENTS, NEWSLETTER, ST, STORIES, STORY_BODY
 from cf_ui import busy_label, error_block, form_alert, google_g, href, icon, image, loading_region, lockup, screen, seal
-from screens_member import SRC
+from screens_member import SRC, ev_link, story_link
 
 N = NEWSLETTER
 
@@ -237,7 +237,7 @@ def issue() -> str:
           {image(lead["image"], "issue__image")}
           <h2 class="issue__lead-title" id="issue-lead">{lead["title"]}</h2>
           <p class="issue__text">{lead["dek"]}</p>
-          <a class="btn btn--primary issue__action" href="{href("landing")}">Read the story</a>
+          <a class="btn btn--primary issue__action" href="{href("story")}">Read the story</a>
         </section>
         <section class="issue__section" aria-labelledby="issue-calendar">
           <h2 class="display rule-title" id="issue-calendar">On the calendar</h2>
@@ -290,6 +290,124 @@ def _():
     return issue_page('<div class="issue"><div class="issue__body"><h1 class="visually-hidden">Newsletter</h1>' + error_block(
         "This issue didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html",
         back=("Back to news", href("landing")), ref="CF-N6W4") + "</div></div>")
+
+
+# ===========================================================================
+# Story
+# ===========================================================================
+LISTING_STATE = {"lakeshore-runners": "default", "okafor": "person", "cf-team": "one-off", "northline": "unverified"}
+
+
+def story_shell(inner: str) -> str:
+    return f"""<div class="site">
+  <header class="masthead">
+    <div class="masthead__bar">
+      {lockup(href("landing"))}
+      <div class="site-header__actions">
+        <a class="btn btn--ghost site-header__signin" href="{href("sign-in")}">Sign in</a>
+        <a class="btn btn--primary" href="{href("join")}">Join free</a>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+{inner}
+  </main>
+</div>"""
+
+
+def story_page(st: dict, *, copied: bool = False) -> str:
+    body = STORY_BODY.get(st["id"], [])
+    paras = "".join(f'<blockquote class="story__quote"><p>{p[2:]}</p></blockquote>' if p.startswith("> ") else f"<p>{p}</p>" for p in body)
+    related = ""
+    if st.get("related"):
+        kind, rid, label = st["related"]
+        to = (href("event-detail", "default" if rid == "sunrise-5k" else "unregistered") if kind == "event"
+              else href("listing-profile", LISTING_STATE.get(rid, "default")))
+        related = f"""<a class="story-next" href="{to}">
+            <span class="story-next__body"><span class="story-next__label">{'From this story' if kind == 'event' else 'In the directory'}</span><span class="story-next__title">{label}</span></span>
+            {icon("arrow-right", "icon--lg story-next__arrow")}
+          </a>"""
+    same = [x for x in STORIES if x["id"] != st["id"] and x["section"] == st["section"]]
+    rest = [x for x in STORIES if x["id"] != st["id"] and x["section"] != st["section"]]
+    more = "".join(f"""<li><a class="story-card" href="{story_link(x)}">
+            {image(x["image"], "story-card__image")}
+            <span class="story__section story-card__section">{x["section"]}</span>
+            <span class="story-card__title">{x["title"]}</span>
+            <span class="story__meta">{x["author"]} · {x["ago"]}</span>
+          </a></li>""" for x in (same + rest)[:3])
+    copy = (f'<button class="btn btn--secondary btn--sm" type="button">{icon("check" if copied else "link-2")}'
+            f'{"Link copied" if copied else "Copy link"}</button>')
+    return f"""    <article class="story">
+      <header class="story__head">
+        <a class="back-link" href="{href("landing")}">{icon("arrow-left")} All stories</a>
+        <p class="story__section story__kicker">{st["section"]}</p>
+        <h1 class="story__title">{st["title"]}</h1>
+        {f'<p class="story__dek">{st["dek"]}</p>' if st.get("dek") else ''}
+        <div class="story__byline">
+          <div class="story__byline-body"><p class="story__author">{st["author"]}</p><p class="story__when">{st["ago"]} · {st.get("read", "2 min read")}</p></div>
+          {copy}
+          <p class="visually-hidden" role="status">{"Link copied" if copied else ""}</p>
+        </div>
+      </header>
+      <figure class="story__figure">{image(st["image"], "story__image")}</figure>
+      <div class="story__body">
+        {paras}
+        {related}
+        <p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="inline-link" href="{href("feedback", "correction")}">Send a correction</a></p>
+      </div>
+    </article>
+    <section class="story-more" aria-labelledby="more-title">
+      <div class="story-more__inner">
+        <h2 class="display river__title" id="more-title">Keep reading</h2>
+        <ul class="story-more__list">{more}</ul>
+      </div>
+    </section>
+    <section class="story-subscribe" aria-labelledby="story-subscribe-title">
+      <div class="story-subscribe__inner">
+        <div>
+          <h2 class="display story-subscribe__title" id="story-subscribe-title">{N["name"]}</h2>
+          <p class="story-subscribe__text">Stories like this one, and the week’s events. {N["cadence"]}.</p>
+        </div>
+        <a class="btn btn--inverse btn--md" href="{href("subscribe")}">Subscribe free</a>
+      </div>
+    </section>"""
+
+
+s = screen("story", "page", "Story", route="/stories/:slug", source=SRC + "Story (hGiAndA4Pcm2AdLB2FBgU2)", group="Public",
+           not_applicable={"empty": "One story, not a collection; a missing or unpublished story is the not-found page."})
+
+
+@s("default", "A story anyone can read: section, headline, summary, author, age and reading time, Copy link, the lead image, the text with a pull quote, the one next step it points to, a way to send a correction, three more stories and the newsletter.")
+def _():
+    return story_shell(story_page(ST["basement-gym"]))
+
+
+@s("link-copied", "Copy link pressed: the button reads \"Link copied\" for a moment and a status message says so.")
+def _():
+    return story_shell(story_page(ST["basement-gym"], copied=True))
+
+
+@s("plain", "A story with no summary and nothing to point to: no next-step card; the default reading time shows.")
+def _():
+    return story_shell(story_page(dict(ST["sabbath-rest"], read="4 min read")))
+
+
+@s("loading", "Story loading: the masthead is there; the headline, image and text show as skeletons.")
+def _():
+    sk = ('<div class="story"><div class="story__head skeleton-stack"><h1 class="visually-hidden">Loading story</h1>'
+          '<span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--title-lg"></span>'
+          '<span class="skeleton skeleton--title-lg w-80"></span><span class="skeleton skeleton--text w-40"></span></div>'
+          '<div class="story__figure"><span class="skeleton skeleton--block skeleton--image-16x9"></span></div>'
+          '<div class="story__body skeleton-stack"><span class="skeleton skeleton--text w-90"></span>'
+          '<span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text w-80"></span></div></div>')
+    return story_shell(loading_region("Loading story", sk))
+
+
+@s("error", "Story failed to load: retry, or go back to all stories.")
+def _():
+    return story_shell('<div class="story"><div class="story__head"><h1 class="visually-hidden">Story</h1>' + error_block(
+        "This story didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html",
+        back=("All stories", href("landing")), ref="CF-T2Y7") + "</div></div>")
 
 
 # ===========================================================================

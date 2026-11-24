@@ -303,6 +303,7 @@ def directory_page(body: str, *, active: str = "All", search: str = "", counts: 
         <div>
           <h1 class="display page-title">Directory</h1>
           <p class="subtitle subtitle--measure">The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.</p>
+          <p class="page-head__more"><a class="text-link text-link--ui" href="{href("suggest-listing")}">Know someone who belongs here? Suggest a listing</a></p>
         </div>
         <form class="search search--wide" role="search">
           <label class="visually-hidden" for="directory-search">Search the directory</label>
@@ -351,7 +352,7 @@ def _():
     return member_shell("directory", directory_page(empty_block(
         "No one by that name yet", "Nothing in the directory matches “aquafit”. Know someone who should be listed? Our team checks every suggestion.",
         f'<a class="btn btn--primary btn--sm" href="default.html">Clear search</a>'
-        '<button class="btn btn--secondary btn--sm" type="button">Suggest a listing</button>', tag="p"),
+        f'<a class="btn btn--secondary btn--sm" href="{href("suggest-listing")}">Suggest a listing</a>', tag="p"),
         search="aquafit"))
 
 

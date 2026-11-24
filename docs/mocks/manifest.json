@@ -851,6 +851,25 @@
       }
     },
     {
+      "id": "story",
+      "kind": "page",
+      "title": "Story",
+      "group": "Public",
+      "route": "/stories/:slug",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Story (hGiAndA4Pcm2AdLB2FBgU2)",
+      "requirements": [],
+      "states": [
+        "default",
+        "link-copied",
+        "plain",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One story, not a collection; a missing or unpublished story is the not-found page."
+      }
+    },
+    {
       "id": "google-account-chooser",
       "kind": "page",
       "title": "Google account chooser",
@@ -868,6 +887,278 @@
         "empty": "Google's page; the product does not draw it.",
         "error": "Google's page; what the product shows when Google fails is the google-failed state of Sign in, Join and Staff sign in."
       }
+    },
+    {
+      "id": "suggest-listing",
+      "kind": "page",
+      "title": "Suggest a listing",
+      "group": "Member app",
+      "route": "/directory/suggest",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Suggest a Listing (1D7mRZ1pNeDDmTgGZtMkZv)",
+      "requirements": [],
+      "states": [
+        "default",
+        "self",
+        "invalid",
+        "submitting",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "A form; nothing loads before it renders.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "feedback",
+      "kind": "page",
+      "title": "Send feedback",
+      "group": "Member app",
+      "route": "/feedback",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Feedback (2w1Xg2bpM7GARSTBwsgZWR)",
+      "requirements": [],
+      "states": [
+        "default",
+        "broken",
+        "correction",
+        "invalid",
+        "submitting",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "A form; nothing loads before it renders.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "preferences",
+      "kind": "page",
+      "title": "Preferences",
+      "group": "Member app",
+      "route": "/preferences",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Manage Preferences (ksrMsnZWKaYcaxhYnauoQw)",
+      "requirements": [],
+      "states": [
+        "default",
+        "unsaved",
+        "saving",
+        "saved",
+        "failed",
+        "unsubscribed",
+        "download-requested",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Settings, not a collection: every setting always has a value."
+      }
+    },
+    {
+      "id": "delete-account",
+      "kind": "dialog",
+      "title": "Delete your account",
+      "group": "Member app",
+      "opens_from": "preferences",
+      "source": "Derived: the Manage Preferences frame's \"Delete account\" button; the prototype draws no confirmation.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "privacy",
+      "kind": "page",
+      "title": "Privacy Policy",
+      "group": "Public",
+      "route": "/privacy",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Privacy Policy (8tSZJ8o6AYCxUdTfkrsYBf)",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A static page shipped with the app; nothing loads.",
+        "empty": "A document, not a collection.",
+        "error": "A static page shipped with the app; nothing can fail to load."
+      }
+    },
+    {
+      "id": "terms",
+      "kind": "page",
+      "title": "Terms of Service",
+      "group": "Public",
+      "route": "/terms",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Terms of Service (9Qs4AXZcWasYdN16XUCs5s)",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A static page shipped with the app; nothing loads.",
+        "empty": "A document, not a collection.",
+        "error": "A static page shipped with the app; nothing can fail to load."
+      }
+    },
+    {
+      "id": "admin-stories",
+      "kind": "page",
+      "title": "Manage stories",
+      "group": "Admin console",
+      "route": "/admin/stories",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Stories (uEziYrDxcukG3Lb5EowXum)",
+      "requirements": [],
+      "states": [
+        "default",
+        "filtered",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "admin-story-editor",
+      "kind": "page",
+      "title": "Story editor",
+      "group": "Admin console",
+      "route": "/admin/stories/:id",
+      "source": "Magic Patterns · prototype Admin Console · frame Story Editor (aC6BNBAfK3eL6TegAPxd5b)",
+      "requirements": [],
+      "states": [
+        "default",
+        "new",
+        "draft",
+        "scheduled",
+        "published",
+        "approved",
+        "saving",
+        "invalid",
+        "failed",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One story; a new one is the new state, and a missing one is the admin not-found page."
+      }
+    },
+    {
+      "id": "admin-newsletter",
+      "kind": "page",
+      "title": "Manage newsletter",
+      "group": "Admin console",
+      "route": "/admin/newsletter",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Newsletter (a8DT1WJeneyWzSHPUmcZow)",
+      "requirements": [],
+      "states": [
+        "default",
+        "scheduled",
+        "test-sent",
+        "invalid",
+        "submitting",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "There is always a next issue to build; before the first is sent the Sent table says so."
+      }
+    },
+    {
+      "id": "admin-series",
+      "kind": "page",
+      "title": "Manage event series",
+      "group": "Admin console",
+      "route": "/admin/series",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Event Series (g6Yoc6foAh3AGmnPX2Khdx)",
+      "requirements": [],
+      "states": [
+        "default",
+        "selected",
+        "date-cancelled",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "cancel-session",
+      "kind": "dialog",
+      "title": "Cancel a series date",
+      "group": "Admin console",
+      "opens_from": "admin-series",
+      "source": "Derived: the Manage Event Series frame's \"Cancel date\" action, confirmed in a dialog as cancelling an event is (ADR 0035), since it notifies members.",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with nothing to type."
+      }
+    },
+    {
+      "id": "admin-community-pick",
+      "kind": "page",
+      "title": "Community Pick",
+      "group": "Admin console",
+      "route": "/admin/community-pick",
+      "source": "Magic Patterns · prototype Admin Console · frame Community Pick (amrjvVDHvcFBrmhSctpEJv)",
+      "requirements": [],
+      "states": [
+        "default",
+        "pick",
+        "creating",
+        "facebook",
+        "whatsapp",
+        "slack",
+        "failed",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "admin-listings",
+      "kind": "page",
+      "title": "Manage listings",
+      "group": "Admin console",
+      "route": "/admin/listings",
+      "source": "Magic Patterns · prototype Admin Console · frame Manage Listings (bVtWr4Cpi9NPbyGgeq31br)",
+      "requirements": [],
+      "states": [
+        "default",
+        "unchecked",
+        "ready",
+        "approving",
+        "approved",
+        "declined",
+        "listed",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "admin-feedback",
+      "kind": "page",
+      "title": "Feedback inbox",
+      "group": "Admin console",
+      "route": "/admin/feedback",
+      "source": "Magic Patterns · prototype Admin Console · frame Feedback Inbox (p1eGpLPP99JReJ5WHBovdM)",
+      "requirements": [],
+      "states": [
+        "default",
+        "correction",
+        "replying",
+        "replied",
+        "resolved",
+        "loading",
+        "empty",
+        "error"
+      ]
     }
   ]
 }

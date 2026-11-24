@@ -31,6 +31,10 @@ def svc_link(s: dict) -> str:
 SECTION_STATE = {"Latest": "default", "Events": "section", "Training": "section-empty"}
 
 
+def story_link(st: dict) -> str:
+    return href("story", {"sabbath-rest": "plain"}.get(st["id"], "default"))
+
+
 def story_meta(st: dict) -> str:
     return f'<p class="story__meta">{st["author"]} · {st["ago"]}</p>'
 
@@ -40,7 +44,7 @@ def top_stories() -> str:
     heads = "".join(f"""<li class="headline">
             <div class="headline__body">
               <p class="story__section">{st["section"]}</p>
-              <h2 class="headline__title">{st["title"]}</h2>
+              <h2 class="headline__title"><a class="story-link" href="{story_link(st)}">{st["title"]}</a></h2>
               {story_meta(st)}
             </div>
             {image(st["image"], "headline__image")}
@@ -49,7 +53,7 @@ def top_stories() -> str:
         <article class="story-lead">
           {image(lead["image"], "story-lead__image")}
           <p class="story__section story-lead__section">{lead["section"]}</p>
-          <h1 class="story-lead__title">{lead["title"]}</h1>
+          <h1 class="story-lead__title"><a class="story-link" href="{story_link(lead)}">{lead["title"]}</a></h1>
           <p class="story-lead__dek">{lead["dek"]}</p>
           <p class="story__meta story-lead__meta"><strong>{lead["author"]}</strong> · {lead["ago"]}</p>
         </article>
@@ -61,7 +65,7 @@ def river(stories, title: str, *, tag: str = "h2") -> str:
     rows = "".join(f"""<li class="story-row">
               <div class="story-row__body">
                 <p class="story__section">{st["section"]} <span class="story__ago">· {st["ago"]}</span></p>
-                <h3 class="story-row__title">{st["title"]}</h3>
+                <h3 class="story-row__title"><a class="story-link" href="{story_link(st)}">{st["title"]}</a></h3>
                 {f'<p class="story-row__dek">{st["dek"]}</p>' if st.get("dek") else ""}
                 <p class="story__meta">{st["author"]}</p>
               </div>
@@ -144,7 +148,9 @@ def landing(top: str, stories: str, *, section: str = "Latest", events: str | No
     <p class="site-footer__links">
       <a href="{href("newsletter")}">Newsletter</a>
       <a href="{href("subscribe", "default", "rss")}">{icon("rss", "icon--xs")} RSS</a>
-      <span>Health · Energy · Abundant life</span>
+      <a href="{href("feedback")}">Send feedback</a>
+      <a href="{href("privacy")}">Privacy</a>
+      <a href="{href("terms")}">Terms</a>
     </p>
   </footer>
 </div>"""
@@ -283,6 +289,7 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
         {interests(disabled=busy)}
       </div>
       {submit}
+      <p class="auth__terms">By creating a profile you agree to our <a class="inline-link" href="{href("terms")}">Terms of Service</a> and <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>
       <p class="auth__alt">Already a member? <a href="{href("sign-in")}">Sign in</a></p>
     </form>"""
 

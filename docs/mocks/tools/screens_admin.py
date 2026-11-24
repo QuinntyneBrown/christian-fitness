@@ -326,7 +326,7 @@ def ev_table(rows) -> str:
                 <td class="table__nowrap">{r["month"]} {r["day"]} · {r["time"]}</td>
                 <td class="table__nowrap"><span class="table__strong">{r["going"]}</span><span class="muted"> / {r["capacity"]}</span></td>
                 <td><span class="status status--{r["status"].lower()}">{r["status"]}</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="{href("event-editor", "edit")}">Edit<span class="visually-hidden"> {r["title"]}</span></button></td>
+                <td class="table__end"><span class="row-actions">{f'<a class="row-link row-link--quiet" href="{href("admin-community-pick", "pick")}">Make it a pick<span class="visually-hidden">: {r["title"]}</span></a>' if r["status"] == "Published" else ""}<button class="row-link" type="button" data-mock-href="{href("event-editor", "edit")}">Edit<span class="visually-hidden"> {r["title"]}</span></button></span></td>
               </tr>""" for r in rows)
     return f"""<div class="table-wrap">
           <table class="table">

@@ -310,16 +310,16 @@ def hosted_by(listing_id: str) -> tuple[list, list]:
 # ---------------------------------------------------------------------------
 SECTIONS = ["Latest", "Events", "Training", "Nutrition", "Faith & Body", "Community", "Pros"]
 STORIES = [
-    {"id": "basement-gym", "section": "Community", "author": "Naomi Clarke", "ago": "2 hours ago", "image": "church-gym",
+    {"id": "basement-gym", "related": ("listing", "st-pauls-sports", "Find church sports ministries near you"), "read": "6 min read", "section": "Community", "author": "Naomi Clarke", "ago": "2 hours ago", "image": "church-gym",
      "title": "A West End church turned its basement into a free gym. Two hundred neighbours now train there every week",
      "dek": "Rowers, kettlebells and a Thursday prayer circle: how St. Anne’s made fitness the front door to its parish."},
-    {"id": "easter-5k-record", "section": "Events", "author": "CF Team", "ago": "4 hours ago", "image": "run",
+    {"id": "easter-5k-record", "related": ("event", "sunrise-5k", "Register for the Easter Sunrise 5K"), "section": "Events", "author": "CF Team", "ago": "4 hours ago", "image": "run",
      "title": "Easter Sunrise 5K hits a record 142 sign-ups with ten days to go"},
-    {"id": "okafor-interview", "section": "Pros", "author": "Marcus Bell", "ago": "6 hours ago", "image": "coach",
+    {"id": "okafor-interview", "related": ("listing", "okafor", "See Danielle Okafor’s listing"), "read": "5 min read", "section": "Pros", "author": "Marcus Bell", "ago": "6 hours ago", "image": "coach",
      "title": "Danielle Okafor on coaching strength without the shame"},
     {"id": "meal-prep-ministry", "section": "Nutrition", "author": "Priya Raman", "ago": "9 hours ago", "image": "meal-prep",
      "title": "Inside the Scarborough kitchen prepping 300 healthy meals a week for shift workers"},
-    {"id": "sabbath-rest", "section": "Faith & Body", "author": "Pastor Ruth Adeyemi", "ago": "11 hours ago", "image": "stretch",
+    {"id": "sabbath-rest", "read": "4 min read", "section": "Faith & Body", "author": "Pastor Ruth Adeyemi", "ago": "11 hours ago", "image": "stretch",
      "title": "Why your rest day might be the most spiritual part of your training plan"},
     {"id": "half-marathon-churches", "section": "Events", "author": "Naomi Clarke", "ago": "Yesterday", "image": "marathon",
      "title": "Twelve GTA churches will run the Toronto Half as one team this fall",
@@ -329,13 +329,39 @@ STORIES = [
      "dek": "It started with three women from Grace Fellowship and a pair of borrowed poles."},
     {"id": "hoops-league", "section": "Events", "author": "CF Team", "ago": "Yesterday", "image": "hoops",
      "title": "Women’s Hoops & Devotion Night is adding a second court after a waitlist of 60"},
-    {"id": "park-bootcamp-guide", "section": "Training", "author": "Marcus Bell", "ago": "2 days ago", "image": "bootcamp",
+    {"id": "park-bootcamp-guide", "related": ("event", "park-bootcamp", "Join Saturday’s bootcamp at Trillium Park"), "section": "Training", "author": "Marcus Bell", "ago": "2 days ago", "image": "bootcamp",
      "title": "A beginner’s guide to your first outdoor bootcamp, from what to bring to how sore you’ll be",
      "dek": "Coach Danielle answers the eight questions she hears most at Trillium Park."},
     {"id": "trainer-vetting", "section": "Pros", "author": "CF Team", "ago": "3 days ago", "image": "trainer",
      "title": "How we vet every professional in the Christian Fitness directory",
      "dek": "Credentials, references and a conversation about faith: the four checks every listing passes."},
 ]
+ST = {x["id"]: x for x in STORIES}
+# Story bodies. A paragraph starting with "> " is a pull quote.
+STORY_BODY = {
+    "basement-gym": [
+        "On a Tuesday night in March, the basement of St. Anne’s Anglican on Gladstone Avenue smells like rubber flooring and coffee. Eleven rowers hum along one wall. A woman in her seventies is deadlifting a kettlebell under the eye of a volunteer coach, and a teenager is filming his first pull-up for his mother.",
+        "Two years ago this room held stacked chairs and a broken ping-pong table. Then Rev. Thomas Mbeki asked his congregation a question he says he was half-embarrassed to ask: what would it look like if the church cared about bodies as much as it said it did?",
+        "> “We talk about the body as a temple every Sunday. I wanted a room where we actually looked after one.”",
+        "The answer cost $18,000, most of it raised by a bake sale that got out of hand and a single anonymous cheque. The equipment came secondhand from a closing GoodLife on Queen West. The coaching came from the pews: a retired physiotherapist, two personal trainers and a nurse who runs the blood-pressure table on Saturdays.",
+        "The gym is free and open to anyone, members or not, five evenings a week. About two hundred people now come through in a typical week. Fewer than half attend St. Anne’s. Nobody is asked to.",
+        "What they do get, if they want it, is the Thursday prayer circle: ten minutes on the mats at 8 PM, after the last set, before the lights go off. Mbeki says it is the best-attended thing the parish does that isn’t a funeral.",
+        "Three other West End churches have visited to see how it works. St. Paul’s Sports Ministry in Leslieville opens its own version in June.",
+    ],
+    "sabbath-rest": [
+        "Most training plans treat rest as the gap between workouts. Pastor Ruth Adeyemi thinks that is backwards.",
+        "> “Rest isn’t the absence of training. It’s the part where you stop trying to save yourself.”",
+        "She points to the rhythm of Genesis, six days and one, and to the plain physiology: muscles rebuild when you stop. Her suggestion is small. Pick one day, take the watch off, and use the time you would have trained to walk slowly with someone.",
+    ],
+    "lent-fasting": [
+        "For many members, Lent means giving something up. For some, it means fasting for whole days. And for a lot of the runners and lifters in our community, it raises the same question: can I still train?",
+        "> “Fasting and training can live together. The mistake is pretending the fast isn’t happening.”",
+        "Lena Park is a registered sports dietitian who works with athletes at Hope Church Mississauga. Her first advice is simple: move hard sessions to the hours after you break the fast, and keep fasting days for walking, mobility and prayer.",
+        "Hydration matters more than food on a fasting day. If your tradition allows water, drink more than usual the evening before.",
+        "And know the signs to stop: dizziness, a racing heart at rest, or feeling faint when you stand. None of those are a test of faith.",
+    ],
+}
+
 MOST_READ = [
     "Why your rest day might be the most spiritual part of your training plan",
     "A beginner’s guide to your first outdoor bootcamp",
@@ -364,6 +390,72 @@ GOOGLE_MEMBER = [("Grace Thompson", "grace.thompson@gmail.com"), ("Grace Thompso
 GOOGLE_STAFF = [("Dana Reyes", "dana@christianfitness.ca"), ("Dana Reyes", "dana.reyes@gmail.com"),
                 ("CF Events Inbox", "events@christianfitness.ca")]
 STAFF_DOMAIN = "christianfitness.ca"
+
+# ---------------------------------------------------------------------------
+# Admin console: stories, newsletter issues, listing suggestions, feedback (prototype shared/cf/admin/data.ts)
+# ---------------------------------------------------------------------------
+ADMIN_STORIES = [
+    ("lent-fasting", "Fasting and training: what a dietitian wants you to know", "Nutrition", "Priya Raman", "In review", "Submitted 1 hour ago", ""),
+    ("scarborough-pickleball", "Pickleball is filling church gyms in Scarborough. Here’s why", "Community", "Naomi Clarke", "Draft", "Edited yesterday", ""),
+    ("trail-retreat", "What to pack for the Whole Life Retreat", "Events", "CF Team", "Scheduled", "Sat Apr 18, 6:00 AM", ""),
+    ("basement-gym", "A West End church turned its basement into a free gym", "Community", "Naomi Clarke", "Published", "Today, 7:12 AM", "3,412"),
+    ("easter-5k-record", "Easter Sunrise 5K hits a record 142 sign-ups", "Events", "CF Team", "Published", "Today, 5:04 AM", "1,980"),
+    ("okafor-interview", "Danielle Okafor on coaching strength without the shame", "Pros", "Marcus Bell", "Published", "Today, 3:30 AM", "2,206"),
+    ("sabbath-rest", "Why your rest day might be the most spiritual part of your plan", "Faith & Body", "Pastor Ruth Adeyemi", "Published", "Yesterday", "5,871"),
+    ("park-bootcamp-guide", "A beginner’s guide to your first outdoor bootcamp", "Training", "Marcus Bell", "Published", "Apr 8", "4,340"),
+]
+STORY_STATUSES = ["Draft", "In review", "Scheduled", "Published"]
+AUTHORS = ["Naomi Clarke", "Priya Raman", "Marcus Bell", "Pastor Ruth Adeyemi", "CF Team"]
+PAST_ISSUES = [
+    (48, "Apr 11", "A church basement, 200 neighbours, and a lot of kettlebells", "61%", "18%"),
+    (47, "Apr 4", "Holy Week on the move: five runs and one quiet walk", "58%", "15%"),
+    (46, "Mar 28", "Your rest day is not a cheat day", "64%", "21%"),
+    (45, "Mar 21", "Hoops & Devotion needs a second court", "55%", "12%"),
+]
+# The four checks every listing passes before it goes live.
+CHECKS = [
+    ("credentials", "Credentials", "Certification or registration number verified with the issuing body"),
+    ("insurance", "Insurance", "Liability coverage on file, where the work calls for it"),
+    ("references", "Two references", "At least one from a church or ministry leader"),
+    ("conversation", "Conversation", "A call with our team about faith and how they work"),
+]
+SUGGESTIONS = [
+    {"id": "s1", "name": "Eastside Ladies Who Lift", "kind": "Organization", "area": "Danforth & Pape",
+     "website": "instagram.com/eastsideladieslift", "by": "Adaeze Kalu", "relation": "Attended", "submitted": "4 hours ago",
+     "note": "Saturday morning strength group out of Danforth Baptist. About 25 women, coached by a CSEP trainer. They pray before and after and are so welcoming to beginners.",
+     "passed": ("credentials",)},
+    {"id": "s2", "name": "Coach Marcus Delaney", "kind": "Instructor", "area": "Mississauga", "website": "delaneyperformance.ca",
+     "by": "Marcus Delaney", "relation": "Is them", "submitted": "Yesterday",
+     "note": "I run speed and agility for youth athletes and lead a men’s Bible study at Hope Church. Looking to list my Saturday clinics.",
+     "passed": ("credentials", "insurance", "references")},
+    {"id": "s3", "name": "Rooted Physio", "kind": "Company", "area": "Leslieville", "website": "rootedphysio.ca",
+     "by": "Jordan Reid", "relation": "Knows them", "submitted": "3 days ago",
+     "note": "Physio clinic owned by a couple from The Meeting House. They gave our run club a free injury clinic last fall.",
+     "passed": ()},
+]
+FEEDBACK_KIND_ICON = {"Idea": "lightbulb", "Something’s broken": "bug", "Content": "pen-line", "Praise": "heart"}
+FEEDBACK = [
+    {"id": "f1", "kind": "Something’s broken", "from": "Michael Chen", "initials": "MC", "email": "mchen.runs@outlook.com",
+     "page": "Events › Easter Sunrise 5K", "device": "iPhone · Safari 18", "when": "35 min ago", "status": "New",
+     "text": "The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.",
+     "hint": "Let them know we can reproduce it and when to expect a fix"},
+    {"id": "f2", "kind": "Content", "from": "Adaeze Kalu", "initials": "AK", "email": "adaeze.k@yahoo.ca",
+     "page": "Story › Twelve GTA churches will run the Toronto Half", "device": "Android · Chrome 124", "when": "2 hours ago", "status": "New",
+     "text": "Small correction: RCCG Jesus House is one of the twelve churches but isn’t in the list in the story. Pastor Femi confirmed last week.",
+     "hint": "Thank them and say when the correction is live"},
+    {"id": "f3", "kind": "Idea", "from": "Grace Thompson", "initials": "GT", "email": "grace.thompson@gmail.com",
+     "page": "Event series › Couch to 5K", "device": "Mac · Chrome 124", "when": "Yesterday", "status": "Replied",
+     "text": "Could the series page show which week of the plan each session is? I missed week 3 and wasn’t sure where to pick back up.",
+     "hint": "Thank them, and tell them honestly whether it’s on the list"},
+    {"id": "f4", "kind": "Praise", "from": "Priya Nair", "initials": "PN", "email": "priya.nair@gmail.com",
+     "page": "Newsletter", "device": "iPhone · Mail", "when": "2 days ago", "status": "Resolved",
+     "text": "The verse at the end of the newsletter has become my Saturday long-run mantra. Thank you for that.",
+     "hint": "Say thanks, and let them know who you passed it on to"},
+]
+
+# Preferences (prototype frame Manage Preferences)
+PREF_AREAS = ["Toronto East", "Toronto West", "Downtown Toronto", "Scarborough", "North York", "Mississauga", "Brampton", "Durham"]
+PREF_INTERESTS = ["Running", "Strength", "Basketball", "Nutrition", "Mobility", "Walking", "Retreats", "Pickleball"]
 
 INTERESTS = ["Running", "Strength", "Basketball", "Walking groups", "Mobility", "Nutrition", "Cycling", "Retreats"]
 EVENT_CATEGORIES = ["All", "Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]

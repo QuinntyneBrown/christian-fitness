@@ -29,6 +29,8 @@ import screens_admin  # noqa: E402,F401
 import overlays  # noqa: E402,F401
 import screens_directory  # noqa: E402,F401  (after overlays: its dialog uses overlays' helpers)
 import screens_news  # noqa: E402,F401
+import screens_support  # noqa: E402,F401
+import screens_publish  # noqa: E402,F401
 
 ROOT = HERE.parent
 REQUIRED = {
