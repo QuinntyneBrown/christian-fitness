@@ -224,4 +224,5 @@ TEXT
 az communication email domain show --domain-name "$DOMAIN" --email-service-name "$EMAIL_SERVICE" --resource-group "$RG" \
   --query 'verificationRecords.*.[type, name, value]' --output tsv | sed 's/^/ /'
 echo
-echo "Add them, then run: $0 domains"
+echo "One SPF record only: if the domain already has one, add the include to it and end it in -all"
+echo "(Azure does not verify ~all). Add the records, then run: $0 domains"

@@ -77,6 +77,6 @@ repository variables (`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_
 | CNAME | `www`, `admin`                        | the container app's own host name                        |
 | A     | `@`                                   | the environment's static address                         |
 | TXT   | `asuid`, `asuid.www`, `asuid.admin`   | the app's custom-domain verification id                  |
-| TXT   | `@`                                   | the email domain's verification value, and one SPF record naming both the mail forwarder and `spf.protection.outlook.com` |
+| TXT   | `@`                                   | the email domain's verification value, and one SPF record: `v=spf1 include:spf.protection.outlook.com include:spf.efwd.registrar-servers.com -all` (Azure verifies SPF only when it ends in `-all`) |
 | CNAME | `selector1-azurecomm-prod-net._domainkey`, `selector2-azurecomm-prod-net._domainkey` | the email domain's DKIM targets |
 | MX    | `@`                                   | the registrar's mail forwarding (incoming mail only)     |
