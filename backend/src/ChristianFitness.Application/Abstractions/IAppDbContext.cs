@@ -46,6 +46,9 @@ public interface IAppDbContext
     /// <summary>What two members said to each other privately (L2-016; ADR 0043).</summary>
     DbSet<DirectMessage> DirectMessages { get; }
 
+    /// <summary>The messages members reported for staff to review (L2-017; ADR 0057).</summary>
+    DbSet<MessageReport> MessageReports { get; }
+
     /// <summary>What staff changed: who, what, which record and when (L2-019 AC3; ADR 0023).</summary>
     DbSet<AuditEntry> AuditEntries { get; }
 

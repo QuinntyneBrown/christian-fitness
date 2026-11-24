@@ -1282,3 +1282,7 @@ table { border-collapse: collapse; }
 .accordion__summary .icon { transition: rotate var(--duration-fast) var(--ease-standard); }
 .accordion__item[open] .accordion__summary .icon { rotate: 180deg; }
 .accordion__body { padding-bottom: var(--space-4); color: var(--color-fg-muted); }
+
+/* Report on a received message (slice 25.1; ADR 0057). */
+.message__report { display: inline-flex; align-items: center; min-height: var(--target-min); margin-left: var(--space-1); padding: 0 var(--space-1); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-fg-muted); text-decoration: underline; text-underline-offset: var(--space-0-5); border-radius: var(--radius-xs); }
+.message__report:hover { color: var(--color-fg-default); }

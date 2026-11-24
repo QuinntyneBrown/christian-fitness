@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 95% (54 of 57 slices; 86 of 91 days)
+**% complete:** 97% (55 of 57 slices; 88 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -60,7 +60,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 49  | 23.1  | 23 Edit and remove listings         | ✅ Edit a listing                                 | Staff edit a listing and members see the change.                                                                                                    | 1             |
 | 50  | 23.2  | 23 Edit and remove listings         | ✅ Remove a listing                               | Staff remove a listing with confirmation; conversations remain.                                                                                     | 1             |
 | 51  | 8.2   | 8 Discover from the landing page    | ✅ Landing with professionals                     | Visitors see trusted professionals on the landing page.                                                                                             | 1             |
-| 52  | 25.1  | 25 Report a message or member       | Report a message                                  | Members report a message; the sender is flagged, never twice.                                                                                       | 2             |
+| 52  | 25.1  | 25 Report a message or member       | ✅ Report a message                               | Members report a message; the sender is flagged, never twice.                                                                                       | 2             |
 | 53  | 26.1  | 26 Find members                     | ✅ Find members                                   | Staff search members and filter by Active, Flagged or Suspended.                                                                                    | 2             |
 | 54  | 27.1  | 27 Flag, suspend and reinstate      | ✅ Flag and suspend                               | Staff flag or suspend a member with a recorded reason.                                                                                              | 2             |
 | 55  | 27.2  | 27 Flag, suspend and reinstate      | ✅ Reinstate                                      | Staff reinstate a flagged or suspended member to Active.                                                                                            | 1             |

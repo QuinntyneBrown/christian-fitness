@@ -23,8 +23,10 @@ async function thread() {
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
   const retried: string[] = [];
+  const reported: string[] = [];
   fixture.componentInstance.retry.subscribe((id) => retried.push(id));
-  return { el, retried };
+  fixture.componentInstance.report.subscribe((id) => reported.push(id));
+  return { el, retried, reported };
 }
 
 async function composer(draft = '') {
@@ -74,6 +76,22 @@ describe('Thread', () => {
     (error.querySelector('button') as HTMLButtonElement).click();
 
     expect(retried).toEqual(['m3']);
+  });
+});
+
+describe('Thread, report', () => {
+  it('offers Report on a received message only, named for its author, and emits its id', async () => {
+    const { el, reported } = await thread();
+    const items = Array.from(el.querySelectorAll('ol > li'));
+
+    const buttons = el.querySelectorAll<HTMLButtonElement>('.message__report');
+    expect(buttons).toHaveLength(1);
+    expect(items[1].contains(buttons[0])).toBe(true);
+    expect(buttons[0].getAttribute('aria-label')).toBe('Report message from Danielle Okafor');
+    expect(buttons[0].textContent?.trim()).toBe('Report');
+    buttons[0].click();
+
+    expect(reported).toEqual(['m1']);
   });
 });
 

@@ -24,11 +24,14 @@ export class WebEventChatPage {
   /** A direct conversation (slice 14.1): the way back to Messages, and the refusal for a member who cannot be messaged. */
   readonly messagesLink: Locator;
   readonly unavailable: Locator;
+  /** Report on received messages (slice 25.1; ADR 0057): one button per message from another member. */
+  readonly reportButtons: Locator;
 
   constructor(private readonly page: Page) {
     this.cancelledNotice = page.getByRole('status').filter({ hasText: 'This event was cancelled' });
     this.messagesLink = page.getByRole('link', { name: 'Back to messages' });
     this.unavailable = page.getByRole('heading', { name: "You can't message this member" });
+    this.reportButtons = page.getByRole('button', { name: /^Report message from / });
     this.chatTitle = page.locator('.chat-page__name');
     this.subtitle = page.locator('.chat-page__sub');
     this.backLink = page.getByRole('link', { name: 'Back to event' });
@@ -54,6 +57,11 @@ export class WebEventChatPage {
       bubble: item.locator('.message__bubble'),
       time: item.locator('.message__time'),
     };
+  }
+
+  /** The Report button of the message at `index`. */
+  reportButton(index: number): Locator {
+    return this.messages.nth(index).locator('.message__report');
   }
 
   /** The text of the message at `index`. */

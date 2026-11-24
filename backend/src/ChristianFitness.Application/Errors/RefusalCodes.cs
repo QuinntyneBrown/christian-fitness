@@ -116,6 +116,15 @@ public static class RefusalCodes
     /// <summary>The application staff tried to decide was already approved or declined (L2-025; ADR 0049).</summary>
     public const string ApplicationDecided = "application_decided";
 
+    /// <summary>The caller reported their own message (L2-017 AC5; ADR 0057).</summary>
+    public const string CannotReportOwnMessage = "cannot_report_own_message";
+
+    /// <summary>The message does not exist or is not in a conversation the caller belongs to (L2-017 AC5; ADR 0057).</summary>
+    public const string MessageNotFound = "message_not_found";
+
+    /// <summary>The caller already reported this message (L2-017 AC2, AC5; ADR 0057).</summary>
+    public const string AlreadyReported = "already_reported";
+
     /// <summary>A body failed validation for any other reason (L2-032 AC1).</summary>
     public const string ValidationFailed = "validation_failed";
 }

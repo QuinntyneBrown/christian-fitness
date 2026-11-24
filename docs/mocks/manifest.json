@@ -509,6 +509,22 @@
       ]
     },
     {
+      "id": "report-message",
+      "kind": "dialog",
+      "title": "Report a message",
+      "group": "Member app",
+      "opens_from": "messages",
+      "source": "Derived: the Messages thread's Report button on a received message (L2-017; ADR 0057).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "refused",
+        "success"
+      ]
+    },
+    {
       "id": "apply-to-be-listed",
       "kind": "dialog",
       "title": "Apply to be listed",

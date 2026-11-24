@@ -52,6 +52,7 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
         public DbSet<ChristianFitness.Domain.Events.ChatMessage> ChatMessages => db.ChatMessages;
         public DbSet<ChristianFitness.Domain.Events.ChatReadMarker> ChatReadMarkers => db.ChatReadMarkers;
         public DbSet<ChristianFitness.Domain.Events.DirectMessage> DirectMessages => db.DirectMessages;
+        public DbSet<ChristianFitness.Domain.Events.MessageReport> MessageReports => db.MessageReports;
         public DbSet<ChristianFitness.Domain.Services.ProfessionalApplication> ProfessionalApplications => db.ProfessionalApplications;
         public DbSet<ChristianFitness.Domain.Services.ServiceListing> ServiceListings => db.ServiceListings;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;

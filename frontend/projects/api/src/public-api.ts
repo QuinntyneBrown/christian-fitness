@@ -17,6 +17,7 @@ export * from './events/events';
 export * from './events/public-events';
 export * from './home/home';
 export * from './profile/profile';
+export * from './reports/reports';
 export * from './services/professional-applications';
 export * from './services/public-professionals';
 export * from './services/services';

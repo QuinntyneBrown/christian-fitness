@@ -2179,3 +2179,29 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A bundle regression shows in `main` inputs" (23.1): the `_debug_node-chunk` size pointed at core runtime, not at the page.
 - "A fixture default for a new call" (15.1 on): the shared fixture answers `/api/public/services/featured` with an empty list; the whole suite (434 specs) was run.
 - "Count a slice's new specs against the CI budget" (24.1): four short specs in the landing file.
+
+## Slice 25.1: Report a message
+
+**What slowed it**
+
+- No mock drew a Report action or dialog, and the design left the reason's limit, the error codes and the repeat report (it said "returns success") `<TO SUPPLY>`. Five hand-written dialog states over the Messages thread, a `message__report` button in the thread mock and the design-system `message` page, L2-017 AC3 to AC6 and ADR 0057 settled them before code. `build_mocks.py` was not run; a Python script that asserted every match wrote only new mock files and edited the two thread mocks, the manifest, the index and the README in place.
+- The repeat report is refused `already_reported` (409), not answered with success: "never twice" and a dialog that must not claim a report was sent both need the code. The design's diagrams still show success; PlantUML is not installed here, so the README says to read them with the ADR.
+- The README matrix of dialogs has one column per state name, so the mock's "duplicate" state became `refused`, an existing column, rather than a new column in every row.
+- The library dialog's `successHeading` already draws the confirmation, so the design's toast was not built; the page needs no toast region and `main` did not grow (web 280.21 kB, admin 280.35 kB, both unchanged).
+- `dotnet ef migrations add` failed with the Api project as startup (it lacks the Design package); the Infrastructure project as startup worked.
+- A shared-fixture run of the whole suite under load failed three unrelated specs (home messages, landing, admin edit event) that passed alone; run again, not retried in CI.
+
+**New lessons**
+
+- A message id is enough to find which table a message is in when both tables use v7 GUIDs: one route `POST /api/messages/{id}/reports` served group and direct messages, and an unknown message and one outside the caller's conversations share `message_not_found` so the answer reveals nothing.
+- Reuse the status rule, not the endpoint: `Member.TryFlag` from 27.1 flags only an Active sender, so a Suspended sender stays suspended and a reinstated member is not flagged again by the same reporter (the repeat is refused first). The staff Members list then showed "Reported by a member" with no staff-side change.
+- A unique index on (reporter, message) guards the race, and the handler turns the `DbUpdateException` into `already_reported` only after checking the row exists, as `EmailTaken` does.
+- A slot-bearing dialog footer needs one `@if` per `[slot=foot]` node (NG8011), so a "finished" computed drives Done and the Cancel and Report pair separately.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 8.2): followed; the entity, `DbSet`, migration, controller and an empty handler existed first, so nine of ten API tests failed for behaviour (201 with no row, no flag), and the e2e run failed because no dialog opened.
+- "Prove a rule red by breaking it alone" (1.1 to 23.2): removing the `TryFlag` call failed four tests, removing the membership check failed only the outsider test, a logged reason failed both telemetry cases, and showing Report on my own message failed only the group spec; each undone.
+- "A class, not a record, for anything personal" (2.1, 27.1): the command and the body are classes; the telemetry test proves neither the reason nor the text reaches a span or log.
+- "Load a dialog by a dynamic `import()` of a file whose function opens it with the page's injector" (10.1): the dialog is a lazy chunk and the initial total did not move.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.

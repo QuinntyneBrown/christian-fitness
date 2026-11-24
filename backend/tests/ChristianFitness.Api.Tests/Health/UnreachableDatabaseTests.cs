@@ -45,6 +45,7 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<ChristianFitness.Domain.Events.ChatMessage> ChatMessages => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Events.ChatReadMarker> ChatReadMarkers => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Events.DirectMessage> DirectMessages => throw new InvalidOperationException(Secret);
+        public DbSet<ChristianFitness.Domain.Events.MessageReport> MessageReports => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Services.ProfessionalApplication> ProfessionalApplications => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Services.ServiceListing> ServiceListings => throw new InvalidOperationException(Secret);
         public DbSet<AuditEntry> AuditEntries => throw new InvalidOperationException(Secret);
