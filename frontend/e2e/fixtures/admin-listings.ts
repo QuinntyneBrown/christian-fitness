@@ -93,7 +93,9 @@ export function adminListings(
 export interface ListingsSaved {
   /** Each save as the listing id and the body sent, in order. */
   saves: { id: string; body: Record<string, unknown> }[];
-  /** The listings as they stand after the saves. */
+  /** The ids asked to be removed, in order (slice 23.2). */
+  removals: string[];
+  /** The listings as they stand after the saves and removals. */
   current: AdminListingFixture[];
 }
 
@@ -101,6 +103,8 @@ export interface ListingsSaved {
  * Answers `GET /api/admin/services/listings` and `PUT .../{id}` over `listings`, as the API does
  * (ADR 0054): a save replaces the listing's fields, and the next list shows them. `refuse` may answer
  * a save, by its zero-based number, with a refusal instead; `hold` holds each save until it settles.
+ * `DELETE .../{id}` (slice 23.2) removes the listing and answers 204; `refuseRemove` answers one by its
+ * number with a refusal instead and `holdRemove` holds each removal until it settles.
  */
 export function answerListings(
   api: ApiHandlers,
@@ -108,9 +112,11 @@ export function answerListings(
   options: {
     refuse?: (number: number) => { status?: number; abort?: boolean; json?: unknown } | null;
     hold?: Promise<void> | null;
+    refuseRemove?: (number: number) => { status?: number; abort?: boolean; json?: unknown } | null;
+    holdRemove?: Promise<void> | null;
   } = {},
 ): ListingsSaved {
-  const state: ListingsSaved = { saves: [], current: [...listings] };
+  const state: ListingsSaved = { saves: [], removals: [], current: [...listings] };
   api.on('GET', '/api/admin/services/listings', () => adminListings(state.current));
   api.on('PUT', /^\/api\/admin\/services\/listings\/[0-9a-f-]{36}$/, async (request) => {
     const id = new URL(request.url()).pathname.split('/').pop() ?? '';
@@ -135,6 +141,23 @@ export function answerListings(
     } as AdminListingFixture;
     state.current[at] = saved;
     return { json: saved };
+  });
+  api.on('DELETE', /^\/api\/admin\/services\/listings\/[0-9a-f-]{36}$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/').pop() ?? '';
+    const number = state.removals.length;
+    state.removals.push(id);
+    if (options.holdRemove) await options.holdRemove;
+    const refusal = options.refuseRemove?.(number) ?? null;
+    if (refusal?.abort) return { abort: true };
+    if (refusal) {
+      return {
+        status: refusal.status ?? 500,
+        headers: { 'content-type': 'application/problem+json' },
+        json: refusal.json ?? { code: 'error' },
+      };
+    }
+    state.current = state.current.filter((listing) => listing.id !== id);
+    return { status: 204 };
   });
   return state;
 }

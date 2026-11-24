@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 92% (26 of 30 journeys; 84 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 27, 29 and 30 are done, journeys 8 and 23 have 1 of their 2)
+**% complete:** 93% (27 of 30 journeys; 85 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 29 and 30 are done, journey 8 has 1 of its 2)
 
 | #   | Journey                             | App    | Description                                                                                                        | Effort (days) |
 | --- | ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -32,7 +32,7 @@ telemetry), so those are not listed on their own.
 | 20  | ✅ Reset a forgotten password       | Member | Request a reset link by email and choose a new password.                                                           | 3             |
 | 21  | ✅ Review professional applications | Admin  | Staff approve or decline applications, oldest first.                                                               | 3             |
 | 22  | ✅ Apply to be listed               | Member | A member applies to be listed as a professional.                                                                   | 2             |
-| 23  | Edit and remove listings            | Admin  | Staff edit a published listing or remove it with confirmation.                                                     | 2             |
+| 23  | ✅ Edit and remove listings         | Admin  | Staff edit a published listing or remove it with confirmation.                                                     | 2             |
 | 24  | View event registrations            | Admin  | Staff see who registered for an event and capacity used.                                                           | 2             |
 | 25  | Report a message or member          | Member | Report a harmful message so staff can review the sender.                                                           | 2             |
 | 26  | ✅ Find members                     | Admin  | Staff search members and filter by Active, Flagged or Suspended.                                                   | 2             |

@@ -2132,3 +2132,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Prove a rule red": the e2e spec ran against the page without the section first and failed for the missing table before the section was restored.
 - "Use the Edit and Write tools" (7.1 on): followed except for the failed heredocs above.
 - "Count a slice's new specs against the CI budget" (24.1): ten short specs in one file; the full run took 1.6 minutes.
+
+## Slice 23.2: Remove a listing
+
+**What slowed it**
+
+- The design drew a soft delete (`IsPublished`, `RemovedAt`) the code never had, and every member call already reads the listing table, so a hard delete (ADR 0055) made all of them answer 404 with no filter to forget and no migration. The sequence and class diagrams still draw the soft delete; PlantUML is not installed here, so they were not re-rendered and the design README says to read them with the ADR.
+- No mock drew Remove, so a `remove-listing` dialog (default, busy, failed) was composed by hand from the edit mock and the cancel-event dialog, the Remove button was added to the Manage Services table mock rows, and the manifest, index and README were edited by hand.
+- The library `table` allowed one row action; it gained an optional `secondActionLabel` and `secondAction`.
+- A third separate `import()` in the Services page grew `main` by 90 bytes (admin 280.44 kB), whatever the module held (an empty module cost 160). Re-exporting `openRemoveListing` from the editor's lazy module, so the page imports both dialogs in one place, restored 280.35 kB. The cause inside esbuild's chunk graph was not found.
+- Rows behind an open dialog are hidden from role queries (the page is `aria-hidden`), so a spec cannot count them until the dialog closes; Escape pressed before the dialog has focus is lost, so a spec waits for "Keep listing" to be focused first.
+- Heredocs holding an apostrophe failed to parse again; files went through the Write tool and edit scripts through files in the scratchpad.
+
+**New lessons**
+
+- A stub handler that only returns, for an auditable command, fails with 500 (no audit entry recorded), which is a behavioural red: 3 of 4 failed and the Moderator refusal passed because the route and policy already existed.
+- When the design and the code disagree on soft or hard delete, check what every reader of the table does before choosing; the simpler delete removed a whole class of "forgot the filter" bugs and made AC5 of the Services list (a removed listing is not shown) true by construction, proved by the new API test.
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged).
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 23.1): followed; the first red was for behaviour in both stacks (the e2e specs failed to find the Remove button, the API tests got 500 for 204).
+- "A bundle regression shows in `main` inputs: diff `--stats-json` of the base" (23.1): used again; the diff showed only router and common noise, so bisecting by stubbing the import found the cause.
+- "A fixture default for a new call" (15.1 on): no default needed; the DELETE is answered by `answerListings`, which the specs that press Remove use.
+- "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.

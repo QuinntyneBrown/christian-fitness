@@ -18,10 +18,10 @@ The editor follows the mock `docs/mocks/dialogs/listing-editor/` (states `defaul
 - **`AdminServicesApi`** — contract behind `ADMIN_SERVICES_SERVICE`, extended with `updateListing` and `removeListing`. The dialog's providers bind the token where the dialog is created.
 - **`AdminListingsController`** — controller under policy `AdminOnly`. Each action sends one MediatR request.
 - **`UpdateListingCommand`**, **`UpdateListingValidator`** and **`UpdateListingHandler`** — validate and apply field changes to `ServiceListing`. Field rules (slice 23.1, ADR 0054): name, role, category, where, price, credentials and about are required and length-limited, and the contact link is optional and an http or https address; each refusal is 400 `validation_failed` with a `fieldCodes` entry.
-- **`RemoveListingCommand`** and **`RemoveListingHandler`** — call `ServiceListing.Remove`, which sets `IsPublished` to false and records `RemovedAt`. The handler does not touch `Conversation` or `ConversationParticipant` rows.
-- **`ServiceListing`** — domain entity. The Services query for members returns only published listings.
+- **`RemoveListingCommand`** and **`RemoveListingHandler`** — delete the `ServiceListing` row and record a `listing.removed` audit entry (ADR 0055). The handler does not touch conversations or messages, which belong to the two members.
+- **`ServiceListing`** — domain entity. Deleting it is what removes it from the Services queries for members.
 
-The mocks show no removal control or confirmation state, so the confirmation's form is `<TO SUPPLY>` and needs a mock state or ADR stand-in. Whether removal is a soft delete (as designed here) or a hard delete is `<TO SUPPLY>`. Editing a missing listing is refused with 404 `service_not_found` (ADR 0054). The editing half of this feature is slice 23.1: `GET /api/admin/services/listings` feeds the Live listings table, `PUT /api/admin/services/listings/{id}` saves, and the mock states `edit` and `edit-invalid` were added for it; removal is slice 23.2.
+The confirmation is the `remove-listing` dialog mock (default, busy, failed), and removal is a hard delete: the row is deleted, so no `IsPublished` or `RemovedAt` is kept (ADR 0055); the class and sequence diagrams still draw the soft delete (`IsPublished`, `Remove(now)`) and are not re-rendered, so read them with that ADR. Editing a missing listing is refused with 404 `service_not_found` (ADR 0054). The editing half of this feature is slice 23.1: `GET /api/admin/services/listings` feeds the Live listings table, `PUT /api/admin/services/listings/{id}` saves, and the mock states `edit` and `edit-invalid` were added for it; removal is slice 23.2.
 
 ## Requirements
 

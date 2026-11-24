@@ -86,9 +86,16 @@
                       >{{ label }}<span class="visually-hidden"> {{ row.name }}</span></a
                     >
                   } @else {
-                    <button class="row-link" type="button" (click)="action.emit(row.id)">
-                      {{ label }}<span class="visually-hidden"> {{ row.name }}</span>
-                    </button>
+                    <span class="table__actions">
+                      <button class="row-link" type="button" (click)="action.emit(row.id)">
+                        {{ label }}<span class="visually-hidden"> {{ row.name }}</span>
+                      </button>
+                      @if (secondActionLabel(); as second) {
+                        <button class="row-link" type="button" (click)="secondAction.emit(row.id)">
+                          {{ second }}<span class="visually-hidden"> {{ row.name }}</span>
+                        </button>
+                      }
+                    </span>
                   }
                 }
               </td>

@@ -50,6 +50,12 @@ export class HttpAdminServicesService implements AdminServicesApi {
       .put<AdminListingDto>(`${LISTINGS}/${encodeURIComponent(id)}`, listing)
       .pipe(catchError(asApiError));
   }
+
+  removeListing(id: string): Observable<void> {
+    return this.http
+      .delete<void>(`${LISTINGS}/${encodeURIComponent(id)}`)
+      .pipe(catchError(asApiError));
+  }
 }
 
 function asApiError(error: unknown): Observable<never> {

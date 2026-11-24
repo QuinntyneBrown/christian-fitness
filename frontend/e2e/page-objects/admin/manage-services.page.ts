@@ -129,6 +129,11 @@ export class ManageServicesPage {
     );
   }
 
+  /** The Remove button of the live listing of `name`; its name says whose it is. */
+  removeButton(name: string): Locator {
+    return this.main.getByRole('button', { name: `Remove ${name}` });
+  }
+
   /** The Edit button of the live listing of `name`; its name says whose it is. */
   editButton(name: string): Locator {
     return this.main.getByRole('button', { name: `Edit ${name}` });

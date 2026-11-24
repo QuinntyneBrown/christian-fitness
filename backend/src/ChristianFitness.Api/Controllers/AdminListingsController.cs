@@ -35,6 +35,14 @@ public sealed class AdminListingsController(ISender sender) : ControllerBase
                 ContactUrl = body?.ContactUrl,
             },
             cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Removes the listing; 204 when it is gone (L2-027 AC2; ADR 0055).</summary>
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Remove(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new RemoveListingCommand(id), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
 }
 
 /// <summary>What the listing editor sends. A class, not a record, so no generated <c>ToString</c> can print the values.</summary>

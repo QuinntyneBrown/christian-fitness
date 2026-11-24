@@ -67,7 +67,7 @@ export type TableWidth = 'standard' | 'wide' | 'wider';
  * `<th scope="col">` headers, in a surface wrapper that scrolls sideways below its minimum width
  * and is a labelled, focusable region so keyboard users can scroll it. Cells are not focusable;
  * the row action is, named after its row, and emits `action` with the row's id (or follows its
- * `actionHref`). While `loading` it keeps the header and draws skeleton rows under `aria-busy`.
+ * `actionHref`); an optional second action emits `secondAction` the same way. While `loading` it keeps the header and draws skeleton rows under `aria-busy`.
  * Empty and failed tables are swapped for an empty state or an inline message by the screen. Words
  * are rendered as text.
  */
@@ -84,6 +84,8 @@ export class Table {
   readonly rows = input.required<readonly TableRow[]>();
   /** The row action's label, such as "Edit"; none means no action column. */
   readonly actionLabel = input<string>();
+  /** A second row action beside the first, such as "Remove"; none means one action only. */
+  readonly secondActionLabel = input<string>();
   readonly width = input<TableWidth>('standard');
   readonly loading = input(false);
   /** How many skeleton rows stand in for the rows while loading. */
@@ -91,6 +93,7 @@ export class Table {
   readonly cell = input<TemplateRef<TableCellContext>>();
 
   readonly action = output<string>();
+  readonly secondAction = output<string>();
 
   protected readonly skeletonRows = computed(() =>
     Array.from({ length: this.loadingRows() }, (_, n) => n),

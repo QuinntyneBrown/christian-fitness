@@ -73,7 +73,9 @@ const SKELETON_CARDS = [0, 1, 2];
  * decided, and the count falls; a decision that fails says so above the list, and one that was
  * decided already shows the queue as it is. The Live listings section (L2-027 AC1; slice 23.1; ADR
  * 0054) lists at most 50 live listings with Edit on each, which opens the listing editor, imported on
- * the first Edit; a saved change says so in a toast and the list reloads with its rows kept. Its
+ * the first Edit; a saved change says so in a toast and the list reloads with its rows kept. Remove
+ * (slice 23.2; ADR 0055) opens a confirmation, imported on the first Remove, and a removed listing
+ * leaves the list the same way. Its
  * service is this screen's own, provided here (AGENTS.md, "Scope state to its use").
  */
 @Component({
@@ -240,6 +242,40 @@ export class ManageServicesPage {
         if (!result) return;
         if ('saved' in result) {
           this.toasts.show('Changes saved', `${result.saved.name} is updated.`);
+        } else {
+          this.toasts.show(
+            "That listing isn't there any more",
+            'Someone removed it. The list shows what is left.',
+          );
+        }
+        this.refreshListings();
+      });
+  }
+
+  /**
+   * Opens the Remove listing confirmation on the listing `id` (L2-027 AC2; ADR 0055), imported on
+   * the first Remove. A removal says so in a toast and the list shows what is left; a listing found
+   * gone says so and does the same. Keeping it changes nothing.
+   */
+  protected async removeListing(id: string): Promise<void> {
+    const state = this.state();
+    const listing =
+      state.kind === 'ready' ? state.listings.listings.find((shown) => shown.id === id) : undefined;
+    if (!listing || this.dialogOpen) return;
+    this.dialogOpen = true;
+    const { openRemoveListing } =
+      await import('../../dialogs/listing-editor/listing-editor-dialog');
+    if (this.destroyRef.destroyed) return;
+    openRemoveListing(this.injector, listing)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        this.dialogOpen = false;
+        if (!result) return;
+        if (result === 'removed') {
+          this.toasts.show(
+            'Listing removed',
+            `${listing.name} is no longer on Services. Their conversations stay.`,
+          );
         } else {
           this.toasts.show(
             "That listing isn't there any more",

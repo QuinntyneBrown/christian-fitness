@@ -645,6 +645,20 @@
       ]
     },
     {
+      "id": "remove-listing",
+      "kind": "dialog",
+      "title": "Remove a listing",
+      "group": "Admin console",
+      "opens_from": "admin-services",
+      "source": "Derived: the Manage Services frame's live listings table, with a confirmation before a listing is removed (L2-027 AC2; ADR 0055).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ]
+    },
+    {
       "id": "moderate-member",
       "kind": "dialog",
       "title": "Moderate a member",

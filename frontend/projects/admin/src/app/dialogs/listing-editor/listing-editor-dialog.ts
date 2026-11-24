@@ -151,3 +151,7 @@ export function openListingEditor(
       height: '100%',
     });
 }
+
+// Re-exported so the Services page imports both listing dialogs from one lazy module: a third separate
+// dynamic import in that page grew the initial bundle by 90 bytes (slice 23.2; docs/lessons-learned.md).
+export { openRemoveListing } from '../remove-listing/remove-listing-dialog';

@@ -139,9 +139,11 @@
         <cf-table
           caption="Live listings"
           actionLabel="Edit"
+          secondActionLabel="Remove"
           [columns]="listingColumns"
           [rows]="listingRows()"
           (action)="editListing($event)"
+          (secondAction)="removeListing($event)"
         />
       } @else {
         <cf-empty-state

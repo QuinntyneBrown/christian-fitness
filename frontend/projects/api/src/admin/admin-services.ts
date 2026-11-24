@@ -99,6 +99,12 @@ export interface AdminServicesApi {
    * refused field, or 404 `service_not_found` when the listing is gone.
    */
   updateListing(id: string, listing: UpdateListingDto): Observable<AdminListingDto>;
+
+  /**
+   * Removes the listing `id` (`DELETE .../listings/{id}`, slice 23.2; ADR 0055). A failure errors
+   * with an `ApiError`: 404 `service_not_found` when the listing is gone already.
+   */
+  removeListing(id: string): Observable<void>;
 }
 
 /** Binds {@link AdminServicesApi}; the Services page provides it on its routed component. */
