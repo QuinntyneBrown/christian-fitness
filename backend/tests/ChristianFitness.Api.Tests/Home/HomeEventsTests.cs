@@ -185,3 +185,77 @@ public sealed class HomeSuggestionLimitTests(HomeFactory factory) : IClassFixtur
             home.GetProperty("suggested").EnumerateArray().Select(e => e.GetProperty("id").GetString()));
     }
 }
+
+/// <summary>
+/// L2-007 AC1 (ADR 0045): Home answers <c>unreadCount</c> across the member's event group chats
+/// and direct messages, leaving out their own messages and messages at or before their read marker.
+/// </summary>
+public sealed class HomeUnreadTests(HomeFactory factory) : IClassFixture<HomeFactory>
+{
+    [Fact]
+    public async Task Given_no_conversations_When_Home_is_asked_for_Then_unread_count_is_zero()
+    {
+        using var client = Browser.CreateClient(factory);
+        var cookie = await OwnProfileTests.JoinedAsync(client, JoinTests.Details("grace.home.unread0@example.org"));
+
+        using var response = await Browser.SendAsync(client, HttpMethod.Get, "/api/home", cookie);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var home = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal(
+            ["nextEvent", "suggested", "unreadCount"],
+            home.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(0, home.GetProperty("unreadCount").GetInt32());
+    }
+
+    [Fact]
+    public async Task Given_unread_and_read_group_and_direct_messages_When_Home_is_asked_for_Then_unread_count_sums_only_other_members_unread_messages()
+    {
+        var eventOne = await factory.AddEventAsync("Sunrise 5K", TimeSpan.FromDays(2));
+        var eventTwo = await factory.AddEventAsync("Hoops Night", TimeSpan.FromDays(4), EventCategory.Basketball);
+        var otherEvent = await factory.AddEventAsync("Unjoined Run", TimeSpan.FromDays(5));
+
+        using var graceClient = Browser.CreateClient(factory);
+        var graceCookie = await OwnProfileTests.JoinedAsync(graceClient, JoinTests.Details("grace.home.unread@example.org"));
+        var graceSession = await (await Browser.SendAsync(graceClient, HttpMethod.Get, "/api/session", graceCookie))
+            .Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        var graceId = Guid.Parse(graceSession.GetProperty("memberId").GetString()!);
+
+        using var michaelClient = Browser.CreateClient(factory);
+        var michaelCookie = await OwnProfileTests.JoinedAsync(michaelClient, JoinTests.Details("michael.home.unread@example.org"));
+        var michaelSession = await (await Browser.SendAsync(michaelClient, HttpMethod.Get, "/api/session", michaelCookie))
+            .Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        var michaelId = Guid.Parse(michaelSession.GetProperty("memberId").GetString()!);
+
+        foreach (var id in new[] { eventOne, eventTwo })
+        {
+            Assert.Equal(HttpStatusCode.OK, (await Browser.SendAsync(graceClient, HttpMethod.Post, $"/api/events/{id}/registrations", graceCookie)).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await Browser.SendAsync(michaelClient, HttpMethod.Post, $"/api/events/{id}/registrations", michaelCookie)).StatusCode);
+        }
+        Assert.Equal(HttpStatusCode.OK, (await Browser.SendAsync(michaelClient, HttpMethod.Post, $"/api/events/{otherEvent}/registrations", michaelCookie)).StatusCode);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var t0 = HomeFactory.Now.AddMinutes(-10);
+            db.ChatMessages.Add(ChatMessage.Of(eventOne, michaelId, "Early note", t0));
+            db.ChatReadMarkers.Add(ChatReadMarker.Of(graceId, eventOne, t0.AddMinutes(1)));
+            db.ChatMessages.Add(ChatMessage.Of(eventOne, michaelId, "Parking fills at 6:30", t0.AddMinutes(2)));
+            db.ChatMessages.Add(ChatMessage.Of(eventOne, michaelId, "Meet at the arch", t0.AddMinutes(3)));
+            db.ChatMessages.Add(ChatMessage.Of(eventOne, graceId, "On my way", t0.AddMinutes(4)));
+            db.ChatMessages.Add(ChatMessage.Of(eventTwo, michaelId, "Who has pinnies?", t0.AddMinutes(5)));
+            db.ChatMessages.Add(ChatMessage.Of(otherEvent, michaelId, "Unjoined chat", t0.AddMinutes(5)));
+            db.DirectMessages.Add(DirectMessage.Of(michaelId, graceId, "Yesterday note", t0));
+            db.ChatReadMarkers.Add(ChatReadMarker.Of(graceId, michaelId, t0.AddMinutes(1)));
+            db.DirectMessages.Add(DirectMessage.Of(michaelId, graceId, "See you Thursday!", t0.AddMinutes(2)));
+            db.DirectMessages.Add(DirectMessage.Of(graceId, michaelId, "Sounds great!", t0.AddMinutes(3)));
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        using var response = await Browser.SendAsync(graceClient, HttpMethod.Get, "/api/home", graceCookie);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var home = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+        Assert.Equal(4, home.GetProperty("unreadCount").GetInt32());
+    }
+}
