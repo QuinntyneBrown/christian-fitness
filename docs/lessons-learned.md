@@ -2205,3 +2205,26 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A class, not a record, for anything personal" (2.1, 27.1): the command and the body are classes; the telemetry test proves neither the reason nor the text reaches a span or log.
 - "Load a dialog by a dynamic `import()` of a file whose function opens it with the page's injector" (10.1): the dialog is a lazy chunk and the initial total did not move.
 - "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+
+## Slice 28.1: Community activity
+
+**What slowed it**
+
+- The mock drew April totals, not a weekly series, and the design left the length, the week rule and the endpoint `<TO SUPPLY>`. ADR 0058 settled eight Monday-start UTC weeks; the Community activity section was added to five mock states by a script that asserted its anchor once per file (`build_mocks.py` was not run), and the mock's `partial` state became this section's error.
+- The shell specs, the boot spec and L2-021 all expect an h1 "Dashboard", so the page keeps it rather than the mock's greeting.
+- A 5xx opens the server-error screen (8.2's lesson again), so the failing-request spec uses 404.
+- `FakeTimeProvider` cannot go back, and a staff session idles out after days of advance: the "new week" test advances before it signs in.
+- One full Playwright run failed one unrelated web spec (home, then landing) under load; each passed alone and in the next full run.
+
+**New lessons**
+
+- Staff accounts are members and join at the fake time, so every activity test counts Dana in the current week; the case table adds her instead of avoiding her.
+- Week boundaries need a case at each edge (Monday 00:00, the second before, the first week's start, the second before that, now, a later instant); removing the upper bound alone failed five cases.
+- A section rendered with library parts (table, skeleton region, empty state) cost no initial bundle: admin 280.32 kB, under 280.35 kB.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 25.1): followed; the handler returned no weeks, so 11 of 12 API tests failed for behaviour and all five e2e specs failed for the missing section.
+- "Prove a rule red by breaking it alone" (1.1 to 25.1): dropping the registrations' upper bound failed five cases; restored.
+- "A fixture default for a new call" (15.1 on): the shared fixture answers eight quiet weeks, so every admin spec that lands on the Dashboard stays green; the whole suite was run.
+- "Count a slice's new specs against the CI budget" (24.1): five short specs in one file.

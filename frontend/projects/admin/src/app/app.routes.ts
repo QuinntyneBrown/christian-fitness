@@ -1,8 +1,6 @@
 import type { Routes } from '@angular/router';
 import { staffAuthGuard } from '@cf/domain';
 
-/** An area's routed stand-in until its slice: the area's heading, nothing else (ADR 0011). */
-const area = () => import('./pages/area/area-page').then((m) => m.AreaPage);
 const forbidden = () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage);
 const services = () =>
   import('./pages/manage-services/manage-services-page').then((m) => m.ManageServicesPage);
@@ -35,12 +33,12 @@ export const routes: Routes = [
     loadComponent: () => import('./shell/admin-shell').then((m) => m.AdminShell),
     children: [
       {
-        // Stand-in until slice 28.1 (ADR 0011).
+        // The community's activity over the last weeks (slice 28.1; ADR 0058).
         path: '',
         pathMatch: 'full',
         title: titled('Dashboard'),
-        data: { heading: 'Dashboard' },
-        loadComponent: area,
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard-page').then((m) => m.AdminDashboardPage),
       },
       {
         // Every event under All, Published and Draft, and the event editor (slice 10.1; ADR 0021).
