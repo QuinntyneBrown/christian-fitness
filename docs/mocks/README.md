@@ -6,10 +6,13 @@ state, as static HTML that opens from disk. These mocks are the source of truth 
 
 **Source design.** The Magic Patterns OS
 <https://www.magicpatterns.com/os/rCJdLHom5zs5XuG3YFh2Pu>, canvas _Web App_: prototype
-_Christian Fitness_ (Landing, Join, Home, Events, Event Detail, Services, Messages, Profile) and
-prototype _Admin Console_ (Sign In, Dashboard, Manage Events, Manage Services, Members). Those 13
-frames are reproduced at parity: same layout, spacing, type, colour, copy and data, rebuilt as
-BEM + tokens instead of Tailwind. Each mock names its frame in `<meta name="mock:source">`;
+_Christian Fitness_ (Landing, Join, Member Sign In, Google Account Chooser, Home, Events, Event
+Detail, Event Series, Directory, Listing Profile, Services, Messages, Profile, Subscribe,
+Newsletter) and prototype _Admin Console_ (Sign In, Dashboard, Manage Events, Manage Services,
+Members). Those 20 frames are reproduced at parity: same layout, spacing, type, colour, copy and
+data, rebuilt as BEM + tokens instead of Tailwind. Last synced with the frames of 24 Nov 2026:
+the news front page, Google sign-in in both apps, event series, the directory, and the newsletter
+and RSS pages. Each mock names its frame in `<meta name="mock:source">`;
 screens and states the prototype doesn't draw are marked _Derived_ and built from its parts.
 
 ## How to open
@@ -24,8 +27,8 @@ screens and states the prototype doesn't draw are marked _Derived_ and built fro
 
 ## Cast and catalog
 
-Used in every mock; reuse it in new ones. Source: the prototype's `shared/cf/data.ts` and
-`shared/cf/admin/data.ts`.
+Used in every mock; reuse it in new ones. Source: the prototype's `shared/cf/data.ts`,
+`shared/cf/news.ts` and `shared/cf/admin/data.ts`.
 
 <!--
 TODAY     Wednesday, April 15, 2026, 8:45 AM, Toronto ("Good morning"; Sunrise 5K is in 3 days)
@@ -34,6 +37,7 @@ MEMBER    Grace Thompson (GT) @gracet · grace.thompson@gmail.com · Grace Fello
           twice a week, sleep before 11 · into: Running, Strength, Basketball, Nutrition
 OTHER     Michael Chen (MC) @mchenruns · Toronto Chinese Baptist · Sunrise 5K pacer (member view)
 EVENTS    Easter Sunrise 5K · Sat Apr 18 6:45 AM · Martin Goodman Trail · Free · 142/200 · going
+          Couch to 5K: Week 3 · Tue Apr 21 6:30 PM · Humber Bay Park East · Free · 31/40 · going · session 3 of 8
           Saturday Park Bootcamp · Sat Apr 25 8:00 AM · Trillium Park · $10 · 38/50
           Women's Hoops & Devotion Night · Thu Apr 30 7:00 PM · St. Lawrence CRC · Free · 24/30 · going
           Stretch & Pray: Mobility Morning · Wed May 6 9:30 AM · Grace Fellowship Hall · Free · 17/25
@@ -47,6 +51,18 @@ STAFF     Dana Reyes (DR), Community director, dana@christianfitness.ca (Admin) 
 MEMBERS   2,431 total, +86 in April · Kevin Brooks Flagged (supplements in 3 chats, 4 reports) ·
           Tyler Simmons Suspended (spam, Apr 4) · Priya Nair, Adaeze Kalu, Jordan Reid Active
 APPLY     Hannah Bergstrom (RMT) · Samuel Osei (strength coach) · Lena Park, RD (sports dietitian)
+SERIES    Couch to 5K Run Club (8 Tuesdays, Apr 7 – May 26, Free, joined, came to 2 of 2) ·
+          Saturday Park Bootcamp (8 Saturdays, $64 for all 8 or $10 each) ·
+          Women's Hoops & Devotion (last Thursday of the month, Jan – Jun, Free)
+LISTINGS  12 in six kinds. Grace follows Lakeshore Runners Fellowship, Grace Fellowship Move Ministry and
+          Danielle Okafor. Hosts: Christian Fitness (Sunrise 5K), Lakeshore Runners (Couch to 5K),
+          Danielle Okafor (Bootcamp), Faith & Footwork (Hoops), Grace Fellowship Move Ministry (Stretch & Pray).
+          Northline Athletic is the one listing that is not verified.
+NEWS      10 stories in six sections; lead: the West End church basement gym (Community, Naomi Clarke).
+          The Abundant Weekly, No. 48, Saturday April 11, 2026, every Saturday 7 AM, 6,800 readers.
+GOOGLE    Member: grace.thompson@gmail.com (has a profile) · grace@gracefellowship.ca (none yet).
+          Staff: dana@christianfitness.ca (Admin) · dana.reyes@gmail.com (wrong domain) ·
+          events@christianfitness.ca (the team's domain, no console role)
 -->
 
 |                  |                                                                                                                                                                                    |
@@ -64,7 +80,7 @@ APPLY     Hannah Bergstrom (RMT) · Samuel Osei (strength coach) · Lena Park, R
   [`tokens/tokens.css`](../design-system/tokens/tokens.css) and
   [`assets/components.css`](../design-system/assets/components.css), the single source of truth
   for tokens and components; fonts are self-hosted there. See [the design system](../design-system/README.md).
-- `assets/images/`: the prototype's five photos, downloaded so nothing loads from a CDN.
+- `assets/images/`: the prototype's ten photos, downloaded so nothing loads from a CDN.
 - `assets/mock.css`, `assets/mock.js`: the mock bar, notes, theme switch and click-through; not product UI.
 
 ## Editing the mocks
@@ -73,10 +89,19 @@ The HTML under `pages/`, `dialogs/` and `notifications/` is generated by `tools/
 cast and components stay identical in every file. Change the generator, never one HTML file:
 
 ```sh
-python3 docs/mocks/tools/build_mocks.py                       # rewrite every mock + manifest.json
+python3 docs/mocks/tools/build_mocks.py                       # rewrite the generator's mocks + manifest.json
+python3 docs/mocks/tools/build_mocks.py landing join          # or only the screens named
 python3 .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks --write   # gallery, coverage, checks
 python3 .claude/skills/writing-html-mocks/scripts/screenshot_mocks.py docs/mocks      # PNGs in .cache/ (never commit)
 ```
+
+**The generator is behind for some screens.** Later slices changed these in their HTML only:
+Messages, Profile, the admin Dashboard, the event and listing editors, Decline an application and
+the admin toasts, plus five screens the generator never had (the event registrations page and the
+Cancel a registration, Cancel an event, Remove a listing and Report a message dialogs).
+`build_mocks.py` leaves all of them alone (`HAND_EDITED` there, `HAND_WRITTEN` in `cf_ui.py`).
+Change those in their HTML until each is ported back; a change to the member shell (the
+navigation, say) must be made in the generator and in those files.
 
 ## Decisions where the prototype is silent or conflicts with the rules
 
@@ -91,8 +116,37 @@ python3 .claude/skills/writing-html-mocks/scripts/screenshot_mocks.py docs/mocks
   follow it and always carry text (and an icon outside fields), never colour alone.
 - **Undo instead of confirmations.** "Can't make it", Suspend and Dismiss act at once in the
   prototype. They stay instant and show a toast with Undo, since each is reversible.
-- **Member sign in.** The prototype's "Sign in" links go straight to Home; a Sign in screen in the
-  Join layout was added, with forgot and reset password.
+- **Member sign in.** Drawn by the Member Sign In frame: a card with Continue with Google above
+  the email form. Forgot and reset password, which the prototype does not draw, keep the Join layout.
+- **Wrong password.** The frame says "That password doesn't match. If you joined with Google, use
+  Continue with Google above." That tells a stranger the email has an account, so the mock keeps
+  the one generic message (L2-004 AC2) and adds the Google hint to it for every email alike.
+- **Google's account chooser.** It is Google's page; the product never renders it. It is mocked
+  (group "Google (not built)") only so the three sign-in flows click through, in the product's own
+  neutrals instead of Google's colours and type.
+- **Google did not finish.** The prototype has no state for an error at Google or an answer that
+  fails its checks; `google-failed` was added to Sign in and Join, and `error` to Staff sign in.
+- **Staff sign in.** Google Workspace only, as the Sign In frame now draws it. The password form
+  and the code screen are gone (`admin-two-step` was removed; L2-046 is withdrawn). The frame's
+  "Ask an owner to add you under Members" reads "Ask an Admin to add you to the team": the roles
+  are Admin and Moderator (L2-019) and the Members screen manages members, not staff.
+- **Landing.** A news front page now. Stories do not open: the prototype has no story page (see
+  the open questions). The earlier "Meet our professionals" section is gone with the old layout.
+- **Series, full.** The frame offers "Join the waitlist"; there is no waitlist (L2-011 AC2), so a
+  full series says "Series full", the every-session choice is unavailable and dates can still be
+  picked. A full event still reads "This event is full".
+- **Series and paid.** No online payment yet (L2-011 AC5): a paid series or drop-in is reserved and
+  the panel says to pay the host in person.
+- **Leave the series.** Instant in the frame; it opens a confirmation dialog, as cancelling a
+  registration does (ADR 0034).
+- **Follow.** Instant, both ways, with no confirmation, as the frame draws it; a failure puts the
+  button back and shows a toast (`directory/follow-failed`).
+- **Newsletter confirmation and unsubscribe.** The frame stops at "Check your inbox". The states
+  after the emailed links (`confirmed`, `link-expired`, `unsubscribed`) and `limited` were added
+  to Subscribe; Canada's anti-spam law needs the consent and the one-step unsubscribe (L2-058).
+- **Events category.** The frames' filter has no Retreat chip; it is kept, since Retreat is a
+  category events can have (L2-009 AC2).
+- **Phone tab bar.** Six tabs now (Directory added), still at least 44 px each at 360 px wide.
 - **Member profile view.** The prototype's `view=member` shows Grace's own data with a Message
   button; the `member` state shows Michael Chen instead, at `/members/:id`.
 - **Event full.** The prototype's `full` state reuses the event's counts; the mock shows Saturday
@@ -100,7 +154,6 @@ python3 .claude/skills/writing-html-mocks/scripts/screenshot_mocks.py docs/mocks
 - **Edit profile, Request a booking, Add listing.** Buttons in the prototype with no screen behind
   them; each opens a dialog or drawer built from the prototype's form fields and the New event
   drawer. `AGENTS.md` rules out inline forms.
-- **Two-step verification.** The staff sign-in says it's required; the code screen was added.
 
 ## Open questions
 
@@ -118,6 +171,20 @@ python3 .claude/skills/writing-html-mocks/scripts/screenshot_mocks.py docs/mocks
    (`AGENTS.md`); the mocks work either way.
 6. **Home church.** Treated as optional and only shown on a member's own profile and to staff. Should
    members be able to hide it from other members?
+7. **Story pages.** Stories on the landing page, in the newsletter and in the feeds have nowhere to
+   open: the prototype draws no story page. Is one coming, or do stories link out?
+8. **Who writes the news.** Nothing in the Admin Console publishes stories, sends the newsletter,
+   or creates a series or a directory listing (Manage Services still reviews "professionals").
+   Those staff screens are not designed, so they are neither mocked nor specified.
+9. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
+   Services professional and a directory listing, with different copy. One record or two?
+10. **Messaging an organization.** A listing's Message button opens a direct conversation. For an
+    organization, company or ministry, who receives it?
+11. **Suggest a listing.** The directory's no-results state offers it; no screen is behind it.
+12. **Manage preferences.** The newsletter's footer link goes to Subscribe, which cannot yet show a
+    subscriber's current extras. Is a preferences screen (reached from the emailed link) wanted?
+13. **Legal pages, again.** Google's consent screen links the app's privacy policy and terms of
+    service; Google requires both before the sign-in client can be published (see question 4).
 
 ## Coverage
 
@@ -127,53 +194,62 @@ Legend: ✅ mock exists · ➖ not applicable (reason in manifest) · ❌ missin
 
 ### Pages
 
-| Screen | default | loading | empty | error | invalid | invalid-fields | refused | limited | submitting | suspended | failed | success | unchecked | partial | offline | loading-more | more-error | capped | no-results | filtered | going | unregistered | registering | full | selected | list | direct | draft | send-failed | member | no-reference | not-staff | two-step-expired | two-step-locked | two-step-not-set-up | session-expired | role | moderator | published | tab-empty | decided | no-applications | active | flagged | Requirements |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Landing (`landing`) | [✅](pages/landing/default.html) | [✅](pages/landing/loading.html) | [✅](pages/landing/empty.html) | [✅](pages/landing/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Join (`join`) | [✅](pages/join/default.html) | ➖ | ➖ | [✅](pages/join/error.html) | [✅](pages/join/invalid.html) | [✅](pages/join/invalid-fields.html) | [✅](pages/join/refused.html) | [✅](pages/join/limited.html) | [✅](pages/join/submitting.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Sign in (`sign-in`) | [✅](pages/sign-in/default.html) | ➖ | ➖ | [✅](pages/sign-in/error.html) | [✅](pages/sign-in/invalid.html) |  |  |  | [✅](pages/sign-in/submitting.html) | [✅](pages/sign-in/suspended.html) | [✅](pages/sign-in/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Forgot password (`forgot-password`) | [✅](pages/forgot-password/default.html) | ➖ | ➖ | [✅](pages/forgot-password/error.html) | [✅](pages/forgot-password/invalid.html) |  |  | [✅](pages/forgot-password/limited.html) | [✅](pages/forgot-password/submitting.html) |  |  | [✅](pages/forgot-password/success.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Reset password (`reset-password`) | [✅](pages/reset-password/default.html) | [✅](pages/reset-password/loading.html) | ➖ | [✅](pages/reset-password/error.html) | [✅](pages/reset-password/invalid.html) |  |  |  | [✅](pages/reset-password/submitting.html) |  | [✅](pages/reset-password/failed.html) | [✅](pages/reset-password/success.html) | [✅](pages/reset-password/unchecked.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Home (`home`) | [✅](pages/home/default.html) | [✅](pages/home/loading.html) | [✅](pages/home/empty.html) | [✅](pages/home/error.html) |  |  |  |  |  |  |  |  |  | [✅](pages/home/partial.html) | [✅](pages/home/offline.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Events (`events`) | [✅](pages/events/default.html) | [✅](pages/events/loading.html) | [✅](pages/events/empty.html) | [✅](pages/events/error.html) |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/events/loading-more.html) | [✅](pages/events/more-error.html) | [✅](pages/events/capped.html) | [✅](pages/events/no-results.html) | [✅](pages/events/filtered.html) | [✅](pages/events/going.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Event detail (`event-detail`) | [✅](pages/event-detail/default.html) | [✅](pages/event-detail/loading.html) | ➖ | [✅](pages/event-detail/error.html) |  |  |  |  |  |  | [✅](pages/event-detail/failed.html) |  |  |  |  |  |  |  |  |  |  | [✅](pages/event-detail/unregistered.html) | [✅](pages/event-detail/registering.html) | [✅](pages/event-detail/full.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Services (`services`) | [✅](pages/services/default.html) | [✅](pages/services/loading.html) | [✅](pages/services/empty.html) | [✅](pages/services/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/services/filtered.html) |  |  |  |  | [✅](pages/services/selected.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Messages (`messages`) | [✅](pages/messages/default.html) | [✅](pages/messages/loading.html) | [✅](pages/messages/empty.html) | [✅](pages/messages/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/messages/list.html) | [✅](pages/messages/direct.html) | [✅](pages/messages/draft.html) | [✅](pages/messages/send-failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Profile (`profile`) | [✅](pages/profile/default.html) | [✅](pages/profile/loading.html) | [✅](pages/profile/empty.html) | [✅](pages/profile/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/profile/member.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Page not found (`not-found`) | [✅](pages/not-found/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Something went wrong (`server-error`) | [✅](pages/server-error/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/server-error/no-reference.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Offline (`offline`) | [✅](pages/offline/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Staff sign in (`admin-sign-in`) | [✅](pages/admin-sign-in/default.html) | ➖ | ➖ | [✅](pages/admin-sign-in/error.html) | [✅](pages/admin-sign-in/invalid.html) |  |  |  | [✅](pages/admin-sign-in/submitting.html) |  | [✅](pages/admin-sign-in/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-sign-in/not-staff.html) | [✅](pages/admin-sign-in/two-step-expired.html) | [✅](pages/admin-sign-in/two-step-locked.html) | [✅](pages/admin-sign-in/two-step-not-set-up.html) | [✅](pages/admin-sign-in/session-expired.html) |  |  |  |  |  |  |  |  |  |
-| Two-step verification (`admin-two-step`) | [✅](pages/admin-two-step/default.html) | ➖ | ➖ | ➖ | [✅](pages/admin-two-step/invalid.html) |  |  |  | [✅](pages/admin-two-step/submitting.html) |  | [✅](pages/admin-two-step/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Staff only (`admin-forbidden`) | [✅](pages/admin-forbidden/default.html) | ➖ | ➖ | ➖ |  |  |  |  | [✅](pages/admin-forbidden/submitting.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-forbidden/role.html) |  |  |  |  |  |  |  |  |
-| Page not found (admin) (`admin-not-found`) | [✅](pages/admin-not-found/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Something went wrong (admin) (`admin-server-error`) | [✅](pages/admin-server-error/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-server-error/no-reference.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Offline (admin) (`admin-offline`) | [✅](pages/admin-offline/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Dashboard (`admin-dashboard`) | [✅](pages/admin-dashboard/default.html) | [✅](pages/admin-dashboard/loading.html) | [✅](pages/admin-dashboard/empty.html) | [✅](pages/admin-dashboard/error.html) |  |  |  |  |  |  |  |  |  | [✅](pages/admin-dashboard/partial.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-dashboard/moderator.html) |  |  |  |  |  |  |  |
-| Manage events (`admin-events`) | [✅](pages/admin-events/default.html) | [✅](pages/admin-events/loading.html) | [✅](pages/admin-events/empty.html) | [✅](pages/admin-events/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-events/draft.html) |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-events/published.html) | [✅](pages/admin-events/tab-empty.html) |  |  |  |  |  |
-| Manage services (`admin-services`) | [✅](pages/admin-services/default.html) | [✅](pages/admin-services/loading.html) | [✅](pages/admin-services/empty.html) | [✅](pages/admin-services/error.html) |  |  |  |  |  |  | [✅](pages/admin-services/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-services/decided.html) | [✅](pages/admin-services/no-applications.html) |  |  |  |
-| Members (`admin-members`) | [✅](pages/admin-members/default.html) | [✅](pages/admin-members/loading.html) | [✅](pages/admin-members/empty.html) | [✅](pages/admin-members/error.html) |  |  |  |  |  | [✅](pages/admin-members/suspended.html) |  |  |  |  |  |  |  |  | [✅](pages/admin-members/no-results.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-members/tab-empty.html) |  |  | [✅](pages/admin-members/active.html) | [✅](pages/admin-members/flagged.html) |  |
+| Screen | default | loading | empty | error | section | section-empty | events-error | redirecting | google | google-submitting | google-failed | invalid | invalid-fields | refused | limited | submitting | google-no-account | suspended | failed | success | unchecked | partial | offline | series | series-joined | series-empty | series-loading | series-error | loading-more | more-error | capped | no-results | filtered | going | session | unregistered | registering | reserved | full | selected | list | direct | draft | send-failed | cancelled | member | no-reference | wrong-domain | no-access | session-expired | role | moderator | attention-error | published | tab-empty | decided | no-applications | active | flagged | not-joined | joining | joined | drop-in-none | drop-in | booked | search | follow-failed | person | one-off | unverified | confirmed | link-expired | unsubscribed | copied | join | staff | Requirements |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Landing (`landing`) | [✅](pages/landing/default.html) | [✅](pages/landing/loading.html) | [✅](pages/landing/empty.html) | [✅](pages/landing/error.html) | [✅](pages/landing/section.html) | [✅](pages/landing/section-empty.html) | [✅](pages/landing/events-error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Join (`join`) | [✅](pages/join/default.html) | ➖ | ➖ | [✅](pages/join/error.html) |  |  |  | [✅](pages/join/redirecting.html) | [✅](pages/join/google.html) | [✅](pages/join/google-submitting.html) | [✅](pages/join/google-failed.html) | [✅](pages/join/invalid.html) | [✅](pages/join/invalid-fields.html) | [✅](pages/join/refused.html) | [✅](pages/join/limited.html) | [✅](pages/join/submitting.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Sign in (`sign-in`) | [✅](pages/sign-in/default.html) | ➖ | ➖ | [✅](pages/sign-in/error.html) |  |  |  | [✅](pages/sign-in/redirecting.html) |  |  | [✅](pages/sign-in/google-failed.html) | [✅](pages/sign-in/invalid.html) |  |  |  | [✅](pages/sign-in/submitting.html) | [✅](pages/sign-in/google-no-account.html) | [✅](pages/sign-in/suspended.html) | [✅](pages/sign-in/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Forgot password (`forgot-password`) | [✅](pages/forgot-password/default.html) | ➖ | ➖ | [✅](pages/forgot-password/error.html) |  |  |  |  |  |  |  | [✅](pages/forgot-password/invalid.html) |  |  | [✅](pages/forgot-password/limited.html) | [✅](pages/forgot-password/submitting.html) |  |  |  | [✅](pages/forgot-password/success.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Reset password (`reset-password`) | [✅](pages/reset-password/default.html) | [✅](pages/reset-password/loading.html) | ➖ | [✅](pages/reset-password/error.html) |  |  |  |  |  |  |  | [✅](pages/reset-password/invalid.html) |  |  |  | [✅](pages/reset-password/submitting.html) |  |  | [✅](pages/reset-password/failed.html) | [✅](pages/reset-password/success.html) | [✅](pages/reset-password/unchecked.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Home (`home`) | [✅](pages/home/default.html) | [✅](pages/home/loading.html) | [✅](pages/home/empty.html) | [✅](pages/home/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/home/partial.html) | [✅](pages/home/offline.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Events (`events`) | [✅](pages/events/default.html) | [✅](pages/events/loading.html) | [✅](pages/events/empty.html) | [✅](pages/events/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/events/series.html) | [✅](pages/events/series-joined.html) | [✅](pages/events/series-empty.html) | [✅](pages/events/series-loading.html) | [✅](pages/events/series-error.html) | [✅](pages/events/loading-more.html) | [✅](pages/events/more-error.html) | [✅](pages/events/capped.html) | [✅](pages/events/no-results.html) | [✅](pages/events/filtered.html) | [✅](pages/events/going.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Event detail (`event-detail`) | [✅](pages/event-detail/default.html) | [✅](pages/event-detail/loading.html) | ➖ | [✅](pages/event-detail/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/event-detail/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/event-detail/session.html) | [✅](pages/event-detail/unregistered.html) | [✅](pages/event-detail/registering.html) | [✅](pages/event-detail/reserved.html) | [✅](pages/event-detail/full.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Services (`services`) | [✅](pages/services/default.html) | [✅](pages/services/loading.html) | [✅](pages/services/empty.html) | [✅](pages/services/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/services/filtered.html) |  |  |  |  |  |  | [✅](pages/services/selected.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Messages (`messages`) | [✅](pages/messages/default.html) | [✅](pages/messages/loading.html) | [✅](pages/messages/empty.html) | [✅](pages/messages/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/messages/list.html) | [✅](pages/messages/direct.html) | [✅](pages/messages/draft.html) | [✅](pages/messages/send-failed.html) | [✅](pages/messages/cancelled.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Profile (`profile`) | [✅](pages/profile/default.html) | [✅](pages/profile/loading.html) | [✅](pages/profile/empty.html) | [✅](pages/profile/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/profile/cancelled.html) | [✅](pages/profile/member.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Page not found (`not-found`) | [✅](pages/not-found/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Something went wrong (`server-error`) | [✅](pages/server-error/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/server-error/no-reference.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Offline (`offline`) | [✅](pages/offline/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Staff sign in (`admin-sign-in`) | [✅](pages/admin-sign-in/default.html) | ➖ | ➖ | [✅](pages/admin-sign-in/error.html) |  |  |  | [✅](pages/admin-sign-in/redirecting.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-sign-in/wrong-domain.html) | [✅](pages/admin-sign-in/no-access.html) | [✅](pages/admin-sign-in/session-expired.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Staff only (`admin-forbidden`) | [✅](pages/admin-forbidden/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-forbidden/submitting.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-forbidden/role.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Page not found (admin) (`admin-not-found`) | [✅](pages/admin-not-found/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Something went wrong (admin) (`admin-server-error`) | [✅](pages/admin-server-error/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-server-error/no-reference.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Offline (admin) (`admin-offline`) | [✅](pages/admin-offline/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Dashboard (`admin-dashboard`) | [✅](pages/admin-dashboard/default.html) | [✅](pages/admin-dashboard/loading.html) | [✅](pages/admin-dashboard/empty.html) | [✅](pages/admin-dashboard/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-dashboard/partial.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-dashboard/moderator.html) | [✅](pages/admin-dashboard/attention-error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Manage events (`admin-events`) | [✅](pages/admin-events/default.html) | [✅](pages/admin-events/loading.html) | [✅](pages/admin-events/empty.html) | [✅](pages/admin-events/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-events/draft.html) |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-events/published.html) | [✅](pages/admin-events/tab-empty.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Event registrations (`admin-event-registrations`) | [✅](pages/admin-event-registrations/default.html) | [✅](pages/admin-event-registrations/loading.html) | [✅](pages/admin-event-registrations/empty.html) | [✅](pages/admin-event-registrations/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Manage services (`admin-services`) | [✅](pages/admin-services/default.html) | [✅](pages/admin-services/loading.html) | [✅](pages/admin-services/empty.html) | [✅](pages/admin-services/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-services/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-services/decided.html) | [✅](pages/admin-services/no-applications.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Members (`admin-members`) | [✅](pages/admin-members/default.html) | [✅](pages/admin-members/loading.html) | [✅](pages/admin-members/empty.html) | [✅](pages/admin-members/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-members/suspended.html) |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-members/no-results.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/admin-members/tab-empty.html) |  |  | [✅](pages/admin-members/active.html) | [✅](pages/admin-members/flagged.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Event series (`event-series`) | [✅](pages/event-series/default.html) | [✅](pages/event-series/loading.html) | ➖ | [✅](pages/event-series/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/event-series/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/event-series/full.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/event-series/not-joined.html) | [✅](pages/event-series/joining.html) | [✅](pages/event-series/joined.html) | [✅](pages/event-series/drop-in-none.html) | [✅](pages/event-series/drop-in.html) | [✅](pages/event-series/booked.html) |  |  |  |  |  |  |  |  |  |  |  |  |
+| Directory (`directory`) | [✅](pages/directory/default.html) | [✅](pages/directory/loading.html) | [✅](pages/directory/empty.html) | [✅](pages/directory/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/directory/no-results.html) | [✅](pages/directory/filtered.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/directory/search.html) | [✅](pages/directory/follow-failed.html) |  |  |  |  |  |  |  |  |  |  |
+| Listing profile (`listing-profile`) | [✅](pages/listing-profile/default.html) | [✅](pages/listing-profile/loading.html) | ➖ | [✅](pages/listing-profile/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/listing-profile/person.html) | [✅](pages/listing-profile/one-off.html) | [✅](pages/listing-profile/unverified.html) |  |  |  |  |  |  |  |
+| Subscribe (`subscribe`) | [✅](pages/subscribe/default.html) | ➖ | ➖ | [✅](pages/subscribe/error.html) |  |  |  |  |  |  |  | [✅](pages/subscribe/invalid.html) |  |  | [✅](pages/subscribe/limited.html) | [✅](pages/subscribe/submitting.html) |  |  |  | [✅](pages/subscribe/success.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/subscribe/confirmed.html) | [✅](pages/subscribe/link-expired.html) | [✅](pages/subscribe/unsubscribed.html) | [✅](pages/subscribe/copied.html) |  |  |  |
+| Newsletter (`newsletter`) | [✅](pages/newsletter/default.html) | [✅](pages/newsletter/loading.html) | ➖ | [✅](pages/newsletter/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Google account chooser (`google-account-chooser`) | [✅](pages/google-account-chooser/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/google-account-chooser/join.html) | [✅](pages/google-account-chooser/staff.html) |  |
 
 ### Dialogs
 
-| Screen | default | busy | invalid | failed | success | invalid-limits | refused | edit | edit-saving | edit-invalid | edit-failed | edit-draft | publish-failed | image-invalid | saving | suspend | flagged | flagged-suspend | suspended | Requirements |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Request a booking (`request-booking`) | [✅](dialogs/request-booking/default.html) | [✅](dialogs/request-booking/busy.html) | [✅](dialogs/request-booking/invalid.html) | [✅](dialogs/request-booking/failed.html) | [✅](dialogs/request-booking/success.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Report a message (`report-message`) | [✅](dialogs/report-message/default.html) | [✅](dialogs/report-message/busy.html) |  | [✅](dialogs/report-message/failed.html) | [✅](dialogs/report-message/success.html) |  | [✅](dialogs/report-message/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Apply to be listed (`apply-to-be-listed`) | [✅](dialogs/apply-to-be-listed/default.html) | [✅](dialogs/apply-to-be-listed/busy.html) | [✅](dialogs/apply-to-be-listed/invalid.html) | [✅](dialogs/apply-to-be-listed/failed.html) | [✅](dialogs/apply-to-be-listed/success.html) |  | [✅](dialogs/apply-to-be-listed/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Edit profile (`edit-profile`) | [✅](dialogs/edit-profile/default.html) | [✅](dialogs/edit-profile/busy.html) | [✅](dialogs/edit-profile/invalid.html) | [✅](dialogs/edit-profile/failed.html) |  | [✅](dialogs/edit-profile/invalid-limits.html) | [✅](dialogs/edit-profile/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Event editor (`event-editor`) | [✅](dialogs/event-editor/default.html) | [✅](dialogs/event-editor/busy.html) | [✅](dialogs/event-editor/invalid.html) | [✅](dialogs/event-editor/failed.html) |  |  |  | [✅](dialogs/event-editor/edit.html) | [✅](dialogs/event-editor/edit-saving.html) | [✅](dialogs/event-editor/edit-invalid.html) | [✅](dialogs/event-editor/edit-failed.html) | [✅](dialogs/event-editor/edit-draft.html) | [✅](dialogs/event-editor/publish-failed.html) | [✅](dialogs/event-editor/image-invalid.html) | [✅](dialogs/event-editor/saving.html) |  |  |  |  |  |
-| Listing editor (`listing-editor`) | [✅](dialogs/listing-editor/default.html) | [✅](dialogs/listing-editor/busy.html) | [✅](dialogs/listing-editor/invalid.html) | [✅](dialogs/listing-editor/failed.html) |  |  |  | [✅](dialogs/listing-editor/edit.html) |  | [✅](dialogs/listing-editor/edit-invalid.html) |  |  |  |  |  |  |  |  |  |  |
-| Moderate a member (`moderate-member`) | [✅](dialogs/moderate-member/default.html) | [✅](dialogs/moderate-member/busy.html) | [✅](dialogs/moderate-member/invalid.html) | [✅](dialogs/moderate-member/failed.html) |  |  | [✅](dialogs/moderate-member/refused.html) |  |  |  |  |  |  |  |  | [✅](dialogs/moderate-member/suspend.html) | [✅](dialogs/moderate-member/flagged.html) | [✅](dialogs/moderate-member/flagged-suspend.html) | [✅](dialogs/moderate-member/suspended.html) |  |
-| Remove a listing (`remove-listing`) | [✅](dialogs/remove-listing/default.html) | [✅](dialogs/remove-listing/busy.html) |  | [✅](dialogs/remove-listing/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Decline an application (`decline-application`) | [✅](dialogs/decline-application/default.html) | [✅](dialogs/decline-application/busy.html) | [✅](dialogs/decline-application/invalid.html) | [✅](dialogs/decline-application/failed.html) |  |  | [✅](dialogs/decline-application/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Screen | default | busy | invalid | failed | success | refused | invalid-limits | edit | edit-saving | edit-invalid | edit-failed | edit-draft | edit-published | publish-failed | image-invalid | saving | suspend | flagged | flagged-suspend | suspended | Requirements |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Request a booking (`request-booking`) | [✅](dialogs/request-booking/default.html) | [✅](dialogs/request-booking/busy.html) | [✅](dialogs/request-booking/invalid.html) | [✅](dialogs/request-booking/failed.html) | [✅](dialogs/request-booking/success.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Report a message (`report-message`) | [✅](dialogs/report-message/default.html) | [✅](dialogs/report-message/busy.html) |  | [✅](dialogs/report-message/failed.html) | [✅](dialogs/report-message/success.html) | [✅](dialogs/report-message/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Apply to be listed (`apply-to-be-listed`) | [✅](dialogs/apply-to-be-listed/default.html) | [✅](dialogs/apply-to-be-listed/busy.html) | [✅](dialogs/apply-to-be-listed/invalid.html) | [✅](dialogs/apply-to-be-listed/failed.html) | [✅](dialogs/apply-to-be-listed/success.html) | [✅](dialogs/apply-to-be-listed/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Edit profile (`edit-profile`) | [✅](dialogs/edit-profile/default.html) | [✅](dialogs/edit-profile/busy.html) | [✅](dialogs/edit-profile/invalid.html) | [✅](dialogs/edit-profile/failed.html) |  | [✅](dialogs/edit-profile/refused.html) | [✅](dialogs/edit-profile/invalid-limits.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Event editor (`event-editor`) | [✅](dialogs/event-editor/default.html) | [✅](dialogs/event-editor/busy.html) | [✅](dialogs/event-editor/invalid.html) | [✅](dialogs/event-editor/failed.html) |  |  |  | [✅](dialogs/event-editor/edit.html) | [✅](dialogs/event-editor/edit-saving.html) | [✅](dialogs/event-editor/edit-invalid.html) | [✅](dialogs/event-editor/edit-failed.html) | [✅](dialogs/event-editor/edit-draft.html) | [✅](dialogs/event-editor/edit-published.html) | [✅](dialogs/event-editor/publish-failed.html) | [✅](dialogs/event-editor/image-invalid.html) | [✅](dialogs/event-editor/saving.html) |  |  |  |  |  |
+| Listing editor (`listing-editor`) | [✅](dialogs/listing-editor/default.html) | [✅](dialogs/listing-editor/busy.html) | [✅](dialogs/listing-editor/invalid.html) | [✅](dialogs/listing-editor/failed.html) |  |  |  | [✅](dialogs/listing-editor/edit.html) |  | [✅](dialogs/listing-editor/edit-invalid.html) |  |  |  |  |  |  |  |  |  |  |  |
+| Cancel a registration (`cancel-registration`) | [✅](dialogs/cancel-registration/default.html) | [✅](dialogs/cancel-registration/busy.html) |  | [✅](dialogs/cancel-registration/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Cancel an event (`cancel-event`) | [✅](dialogs/cancel-event/default.html) | [✅](dialogs/cancel-event/busy.html) |  | [✅](dialogs/cancel-event/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Remove a listing (`remove-listing`) | [✅](dialogs/remove-listing/default.html) | [✅](dialogs/remove-listing/busy.html) |  | [✅](dialogs/remove-listing/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Moderate a member (`moderate-member`) | [✅](dialogs/moderate-member/default.html) | [✅](dialogs/moderate-member/busy.html) | [✅](dialogs/moderate-member/invalid.html) | [✅](dialogs/moderate-member/failed.html) |  | [✅](dialogs/moderate-member/refused.html) |  |  |  |  |  |  |  |  |  |  | [✅](dialogs/moderate-member/suspend.html) | [✅](dialogs/moderate-member/flagged.html) | [✅](dialogs/moderate-member/flagged-suspend.html) | [✅](dialogs/moderate-member/suspended.html) |  |
+| Decline an application (`decline-application`) | [✅](dialogs/decline-application/default.html) | [✅](dialogs/decline-application/busy.html) | [✅](dialogs/decline-application/invalid.html) | [✅](dialogs/decline-application/failed.html) |  | [✅](dialogs/decline-application/refused.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Leave a series (`leave-series`) | [✅](dialogs/leave-series/default.html) | [✅](dialogs/leave-series/busy.html) | ➖ | [✅](dialogs/leave-series/failed.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 ### Notifications
 
-| Screen | info | success | warning | danger | with-action | stacked | persistent | draft-saved | changes-saved | load-failed | member-flagged | member-suspended | member-reinstated | Requirements |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Toast (`toast`) | [✅](notifications/toast/info.html) | [✅](notifications/toast/success.html) | [✅](notifications/toast/warning.html) | [✅](notifications/toast/danger.html) | [✅](notifications/toast/with-action.html) | [✅](notifications/toast/stacked.html) |  |  |  |  |  |  |  |  |
-| Banner (`banner`) | [✅](notifications/banner/info.html) | [✅](notifications/banner/success.html) | [✅](notifications/banner/warning.html) | [✅](notifications/banner/danger.html) |  |  | [✅](notifications/banner/persistent.html) |  |  |  |  |  |  |  |
-| Admin toast (`admin-toast`) | [✅](notifications/admin-toast/info.html) | [✅](notifications/admin-toast/success.html) | [✅](notifications/admin-toast/warning.html) | [✅](notifications/admin-toast/danger.html) | [✅](notifications/admin-toast/with-action.html) | [✅](notifications/admin-toast/stacked.html) |  | [✅](notifications/admin-toast/draft-saved.html) | [✅](notifications/admin-toast/changes-saved.html) | [✅](notifications/admin-toast/load-failed.html) | [✅](notifications/admin-toast/member-flagged.html) | [✅](notifications/admin-toast/member-suspended.html) | [✅](notifications/admin-toast/member-reinstated.html) |  |
+| Screen | info | success | warning | danger | with-action | stacked | persistent | draft-saved | changes-saved | event-cancelled | load-failed | member-flagged | member-suspended | member-reinstated | Requirements |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Toast (`toast`) | [✅](notifications/toast/info.html) | [✅](notifications/toast/success.html) | [✅](notifications/toast/warning.html) | [✅](notifications/toast/danger.html) | [✅](notifications/toast/with-action.html) | [✅](notifications/toast/stacked.html) |  |  |  |  |  |  |  |  |  |
+| Banner (`banner`) | [✅](notifications/banner/info.html) | [✅](notifications/banner/success.html) | [✅](notifications/banner/warning.html) | [✅](notifications/banner/danger.html) |  |  | [✅](notifications/banner/persistent.html) |  |  |  |  |  |  |  |  |
+| Admin toast (`admin-toast`) | [✅](notifications/admin-toast/info.html) | [✅](notifications/admin-toast/success.html) | [✅](notifications/admin-toast/warning.html) | [✅](notifications/admin-toast/danger.html) | [✅](notifications/admin-toast/with-action.html) | [✅](notifications/admin-toast/stacked.html) |  | [✅](notifications/admin-toast/draft-saved.html) | [✅](notifications/admin-toast/changes-saved.html) | [✅](notifications/admin-toast/event-cancelled.html) | [✅](notifications/admin-toast/load-failed.html) | [✅](notifications/admin-toast/member-flagged.html) | [✅](notifications/admin-toast/member-suspended.html) | [✅](notifications/admin-toast/member-reinstated.html) |  |
 
 <!-- coverage:end -->

@@ -20,7 +20,7 @@
     <div class="app-header__inner">
       <a class="lockup" href="../../pages/home/default.html"><svg class="seal seal--lockup" viewBox="0 0 200 200" aria-hidden="true"><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7"/><rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2"/><rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2"/></svg><span class="lockup__name">Christian Fitness</span></a>
       <nav class="app-nav" aria-label="Primary">
-        <a class="app-nav__link" href="../../pages/home/default.html">Home</a><a class="app-nav__link" href="../../pages/events/default.html" aria-current="page">Events</a><a class="app-nav__link" href="../../pages/services/default.html">Services</a><a class="app-nav__link" href="../../pages/messages/default.html">Messages <span class="count-badge" aria-label="4 unread">4</span></a>
+        <a class="app-nav__link" href="../../pages/home/default.html">Home</a><a class="app-nav__link" href="../../pages/events/default.html" aria-current="page">Events</a><a class="app-nav__link" href="../../pages/directory/default.html">Directory</a><a class="app-nav__link" href="../../pages/services/default.html">Services</a><a class="app-nav__link" href="../../pages/messages/default.html">Messages <span class="count-badge" aria-label="4 unread">4</span></a>
       </nav>
       <a class="profile-button" href="../../pages/profile/default.html" aria-label="Your profile">GT</a>
       <button class="btn btn--ghost app-header__signout" type="button">Sign out</button>
@@ -32,7 +32,7 @@
       <div class="page-head">
         <div>
           <h1 class="display page-title">Events</h1>
-          <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
+          <p class="subtitle">From the churches, clubs and coaches in our directory. Free unless marked.</p>
         </div>
         <form class="search" role="search">
           <label class="visually-hidden" for="event-search">Search events</label>
@@ -40,7 +40,8 @@
           <input class="search__input" id="event-search" type="search" placeholder="Search events">
         </form>
       </div>
-      <div class="chip-bar" role="group" aria-label="Filter events">
+      <nav class="segmented" aria-label="View"><a class="segmented__option" href="../../pages/events/default.html" aria-current="page">By date</a><a class="segmented__option" href="../../pages/events/series.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Series (3)</a></nav>
+      <div class="chip-bar chip-bar--tight" role="group" aria-label="Filter events">
           <a class="chip" href="../../pages/events/default.html" aria-current="page">All</a><a class="chip" href="../../pages/events/filtered.html">Run</a><a class="chip" href="../../pages/events/filtered.html">Workout</a><a class="chip" href="../../pages/events/filtered.html">Basketball</a><a class="chip" href="../../pages/events/filtered.html">Mobility</a><a class="chip" href="../../pages/events/no-results.html">Workshop</a><a class="chip" href="../../pages/events/no-results.html">Retreat</a>
           <span class="chip-bar__divider" aria-hidden="true"></span>
           <label class="check"><input class="check__box" type="checkbox"> Only events I'm going to</label>
@@ -53,10 +54,25 @@
             </div>
             <div class="event-card__body">
               <p class="event-card__meta">Run · <span class="visually-hidden">Apr 18, </span>Sat 6:45 AM</p>
+              
               <h2 class="display event-card__title">Easter Sunrise 5K</h2>
               <p class="place place--sm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Martin Goodman Trail, Marilyn Bell Park</span></p>
               <div class="event-card__spacer"></div>
               <div class="event-card__foot"><span class="event-card__going">142 going</span><span class="event-card__price">Free</span></div>
+            </div>
+          </a></li><li><a class="event-card" href="../../pages/event-detail/session.html">
+            <div class="event-card__media">
+              <img class="event-card__image" src="../../assets/images/run.jpg" alt="" width="1376" height="768">
+              <div class="date-badge" aria-hidden="true"><span class="date-badge__month">Apr</span><span class="date-badge__day">21</span></div>
+              <span class="going-pill">Going</span>
+            </div>
+            <div class="event-card__body">
+              <p class="event-card__meta">Run · <span class="visually-hidden">Apr 21, </span>Tue 6:30 PM</p>
+              <p class="event-card__series"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span>Session 3 of 8 · Every Tuesday</span></p>
+              <h2 class="display event-card__title">Couch to 5K: Week 3</h2>
+              <p class="place place--sm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Humber Bay Park East</span></p>
+              <div class="event-card__spacer"></div>
+              <div class="event-card__foot"><span class="event-card__going">31 going<span class="event-card__left"> · 9 spots left</span></span><span class="event-card__price">Free</span></div>
             </div>
           </a></li><li><a class="event-card" href="../../pages/event-detail/unregistered.html">
             <div class="event-card__media">
@@ -66,6 +82,7 @@
             </div>
             <div class="event-card__body">
               <p class="event-card__meta">Workout · <span class="visually-hidden">Apr 25, </span>Sat 8:00 AM</p>
+              <p class="event-card__series"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span>Session 4 of 8 · Every Saturday</span></p>
               <h2 class="display event-card__title">Saturday Park Bootcamp</h2>
               <p class="place place--sm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Trillium Park, Ontario Place</span></p>
               <div class="event-card__spacer"></div>
@@ -79,6 +96,7 @@
             </div>
             <div class="event-card__body">
               <p class="event-card__meta">Basketball · <span class="visually-hidden">Apr 30, </span>Thu 7:00 PM</p>
+              <p class="event-card__series"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span>Session 4 of 6 · Last Thursday of the month</span></p>
               <h2 class="display event-card__title">Women's Hoops & Devotion Night</h2>
               <p class="place place--sm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>St. Lawrence Community Rec Centre</span></p>
               <div class="event-card__spacer"></div>
@@ -92,6 +110,7 @@
             </div>
             <div class="event-card__body">
               <p class="event-card__meta">Mobility · <span class="visually-hidden">May 06, </span>Wed 9:30 AM</p>
+              
               <h2 class="display event-card__title">Stretch & Pray: Mobility Morning</h2>
               <p class="place place--sm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Grace Fellowship Hall</span></p>
               <div class="event-card__spacer"></div>
@@ -101,7 +120,7 @@
     </div>
   </main>
   <nav class="tab-bar" aria-label="Primary, mobile">
-    <a class="tab-bar__item" href="../../pages/home/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a><a class="tab-bar__item" href="../../pages/events/default.html" aria-current="page"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a><a class="tab-bar__item" href="../../pages/services/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services</a><a class="tab-bar__item" href="../../pages/messages/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Messages<span class="tab-bar__dot" aria-hidden="true"></span><span class="visually-hidden">, 4 unread</span></a><a class="tab-bar__item" href="../../pages/profile/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a class="tab-bar__item" href="../../pages/home/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a><a class="tab-bar__item" href="../../pages/events/default.html" aria-current="page"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a><a class="tab-bar__item" href="../../pages/directory/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><circle cx="12" cy="8" r="2"/></svg>Directory</a><a class="tab-bar__item" href="../../pages/services/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services</a><a class="tab-bar__item" href="../../pages/messages/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Messages<span class="tab-bar__dot" aria-hidden="true"></span><span class="visually-hidden">, 4 unread</span></a><a class="tab-bar__item" href="../../pages/profile/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
   </nav>
 </div>
 <nav class="mock-bar" aria-label="Mock navigation">
@@ -109,6 +128,11 @@
   <span class="mock-bar__screen">Events</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
+    <li><a href="series.html">series</a></li>
+    <li><a href="series-joined.html">series-joined</a></li>
+    <li><a href="series-empty.html">series-empty</a></li>
+    <li><a href="series-loading.html">series-loading</a></li>
+    <li><a href="series-error.html">series-error</a></li>
     <li><a href="loading.html">loading</a></li>
     <li><a href="empty.html">empty</a></li>
     <li><a href="error.html">error</a></li>

@@ -31,9 +31,12 @@
       "requirements": [],
       "states": [
         "default",
+        "section",
+        "section-empty",
         "loading",
         "empty",
-        "error"
+        "error",
+        "events-error"
       ]
     },
     {
@@ -46,6 +49,10 @@
       "requirements": [],
       "states": [
         "default",
+        "redirecting",
+        "google",
+        "google-submitting",
+        "google-failed",
         "invalid",
         "invalid-fields",
         "refused",
@@ -64,10 +71,13 @@
       "title": "Sign in",
       "group": "Public",
       "route": "/sign-in",
-      "source": "Derived: the prototype's Sign in links go straight to Home; this screen uses the Join layout.",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Member Sign In (8qsq1jzZFMHmGmLigTMojM)",
       "requirements": [],
       "states": [
         "default",
+        "redirecting",
+        "google-no-account",
+        "google-failed",
         "invalid",
         "submitting",
         "error",
@@ -149,6 +159,11 @@
       "requirements": [],
       "states": [
         "default",
+        "series",
+        "series-joined",
+        "series-empty",
+        "series-loading",
+        "series-error",
         "loading",
         "empty",
         "error",
@@ -170,6 +185,7 @@
       "requirements": [],
       "states": [
         "default",
+        "session",
         "unregistered",
         "registering",
         "reserved",
@@ -298,39 +314,15 @@
       "requirements": [],
       "states": [
         "default",
-        "invalid",
-        "submitting",
+        "redirecting",
+        "wrong-domain",
+        "no-access",
         "error",
-        "not-staff",
-        "failed",
-        "two-step-expired",
-        "two-step-locked",
-        "two-step-not-set-up",
         "session-expired"
       ],
       "not_applicable": {
-        "loading": "Static form.",
-        "empty": "A form, not a collection."
-      }
-    },
-    {
-      "id": "admin-two-step",
-      "kind": "page",
-      "title": "Two-step verification",
-      "group": "Admin console",
-      "route": "/admin/sign-in/verify",
-      "source": "Derived from the Sign In frame (its \"Two-step verification required\" notice).",
-      "requirements": [],
-      "states": [
-        "default",
-        "invalid",
-        "submitting",
-        "failed"
-      ],
-      "not_applicable": {
-        "loading": "Static form.",
-        "empty": "A form, not a collection.",
-        "error": "Server failures show as the invalid state's message pattern (state failed); an expired or locked sign-in goes back to sign in."
+        "loading": "A static page with one button.",
+        "empty": "Not a collection."
       }
     },
     {
@@ -734,6 +726,148 @@
         "with-action",
         "stacked"
       ]
+    },
+    {
+      "id": "event-series",
+      "kind": "page",
+      "title": "Event series",
+      "group": "Member app",
+      "route": "/events/series/:id",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Event Series (ojTg9D89s5DPcdkwWkUxKm)",
+      "requirements": [],
+      "states": [
+        "default",
+        "not-joined",
+        "joining",
+        "joined",
+        "failed",
+        "drop-in-none",
+        "drop-in",
+        "booked",
+        "full",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One series, not a collection; a missing series is the not-found page."
+      }
+    },
+    {
+      "id": "leave-series",
+      "kind": "dialog",
+      "title": "Leave a series",
+      "group": "Member app",
+      "opens_from": "event-series",
+      "source": "Derived: the Event Series frame's \"Leave the series\" action, confirmed in a dialog as cancelling a registration is (ADR 0034).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with nothing to type."
+      }
+    },
+    {
+      "id": "directory",
+      "kind": "page",
+      "title": "Directory",
+      "group": "Member app",
+      "route": "/directory",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Directory (tuLevfQerEwXUKLKRDMz4P)",
+      "requirements": [],
+      "states": [
+        "default",
+        "filtered",
+        "search",
+        "no-results",
+        "loading",
+        "empty",
+        "error",
+        "follow-failed"
+      ]
+    },
+    {
+      "id": "listing-profile",
+      "kind": "page",
+      "title": "Listing profile",
+      "group": "Member app",
+      "route": "/directory/:id",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Listing Profile (oR6CsZL1vhGPQiDNwDDXGr)",
+      "requirements": [],
+      "states": [
+        "default",
+        "person",
+        "one-off",
+        "unverified",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One listing, not a collection; a listing that hosts nothing is the unverified state, and a missing listing is the not-found page."
+      }
+    },
+    {
+      "id": "subscribe",
+      "kind": "page",
+      "title": "Subscribe",
+      "group": "Public",
+      "route": "/subscribe",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Subscribe (prZo9PZRE912z1ogbLVetQ)",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "submitting",
+        "success",
+        "confirmed",
+        "link-expired",
+        "unsubscribed",
+        "error",
+        "limited",
+        "copied"
+      ],
+      "not_applicable": {
+        "loading": "The form and the feed list are static, and the latest issue preview arrives with the page.",
+        "empty": "A form and a fixed list of feeds, not a collection."
+      }
+    },
+    {
+      "id": "newsletter",
+      "kind": "page",
+      "title": "Newsletter",
+      "group": "Public",
+      "route": "/newsletter",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Newsletter (62CNnfd3SQy5AKXEw2f5Qj)",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One issue, not a collection; before the first issue is sent the route is the not-found page."
+      }
+    },
+    {
+      "id": "google-account-chooser",
+      "kind": "page",
+      "title": "Google account chooser",
+      "group": "Google (not built)",
+      "route": "accounts.google.com (Google's page)",
+      "source": "Magic Patterns · prototype Christian Fitness · frame Google Account Chooser (cCCABXkHgk7aXUuDe5vWN5); Google's own screen, drawn for click-through only.",
+      "requirements": [],
+      "states": [
+        "default",
+        "join",
+        "staff"
+      ],
+      "not_applicable": {
+        "loading": "Google's page; the product does not draw it.",
+        "empty": "Google's page; the product does not draw it.",
+        "error": "Google's page; what the product shows when Google fails is the google-failed state of Sign in, Join and Staff sign in."
+      }
     }
   ]
 }
