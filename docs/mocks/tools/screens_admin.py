@@ -239,6 +239,17 @@ def _():
     return admin_server_error(None)
 
 
+s = screen("admin-offline", "page", "Offline (admin)", route="(any admin route, offline)", group=G,
+           source="Derived: the member offline page in the admin shell.", not_applicable=NA_SYSTEM)
+
+
+@s("default", "No connection in the admin console: retry the failed route or go to the dashboard.")
+def _():
+    return admin_shell("", system("Offline", "You're offline", "Check your Wi-Fi or data, then try again when you're back online.",
+                                  f'<a class="btn btn--primary btn--sm" href="{href("admin-dashboard")}">{icon("rotate-cw")}Try again</a><a class="btn btn--secondary btn--sm" href="{href("admin-dashboard")}">Go to dashboard</a>',
+                                  ic="wifi-off", container=False))
+
+
 # ===========================================================================
 # Dashboard
 # ===========================================================================

@@ -610,9 +610,9 @@ def _():
     return member_shell("home", home(messages=msgs), unread=0)
 
 
-@s("offline", "No connection: cached home with an offline banner; chat is unavailable until reconnected.")
+@s("offline", "No connection: home stays on screen with an offline banner until reconnected.")
 def _():
-    b = banner("warning", "wifi-off", "<strong>You're offline.</strong> Showing what was saved at 8:42 AM. We'll refresh when you're back.", dismiss=False)
+    b = banner("warning", "wifi-off", "<strong>You're offline.</strong> Pages you've opened stay on screen. Check your connection to load new updates.", dismiss=False)
     return member_shell("home", home(), banner=b)
 
 
@@ -1253,8 +1253,8 @@ def _():
 s = screen("offline", "page", "Offline", route="(any, no connection and nothing cached)", group="System", source="Derived: system page in the member shell.", not_applicable=NA_SYSTEM)
 
 
-@s("default", "No connection and nothing saved to show: what still works and a retry.")
+@s("default", "No connection and nothing loaded yet: ways to retry or go home.")
 def _():
-    return member_shell("", system("Offline", "You're offline", "Check your Wi-Fi or data. Messages you write and registrations you make will send when you're back online.",
-                                   f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("home")}">{icon("rotate-cw")}Try again</button>', ic="wifi-off"),
+    return member_shell("", system("Offline", "You're offline", "Check your Wi-Fi or data, then try again when you're back online.",
+                                   f'<a class="btn btn--primary btn--sm" href="{href("home")}">{icon("rotate-cw")}Try again</a><a class="btn btn--secondary btn--sm" href="{href("home")}">Go to home</a>', ic="wifi-off"),
                         unread=0)

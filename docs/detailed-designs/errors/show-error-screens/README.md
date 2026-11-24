@@ -2,12 +2,14 @@
 
 ## Overview
 
-Both apps answer two failures with a full screen in plain words and a way back. A URL that no
-route matches shows the not-found screen; a server failure while a screen loads its data shows
-the server-error screen. This feature belongs to the errors subsystem and is shared by the member
-web app and the admin web app (mocks `docs/mocks/pages/not-found/`, `pages/server-error/`,
-`pages/admin-not-found/` and `pages/admin-server-error/`; design-system component
-`error-page.html`).
+Both apps answer three failures with plain words and a way back. A URL that no route matches
+shows the not-found screen; a server failure while a screen loads its data shows the server-error
+screen; losing the network shows a warning banner over an open screen, or the offline screen when a
+read fails with no connection (slice 30.2, [ADR 0046](../../../adr/0046-offline-banner-and-screen.md)).
+This feature belongs to the errors subsystem and is shared by the member web app and the admin web
+app (mocks `docs/mocks/pages/not-found/`, `pages/server-error/`, `pages/offline/`,
+`pages/admin-not-found/`, `pages/admin-server-error/` and `pages/admin-offline/`; design-system
+components `error-page.html` and `banner.html`).
 
 - **not-found screen** — the screen for a URL no route matches, with the code 404 and two links
 - **server-error screen** — the screen for an unrecoverable server error, with the code 500,
@@ -79,8 +81,16 @@ state that failed ([ADR 0006](../../../adr/0006-error-screens.md)).
 - **Foundations** — the global utilities add `.icon` (size and stroke of an inline SVG icon) for
   the "Try again" icon; the design system's iconography is a foundation.
 
-The member shell and the admin shell (header, tab bar, sidebar) do not exist yet; when they
-arrive, the error screens render inside them, as the mocks show.
+- **`OfflinePage`, `NetworkStatus` and `offlineInterceptor`** — `NetworkStatus` in `domain`
+  tracks `navigator.onLine` and browser `online`/`offline` events (listeners removed on destroy),
+  driving the warning `cf-banner` in `MemberShell` and `AdminShell` (`L2-043` AC8). When a GET to
+  `/api/` fails with status 0 while `navigator.onLine` is false, `offlineInterceptor` navigates to
+  `/offline` (`OfflinePage`, a lazy chunk in both apps) with `skipLocationChange` and `from`,
+  offering "Try again" (`returnPathOf(from)`) and "Go to home" / "Go to dashboard" (`L2-043` AC9;
+  [ADR 0046](../../../adr/0046-offline-banner-and-screen.md)).
+
+The member shell and the admin shell (header, tab bar, sidebar) render the warning banner when
+offline; the error screens themselves sit outside the shells with no duplicate banner.
 
 ## Requirements
 
@@ -137,3 +147,10 @@ A GET that answers 5xx sends the app to the server-error screen without changing
 again" loads that URL again (`L2-043` AC3 to AC6).
 
 ![Sequence diagram for a server error while a screen loads](diagrams/sequence-server-error.png)
+
+### Behaviour — losing the network
+
+Dropping offline on an open screen shows a warning banner until the connection returns; a GET that
+fails with no connection sends the app to the offline screen without changing the URL (`L2-043` AC8, AC9).
+
+![Sequence diagram for losing the network](diagrams/sequence-offline.png)

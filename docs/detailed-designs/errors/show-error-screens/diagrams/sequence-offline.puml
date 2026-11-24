@@ -1,0 +1,29 @@
+@startuml
+title UML sequence behaviour — Losing the network (banner and offline screen)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member or staff" as actor
+box "Frontend — Member web app or Admin web app" #E0F2FE
+  participant "Shell (MemberShell / AdminShell)" as shell
+  participant "NetworkStatus" as net
+  participant "Screen" as screen
+  participant "offlineInterceptor" as icpt
+  participant "Router" as router
+  participant "OfflinePage" as page
+end box
+actor -> net : Browser fires offline event (navigator.onLine = false)
+net --> shell : online() = false
+shell --> actor : Warning banner "You're offline." (role="status"); open screen stays visible (L2-043 AC8)
+opt Screen sends GET /api/... while offline (L2-043 AC9)
+  screen -> icpt : GET /api/events
+  icpt --> icpt : HttpErrorResponse status 0 and navigator.onLine == false
+  icpt -> router : navigate /offline?from=/events, skipLocationChange
+  router -> page : loadComponent, a lazy chunk
+  page --> actor : "You're offline", Try again (/events), Go to home / dashboard (/); URL stays /events
+end
+actor -> net : Browser fires online event (navigator.onLine = true)
+net --> shell : online() = true (banner removed)
+@enduml

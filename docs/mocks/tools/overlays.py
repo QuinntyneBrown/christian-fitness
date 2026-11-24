@@ -459,9 +459,9 @@ def _():
     return member_shell("home", M.home(), banner=b)
 
 
-@s("warning", "Offline: cached content, when it was saved, and that it refreshes itself.")
+@s("warning", "Offline: pages already opened stay visible until reconnected.")
 def _():
-    b = banner("warning", "wifi-off", "<strong>You're offline.</strong> Showing what was saved at 8:42 AM. We'll refresh when you're back.", dismiss=False)
+    b = banner("warning", "wifi-off", "<strong>You're offline.</strong> Pages you've opened stay on screen. Check your connection to load new updates.", dismiss=False)
     return member_shell("home", M.home(), banner=b)
 
 
