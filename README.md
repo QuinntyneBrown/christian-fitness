@@ -40,6 +40,7 @@ Toronto Area. It is delivered as two web apps:
 | Backend  | .NET clean architecture: Domain, Application (MediatR), Infrastructure (EF Core), Api (controllers, SignalR) |
 | Telemetry| OpenTelemetry                                                                 |
 | CI       | GitHub Actions: lint, build and one critical acceptance path per feature      |
+| CD       | GitHub Actions to Azure Container Apps on every green commit to `main` ([deployment](docs/operations/deployment.md)) |
 
 ## Repository layout
 
@@ -55,7 +56,7 @@ Toronto Area. It is delivered as two web apps:
 ├── backend/
 │   ├── src/           ChristianFitness.{Domain,Application,Infrastructure,Api,Cli}
 │   └── tests/         ChristianFitness.{Application,Api}.Tests
-├── tools/             video-record, video-audio, video-build: the slice films
+├── tools/             video-record, video-audio, video-build: the slice films; deploy: the Azure release
 └── docs/              specs, detailed designs, mocks, design system, ADRs, videos
 ```
 
