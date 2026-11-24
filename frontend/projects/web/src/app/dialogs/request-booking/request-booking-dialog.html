@@ -1,0 +1,77 @@
+<form class="request-booking" novalidate (submit)="send($event)">
+  <cf-dialog
+    [heading]="sent() ? 'Request sent' : 'Request a booking'"
+    titleId="dlg-title"
+    descriptionId="dlg-desc"
+    [subtitle]="subtitle()"
+    [successHeading]="sent() ? 'Request sent' : undefined"
+    [successText]="successText()"
+    (closed)="dismiss()"
+  >
+    <cf-form-layout>
+      @if (summary().items.length) {
+        <cf-alert slot="alert" [heading]="summary().heading" [items]="summary().items" />
+      }
+      @if (!summary().items.length && refusal() === 'unavailable') {
+        <cf-alert slot="alert" heading="Your request didn't send"
+          ><p>{{ firstName }} can't take booking requests right now.</p></cf-alert
+        >
+      }
+      @if (!summary().items.length && refusal() === 'failed') {
+        <cf-alert slot="alert" heading="Your request didn't send"
+          ><p>Nothing was lost. Check your connection and send it again.</p></cf-alert
+        >
+      }
+      <cf-select
+        fieldId="f-kind"
+        label="What would you like?"
+        name="kind"
+        [options]="kinds"
+        [value]="values().kind"
+        [disabled]="sending()"
+        (valueChange)="choose($event)"
+      />
+      <cf-text-field
+        fieldId="f-when"
+        label="When works for you?"
+        name="when"
+        hint="Days and times, in your own words"
+        [value]="values().when"
+        [error]="fieldErrors().when"
+        [readonly]="sending()"
+        (valueChange)="edit('when', $event)"
+      />
+      <cf-textarea
+        fieldId="f-message"
+        label="Message"
+        name="message"
+        rows="4"
+        optional
+        [value]="values().message"
+        [error]="fieldErrors().message"
+        [readonly]="sending()"
+        (valueChange)="edit('message', $event)"
+      />
+      <p class="request-booking__note">
+        {{ firstName }} replies in Messages, usually within a day. Nothing is charged until you both
+        confirm a time.
+      </p>
+    </cf-form-layout>
+    @if (sent()) {
+      <cf-button slot="foot" variant="secondary" grow (click)="dismiss()">Done</cf-button>
+    }
+    @if (sent()) {
+      <cf-button slot="foot" grow (click)="goToMessages()">Go to messages</cf-button>
+    }
+    @if (!sent()) {
+      <cf-button slot="foot" variant="secondary" grow [disabled]="sending()" (click)="dismiss()"
+        >Cancel</cf-button
+      >
+    }
+    @if (!sent()) {
+      <cf-button slot="foot" type="submit" grow [disabled]="sending()" [busy]="sending()">{{
+        sending() ? 'Sending…' : 'Send request'
+      }}</cf-button>
+    }
+  </cf-dialog>
+</form>

@@ -23,6 +23,7 @@ export class WebServiceDetailPage extends ErrorScreen {
   readonly errorHeading: Locator;
   readonly retryButton: Locator;
   /** The card's contact actions (L2-014): Message, or Contact for a listing with a contact link, and a failure's alert. */
+  readonly requestButton: Locator;
   readonly messageButton: Locator;
   readonly contactButton: Locator;
   readonly problem: Locator;
@@ -34,6 +35,7 @@ export class WebServiceDetailPage extends ErrorScreen {
     this.loading = this.main.locator('[aria-busy="true"]');
     this.errorHeading = page.getByRole('heading', { name: "This professional didn't load" });
     this.retryButton = page.getByRole('button', { name: 'Try again' });
+    this.requestButton = this.main.getByRole('button', { name: 'Request a booking' });
     this.messageButton = this.main.getByRole('button', { name: 'Message' });
     this.contactButton = this.main.getByRole('button', { name: 'Contact' });
     this.problem = this.main.getByRole('alert');

@@ -31,4 +31,15 @@ public sealed class ServicesController(ISender sender) : ControllerBase
     [HttpGet("{id:guid}/contact-link")]
     public async Task<ActionResult<ContactLinkDto>> ContactLink(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetContactLinkQuery(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Request a booking: delivered to the professional as a direct message (L2-014 AC3; ADR 0053).</summary>
+    [HttpPost("{id:guid}/booking-requests")]
+    public async Task<ActionResult<BookingRequestDto>> RequestBooking(Guid id, [FromBody] RequestBookingBody body, CancellationToken cancellationToken)
+    {
+        var sent = await sender.Send(new RequestBookingCommand { ListingId = id, Kind = body.Kind, When = body.When, Message = body.Message }, cancellationToken).ConfigureAwait(false);
+        return StatusCode(StatusCodes.Status201Created, sent);
+    }
 }
+
+/// <summary>The booking dialog's values.</summary>
+public sealed record RequestBookingBody(string Kind = "", string When = "", string? Message = null);

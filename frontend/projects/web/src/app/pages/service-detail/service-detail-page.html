@@ -45,6 +45,7 @@
             [hasContactLink]="item.hasContactLink"
             [busy]="contact.busy()"
             [problem]="contact.problem()"
+            (requestBooking)="contact.requestBooking(item)"
             (startMessage)="contact.message(item.id)"
             (openContact)="contact.contact(item.id)"
           />

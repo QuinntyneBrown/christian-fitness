@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — request a booking
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "RequestBookingDialog" as dialog
+  participant "ServicesApi (SERVICES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ServicesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RequestBookingHandler" as h
+  participant "SendDirectMessageHandler" as dm
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> dialog : Choose Send request
+alt kind or when invalid
+  dialog --> actor : Error summary, nothing sent
+else valid
+  dialog -> client : requestBooking(listingId, kind, when, message)
+  client -> ctrl : POST /api/services/{id}/booking-requests
+  ctrl -> h : Send RequestBookingCommand (validated)
+  h -> db : Published listing and its member
+  db --> h : Listing
+  alt unknown listing or contact link
+    h --> ctrl : Refuse service_not_found or professional_not_linked
+  else
+    h -> dm : Send SendDirectMessageCommand (member, professional, composed text)
+    alt professional suspended or own listing
+      dm --> h : Refused
+      h --> ctrl : Refuse recipient_unavailable
+    else deliverable
+      dm -> db : Store DirectMessage
+      dm --> h : Ok
+      h --> ctrl : BookingRequestDto (memberId)
+      ctrl --> client : 201 JSON
+      client --> dialog : memberId
+      dialog --> actor : Request sent, Go to messages (L2-014)
+    end
+  end
+  ctrl --> client : ProblemDetails (on a refusal)
+  client --> dialog : Error code
+  dialog --> actor : Generic message, values kept
+end
+@enduml

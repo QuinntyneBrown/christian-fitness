@@ -2,7 +2,7 @@
 
 ## Overview
 
-Christian Fitness connects members with Christian professionals the team has vetted: trainers, dietitians, physios, coaches and counsellors. A *listing* is the published profile of one professional, created when staff approve an application. The services subsystem lets members browse listings by category and contact a professional (`L1-006`).
+Christian Fitness connects members with Christian professionals the team has vetted: trainers, dietitians, physios, coaches and counsellors. A _listing_ is the published profile of one professional, created when staff approve an application. The services subsystem lets members browse listings by category and contact a professional (`L1-006`).
 
 - **listing** — staff-approved, published profile of one professional (`ServiceListing`)
 - **service category** — one of Training, Nutrition, Physio, Coaching, Counselling
@@ -27,7 +27,7 @@ The feature is a vertical slice from the listing detail to the database.
 
 ### Decisions (slice 17.1, ADR 0052)
 
-- Request a booking is slice 17.2; the card has Message or Contact only.
+- Request a booking is slice 17.2 (below); the card has Message or Contact only until then.
 - The Contact variant has no mock; it is the same secondary button, recorded in ADR 0052.
 - A suspended professional or the caller's own listing is refused `recipient_unavailable` (as direct messages, ADR 0043); a suspended caller is refused by the session.
 - Codes: `service_not_found` (404), `professional_not_linked` (409), `contact_link_not_found` (404), `recipient_unavailable` (403).
@@ -37,9 +37,9 @@ The feature is a vertical slice from the listing detail to the database.
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. The L2 specification states its requirements as acceptance criteria; the text below condenses those criteria faithfully.
 
-| L2 ID | Refines (L1) | Requirement |
-|-------|--------------|-------------|
-| `L2-014` | `L1-006` | For a listing with a linked professional account, choosing Message shall open a direct conversation with that professional. For a listing without a linked account, choosing Contact shall open the professional's published contact link; no contact details shall be shown until the member chooses it. |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `L2-014` | `L1-006`     | A member may request a booking from a listing; it is delivered as a direct message (AC3 to AC5). For a listing with a linked professional account, choosing Message shall open a direct conversation with that professional. For a listing without a linked account, choosing Contact shall open the professional's published contact link; no contact details shall be shown until the member chooses it. |
 
 ## Diagrams
 
@@ -78,3 +78,11 @@ The handler finds the existing direct conversation or creates one, and the page 
 The contact link stays on the server until the member chooses Contact; the page then opens it in a new browsing context.
 
 ![Sequence diagram: open an unlinked professional's contact link](diagrams/sequence-contact-link.png)
+
+### Request a booking (slice 17.2, ADR 0053)
+
+- **`ServiceDetail`** shows Request a booking (primary) beside Message for a listing without a contact link, and emits `requestBooking`.
+- **`RequestBookingDialog`** (CDK Dialog, mock `docs/mocks/dialogs/request-booking`) holds kind, `when` and message, validates with `validateBooking`, calls `requestBooking(listingId, request)`, and on success offers Done or Go to messages.
+- **`POST /api/services/{id}/booking-requests`** sends one `RequestBookingCommand`; `RequestBookingValidator` refuses a bad kind, a blank `when` (400 `validation_failed`) or text over its limit (400 `field_too_long`). `RequestBookingHandler` refuses `service_not_found` (404), `professional_not_linked` (409) and `recipient_unavailable` (403), then sends `SendDirectMessageCommand` (slice 14.1), so the request is a direct message and the conversation starts. Answer 201 `{ memberId }`. Nothing else is stored and the member's words are never logged.
+
+![Sequence diagram: request a booking](diagrams/sequence-request-booking.png)

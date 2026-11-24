@@ -40,6 +40,27 @@ export interface ContactLinkDto {
   url: string;
 }
 
+/** The kinds of session a booking request asks for (L2-014 AC3; ADR 0053). */
+export const BOOKING_KINDS = ['one-on-one', 'small-group', 'intro-call'] as const;
+
+export type BookingKind = (typeof BOOKING_KINDS)[number];
+
+/**
+ * A booking request as the dialog sends it (`POST /api/services/{id}/booking-requests`; ADR 0053):
+ * what the member would like, when it suits them and an optional message. All plain text, never
+ * rendered as HTML; `message` is left out when blank.
+ */
+export interface RequestBookingDto {
+  kind: BookingKind;
+  when: string;
+  message?: string;
+}
+
+/** The professional the request went to: Messages opens their conversation at `/messages/{memberId}` (ADR 0053). */
+export interface BookingRequestDto {
+  memberId: string;
+}
+
 /** The professionals a member browses (ADR 0050). */
 export interface ServicesApi {
   /**
@@ -64,6 +85,14 @@ export interface ServicesApi {
    * ADR 0052). 404 `service_not_found` or `contact_link_not_found` when there is none.
    */
   getContactLink(id: string): Observable<ContactLinkDto>;
+  /**
+   * Request a booking: the request reaches the listing's professional as a direct message and the
+   * conversation starts (L2-014 AC3 to AC5; ADR 0053). A refusal errors with an `ApiError`: 400
+   * `validation_failed` or `field_too_long`, 404 `service_not_found`, 409 `professional_not_linked`,
+   * 403 `recipient_unavailable` (the professional is suspended, or the listing is the caller's own),
+   * status 0 for no answer.
+   */
+  requestBooking(id: string, request: RequestBookingDto): Observable<BookingRequestDto>;
 }
 
 /** Binds {@link ServicesApi}; the Services screen provides it on its own route component. */

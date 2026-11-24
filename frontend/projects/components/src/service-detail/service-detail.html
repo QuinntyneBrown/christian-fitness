@@ -53,6 +53,7 @@
           >Contact</cf-button
         >
       } @else {
+        <cf-button size="md" grow (click)="requestBooking.emit()">Request a booking</cf-button>
         <cf-button variant="secondary" size="md" grow [busy]="busy()" (click)="startMessage.emit()"
           >Message</cf-button
         >

@@ -2086,3 +2086,25 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
 - "Prefer `default` exports" (16.2): no new route, so no growth.
 - "Use the Edit and Write tools" (7.1 on): followed except for two heredoc commands that failed to parse.
+
+## Slice 17.2: Request a booking
+
+**What slowed it**
+
+- The design and L2 had no booking request at all (only Message and Contact); L2-014 gained AC3 to AC5 and ADR 0053 records the choice to deliver the request as a direct message with no new table or migration.
+- The services client returned raw `HttpErrorResponse`s, so the dialog could not branch on `recipient_unavailable`; the new client method maps errors with `apiErrorOf` like the applications client. The spec failed for exactly that before the fix.
+- A Python script that reopened a UTF-8 doc with the default Windows encoding emptied `journeys.detailed.md`; `git checkout` restored it. Pass `encoding='utf-8'` or use the Edit tool.
+- Shell heredocs holding quotes failed to parse again; files went through the Write tool.
+
+**New lessons**
+
+- Reuse a handler through MediatR (`ISender`) when a feature is a different front door to an existing action: the booking request reused the direct-message rules and refusals unchanged.
+- A stub handler returning an empty answer compiles under warnings-as-errors only with no unread constructor parameters, so the first red was for behaviour (12 of 13 failed, the 401 passed).
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged); the dialog and its code load on first use.
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1): followed.
+- "Prove a rule red by breaking it alone": showing Request a booking for contact-link listings failed exactly the absence spec; restored.
+- "A fixture default for a new call" (15.1 on): the POST is answered by the specs that open the dialog; no default needed.
+- "Count a slice's new specs against the CI budget" (24.1): nine short specs in one file.

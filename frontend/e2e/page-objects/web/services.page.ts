@@ -34,6 +34,7 @@ export class WebServicesPage {
   readonly currentRow: Locator;
   readonly detail: Locator;
   /** The card's contact actions (L2-014) and a failure's alert. */
+  readonly requestButton: Locator;
   readonly messageButton: Locator;
   readonly contactButton: Locator;
   readonly problem: Locator;
@@ -63,6 +64,7 @@ export class WebServicesPage {
     this.rows = this.main.locator('a.service-row');
     this.currentRow = this.main.locator('a.service-row[aria-current="true"]');
     this.detail = this.main.locator('.service-detail__name').locator('xpath=ancestor::article');
+    this.requestButton = this.detail.getByRole('button', { name: 'Request a booking' });
     this.messageButton = this.detail.getByRole('button', { name: 'Message' });
     this.contactButton = this.detail.getByRole('button', { name: 'Contact' });
     this.problem = this.detail.getByRole('alert');

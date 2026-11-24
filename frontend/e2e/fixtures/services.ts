@@ -168,3 +168,37 @@ export function answerContactLink(api: ApiHandlers, url: string): string[] {
   });
   return asked;
 }
+
+/** What a booking request is sent with (`POST /api/services/{id}/booking-requests`; ADR 0053). */
+export interface BookingSent {
+  listing: string;
+  body: unknown;
+}
+
+/**
+ * Answers `POST /api/services/{id}/booking-requests` as the API does (ADR 0053): 201 with the
+ * professional's member id, or each `refusals` entry in turn when given (the last one repeats; once
+ * they are used up, none). Returns what was sent, in order.
+ */
+export function answerBooking(
+  api: ApiHandlers,
+  refusals: readonly { status: number; code: string; errors?: Record<string, string[]> }[] = [],
+  hold: Promise<void> | null = null,
+): BookingSent[] {
+  const sent: BookingSent[] = [];
+  api.on('POST', /^\/api\/services\/[0-9a-f-]{36}\/booking-requests$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/')[3];
+    sent.push({ listing: id, body: request.postDataJSON() });
+    if (hold) await hold;
+    const refusal = refusals[sent.length - 1];
+    if (refusal) {
+      return {
+        status: refusal.status,
+        headers: { 'content-type': 'application/problem+json' },
+        json: { status: refusal.status, code: refusal.code, errors: refusal.errors },
+      };
+    }
+    return { status: 201, json: { memberId: id.replace(/-0000000b/, '-0000000c') } };
+  });
+  return sent;
+}
