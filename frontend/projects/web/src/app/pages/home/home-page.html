@@ -62,6 +62,43 @@
             }
           }
         </div>
+        <aside class="aside-stack" aria-label="Messages">
+          <section aria-labelledby="home-messages">
+            <div class="section-head">
+              <h2 class="display section-title" id="home-messages">Messages</h2>
+              <cf-link variant="text" href="/messages">Open</cf-link>
+            </div>
+            @if (inbox.state() === 'loading') {
+              @if (state() === 'loading') {
+                <cf-list variant="mini" [items]="skeletons" [template]="messageSkeletonRow" />
+              } @else {
+                <cf-skeleton-region label="Loading messages">
+                  <cf-list variant="mini" [items]="skeletons" [template]="messageSkeletonRow" />
+                </cf-skeleton-region>
+              }
+            } @else if (inbox.state() === 'failed') {
+              <cf-inline-message
+                heading="Messages didn't load."
+                text="Your events are up to date."
+                [busy]="inbox.retrying()"
+                (retry)="retryMessages()"
+              />
+            } @else if (messageRows().length === 0) {
+              <cf-empty-state
+                variant="inline"
+                heading="No messages yet."
+                text="Register for an event and you'll join its group chat."
+              />
+            } @else {
+              <cf-list
+                variant="mini"
+                label="Messages"
+                [items]="messageRows()"
+                [template]="messageRow"
+              />
+            }
+          </section>
+        </aside>
       </cf-split>
     }
   </cf-container>
@@ -76,4 +113,24 @@
     [meta]="event.meta"
     [end]="event.price"
   />
+</ng-template>
+<ng-template #messageSkeletonRow>
+  <div class="home-page__message-skeleton">
+    <cf-skeleton shape="avatar" />
+    <div class="home-page__message-skeleton-lines">
+      <cf-skeleton shape="text" width="55" />
+      <cf-skeleton shape="text-sm" width="90" />
+    </div>
+  </div>
+</ng-template>
+<ng-template #messageRow let-row>
+  <cf-mini-row
+    [href]="row.href"
+    [name]="row.name"
+    [time]="row.time"
+    [text]="row.text"
+    [unread]="row.unread"
+  >
+    <cf-avatar slot="avatar" [name]="row.name" [variant]="row.group ? 'group' : 'default'" />
+  </cf-mini-row>
 </ng-template>

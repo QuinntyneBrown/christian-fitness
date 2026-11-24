@@ -5,7 +5,7 @@ is end to end (API, screen, acceptance test) and ships on its own. Slices are li
 dependency order: each one builds only on slices above it, so work can go straight down the
 table. A slice ID is its root journey's number followed by the slice's position in that journey.
 
-**% complete:** 77% (42 of 57 slices; 70 of 91 days)
+**% complete:** 78% (43 of 57 slices; 71 of 91 days)
 
 | #   | Slice | Root journey                        | Name                                              | Description                                                                                                                                         | Effort (days) |
 | --- | ----- | ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -46,7 +46,7 @@ table. A slice ID is its root journey's number followed by the slice's position 
 | 35  | 15.1  | 15 Pick up conversations            | ✅ Conversation list                              | Members see their conversations, newest first, with unread counts.                                                                                  | 2             |
 | 36  | 14.1  | 14 Message a member directly        | ✅ Direct messages                                | Members start a private conversation from a profile and chat live.                                                                                  | 3             |
 | 37  | 13.1  | 13 See my home                      | ✅ Next and suggested events                      | Home shows a member's next events and suggested events.                                                                                             | 2             |
-| 38  | 13.2  | 13 See my home                      | Unread messages on home                           | Home shows unread messages, with partial and empty states.                                                                                          | 1             |
+| 38  | 13.2  | 13 See my home                      | ✅ Unread messages on home                        | Home shows unread messages, with partial and empty states.                                                                                          | 1             |
 | 39  | 30.2  | 30 Recover from errors and offline  | Offline                                           | Losing the network shows an offline banner and screen.                                                                                              | 1             |
 | 40  | 20.1  | 20 Reset a forgotten password       | ✅ Request a reset link                           | Members request a reset email without revealing which emails exist.                                                                                 | 2             |
 | 41  | 20.2  | 20 Reset a forgotten password       | ✅ Choose a new password                          | A valid, unexpired link sets a new password once.                                                                                                   | 1             |

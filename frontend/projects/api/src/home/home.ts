@@ -10,6 +10,7 @@ import type { EventSummaryDto } from '../events/events';
 export interface HomeDto {
   nextEvent: EventSummaryDto | null;
   suggested: EventSummaryDto[];
+  unreadCount: number;
 }
 
 /** The member's Home (L2-007). */

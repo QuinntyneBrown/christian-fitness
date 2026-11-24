@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
-/// <summary>What Home shows of events: the member's next one and the ones that may suit them (L2-007 AC1, AC2; ADR 0044).</summary>
-public sealed record HomeDto(EventSummaryDto? NextEvent, IReadOnlyList<EventSummaryDto> Suggested);
+/// <summary>
+/// What Home shows (L2-007 AC1, AC2; ADR 0044, ADR 0045): the member's next event, up to three
+/// events that suit their interests, and their unread message count.
+/// </summary>
+public sealed record HomeDto(EventSummaryDto? NextEvent, IReadOnlyList<EventSummaryDto> Suggested, int UnreadCount);
 
 /// <summary>The signed-in member's Home; the session, never the request, says whose.</summary>
 public sealed record GetHomeQuery : IRequest<HomeDto>
@@ -17,9 +20,9 @@ public sealed record GetHomeQuery : IRequest<HomeDto>
 }
 
 /// <summary>
-/// Reads the earliest published event the member is going to that has not started, and the three
+/// Reads the earliest published event the member is going to that has not started, the three
 /// soonest published upcoming events of the categories their interests name that they are not going
-/// to. Both are bounded queries; the going counts of the at most four events come in one question.
+/// to, and the unread message count across their registered event chats and direct conversations.
 /// </summary>
 internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, IRegistrationReader registrations, TimeProvider time)
     : IRequestHandler<GetHomeQuery, HomeDto>
@@ -49,11 +52,31 @@ internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, I
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        var groupUnread = await (
+            from m in db.ChatMessages.AsNoTracking()
+            where m.AuthorId != memberId && mine.Contains(m.EventId)
+            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == memberId) on m.EventId equals k.EventId into markers
+            from k in markers.DefaultIfEmpty()
+            where k == null || m.SentAt > k.ReadAt
+            select m.Id)
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var directUnread = await (
+            from m in db.DirectMessages.AsNoTracking()
+            where m.RecipientId == memberId
+            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == memberId) on m.SenderId equals k.EventId into markers
+            from k in markers.DefaultIfEmpty()
+            where k == null || m.SentAt > k.ReadAt
+            select m.Id)
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
+
         var shown = suggested.Concat(next is null ? [] : [next]).ToList();
         var going = await registrations.GoingForAsync([.. shown.Select(e => e.Id)], cancellationToken).ConfigureAwait(false);
         EventSummaryDto Summary(Event e) => new(
             e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.Area, e.PriceCents, e.Capacity,
             going.GetValueOrDefault(e.Id), e.ImageKey);
-        return new HomeDto(next is null ? null : Summary(next), [.. suggested.Select(Summary)]);
+        return new HomeDto(next is null ? null : Summary(next), [.. suggested.Select(Summary)], groupUnread + directUnread);
     }
 }

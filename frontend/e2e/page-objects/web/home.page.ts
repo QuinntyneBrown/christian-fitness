@@ -10,10 +10,19 @@ export interface HomeEventRow {
   end: string;
 }
 
+/** One conversation row in Home's Messages aside. */
+export interface HomeMessageRow {
+  href: string | null;
+  name: string;
+  time: string;
+  text: string;
+  unread: string | null;
+}
+
 /**
  * The member app's Home at `/home` (mock `docs/mocks/pages/home/`): the greeting, the next-event
- * card or the invitation to browse Events, the suggested events, and the loading and error states.
- * Owns the selectors of that screen.
+ * card or the invitation to browse Events, the suggested events, the Messages aside, and the
+ * loading, partial and error states. Owns the selectors of that screen.
  */
 export class WebHomePage {
   readonly main: Locator;
@@ -35,6 +44,21 @@ export class WebHomePage {
   readonly suggestedHeading: Locator;
   readonly allEventsLink: Locator;
   readonly suggestedRows: Locator;
+  /** Home's Messages aside, its empty and partial states, and the navigation unread counts. */
+  readonly messagesSection: Locator;
+  readonly messagesHeading: Locator;
+  readonly openMessagesLink: Locator;
+  readonly messageRows: Locator;
+  readonly messagesEmpty: Locator;
+  readonly messagesErrorHeading: Locator;
+  readonly messagesErrorText: Locator;
+  readonly messagesRetryButton: Locator;
+  readonly headerMessagesLink: Locator;
+  readonly headerUnreadBadge: Locator;
+  readonly mobileNav: Locator;
+  readonly mobileItems: Locator;
+  readonly mobileCurrentItem: Locator;
+  readonly mobileMessagesLink: Locator;
   /** Loading skeletons, the load error and its Try again. */
   readonly loading: Locator;
   readonly errorHeading: Locator;
@@ -57,6 +81,21 @@ export class WebHomePage {
     this.suggestedHeading = this.main.getByRole('heading', { name: 'Coming up' });
     this.allEventsLink = this.main.getByRole('link', { name: 'All events' });
     this.suggestedRows = this.main.locator('.event-row');
+    this.messagesSection = this.main.getByRole('region', { name: 'Messages' });
+    this.messagesHeading = this.messagesSection.getByRole('heading', { name: 'Messages' });
+    this.openMessagesLink = this.messagesSection.getByRole('link', { name: 'Open' });
+    this.messageRows = this.messagesSection.locator('.mini-row');
+    this.messagesEmpty = this.messagesSection.locator('.empty-inline__text');
+    this.messagesErrorHeading = this.messagesSection.locator('.inline-error__title');
+    this.messagesErrorText = this.messagesSection.locator('.inline-error__body p').nth(1);
+    this.messagesRetryButton = this.messagesSection.getByRole('button', { name: 'Try again' });
+    const primaryNav = page.getByRole('navigation', { name: 'Primary', exact: true });
+    this.headerMessagesLink = primaryNav.getByRole('link', { name: /^Messages/ });
+    this.headerUnreadBadge = this.headerMessagesLink.locator('.count-badge');
+    this.mobileNav = page.getByRole('navigation', { name: 'Primary, mobile' });
+    this.mobileItems = this.mobileNav.getByRole('link');
+    this.mobileCurrentItem = this.mobileNav.locator('[aria-current="page"]');
+    this.mobileMessagesLink = this.mobileNav.getByRole('link', { name: /^Messages/ });
     this.loading = this.main.locator('[aria-busy="true"]');
     this.errorHeading = this.main.getByRole('heading', { name: "Your home page didn't load" });
     this.retryButton = this.main.getByRole('button', { name: 'Try again' });
@@ -86,6 +125,22 @@ export class WebHomePage {
           title: text('.event-row__title'),
           meta: text('.event-row__meta'),
           end: text('.event-row__end'),
+        };
+      }),
+    );
+  }
+
+  /** Each conversation row in Home's Messages aside, in order. */
+  async messageItems(): Promise<HomeMessageRow[]> {
+    return this.messageRows.evaluateAll((rows) =>
+      rows.map((row) => {
+        const text = (selector: string) => row.querySelector(selector)?.textContent?.trim() ?? '';
+        return {
+          href: row.getAttribute('href'),
+          name: text('.mini-row__name'),
+          time: text('.mini-row__time'),
+          text: text('.mini-row__text'),
+          unread: row.querySelector('.unread-dot')?.getAttribute('aria-label') ?? null,
         };
       }),
     );

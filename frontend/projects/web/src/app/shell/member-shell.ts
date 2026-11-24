@@ -1,37 +1,44 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { SESSION_SERVICE } from '@cf/api';
+import { CONVERSATIONS, SESSION_SERVICE } from '@cf/api';
 import {
   type MemberDestination,
   type MemberDestinationKey,
   SkipLink,
+  TabBar,
   TopBar,
 } from '@cf/components';
 import { initialsOf } from '@cf/domain';
 import { filter } from 'rxjs';
+import { HttpConversationsService } from '../services/http-conversations.service';
+import { MemberInbox } from '../services/member-inbox';
 
 /**
- * The places the header lists so far (ADR 0027, 0042); Services joins as its slice lands.
- * The profile is the avatar button, not a link.
+ * The places of the member app so far (ADR 0027, 0042, 0045); Services joins as its slice lands.
+ * `TopBar` omits Profile from its link row (the avatar button covers it from MD up); `TabBar`
+ * shows all four below MD (L2-008 AC1, AC2).
  */
 const DESTINATIONS: readonly MemberDestination[] = [
   { key: 'home', label: 'Home', href: '/home' },
   { key: 'events', label: 'Events', href: '/events' },
   { key: 'messages', label: 'Messages', href: '/messages' },
+  { key: 'profile', label: 'Profile', href: '/profile' },
 ];
 
 /**
  * The routed layout around every member route, behind `memberAuthGuard` (ADR 0007, 0009): the
- * design system's skip link, then the top bar's app header above the route (ADR 0019). Sign out ends the session on the server and returns the member to the
- * start, a session that had already ended included (L2-004 AC5); any other failure keeps them where
- * they are with Sign out enabled. The header's profile button shows the member's initials, read once
- * from `SESSION_SERVICE`, is current while Profile shows, and a plain click on it moves the router
- * (ADR 0015).
+ * design system's skip link, the top bar's app header above the route and the mobile tab bar below
+ * MD (L2-008 AC1–AC3; ADR 0019, 0045). `MemberInbox` refreshes the member's conversations on entry
+ * and on route changes so the navigation unread badge, Home's Messages aside and Messages share one
+ * request. Sign out ends the session on the server and returns the member to the start, a session
+ * that had already ended included (L2-004 AC5); any other failure keeps them where they are with
+ * Sign out enabled.
  */
 @Component({
   selector: 'cf-member-shell',
-  imports: [RouterOutlet, SkipLink, TopBar],
+  imports: [RouterOutlet, SkipLink, TabBar, TopBar],
+  providers: [{ provide: CONVERSATIONS, useClass: HttpConversationsService }, MemberInbox],
   templateUrl: './member-shell.html',
   styleUrl: './member-shell.scss',
 })
@@ -39,6 +46,7 @@ export class MemberShell {
   private readonly session = inject(SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly inbox = inject(MemberInbox);
 
   protected readonly signingOut = signal(false);
   protected readonly initials = signal('');
@@ -47,12 +55,20 @@ export class MemberShell {
   protected readonly current = signal<MemberDestinationKey | null>(placeOf(this.urlNow()));
 
   constructor() {
+    let lastUrl = this.urlNow();
+    this.inbox.refresh();
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => this.current.set(placeOf(this.router.url)));
+      .subscribe(() => {
+        this.current.set(placeOf(this.router.url));
+        if (this.router.url !== lastUrl) {
+          lastUrl = this.router.url;
+          this.inbox.refresh();
+        }
+      });
     this.session
       .current()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -93,7 +109,7 @@ function placeOf(url: string): MemberDestinationKey | null {
   const path = url.split(/[?#]/, 1)[0];
   if (path === '/profile') return 'profile';
   if (path === '/home') return 'home';
-  if (path === '/messages') return 'messages';
+  if (path === '/messages' || path.startsWith('/messages/')) return 'messages';
   if (path === '/events' || path.startsWith('/events/')) return 'events';
   return null;
 }

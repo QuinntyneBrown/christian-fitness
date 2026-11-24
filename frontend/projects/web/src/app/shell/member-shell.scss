@@ -1,6 +1,15 @@
-// The shell lays the header above the member route; the blocks bring their own look.
+// The shell lays the header above the member route and reserves space for the mobile tab bar below MD.
 :host {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+}
+
+.member-shell__body {
+  flex: 1 1 0%;
+  padding-bottom: var(--layout-tabbar-height);
+
+  @media (min-width: 48rem) {
+    padding-bottom: 0;
+  }
 }

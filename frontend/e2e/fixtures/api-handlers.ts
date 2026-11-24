@@ -85,7 +85,12 @@ export class ApiHandlers {
     {
       method: 'GET',
       path: '/api/home',
-      handler: () => ({ json: { nextEvent: null, suggested: [] } }),
+      handler: () => ({ json: { nextEvent: null, suggested: [], unreadCount: 0 } }),
+    },
+    {
+      method: 'GET',
+      path: '/api/conversations',
+      handler: () => ({ json: { conversations: [] } }),
     },
   ];
 
