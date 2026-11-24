@@ -32,6 +32,11 @@ export interface ServicesApi {
    * errors with an `ApiError`: status 0 for none.
    */
   list(category: ServiceCategory | null): Observable<ServiceListingsDto>;
+  /**
+   * One published listing (L2-013 AC4; ADR 0051). An id that is not there errors with an
+   * `ApiError` of status 404 and code `service_not_found`.
+   */
+  get(id: string): Observable<ServiceListingDto>;
 }
 
 /** Binds {@link ServicesApi}; the Services screen provides it on its own route component. */

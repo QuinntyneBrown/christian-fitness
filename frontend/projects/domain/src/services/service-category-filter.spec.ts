@@ -1,4 +1,5 @@
 import {
+  listingHref,
   noCategoryServicesText,
   serviceCategoryChips,
   serviceCategoryOf,
@@ -67,5 +68,20 @@ describe('noCategoryServicesText', () => {
     expect(noCategoryServicesText('Physio')).toBe(
       'No Physio professionals right now. New ones are listed as the team approves them.',
     );
+  });
+});
+
+// L2-013 AC4 (ADR 0051): a listing's own screen carries the category Back returns to.
+describe('listingHref', () => {
+  it.each([
+    { why: 'no category', id: 'abc', category: null, expected: '/services/abc' },
+    {
+      why: 'a category',
+      id: 'abc',
+      category: 'Nutrition',
+      expected: '/services/abc?category=Nutrition',
+    },
+  ] as const)('$why -> $expected', ({ id, category, expected }) => {
+    expect(listingHref(id, category)).toBe(expected);
   });
 });

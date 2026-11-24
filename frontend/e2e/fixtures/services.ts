@@ -110,3 +110,18 @@ export function answerServices(
   });
   return asked;
 }
+
+/**
+ * Answers `GET /api/services/{id}` from `services` as the API does (ADR 0051): the listing, or 404
+ * `service_not_found`. Returns the ids asked for, in order.
+ */
+export function answerService(api: ApiHandlers, services: ServiceListingFixture[]): string[] {
+  const asked: string[] = [];
+  api.on('GET', /^\/api\/services\/[0-9a-f-]{36}$/, (request) => {
+    const id = new URL(request.url()).pathname.split('/').pop() ?? '';
+    asked.push(id);
+    const found = services.find((service) => service.id === id);
+    return found ? { json: found } : { status: 404, json: { code: 'service_not_found' } };
+  });
+  return asked;
+}

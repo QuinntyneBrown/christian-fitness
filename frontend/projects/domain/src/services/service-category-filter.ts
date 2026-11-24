@@ -26,6 +26,15 @@ export function servicesHref(category: ServiceCategory | null, selectedId: strin
   return query === '' ? '/services' : `/services?${query}`;
 }
 
+/**
+ * The address of one listing's own screen (L2-013 AC4; ADR 0051), carrying the category the list was
+ * filtered by so Back returns to it.
+ */
+export function listingHref(id: string, category: ServiceCategory | null): string {
+  const base = `/services/${encodeURIComponent(id)}`;
+  return category === null ? base : `${base}?${new URLSearchParams({ category }).toString()}`;
+}
+
 /** All and the five categories, with their addresses and `current` marked (mock `services/filtered`). */
 export function serviceCategoryChips(current: ServiceCategory | null): ServiceCategoryChipView[] {
   return [

@@ -38,7 +38,7 @@ interface MemberView {
   templateUrl: './member-profile-page.html',
   styleUrl: './member-profile-page.scss',
 })
-export class MemberProfilePage {
+export default class MemberProfilePage {
   private readonly profiles = inject(PROFILE_SERVICE);
   private memberId = '';
 

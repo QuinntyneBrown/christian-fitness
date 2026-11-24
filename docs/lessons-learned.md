@@ -2039,3 +2039,26 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A fixture default for a new call" (15.1, 13.1, 21.1): `GET /api/services` answers nobody listed, so the apply spec that opens `/services` stays green.
 - "Count a slice's new specs against the CI budget" (24.1): eleven short specs in one file.
 - "Use the Edit and Write tools" (7.1 on): followed except for three heredoc commands that failed to parse.
+
+## Slice 16.2: Listing detail
+
+**What slowed it**
+
+- The web `main` grew 130 bytes with one more route (280.43 kB against 280.30). A barrel that re-exported both Services pages made it worse (280.77); letting the loader return a module's `default` export (`loadComponent: () => import('./pages/x')`) removes the `.then((m) => m.X)` of each route, so converting the new page and five existing ones brought it to 280.21 kB with no budget raised (ADR 0051).
+- No mock draws the screen; it is the `selected` card under the Event detail back link, recorded in the ADR.
+- Choosing between "card beside the list" and "its own screen" is a viewport rule, so the row's click handler asks `matchMedia('(min-width: 64rem)')` and the card beside the list is hidden below LG by CSS.
+- A shell heredoc holding Python with backslash-regexes warned on the Windows shell; small edits through scripts that assert every match worked.
+
+**New lessons**
+
+- Prefer `default` exports on routed components: the route is shorter and `main` is smaller, which is cheaper than raising a budget.
+- A barrel for two lazy pages can grow `main`; measure before sharing a loader.
+- A listing's own address must work on reload, so it asks for itself rather than reading the list's state.
+- Initial bundle: web 280.21 kB (280.30 before, -90 bytes), admin 280.35 kB (unchanged).
+
+**How earlier lessons worked**
+
+- "Compare the initial total against a build of the unchanged tree" (22.1) and "Bisect by stubbing" (21.1): the 130-byte route cost was seen at once.
+- "A fixture default for a new call" (15.1 on): `GET /api/services/{id}` answers 404 by default; no spec visits it without answering.
+- "Prove a rule red by breaking it alone": the new specs failed for the missing screen and the missing endpoint (a stub answering 404 for every id) before the code.
+- "Count a slice's new specs against the CI budget" (24.1): four short specs.

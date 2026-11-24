@@ -196,4 +196,55 @@ public sealed class BrowseServicesTests(RegisterForEventFactory factory) : IClas
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Given_a_published_listing_When_a_member_opens_it_by_id_Then_its_fields_are_served()
+    {
+        await ClearAsync();
+        await ListAsync("detail.browse6@example.org", "Marcus Lee", "Registered dietitian", "Nutrition", "$95 first consult");
+        var (member, cookie) = await MemberAsync("grace.browse6@example.org");
+        using var _ = member;
+        var id = (await ReadAsync(member, cookie)).GetProperty("services")[0].GetProperty("id").GetString();
+
+        using var response = await Browser.SendAsync(member, HttpMethod.Get, $"{Path}/{id}", cookie);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var listing = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal(
+            ["about", "category", "credentials", "id", "name", "price", "publishedAt", "role", "where"],
+            listing.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            (id, "Marcus Lee", "Registered dietitian", "Nutrition", "$95 first consult", "Registered dietitian credentials", "Mississauga", "About Marcus Lee."),
+            (listing.GetProperty("id").GetString(), listing.GetProperty("name").GetString(), listing.GetProperty("role").GetString(),
+             listing.GetProperty("category").GetString(), listing.GetProperty("price").GetString(), listing.GetProperty("credentials").GetString(),
+             listing.GetProperty("where").GetString(), listing.GetProperty("about").GetString()));
+    }
+
+    [Fact]
+    public async Task Given_an_id_that_is_not_a_listing_When_a_member_opens_it_Then_it_is_not_found_with_a_code()
+    {
+        await ClearAsync();
+        var pending = await ApplyAsync("pending.browse7@example.org", "Pending Person", "Trainer", "Training");
+        var (member, cookie) = await MemberAsync("grace.browse7@example.org");
+        using var _ = member;
+
+        foreach (var id in new[] { Guid.NewGuid(), pending })
+        {
+            using var response = await Browser.SendAsync(member, HttpMethod.Get, $"{Path}/{id}", cookie);
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+            Assert.Equal("service_not_found", problem.GetProperty("code").GetString());
+        }
+    }
+
+    [Fact]
+    public async Task Given_nobody_signed_in_When_a_listing_is_asked_for_Then_it_is_refused()
+    {
+        using var anonymous = Browser.CreateClient(factory);
+
+        using var response = await Browser.SendAsync(anonymous, HttpMethod.Get, $"{Path}/{Guid.NewGuid()}", cookie: null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 }

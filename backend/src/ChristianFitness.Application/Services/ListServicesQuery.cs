@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Services;
 using FluentValidation;
 using MediatR;
@@ -64,5 +65,20 @@ internal sealed class ListServicesHandler(IAppDbContext db) : IRequestHandler<Li
         return new ServiceListingsDto(
             total,
             [.. rows.Select(l => new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt))]);
+    }
+}
+
+/// <summary>Opens one published listing; an unknown id is 404 <c>service_not_found</c> (L2-013 AC4; ADR 0051).</summary>
+public sealed record GetServiceQuery(Guid Id) : IRequest<ServiceListingDto>;
+
+internal sealed class GetServiceHandler(IAppDbContext db) : IRequestHandler<GetServiceQuery, ServiceListingDto>
+{
+    public async Task<ServiceListingDto> Handle(GetServiceQuery request, CancellationToken cancellationToken)
+    {
+        var l = await db.ServiceListings.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new RefusalException(RefusalCodes.ServiceNotFound, RefusalKind.NotFound);
+        return new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt);
     }
 }

@@ -31,3 +31,15 @@
 .services-page__apply {
   margin-top: var(--space-4);
 }
+
+// Below LG a chosen professional opens as its own screen (L2-013 AC4; ADR 0051), so the card
+// beside the list shows from LG only.
+.services-page__card {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .services-page__card {
+    display: block;
+  }
+}

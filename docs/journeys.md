@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 87% (24 of 30 journeys; 79 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22, 24, 26, 27, 29 and 30 are done, journey 8 has 1 of its 2, journey 16 has 1 of its 2)
+**% complete:** 88% (25 of 30 journeys; 80 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 24, 26, 27, 29 and 30 are done, journey 8 has 1 of its 2)
 
 | #   | Journey                             | App    | Description                                                                                                        | Effort (days) |
 | --- | ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -25,7 +25,7 @@ telemetry), so those are not listed on their own.
 | 13  | ✅ See my home                      | Member | Next events, unread messages and suggested events at a glance.                                                     | 3             |
 | 14  | Message a member directly           | Member | Hold a private real-time conversation with another member.                                                         | 3             |
 | 15  | ✅ Pick up conversations            | Member | List group and direct conversations, newest first, with unread counts.                                             | 2             |
-| 16  | Browse professionals                | Member | Find vetted Christian professionals by category.                                                                   | 3             |
+| 16  | ✅ Browse professionals             | Member | Find vetted Christian professionals by category.                                                                   | 3             |
 | 17  | Book a professional                 | Member | Request a booking or message a professional from their listing.                                                    | 3             |
 | 18  | ✅ Build my profile                 | Member | View and edit name, bio, church, interests and goals.                                                              | 3             |
 | 19  | ✅ View a member's profile          | Member | See another member's public profile from a chat or event.                                                          | 1             |

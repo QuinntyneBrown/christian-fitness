@@ -16,4 +16,9 @@ public sealed class ServicesController(ISender sender) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ServiceListingsDto>> List([FromQuery] string? category, CancellationToken cancellationToken) =>
         await sender.Send(new ListServicesQuery(category), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>One published listing in full (L2-013 AC4; ADR 0051).</summary>
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ServiceListingDto>> Get(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new GetServiceQuery(id), cancellationToken).ConfigureAwait(false);
 }

@@ -54,7 +54,7 @@ import { HttpEventsService } from '../../services/http-events.service';
   templateUrl: './event-detail-page.html',
   styleUrl: './event-detail-page.scss',
 })
-export class EventDetailPage {
+export default class EventDetailPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   private id = '';

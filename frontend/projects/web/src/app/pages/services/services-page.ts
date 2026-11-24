@@ -21,10 +21,12 @@ import {
   Split,
 } from '@cf/components';
 import {
+  listingHref,
   noCategoryServicesText,
   selectedListing,
   serviceCategoryChips,
   serviceCategoryOf,
+  type ServiceRowView,
   serviceRowViewOf,
   verifiedText,
 } from '@cf/domain';
@@ -36,6 +38,9 @@ import type {
 import { HttpProfessionalApplicationsService } from '../../services/http-professional-applications.service';
 import { HttpServicesService } from '../../services/http-services.service';
 
+/** The width from which the card shows beside the list (the design system's LG, 1024 px). */
+const LG_WIDTH = '64rem';
+
 /** How many skeleton rows stand in while the list loads (mock `services/loading`). */
 const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }];
 
@@ -44,7 +49,8 @@ const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id:
  * 0050): the professionals the team has listed, in name order and at most 50, filtered by the
  * category in the address (`?category=`), with the selected one's card beside the list (`?selected=`;
  * the first when the address names none). Choosing a chip or a row navigates, so the address, the
- * back button and a reload agree; only a new category asks the API again. While the list loads it
+ * back button and a reload agree; only a new category asks the API again. Below LG the card is
+ * hidden and a row opens the listing's own screen at `/services/:id` (L2-013 AC4; ADR 0051). While the list loads it
  * shows skeleton rows; with nobody listed it says so and points to events; a 4xx or no answer
  * shows "Professionals didn't load" with Try again (a 5xx is the server-error screen's, L2-043
  * AC4). `SERVICES_SERVICE` and `PROFESSIONAL_APPLICATIONS_SERVICE` are bound here, so the clients
@@ -76,7 +82,7 @@ const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id:
   templateUrl: './services-page.html',
   styleUrl: './services-page.scss',
 })
-export class ServicesPage {
+export default class ServicesPage {
   private readonly services = inject(SERVICES_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -125,6 +131,15 @@ export class ServicesPage {
 
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);
+  }
+
+  /**
+   * Chooses a row (L2-013 AC3, AC4): from LG the card beside the list changes; below it the
+   * listing opens as its own screen with a back action.
+   */
+  protected open(row: ServiceRowView): void {
+    const beside = window.matchMedia(`(min-width: ${LG_WIDTH})`).matches;
+    this.navigate(beside ? row.href : listingHref(row.id, this.category()));
   }
 
   /** Asks for the list again, in place. */

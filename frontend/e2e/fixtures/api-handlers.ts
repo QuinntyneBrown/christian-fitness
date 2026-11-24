@@ -69,6 +69,7 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
  * `GET /api/admin/services/applications` answers an empty queue (ADR 0048), and
  * `GET /api/services` answers nobody listed, so Services opens empty (ADR 0050), and
+ * `GET /api/services/{id}` answers 404 `service_not_found` (ADR 0051), and
  * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044).
  */
 export class ApiHandlers {
@@ -92,6 +93,11 @@ export class ApiHandlers {
       handler: () => ({ json: NO_APPLICATIONS }),
     },
     { method: 'GET', path: '/api/services', handler: () => ({ json: NO_SERVICES }) },
+    {
+      method: 'GET',
+      path: /^\/api\/services\/[0-9a-f-]{36}$/,
+      handler: () => ({ status: 404, json: { code: 'service_not_found' } }),
+    },
     {
       method: 'GET',
       path: '/api/home',

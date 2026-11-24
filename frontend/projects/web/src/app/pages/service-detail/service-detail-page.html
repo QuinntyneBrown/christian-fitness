@@ -1,0 +1,50 @@
+<main id="main" class="service-detail-page">
+  <cf-container page="detail">
+    @if (state() === 'not-found') {
+      <cf-error-page
+        code="404"
+        heading="Page not found"
+        text="That link may be old, or the page has moved. Everything else is right where you left it."
+      >
+        <cf-button slot="actions" href="/" size="sm">Go to home</cf-button>
+        <cf-button slot="actions" href="/services" variant="secondary" size="sm"
+          >Browse services</cf-button
+        >
+      </cf-error-page>
+    } @else {
+      <cf-link [href]="backHref()" variant="back">All services</cf-link>
+      @if (state() === 'loading') {
+        <h1 class="visually-hidden">Professional</h1>
+        <cf-skeleton-region label="Loading professional">
+          <div class="service-detail-page__card">
+            <cf-service-detail loading />
+          </div>
+        </cf-skeleton-region>
+      } @else if (state() === 'failed') {
+        <h1 class="visually-hidden">Professional</h1>
+        <cf-empty-state
+          variant="error"
+          heading="This professional didn't load"
+          text="We couldn't reach Christian Fitness. Check your connection and try again."
+        >
+          <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+          <cf-button slot="actions" size="sm" variant="secondary" href="/services"
+            >All services</cf-button
+          >
+        </cf-empty-state>
+      } @else if (listing(); as item) {
+        <div class="service-detail-page__card">
+          <cf-service-detail
+            [name]="item.name"
+            [role]="item.role"
+            [where]="item.where"
+            [about]="item.about"
+            [credentials]="item.credentials"
+            [price]="item.price"
+            [verified]="verified()"
+          />
+        </div>
+      }
+    }
+  </cf-container>
+</main>
