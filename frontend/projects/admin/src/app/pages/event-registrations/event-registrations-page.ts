@@ -50,7 +50,7 @@ type PageState =
   styleUrl: './event-registrations-page.scss',
   providers: [{ provide: ADMIN_EVENTS_SERVICE, useClass: HttpAdminEventsService }],
 })
-export class EventRegistrationsPage {
+export default class EventRegistrationsPage {
   private readonly events = inject(ADMIN_EVENTS_SERVICE);
   private readonly router = inject(Router);
   private readonly reload = new Subject<void>();

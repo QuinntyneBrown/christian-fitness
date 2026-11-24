@@ -1,4 +1,5 @@
 import type { StaffRoleName } from '@cf/api';
+import { pathOf } from '../errors/server-error';
 
 /** The four areas of the admin app, in the order the navigation lists them (L2-021 AC1). */
 export type AdminAreaKey = 'dashboard' | 'events' | 'services' | 'members';
@@ -24,7 +25,7 @@ export const ADMIN_AREAS: readonly AdminArea[] = [
  * fragment do not count. A URL in no area (a screen outside the shell) has none.
  */
 export function currentAdminArea(url: string): AdminAreaKey | null {
-  const path = url.split(/[?#]/, 1)[0].replace(/\/+$/, '') || '/';
+  const path = pathOf(url).replace(/\/+$/, '') || '/';
   const area = ADMIN_AREAS.find((candidate) =>
     candidate.path === '/'
       ? path === '/'

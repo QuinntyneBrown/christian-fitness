@@ -69,7 +69,7 @@ interface LandingRow {
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.scss',
 })
-export class LandingPage {
+export default class LandingPage {
   private readonly events = inject(PUBLIC_EVENTS_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   private request: Subscription | null = null;

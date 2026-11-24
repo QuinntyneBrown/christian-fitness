@@ -2275,3 +2275,23 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 - "Warm the offline chunk while online" (30.2): right, but only half: it needs an observable completion.
 - "A heavy parallel run failed unrelated offline specs" (21.1): that was this race, not an unrelated cause.
+
+## Follow-up: initial bundles under budget and the home spec race
+
+**What slowed it**
+
+- After the 13-slice landing the initial totals were web 280.21 kB and admin 280.32 kB, over the 280 kB warning (the 290 kB error limit and every budget unchanged). The app's own code in `main` is only about 7 kB; the rest is Angular, so the cut had to come from duplication and from code a lazy screen alone needs, 0.3 kB at a time. `ng build <app> --stats-json` and summing `bytesInOutput` of the `main` output's inputs found it.
+- Result: web 279.67 kB, admin 279.98 kB. What moved: `HttpAccountService` is bound on the three pages that use `ACCOUNT_SERVICE` (join, forgot password, reset password) instead of in the web `app.config.ts`, so it ships in their lazy chunks (the guards use only the session service, which stays); every route loads a default-exported page (`import('./x')`, the 13 stragglers that still wrote `.then((m) => m.X)`); `api-error.ts` shares one `isRecordOf` and the domain shares one `pathOf` and `isApiUrl(url, prefix)` instead of six copies of the same split and `new URL` test.
+- Converting routes to default exports alone shrank admin by 230 bytes but grew web by 120 (chunk bookkeeping moved), so each change was measured on both apps, not assumed.
+- Home "With nothing to suggest" never failed again: 100 repeats at 4 workers while the whole suite ran on other ports (the first run of the follow-up) passed 100 of 100, and its waits are already events (the next-event title, then absences). The two failures seen in the two full runs were others: `edit-listing` "with nobody listed" waited 5 s while a lazy chunk and `/api/admin/session` each took 6.9 s to answer (the trace shows both stalled at the same moment, then everything answered within 80 ms, so the machine, not the page, paused), and `report-message` "Cancel and Escape" pressed Escape right after the click that opens the dialog, before it was attached.
+
+**New lessons**
+
+- A page-level `keyboard.press` after a click that opens a CDK dialog races the dialog's attachment. Reproduced (1 of 20) by throttling the CPU 40 times over CDP and dispatching the click; every dialog page object's `pressEscape` now waits for its dialog first, and 60 of 60 pass under the same throttle.
+- Reading a trace's network file for per-request `time` tells a stalled machine (several requests slow together) from a slow product (one request slow).
+- Measure bundle changes on both apps; a change that helps one can cost the other.
+
+**How earlier lessons worked**
+
+- "Section rendered with library parts costs no initial bundle" (28.1) and "Initial bundle: diff `--stats-json`" (AGENTS.md): the stats diff found the savings; the lazily bound service follows "scope state to its use".
+- "The other timeouts reported under load are machine load" (offline follow-up): confirmed for `edit-listing` by the trace; not for `report-message`, which was a real race.

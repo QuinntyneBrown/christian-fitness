@@ -19,7 +19,7 @@ import { signInRefusalOf, signInReturnPathOf, type SignInRefusal } from '@cf/dom
   templateUrl: './sign-in-page.html',
   styleUrl: './sign-in-page.scss',
 })
-export class SignInPage {
+export default class SignInPage {
   private readonly session = inject(SESSION_SERVICE);
   private readonly router = inject(Router);
   /** Read once: every arrival on the screen creates it anew (slice 30.1). */

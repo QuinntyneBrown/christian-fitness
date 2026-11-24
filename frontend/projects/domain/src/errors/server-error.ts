@@ -24,7 +24,7 @@ export function referenceOf(value: unknown): string | null {
  */
 export function returnPathOf(value: unknown): string {
   if (!isAppPath(value)) return '/';
-  const path = value.split(/[?#]/, 1)[0];
+  const path = pathOf(value);
   return path === SERVER_ERROR_PATH || path === OFFLINE_PATH ? '/' : value;
 }
 
@@ -43,7 +43,12 @@ export function failedRouteOf(router: Router): string {
     : router.url;
 }
 
-/** True when `url` targets the backend API (`/api/`). */
-export function isApiUrl(url: string): boolean {
-  return new URL(url, 'http://app.invalid').pathname.startsWith('/api/');
+/** True when `url` targets the backend API (`/api/`), or the part of it under `prefix`. */
+export function isApiUrl(url: string, prefix = '/api/'): boolean {
+  return new URL(url, 'http://app.invalid').pathname.startsWith(prefix);
+}
+
+/** `url` without its query and fragment. */
+export function pathOf(url: string): string {
+  return url.split(/[?#]/, 1)[0];
 }

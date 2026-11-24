@@ -28,6 +28,7 @@ export class CancelEventDialog {
   }
 
   async pressEscape(): Promise<void> {
+    await this.dialog.waitFor();
     await this.page.keyboard.press('Escape');
   }
 }

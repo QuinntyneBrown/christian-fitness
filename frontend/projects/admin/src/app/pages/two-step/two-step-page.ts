@@ -26,7 +26,7 @@ const FIELD_ERRORS = {
   templateUrl: './two-step-page.html',
   styleUrl: './two-step-page.scss',
 })
-export class TwoStepPage {
+export default class TwoStepPage {
   private readonly session = inject(STAFF_SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

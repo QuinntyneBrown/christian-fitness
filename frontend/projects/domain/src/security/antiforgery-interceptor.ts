@@ -7,6 +7,7 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { last, switchMap, type Observable } from 'rxjs';
+import { isApiUrl } from '../errors/server-error';
 
 /** The header the API reads the antiforgery token from (ADR 0009). */
 export const ANTIFORGERY_HEADER = 'X-XSRF-TOKEN';
@@ -52,5 +53,5 @@ function fetchToken(next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
 }
 
 function isApi(url: string): boolean {
-  return new URL(url, 'http://app.invalid').pathname.startsWith('/api/');
+  return isApiUrl(url);
 }

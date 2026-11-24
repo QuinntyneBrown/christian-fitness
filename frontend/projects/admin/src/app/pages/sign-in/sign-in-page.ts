@@ -32,7 +32,7 @@ type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked' |
   templateUrl: './sign-in-page.html',
   styleUrl: './sign-in-page.scss',
 })
-export class SignInPage {
+export default class SignInPage {
   private readonly session = inject(STAFF_SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

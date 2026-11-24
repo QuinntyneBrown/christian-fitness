@@ -18,7 +18,7 @@ const OFFLINE_TEXT = "Check your Wi-Fi or data, then try again when you're back 
   templateUrl: './offline-page.html',
   styleUrl: './offline-page.scss',
 })
-export class OfflinePage {
+export default class OfflinePage {
   private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;
 
   protected readonly text = OFFLINE_TEXT;

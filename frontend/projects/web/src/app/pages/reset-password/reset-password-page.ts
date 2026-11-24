@@ -2,6 +2,7 @@ import { Location } from '@angular/common';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { HttpAccountService } from '../../services/http-account.service';
 import { ACCOUNT_SERVICE } from '@cf/api';
 import { Alert, AuthLayout, Button, TextField } from '@cf/components';
 import {
@@ -32,8 +33,9 @@ type ResetState = 'checking' | 'form' | 'saved' | 'expired' | 'unchecked';
   imports: [Alert, AuthLayout, Button, TextField],
   templateUrl: './reset-password-page.html',
   styleUrl: './reset-password-page.scss',
+  providers: [{ provide: ACCOUNT_SERVICE, useClass: HttpAccountService }],
 })
-export class ResetPasswordPage {
+export default class ResetPasswordPage {
   private readonly account = inject(ACCOUNT_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   /** Read once: the fragment never reaches a server, and leaves the address bar now. */

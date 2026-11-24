@@ -6,8 +6,8 @@ import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
  * router sets the document title on every navigation (L2-038 AC6). The wildcard comes last.
  */
 const titled = (page: string) => `${page} · Christian Fitness`;
-const eventChat = () => import('./pages/event-chat/event-chat-page').then((m) => m.EventChatPage);
-const offline = () => import('./pages/offline/offline-page').then((m) => m.OfflinePage);
+const eventChat = () => import('./pages/event-chat/event-chat-page');
+const offline = () => import('./pages/offline/offline-page');
 
 export const routes: Routes = [
   {
@@ -15,42 +15,40 @@ export const routes: Routes = [
     pathMatch: 'full',
     title: 'Christian Fitness',
     canActivate: [redirectSignedInGuard],
-    loadComponent: () => import('./pages/landing/landing-page').then((m) => m.LandingPage),
+    loadComponent: () => import('./pages/landing/landing-page'),
   },
   {
     path: 'join',
     title: titled('Join'),
-    loadComponent: () => import('./pages/join/join-page').then((m) => m.JoinPage),
+    loadComponent: () => import('./pages/join/join-page'),
   },
   {
     path: 'sign-in',
     title: titled('Sign in'),
-    loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
+    loadComponent: () => import('./pages/sign-in/sign-in-page'),
   },
   {
     path: 'forgot-password',
     title: titled('Forgot password'),
-    loadComponent: () =>
-      import('./pages/forgot-password/forgot-password-page').then((m) => m.ForgotPasswordPage),
+    loadComponent: () => import('./pages/forgot-password/forgot-password-page'),
   },
   {
     // The emailed link: the token rides in the fragment, which the page reads and drops (ADR 0014).
     path: 'reset-password',
     title: titled('Reset password'),
-    loadComponent: () =>
-      import('./pages/reset-password/reset-password-page').then((m) => m.ResetPasswordPage),
+    loadComponent: () => import('./pages/reset-password/reset-password-page'),
   },
   {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).
     path: '',
     canActivate: [memberAuthGuard],
-    loadComponent: () => import('./shell/member-shell').then((m) => m.MemberShell),
+    loadComponent: () => import('./shell/member-shell'),
     children: [
       {
         // A stand-in until slice 13.1 (ADR 0007).
         path: 'home',
         title: titled('Home'),
-        loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
+        loadComponent: () => import('./pages/home/home-page'),
       },
       {
         // The published events that have not started, paged (L2-009; ADR 0027).
@@ -105,7 +103,7 @@ export const routes: Routes = [
         // The signed-in member's own profile (L2-005; ADR 0015).
         path: 'profile',
         title: titled('Profile'),
-        loadComponent: () => import('./pages/profile/profile-page').then((m) => m.ProfilePage),
+        loadComponent: () => import('./pages/profile/profile-page'),
       },
     ],
   },
@@ -117,12 +115,11 @@ export const routes: Routes = [
   {
     path: 'server-error',
     title: titled('Something went wrong'),
-    loadComponent: () =>
-      import('./pages/server-error/server-error-page').then((m) => m.ServerErrorPage),
+    loadComponent: () => import('./pages/server-error/server-error-page'),
   },
   {
     path: '**',
     title: titled('Page not found'),
-    loadComponent: () => import('./pages/not-found/not-found-page').then((m) => m.NotFoundPage),
+    loadComponent: () => import('./pages/not-found/not-found-page'),
   },
 ];

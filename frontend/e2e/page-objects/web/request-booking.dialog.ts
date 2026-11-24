@@ -82,6 +82,7 @@ export class WebRequestBookingDialog {
   }
 
   async pressEscape(): Promise<void> {
+    await this.dialog.waitFor();
     await this.page.keyboard.press('Escape');
   }
 }

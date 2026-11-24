@@ -88,7 +88,7 @@ const SKELETON_CARDS = [0, 1, 2];
     { provide: TOASTS_SERVICE, useClass: ToastStore },
   ],
 })
-export class ManageServicesPage {
+export default class ManageServicesPage {
   private readonly services = inject(ADMIN_SERVICES_SERVICE);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);

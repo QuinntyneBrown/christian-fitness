@@ -59,7 +59,7 @@ const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }];
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss',
 })
-export class HomePage {
+export default class HomePage {
   private readonly home = inject(HOME_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly inbox = inject(MemberInbox);

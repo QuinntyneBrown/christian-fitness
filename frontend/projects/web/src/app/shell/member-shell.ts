@@ -45,7 +45,7 @@ const DESTINATIONS: readonly MemberDestination[] = [
   templateUrl: './member-shell.html',
   styleUrl: './member-shell.scss',
 })
-export class MemberShell {
+export default class MemberShell {
   private readonly session = inject(SESSION_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

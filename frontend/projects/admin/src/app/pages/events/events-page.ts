@@ -88,7 +88,7 @@ const EMPTY: Record<AdminEventTab, { heading: string; text: string }> = {
     { provide: TOASTS_SERVICE, useClass: ToastStore },
   ],
 })
-export class AdminEventsPage {
+export default class AdminEventsPage {
   private readonly events = inject(ADMIN_EVENTS_SERVICE);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);

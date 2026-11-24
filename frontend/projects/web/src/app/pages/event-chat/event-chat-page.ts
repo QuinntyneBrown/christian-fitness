@@ -56,7 +56,7 @@ interface Unsent {
   templateUrl: './event-chat-page.html',
   styleUrl: './event-chat-page.scss',
 })
-export class EventChatPage {
+export default class EventChatPage {
   private readonly chat = inject(CHAT_CONNECTION);
   private readonly history = inject(CHAT_HISTORY);
   private readonly destroyRef = inject(DestroyRef);

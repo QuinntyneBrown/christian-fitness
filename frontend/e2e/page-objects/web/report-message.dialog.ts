@@ -39,7 +39,9 @@ export class WebReportMessageDialog {
     return this.page.getByRole('dialog', { name });
   }
 
+  /** Presses Escape once the dialog is open: a key pressed before it opens closes nothing. */
   async pressEscape(): Promise<void> {
+    await this.dialog.waitFor();
     await this.page.keyboard.press('Escape');
   }
 }
