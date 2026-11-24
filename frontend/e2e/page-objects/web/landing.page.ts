@@ -19,6 +19,11 @@ export class WebLandingPage {
   readonly error: Locator;
   readonly tryAgain: Locator;
   readonly verse: Locator;
+  readonly professionalsHeading: Locator;
+  readonly professionals: Locator;
+  readonly professionalsSection: Locator;
+  readonly professionalsError: Locator;
+  readonly professionalsTryAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -29,10 +34,20 @@ export class WebLandingPage {
     this.error = page.locator('.landing-list .inline-error');
     this.tryAgain = this.error.getByRole('button', { name: 'Try again' });
     this.verse = page.locator('.verse__quote');
+    this.professionalsHeading = page.getByRole('heading', { name: 'Meet our professionals' });
+    this.professionalsSection = page.locator('.landing-pros');
+    this.professionals = page.locator('.landing-pros .service-row');
+    this.professionalsError = page.locator('.landing-pros .inline-error');
+    this.professionalsTryAgain = this.professionalsError.getByRole('button', { name: 'Try again' });
   }
 
   async open(): Promise<void> {
     await this.page.goto('/');
+  }
+
+  /** Scrolls the professionals section into view, which starts its deferred load. */
+  async scrollToProfessionals(): Promise<void> {
+    await this.professionalsHeading.scrollIntoViewIfNeeded();
   }
 
   title(): Promise<string> {
@@ -48,6 +63,21 @@ export class WebLandingPage {
         day: row.querySelector('.event-row__day')?.textContent?.trim() ?? '',
         title: row.querySelector('.event-row__title')?.textContent?.trim() ?? '',
         meta: row.querySelector('.event-row__meta')?.textContent?.trim() ?? '',
+      })),
+    );
+  }
+
+  /** Each professional's name, role and where, price and where it leads. */
+  async professionalRows(): Promise<
+    { href: string | null; name: string; text: string; price: string; initials: string }[]
+  > {
+    return this.professionals.evaluateAll((rows) =>
+      rows.map((row) => ({
+        href: row.getAttribute('href'),
+        name: row.querySelector('.mini-row__name, .service-row__name')?.textContent?.trim() ?? '',
+        text: row.querySelector('.mini-row__text, .service-row__text')?.textContent?.trim() ?? '',
+        price: row.querySelector('.service-row__price')?.textContent?.trim() ?? '',
+        initials: row.querySelector('.avatar')?.textContent?.trim() ?? '',
       })),
     );
   }

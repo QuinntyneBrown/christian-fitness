@@ -1,0 +1,32 @@
+<div class="landing-pros">
+  @if (state() === 'loading') {
+    <cf-skeleton-region label="Loading professionals">
+      <cf-list variant="card" [items]="skeletons" [template]="skeletonRow" />
+    </cf-skeleton-region>
+  } @else if (state() === 'failed') {
+    <cf-inline-message
+      heading="Professionals didn't load."
+      text="Check your connection, then try again."
+      (retry)="load()"
+    />
+  } @else if (rows().length === 0) {
+    <cf-empty-state
+      variant="inline"
+      headingTag="p"
+      heading="No professionals listed yet."
+      text="Check back soon."
+    >
+      <cf-button slot="actions" variant="ghost" size="sm" href="/join"
+        >Join to hear first</cf-button
+      >
+    </cf-empty-state>
+  } @else {
+    <cf-list variant="card" label="Professionals" [items]="rows()" [template]="professionalRow" />
+  }
+</div>
+<ng-template #professionalRow let-row>
+  <cf-service-row href="/join" [name]="row.name" [text]="row.text" [price]="row.price" />
+</ng-template>
+<ng-template #skeletonRow>
+  <cf-service-row loading />
+</ng-template>

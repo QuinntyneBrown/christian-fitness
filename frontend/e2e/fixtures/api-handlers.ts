@@ -87,6 +87,7 @@ export class ApiHandlers {
     { method: 'GET', path: '/api/admin/session', handler: () => ({ json: STAFF_SIGNED_IN }) },
     { method: 'GET', path: '/api/admin/events', handler: () => ({ json: NO_ADMIN_EVENTS }) },
     { method: 'GET', path: '/api/public/events/upcoming', handler: () => ({ json: [] }) },
+    { method: 'GET', path: '/api/public/services/featured', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },
     {
       method: 'GET',

@@ -2156,3 +2156,26 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "A bundle regression shows in `main` inputs: diff `--stats-json` of the base" (23.1): used again; the diff showed only router and common noise, so bisecting by stubbing the import found the cause.
 - "A fixture default for a new call" (15.1 on): no default needed; the DELETE is answered by `answerListings`, which the specs that press Remove use.
 - "Count a slice's new specs against the CI budget" (24.1): six short specs in one file.
+
+## Slice 8.2: Landing with professionals
+
+**What slowed it**
+
+- The landing mock drew no professionals list, so the four states were extended by hand (a Python edit of the four HTML files; `build_mocks.py` was not run) and the L2 acceptance criteria 5 to 7 and the design were added (ADR 0056).
+- `@defer` took web to 289.86 kB (a 9.6 kB runtime), `on idle` still 288.11 kB, and `viewChild` plus `ViewContainerRef` in the page 280.89 kB. Only a small directive using `inject(ElementRef)`, `inject(ViewContainerRef)` and an `IntersectionObserver` held 280.21 kB, so AGENTS.md's "`@defer` below the fold" was met in spirit (code and data load only near the viewport) and the departure is in the ADR.
+- The library avatar's initials for "Marcus Lee, RD" are "MR" (the last word), not the mock's "ML"; the fixture uses "Marcus Lee".
+- A 5xx opens the server-error screen, so the failure spec uses 404, as the events spec does.
+- Running `dotnet test` while the full Playwright run was going starved the browsers: four unrelated specs timed out and passed alone. Run the two apart.
+
+**New lessons**
+
+- The first use of `@defer` costs about 8 to 10 kB of `main` even in a lazy route; check the initial total before choosing it, and prefer queries-free `inject` of `ElementRef` and `ViewContainerRef` in a directive.
+- A stub query that compiles must read its constructor parameter (warnings are errors): the first red was for behaviour (empty list against three names).
+- Initial bundle: web 280.21 kB (unchanged), admin 280.35 kB (unchanged).
+
+**How earlier lessons worked**
+
+- "Add a stub that compiles before the acceptance test" (17.1 to 23.2): followed; the e2e red was run with the component hidden from the template, four specs failing for the missing rows and messages.
+- "A bundle regression shows in `main` inputs" (23.1): the `_debug_node-chunk` size pointed at core runtime, not at the page.
+- "A fixture default for a new call" (15.1 on): the shared fixture answers `/api/public/services/featured` with an empty list; the whole suite (434 specs) was run.
+- "Count a slice's new specs against the CI budget" (24.1): four short specs in the landing file.

@@ -39,6 +39,13 @@ The slice runs from the landing route to the events table.
 - **`GetUpcomingEventsHandler`** — reads `Event` rows that are published and start
   after `TimeProvider.GetUtcNow()`, orders them by `StartsAt` ascending and takes at
   most 3. Fewer rows return a shorter list; none return an empty list (L2-001 AC2, AC3).
+- **Professionals (slice 8.2, ADR 0056)** — `LandingProfessionals` (its own component, loaded by
+  `cfLandingProfessionalsOnView` when its placeholder nears the viewport) reads
+  `PUBLIC_PROFESSIONALS_SERVICE` and renders up to three `service-row`s in a card list, with the same
+  loading, empty and error states as the events. `PublicServicesController`
+  (`[AllowAnonymous]`, `GET /api/public/services/featured`) sends `ListLandingProfessionalsQuery`,
+  which answers the first three listings by name with `name`, `role`, `category`, `where` and `price`
+  only. The two lists load and fail independently (L2-001 AC5 to AC7).
 - **Responsive layout** — the page stylesheet uses the design-system breakpoints
   XS and LG; the header keeps "Sign in" reachable without horizontal scroll (L2-002).
   Exact breakpoint widths come from `docs/design-system/tokens`.

@@ -6,7 +6,7 @@ handler and API, Angular screen, and acceptance tests (ATDD). Each journey also 
 of the cross-cutting requirements in `specs/L2.md` (security, performance, accessibility,
 telemetry), so those are not listed on their own.
 
-**% complete:** 93% (27 of 30 journeys; 85 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 29 and 30 are done, journey 8 has 1 of its 2)
+**% complete:** 95% (28 of 30 journeys; 86 of 91 days: journeys 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 29 and 30 are done)
 
 | #   | Journey                             | App    | Description                                                                                                        | Effort (days) |
 | --- | ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ | ------------- |
@@ -17,7 +17,7 @@ telemetry), so those are not listed on their own.
 | 5   | ✅ View an event                    | Member | See an event's details, place, time and spots left.                                                                | 2             |
 | 6   | Register for an event               | Member | Claim a spot within capacity; full events refuse registration.                                                     | 3             |
 | 7   | Cancel a registration               | Member | Give up a spot so someone else can take it.                                                                        | 1             |
-| 8   | Discover from the landing page      | Member | Visitors see the community, upcoming events and professionals, then join.                                          | 2             |
+| 8   | ✅ Discover from the landing page   | Member | Visitors see the community, upcoming events and professionals, then join.                                          | 2             |
 | 9   | ✅ Staff sign-in with two-step      | Admin  | Only staff sign in, verified by a second step.                                                                     | 4             |
 | 10  | ✅ Create and edit events           | Admin  | Staff draft an event and edit its details in a dialog.                                                             | 4             |
 | 11  | Publish and cancel events           | Admin  | Staff make a draft event visible or cancel it.                                                                     | 2             |
