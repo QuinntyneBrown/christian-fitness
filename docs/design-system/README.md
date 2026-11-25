@@ -151,15 +151,16 @@ python3 .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks
 | assets/ds.css (docs chrome) | The docs' `a` rule loaded after components.css and underlined every link inside the specimens. | Scoped to unclassed links (`a:where(:not([class]))`). |
 | assets/components.css (open) | About 25 fixed widths in the new blocks (story measure 48rem, figure 64rem, picker and inbox columns, thumbnails, `.feed__copy` 7rem) are raw rem, not layout or size tokens. | Open: tokenise when the screens are built. |
 | tokens (open) | `--color-accent` is 2.16:1 on the dark surface, so switch tracks, checked boxes and radios, the segmented current fill, spinners, progress bars and unread dots fall under 3:1 in dark (the label or a second cue carries the state). | Open: needs a brand decision on the dark accent (an L between about 0.13 and 0.18 would pass 3:1 on the surface and 4.5:1 under white text). |
-| mocks (open) | Mocks the extraction did not change: `pages/join/google` and `google-submitting` overflow 11px at 360px (`.auth__brand`, `.auth__main`); Sign out has no rule and shows at every width; Most read titles are not links; `.or-divider` duplicates `.divider--label`, `.inline-link` duplicates `.link`, `.subtitle--measure` duplicates `.subtitle--narrow`, `.key-facts` nearly duplicates `.spec-list`; the follow button changes its label while toggling `aria-pressed`; skeleton ratios differ from the loaded banner, date column and listing mark. | Open: listed on each component page under Sources. |
+| mocks (closed) | `pages/join/google` and `google-submitting` overflowed 11px at 360px (`.auth__brand`, `.auth__main`). | `.auth__brand` and `.auth__main` take `min-width: 0` and wrap long text; the 360px sweep is clean. The `check_mocks.py` errors are fixed. |
+| mocks (open) | Mocks the extraction did not change: Sign out has no rule and shows at every width; Most read titles are not links; `.or-divider` duplicates `.divider--label`, `.inline-link` duplicates `.link`, `.subtitle--measure` duplicates `.subtitle--narrow`, `.key-facts` nearly duplicates `.spec-list`; the follow button changes its label while toggling `aria-pressed`; skeleton ratios differ from the loaded banner, date column and listing mark. | Open: listed on each component page under Sources. |
 
 ## Verification
 Run on 2026-11-25, after adding the pages for the new mocks:
 
 - `check_contrast.py`: 174 pairs passed in light and dark, 0 failed.
 - `check_design_system.py`: 96 pages (75 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
-- `check_mocks.py docs/mocks`: no new errors; the 25 it reports came with the mocks (see Drift).
-- Horizontal overflow (Playwright, all 96 pages and every page and dialog mock at 360 and 1280px): none, except the two Google join mocks listed under Drift.
+- `check_mocks.py docs/mocks`: 0 errors (the 25 that came with the mocks are fixed).
+- Horizontal overflow (Playwright, all 96 pages and every page and dialog mock at 360 and 1280px): none (the two Google join mocks were fixed; see Drift).
 - Screenshots reviewed at 360 and 1280px in both themes for every new and changed component page.
 
 Earlier run, 2026-11-22: 170 pairs passed; 67 pages; 28 screens and 131 mocks, 0 errors; screenshots of button, dialog, text-field, event-card and color.

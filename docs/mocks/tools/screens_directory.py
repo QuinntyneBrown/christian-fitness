@@ -490,7 +490,8 @@ def _():
 
 @s("no-owner", "A staff-managed listing with no owner: Message is hidden and the website remains available.")
 def _():
-    return member_shell("directory", profile_page(LS["lakeshore-runners"], has_owner=False))
+    body = member_shell("directory", profile_page(LS["lakeshore-runners"], has_owner=False))
+    return "\n".join(line.rstrip() for line in body.split("\n"))
 
 
 @s("person", "Danielle Okafor, an instructor: a round photo instead of a squared mark; she hosts the Saturday Park Bootcamp series.")
