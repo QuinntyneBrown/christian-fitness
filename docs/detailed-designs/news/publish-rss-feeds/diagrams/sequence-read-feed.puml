@@ -7,6 +7,8 @@ skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Feed reader" as actor
 box "Backend — Christian Fitness API" #D1FADF
+  participant "public-reads policy" as limit
+  participant "Feed output cache" as cache
   participant "FeedsController" as ctrl
   participant "RssFeedResult" as rss
 end box
@@ -16,9 +18,17 @@ end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
-actor -> ctrl : GET /feed or /{section}/feed, with If-None-Match / If-Modified-Since
+actor -> limit : GET /feed or /{section}/feed, with If-None-Match / If-Modified-Since
+limit -> limit : Count request for client IP (L2-034 AC4)
+alt limit reached
+  limit --> actor : 429 ProblemDetails too_many_requests; Retry-After (L2-034 AC5)
+else allowed
+limit -> cache : Check cached feed
+alt fresh cache entry
+  cache --> actor : Cached feed or 304 if validators match
+else cache miss
+cache -> ctrl : Forward request
 ctrl -> h : Send GetStoryFeedQuery(section, validators)
-h -> h : PublicReadLimiter.TryAcquire(network) (L2-060 AC7)
 alt section unknown
   h --> ctrl : RefusalException not_found
   ctrl --> actor : 404 ProblemDetails
@@ -32,7 +42,11 @@ else known feed
   else changed
     h --> ctrl : StoryFeed with items
     ctrl -> rss : new RssFeedResult(feed)
-    rss --> actor : 200 application/rss+xml; Cache-Control public, max-age=900; ETag; Last-Modified; no Set-Cookie
+    rss --> cache : 200 application/rss+xml; Cache-Control public, max-age=900; ETag; Last-Modified; no Set-Cookie
+    cache -> cache : Store rendered feed for 15 minutes
+    cache --> actor : Feed response
   end
+end
+end
 end
 @enduml

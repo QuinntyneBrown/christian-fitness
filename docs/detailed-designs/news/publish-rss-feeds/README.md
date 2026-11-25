@@ -13,8 +13,9 @@ section, and the Subscribe screen lists them with each address to copy or open i
 - **conditional request** — a request that repeats the `ETag` or `Last-Modified` a feed gave, answered 304 with no body while nothing changed
 - **stories a week** — about how many stories a feed carries in a week, shown beside each feed
 
-Feeds are public reads: they need no account, set no cookie, and are rate limited per network
-(`L2-060` AC7). A feed carries nothing that identifies or reaches a member, and never a draft or a
+Feeds are public reads: they need no account, set no cookie, and are rate limited per client IP
+(`L2-034` AC4–5, `L2-060` AC7, ADR 0061). Pros has no section feed; its stories appear in All
+stories. A feed carries nothing that identifies or reaches a member, and never a draft or a
 removed story (`L2-060` AC6). The landing page and Subscribe name the feeds in the document head
 so a reader finds them from the site's address (`L2-060` AC3).
 
@@ -30,8 +31,15 @@ so a reader finds them from the site's address (`L2-060` AC3).
   section slug and the request's `If-None-Match` and `If-Modified-Since` values, and returns an
   **`RssFeedResult`**. It is excluded from `UseAntiforgeryTokens`, which today adds antiforgery
   cookies to every API response, so a feed sets no cookie (`L2-060` AC7).
-- **`GetStoryFeedHandler`** — takes a `PublicReadLimiter` lease (`news/read-story`); with none
-  left it refuses with 429 `rate_limited`. An unknown section is 404 `not_found`. It reads the 30
+- **`public-reads` policy** — the named ASP.NET Core policy limits covered requests per client IP
+  to 120 per minute in a six-segment sliding window. A refusal is 429 ProblemDetails with code
+  `too_many_requests` and `Retry-After` (`L2-034` AC4–5). Requests reaching the API count even
+  when the feed output cache serves them.
+- **Feed output cache** — keeps each rendered feed for 15 minutes. Publishing, unpublishing or
+  editing a published story evicts affected feeds by tag. Cached responses retain the conditional
+  request behaviour; `ETag` and `Last-Modified` are refreshed on the next render. A reader or
+  intermediary may retain a fresh response for up to 900 seconds after API eviction (ADR 0061).
+- **`GetStoryFeedHandler`** — an unknown section is 404 `not_found`. It reads the 30
   newest stories with `Status = Published` (of the section, or all), newest `PublishedAt` first
   (`L2-060` AC1, AC6). Its `ETag` is a strong hash of the items' ids and `EditedAt` values, so an
   edit, a new story or an unpublished one changes it; `Last-Modified` is the newest of those
@@ -82,21 +90,13 @@ so a reader finds them from the site's address (`L2-060` AC3).
 
 ### Open questions
 
-- **Routing the feed paths.** The member app and the API share an origin behind nginx, which
-  proxies only `/api/` today (ADR 0047). The paths `/feed` and `/<section>/feed` need their own
-  proxy rules, or `/events/feed` reaches the SPA's `events/:id` route. The change to
-  `frontend/Dockerfile`'s nginx configuration, and its documentation, belong to the feed slice.
-- **Public read limit.** The limit and window are `<TO SUPPLY>` (see `news/read-story`). A feed
-  reader behind a shared network address polling every 15 minutes needs the limit to leave room
-  for it.
-- **Response caching.** `L2-060` AC2 settles the headers. Whether the API also keeps the rendered
-  feed for 15 minutes (ASP.NET Core output caching) is open; the design renders on each request
-  that is not a 304, from one query of at most 30 rows.
-- **Pros has no feed.** Pros is a section on the landing page and in the editor (`L2-001` AC1), but
-  `L2-060` AC1 names five section feeds; the mock lists the same five. A story in Pros is in the
-  All stories feed only.
 - **Feed addresses.** The mock shows `https://christianfitness.ca/feed`; ADR 0047 serves the member
   app at `www.christian.fitness`. The addresses follow `MemberApp:BaseUrl`, whichever it is.
+
+The future nginx configuration copied by `frontend/Dockerfile` proxies exact `/feed` and
+`~ ^/[a-z0-9-]+/feed$` to the API before the `static.conf` include, its regex locations and the
+SPA fallback (ADR 0061). Unknown section slugs receive the API's 404. Today nginx proxies only
+`/api/`; the change belongs to the feed slice.
 
 ## Requirements
 
@@ -106,7 +106,7 @@ criteria; the text below condenses those criteria faithfully.
 
 | L2 ID    | Refines (L1) | Requirement |
 | -------- | ------------ | ----------- |
-| `L2-060` | `L1-018`     | `/feed` shall answer a valid RSS 2.0 document (`application/rss+xml`) of the 30 newest published stories with title, link, summary, section, author, publication date and a permanent id; `/events/feed`, `/training/feed`, `/nutrition/feed`, `/faith-body/feed` and `/community/feed` shall answer the same for one section. A repeated request with the feed's `ETag` or `Last-Modified` shall be answered 304 with no body while nothing changed, and feeds shall be cacheable for 15 minutes. The landing page and Subscribe shall name the feeds in the document head (`<link rel="alternate" type="application/rss+xml">`). Subscribe's feeds shall show "All stories" first and standing out, and each feed's name, about how many stories a week, its address as text, "Copy URL" and "Open in Feedly", which opens the reader in a new tab with the feed's address. "Copy URL" shall put the address on the clipboard, read "Copied" for about 2 seconds with a `status` message, and select the address when the clipboard refuses. A draft or removed story shall not be in a feed, and a feed shall carry nothing that identifies or reaches a member. A feed shall need no account, set no cookie and be rate limited per network like other public reads. |
+| `L2-060` | `L1-018`     | `/feed` shall answer a valid RSS 2.0 document (`application/rss+xml`) of the 30 newest published stories with title, link, summary, section, author, publication date and a permanent id; `/events/feed`, `/training/feed`, `/nutrition/feed`, `/faith-body/feed` and `/community/feed` shall answer the same for one section. Pros shall have no separate feed. A repeated request with the feed's `ETag` or `Last-Modified` shall be answered 304 with no body while nothing changed. Each rendered feed shall be output-cached for 15 minutes with `Cache-Control: public, max-age=900`, and affected entries shall be evicted by tag on publication, unpublication or edits to published stories. The landing page and Subscribe shall name the feeds in the document head (`<link rel="alternate" type="application/rss+xml">`). Subscribe's feeds shall show "All stories" first and standing out, and each feed's name, about how many stories a week, its address as text, "Copy URL" and "Open in Feedly", which opens the reader in a new tab with the feed's address. "Copy URL" shall put the address on the clipboard, read "Copied" for about 2 seconds with a `status` message, and select the address when the clipboard refuses. A draft or removed story shall not be in a feed, and a feed shall carry nothing that identifies or reaches a member. A feed shall need no account, set no cookie and be rate limited per client IP by `public-reads` (L2-034). |
 
 ## Diagrams
 
@@ -139,7 +139,7 @@ feeds through `FEEDS_SERVICE` and copies addresses through `CLIPBOARD_SERVICE`.
 
 ### Behaviour — read a feed
 
-A feed request is limited per network, answered 304 when its validators still match, and otherwise
+A feed request is limited per client IP, answered 304 when its validators still match, and otherwise
 written as RSS 2.0 with caching headers and no cookie (`L2-060` AC1, AC2, AC6, AC7).
 
 ![Sequence diagram for reading a feed](diagrams/sequence-read-feed.png)

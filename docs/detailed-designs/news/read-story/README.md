@@ -90,9 +90,8 @@ published stories.
   `slug`, `section`, `headline`, `summary`, `byline`, `publishedAt` (UTC), `readingMinutes`,
   `imageUrl`, `paragraphs` (`text`, `isQuote`), `next` (`kind`, `targetId`, `words`) when the
   pointed event or listing is still published, and `keepReading` (three `StoryCardDto` of other
-  published stories, the same section first, then newest first). The request first takes a lease
-  from **`PublicReadLimiter`** (see Open questions); with none left it is refused with 429
-  `rate_limited`.
+  published stories, the same section first, then newest first). The `public-reads` policy applies
+  before the handler and counts opening the story as one read.
 - **`CountStoryReadCommand`** / handler — adds one to the `StoryReadTally` of the story and the
   current Toronto day (`TimeProvider`), only for a Published story; anything else is a silent
   no-op, so the answer reveals nothing. No member, address or cookie is recorded. The tallies feed
@@ -106,9 +105,10 @@ published stories.
 - **`StorySlugRedirect`** — entity written by the authoring slice when a published story's slug
   changes; `FormerSlug` is unique.
 - **`StoryReadTally`** — entity (`StoryId`, `Day`, `Count`), one row per story per Toronto day.
-- **`PublicReadLimiter`** — a subclass of the existing `AddressRateLimiter` (ADR 0012, ADR 0014)
-  keyed by `IClientAddress.PartitionKey`, shared by every anonymous news read (story, newsletter,
-  feeds). Its limit and window are `<TO SUPPLY>`.
+- **`public-reads`** — named ASP.NET Core rate-limiter policy for anonymous story, section,
+  directory and feed reads. It counts by client IP in a sliding window of 120 requests per minute
+  with six segments. A refusal is 429 ProblemDetails with code `too_many_requests` and
+  `Retry-After` (`L2-034` AC4–5, ADR 0061).
 
 Telemetry records the route template (`api/public/stories/{slug}`), never the slug value, the
 query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).
@@ -122,9 +122,6 @@ query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).
   `<title>` and `<meta>` filled in. Either needs an ADR. The same limit applies to the redirect of
   a former slug (`L2-061` AC8): the design replaces the URL in the browser; a 301 from the server
   needs the same server-side step.
-- **Public read limit.** `L2-060` AC7 says public reads are rate limited "like other public reads
-  (`L2-034`)", but `L2-034` defines no limit for public reads and the code has none. The numbers,
-  and whether a story page counts, need a decision (ADR).
 - **Body format.** `L2-069` AC10 settles `>` for a pull quote and text-only storage. That
   paragraphs are separated by a blank line follows the editor mock; headings, lists, links and
   emphasis inside the text are not specified and are not supported by this design.
@@ -134,8 +131,6 @@ query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).
 - **Directory listings.** A story may point to a listing (`L2-055`); no directory listing entity
   exists in the code yet. The pointer stores a kind and an id; the listing's lookup arrives with
   the directory slices.
-- **Pros has no feed.** Stories in Pros show on this page and on the landing page, but `L2-060`
-  AC1 names no Pros feed.
 - **Signed-in members.** The page sits outside the member shell, so a signed-in member sees the
   public masthead with Sign in and Join free. Whether a member sees the member navigation instead
   is not drawn.
@@ -172,8 +167,8 @@ API reads the database and the image store.
 ### Components
 
 `StoryPage` calls `STORIES_SERVICE` and `CLIPBOARD_SERVICE`; `PublicStoriesController` sends
-`GetPublishedStoryQuery` and `CountStoryReadCommand`, whose handlers use `StoryText` and
-`PublicReadLimiter`.
+`GetPublishedStoryQuery` and `CountStoryReadCommand`. The `public-reads` policy limits story
+requests before the handler uses `StoryText`.
 
 ![C4 component view for reading a story](diagrams/c4-component.png)
 

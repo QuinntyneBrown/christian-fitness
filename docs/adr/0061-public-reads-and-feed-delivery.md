@@ -19,9 +19,10 @@ The member app and API share an origin; nginx currently proxies `/api/` only, so
   ProblemDetails with code `too_many_requests` and a `Retry-After` header. The API uses the client
   address forwarded by the trusted proxy, not an arbitrary client-supplied header (ADR 0047).
 - **Feed routes.** The future nginx configuration copied by `frontend/Dockerfile` proxies exact
-  `/feed` and `~ ^/[a-z0-9-]+/feed$` to the API ahead of the SPA fallback. The API accepts the
-  five section slugs in `L2-060` AC1; an unknown section returns 404, not the SPA. The proxy
-  preserves the path and forwards the client address and scheme as it does for `/api/`.
+  `/feed` and `~ ^/[a-z0-9-]+/feed$` to the API in the member server, before the
+  `static.conf` include and its regex locations and SPA fallback. The API accepts the five section
+  slugs in `L2-060` AC1; an unknown section returns 404, not the SPA. The proxy preserves the
+  path and forwards the client address and scheme as it does for `/api/`.
 - **Feed cache.** The API output-caches each rendered feed for 15 minutes and sends
   `Cache-Control: public, max-age=900`. Publishing or unpublishing a story evicts the affected
   feed entries by tag; editing a published story also evicts them so its content and validators

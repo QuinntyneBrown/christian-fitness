@@ -13,8 +13,9 @@ How Christian Fitness is released and where it runs (ADR 0047). Every setting is
 
 ADR 0061 specifies a future change to the nginx configuration copied by `frontend/Dockerfile`
 from `frontend/deploy/`. It is not deployed yet. The member app's server will proxy exact
-`/feed` and regex `~ ^/[a-z0-9-]+/feed$` to the API before the SPA fallback, preserving the
-request path and forwarding the client address and scheme as for `/api/`. Thus `/events/feed`
+`/feed` and regex `~ ^/[a-z0-9-]+/feed$` to the API before the `static.conf` include, its regex
+locations and the SPA fallback, preserving the request path and forwarding the client address
+and scheme as for `/api/`. Thus `/events/feed`
 reaches the API, not the SPA's `events/:id`; an unknown section receives the API's 404.
 
 The API will output-cache each rendered feed for 15 minutes, evict affected entries by tag on

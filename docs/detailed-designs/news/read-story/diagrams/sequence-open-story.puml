@@ -11,6 +11,7 @@ box "Frontend — Member web app" #E0F2FE
   participant "StoriesApi (STORIES_SERVICE)" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
+  participant "public-reads policy" as limit
   participant "PublicStoriesController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
@@ -24,9 +25,10 @@ end box
 actor -> page : Open /stories/<slug>
 page --> actor : Skeletons for headline, image and text (L2-061 AC9)
 page -> client : get(slug)
-client -> ctrl : GET /api/public/stories/{slug}
+client -> limit : GET /api/public/stories/{slug}
+limit -> limit : Count one read for client IP (L2-034 AC4)
+limit -> ctrl : Allow request
 ctrl -> h : Send GetPublishedStoryQuery
-h -> h : PublicReadLimiter.TryAcquire(network) (L2-060 AC7)
 h -> db : Story by slug, else StorySlugRedirect by former slug
 db --> h : Story
 alt no story, or status is not Published
