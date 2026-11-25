@@ -104,6 +104,20 @@ export interface ListingProfileDto {
   serviceListingId: string | null;
   /** Whether the signed-in member follows it (ADR 0088). */
   following: boolean;
+  /** Whether the signed-in member owns it: the profile shows Edit listing (ADR 0093). */
+  isOwner: boolean;
+  /** What only the owner reads, or none for anyone else (ADR 0093). */
+  owner: OwnListingDto | null;
+}
+
+/**
+ * What only the owner reads of their listing (`OwnListingDto`, ADR 0093): the contact email shown
+ * to members who message it, and a new name or kind waiting for staff.
+ */
+export interface OwnListingDto {
+  contactEmail: string | null;
+  pendingName: string | null;
+  pendingKind: ListingKind | null;
 }
 
 /**

@@ -52,6 +52,17 @@ export interface ListingProfileFixture {
   serviceListingId: string | null;
   /** Whether the signed-in member follows it (ADR 0088). */
   following: boolean;
+  /** Whether the signed-in member owns it (ADR 0093). */
+  isOwner: boolean;
+  /** What only the owner reads: the contact email and a waiting name or kind (ADR 0093). */
+  owner: OwnListingFixture | null;
+}
+
+/** What only the owner reads of their listing (`OwnListingDto`, ADR 0093). */
+export interface OwnListingFixture {
+  contactEmail: string | null;
+  pendingName: string | null;
+  pendingKind: KindFixture | null;
 }
 
 const idOf = (name: string): string => {
@@ -96,6 +107,8 @@ export const LAKESHORE: ListingProfileFixture = {
   ],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
 };
 
 /** Danielle Okafor, an instructor with a photo (mock `listing-profile/person`). */
@@ -119,6 +132,8 @@ export const OKAFOR: ListingProfileFixture = {
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
 };
 
 /** Christian Fitness, the team's own listing (mock `listing-profile/one-off`). */
@@ -142,6 +157,8 @@ export const TEAM: ListingProfileFixture = {
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
 };
 
 /** Northline Athletic, an unverified company (mock `listing-profile/unverified`). */
@@ -165,6 +182,36 @@ export const NORTHLINE: ListingProfileFixture = {
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
+};
+
+/**
+ * Eastside Ladies Who Lift as its owner reads it (mock `listing-profile/owner`; ADR 0093): claimed
+ * from a suggestion, so it is not in the directory cast.
+ */
+export const EASTSIDE_OWNED: ListingProfileFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000ea501',
+  kind: 'organization',
+  name: 'Eastside Ladies Who Lift',
+  tagline: 'Saturday morning strength group out of Danforth Baptist',
+  area: 'East York',
+  description:
+    'About 25 women, coached by a CSEP trainer. We pray before and after and are so welcoming to beginners.',
+  focus: ['Strength', 'Beginners', 'Women'],
+  websiteUrl: 'https://eastsideladies.ca',
+  isVerified: true,
+  photoKey: null,
+  followers: 0,
+  listedYear: 2026,
+  hasOwner: true,
+  hostingCount: 0,
+  hosting: [],
+  connections: [],
+  serviceListingId: null,
+  following: false,
+  isOwner: true,
+  owner: { contactEmail: 'eastsideladies@example.org', pendingName: null, pendingKind: null },
 };
 
 export const PROFILES: ListingProfileFixture[] = [LAKESHORE, OKAFOR, TEAM, NORTHLINE];

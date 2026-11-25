@@ -1,0 +1,66 @@
+<cf-dialog
+  heading="Edit your listing"
+  [subtitle]="subtitle"
+  [titleId]="headingId"
+  [descriptionId]="descriptionId"
+  (closed)="close()"
+>
+  <cf-text-field
+    fieldId="f-name"
+    label="Name"
+    name="name"
+    hint="Changing the name or the kind sends the listing back to staff to check"
+    [value]="values().name"
+    (valueChange)="set('name', $event)"
+  />
+  <cf-textarea
+    fieldId="f-about"
+    label="About"
+    name="about"
+    [rows]="4"
+    [value]="values().about"
+    (valueChange)="set('about', $event)"
+  />
+  <cf-text-field
+    fieldId="f-website"
+    label="Website"
+    name="website"
+    inputmode="url"
+    optional
+    [value]="values().website"
+    (valueChange)="set('website', $event)"
+  />
+  <cf-file-field
+    fieldId="f-photo"
+    label="Photo"
+    name="photo"
+    optional
+    chooseLabel="Choose photo"
+    noun="photo"
+    emptyText="No photo yet"
+    hint="JPEG, PNG or WebP, up to 5 MB"
+    [accept]="imageTypes"
+    [fileName]="values().photoName ?? (values().photoKey === null ? null : 'Current photo')"
+  />
+  <cf-text-field
+    fieldId="f-focus"
+    label="Focus"
+    name="focus"
+    hint="Up to 6, separated by commas"
+    [value]="values().focus"
+    (valueChange)="set('focus', $event)"
+  />
+  <cf-text-field
+    fieldId="f-contact"
+    label="Contact email"
+    name="contact"
+    type="email"
+    autocomplete="email"
+    optional
+    hint="Shown to members who message you"
+    [value]="values().contact"
+    (valueChange)="set('contact', $event)"
+  />
+  <cf-button slot="foot" variant="secondary" grow (click)="close()">Cancel</cf-button>
+  <cf-button slot="foot" grow>Save changes</cf-button>
+</cf-dialog>

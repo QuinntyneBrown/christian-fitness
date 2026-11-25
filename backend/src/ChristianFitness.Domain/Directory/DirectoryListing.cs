@@ -15,6 +15,7 @@ public sealed class DirectoryListing
     public const int WebsiteMaxLength = 200;
     public const int FocusTagMaxLength = 40;
     public const int PhotoKeyMaxLength = 64;
+    public const int ContactEmailMaxLength = 254;
 
     /// <summary>The longest folded <see cref="SearchText"/>: every searched field and a separator between each.</summary>
     public const int SearchTextMaxLength = 1000;
@@ -75,6 +76,21 @@ public sealed class DirectoryListing
 
     /// <summary>The Services listing staff linked it to, when they did (ADR 0061).</summary>
     public Guid? ServiceListingId { get; private set; }
+
+    /// <summary>
+    /// Where members who message it may write (L2-079 AC7; ADR 0093), or none. Answered only to the
+    /// owner, to staff and to a member who messages it; never traced or logged.
+    /// </summary>
+    public string? ContactEmail { get; private set; }
+
+    /// <summary>A new name the owner asked for, waiting for staff (L2-079 AC5; ADR 0093), or none.</summary>
+    public string? PendingName { get; private set; }
+
+    /// <summary>A new kind waiting for staff with <see cref="PendingName"/>, or none.</summary>
+    public ListingKind? PendingKind { get; private set; }
+
+    /// <summary>When the waiting change was last asked for, or none.</summary>
+    public DateTimeOffset? PendingSince { get; private set; }
 
     /// <summary>The name folded by <see cref="SearchFold"/>: the directory's name order (ADR 0082).</summary>
     public string NameKey { get; private set; } = string.Empty;

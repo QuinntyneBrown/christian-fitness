@@ -25,6 +25,9 @@ internal sealed class DirectoryListingConfiguration : IEntityTypeConfiguration<D
         builder.PrimitiveCollection(l => l.Focus).IsRequired();
         builder.Property(l => l.WebsiteUrl).HasMaxLength(DirectoryListing.WebsiteMaxLength);
         builder.Property(l => l.PhotoKey).HasMaxLength(DirectoryListing.PhotoKeyMaxLength);
+        builder.Property(l => l.ContactEmail).HasMaxLength(DirectoryListing.ContactEmailMaxLength);
+        builder.Property(l => l.PendingName).HasMaxLength(DirectoryListing.NameMaxLength);
+        builder.Property(l => l.PendingKind).HasConversion<string>().HasMaxLength(20);
         builder.Property(l => l.NameKey).HasMaxLength(DirectoryListing.NameMaxLength).IsRequired();
         builder.Property(l => l.SearchText).HasMaxLength(DirectoryListing.SearchTextMaxLength).IsRequired();
         builder.HasIndex(l => new { l.Status, l.KindOrder, l.NameKey, l.Id });

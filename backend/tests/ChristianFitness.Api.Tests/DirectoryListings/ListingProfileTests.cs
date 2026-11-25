@@ -40,7 +40,7 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
 
         Assert.Equal(HttpStatusCode.OK, status);
         Assert.Equal(
-            ["area", "connections", "description", "focus", "followers", "following", "hasOwner", "hosting", "hostingCount", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "serviceListingId", "tagline", "websiteUrl"],
+            ["area", "connections", "description", "focus", "followers", "following", "hasOwner", "hosting", "hostingCount", "id", "isOwner", "isVerified", "kind", "listedYear", "name", "owner", "photoKey", "serviceListingId", "tagline", "websiteUrl"],
             profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(id, profile.GetProperty("id").GetGuid());
         Assert.Equal("organization", profile.GetProperty("kind").GetString());
@@ -54,6 +54,8 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
         Assert.Equal(JsonValueKind.Null, profile.GetProperty("photoKey").ValueKind);
         Assert.Equal(0, profile.GetProperty("followers").GetInt32());
         Assert.Equal(2025, profile.GetProperty("listedYear").GetInt32());
+        Assert.False(profile.GetProperty("isOwner").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, profile.GetProperty("owner").ValueKind);
     }
 
     [Fact]

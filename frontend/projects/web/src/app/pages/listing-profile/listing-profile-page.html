@@ -60,6 +60,11 @@
             [initials]="shown.initials"
             [photoSrc]="shown.photoSrc"
           >
+            @if (listing.isOwner) {
+              <cf-button slot="actions" variant="secondary" size="md" (click)="editListing(listing)"
+                >Edit listing</cf-button
+              >
+            }
             @if (follow(); as followed) {
               <cf-follow-button
                 slot="actions"
@@ -70,7 +75,7 @@
                 (toggled)="toggleFollow(listing)"
               />
             }
-            @if (listing.hasOwner) {
+            @if (listing.hasOwner && !listing.isOwner) {
               <cf-button slot="actions" variant="secondary" size="md" (click)="message()"
                 >Message</cf-button
               >

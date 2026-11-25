@@ -26,7 +26,9 @@ public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, str
 /// https address (L2-055 AC5). <c>HasOwner</c> says whether Message can reach anyone (L2-055 AC6);
 /// <c>ServiceListingId</c> names the Services listing of the same owner, or that staff linked, for
 /// "Also offers services" (ADR 0061). <c>Following</c> says whether the signed-in caller follows it,
-/// <c>false</c> for an anonymous caller (ADR 0088). It carries no member id, contact detail or owner's name.
+/// <c>false</c> for an anonymous caller (ADR 0088). <c>IsOwner</c> says the signed-in caller owns it,
+/// and only then is <c>Owner</c> given, with what the owner's editor opens on (ADR 0093). It carries
+/// no member id or owner's name, and a contact detail only in <c>Owner</c>.
 /// </summary>
 public sealed record ListingProfileDto(
     Guid Id,
@@ -46,7 +48,15 @@ public sealed record ListingProfileDto(
     IReadOnlyList<HostedEventDto> Hosting,
     IReadOnlyList<ListingConnectionDto> Connections,
     Guid? ServiceListingId,
-    bool Following);
+    bool Following,
+    bool IsOwner,
+    OwnListingDto? Owner);
+
+/// <summary>
+/// What only the owner reads of their listing (L2-079 AC2; ADR 0093): its contact email, and the
+/// name and kind waiting for staff, by ADR 0082's kind slug.
+/// </summary>
+public sealed record OwnListingDto(string? ContactEmail, string? PendingName, string? PendingKind);
 
 /// <summary>Opens one listing's profile; anything but a published listing is 404 <c>listing_not_found</c> (L2-055 AC7).</summary>
 public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>
@@ -64,10 +74,17 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, ICurrentMember 
             .SingleOrDefaultAsync(l => l.Id == request.Id && l.Status == ListingStatus.Published, cancellationToken)
             .ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.ListingNotFound, RefusalKind.NotFound);
+        return await ListingProfile.OfAsync(db, current.SignedInId, time.GetUtcNow(), listing, cancellationToken).ConfigureAwait(false);
+    }
+}
 
+/// <summary>A published listing's profile as <paramref name="caller"/> reads it, shared by the read and the owner's save.</summary>
+internal static class ListingProfile
+{
+    public static async Task<ListingProfileDto> OfAsync(IAppDbContext db, Guid? caller, DateTimeOffset now, DirectoryListing listing, CancellationToken cancellationToken)
+    {
         // The published one-off events it hosts that have not started (the directory row's rule, ADR 0082);
         // series join first with journey 11.
-        var now = time.GetUtcNow();
         var hosted = db.Events.AsNoTracking()
             .Where(e => e.HostListingId == listing.Id && e.Status == EventStatus.Published && e.StartsAt > now);
         var hostingCount = await hosted.CountAsync(cancellationToken).ConfigureAwait(false);
@@ -107,8 +124,9 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, ICurrentMember 
 
         // Only the count of who follows it, and whether the caller does (L2-056 AC6; ADR 0088).
         var followers = await ListingFollows.CountAsync(db, listing.Id, cancellationToken).ConfigureAwait(false);
-        var following = current.SignedInId is { } memberId
+        var following = caller is { } memberId
             && await ListingFollows.FollowsAsync(db, memberId, listing.Id, cancellationToken).ConfigureAwait(false);
+        var isOwner = caller is not null && listing.MemberId == caller;
         return new ListingProfileDto(
             listing.Id,
             ListingKinds.SlugOf(listing.Kind),
@@ -127,6 +145,11 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, ICurrentMember 
             hosting,
             connections,
             serviceListingId,
-            following);
+            following,
+            isOwner,
+            isOwner ? new OwnListingDto(
+                listing.ContactEmail,
+                listing.PendingName,
+                listing.PendingKind is { } kind ? ListingKinds.SlugOf(kind) : null) : null);
     }
 }
