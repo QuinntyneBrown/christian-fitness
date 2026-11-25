@@ -4,12 +4,14 @@ LAYOUT_WITH_LEGEND()
 title Components — Sign in and sign out
 
 Container_Boundary(web, "Member web app") {
-  Component(page, "SignInPage", "Angular routed component", "Credentials form")
+  Component(page, "SignInPage", "Angular routed component", "signin card: Continue with Google, email form, notices")
+  Component(ui, "GoogleButton, SsoNotice, Divider", "components library", "google-button, sso-notice, or-divider blocks")
   Component(guard, "memberAuthGuard", "CanActivateFn", "Protects member routes")
   Component(svc, "HttpSessionService", "SESSION_SERVICE", "Session signal and HTTP client")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "SessionController", "ASP.NET Core controller", "POST, GET, DELETE /api/session")
+  Component(ctrl, "SessionController", "ASP.NET Core controller", "POST, GET, DELETE /api/session; POST google/start, POST google")
+  Component(g, "CompleteGoogleSignInHandler", "MediatR handler", "Match by Google subject or email; see sign-in-with-google")
   Component(h, "SignInHandler", "MediatR handler", "Rate window, password, status")
   Component(o, "SignOutHandler", "MediatR handler", "Ends session")
   Component(hash, "IPasswordHasher", "Infrastructure", "Verifies hash")
@@ -22,6 +24,10 @@ Rel(page, svc, "Signs in / out")
 Rel(svc, ctrl, "Session calls", "JSON/HTTPS")
 Rel(ctrl, h, "Sends SignInCommand")
 Rel(ctrl, o, "Sends SignOutCommand")
+Rel(page, ui, "Renders")
+Rel(ctrl, g, "Sends CompleteGoogleSignInCommand")
+Rel(g, db, "Reads and links Member", "EF Core")
+Rel(g, sess, "Signs in")
 Rel(h, hash, "Verifies password")
 Rel(h, db, "Reads Member; counts, adds and deletes SignInFailure", "EF Core")
 Rel(ctrl, sess, "Issues or clears cookie")

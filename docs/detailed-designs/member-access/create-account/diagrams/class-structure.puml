@@ -10,6 +10,7 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Create a member account
+left to right direction
 class JoinPage {
   +fullName: Signal<string>
   +email: Signal<string>
@@ -19,7 +20,9 @@ class JoinPage {
   +submitting: Signal<boolean>
   +fieldErrors: Signal<JoinFieldErrors>
   +refusal: Signal<JoinRefusal | null>
+  +googleAccount: Signal<PendingGoogleAccountDto | null>
   +submit(): void
+  +startGoogle(): void
 }
 class validateJoin <<domain helper>> {
   +validateJoin(form: JoinForm): JoinFieldErrors
@@ -34,7 +37,36 @@ class ApiError {
 }
 interface AccountApi {
   +join(req: JoinRequestDto): Observable<SessionDto>
+  +pendingGoogle(): Observable<PendingGoogleAccountDto>
+  +joinWithGoogle(req: GoogleJoinRequestDto): Observable<SessionDto>
 }
+class PendingGoogleAccountDto {
+  +email: string
+  +name: string
+}
+class GoogleJoinRequestDto {
+  +displayName: string
+  +homeChurch: string | null
+  +interests: string[]
+}
+class CreateGoogleAccountCommand {
+  +string DisplayName
+  +string? HomeChurch
+  +IReadOnlyList<string> Interests
+}
+class CreateGoogleAccountValidator
+class CreateGoogleAccountHandler {
+  +Handle(c: CreateGoogleAccountCommand): Task<SessionDto>
+}
+class GetPendingGoogleAccountHandler
+interface IGoogleIdentityReader {
+  +ReadAsync(): Task<GoogleIdentity?>
+  +ForgetAsync(): Task
+}
+class GoogleAccountMatch {
+  +FindAsync(identity): Task<Member?>
+}
+class AccountCreationLimiter
 class HttpAccountService
 class JoinRequestDto {
   +fullName: string
@@ -74,10 +106,12 @@ class Member {
   +string Email
   +string NormalizedEmail
   +string PasswordHash
+  +string? GoogleSubject
   +string? HomeChurch
   +IReadOnlyList<string> Interests
   +MemberStatus Status
   +DateTimeOffset JoinedAt
+  +{static} JoinWithGoogle(name, email, subject, joinedAt, homeChurch, interests): Member
 }
 enum MemberStatus {
   Active
@@ -97,6 +131,8 @@ JoinPage ..> AccountApi : injects ACCOUNT_SERVICE
 JoinPage ..> JoinRequestDto
 JoinPage ..> validateJoin
 JoinPage ..> joinRefusalOf
+JoinPage ..> SessionApi : startGoogle, completeGoogle
+interface SessionApi <<api>>
 joinRefusalOf ..> ApiError
 HttpAccountService ..> ApiError : errors with
 ValidationBehavior ..> CreateAccountValidator : runs
@@ -109,4 +145,15 @@ CreateAccountHandler ..> IPasswordHasherService
 CreateAccountHandler ..> ISessionSignIn
 CreateAccountHandler --> Member : creates
 Member --> MemberStatus
+AccountApi ..> PendingGoogleAccountDto
+AccountApi ..> GoogleJoinRequestDto
+AccountController ..> CreateGoogleAccountCommand : sends
+CreateGoogleAccountValidator ..> CreateGoogleAccountCommand : validates
+CreateGoogleAccountHandler ..> CreateGoogleAccountCommand : handles
+CreateGoogleAccountHandler ..> IGoogleIdentityReader
+GetPendingGoogleAccountHandler ..> IGoogleIdentityReader
+CreateGoogleAccountHandler ..> AccountCreationLimiter
+CreateGoogleAccountHandler ..> GoogleAccountMatch : signs in an existing account
+CreateGoogleAccountHandler ..> ISessionSignIn
+CreateGoogleAccountHandler --> Member : JoinWithGoogle
 @enduml

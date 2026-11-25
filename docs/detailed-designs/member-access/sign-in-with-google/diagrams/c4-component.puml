@@ -1,0 +1,43 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Sign in with Google
+
+Container_Boundary(web, "Member web app and Admin web app") {
+  Component(btn, "GoogleButton", "components library", "google-button block with the bundled G mark")
+  Component(screen, "SignInPage, JoinPage, admin SignInPage", "Angular routed components", "Start, return and finish")
+  Component(ret, "googleReturnOf", "domain helper", "Reads google=returned or failed once")
+  Component(svc, "HttpSessionService, HttpStaffSessionService", "SESSION_SERVICE, STAFF_SESSION_SERVICE", "startGoogle, completeGoogle")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "SessionController, StaffSessionController", "ASP.NET Core controllers", "POST .../google/start, POST .../google")
+  Component(start, "StartGoogleSignInHandler", "MediatR handler", "Limit, settings, return path, challenge")
+  Component(limit, "GoogleSignInLimiter", "AddressRateLimiter", "20 starts per network per 15 minutes")
+  Component(chal, "OpenIdConnectGoogleChallenge", "IGoogleChallenge", "Authorization address with state, nonce, PKCE")
+  Component(oidc, "GoogleMember and GoogleStaff schemes", "OpenID Connect handler", "Callback: state, code exchange, ID token checks")
+  Component(ext, "GoogleExternal scheme", "Cookie authentication", "__Host-cf-google: the Google identity only")
+  Component(reader, "ExternalCookieGoogleIdentityReader", "IGoogleIdentityReader", "Reads and forgets the identity")
+  Component(done, "CompleteGoogleSignInHandler", "MediatR handler", "Verified email, match, suspension, session")
+  Component(match, "GoogleAccountMatch", "Application service", "Subject, then email; links the subject")
+  Component(sess, "CookieSessionSignIn", "ISessionSignIn", "Member session cookie")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, sessions")
+System_Ext(google, "Google", "OpenID Connect provider")
+
+Rel(screen, btn, "Renders")
+Rel(screen, ret, "Reads the return marker")
+Rel(screen, svc, "startGoogle, completeGoogle")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, start, "Sends StartGoogleSignInCommand")
+Rel(start, limit, "Takes a lease")
+Rel(start, chal, "Begins the challenge")
+Rel(chal, oidc, "Challenges the app's scheme")
+Rel(oidc, google, "Exchanges code; reads keys", "HTTPS")
+Rel(oidc, ext, "Signs in the Google identity")
+Rel(ctrl, done, "Sends CompleteGoogleSignInCommand")
+Rel(done, reader, "Reads, forgets")
+Rel(reader, ext, "Authenticates")
+Rel(done, match, "Finds the member")
+Rel(match, db, "Reads Member; stores GoogleSubject", "EF Core")
+Rel(done, sess, "Signs in")
+@enduml

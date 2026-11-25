@@ -3,18 +3,18 @@
 LAYOUT_WITH_LEGEND()
 title Containers — View the landing page
 
-Person(user, "Visitor", "Person who is not signed in")
+Person(visitor, "Visitor", "Person who is not signed in")
 System_Boundary(cf, "Christian Fitness") {
-  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; member screens")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, events, registrations, conversations")
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; LandingPage at /")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Anonymous public stories and events endpoints")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Stories, story read tallies, events")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
 }
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 
-Rel(user, web, "Opens / in a browser", "HTTPS")
-Rel(web, api, "Requests upcoming published events", "JSON/HTTPS")
-Rel(api, db, "Reads and writes", "EF Core")
+Rel(visitor, web, "Opens / and /?section=<value>", "HTTPS")
+Rel(web, api, "Reads front page, most read, upcoming events", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
 Rel(cli, db, "Migrates and seeds", "EF Core")
 Rel(api, otel, "Exports telemetry", "OTLP")
 @enduml

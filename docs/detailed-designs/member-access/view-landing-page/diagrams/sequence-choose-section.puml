@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Visitor chooses a section
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Masthead" as mast
+  participant "LandingPage" as page
+  participant "newsSectionOf" as dom
+  participant "HttpStoriesService" as stories
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicStoriesController" as sctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListFrontPageStoriesHandler" as front
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> mast : Choose "Training"
+mast -> page : Router link to /?section=<value> (L2-001 AC3)
+page -> dom : newsSectionOf(query)
+alt Unknown value
+  dom --> page : Latest
+  page --> actor : Latest with its top stories
+else Known section
+  dom --> page : Training
+  page --> actor : "Training" aria-current; skeleton for the river; rail kept
+  page -> stories : frontPage(Training)
+  stories -> sctrl : GET /api/public/stories?section=<value>
+  sctrl -> front : Send ListFrontPageStoriesQuery(Training)
+  front -> db : Published Training stories, newest first
+  front --> sctrl : FrontPageDto: no lead, no headlines, latest
+  sctrl --> stories : 200
+  stories --> page : Stories
+  alt Stories in the section
+    page --> actor : Heading "Training"; the section's stories, newest first;\nno top stories
+  else None
+    page --> actor : "No stories in Training yet this week." (L2-001 AC4)
+  end
+end
+@enduml

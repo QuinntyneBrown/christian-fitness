@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Visitor signs up with Google
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "JoinPage" as page
+  participant "HttpSessionService" as ses
+  participant "HttpAccountService" as acc
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SessionController" as sctrl
+  participant "AccountController" as actrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CompleteGoogleSignInHandler" as done
+  participant "CreateGoogleAccountHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "IGoogleIdentityReader" as reader
+  database "Christian Fitness database" as db
+end box
+actor -> page : Press "Sign up with Google" (L2-003 AC7)
+page --> actor : "Opening Google…", disabled
+page -> ses : startGoogle({ intent: 'join' })
+note over page, sctrl : Start, Google and callback as in sign-in-with-google;\na failed attempt returns /join?google=failed:\n"Google sign-up didn't finish", nothing created (AC11)
+actor -> page : Back at /join?google=returned
+page -> ses : completeGoogle('join')
+ses -> sctrl : POST /api/session/google
+sctrl -> done : Send CompleteGoogleSignInCommand(Join)
+alt Google account already has a member account (AC10)
+  done --> sctrl : SessionDto, session cookie set
+  sctrl --> ses : 200
+  page --> actor : Home; no second account
+else No member account
+  done --> sctrl : Refusal <TO SUPPLY>; Google identity kept
+  sctrl --> ses : ProblemDetails
+  page -> acc : pendingGoogle()
+  acc -> actrl : GET /api/account/google
+  actrl -> reader : via GetPendingGoogleAccountQuery
+  reader --> actrl : email, name
+  actrl --> acc : 200 PendingGoogleAccountDto
+  page --> actor : "Finish your profile": email "Signing in with Google", Change,\nDisplay name filled from Google, home church, interests (AC8)
+  actor -> page : Create profile
+  page -> page : validateJoin name rule; nothing sent when invalid
+  page --> actor : "Creating your profile…", disabled
+  page -> acc : joinWithGoogle({ displayName, homeChurch, interests })
+  acc -> actrl : POST /api/account/join/google
+  actrl -> h : Send CreateGoogleAccountCommand (validated first: field_too_long, validation_failed)
+  h -> reader : ReadAsync()
+  alt No identity or email unverified
+    h --> actrl : 401 refusal; nothing created
+    page --> actor : "Google sign-up didn't finish"
+  else More than 5 creations from this address in an hour (L2-034 AC2)
+    h --> actrl : 429 rate_limited
+    page --> actor : "Too many new profiles"
+  else Verified
+    h -> db : Match by Google subject, then email
+    alt Found meanwhile
+      h --> actrl : Sign in to it (AC10)
+    else None
+      h -> db : Insert Member.JoinWithGoogle: Google email, subject, no password (AC9)
+      h -> reader : ForgetAsync()
+      h --> actrl : SessionDto, session cookie set
+      actrl --> acc : 201 SessionDto
+      page --> actor : Home
+    end
+  end
+end
+@enduml

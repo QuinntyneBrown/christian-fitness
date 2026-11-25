@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Google answers the attempt
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member, visitor or staff member" as actor
+participant "Google" as google
+box "Frontend — Member web app or Admin web app" #E0F2FE
+  participant "Screen that started the attempt" as page
+  participant "googleReturnOf" as ret
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "GoogleMember or GoogleStaff scheme\n(OpenID Connect handler)" as oidc
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "GoogleExternal cookie scheme" as ext
+end box
+actor -> google : Choose an account, or cancel
+alt Cancelled at Google (error=access_denied)
+  google -> oidc : GET .../session/google/callback?error=access_denied&state
+  oidc --> actor : 302 to the starting screen, no marker (L2-049 AC5)
+  actor -> page : Screen as it was, no message
+else Google error, state or nonce mismatch, attempt older than 10 minutes
+  google -> oidc : GET .../session/google/callback?error or code&state
+  oidc -> oidc : OnRemoteFailure: nobody signed in, nothing created
+  oidc --> actor : 302 to the starting screen with google=failed (L2-049 AC5)
+  actor -> page : Open
+  page -> ret : googleReturnOf(query)
+  ret --> page : 'failed'
+  page --> actor : "Google sign-in didn't finish" (or "sign-up"), email form still works
+else Account chosen
+  google -> oidc : GET .../session/google/callback?code&state
+  oidc -> oidc : Check state against the correlation cookie and the attempt's age
+  oidc -> google : POST token endpoint: code, client secret, PKCE verifier
+  google --> oidc : ID token (and an access token, never kept)
+  oidc -> google : Read signing keys (cached)
+  oidc -> oidc : Validate signature, issuer, audience, expiry and nonce (L2-049 AC2)
+  alt Exchange or validation fails
+    oidc --> actor : 302 to the starting screen with google=failed
+  else Valid
+    oidc -> ext : Sign in GoogleIdentity only: sub, email, email_verified,\nname, picture, hd; SaveTokens = false
+    ext --> oidc : __Host-cf-google (Secure, HttpOnly, SameSite=Lax)
+    oidc --> actor : 302 to the starting screen with google=returned (and the kept return path)
+    actor -> page : Open
+    page -> ret : googleReturnOf(query)
+    ret --> page : 'returned'
+    page -> page : Replace the URL without the marker; finish the sign-in
+  end
+end
+note over oidc : Telemetry: route template and status only;\nnever the code, a token, state, nonce, email or name (L2-049 AC8)
+@enduml

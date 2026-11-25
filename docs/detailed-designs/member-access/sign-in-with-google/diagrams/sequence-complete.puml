@@ -1,0 +1,78 @@
+@startuml
+title UML sequence behaviour — Finish a member's Google sign-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SignInPage or JoinPage" as page
+  participant "HttpSessionService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SessionController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CompleteGoogleSignInHandler" as h
+  participant "GoogleAccountMatch" as match
+  participant "Member" as member
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "ExternalCookieGoogleIdentityReader" as reader
+  participant "CookieSessionSignIn" as sess
+  database "Christian Fitness database" as db
+end box
+page -> client : completeGoogle(intent)
+client -> ctrl : POST /api/session/google with X-XSRF-TOKEN
+ctrl -> h : Send CompleteGoogleSignInCommand(intent)
+h -> reader : ReadAsync()
+reader --> h : GoogleIdentity or none
+alt None, or email not verified (L2-049 AC3)
+  h -> reader : ForgetAsync()
+  h --> ctrl : RefusalException <TO SUPPLY>
+  ctrl --> client : 401 ProblemDetails; nothing created or signed in
+  client --> page : ApiError
+  page --> actor : "Google sign-in didn't finish"
+else Verified
+  h -> match : FindAsync(identity)
+  match -> db : Member where GoogleSubject = sub
+  alt Not found by subject
+    match -> db : Member where NormalizedEmail = email (trimmed, lower case)
+    opt Found by email (L2-049 AC4)
+      match -> member : LinkGoogle(sub); password kept
+    end
+  end
+  match --> h : Member or none
+  alt No member account
+    h --> ctrl : RefusalException <TO SUPPLY> with account (email); identity kept
+    ctrl --> client : ProblemDetails with code and account
+    client --> page : ApiError
+    page --> actor : Sign in: notice naming the account (L2-004 AC9)\nJoin: "Finish your profile" (L2-003 AC8)
+  else Suspended (L2-004 AC10)
+    h -> reader : ForgetAsync()
+    h --> ctrl : RefusalException account_suspended
+    ctrl --> client : 403 ProblemDetails code account_suspended
+    client --> page : ApiError
+    page --> actor : "Your account is suspended"
+  else Active or Flagged
+    h -> db : Save the link, if any
+    h -> sess : SignInAsync(member)
+    sess --> h : __Host-cf-session (L2-004 AC1)
+    h -> reader : ForgetAsync(): __Host-cf-google deleted
+    h --> ctrl : SessionDto
+    ctrl --> client : 200 SessionDto + Set-Cookie
+    client --> page : Session
+    page --> actor : Return path if it is a path in the app, else Home (L2-049 AC6)
+  end
+end
+@enduml

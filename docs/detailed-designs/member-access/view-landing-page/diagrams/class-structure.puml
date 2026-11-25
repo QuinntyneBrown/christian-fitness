@@ -10,45 +10,126 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — View the landing page
-class LandingPage {
-  +events: Signal<UpcomingEventDto[]>
-  +state: Signal<'loading'|'loaded'|'empty'|'error'>
-  +ngOnInit(): void
+package "Member web app and libraries" {
+  class LandingPage {
+    +section: Signal<NewsSection>
+    +stories: Signal<StoriesState>
+    +events: Signal<EventsState>
+    +mostRead: Signal<StorySummaryDto[]>
+    +retryStories(): void
+    +retryEvents(): void
+  }
+  class newsSectionOf <<domain>> {
+    +(value: string | null): NewsSection
+  }
+  class storyAge <<domain>> {
+    +(publishedAt, now): string
+  }
+  class Masthead <<components>> {
+    +sections: input<SectionLink[]>
+    +current: input<NewsSection>
+  }
+  class StoryLead <<components>>
+  class Headline <<components>>
+  class StoryRow <<components>>
+  class NewsletterBox <<components>>
+  class EventRow <<components>>
+  interface StoriesApi <<api>> {
+    +get(slug): Observable<PublishedStoryDto>
+    +frontPage(section: NewsSection): Observable<FrontPageDto>
+    +mostRead(): Observable<StorySummaryDto[]>
+  }
+  interface PublicEventsApi <<api>> {
+    +upcoming(take: number): Observable<LandingEventDto[]>
+  }
+  class FrontPageDto <<api>> {
+    +lead: StorySummaryDto | null
+    +headlines: StorySummaryDto[]
+    +latest: StorySummaryDto[]
+  }
+  class StorySummaryDto <<api>> {
+    +id: string
+    +slug: string
+    +section: string
+    +headline: string
+    +summary: string | null
+    +byline: string
+    +publishedAt: string
+    +imageUrl: string
+  }
+  class LandingEventDto <<api>> {
+    +id: string
+    +title: string
+    +category: EventCategory
+    +startsAt: string
+    +area: string
+  }
 }
-interface PublicEventsApi {
-  +upcoming(take: number): Observable<UpcomingEventDto[]>
+package "Christian Fitness API, Application and Domain" {
+  class PublicStoriesController
+  class ListFrontPageStoriesQuery {
+    +string? Section
+  }
+  class ListFrontPageStoriesHandler {
+    +Handle(q): Task<FrontPageDto>
+  }
+  class ListMostReadStoriesQuery
+  class ListMostReadStoriesHandler {
+    +Handle(q): Task<IReadOnlyList<StorySummaryDto>>
+  }
+  class PublicEventsController
+  class GetUpcomingEventsQuery {
+    +int Take
+    +{static} MaxTake = 4
+  }
+  class GetUpcomingEventsHandler
+  class Story <<entity, authoring slice>> {
+    +Guid Id
+    +string Slug
+    +StorySection Section
+    +StoryStatus Status
+    +DateTimeOffset? PublishedAt
+  }
+  class StoryReadTally <<entity, read-story>> {
+    +Guid StoryId
+    +DateOnly Day
+    +int Count
+  }
+  class Event {
+    +Guid Id
+    +string Title
+    +DateTimeOffset StartsAt
+    +string Area
+    +EventStatus Status
+  }
+  interface IAppDbContext
+  class TimeProvider
 }
-class HttpPublicEventsService
-class UpcomingEventDto {
-  +id: string
-  +title: string
-  +startsAt: string
-  +place: string
-  +category: string
-}
-class PublicEventsController {
-  +Upcoming(take: int): Task<IReadOnlyList<UpcomingEventDto>>
-}
-class GetUpcomingEventsQuery {
-  +Take: int
-}
-class GetUpcomingEventsHandler {
-  +Handle(q: GetUpcomingEventsQuery): Task<IReadOnlyList<UpcomingEventDto>>
-}
-class Event {
-  +Guid Id
-  +string Title
-  +DateTimeOffset StartsAt
-  +bool IsPublished
-}
-interface IAppDbContext {
-  +Events: DbSet<Event>
-}
-HttpPublicEventsService ..|> PublicEventsApi
+LandingPage ..> StoriesApi : injects STORIES_SERVICE
 LandingPage ..> PublicEventsApi : injects PUBLIC_EVENTS_SERVICE
-LandingPage --> "0..3" UpcomingEventDto
+LandingPage ..> newsSectionOf
+LandingPage ..> storyAge
+LandingPage --> Masthead
+LandingPage --> StoryLead
+LandingPage --> Headline
+LandingPage --> StoryRow
+LandingPage --> NewsletterBox
+LandingPage --> EventRow
+StoriesApi ..> FrontPageDto
+FrontPageDto "1" *-- "*" StorySummaryDto
+PublicEventsApi ..> LandingEventDto
+PublicStoriesController ..> ListFrontPageStoriesQuery : sends
+PublicStoriesController ..> ListMostReadStoriesQuery : sends
+ListFrontPageStoriesHandler ..> ListFrontPageStoriesQuery : handles
+ListMostReadStoriesHandler ..> ListMostReadStoriesQuery : handles
+ListFrontPageStoriesHandler ..> Story : Published only
+ListMostReadStoriesHandler ..> StoryReadTally : last 7 days
+ListMostReadStoriesHandler ..> TimeProvider
+ListFrontPageStoriesHandler ..> IAppDbContext
 PublicEventsController ..> GetUpcomingEventsQuery : sends
 GetUpcomingEventsHandler ..> GetUpcomingEventsQuery : handles
-GetUpcomingEventsHandler ..> IAppDbContext : reads
-IAppDbContext --> "*" Event
+GetUpcomingEventsHandler ..> Event : Published, StartsAt > now
+GetUpcomingEventsHandler ..> TimeProvider
+StorySummaryDto -[hidden]down- PublicStoriesController
+LandingEventDto -[hidden]down- PublicEventsController
 @enduml

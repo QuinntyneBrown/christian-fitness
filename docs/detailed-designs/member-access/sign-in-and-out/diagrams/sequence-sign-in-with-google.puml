@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — Member signs in with Google
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SignInPage" as page
+  participant "googleReturnOf, googleSignInRefusalOf" as dom
+  participant "HttpSessionService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SessionController" as ctrl
+  participant "GoogleMember scheme" as oidc
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "StartGoogleSignInHandler" as start
+  participant "CompleteGoogleSignInHandler" as h
+end box
+participant "Google" as google
+actor -> page : Press "Continue with Google" (L2-004 AC7)
+page --> actor : "Opening Google…", disabled and busy
+page -> client : startGoogle({ intent: 'sign-in', returnUrl })
+client -> ctrl : POST /api/session/google/start
+ctrl -> start : Send StartGoogleSignInCommand(Member, SignIn, returnUrl)
+start --> ctrl : Authorization address (or too_many_attempts, 429)
+ctrl --> client : 200 { location }
+page -> google : Full-page redirect
+actor -> google : Choose an account, or cancel
+alt Cancelled
+  google -> oidc : callback with error=access_denied
+  oidc --> actor : 302 /sign-in, no message (L2-049 AC5)
+else Did not finish
+  google -> oidc : callback with an error, or a failed check
+  oidc --> actor : 302 /sign-in?google=failed
+  page -> dom : googleReturnOf
+  page --> actor : "Google sign-in didn't finish", email form still works (L2-004 AC11)
+else Account chosen and checked
+  google -> oidc : callback with code and state
+  oidc --> actor : 302 /sign-in?google=returned&returnUrl=<kept path>
+  page -> dom : googleReturnOf: 'returned'; URL replaced without the marker
+  page -> client : completeGoogle('sign-in')
+  client -> ctrl : POST /api/session/google
+  ctrl -> h : Send CompleteGoogleSignInCommand(SignIn)
+  alt Member account found by Google subject or email (L2-049 AC4)
+    h --> ctrl : SessionDto, session cookie set
+    ctrl --> client : 200 SessionDto + Set-Cookie (L2-004 AC8)
+    page --> actor : Kept route if it is a path in the app, else Home (L2-004 AC6)
+  else No member account (L2-004 AC9)
+    h --> ctrl : Refusal <TO SUPPLY> with account (email)
+    ctrl --> client : ProblemDetails
+    page -> dom : googleSignInRefusalOf: 'no-account'
+    page --> actor : SsoNotice (role=alert, focused) naming the account,\n"Create my profile" and "Use another account"; nobody signed in
+    opt Create my profile
+      actor -> page : Follow the link to /join?google=finish ("Finish your profile")
+    end
+    opt Use another account
+      actor -> page : Start Google again
+    end
+  else Suspended (L2-004 AC10)
+    h --> ctrl : account_suspended
+    ctrl --> client : 403 ProblemDetails
+    page --> actor : "Your account is suspended", contact the team
+  end
+end
+@enduml
