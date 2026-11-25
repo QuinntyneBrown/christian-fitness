@@ -52,6 +52,17 @@ export interface ListingProfileFixture {
   serviceListingId: string | null;
   /** Whether the signed-in member follows it (ADR 0088). */
   following: boolean;
+  /** Whether the signed-in member owns it (ADR 0095). */
+  isOwner: boolean;
+  /** What only the owner reads: the contact email and a waiting name or kind (ADR 0095). */
+  owner: OwnListingFixture | null;
+}
+
+/** What only the owner reads of their listing (`OwnListingDto`, ADR 0095). */
+export interface OwnListingFixture {
+  contactEmail: string | null;
+  pendingName: string | null;
+  pendingKind: KindFixture | null;
 }
 
 const idOf = (name: string): string => {
@@ -96,6 +107,8 @@ export const LAKESHORE: ListingProfileFixture = {
   ],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
 };
 
 /** Danielle Okafor, an instructor with a photo (mock `listing-profile/person`). */
@@ -119,6 +132,8 @@ export const OKAFOR: ListingProfileFixture = {
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
 };
 
 /** Christian Fitness, the team's own listing (mock `listing-profile/one-off`). */
@@ -142,6 +157,8 @@ export const TEAM: ListingProfileFixture = {
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
 };
 
 /** Northline Athletic, an unverified company (mock `listing-profile/unverified`). */
@@ -165,6 +182,36 @@ export const NORTHLINE: ListingProfileFixture = {
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
+};
+
+/**
+ * Eastside Ladies Who Lift as its owner reads it (mock `listing-profile/owner`; ADR 0095): claimed
+ * from a suggestion, so it is not in the directory cast.
+ */
+export const EASTSIDE_OWNED: ListingProfileFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000ea501',
+  kind: 'organization',
+  name: 'Eastside Ladies Who Lift',
+  tagline: 'Saturday morning strength group out of Danforth Baptist',
+  area: 'East York',
+  description:
+    'About 25 women, coached by a CSEP trainer. We pray before and after and are so welcoming to beginners.',
+  focus: ['Strength', 'Beginners', 'Women'],
+  websiteUrl: 'https://eastsideladies.ca',
+  isVerified: true,
+  photoKey: null,
+  followers: 0,
+  listedYear: 2026,
+  hasOwner: true,
+  hostingCount: 0,
+  hosting: [],
+  connections: [],
+  serviceListingId: null,
+  following: false,
+  isOwner: true,
+  owner: { contactEmail: 'eastsideladies@example.org', pendingName: null, pendingKind: null },
 };
 
 export const PROFILES: ListingProfileFixture[] = [LAKESHORE, OKAFOR, TEAM, NORTHLINE];
@@ -230,7 +277,8 @@ export function answerListingConversation(api: ApiHandlers, reply: ConversationR
   const asked: string[] = [];
   api.on('POST', /^\/api\/directory\/[0-9a-f-]{36}\/conversation$/, (request): ApiReply => {
     asked.push(new URL(request.url()).pathname.split('/')[3] ?? '');
-    if (reply && 'memberId' in reply) return { json: { memberId: reply.memberId } };
+    if (reply && 'memberId' in reply)
+      return { json: { memberId: reply.memberId, contactEmail: null } };
     if (reply?.abort) return { abort: true };
     const status = reply?.status ?? 500;
     return {
@@ -240,4 +288,88 @@ export function answerListingConversation(api: ApiHandlers, reply: ConversationR
     };
   });
   return asked;
+}
+
+/** What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0095). */
+export interface OwnListingUpdateBody {
+  name: string;
+  kind: KindFixture;
+  about: string;
+  website: string | null;
+  photoKey: string | null;
+  focus: string[];
+  contactEmail: string | null;
+}
+
+/** The answer to one owner's save: the listing as saved, a refusal, or no answer. */
+export type OwnListingSaveReply =
+  | { listing: ListingProfileFixture; nameChangePending?: boolean; hold?: Promise<void> }
+  | {
+      status: number;
+      code?: string;
+      fieldCodes?: Record<string, string>;
+      abort?: boolean;
+      hold?: Promise<void>;
+    };
+
+/**
+ * Answers `PUT /api/directory/{id}` (ADR 0095) with `reply(n)` for the `n`th save, zero-based, and
+ * returns the bodies sent, in order. A reply may hold its answer until a promise settles.
+ */
+export function answerOwnListingSave(
+  api: ApiHandlers,
+  reply: (requestNumber: number, body: OwnListingUpdateBody) => OwnListingSaveReply,
+): OwnListingUpdateBody[] {
+  const sent: OwnListingUpdateBody[] = [];
+  api.on('PUT', /^\/api\/directory\/[0-9a-f-]{36}$/, async (request): Promise<ApiReply> => {
+    const body = request.postDataJSON() as OwnListingUpdateBody;
+    const answer = reply(sent.length, body);
+    sent.push(body);
+    if (answer.hold) await answer.hold;
+    if ('listing' in answer) {
+      return {
+        json: { nameChangePending: answer.nameChangePending ?? false, listing: answer.listing },
+      };
+    }
+    if (answer.abort) return { abort: true };
+    return {
+      status: answer.status,
+      headers: { 'content-type': 'application/problem+json' },
+      json: {
+        status: answer.status,
+        code: answer.code ?? 'error',
+        ...(answer.fieldCodes ? { fieldCodes: answer.fieldCodes } : {}),
+      },
+    };
+  });
+  return sent;
+}
+
+/**
+ * Answers the owner's `POST /api/directory/photos` (ADR 0095) with `reply(n)` for the `n`th upload:
+ * a key, or a refusal. Returns how many were sent.
+ */
+export function answerOwnListingPhoto(
+  api: ApiHandlers,
+  reply: (
+    requestNumber: number,
+  ) =>
+    { photoKey: string } | { status: number; code?: string; fieldCodes?: Record<string, string> },
+): { count: number } {
+  const sent = { count: 0 };
+  api.on('POST', /^\/api\/directory\/photos$/, (): ApiReply => {
+    const answer = reply(sent.count);
+    sent.count += 1;
+    if ('photoKey' in answer) return { status: 201, json: answer };
+    return {
+      status: answer.status,
+      headers: { 'content-type': 'application/problem+json' },
+      json: {
+        status: answer.status,
+        code: answer.code ?? 'error',
+        ...(answer.fieldCodes ? { fieldCodes: answer.fieldCodes } : {}),
+      },
+    };
+  });
+  return sent;
 }

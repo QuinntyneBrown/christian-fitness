@@ -21,6 +21,10 @@ def done(title="Thanks, Grace", text="We’ve got your suggestion for <strong>Ea
             f'<div class="done__actions"><a class="btn btn--primary btn--md" href="#">{primary}</a><a class="btn btn--secondary btn--md" href="#">{secondary}</a></div></section>')
 
 
+DONE_ALERT = ('<section class="done" role="alert" tabindex="-1"><span class="done__icon">' + icon("clock", "icon--lg") + '</span>'
+              '<h2 class="display page-title done__title">This link has expired</h2><p class="done__text">This link has expired. Ask us for a new one.</p>'
+              '<div class="done__actions"><a class="btn btn--primary btn--md" href="#">Back to the directory</a></div></section>')
+
 DONE_FEEDBACK = done("Got it. Thank you.", "Dana and the team read every note. If we need more detail we’ll email you, and we’ll let you know when it’s fixed.",
                      primary="Back to Home", secondary="Send more")
 
@@ -56,6 +60,7 @@ SPEC = {
     "variants": "<h3>Steps</h3>" + ex(ASIDE, "\"What happens next\" beside the form (suggest-listing/default).", True, mod="block")
     + "<h3>Done</h3>" + ex(done(), "After Suggest a listing: thanks by name, the listing in bold (suggest-listing/success).", True, mod="block")
     + ex(DONE_FEEDBACK, "After feedback (feedback/success).", True, mod="block")
+    + ex(DONE_ALERT, "<code>alert</code>: a way that ended rather than a success (claim-listing/expired; ADR 0092). A clock in place of the check, and <code>role=\"alert\"</code> in place of <code>role=\"status\"</code>; it still takes focus.", True, mod="block")
     + "<h3>Context chip</h3>" + ex(chip(), "Opened from the Couch to 5K series page (feedback/default).", True, mod="block")
     + ex(chip("Story › A West End church turned its basement into a free gym"), "Long values truncate with an ellipsis (feedback/correction).", True, mod="block"),
     "sizes": "<p>One size each. Steps: 32px numbers, 16px gap, 24px between steps. Done: 48px icon circle (<code>--size-avatar-xl</code>), page-title heading, 18px text up to <code>--layout-lead-max</code>. Context chip: 12px × 16px padding.</p>",
@@ -136,6 +141,7 @@ SPEC = {
         "classes": [
             ("<code>.steps</code> <code>__item</code> <code>__n</code> <code>__title</code> <code>__text</code>", "Numbered steps with a connector."),
             ("<code>.done</code> <code>__icon</code> <code>__title</code> <code>__text</code> <code>__actions</code>", "Success state replacing a sent form."),
+            ("<code>role=\"alert\"</code> on <code>.done</code>", "The alert variant: an outcome that ended (an expired link), with a clock icon."),
             ("<code>.context-chip</code> <code>__body</code> <code>__label</code> <code>__value</code>", "The page the feedback is about."),
         ],
     },
@@ -144,6 +150,7 @@ SPEC = {
             mock("pages/suggest-listing/default", "steps"),
             mock("pages/suggest-listing/submitting", "steps while sending"),
             mock("pages/suggest-listing/success", "done, steps"),
+            mock("pages/claim-listing/expired", "done, alert"),
             mock("pages/feedback/success", "done"),
             mock("pages/feedback/default", "context chip"),
             mock("pages/feedback/correction", "long chip value"),

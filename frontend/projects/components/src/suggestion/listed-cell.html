@@ -1,7 +1,30 @@
-<span class="listed-cell">
+<span [attr.class]="classes()">
   <cf-listing-mark [initials]="initials()" [photoSrc]="photoSrc()" [person]="person()" size="sm" />
   <span class="listed-cell__name">{{ name() }}</span>
   @if (verified()) {
     <cf-verified-mark />
+  }
+  @if (change(); as waiting) {
+    <span class="listed-cell__change">
+      <span
+        >{{ waiting.label }}&ngsp;<span class="listed-cell__new">{{ waiting.value }}</span></span
+      >
+      <button
+        class="listed-cell__action"
+        type="button"
+        [disabled]="busy()"
+        (click)="approve.emit()"
+      >
+        Approve<span class="visually-hidden"> the new {{ waiting.what }} of {{ name() }}</span>
+      </button>
+      <button
+        class="listed-cell__action"
+        type="button"
+        [disabled]="busy()"
+        (click)="decline.emit()"
+      >
+        Decline<span class="visually-hidden"> the new {{ waiting.what }} of {{ name() }}</span>
+      </button>
+    </span>
   }
 </span>

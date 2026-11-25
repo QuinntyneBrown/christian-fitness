@@ -30,6 +30,16 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
     public async Task<ActionResult<ListingProfileDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetListingProfileQuery(id), cancellationToken).ConfigureAwait(false);
 
+    /// <summary>The owner saves their listing; a new name or kind waits for staff (L2-079; ADR 0095).</summary>
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<OwnListingSavedDto>> Update(Guid id, OwnListingBody body, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        return await sender.Send(
+            new UpdateOwnListingCommand(id, body.Name, body.Kind, body.About, body.Website, body.PhotoKey, body.Focus, body.ContactEmail),
+            cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>The member to open the direct conversation with when messaging a listing: its owner (L2-055 AC6).</summary>
     [HttpPost("{id:guid}/conversation")]
     public async Task<ActionResult<ListingConversationDto>> StartConversation(Guid id, CancellationToken cancellationToken) =>
@@ -44,4 +54,22 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
     [HttpDelete("{id:guid}/follow")]
     public async Task<ActionResult<ListingFollowDto>> Unfollow(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new UnfollowListingCommand(id), cancellationToken).ConfigureAwait(false);
+}
+
+/// <summary>What the owner's listing editor sends (ADR 0095).</summary>
+public sealed class OwnListingBody
+{
+    public string? Name { get; init; }
+
+    public string? Kind { get; init; }
+
+    public string? About { get; init; }
+
+    public string? Website { get; init; }
+
+    public string? PhotoKey { get; init; }
+
+    public IReadOnlyList<string>? Focus { get; init; }
+
+    public string? ContactEmail { get; init; }
 }

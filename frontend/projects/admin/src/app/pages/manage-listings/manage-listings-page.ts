@@ -40,6 +40,7 @@ import {
   LISTING_CHECKS,
   listedRowViewOf,
   type ListedRowView,
+  listingChangeToast,
   passedCount,
   passedLine,
   suggestionByLine,
@@ -92,7 +93,10 @@ const RESEND_FAILED = "We couldn't send a new link";
 /** The toast when the next page of Listed did not load. */
 const LISTED_MORE_FAILED = "More listings didn't load";
 const SUGGESTIONS_MORE_FAILED = "More suggestions didn't load";
+/** The toast of a waiting name's decision that did not go through (ADR 0095). */
+const CHANGE_FAILED = "We couldn't save that decision";
 const FAILURES = new Set([
+  CHANGE_FAILED,
   TICK_FAILED,
   APPROVE_FAILED,
   ALREADY_DECIDED,
@@ -165,6 +169,8 @@ export default class ManageListingsPage {
   private readonly listedReload = new Subject<void>();
   private listedAsked = false;
   protected readonly listedColumns = LISTED_COLUMNS;
+  /** The listing whose waiting name or kind has a decision on its way, or none. */
+  protected readonly changeDeciding = signal<string | null>(null);
   /** Each Listed row's cell view, by listing id. */
   protected readonly listedViews = computed<ReadonlyMap<string, ListedRowView>>(() => {
     const state = this.listedState();
@@ -518,6 +524,43 @@ export default class ManageListingsPage {
         }
         this.listedReload.next();
       });
+  }
+
+  /**
+   * Approves or declines the name or kind the owner of listing `id` asked for (L2-079 AC5; ADR
+   * 0095; mock `admin-listings/change-approved`): the row shows the listing as it now stands and a
+   * toast says so. One that did not go through says so and leaves the row as it was; one already
+   * decided reads Listed again.
+   */
+  protected decideChange(id: string, decision: 'approved' | 'declined'): void {
+    const state = this.listedState();
+    const before = state.kind === 'ready' ? state.listings.find((l) => l.id === id) : undefined;
+    if (!before || this.changeDeciding() !== null) return;
+    this.changeDeciding.set(id);
+    const answer =
+      decision === 'approved'
+        ? this.directory.approveListingChange(id)
+        : this.directory.declineListingChange(id);
+    answer.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (listing) => {
+        this.changeDeciding.set(null);
+        const now = this.listedState();
+        if (now.kind === 'ready') {
+          this.listedState.set({
+            ...now,
+            listings: now.listings.map((l) => (l.id === id ? listing : l)),
+          });
+        }
+        const [title, text] = listingChangeToast(decision, before);
+        this.toasts.show(title, text);
+      },
+      error: (error: unknown) => {
+        this.changeDeciding.set(null);
+        this.toasts.show(CHANGE_FAILED, 'Nothing changed. Try again in a moment.');
+        const status = (error as { status?: unknown } | null)?.status;
+        if (status === 404 || status === 409) this.listedReload.next();
+      },
+    });
   }
 
   private decide(id: string, decision: Decision): void {

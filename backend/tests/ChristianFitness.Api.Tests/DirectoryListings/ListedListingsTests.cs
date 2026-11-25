@@ -77,7 +77,7 @@ public sealed class ListedListingsTests(RegisterForEventFactory factory) : IClas
         Assert.True(names.IndexOf("Listed Alpha Club") < names.IndexOf("Listed Zebra Club"));
         var shown = rows.Single(r => r.GetProperty("id").GetGuid() == alpha);
         Assert.Equal(
-            ["about", "area", "followers", "id", "kind", "name", "photoKey", "tagline", "verified", "website"],
+            ["about", "area", "contactEmail", "focus", "followers", "id", "kind", "name", "pendingKind", "pendingName", "photoKey", "tagline", "verified", "website"],
             shown.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(("instructor", "Etobicoke", "A tagline", "About it.", "https://example.org", true, 2),
             (shown.GetProperty("kind").GetString(), shown.GetProperty("area").GetString(), shown.GetProperty("tagline").GetString(),

@@ -104,6 +104,20 @@ export interface ListingProfileDto {
   serviceListingId: string | null;
   /** Whether the signed-in member follows it (ADR 0088). */
   following: boolean;
+  /** Whether the signed-in member owns it: the profile shows Edit listing (ADR 0095). */
+  isOwner: boolean;
+  /** What only the owner reads, or none for anyone else (ADR 0095). */
+  owner: OwnListingDto | null;
+}
+
+/**
+ * What only the owner reads of their listing (`OwnListingDto`, ADR 0095): the contact email shown
+ * to members who message it, and a new name or kind waiting for staff.
+ */
+export interface OwnListingDto {
+  contactEmail: string | null;
+  pendingName: string | null;
+  pendingKind: ListingKind | null;
 }
 
 /**
@@ -115,9 +129,40 @@ export interface ListingFollowDto {
   followers: number;
 }
 
+/**
+ * What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0095): the name and kind (a new one
+ * waits for staff), the about, the website as typed or none, the photo's key, the focus tags and
+ * the contact email or none.
+ */
+export interface OwnListingUpdateDto {
+  name: string;
+  kind: ListingKind;
+  about: string;
+  website: string | null;
+  photoKey: string | null;
+  focus: string[];
+  contactEmail: string | null;
+}
+
+/** A stored photo's key, which the owner's save sends as `photoKey`. */
+export interface OwnListingPhotoDto {
+  photoKey: string;
+}
+
+/** What the owner's save answers: the listing as saved, and whether a name or kind waits for staff. */
+export interface OwnListingSavedDto {
+  nameChangePending: boolean;
+  listing: ListingProfileDto;
+}
+
 /** Who receives a listing's messages: the member whose direct conversation Message opens. */
 export interface ListingConversationDto {
   memberId: string;
+  /**
+   * The contact email the owner gave for members who message the listing, or none (L2-079 AC7;
+   * ADR 0095). No screen shows it yet: no mock draws it.
+   */
+  contactEmail: string | null;
 }
 
 /** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0087). */
@@ -151,6 +196,19 @@ export interface DirectoryApi {
 
   /** Stops following a published listing; a repeat changes nothing (L2-056 AC2, AC4). Errors as {@link follow}. */
   unfollow(id: string): Observable<ListingFollowDto>;
+
+  /**
+   * The owner saves their listing (L2-079; ADR 0095). A refusal errors with an `ApiError`:
+   * 400 `validation_failed` with `fieldCodes`, 403 `not_listing_owner`, 404 `listing_not_found`.
+   */
+  updateOwn(id: string, update: OwnListingUpdateDto): Observable<OwnListingSavedDto>;
+
+  /**
+   * The owner stores a photo for their listing and gets its key, saved with {@link updateOwn}
+   * (ADR 0095). A refusal errors with an `ApiError`: 400 `validation_failed` with
+   * `fieldCodes.photo` `photo_invalid`, 403 `not_listing_owner`.
+   */
+  uploadPhoto(file: File): Observable<OwnListingPhotoDto>;
 }
 
 /** One listing's follow as a screen shows it: the member's state, the count where known, and whether a change is in flight. */

@@ -20,6 +20,8 @@ const profile = (over: Partial<ListingProfileDto> = {}): ListingProfileDto => ({
   connections: [],
   serviceListingId: null,
   following: false,
+  isOwner: false,
+  owner: null,
   ...over,
 });
 

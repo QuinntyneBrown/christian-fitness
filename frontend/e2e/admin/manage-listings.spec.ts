@@ -784,11 +784,15 @@ test.describe('Admin app, Listed', () => {
     await expect(editor.about).toHaveValue(lakeshore.about);
     await expect(editor.website).toHaveValue('https://lakeshorerunners.ca');
     await expect(editor.photoName).toHaveText('No image chosen');
+    await expect(editor.focus).toHaveValue('Running, Beginners, Race training');
+    await expect(editor.contact).toHaveValue('hello@lakeshorerunners.ca');
     await expect(editor.verifiedNote).toHaveText(
       'The Verified mark comes from the four checks and cannot be changed here.',
     );
     await editor.name.fill('Lakeshore Runners');
     await editor.kind.selectOption({ label: 'Church Ministry' });
+    await editor.focus.fill('Running, Prayer');
+    await editor.contact.fill('');
     await editor.saveButton.click();
 
     await expect(editor.saveButton).toHaveText('Saving…');
@@ -810,6 +814,8 @@ test.describe('Admin app, Listed', () => {
           about: lakeshore.about,
           website: 'https://lakeshorerunners.ca',
           photoKey: null,
+          focus: ['Running', 'Prayer'],
+          contactEmail: null,
         },
       },
     ]);

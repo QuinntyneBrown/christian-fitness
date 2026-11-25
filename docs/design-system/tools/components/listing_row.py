@@ -67,6 +67,10 @@ HEAD_ORG = head('<span class="listing-mark listing-mark--xl" aria-hidden="true">
                 "Beginner-friendly running club with a prayer at every finish")
 HEAD_PERSON = head(image("trainer", "listing-mark listing-mark--person listing-mark--xl"), "Instructor", "Danielle Okafor",
                    "Strength for women returning to fitness")
+HEAD_PREVIEW = ('<header class="listing-head listing-head--preview"><div class="listing-head__who"><span class="listing-mark listing-mark--xl" aria-hidden="true">EL</span>'
+                '<div class="listing-head__body"><p class="eyebrow listing-head__kind">Organization</p>'
+                '<p class="display detail-title listing-head__name">Eastside Ladies Who Lift</p></div></div>'
+                '<div class="listing-head__actions"></div></header>')
 HEAD_UNVERIFIED = head('<span class="listing-mark listing-mark--xl" aria-hidden="true">NA</span>', "Company", "Northline Athletic",
                        "Running shoes and gait analysis, Roncesvalles", verified=False, on=False)
 LOADING = ('<section class="directory-group" aria-busy="true" aria-label="Loading listings"><span class="skeleton skeleton--title w-20"></span>'
@@ -107,7 +111,8 @@ SPEC = {
     + "<h3>Listing head</h3>"
     + ex(HEAD_ORG, "An organization the member follows (listing-profile/default).", True, mod="block")
     + ex(HEAD_PERSON, "An instructor: round photo (listing-profile/person).", True, mod="block")
-    + ex(HEAD_UNVERIFIED, "Not verified and not followed: no Verified, the primary Follow (listing-profile/unverified).", True, mod="block"),
+    + ex(HEAD_UNVERIFIED, "Not verified and not followed: no Verified, the primary Follow (listing-profile/unverified).", True, mod="block")
+    + ex(HEAD_PREVIEW, "<code>--preview</code>: the claim screen's preview of a draft (claim-listing/default; ADR 0092). The name is a paragraph under the page's own <code>&lt;h1&gt;</code>, an empty tagline is left out, and the head drops its top margin, rule and bottom padding, since the form section spaces it. No actions.", True, mod="block"),
     "sizes": "<p>Marks: <code>--sm</code> 40px (<code>--size-avatar-md</code>) in mini rows, default 48px (<code>--size-avatar-xl</code>) in rows and host cards, <code>--xl</code> 112px (<code>--size-avatar-3xl</code>) in the head. Initials are 36% of the mark. Rows are 16px padded, 20px from 640px; the head's name is <code>--font-size-4xl</code>, <code>--font-size-6xl</code> from 640px.</p>",
     "states": {
         "intro": "<p>The row's link takes hover (<code>data-state=\"hover\"</code>: canvas fill) and focus; the follow button has its own states (<code>aria-pressed</code>, see <a href=\"follow-button.html\">Follow button</a>). Rows have no disabled state.</p>",
@@ -211,6 +216,7 @@ SPEC = {
             ("<code>.listing-row</code> <code>__link</code> <code>__body</code> <code>__name</code> <code>__tagline</code>", "Row and its link."),
             ("<code>__area--inline</code> <code>__area--col</code> <code>__hosting</code> <code>__hosting--some</code>", "Area (inline below 768px, column from it) and hosting (from 1024px)."),
             ("<code>.listing-head</code> <code>__who</code> <code>__body</code> <code>__kind</code> <code>__verified</code> <code>__name</code> <code>__actions</code>", "Profile head."),
+            ("<code>.listing-head--preview</code>", "A preview inside another page: no margin above, no rule, no padding below; the name is a <code>&lt;p&gt;</code>, not the page's <code>&lt;h1&gt;</code>."),
             ("<code>data-state=\"hover|focus\"</code> on <code>__link</code>", "Documentation hooks."),
         ],
     },
@@ -228,6 +234,7 @@ SPEC = {
             mock("pages/listing-profile/person", "person head"),
             mock("pages/listing-profile/unverified", "unverified head"),
             mock("pages/listing-profile/loading", "head skeleton"),
+            mock("pages/claim-listing/default", "listing head, preview"),
         ],
         "drift": """<ul>
 <li>The listing profile's loading skeleton draws the mark at 96px (<code>.skeleton--avatar-2xl</code>) while the loaded <code>.listing-mark--xl</code> is 112px: the head shifts on load. Proposed: a skeleton sized from <code>--size-avatar-3xl</code>.</li>

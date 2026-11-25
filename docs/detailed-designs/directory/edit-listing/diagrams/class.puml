@@ -7,21 +7,19 @@ skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 class OwnerListingEditorDialog <<web>>
-interface DirectoryListingsApi <<api>> {
-  updateOwn(id, dto): { nameChangePending }
+interface DirectoryApi <<api>> {
+  updateOwn(id, update): { nameChangePending, listing }
+  uploadPhoto(file): { photoKey }
 }
 class UpdateOwnListingHandler <<application>>
 class DirectoryListing <<domain>> {
-  OwnerId?
-  Name, Kind, About, Website, PhotoUrl, FocusTags, ContactEmail
-  ApplyEdit(edit, by, at)
+  MemberId?
+  Kind, Name, Description, WebsiteUrl, PhotoKey, Focus, ContactEmail
+  PendingName?, PendingKind?, PendingSince?
+  Edit(description, website, focus, contact)
+  AskToRename(name, kind, at)
+  ApproveChange() / DeclineChange()
 }
-class ListingChangeRequest <<domain>> {
-  NewName?
-  NewKind?
-  RequestedAt
-}
-OwnerListingEditorDialog --> DirectoryListingsApi
+OwnerListingEditorDialog --> DirectoryApi
 UpdateOwnListingHandler --> DirectoryListing
-DirectoryListing --> "0..1" ListingChangeRequest
 @enduml

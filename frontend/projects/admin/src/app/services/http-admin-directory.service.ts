@@ -46,6 +46,18 @@ export class HttpAdminDirectoryService implements AdminDirectoryApi {
       .pipe(catchError(asApiError));
   }
 
+  approveListingChange(id: string): Observable<ListedListingDto> {
+    return this.http
+      .post<ListedListingDto>(`${BASE}/listings/${encodeURIComponent(id)}/change/approve`, null)
+      .pipe(catchError(asApiError));
+  }
+
+  declineListingChange(id: string): Observable<ListedListingDto> {
+    return this.http
+      .post<ListedListingDto>(`${BASE}/listings/${encodeURIComponent(id)}/change/decline`, null)
+      .pipe(catchError(asApiError));
+  }
+
   uploadPhoto(file: File): Observable<ListingPhotoDto> {
     const body = new FormData();
     body.append('file', file);

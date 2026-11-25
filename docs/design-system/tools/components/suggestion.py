@@ -47,6 +47,16 @@ LISTED = ('<div class="table-wrap table-wrap--flush"><table class="table"><capti
           '<td class="table__nowrap">Instructor</td><td class="table__nowrap muted">North York</td><td class="table__end">214</td>'
           '<td class="table__end"><button class="row-link" type="button">Edit<span class="visually-hidden"> Tasha Grant</span></button></td></tr>'
           '</tbody></table></div>')
+LISTED_CHANGE = ('<div class="table-wrap table-wrap--flush"><table class="table"><caption class="visually-hidden">Listed</caption>'
+                 '<thead><tr><th scope="col">Listing</th><th scope="col">Kind</th><th scope="col" class="table__end">Followers</th></tr></thead><tbody>'
+                 '<tr><td><span class="listed-cell listed-cell--change"><span class="listing-mark listing-mark--sm" aria-hidden="true">EL</span>'
+                 '<span class="table__strong">Eastside Ladies Who Lift</span>'
+                 f'<span class="verified-mark" role="img" aria-label="Verified">{icon("badge-check")}</span>'
+                 '<span class="listed-cell__change"><span>New name waiting: <span class="listed-cell__new">Eastside Women’s Strength</span></span>'
+                 '<button class="listed-cell__action" type="button">Approve<span class="visually-hidden"> the new name of Eastside Ladies Who Lift</span></button>'
+                 '<button class="listed-cell__action" type="button">Decline<span class="visually-hidden"> the new name of Eastside Ladies Who Lift</span></button></span></span></td>'
+                 '<td class="table__nowrap">Organization</td><td class="table__end">41</td></tr>'
+                 '</tbody></table></div>')
 ROW = '<div style="width: 100%; min-width: 18rem; max-width: 26rem;"><ul class="list-divided">{c}</ul></div>'
 
 
@@ -87,7 +97,10 @@ SPEC = {
                               "The decision replaces the buttons with a status line; the checks lock (approved, declined). "
                               "While a claim link is open or expired, Send a new link follows the line and reads “Sending…”, "
                               "disabled and <code>aria-busy</code>, while it waits (ADR 0092; resending).", mod="stack")
-    + "<h3>Listed cell</h3>" + ex(LISTED, "Mark, name and verified mark in the Listed table.", True),
+    + "<h3>Listed cell</h3>" + ex(LISTED, "Mark, name and verified mark in the Listed table.", True)
+    + "<h3>Listed cell, change</h3>" + ex(LISTED_CHANGE, "<code>.listed-cell--change</code>: a name or kind the owner asked for waits on its own line under the live name, "
+                                         "lined up with it, with Approve and Decline named for the listing. While a decision is on its way both are <code>disabled</code> "
+                                         "(ADR 0095; listings change-waiting).", True),
     "sizes": "<p>One size. The card has 24px padding, 32px from 640px. Check rows are 12px block padding with a 28px (<code>--space-7</code>) checkbox. The listed cell's mark is <code>--size-avatar-md</code>.</p>",
     "states": {
         "intro": "<p>Check rows are labels around a native checkbox: checked and disabled come from it; focus is forced with <code>data-state=\"focus\"</code> on the row. The decision follows the checks.</p>",
@@ -178,6 +191,7 @@ SPEC = {
             ("<code>.suggestion__checks</code> <code>__foot</code> <code>__hint</code> <code>__result</code>", "Checks fieldset and the decision row."),
             ("<code>.check-row</code> <code>__box</code> <code>__label</code> <code>__desc</code>", "Large checkbox row."),
             ("<code>.listed-cell</code>", "Mark, name and verified mark in a table cell."),
+            ("<code>.listed-cell--change</code> <code>__change</code> <code>__new</code> <code>__action</code>", "A waiting name or kind under the name, with Approve and Decline (ADR 0095)."),
         ],
     },
     "sources": {
@@ -189,6 +203,7 @@ SPEC = {
             mock("pages/admin-listings/approved", "result"),
             mock("pages/admin-listings/declined", "result"),
             mock("pages/admin-listings/listed", "listed cell"),
+            mock("pages/admin-listings/change-waiting", "listed cell, change"),
         ],
         "drift": "<ul><li><code>.check-row</code> has no disabled style beyond the cursor; the native checkbox greys. Fine for a decided suggestion, but there is no <code>data-state</code> hook for hover (it has no hover style either).</li><li>The Approve button is <code>disabled</code> with <code>aria-describedby</code>; a disabled button cannot be focused, so keyboard users never reach its description. Proposed: <code>aria-disabled=\"true\"</code> and refuse the submit, as the forms pattern recommends.</li></ul>",
     },

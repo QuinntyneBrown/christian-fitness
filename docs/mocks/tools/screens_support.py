@@ -938,20 +938,19 @@ def owner_editor(*, invalid: bool = False, busy: bool = False, failed: bool = Fa
     d = " disabled" if ro else ""
     alert = ""
     if invalid:
-        alert = error_summary("1 thing to fix before saving", [("Add a website that starts with https://", "f-website")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+        alert = error_summary("1 thing to fix before saving", [("Enter a web address like eastsideladies.ca", "f-website")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
     if failed:
         alert = form_alert("We couldn't save your listing", "Something went wrong on our side. Your changes are still here, so try again in a moment.")
     if review:
         alert = form_alert("Staff will check the new name", "A new name or kind goes back to our team before it shows. Until then the directory keeps the old one; your other changes are live.",
                            kind="info", ic="info", role="status")
     name = "Eastside Women’s Strength" if review else l["name"]
-    focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
     body = f"""    {alert}
     {field("Name", "name", name, readonly=ro, hint="Changing the name or the kind sends the listing back to staff to check" if not review else "")}
     {textarea("About", "about", l["about"], rows=4, readonly=ro)}
-    {field("Website", "website", "eastsideladies" if invalid else l["website"], error="Add a website that starts with https://" if invalid else "", readonly=ro, optional=True)}
+    {field("Website", "website", "eastsideladies" if invalid else l["website"], error="Enter a web address like eastsideladies.ca" if invalid else "", readonly=ro, optional=True)}
     {file_field("Photo", "photo", optional=True, choose="Choose photo", empty="No photo yet", hint="JPEG, PNG or WebP, up to 5 MB", readonly=ro)}
-    <div class="field"><span class="field__label">Focus</span><ul class="tag-list">{focus}</ul></div>
+    {field("Focus", "focus", ", ".join(l["focus"]), hint="Up to 6, separated by commas", readonly=ro)}
     {field("Contact email", "contact", "eastsideladies@example.org", type_="email", optional=True, hint="Shown to members who message you", readonly=ro)}"""
     save = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
             else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("listing-profile", "owner")}">Save changes</button>')

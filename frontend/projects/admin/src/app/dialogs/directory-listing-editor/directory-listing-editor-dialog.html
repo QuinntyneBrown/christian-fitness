@@ -87,6 +87,29 @@
     (fileChosen)="choosePhoto($event)"
     (removed)="removePhoto()"
   />
+  <cf-text-field
+    fieldId="f-focus"
+    label="Focus"
+    name="focus"
+    hint="Up to 6, separated by commas"
+    [value]="values().focus"
+    [error]="errors().focus"
+    [readonly]="saving()"
+    (valueChange)="set('focus', $event)"
+  />
+  <cf-text-field
+    fieldId="f-contact"
+    label="Contact email"
+    name="contact"
+    type="email"
+    autocomplete="off"
+    optional
+    hint="Shown to members who message the listing"
+    [value]="values().contact"
+    [error]="errors().contact"
+    [readonly]="saving()"
+    (valueChange)="set('contact', $event)"
+  />
   <p class="directory-listing-editor__note">
     The Verified mark comes from the four checks and cannot be changed here.
   </p>

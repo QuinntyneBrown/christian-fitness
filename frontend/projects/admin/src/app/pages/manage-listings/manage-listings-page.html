@@ -167,6 +167,10 @@
             [photoSrc]="view.photoSrc"
             [person]="view.person"
             [verified]="view.verified"
+            [change]="view.change"
+            [busy]="changeDeciding() === row.id"
+            (approve)="decideChange(row.id, 'approved')"
+            (decline)="decideChange(row.id, 'declined')"
           />
         }
       </ng-template>

@@ -39,7 +39,7 @@ const KIND_OPTIONS: readonly SelectOption[] = LISTING_KINDS.map(({ kind }) => ({
 }));
 
 /** The editor fields typed as text. */
-type TextKey = 'name' | 'area' | 'tagline' | 'about' | 'website';
+type TextKey = 'name' | 'area' | 'tagline' | 'about' | 'website' | 'focus' | 'contact';
 
 /**
  * How the editor ended: the listing as saved, or `gone` when it was not there any more, so the page

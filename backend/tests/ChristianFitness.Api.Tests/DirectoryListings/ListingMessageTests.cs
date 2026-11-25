@@ -4,13 +4,16 @@ using System.Text.Json;
 using ChristianFitness.Api.Tests.Account;
 using ChristianFitness.Api.Tests.Profiles;
 using ChristianFitness.Domain.Directory;
+using ChristianFitness.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
 /// L2-055 AC6 and L2-014 AC1 to AC2 (journey 6; ADR 0087): the profile says whether a listing has an
 /// owner, and <c>POST /api/directory/{id}/conversation</c> answers the owner's member id for the
-/// direct conversation. A listing with no owner is 409 <c>listing_unreachable</c>; a suspended owner
+/// direct conversation, and the contact email its owner gave, or none (L2-079 AC7; ADR 0095). A listing with no owner is 409 <c>listing_unreachable</c>; a suspended owner
 /// and the caller's own listing are 403 <c>recipient_unavailable</c>; anything but a published listing
 /// is 404 <c>listing_not_found</c>; and only a signed-in member may ask.
 /// </summary>
@@ -46,8 +49,30 @@ public sealed class ListingMessageTests(DirectoryFactory factory)
         var (status, body) = await StartAsync(listing, grace);
 
         Assert.Equal(HttpStatusCode.OK, status);
-        Assert.Equal(["memberId"], body.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["contactEmail", "memberId"], body.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(owner, body.GetProperty("memberId").GetGuid());
+        Assert.Equal(JsonValueKind.Null, body.GetProperty("contactEmail").ValueKind);
+    }
+
+    [Fact]
+    public async Task Given_an_owner_who_gave_a_contact_email_When_a_member_messages_the_listing_Then_the_answer_shows_it_to_them()
+    {
+        await factory.ClearAsync();
+        var (_, owner) = await MemberAsync("danielle.listing-contact@example.org");
+        var (grace, _) = await MemberAsync("grace.listing-contact@example.org");
+        var listing = await factory.AddListingAsync(ListingKind.Instructor, "Danielle Okafor");
+        await factory.OwnAsync(listing, owner);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            (await db.DirectoryListings.SingleAsync(l => l.Id == listing, TestContext.Current.CancellationToken)).SetContact("coach@danielle.example");
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        var (status, body) = await StartAsync(listing, grace);
+
+        Assert.Equal(HttpStatusCode.OK, status);
+        Assert.Equal("coach@danielle.example", body.GetProperty("contactEmail").GetString());
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import type { DialogRef } from '@angular/cdk/dialog';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -41,7 +42,14 @@ import {
   ToastStore,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import type {
+  OwnerListingEditorDialog,
+  OwnerListingEditorResult,
+} from '../../dialogs/owner-listing-editor/owner-listing-editor-dialog';
 import { HttpDirectoryService } from '../../services/http-directory.service';
+
+/** The success toast's title once the owner saved (L2-079 AC4). */
+const LISTING_UPDATED = 'Your listing is updated';
 
 /**
  * A listing's profile at `/directory/:id` (L2-055; ADR 0087; mock `listing-profile/`): the back
@@ -91,7 +99,11 @@ export default class ListingProfilePage {
   protected readonly toasts = inject(TOASTS_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
   private id = '';
+  /** The owner's editor while it is open, or `true` while its code loads. */
+  private editor: DialogRef<OwnerListingEditorResult, OwnerListingEditorDialog> | true | null =
+    null;
   private request: Subscription | null = null;
   private messaging: Subscription | null = null;
 
@@ -103,16 +115,21 @@ export default class ListingProfilePage {
     const profile = this.profile();
     return profile ? listingProfileViewOf(profile) : null;
   });
-  /** The member's follow of the listing and its count, changed at a press (L2-056). */
+  /** The member's follow of the listing and its count, changed at a press (L2-056); none for the owner. */
   protected readonly follow = computed(() => {
-    const id = this.profile()?.id;
-    return id === undefined ? null : (this.follows.follows().get(id) ?? null);
+    const profile = this.profile();
+    // The owner sees Edit listing in place of Follow (L2-079 AC1).
+    if (!profile || profile.isOwner) return null;
+    return this.follows.follows().get(profile.id) ?? null;
   });
-  /** A failed follow or unfollow, as a danger toast (L2-056 AC3; mock `directory/follow-failed`). */
+  /**
+   * A failed follow or unfollow as a danger toast (L2-056 AC3; mock `directory/follow-failed`), and
+   * a saved listing as a success toast (L2-079 AC4; mock `owner-listing-editor/saved`).
+   */
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
       id: String(id),
-      tone: 'danger',
+      tone: title === LISTING_UPDATED ? 'success' : 'danger',
       heading: title,
       text,
     })),
@@ -146,6 +163,32 @@ export default class ListingProfilePage {
         this.id = params.get('id') ?? '';
         this.load();
       });
+    // A dialog is closed by its ref before the screen goes (AGENTS.md).
+    inject(DestroyRef).onDestroy(() => {
+      if (this.editor && this.editor !== true) this.editor.close();
+    });
+  }
+
+  /**
+   * Opens the owner's editor on the listing (L2-079 AC1, AC2; ADR 0095). Its code and the CDK
+   * Dialog are imported on first use; it opens with this screen's injector, so it uses the same
+   * client.
+   */
+  protected async editListing(listing: ListingProfileDto): Promise<void> {
+    if (this.editor) return;
+    this.editor = true;
+    const { openOwnerListingEditor } =
+      await import('../../dialogs/owner-listing-editor/owner-listing-editor-dialog');
+    if (this.destroyRef.destroyed) return;
+    const editor = openOwnerListingEditor(this.injector, listing);
+    this.editor = editor;
+    editor.closed.subscribe((result) => {
+      this.editor = null;
+      if (!result) return;
+      // Shown in place, so the button that opened the dialog stays and takes focus back.
+      this.profile.set(result.saved);
+      this.toasts.show(LISTING_UPDATED, 'Your changes are live in the directory.');
+    });
   }
 
   /** Follows a link inside the app through the router. */

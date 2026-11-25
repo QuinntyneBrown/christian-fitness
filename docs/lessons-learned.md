@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 36% (13 of 36 journeys; 38 of 113 days)
+**% complete:** 39% (14 of 36 journeys; 40 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2809,3 +2809,54 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   scratchpad scripts or the Edit tool.
 - "Read the initial total after each build": web stayed 278.21 kB; admin went from main's
   280.52 kB to 280.66 kB for the Stories nav item, with every Bylines screen and dialog lazy.
+
+## Journey 20: Edit my listing
+
+**What slowed it**
+
+- The ADR number moved twice. Journey 10 merged 0093 and journey 21 took 0094 while this journey
+  was open, so the coordinator assigned 0095. Each renumber touched about 25 files of code
+  comments and docs. The index row conflicted at each rebase; both rows were kept. A sweep that
+  runs before an untracked test file is staged misses that file.
+- The requirement, the mock and the design disagreed on the name limit (100 or 120), on a kind
+  control (the dialog has none) and on Focus (drawn read-only). ADR 0095 settled each before the
+  first slice.
+- Running the design-system and mock generators rewrote every page with CRLF, and pulled in drift
+  from other journeys' generator changes. Only the pages this journey touched were kept, as LF.
+- The worktree guard refused heredocs and compound git commands. Edit scripts went to the
+  scratchpad, and a small `break.py` did each honest-red swap and restore.
+- A first break of the photo upload's owner check also failed the "owns nothing" case. The cause
+  was the test: `ClearAsync` keeps audit rows, so an earlier case's audited upload leaked in. The
+  absence check is now scoped to the member.
+- A break that does not compile (`saved === saved`) stops `ng serve` from rebuilding. The spec
+  then times out somewhere else, so the break proves nothing. Breaks must still type-check.
+
+**New lessons**
+
+- A field whose codes are new must join the `fieldCodes` whitelist in `ProblemCodes`. Otherwise the
+  refusal arrives with no `fieldCodes`, and the test fails with a `KeyNotFoundException`, not a
+  wrong code.
+- A dialog that stays open after a save (the review alert) must hand the saved result back however
+  it closes. It sets `disableClose` and maps Escape from `keydownEvents` to its own close.
+  Otherwise the CDK closes with `undefined` and the page drops the save.
+- A component in a table cell must not borrow the table's `row-link`: encapsulation means it would
+  not get the style anyway. The change line's buttons became `listed-cell__action`, and the mock
+  and design-system page now use that class.
+- A DTO or command that carries a contact email is a class, not a record, so no generated
+  `ToString` can print it. The telemetry test proves the rest: a span event carrying the email made
+  it fail.
+
+**How earlier lessons worked**
+
+- "Check origin/main and open PRs for the ADR number": it found 0093 and 0094 taken. The
+  coordinator's assigned number ended the race; ask for one when several journeys run at once.
+- "Break each rule alone": each of these breaks failed its own tests and was restored:
+  - the owner check, the six-tag limit and the published-only photo upload
+  - the in-place profile update and the field-versus-generic alert
+  - Remove photo, and the review alert's close result
+  - the same-change-keeps-its-date row, and "nothing waiting"
+  - the staff save dropping a waiting name, the Listed row update and the staff Focus field
+- "Read the initial total after each build": web stayed 278.21 kB and admin 280.52 kB. The
+  editor, the dialog and the Listed change line all load with their lazy routes.
+- "`ng serve` misses library changes on Windows": touching each `public-api.ts` after a contract
+  change kept the dev servers current.

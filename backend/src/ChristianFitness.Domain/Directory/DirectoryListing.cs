@@ -15,6 +15,7 @@ public sealed class DirectoryListing
     public const int WebsiteMaxLength = 200;
     public const int FocusTagMaxLength = 40;
     public const int PhotoKeyMaxLength = 64;
+    public const int ContactEmailMaxLength = 254;
 
     /// <summary>The longest folded <see cref="SearchText"/>: every searched field and a separator between each.</summary>
     public const int SearchTextMaxLength = 1000;
@@ -76,6 +77,21 @@ public sealed class DirectoryListing
     /// <summary>The Services listing staff linked it to, when they did (ADR 0061).</summary>
     public Guid? ServiceListingId { get; private set; }
 
+    /// <summary>
+    /// Where members who message it may write (L2-079 AC7; ADR 0095), or none. Answered only to the
+    /// owner, to staff and to a member who messages it; never traced or logged.
+    /// </summary>
+    public string? ContactEmail { get; private set; }
+
+    /// <summary>A new name the owner asked for, waiting for staff (L2-079 AC5; ADR 0095), or none.</summary>
+    public string? PendingName { get; private set; }
+
+    /// <summary>A new kind waiting for staff with <see cref="PendingName"/>, or none.</summary>
+    public ListingKind? PendingKind { get; private set; }
+
+    /// <summary>When the waiting change was last asked for, or none.</summary>
+    public DateTimeOffset? PendingSince { get; private set; }
+
     /// <summary>The name folded by <see cref="SearchFold"/>: the directory's name order (ADR 0082).</summary>
     public string NameKey { get; private set; } = string.Empty;
 
@@ -125,6 +141,68 @@ public sealed class DirectoryListing
         NameKey = SearchFold.Of(Name);
         SearchText = SearchFold.Of(string.Join('\n', [Name, Tagline, Area, .. Focus]));
     }
+
+    /// <summary>
+    /// The owner's changes that go live at once (L2-079 AC4; ADR 0095): about, website, focus tags
+    /// and contact email, trimmed, with the search keys rebuilt. The caller has checked every limit.
+    /// </summary>
+    public void EditByOwner(string description, string? websiteUrl, IEnumerable<string> focus, string? contactEmail)
+    {
+        Describe(Kind, Name, Tagline, Area, focus, description, websiteUrl);
+        SetContact(contactEmail);
+    }
+
+    /// <summary>
+    /// The owner's name and kind (L2-079 AC2, AC5; ADR 0095): one that differs from the live one waits
+    /// for staff from <paramref name="at"/> while the live one stays; the same change asked again
+    /// keeps when it was first asked; the live one withdraws any waiting change. The name is trimmed;
+    /// the caller has checked its limit.
+    /// </summary>
+    public void AskToRename(string name, ListingKind kind, DateTimeOffset at)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        var trimmed = name.Trim();
+        if (string.Equals(trimmed, Name, StringComparison.Ordinal) && kind == Kind)
+        {
+            ClearRename();
+            return;
+        }
+
+        if (string.Equals(trimmed, PendingName, StringComparison.Ordinal) && kind == PendingKind)
+        {
+            return;
+        }
+
+        PendingName = trimmed;
+        PendingKind = kind;
+        PendingSince = at;
+    }
+
+    /// <summary>Staff approve the waiting name and kind: they go live, with the search keys rebuilt.</summary>
+    public void ApproveRename()
+    {
+        if (PendingName is null || PendingKind is not { } kind)
+        {
+            throw new InvalidOperationException("No name change is waiting.");
+        }
+
+        Describe(kind, PendingName, Tagline, Area, Focus, Description, WebsiteUrl);
+        ClearRename();
+    }
+
+    /// <summary>Staff decline the waiting name and kind, or staff set them directly: nothing waits.</summary>
+    public void DeclineRename() => ClearRename();
+
+    private void ClearRename()
+    {
+        PendingName = null;
+        PendingKind = null;
+        PendingSince = null;
+    }
+
+    /// <summary>Sets the contact email, or clears it with none.</summary>
+    public void SetContact(string? contactEmail) =>
+        ContactEmail = string.IsNullOrWhiteSpace(contactEmail) ? null : contactEmail.Trim();
 
     /// <summary>Staff checked it: it is in the directory from <paramref name="at"/>.</summary>
     public void Publish(DateTimeOffset at)

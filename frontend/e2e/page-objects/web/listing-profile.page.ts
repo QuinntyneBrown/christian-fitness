@@ -51,6 +51,10 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly backLink: Locator;
   readonly head: Locator;
   readonly messageButton: Locator;
+  /** The owner's Edit listing, in place of Follow and Message (ADR 0095). */
+  readonly editListingButton: Locator;
+  /** The success toasts: each `role="status"` toast in the toast region. */
+  readonly successToasts: Locator;
   readonly followButton: Locator;
   /** The danger toasts: each `role="alert"` in the toast region. */
   readonly failureToasts: Locator;
@@ -80,6 +84,8 @@ export class WebListingProfilePage extends ErrorScreen {
     this.backLink = this.main.getByRole('link', { name: 'Directory', exact: true }).first();
     this.head = this.main.locator('.listing-head');
     this.messageButton = this.head.getByRole('button', { name: 'Message' });
+    this.editListingButton = this.head.getByRole('button', { name: 'Edit listing' });
+    this.successToasts = page.locator('.toast-region [role="status"] .toast');
     this.followButton = this.head.locator('button.follow');
     this.failureToasts = page.locator('.toast-region [role="alert"] .toast');
     this.messageAlert = this.main.getByRole('alert');
@@ -148,6 +154,16 @@ export class WebListingProfilePage extends ErrorScreen {
   /** Each danger toast's title and text, in order. */
   async failureToastViews(): Promise<[string, string][]> {
     return this.failureToasts.evaluateAll((toasts) =>
+      toasts.map((toast) => [
+        (toast.querySelector('.toast__title')?.textContent ?? '').trim(),
+        (toast.querySelector('.toast__text')?.textContent ?? '').trim(),
+      ]),
+    );
+  }
+
+  /** Each success toast's title and text, in order. */
+  async successToastViews(): Promise<[string, string][]> {
+    return this.successToasts.evaluateAll((toasts) =>
       toasts.map((toast) => [
         (toast.querySelector('.toast__title')?.textContent ?? '').trim(),
         (toast.querySelector('.toast__text')?.textContent ?? '').trim(),
