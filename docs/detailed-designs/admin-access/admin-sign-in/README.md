@@ -11,7 +11,7 @@ staff session, ends an idle or old session, and shows a "Staff only" screen when
 staff something they may not see.
 
 - **staff member** — person whose account holds a staff role (Admin or Moderator, see `staff-roles`)
-- **team's domain** — Google Workspace domain whose accounts may open the console (`christianfitness.ca` in the mocks)
+- **team's domain** — Google Workspace domain whose accounts may open the console (`christian.fitness`)
 - **staff session** — authenticated cookie session issued by the admin sign-in and accepted only by admin endpoints
 - **idle timeout** — interval of 30 minutes without a request after which a staff session expires
 - **maximum session age** — interval of 12 hours after which a staff session ends whatever its activity, so Google is asked again
@@ -37,7 +37,7 @@ by [ADR 0062](../../../adr/0062-retire-staff-password-and-two-step.md).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`): the brand, the heading "Staff sign
-  in", the lead "Use your @christianfitness.ca Google Workspace account." with the domain in
+  in", the lead "Use your @christian.fitness Google Workspace account." with the domain in
   `strong`, one `GoogleButton` ("Sign in with Google") and the note "Passwords and two-step
   verification are managed by Google Workspace. Leaving the team ends console access the same day."
   There is no email or password field (`L2-018` AC1). Pressing the button calls
@@ -48,7 +48,7 @@ by [ADR 0062](../../../adr/0062-retire-staff-password-and-two-step.md).
   session navigates to the Dashboard (`L2-018` AC2). A refusal is read by `staffSignInRefusalOf`
   (`domain`), reworked for Google:
   - 403 `wrong_domain` — an `SsoNotice` (`role="alert"`, focused) titled "That's not a staff
-    account", naming the account and saying "Only @christianfitness.ca accounts can open the
+    account", naming the account and saying "Only @christian.fitness accounts can open the
     console. Pick your work account instead."; the button reads "Try another Google account"
     (`L2-018` AC3, mock `wrong-domain`);
   - 403 `not_staff` — the notice titled "No admin access yet", naming the account and saying "Your
@@ -142,9 +142,9 @@ for the team's domain in Google Workspace (`L2-046` AC2).
   slices remove each of them, with a later migration that drops the two-step tables, so that
   `/sign-in/verify` is the admin not-found page (`L2-046` AC1). ADR 0062 records the decision
   and the deployment ordering needed to keep the running revision working.
-- **The first staff account.** `cf seed` creates the first staff account with a password. With
-  Google, it needs only the account's email of the team's domain and the Admin role; how the seed
-  names that email is `<TO SUPPLY>`.
+- **The first staff account.** With Google, `cf seed` reads the required `Seed:AdminEmail` setting
+  for the first Admin's `@christian.fitness` account. It refuses with a clear error if the setting
+  is missing; no email is hard-coded. The existing password-based seed remains until this change.
 - **Session-expired wording after 12 hours.** The mock `session-expired` says "after 30 minutes
   without activity". A session ended by the 12-hour maximum also answers `session_expired`; whether
   it needs words of its own is not settled.
