@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261125143833_AddBylines")]
+    [Migration("20261125145104_AddBylines")]
     partial class AddBylines
     {
         /// <inheritdoc />
@@ -166,6 +166,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(64)");
 
                     b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("VoidedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
