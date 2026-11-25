@@ -272,15 +272,6 @@ def _():
     return editor_page(LENT, "In review", failed=True, saved="Not saved")
 
 
-def _():
-    st = {"id": "lent-fasting", "section": LENT["section"], "title": LENT["title"], "dek": LENT["dek"], "author": LENT["author"],
-          "ago": "Preview · not published", "image": LENT["image"], "read": "4 min read"}
-    bar = (f'<div class="banner banner--brand" role="status"><div class="banner__inner">{icon("eye")}<p class="banner__text">'
-           '<strong>Preview.</strong> Only staff can see this. It is not published, and nothing here goes to readers until you publish it.</p>'
-           f'<a class="banner__action" href="default.html">Back to editing</a></div></div>')
-    return story_shell(bar + story_page(st))
-
-
 @s("loading", "The story is loading: the bar is there; the image, text and panels show as skeletons.")
 def _():
     sk = f"""<div class="editor"><div class="editor__bar"><a class="back-link" href="{href("admin-stories")}">{icon("arrow-left")} Stories</a></div>
