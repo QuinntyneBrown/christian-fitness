@@ -59,13 +59,15 @@ PRODUCT = "Christian Fitness"
 SITE = f"{PRODUCT} design system"
 EXTRACTED = "2026-11-22"
 UPDATED = "2026-11-25"
-VERIFICATION = """Run on 2026-11-22:
+VERIFICATION = """Run on 2026-11-25, after adding the pages for the new mocks:
 
-- `check_contrast.py`: 170 pairs passed in light and dark, 0 failed.
-- `check_design_system.py`: 67 pages (46 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
-- `check_mocks.py docs/mocks` after pointing the mocks at this system: 28 screens, 131 mocks, 0 errors.
-- Horizontal overflow (Playwright, every page at 360 and 1280px): none.
-- Screenshots reviewed: button, dialog, text-field, event-card and color in both themes at 1280 and 360px; mocks events, sign-in (invalid), admin members and request-booking against the pre-extraction originals (only intended changes: stronger input borders, button heights)."""
+- `check_contrast.py`: 174 pairs passed in light and dark, 0 failed.
+- `check_design_system.py`: 96 pages (75 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
+- `check_mocks.py docs/mocks`: no new errors; the 25 it reports came with the mocks (see Drift).
+- Horizontal overflow (Playwright, all 96 pages and every page and dialog mock at 360 and 1280px): none, except the two Google join mocks listed under Drift.
+- Screenshots reviewed at 360 and 1280px in both themes for every new and changed component page.
+
+Earlier run, 2026-11-22: 170 pairs passed; 67 pages; 28 screens and 131 mocks, 0 errors; screenshots of button, dialog, text-field, event-card and color."""
 
 FOUNDATIONS = [
     ("color", "Color", "Brand bordeaux and borealis, warm stone neutrals, status colours and every contrast pair."),

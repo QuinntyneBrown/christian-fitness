@@ -1,6 +1,6 @@
 from dslib import ex, icon, kbd, matrix, mock, themes
 
-NAV = [("home", "Home", "home"), ("events", "Events", "calendar-days"), ("services", "Services", "heart-handshake"),
+NAV = [("home", "Home", "home"), ("events", "Events", "calendar-days"), ("directory", "Directory", "book-user"), ("services", "Services", "heart-handshake"),
        ("messages", "Messages", "message-circle"), ("profile", "Profile", "user")]
 # The tab bar is position: fixed and hidden from 768px; examples pin it inside a frame that contains fixed children.
 FRAME = '<div class="ds-frame" style="transform: translateZ(0); height: 6rem; width: 100%; max-width: 26rem;">{}</div>'
@@ -26,7 +26,7 @@ ITEM = '<a class="tab-bar__item" href="#top"{a}>' + icon("calendar-days", "icon-
 SPEC = {
     "lead": "On phones the tab bar keeps the five places of the member app one thumb away.",
     "meta": ["Status: stable", "<code>&lt;nav&gt;</code> of links", "Fixed, phones only"],
-    "overview": """<p>The tab bar is the mobile half of primary navigation in the member app: Home, Events, Services, Messages and Profile, each an icon above a label. It is fixed to the bottom of the viewport below 768px and hidden above, where the <a href="top-bar.html">top bar</a>'s links take over.</p>
+    "overview": """<p>The tab bar is the mobile half of primary navigation in the member app: Home, Events, Directory, Services, Messages and Profile, each an icon above a label. It is fixed to the bottom of the viewport below 768px and hidden above, where the <a href="top-bar.html">top bar</a>'s links take over.</p>
 <ul>
 <li>Use it on every signed-in member screen, including full-height ones like Messages.</li>
 <li>It is navigation, not a set of <a href="tabs.html">tabs</a>: each item is a link to a page, never a panel switcher.</li>
@@ -60,7 +60,7 @@ SPEC = {
     "responsive": """<ul>
 <li>Shown below 768px (<code>--layout-breakpoint-md</code>), hidden from 768px.</li>
 <li>Pages reserve <code>--layout-tabbar-height</code> at the bottom of <code>.app__main</code> so the last item is never covered.</li>
-<li>Labels never truncate; at 320px each column is 64px wide and "Messages" still fits.</li>
+<li>Labels never truncate; at 320px each of the six columns is 53px wide and "Directory" and "Messages" still fit (measured on pages/home/default).</li>
 <li>On devices with a home indicator, the shipping app adds <code>env(safe-area-inset-bottom)</code> below the items.</li>
 </ul>""",
     "theming": "<p>Reads <code>--color-bg-surface</code>, <code>--color-border-default</code>, <code>--color-fg-muted</code> for items and <code>--color-fg-accent</code> for current and the dot's <code>--color-accent</code>. Dark theme swaps all of them through the semantic tier.</p>",
@@ -118,6 +118,6 @@ SPEC = {
     "sources": {
         "mocks": [mock("pages/home/default", "Home current, unread dot"), mock("pages/messages/default", "full-height screen"),
                   mock("pages/events/default", "Events current")],
-        "drift": "Labels were 11px in the mocks; they snap to <code>--font-size-xs</code> (12px). No mock showed a focus state; it uses the shared ring.",
+        "drift": "Labels were 11px in the mocks; they snap to <code>--font-size-xs</code> (12px). No mock showed a focus state; it uses the shared ring. Directory became the third item with the directory (L2-008), making six.",
     },
 }

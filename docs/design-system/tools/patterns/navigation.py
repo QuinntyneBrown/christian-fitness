@@ -1,4 +1,4 @@
-from dslib import ex, icon, kbd, mock
+from dslib import cf_ui, ex, icon, kbd, mock
 
 CUR = ' aria-current="page"'
 
@@ -18,21 +18,48 @@ CHIPS = ('<div class="chip-bar" role="group" aria-label="Filter professionals (e
          '<button class="chip" type="button" aria-pressed="true">All</button>'
          '<button class="chip" type="button" aria-pressed="false">Trainers</button>'
          '<button class="chip" type="button" aria-pressed="false">Dietitians</button></div>')
-SIDENAV = ('<nav class="admin-nav" aria-label="Admin (example)">'
-           f'<a class="admin-nav__item" href="#"{CUR}>{icon("layout-dashboard")}Dashboard</a>'
-           f'<a class="admin-nav__item" href="#">{icon("calendar-days")}Events</a>'
-           f'<a class="admin-nav__item" href="#">{icon("badge-check")}Services <span class="admin-nav__count">3</span></a>'
-           f'<a class="admin-nav__item" href="#">{icon("users")}Members</a></nav>')
+SECTIONS = ["Latest", "Events", "Training", "Nutrition", "Faith &amp; Body", "Community", "Pros"]
+NEWS_SHELL = (
+    '<div style="width: 100%;"><header class="masthead"><div class="masthead__bar">' + cf_ui.lockup("#")
+    + '<div class="site-header__actions"><a class="btn btn--ghost site-header__signin" href="#">Sign in</a><a class="btn btn--primary" href="#">Join free</a></div></div>'
+    '<nav class="section-nav" aria-label="Sections (example)">'
+    + "".join(f'<a class="section-nav__link" href="#"{CUR if n == "Latest" else ""}>{n}</a>' for n in SECTIONS) + '</nav></header>'
+    '<p class="muted" style="padding: var(--space-8) var(--space-4); text-align: center;">Lead story, headlines, the latest…</p>'
+    '<footer class="site-footer"><p>© 2026 Christian Fitness · Toronto</p><p class="site-footer__links">'
+    '<a href="#">Newsletter</a><a href="#">' + icon("rss") + ' RSS</a><a href="#">Send feedback</a><a href="#">Privacy</a><a href="#">Terms</a></p></footer></div>'
+)
+MEMBER_FOOTER = ('<footer class="app-footer" style="width: 100%;"><div class="app-footer__inner"><p>© 2026 Christian Fitness · Toronto</p>'
+                 '<p class="app-footer__links"><a href="#">Send feedback</a><a href="#">Preferences</a><a href="#">Privacy</a><a href="#">Terms</a></p></div></footer>')
+SIDE_PREFS = ('<nav class="side-nav" aria-label="Preference sections (example)"><ul class="side-nav__list">'
+              + "".join(f'<li><a class="side-nav__link" href="#">{n}</a></li>' for n in ["Email", "Notifications", "Privacy", "Suggestions", "Your data"])
+              + '</ul></nav>')
+SIDE_LEGAL = ('<nav class="side-nav" aria-label="Contents (example)"><p class="side-nav__title">Contents</p><ol class="side-nav__list">'
+              + "".join(f'<li><a class="side-nav__link side-nav__link--numbered" href="#"><span class="side-nav__n">{i}.</span>{n}</a></li>'
+                        for i, n in enumerate(["What we collect", "How we use it", "Who we share it with", "Faith and health information"], 1))
+              + '</ol></nav>')
+GROUPED = ('<div class="admin__sidebar" style="position: static; height: auto; width: 100%; max-width: 16rem;">'
+           '<nav class="admin-nav" aria-label="Admin (grouped example)">'
+           f'<a class="admin-nav__item" href="#">{icon("layout-dashboard", "icon--md")}Dashboard</a>'
+           '<p class="admin-nav__group">Publish</p>'
+           f'<a class="admin-nav__item" href="#"{CUR}>{icon("newspaper", "icon--md")}Stories<span class="admin-nav__count" aria-label="1 story to review">1</span></a>'
+           f'<a class="admin-nav__item" href="#">{icon("mail", "icon--md")}Newsletter</a>'
+           '<p class="admin-nav__group">Gather</p>'
+           f'<a class="admin-nav__item" href="#">{icon("calendar-days", "icon--md")}Events</a>'
+           '<p class="admin-nav__group">Community</p>'
+           f'<a class="admin-nav__item" href="#">{icon("message-square-text", "icon--md")}Feedback<span class="admin-nav__count" aria-label="2 new notes">2</span></a>'
+           '</nav></div>')
 
 SPEC = {
     "slug": "navigation",
     "lead": "People always know where they are, how they got there and how to get back, on a phone or at a desk.",
-    "overview": """<p>There are three shells, each with one navigation model:</p>
+    "overview": """<p>There are four shells, each with one navigation model:</p>
 <ul>
-<li><b>Public site</b> (landing, auth): the <a href="../components/top-bar.html">site header</a> with Sign in and Join, and the <a href="../components/footer.html">footer</a>.</li>
-<li><b>Member app</b>: Home, Events, Services, Messages and Profile. A <a href="../components/top-bar.html">top bar</a> from tablet up; a <a href="../components/tab-bar.html">tab bar</a> on phones.</li>
-<li><b>Admin console</b>: a <a href="../components/sidebar-navigation.html">sidebar</a> with Dashboard, Events, Services and Members, and counts for what needs staff.</li>
+<li><b>News front page</b> (the public landing, sections, stories, subscribe): the <a href="../components/masthead.html">masthead</a> (lockup, Sign in and Join free) with its section navigation (Latest, Events, Training, Nutrition, Faith &amp; Body, Community, Pros), and the site <a href="../components/footer.html">footer</a> with Newsletter, RSS, Send feedback, Privacy and Terms. Pages reached from it (Subscribe, the legal pages) use the plain masthead with a back link.</li>
+<li><b>Public auth</b>: the <a href="../components/top-bar.html">site header</a> with Sign in and Join.</li>
+<li><b>Member app</b>: Home, Events, Services, Messages and Profile. A <a href="../components/top-bar.html">top bar</a> from tablet up; a <a href="../components/tab-bar.html">tab bar</a> on phones; and the member <a href="../components/footer.html">footer</a> under every page that scrolls (Send feedback, Preferences, Privacy, Terms). Messages fills the window and has none.</li>
+<li><b>Admin console</b>: a <a href="../components/sidebar-navigation.html">sidebar</a> of ten sections grouped by the job (Publish, Gather, Community), with counts for what needs staff.</li>
 </ul>
+<p>Inside a long page, <a href="../components/side-navigation.html">side navigation</a> lists its sections (Preferences, the legal pages). A choice between views of one thing is a <a href="../components/segmented-control.html">segmented control</a>; unsaved changes travel in a <a href="../components/save-bar.html">save bar</a>, not in the navigation.</p>
 <p>Every page starts with a <a href="../components/skip-link.html">skip link</a> and has exactly one <code>h1</code>.</p>""",
     "when": """<ul>
 <li><b>Primary navigation</b> moves between top-level sections. Never more than five destinations in the tab bar.</li>
@@ -40,20 +67,30 @@ SPEC = {
 <li><b><a href="../components/tabs.html">Tabs</a></b> are links that filter one list (All, Published, Draft) and change the URL.</li>
 <li><b><a href="../components/chip.html">Chips</a></b> filter in place; they are toggle buttons, not navigation.</li>
 <li><b><a href="../components/pagination.html">Pagination</a></b> for admin tables longer than one page.</li>
+<li><b><a href="../components/side-navigation.html">Side navigation</a></b> for in-page jumps on a long page with named sections: Preferences (Email, Notifications, Privacy, Suggestions, Your data) and the numbered contents of Privacy and Terms. Links to fragments; not more primary navigation.</li>
+<li><b>Footers</b> hold what everyone needs once in a while (feedback, preferences, legal), never a primary destination.</li>
 </ul>""",
     "structure": """<p>A page reads: shell navigation → back link (detail pages) → page head (title, subtitle, page action or search) → filters (tabs or chips) → content.</p>"""
         + ex(BACK + PAGE_HEAD + CHIPS, "Member list page: page head with search, then chips. A detail page adds the back link above.", True, mod="stack")
         + ex(TABS, "Admin tabs: links with counts; the current one has <code>aria-current=\"page\"</code>.", True)
-        + ex(SIDENAV, "Admin sidebar items, shown here without the fixed sidebar.", True),
+        + "<h3>News front page shell</h3>" + ex(NEWS_SHELL, "Masthead with section navigation (current: Latest), the page, then the site footer (landing).", True, mod="stack")
+        + "<h3>Member footer</h3>" + ex(MEMBER_FOOTER, "Under every member page that scrolls; on phones it clears the tab bar.", True, mod="stack")
+        + "<h3>In-page side navigation</h3>" + ex(SIDE_PREFS + SIDE_LEGAL, "Preferences' sections, and the legal pages' numbered contents with a title. Shown from 1024px, sticky under the header.", True)
+        + "<h3>Grouped console navigation</h3>" + ex(GROUPED, "Group labels (from 1024px) above their items; Stories current.", True),
     "states": """<p>Navigation items have default, hover, focus, current (<code>aria-current="page"</code>, styled by a bar and weight, never colour alone) and, for the tab bar, an unread dot on Messages. Chips use <code>aria-pressed</code>. The current section stays marked on its detail pages (Events is current on an event detail).</p>""",
     "responsive": """<ul>
 <li>Under 48rem the member top bar collapses to the brand and profile button, and the tab bar appears at the bottom; content gets bottom padding so nothing hides behind it.</li>
-<li>Below 64rem the admin sidebar stacks above the content as a top strip; from 64rem it is a sticky full-height column.</li>
+<li>Below 64rem the admin sidebar stacks above the content as a top strip and hides the group labels; from 64rem it is a sticky full-height column whose link list scrolls inside it when it outgrows the viewport.</li>
+<li>The section navigation under the masthead scrolls sideways inside itself on phones.</li>
+<li>Side navigation is hidden below 64rem (the sections simply follow one another); from 64rem it is a sticky column beside the content.</li>
+<li>The member footer stacks on phones and pads its bottom by the tab bar's height; from 640px it is one row.</li>
 <li>Tabs and chip bars scroll horizontally inside themselves rather than wrapping.</li>
 <li>Breadcrumbs collapse to the parent link on phones.</li>
 </ul>""",
     "accessibility": f"""<ul>
-<li>Each navigation landmark has a distinct <code>aria-label</code> ("Main", "Admin", "Filter events").</li>
+<li>Each navigation landmark has a distinct <code>aria-label</code> ("Main", "Admin", "Filter events", "Sections", "Preference sections", "Contents").</li>
+<li>Footer links are 44px tall targets; side navigation links scroll to sections that set <code>scroll-margin-top</code> so the sticky header never covers the heading.</li>
+<li>Console group labels are text inside the <code>&lt;nav&gt;</code>, not headings.</li>
 <li>The skip link is first in tab order and jumps to <code>#main</code>.</li>
 <li>Tab order follows reading order; {kbd("Tab")} moves between items, {kbd("Enter")} follows a link, {kbd("Space")} toggles a chip.</li>
 <li>Icon-only items (profile button) have an accessible name; tab bar items always show their text label.</li>
@@ -63,6 +100,8 @@ SPEC = {
 <li>Section names are single nouns: Home, Events, Services, Messages, Profile.</li>
 <li>Back links name the destination, not "Back": "All events", "Back to home".</li>
 <li>Page titles match the navigation label they came from.</li>
+<li>News sections are the story sections' names: Latest, Events, Training, Nutrition, Faith &amp; Body, Community, Pros.</li>
+<li>Console groups are one word for the job: Publish, Gather, Community.</li>
 </ul>""",
     "do-dont": [
         ("do", BACK, "Name where the back link goes."),
@@ -78,11 +117,18 @@ SPEC = {
             mock("pages/event-detail/default", "back link"),
             mock("pages/admin-events/default", "admin sidebar and tabs with counts"),
             mock("pages/admin-members/default", "tabs without counts"),
-            mock("pages/landing/default", "public header and footer"),
+            mock("pages/landing/default", "news front page: masthead, section navigation, site footer"),
+            mock("pages/landing/section", "a section current"),
+            mock("pages/subscribe/default", "plain masthead with back link"),
+            mock("pages/feedback/default", "member footer"),
+            mock("pages/preferences/default", "side navigation"),
+            mock("pages/privacy/default", "numbered contents"),
+            mock("pages/admin-feedback/default", "grouped console navigation"),
         ],
         "drift": """<ul>
 <li>Event category chips are links with <code>aria-current</code> on the Events page but toggle buttons with <code>aria-pressed</code> elsewhere (Services). Pick one: buttons with <code>aria-pressed</code> when filtering in place, links when the filter changes the URL.</li>
 <li>Admin event tabs show counts; member status tabs don't.</li>
+<li>The site footer and the member footer are two blocks (<code>.site-footer</code>, <code>.app-footer</code>) with different link sets; both now carry Send feedback, Privacy and Terms.</li>
 </ul>""",
     },
 }

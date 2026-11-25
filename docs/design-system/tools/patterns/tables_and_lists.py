@@ -27,6 +27,31 @@ LIST = (
     '<span class="mini-row__time">Mon</span></div><p class="mini-row__text">Sounds good, Tuesday at 6 works.</p></div></a></li></ul>'
 )
 
+INBOX = (
+    '<div class="split split--flush split--inbox" style="width: 100%;">'
+    '<nav aria-label="Feedback (example)"><ul class="card card--list feedback-list">'
+    '<li><a class="feedback-row" href="#" aria-current="page">' + icon("bug", "feedback-row__icon")
+    + '<span class="feedback-row__body"><span class="feedback-row__top"><span class="feedback-row__from feedback-row__from--new">Michael Chen</span>'
+    '<span class="feedback-row__when">35 min ago</span></span><span class="feedback-row__text">The “Add to calendar” button opens a blank page on my phone.</span>'
+    '<span class="visually-hidden">Something’s broken, New</span></span></a></li>'
+    '<li><a class="feedback-row" href="#">' + icon("lightbulb", "feedback-row__icon")
+    + '<span class="feedback-row__body"><span class="feedback-row__top"><span class="feedback-row__from">Grace Thompson</span>'
+    '<span class="feedback-row__when">Yesterday</span></span><span class="feedback-row__text">Could the series page show which week of the plan each session is?</span>'
+    '<span class="visually-hidden">Idea, Replied</span></span></a></li></ul></nav>'
+    '<div class="card card--pad"><div class="feedback-detail__head"><span class="kind-tag">' + icon("bug") + 'Something’s broken</span>'
+    '<span class="status status--new">New</span><span class="feedback-detail__when">35 min ago</span></div>'
+    '<p class="feedback-detail__text">The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.</p></div></div>'
+)
+PICKER = (
+    '<div class="split split--flush split--picker" style="width: 100%;">'
+    '<nav aria-label="Series (example)"><ul class="pick-cards pick-cards--stack">'
+    '<li><a class="pick-card" href="#" aria-current="page"><span class="pick-card__title">Couch to 5K Run Club</span>'
+    '<span class="pick-card__meta">Every Tuesday · 6:30 PM</span><span class="pick-card__count">31 / 40 joined</span></a></li>'
+    '<li><a class="pick-card" href="#"><span class="pick-card__title">Saturday Park Bootcamp</span>'
+    '<span class="pick-card__meta">Every Saturday · 8:00 AM</span><span class="pick-card__count">38 / 50 joined</span></a></li></ul></nav>'
+    '<div class="card card--pad-sm"><p class="table__strong">Couch to 5K Run Club</p><p class="muted">Hosted by Lakeshore Runners Fellowship</p></div></div>'
+)
+
 SPEC = {
     "slug": "tables-and-lists",
     "lead": "Tables are for staff comparing many records; lists are for members scanning a few. Both stay readable on a phone.",
@@ -36,16 +61,23 @@ SPEC = {
 <li><b>Event grid</b>: members browsing events; the image and date matter.</li>
 <li><b>Divided list</b> (<code>.mini-list</code>, <code>.list-divided</code>): conversations, going list, people.</li>
 <li><b>Description list</b>: facts about one record.</li>
+<li><b>Inbox split</b> (<code>.split--inbox</code>): a list of items to work through beside the open one, when each needs reading and an answer (feedback). Rows are <a href="../components/feedback-row.html">feedback rows</a>.</li>
+<li><b>Picker split</b> (<code>.split--picker</code>, <code>--picker-wide</code>): a short list of records beside the chosen record, when there are a handful and staff work on one at a time (series, listing <a href="../components/suggestion.html">suggestions</a>). The list is <a href="../components/pick-list.html">pick cards</a>.</li>
+<li><b>Builder and pick splits</b> (<code>.split--builder</code>, <code>.split--pick</code>): the thing being made beside its side column (send card) or its result (Community Pick assets); choices inside are <a href="../components/pick-list.html">pick lists and event choices</a>.</li>
 </ul>
 <p>Filters sit above: <a href="../components/tabs.html">tabs</a> for status, <a href="../components/chip.html">chips</a> for category, search on the right of the page head. Bulk actions are not in the mocks; add them only with a mock first.</p>""",
     "structure": """<p>Table: hidden caption, column headers with <code>scope</code>, the first column as the record's name plus a sub-line, numbers right-aligned in tabular figures, status as a <a href="../components/badge.html">status badge</a>, row action last.</p>"""
         + ex(TABLE, "Admin events table: name + place, date, fill, status, row action with a hidden record name.", True)
-        + ex(LIST, "Conversation list: avatar, name, time, preview, unread dot with hidden count.", True),
+        + ex(LIST, "Conversation list: avatar, name, time, preview, unread dot with hidden count.", True)
+        + "<h3>Inbox and picker</h3><p>List first in the DOM, record second. Each item in the list is a link to its own URL with <code>aria-current=\"page\"</code> on the open one, inside a labelled <code>&lt;nav&gt;</code>: not a listbox or tabs, because choosing loads a different record.</p>"
+        + ex(INBOX, "Feedback inbox: 21.25rem list, open note beside it.", True)
+        + ex(PICKER, "Series picker: 17.5rem of pick cards, the chosen series beside them.", True),
     "states": """<p>Lists and tables go <b>loading</b> (skeleton rows of the same shape), <b>loaded</b>, <b>empty</b>, <b>no results</b> (keep filters, echo the query) and <b>error</b> (retry in place, tabs stay). Rows show hover and focus; unread rows are bold and carry a dot with a text count, never colour alone. Long session lists (chat, members) render a window, not everything.</p>""",
     "responsive": """<ul>
 <li>Tables scroll horizontally inside <code>.table-wrap</code>; the page never scrolls sideways. <code>.table--wide</code> and <code>.table--wider</code> set a minimum width so columns don't crush.</li>
 <li>Event grids go 1 → 2 → 3 columns; lists stay one column.</li>
 <li>On phones, Messages shows the list or the thread, never both.</li>
+<li>Inbox, picker, builder and pick splits are one column below 1024px, list (or form) first; the pick cards become a sideways scroller unless <code>--stack</code>. From 1024px the list column is fixed (17.5rem, 18.75rem or 21.25rem) and the record takes the rest.</li>
 </ul>""",
     "accessibility": f"""<ul>
 <li>Every table has a caption (visible or hidden) and <code>scope</code> on headers.</li>
@@ -76,6 +108,11 @@ SPEC = {
             mock("pages/admin-members/no-results", "search no-results"),
             mock("pages/messages/list", "conversation list"),
             mock("pages/events/default", "event grid"),
+            mock("pages/admin-feedback/default", "inbox split"),
+            mock("pages/admin-series/default", "picker split"),
+            mock("pages/admin-listings/default", "wide picker split with suggestion"),
+            mock("pages/admin-newsletter/default", "builder split"),
+            mock("pages/admin-community-pick/default", "pick split"),
         ],
         "drift": """<ul>
 <li>The events table has a row action ("Edit"); the members table has none, so there's no keyboard path to act on a member except through the report banner.</li>

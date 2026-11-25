@@ -3,7 +3,7 @@ from dslib import ex, kbd, matrix, mock, themes
 STATES = [("Default", ""), ("Hover", ' data-state="hover"'), ("Focus", ' data-state="focus"'),
           ("Checked", " checked"), ("Disabled", " disabled"), ("Invalid", ' aria-invalid="true"')]
 
-TRUST = '<label class="check check--ui"><input class="check__box" type="checkbox" checked> Trust this browser for 30 days</label>'
+TRUST = '<label class="check check--ui"><input class="check__box" type="checkbox" name="tell" checked> It&#x27;s fine to tell them you suggested them</label>'
 GOING = "<label class=\"check\"><input class=\"check__box\" type=\"checkbox\"> Only events I'm going to</label>"
 
 
@@ -24,7 +24,7 @@ def group(sfx, error=""):
 SPEC = {
     "lead": "A checkbox turns one thing on or off as part of a form, or lets people pick any number from a list.",
     "meta": ["Status: stable", "Native <code>&lt;input type=\"checkbox\"&gt;</code>"],
-    "overview": """<p>Use a checkbox when the choice takes effect on submit ("Trust this browser for 30 days") or when several options can be picked together. Use a <a href="switch.html">switch</a> for a setting that applies immediately, a <a href="radio-group.html">radio group</a> for exactly one choice, and a <a href="chip.html">chip</a> for filters people toggle often.</p>
+    "overview": """<p>Use a checkbox when the choice takes effect on submit ("It's fine to tell them you suggested them") or when several options can be picked together. Use a <a href="switch.html">switch</a> for a setting that applies immediately, a <a href="radio-group.html">radio group</a> for exactly one choice, and a <a href="chip.html">chip</a> for filters people toggle often.</p>
 <ul>
 <li><b>Compact</b> (<code>.check</code>): 14px semibold, for filter bars ("Only events I'm going to").</li>
 <li><b>Form</b> (<code>.check.check--ui</code>): 15px, wraps, for confirmations inside forms.</li>
@@ -41,7 +41,7 @@ SPEC = {
         ],
     },
     "variants": ex(GOING, "Compact, in the events filter bar.", True)
-    + ex(TRUST, "Form checkbox on admin two-step.", True)
+    + ex(TRUST, "Form checkbox on Suggest a listing.", True)
     + ex(group("v"), "Group with descriptions.", True, mod="stack"),
     "sizes": "<p>Compact boxes are 16px (<code>--size-icon-sm</code>), group boxes 20px (<code>--size-icon-lg</code>). Each row is at least 44px tall in groups.</p>",
     "states": {
@@ -72,7 +72,7 @@ SPEC = {
         "motion": "<p>None.</p>",
         "touch": "<p>The whole label is the target; group rows are at least 44px (<code>--target-comfortable</code>). Compact checks in the filter bar extend with padding.</p>",
     },
-    "content": "<ul><li>Labels state what is true when checked: \"Trust this browser for 30 days\".</li><li>Never negative (\"Don't send me news\").</li><li>Confirmations are first person: \"I've checked their registration, insurance and two references\".</li></ul>",
+    "content": "<ul><li>Labels state what is true when checked: \"It's fine to tell them you suggested them\".</li><li>Never negative (\"Don't send me news\").</li><li>Confirmations are first person: \"I've checked their registration, insurance and two references\".</li></ul>",
     "dodont": [
         ("do", TRUST, "Positive, specific label."),
         ("dont", '<label class="check check--ui"><input class="check__box" type="checkbox"> Don\'t remember me</label>', "Negatives make people think twice about what checked means."),
@@ -90,7 +90,7 @@ SPEC = {
     ],
     "code": {
         "snippet": '''<label class="check check--ui">
-  <input class="check__box" type="checkbox" name="trust"> Trust this browser for 30 days
+  <input class="check__box" type="checkbox" name="tell" checked> It’s fine to tell them you suggested them
 </label>
 
 <fieldset class="field">
@@ -111,9 +111,10 @@ SPEC = {
     "sources": {
         "mocks": [
             mock("pages/events/default", "compact filter check"),
-            mock("pages/admin-two-step/default", "trust this browser"),
+            mock("pages/suggest-listing/default", "form checkbox: it's fine to tell them"),
+            mock("pages/feedback/default", "form checkbox: you can email me"),
             mock("dialogs/listing-editor/invalid", "required confirmation, invalid"),
         ],
-        "drift": "Grouped checkboxes with descriptions (<code>.choice</code>) were added from the core set; the mocks only had single checks. <code>.check__box</code> has no invalid style, so required confirmations should use <code>.choice__input</code>.",
+        "drift": "Grouped checkboxes with descriptions (<code>.choice</code>) were added from the core set; the mocks only had single checks. <code>.check__box</code> has no invalid style, so required confirmations should use <code>.choice__input</code>. The form-checkbox example came from admin two-step (\"Trust this browser for 30 days\"); that mock was removed when staff sign-in moved to Google Workspace, so the example is now Suggest a listing's.",
     },
 }

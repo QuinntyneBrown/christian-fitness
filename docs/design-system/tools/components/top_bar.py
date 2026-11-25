@@ -6,7 +6,7 @@ LOCKUP = (f'<a class="lockup" href="#top">{seal("lockup", decorative=True)}'
 
 def app_header(cur="home", label="Primary example", unread=4, profile_cur=False):
     links = []
-    for key, text in [("home", "Home"), ("events", "Events"), ("services", "Services"), ("messages", "Messages")]:
+    for key, text in [("home", "Home"), ("events", "Events"), ("directory", "Directory"), ("services", "Services"), ("messages", "Messages")]:
         c = ' aria-current="page"' if key == cur else ""
         badge = (f' <span class="count-badge" aria-label="{unread} unread">{unread}</span>'
                  if key == "messages" and unread else "")
@@ -14,7 +14,8 @@ def app_header(cur="home", label="Primary example", unread=4, profile_cur=False)
     pc = ' aria-current="page"' if profile_cur else ""
     return (f'<header class="app-header"><div class="app-header__inner">{LOCKUP}'
             f'<nav class="app-nav" aria-label="{label}">{"".join(links)}</nav>'
-            f'<a class="profile-button" href="#top" aria-label="Your profile"{pc}>GT</a></div></header>')
+            f'<a class="profile-button" href="#top" aria-label="Your profile"{pc}>GT</a>'
+            '<button class="btn btn--ghost app-header__signout" type="button">Sign out</button></div></header>')
 
 
 SITE = (f'<header class="site-header">{LOCKUP}<div class="site-header__actions">'
@@ -24,27 +25,28 @@ SITE = (f'<header class="site-header">{LOCKUP}<div class="site-header__actions">
 SPEC = {
     "lead": "The top bar carries the brand and the main places in the member app, and the sign-in and join actions on the public site.",
     "meta": ["Status: stable", "<code>&lt;header&gt;</code> + <code>&lt;nav&gt;</code>", "Sticky"],
-    "overview": """<p>There are two top bars. The <b>app header</b> (<code>.app-header</code>) sits on every signed-in member screen: the lockup, four primary links (Home, Events, Services, Messages) and the profile button. The <b>site header</b> (<code>.site-header</code>) sits on the public landing page: the lockup, a ghost "Sign in" and a primary "Join free".</p>
+    "overview": """<p>There are two top bars. The <b>app header</b> (<code>.app-header</code>) sits on every signed-in member screen: the lockup, five primary links (Home, Events, Directory, Services, Messages), the profile button and a ghost "Sign out". The <b>site header</b> (<code>.site-header</code>) is the public bar: the lockup, a ghost "Sign in" and a primary "Join free". Since the landing page became the news front page, public pages use the <a href="masthead.html">masthead</a>, which reuses the site header's actions (<code>.site-header__actions</code>); no mock renders <code>.site-header</code> on its own now.</p>
 <ul>
 <li>Use the app header on every member screen; it is the desktop half of primary navigation. On phones its links hide and the <a href="tab-bar.html">tab bar</a> takes over.</li>
-<li>Use the site header only on public pages, where the job is to get someone signed in or joined.</li>
+<li>For public pages use the <a href="masthead.html">masthead</a>; keep <code>.site-header</code> for a public page without news sections, where the job is only to get someone signed in or joined.</li>
 <li>The admin console does not use a top bar; it uses the <a href="sidebar-navigation.html">sidebar navigation</a>.</li>
 <li>Page titles, filters and actions belong in the page head below the bar, never in the bar.</li>
 </ul>""",
     "anatomy": {
         "figure": app_header(label="Primary, anatomy"),
-        "callouts": [(4, 30), (38, 30), (60, 30), (96, 30)],
+        "callouts": [(4, 30), (38, 30), (62, 30), (82, 30), (95, 30)],
         "parts": [
             ("Lockup", 'The <a href="brand-lockup.html">brand lockup</a>, linking to Home. Its text is the link\'s name.'),
-            ("Primary links", "<code>.app-nav__link</code> pills, 15px semibold, muted until current. Hidden below 768px."),
+            ("Primary links", "<code>.app-nav__link</code> pills, 15px semibold, muted until current: Home, Events, Directory, Services, Messages. Hidden below 768px."),
             ("Unread count", "<code>.count-badge</code> on Messages with <code>aria-label=\"4 unread\"</code>."),
             ("Profile button", "<code>.profile-button</code>, a 36px bordeaux disc with initials, <code>aria-label=\"Your profile\"</code>; gains a gold ring when Profile is current."),
+            ("Sign out", "<code>.app-header__signout</code>, a ghost button at the end of the bar."),
         ],
     },
     "variants": "<h3>App header</h3>" + ex(app_header(label="Primary, app header example"),
         "Signed in, on Home, with four unread messages.", True, mod="stack")
     + "<h3>Site header</h3>" + ex(SITE.replace('<header', '<header').replace('href="#top">Sign in', 'href="#top">Sign in'),
-        "Public landing page: ghost Sign in, primary Join free.", True, mod="stack"),
+        "Public bar: ghost Sign in, primary Join free. On the news pages these actions sit in the masthead.", True, mod="stack"),
     "sizes": "<p>One size. The app header is 64px tall (<code>--layout-topbar-height</code>); the site header is at least 72px (<code>--layout-landing-header-height</code>) to give the landing page more air. Both centre their content in <code>--layout-container-max</code> (1152px).</p>",
     "states": {
         "intro": "<p>The bar itself has no states; its links do. Current is <code>aria-current=\"page\"</code>, so assistive technology hears it and the pill shows it in colour and fill.</p>",
@@ -71,7 +73,7 @@ SPEC = {
     "accessibility": {
         "pattern": "<p>A <code>&lt;header&gt;</code> landmark holding a <code>&lt;nav aria-label=\"Primary\"&gt;</code> of plain links (<a href=\"https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/\">APG navigation</a>, without menus). The mobile tab bar is a second nav labelled \"Primary, mobile\" so the two never share a name. A <a href=\"skip-link.html\">skip link</a> comes before the bar.</p>",
         "keys": [
-            (kbd("Tab") + " / " + kbd("Shift", "Tab"), "Moves through lockup, links and profile button in order."),
+            (kbd("Tab") + " / " + kbd("Shift", "Tab"), "Moves through lockup, links, profile button and Sign out in order."),
             (kbd("Enter"), "Follows the focused link."),
         ],
         "focus": "<p>Every link shows the shared 2px <code>--color-focus-ring</code> at 2px offset on <code>:focus-visible</code>. The sticky bar never hides a focused element below it: pages set <code>scroll-padding-top</code> to the bar's height.</p>",
@@ -86,13 +88,13 @@ SPEC = {
         "touch": "<p>Links are 36px tall on desktop only, where pointers are fine. On touch devices the tab bar's 64px targets take over. The profile button extends to 44 × 44px on coarse pointers.</p>",
     },
     "content": """<ul>
-<li>Primary links are one word, nouns, in this order: Home, Events, Services, Messages. Do not add a fifth; Profile is the button.</li>
+<li>Primary links are one word, nouns, in this order: Home, Events, Directory, Services, Messages. Do not add a sixth; Profile is the button and Sign out sits after it.</li>
 <li>The site header says "Sign in" and "Join free", never "Log in" or "Register".</li>
 <li>Counts are numerals, capped at "9+".</li>
 </ul>""",
     "dodont": [
         ("do", app_header(cur="messages", label="Primary, do example"), "One current link, marked with <code>aria-current</code>."),
-        ("dont", '<header class="app-header"><div class="app-header__inner">' + LOCKUP + '<nav class="app-nav" aria-label="Primary, don\'t example"><a class="app-nav__link" href="#top">Home</a><a class="app-nav__link" href="#top">Events</a><a class="app-nav__link" href="#top">Services</a><a class="app-nav__link" href="#top">Messages</a><a class="app-nav__link" href="#top">Settings</a><a class="app-nav__link" href="#top">Help</a></div></header>'.replace('</div></header>', '</nav></div></header>'),
+        ("dont", '<header class="app-header"><div class="app-header__inner">' + LOCKUP + '<nav class="app-nav" aria-label="Primary, don\'t example"><a class="app-nav__link" href="#top">Home</a><a class="app-nav__link" href="#top">Events</a><a class="app-nav__link" href="#top">Directory</a><a class="app-nav__link" href="#top">Services</a><a class="app-nav__link" href="#top">Messages</a><a class="app-nav__link" href="#top">Settings</a><a class="app-nav__link" href="#top">Help</a></div></header>'.replace('</div></header>', '</nav></div></header>'),
          "Extra links crowd the bar and have no tab-bar slot on phones; Settings and Help live in Profile."),
         ("do", SITE, "Public pages: one primary (Join free), sign-in as a ghost button."),
         ("dont", f'<header class="site-header">{LOCKUP}<div class="site-header__actions"><a class="btn btn--primary" href="#top">Sign in</a><a class="btn btn--primary" href="#top">Join free</a></div></header>',
@@ -116,16 +118,19 @@ SPEC = {
     <nav class="app-nav" aria-label="Primary">
       <a class="app-nav__link" href="/home" aria-current="page">Home</a>
       <a class="app-nav__link" href="/events">Events</a>
+      <a class="app-nav__link" href="/directory">Directory</a>
       <a class="app-nav__link" href="/services">Services</a>
       <a class="app-nav__link" href="/messages">Messages <span class="count-badge" aria-label="4 unread">4</span></a>
     </nav>
     <a class="profile-button" href="/profile" aria-label="Your profile">GT</a>
+    <button class="btn btn--ghost app-header__signout" type="button">Sign out</button>
   </div>
 </header>''',
         "classes": [
             ("<code>.app-header</code> <code>.app-header__inner</code>", "Sticky member bar and its centred row."),
             ("<code>.app-nav</code> <code>.app-nav__link</code>", "Primary links; hidden below 768px."),
             ("<code>.profile-button</code>", "Initials disc linking to Profile."),
+            ("<code>.app-header__signout</code>", "Ghost Sign out button; has no rule of its own in components.css."),
             ("<code>.site-header</code> <code>.site-header__actions</code> <code>.site-header__signin</code>", "Public header; Sign in hides below 640px."),
             ("<code>aria-current=\"page\"</code>", "Current place."),
         ],
@@ -135,8 +140,9 @@ SPEC = {
             mock("pages/home/default", "app header, Home current"),
             mock("pages/messages/default", "Messages current"),
             mock("pages/profile/default", "profile button current"),
-            mock("pages/landing/default", "site header"),
+            mock("pages/directory/default", "Directory current"),
+            mock("pages/landing/default", "site header actions inside the masthead"),
         ],
-        "drift": "The wordmark in the lockup was 22px in the mocks; it now uses <code>--font-size-xl</code> (20px). Link pills used the old xl radius in places; all now use <code>--radius-full</code>.",
+        "drift": "The wordmark in the lockup was 22px in the mocks; it now uses <code>--font-size-xl</code> (20px). Link pills used the old xl radius in places; all now use <code>--radius-full</code>. The redrawn member pages add Directory as the third primary link (and a sixth tab-bar item). <code>.app-header__signout</code> is used by every member page but has no CSS rule, so Sign out shows at every width beside the profile button (open: hide it below 768px or move it into Profile).",
     },
 }
