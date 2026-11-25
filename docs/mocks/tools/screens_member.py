@@ -827,7 +827,7 @@ def session_line(e: dict) -> str:
 
 
 def part_of_line(e: dict) -> str:
-    """"Part of Couch to 5K Run Club": the Events list shows only a series' next session (ADR 0062)."""
+    """"Part of Couch to 5K Run Club": the Events list shows only a series' next session (ADR 0080)."""
     return f'Part of {SR[e["series"]]["title"]}'
 
 
