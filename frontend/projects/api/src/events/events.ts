@@ -57,8 +57,34 @@ export interface EventHostCardDto {
   photoKey: string | null;
 }
 
-export interface EventDetailDto extends EventSummaryDto {
+/** One of the next dates on a session's series card (ADR 0096). */
+export interface EventSeriesDateDto {
+  id: string;
+  startsAt: string;
+  topic: string | null;
+  cancelled: boolean;
+}
+
+/**
+ * A session's series as its event page's card shows it (`EventSeriesCardDto`, L2-010 AC5; ADR 0080,
+ * ADR 0096): this session's number of the total (cancelled dates included), the cadence, whether
+ * the signed-in member joined the series, and up to three dates after this one, cancelled ones
+ * included.
+ */
+export interface EventSeriesCardDto {
+  id: string;
+  title: string;
+  number: number;
+  total: number;
+  cadence: SeriesCadenceDto;
+  joined: boolean;
+  next: EventSeriesDateDto[];
+}
+
+export interface EventDetailDto extends Omit<EventSummaryDto, 'series'> {
   summary: string;
+  /** A session's series card (L2-010 AC5); null for a standalone event, which shows none (AC6). */
+  series: EventSeriesCardDto | null;
   /** Who hosts it (L2-010 AC4): every event has a host. */
   host: EventHostCardDto;
   /**

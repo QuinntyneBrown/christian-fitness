@@ -51,6 +51,16 @@
             <p class="event-detail__eyebrow">{{ view.type }}</p>
             <h1 class="event-detail__title">{{ view.heading }}</h1>
             <cf-description-list variant="facts" [items]="facts()" />
+            @if (series(); as part) {
+              <cf-series-card
+                [meta]="part.meta"
+                [heading]="part.title"
+                [href]="part.href"
+                [action]="part.action"
+                [dates]="part.dates"
+                (navigate)="open($event)"
+              />
+            }
             <section class="event-detail__section" aria-labelledby="about-title">
               <h2 class="event-detail__heading" id="about-title">About</h2>
               <p class="event-detail__about">{{ view.summary }}</p>
@@ -103,7 +113,7 @@
                 [photoSrc]="by.photoSrc"
                 [person]="by.person"
                 [verified]="by.verified"
-                (navigate)="openHost($event)"
+                (navigate)="open($event)"
               />
             }
           </aside>

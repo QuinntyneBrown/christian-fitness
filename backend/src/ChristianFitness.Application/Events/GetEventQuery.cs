@@ -21,7 +21,11 @@ public sealed record EventHostCardDto(Guid Id, string Kind, string Name, bool Is
     }
 }
 
-/// <summary>An event as a member's detail screen shows it (L2-010 AC1, AC4; ADR 0031, ADR 0089); the app words the date and the price.</summary>
+/// <summary>
+/// An event as a member's detail screen shows it (L2-010 AC1, AC4 to AC6; ADR 0031, ADR 0089,
+/// ADR 0096); the app words the date and the price. <see cref="Series"/> is a session's series
+/// card, none for a standalone event.
+/// </summary>
 public sealed record EventDetailDto(
     Guid Id,
     string Title,
@@ -35,10 +39,11 @@ public sealed record EventDetailDto(
     string Summary,
     string? ImageKey,
     string? Registration,
-    EventHostCardDto Host)
+    EventHostCardDto Host,
+    EventSeriesCardDto? Series)
 {
     /// <summary>The event as the caller sees it: <paramref name="mine"/> is their registration, if any (L2-010 AC3).</summary>
-    public static EventDetailDto Of(Event e, int going, RegistrationStatus? mine, DirectoryListing host)
+    public static EventDetailDto Of(Event e, int going, RegistrationStatus? mine, DirectoryListing host, EventSeriesCardDto? series)
     {
         ArgumentNullException.ThrowIfNull(e);
         return new(
@@ -49,7 +54,8 @@ public sealed record EventDetailDto(
                 RegistrationStatus.Reserved => "reserved",
                 _ => null,
             },
-            EventHostCardDto.Of(host));
+            EventHostCardDto.Of(host),
+            series);
     }
 }
 
@@ -75,6 +81,7 @@ internal sealed class GetEventHandler(IAppDbContext db, IRegistrationReader regi
         var host = await db.DirectoryListings.AsNoTracking()
             .SingleAsync(l => l.Id == e.HostListingId, cancellationToken)
             .ConfigureAwait(false);
-        return EventDetailDto.Of(e, going, mine, host);
+        var series = await EventSeriesCards.OfAsync(db, e, memberId, cancellationToken).ConfigureAwait(false);
+        return EventDetailDto.Of(e, going, mine, host, series);
     }
 }

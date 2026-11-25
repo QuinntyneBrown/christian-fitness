@@ -1,0 +1,90 @@
+// The design system's series card (docs/design-system/assets/components.css, "Event series":
+// series-card). The action sits on the surface colour: the button is transparent, so its wrapper
+// paints the surface behind it.
+:host {
+  display: block;
+}
+
+.series-card {
+  margin-top: var(--space-8);
+  border-radius: var(--radius-xl);
+  background: var(--color-accent-subtle);
+  padding: var(--space-5);
+
+  @media (min-width: 40rem) {
+    padding: var(--space-6);
+  }
+}
+
+.series-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.series-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.series-card__icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.series-card__title {
+  margin-top: var(--space-1);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
+}
+
+.series-card__action {
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+}
+
+.series-card__dates {
+  margin-top: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.series-card__date {
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  padding: var(--space-3) var(--space-4);
+}
+
+.series-card__when {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.series-card__topic {
+  margin-top: var(--space-0-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.series-card__date--cancelled .series-card__topic {
+  text-decoration: line-through;
+}

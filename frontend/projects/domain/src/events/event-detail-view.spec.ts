@@ -15,6 +15,7 @@ const BOOTCAMP: EventDetailDto = {
   summary: 'Circuits for every level.',
   imageKey: null,
   registration: null,
+  series: null,
   host: {
     id: 'h1',
     kind: 'organization',

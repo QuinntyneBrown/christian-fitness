@@ -1,5 +1,5 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
-import { type EventHostCard, hostCardOf } from './events';
+import { type EventDetail, type EventHostCard, hostCardOf } from './events';
 import { LAKESHORE, OKAFOR } from './listing-profile';
 
 /**
@@ -225,6 +225,41 @@ export const COUCH_TO_5K_DETAIL: SeriesDetail = {
   sessionsLeft: 5,
   joined: true,
   sessions: COUCH_SESSIONS,
+};
+
+/**
+ * Couch to 5K's third date (April 21, 6:30 PM) as its event page answers it, with its series card as
+ * the mock `event-detail/session` draws it: "Session 3 of 8 · Every Tuesday" and the next three
+ * dates, May 12 cancelled; not joined (L2-010 AC5; ADR 0096).
+ */
+export const COUCH_SESSION_3: EventDetail = {
+  id: COUCH_SESSIONS[2]!.id,
+  title: 'Couch to 5K Run Club',
+  category: 'run',
+  startsAt: COUCH_SESSIONS[2]!.startsAt,
+  place: 'Humber Bay Park East',
+  area: 'Etobicoke, Toronto',
+  priceCents: 0,
+  capacity: 40,
+  going: 31,
+  imageKey: null,
+  summary: 'Run 90 seconds, walk two minutes, six times through.',
+  registration: null,
+  host: hostCardOf(LAKESHORE),
+  series: {
+    id: COUCH_TO_5K.id,
+    title: 'Couch to 5K Run Club',
+    number: 3,
+    total: 8,
+    cadence: { weekday: 2, dates: 7 },
+    joined: false,
+    next: COUCH_SESSIONS.slice(3, 6).map((session) => ({
+      id: session.id,
+      startsAt: session.startsAt,
+      topic: session.topic,
+      cancelled: session.state === 'cancelled',
+    })),
+  },
 };
 
 /**
