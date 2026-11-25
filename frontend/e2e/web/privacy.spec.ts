@@ -23,10 +23,7 @@ for (const signedIn of [false, true]) {
       await expect(legal.contact).toContainText(
         '2091 Hurontario Street, Mississauga, Ontario, L5A 4E6',
       );
-      await expect(legal.contact.getByRole('link', { name: 'Send feedback' })).toHaveAttribute(
-        'href',
-        '/feedback',
-      );
+      await expect(legal.feedbackLink).toHaveAttribute('href', '/feedback');
       await expect(legal.headerLink('Terms of Service')).toHaveAttribute('href', '/terms');
       await expect(legal.headerLink('Christian Fitness')).toHaveAttribute('href', '/');
       expect(calls).toEqual([]);

@@ -7,7 +7,7 @@ for (const path of ['/privacy', '/terms']) {
     await page.setViewportSize({ width: 1024, height: 800 });
     await legal.open(path);
     await expect(legal.contents).toBeVisible();
-    const links = legal.contents.getByRole('link');
+    const links = legal.contentsLinks;
     await expect(links).toHaveCount(9);
     for (let index = 0; index < 9; index++) {
       const link = legal.contentsLink(index);
