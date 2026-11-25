@@ -335,7 +335,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
             {send}
           </section>
           <div class="btn-row"><a class="btn btn--secondary btn--sm btn--grow" href="{href("newsletter")}">{icon("eye")}Preview</a>{test}</div>
-          <p class="visually-hidden" role="status">{"Test sent to dana@christianfitness.ca" if tested else ""}</p>
+          <p class="visually-hidden" role="status">{"Test sent to dana@christian.fitness" if tested else ""}</p>
           <p class="builder__note">Add-on emails (event alerts, training plan, devotions) send on their own schedules.</p>
         </aside>
       </form>
@@ -548,7 +548,7 @@ def caption(text: str, hint: str = "") -> str:
 
 def pick_assets(e: dict, platform: str) -> str:
     slug = f'community-pick-{e["id"]}'
-    link = f'christianfitness.ca/e/{e["id"]}'
+    link = f'www.christian.fitness/e/{e["id"]}'
     when = f'{e["weekday"]}, {e["month"]} {int(e["day"])} at {e["time"]}'
     left = e["capacity"] - e["going"]
     tabs_ = "".join(f'<a class="segmented__option segmented__option--ink" href="{"default" if p == "Instagram" else p.lower()}.html"{CUR if p == platform else ""}>{p}</a>' for p in PLATFORMS)
@@ -567,7 +567,7 @@ def pick_assets(e: dict, platform: str) -> str:
             <span class="avatar avatar--group" aria-hidden="true">CF</span>
             <div class="slack-preview__body"><p><strong>Christian Fitness</strong> <span class="muted">9:02 AM</span></p>
               <p><strong>Community Pick:</strong> <span class="slack-preview__link">{e["title"]}</span></p><p>{PICK_NOTE}</p><p>{when} · {e["place"]}</p>
-              <div class="slack-preview__unfurl"><p class="slack-preview__site">christianfitness.ca</p>{pick_art(e, "landscape")}</div></div>
+              <div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{pick_art(e, "landscape")}</div></div>
           </div>
           <div class="assets assets--pair">{asset("Unfurl image · 1200 × 630", f"{slug}-slack.png", pick_art(e, "landscape"))}
           {caption(f"*Community Pick:* &lt;https://{link}|{e['title']}&gt;\n{PICK_NOTE}\n{when} · {e['place']}", "Slack formatting: the title becomes a link.")}</div>"""
@@ -782,23 +782,37 @@ def _():
 FB_STATE = {"f1": "default", "f2": "correction", "f3": "default", "f4": "resolved"}
 
 
-def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False) -> str:
-    st = {x["id"]: x["status"] for x in FEEDBACK} | (status or {})
-    f = next(x for x in FEEDBACK if x["id"] == sel)
-    shown = [x for x in FEEDBACK if tab == "All" or st[x["id"]] == tab]
-    rows = "".join(f"""<li><a class="feedback-row" href="{FB_STATE[x["id"]]}.html"{CUR if x["id"] == sel else ""}>
+def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None,
+                   busy: bool = False, variant: str = "", sent_reply: str = "") -> str:
+    notes = [x.copy() for x in FEEDBACK]
+    if variant == "suspended":
+        notes[0].update({"from": "Tyler Simmons", "initials": "TS", "email": "tsimmons22@gmail.com",
+                         "text": "Please review my suspension. I would like to appeal.",
+                         "hint": "Let them know what happens next"})
+    elif variant == "failed":
+        notes[0].update({"from": "A former member", "initials": "?", "email": "Account being deleted"})
+    st = {x["id"]: x["status"] for x in notes} | (status or {})
+    f = next(x for x in notes if x["id"] == sel)
+    shown = [x for x in notes if tab == "All" or st[x["id"]] == tab]
+    rows = "".join(f"""<li><a class="feedback-row" href="{variant if variant and x["id"] == "f1" else FB_STATE[x["id"]]}.html"{CUR if x["id"] == sel else ""}>
               {icon(FEEDBACK_KIND_ICON[x["kind"]], "feedback-row__icon")}
               <span class="feedback-row__body"><span class="feedback-row__top"><span class="feedback-row__from{' feedback-row__from--new' if st[x["id"]] == 'New' else ''}">{x["from"]}</span><span class="feedback-row__when">{x["when"]}</span></span>
               <span class="feedback-row__text">{x["text"]}</span><span class="visually-hidden">{x["kind"]}, {st[x["id"]]}</span></span></a></li>""" for x in shown)
     rows = rows or '<li class="feedback-row feedback-row--empty">Nothing here.</li>'
-    counts = [("All", len(FEEDBACK), "default.html")] + [(k, sum(1 for v in st.values() if v == k), "default.html" if k != "Resolved" else "resolved.html") for k in ("New", "Replied", "Resolved")]
+    counts = [("All", len(notes), "default.html")] + [(k, sum(1 for v in st.values() if v == k), "default.html" if k != "Resolved" else "resolved.html") for k in ("New", "Replied", "Resolved")]
     story = (f'<p class="feedback__link"><a class="btn btn--secondary btn--sm" href="{href("admin-story-editor", "published")}">{icon("pen-line")}Open the story to correct it</a></p>'
-             if f["kind"] == "Content" else "")
-    first = f["from"].split()[0]
+             if f["kind"] == "Correction" else "")
+    first = "the member" if variant == "failed" else f["from"].split()[0]
+    send_target = ' data-mock-href="failed.html"' if variant == "failed" else ""
+    resolve_target = "" if variant else ' data-mock-href="resolved.html"'
     send = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
-            else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>')
+            else (f'<button class="btn btn--primary btn--md" type="button"{send_target}>{icon("send")}Send reply</button>' if variant
+                  else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>'))
     other = ('<button class="btn btn--secondary btn--md" type="button" data-mock-href="default.html">Reopen</button>' if st[sel] == "Resolved"
-             else f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="resolved.html"{" disabled" if busy else ""}>Mark resolved</button>')
+             else f'<button class="btn btn--secondary btn--md" type="button"{resolve_target}{" disabled" if busy else ""}>Mark resolved</button>')
+    label = ' <span class="status status--suspended">Suspended</span>' if variant == "suspended" else ""
+    thread = f'<section aria-labelledby="thread-title"><h3 id="thread-title">Reply sent</h3><p>{sent_reply}</p></section>' if sent_reply else ""
+    refusal = '<div class="form-alert" role="alert"><div><p class="form-alert__title">We couldn’t send your reply</p><p>Nothing was changed. Your reply is still here.</p></div></div>' if variant == "failed" else ""
     return f"""{admin_header("Feedback", "Ideas, bugs, corrections and thanks from members. Everyone hears back.")}
       {tabs("Filter feedback", counts, tab)}
       <div class="split split--inbox">
@@ -808,18 +822,18 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
           <h2 class="visually-hidden">{f["kind"]} from {f["from"]}</h2>
           <p class="feedback-detail__text">{f["text"]}</p>
           <dl class="feedback-detail__facts">
-            <div class="feedback-detail__from">{avatar(f["initials"], size="sm")}<div><dt class="visually-hidden">From</dt><dd class="feedback-detail__strong">{f["from"]}</dd><dd class="feedback-detail__sub">{f["email"]}</dd></div></div>
+            <div class="feedback-detail__from">{avatar(f["initials"], size="sm")}<div><dt class="visually-hidden">From</dt><dd class="feedback-detail__strong">{f["from"]}{label}</dd><dd class="feedback-detail__sub">{f["email"]}</dd></div></div>
             <div><dt>Sent from</dt><dd class="feedback-detail__strong">{f["page"]}</dd></div>
             <div><dt>Device</dt><dd class="feedback-detail__strong feedback-detail__device">{icon("monitor")}{f["device"]}</dd></div>
           </dl>
-          {story}
+          {story}{thread}{refusal}
           <div class="feedback-detail__reply">{textarea(f"Reply to {first}", "reply", reply, hint="" if reply else f["hint"], readonly=busy)}</div>
           <div class="cluster">{send}{other}</div>
         </form>
       </div>"""
 
 
-s = screen("admin-feedback", "page", "Feedback inbox", route="/admin/feedback", group=G, source=SRC + "Feedback Inbox (p1eGpLPP99JReJ5WHBovdM)")
+s = screen("admin-feedback", "page", "Feedback inbox", route="/admin/feedback", group=G, source=SRC + "Feedback Inbox (p1eGpLPP99JReJ5WHBovdM)", requirements=["L2-074"])
 
 
 @s("default", "Every note from members, newest first, with its kind and status; the chosen one (a bug report) shows in full with who sent it, the page it was sent from, their device, a reply box and Mark resolved.")
@@ -832,6 +846,16 @@ def _():
     return admin_shell("admin-feedback", feedback_inbox("f2"))
 
 
+@s("suspended", "A feedback note from a suspended member, labelled Suspended in the inbox.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox(variant="suspended"))
+
+
+@s("failed", "A reply to a deleting member is refused; the draft and note status are unchanged.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox(variant="failed", reply="Thanks for letting us know."))
+
+
 @s("replying", "Send reply pressed: button busy, the reply read-only.")
 def _():
     return admin_shell("admin-feedback", feedback_inbox(reply="Thanks, Michael. We can reproduce it on iPhone and a fix goes out this week.", busy=True))
@@ -839,8 +863,8 @@ def _():
 
 @s("replied", "The reply was sent: the note is Replied, the reply box is empty again and a toast confirms it; one fewer note is new.")
 def _():
-    return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}), counts={"admin-feedback": 1},
-                       after=toast_region(toast("success", "Reply sent to Michael", "He gets it by email."), admin=True))
+    return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}, sent_reply="Thanks, Michael. We can reproduce it on iPhone and a fix goes out this week."), counts={"admin-feedback": 1},
+                       after=toast_region(toast("success", "Reply sent to Michael", "Michael gets it by email."), admin=True))
 
 
 @s("resolved", "A resolved note chosen: it can be reopened.")

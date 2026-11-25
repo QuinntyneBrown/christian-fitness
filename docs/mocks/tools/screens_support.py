@@ -86,9 +86,11 @@ def suggest_form(*, relation: str = "know", invalid: bool = False, busy: bool = 
         </form>"""
 
 
-def suggest_page(main: str) -> str:
+def suggest_page(main: str, *, vetting_published: bool = True) -> str:
     steps = "".join(f'<li class="steps__item"><span class="steps__n" aria-hidden="true">{i}</span><div><p class="steps__title">{t}</p>'
                     f'<p class="steps__text">{b}</p></div></li>' for i, (t, b) in enumerate(STEPS, 1))
+    vetting_link = (f'<p class="form-page__more"><a class="text-link" href="{href("story", "vetting")}">How we vet every listing</a></p>'
+                    if vetting_published else "")
     return f"""    <div class="container page">
       <a class="back-link" href="{href("directory")}">{icon("arrow-left")} Directory</a>
       <div class="form-page">
@@ -96,7 +98,7 @@ def suggest_page(main: str) -> str:
         <aside class="form-page__aside form-page__aside--low" aria-labelledby="next-title">
           <h2 class="display section-title" id="next-title">What happens next</h2>
           <ol class="steps">{steps}</ol>
-          <p class="form-page__more"><a class="text-link" href="{href("story", "default")}">How we vet every listing</a></p>
+          {vetting_link}
         </aside>
       </div>
     </div>"""
@@ -109,6 +111,10 @@ s = screen("suggest-listing", "page", "Suggest a listing", route="/directory/sug
 @s("default", "Suggest someone you know: who they are to you, the kind of listing, their name, where they are, a website, a church connection, why they belong, their email and whether to tell them; beside it, the four steps that follow.")
 def _():
     return member_shell("directory", suggest_page(suggest_form()))
+
+@s("vetting-unavailable", "The vetting story is missing or unpublished: the four steps remain, without the story link.")
+def _():
+    return member_shell("directory", suggest_page(suggest_form(), vetting_published=False))
 
 
 @s("self", "\"Myself\" chosen: the labels speak to the person themselves and the fields about reaching someone else are gone.")
@@ -143,13 +149,13 @@ def _():
 # ===========================================================================
 # Send feedback
 # ===========================================================================
-KINDS = [("idea", "An idea", "", "lightbulb"), ("broken", "Something’s off", "", "bug"), ("content", "A correction", "", "pen-line"),
-         ("praise", "Thanks", "", "heart")]
+KINDS = [("idea", "Idea", "", "lightbulb"), ("problem", "Something’s off", "", "bug"), ("correction", "Correction", "", "pen-line"),
+         ("thanks", "Thanks", "", "heart")]
 PROMPTS = {
     "idea": ("What would make this better?", "For example: show which week of the plan each session is"),
-    "broken": ("What happened?", "What you tapped, what you expected, and what you saw instead"),
-    "content": ("What should it say?", "The detail that’s wrong, and the right one if you know it"),
-    "praise": ("What’s been good?", "A coach, an event, a moment. We pass these on."),
+    "problem": ("What happened?", "What you tapped, what you expected, and what you saw instead"),
+    "correction": ("What should it say?", "The detail that’s wrong, and the right one if you know it"),
+    "thanks": ("What’s been good?", "A coach, an event, a moment. We pass these on."),
 }
 SHIPPED = [
     ("I never know if an event got moved.", "Change alerts for every event you’re going to", "March 2026"),
@@ -170,7 +176,7 @@ def feedback_form(*, kind: str = "idea", context: str = "Event series › Couch 
           </div>""" if context else "")
     screenshot = ('<div class="form-section form-section--tight">' + file_field(
         "Screenshot", "screenshot", optional=True, filename=shot, choose="Add a screenshot", empty="None added",
-        hint="JPEG, PNG or WebP, up to 5 MB", readonly=busy) + "</div>" if kind == "broken" else "")
+        hint="JPEG, PNG or WebP, up to 5 MB", readonly=busy) + "</div>" if kind == "problem" else "")
     submit = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>'
               if busy else '<button class="btn btn--primary btn--md" type="submit">Send feedback</button>')
     return f"""<form class="form-page__main" action="success.html" novalidate>
@@ -202,7 +208,7 @@ def feedback_page(main: str) -> str:
     </div>"""
 
 
-s = screen("feedback", "page", "Send feedback", route="/feedback", source=SRC + "Feedback (2w1Xg2bpM7GARSTBwsgZWR)",
+s = screen("feedback", "page", "Send feedback", route="/feedback", source=SRC + "Feedback (2w1Xg2bpM7GARSTBwsgZWR)", requirements=["L2-063"],
            not_applicable={"loading": "A form; nothing loads before it renders.", "empty": "A form, not a collection."})
 
 
@@ -214,13 +220,13 @@ def _():
 @s("broken", "\"Something's off\" chosen: the question changes to \"What happened?\" and a screenshot can be added.")
 def _():
     return member_shell("", feedback_page(feedback_form(
-        kind="broken", context="Events › Easter Sunrise 5K", shot="add-to-calendar.png",
+        kind="problem", context="Events › Easter Sunrise 5K", shot="add-to-calendar.png",
         text="The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.")))
 
 
-@s("correction", "Opened from a story's \"Send a correction\": \"A correction\" is chosen and the story is the page it is about.")
+@s("correction", "Opened from a story's \"Send a correction\": \"Correction\" is chosen and the story is the page it is about.")
 def _():
-    return member_shell("", feedback_page(feedback_form(kind="content", context="Story › A West End church turned its basement into a free gym")))
+    return member_shell("", feedback_page(feedback_form(kind="correction", context="Story › A West End church turned its basement into a free gym")))
 
 
 @s("invalid", "Sent with nothing written: the note is marked and says what to add; nothing is sent.")
@@ -481,7 +487,7 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
         {body}
         <div class="legal__questions">
           <p class="legal__questions-title">Questions?</p>
-          <p>Email privacy@christianfitness.ca, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 401 Richmond St W, Toronto, ON M5V 3A8.</p>
+          <p>Email privacy@christian.fitness, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.</p>
         </div>
       </div>
     </div>
