@@ -6,26 +6,31 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
+class ClaimSignInPage <<web>>
 class ClaimListingPage <<web>>
 interface ListingClaimsApi <<api>> {
-  get(token): ClaimPreview
+  get(token): ListingClaimDto
   publish(token)
   decline(token)
 }
 class ListingClaim <<domain>> {
   TokenHash
   ExpiresAt
-  SpentAt
-  Publish(member, now)
-  Decline(now)
+  UsedAt
+  VoidedAt
+  StateAt(now)
+  Spend(now)
+  Void(now)
 }
 class DirectoryListing <<domain>> {
-  Status: Draft | Listed | Declined
-  OwnerId?
-  IsStaffManaged
+  Status: Draft | Published | Declined
+  MemberId?
+  Claim(member, now)
+  Decline()
 }
-class ClaimLinkSender <<application>>
+class ClaimLinks <<application>>
+ClaimSignInPage --> ListingClaimsApi
 ClaimListingPage --> ListingClaimsApi
 ListingClaim --> DirectoryListing
-ClaimLinkSender ..> ListingClaim
+ClaimLinks ..> ListingClaim
 @enduml

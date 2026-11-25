@@ -1,6 +1,7 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Chat;
+using ChristianFitness.Application.Directory.Claims;
 using ChristianFitness.Application.Email;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Services;
@@ -104,27 +105,14 @@ internal sealed class ApproveSuggestionHandler(
         db.DirectoryListings.Add(listing);
         await messages.AddAsync(suggestion.SuggestedById, SuggestionOutcome.Approved(suggestion.Name), cancellationToken).ConfigureAwait(false);
 
-        string claim;
-        string? emailLink = null;
-        if (suggestion.ContactEmail is not null || suggestion.Relation == SuggestionRelation.Myself)
+        var channel = ClaimLinkDelivery.ChannelOf(suggestion);
+        EmailMessage? claimEmail = null;
+        if (channel is not null)
         {
-            var (issued, token) = ListingClaim.Issue(listing.Id, now);
-            db.ListingClaims.Add(issued);
-            var link = app.ClaimLink(token);
-            if (suggestion.ContactEmail is not null)
-            {
-                claim = "email";
-                emailLink = link;
-            }
-            else
-            {
-                claim = "message";
-                await messages.AddAsync(suggestion.SuggestedById, SuggestionOutcome.ClaimMessage(suggestion.Name, link), cancellationToken).ConfigureAwait(false);
-            }
+            claimEmail = await ClaimLinkDelivery.IssueAsync(db, messages, app, suggestion, listing.Id, now, cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            claim = "staff-managed";
             listing.Publish(now);
         }
 
@@ -132,13 +120,12 @@ internal sealed class ApproveSuggestionHandler(
         await SuggestionReview.SweepAsync(db, now, cancellationToken).ConfigureAwait(false);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await messages.PushAsync(cancellationToken).ConfigureAwait(false);
-        if (emailLink is not null)
+        if (claimEmail is not null)
         {
-            await email.SendAsync(new EmailMessage(suggestion.ContactEmail!, SuggestionOutcome.ClaimSubject, SuggestionOutcome.ClaimEmail(suggestion.Name, emailLink)), cancellationToken)
-                .ConfigureAwait(false);
+            await email.SendAsync(claimEmail, cancellationToken).ConfigureAwait(false);
         }
 
-        return new SuggestionDecisionDto("approved", listing.Id, claim);
+        return new SuggestionDecisionDto("approved", listing.Id, channel ?? "staff-managed");
     }
 }
 

@@ -58,10 +58,15 @@ export class Suggestion {
   readonly hint = input<string>('');
   /** What the decision did, once decided: "Approved. We've sent them …". */
   readonly result = input<string | null>(null);
+  /** Offers Send a new link under the result (ADR 0092). */
+  readonly resendable = input(false, { transform: booleanAttribute });
+  /** A new link is on its way: the button reads "Sending…" and waits. */
+  readonly resending = input(false, { transform: booleanAttribute });
 
   readonly checkChange = output<CheckRowChange>();
   readonly approve = output<void>();
   readonly decline = output<void>();
+  readonly resend = output<void>();
 
   protected readonly hintId = `suggestion-hint-${++nextId}`;
 

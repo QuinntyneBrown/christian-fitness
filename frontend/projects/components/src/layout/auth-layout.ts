@@ -47,7 +47,8 @@ export class AuthLayout implements AfterViewInit {
   readonly altText = input('');
   /**
    * The other way in, such as "Sign in", and where it goes; without `altHref`, an action. Without
-   * it the line is left out, as in a notice that has no other way ("Password saved").
+   * it the line is left out, as in a notice that has no other way ("Password saved"), unless
+   * `altText` stands alone as a note ("This link works once and expires on December 9.").
    */
   readonly altLink = input('');
   readonly altHref = input<string>();

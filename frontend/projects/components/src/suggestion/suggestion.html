@@ -52,6 +52,15 @@
     <div class="suggestion__foot">
       @if (result(); as said) {
         <p class="suggestion__result" role="status">{{ said }}</p>
+        @if (resendable()) {
+          <cf-button
+            variant="secondary"
+            [disabled]="resending()"
+            [busy]="resending()"
+            (click)="resend.emit()"
+            >{{ resending() ? 'Sending…' : 'Send a new link' }}</cf-button
+          >
+        }
       } @else {
         <cf-button
           type="submit"

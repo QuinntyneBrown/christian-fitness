@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 28% (10 of 36 journeys; 30 of 113 days)
+**% complete:** 31% (11 of 36 journeys; 33 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2674,3 +2674,50 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Read the initial total after each build" (5): admin's initial is 280.52 kB against main's
   280.38 kB, +0.14 kB for the series route (116 B) and its area entry (82 B). The editor and Add
   a date are lazy chunks loaded on first use; the budget was not raised.
+
+## Journey 19: Claim a listing
+
+**What slowed it**
+
+- Journey 9 merged ADR 0091 while this journey held it, so the claim ADR became 0092 at the
+  rebase. A script renumbered only files that do not name 0091 on main, and the two that do
+  (`RefusalCodes.cs`, the ADR index) were edited by hand. `AddClaimVoidedAt` was generated again
+  on main's model, after `AddEventSeries`.
+- Slice 1 built the signed-out expired, claimed and "couldn't check" states with no tests. When
+  slice 5 tested them, the "couldn't check" stand-ins on both pages proved unreachable:
+  `serverErrorInterceptor` already opens the server-error screen for a GET that fails with a 5xx.
+  They were removed, and the tests assert the app's server-error screen with its Try again.
+- The worktree guard refuses compound git commands, heredocs in the same command as git, loops
+  that name git, and `complete`. Edit scripts went to the scratchpad and git ran alone.
+- The design-system and mock generators rewrite every page with CRLF and reproduce earlier drift
+  (follow-button, pick-list, the series mocks). Only the touched pages were staged; the rest were
+  restored.
+
+**New lessons**
+
+- A break for an honest red must compile. `@case ('nf')` against a typed `@switch` failed the dev
+  server's build, so it kept serving the old bundle and every test "passed". Change text, not
+  types, or read the server log before trusting a green run.
+- A test that moves a shared `FakeTimeProvider` past 14 days also expires the sessions it signed
+  in before. Sign members and staff in after the clock moves.
+- Telemetry allows only a fixed list of span tags, so `Activity.Current?.SetTag(token)` is not a
+  break the leak test can see. Logging the token is, and it failed exactly the case it touched.
+- A component that only takes inputs and outputs grows a follow-up action as inputs plus an output
+  (`resendable`, `resending`, `resend`), not as a projected button: the page keeps the request,
+  and the component keeps its foot layout.
+- One shared helper (`ClaimLinkDelivery`) for "issue a link and send it the way approval did"
+  made the resend handler small and kept approval's tests green unchanged.
+
+**How earlier lessons worked**
+
+- "Check `origin/main` and open PRs for the next ADR number right before each commit": 0091 was
+  free at the first commit and taken by journey 9 before the push; the check at the rebase caught
+  it.
+- "Regenerate a migration that sorts before main's": mine already sorted after main's, but its
+  Designer described a model without `EventSeries`, so it was regenerated anyway. The content is
+  identical, and `has-pending-model-changes` is clean.
+- "Break each rule alone": used/expired order, the 14-day boundary (`>=` to `>`), voiding on
+  resend, both answers disabled while busy, and the expired and 404 outcomes each failed exactly
+  their tests and were restored.
+- "Read the initial total after each build": web stayed 278.21 kB through every slice; admin's
+  280.52 kB is main's after journey 9, and admin `main` contains none of the resend code.

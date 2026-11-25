@@ -20,6 +20,11 @@
   }
 }
 
+// No aside: the form starts at the top of the page.
+.form-page--flush {
+  margin-top: 0;
+}
+
 .display {
   font-family: var(--font-family-display);
   font-weight: var(--font-weight-medium);

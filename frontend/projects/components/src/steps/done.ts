@@ -1,4 +1,11 @@
-import { afterNextRender, Component, ElementRef, inject, input } from '@angular/core';
+import {
+  afterNextRender,
+  booleanAttribute,
+  Component,
+  ElementRef,
+  inject,
+  input,
+} from '@angular/core';
 
 /**
  * The design system's done block (docs/design-system/components/steps.html, "Done"): the success
@@ -15,6 +22,11 @@ import { afterNextRender, Component, ElementRef, inject, input } from '@angular/
 })
 export class Done {
   readonly heading = input.required<string>();
+  /**
+   * A way that ended, not a success (the claim link's "This link has expired"; ADR 0092): a clock
+   * in place of the check, and `role="alert"`.
+   */
+  readonly alert = input(false, { transform: booleanAttribute });
 
   constructor() {
     const host: ElementRef<HTMLElement> = inject(ElementRef);

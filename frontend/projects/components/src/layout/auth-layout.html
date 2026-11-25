@@ -17,6 +17,8 @@
           {{ altLink() }}</button>{{ altEnd() }}
       }
     </p>
+  } @else if (altText()) {
+    <p class="auth__alt">{{ altText() }}</p>
   }
 </ng-template>
 <div class="auth">

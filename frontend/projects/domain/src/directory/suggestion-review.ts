@@ -2,6 +2,7 @@ import type {
   ListingCheckSlug,
   ListingKind,
   SuggestionCheckDto,
+  SuggestionClaimState,
   SuggestionDetailDto,
   SuggestionSummaryDto,
 } from '@cf/api';
@@ -95,13 +96,16 @@ export function passedCount(checks: readonly SuggestionCheckDto[]): number {
   ).length;
 }
 
-/** How an approval's claim went (ADR 0090). */
-export type SuggestionClaim = 'email' | 'message' | 'staff-managed';
+/**
+ * How an approval's claim went on this visit (`email`, `message`, ADR 0090), or where it stands when
+ * read (ADR 0092).
+ */
+export type SuggestionClaim = 'email' | 'message' | SuggestionClaimState;
 
 /**
- * What the panel says once a suggestion is decided (L2-073 AC6, AC8): the claim link was sent, or
- * the listing is in the directory as staff-managed, or the sender was told of a decline. A
- * suggestion decided before this visit says only how it was decided.
+ * What the panel says once a suggestion is decided (L2-073 AC6, AC8; L2-078 AC7): the claim link
+ * was sent, the listed party said it isn't them, or the listing is in the directory as
+ * staff-managed, or the sender was told of a decline. Otherwise it says only how it was decided.
  */
 export function decisionResult(
   status: 'approved' | 'declined',
@@ -109,8 +113,16 @@ export function decisionResult(
 ): string {
   if (status === 'declined') return 'Declined. The person who suggested it has been told.';
   if (claim === 'staff-managed') return 'Approved. It’s in the directory now, managed by our team.';
-  if (claim === null) return 'Approved.';
-  return 'Approved. We’ve sent them a link to claim and publish their listing.';
+  if (claim === 'declined')
+    return 'Approved. They said this listing isn’t them, so it wasn’t published.';
+  if (claimResendable(claim))
+    return 'Approved. We’ve sent them a link to claim and publish their listing.';
+  return 'Approved.';
+}
+
+/** Whether staff may send a new claim link: one went out and is open or expired (ADR 0092). */
+export function claimResendable(claim: SuggestionClaim | null): boolean {
+  return claim === 'email' || claim === 'message' || claim === 'sent' || claim === 'expired';
 }
 
 /**

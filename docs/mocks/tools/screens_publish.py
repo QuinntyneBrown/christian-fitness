@@ -1188,7 +1188,7 @@ def listings_page(body: str, tab: str = "Suggestions", *, pending: object = 3, l
             + tabs("Listings", [("Suggestions", pending, href("admin-listings")), ("Listed", listed, href("admin-listings", "listed"))], tab) + "\n" + body)
 
 
-def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: str = "", busy: bool = False) -> str:
+def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: str = "", busy: bool = False, claim: str = "sent") -> str:
     sg = next(x for x in SUGGESTIONS if x["id"] == sel)
     passed = sg["passed"] if passed is None else passed
     items = []
@@ -1202,8 +1202,17 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
                 <span><span class="check-row__label">{label}</span><span class="check-row__desc">{detail}</span></span></label></li>""" for k, label, detail in CHECKS)
     n = len(passed)
     if decided:
-        foot = ('<p class="suggestion__result" role="status">' + ("Approved. We’ve sent them a link to claim and publish their listing." if decided == "approved"
-                else "Declined. The person who suggested it has been told.") + "</p>")
+        if decided == "approved" and claim == "declined":
+            result = "Approved. They said this listing isn’t them, so it wasn’t published."
+        elif decided == "approved":
+            result = "Approved. We’ve sent them a link to claim and publish their listing."
+        else:
+            result = "Declined. The person who suggested it has been told."
+        foot = '<p class="suggestion__result" role="status">' + result + "</p>"
+        if decided == "approved" and claim in ("sent", "sending"):
+            # ADR 0092: while the listing waits for its claim, staff can send a new link, which voids the old one.
+            foot += (f'<button class="btn btn--secondary btn--md" type="button" disabled aria-busy="true">{busy_label("Sending…")}</button>' if claim == "sending"
+                     else '<button class="btn btn--secondary btn--md" type="button" data-mock-href="link-resent.html">Send a new link</button>')
     else:
         ok = n == 4
         approve = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Approving…")}</button>' if busy
@@ -1268,10 +1277,36 @@ def _():
     return admin_shell("admin-listings", listings_page(suggestion_view(passed=tuple(k for k, _, _ in CHECKS), busy=True)))
 
 
-@s("approved", "Approved: the suggestion says a link to claim and publish the listing was sent; the count of suggestions falls.")
+@s("approved", "Approved: the suggestion says a link to claim and publish the listing was sent, with Send a new link (ADR 0092); the count of suggestions falls.")
 def _():
     return admin_shell("admin-listings", listings_page(suggestion_view(passed=tuple(k for k, _, _ in CHECKS), decided="approved"), pending=2),
                        counts={"admin-listings": 2})
+
+
+@s("claim-declined", "An approved suggestion whose listed party pressed This isn’t me (L2-078 AC7; ADR 0092): the panel tells staff nothing was published, and no new link is offered.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view(passed=tuple(k for k, _, _ in CHECKS), decided="approved", claim="declined"), pending=2),
+                       counts={"admin-listings": 2})
+
+
+@s("resending", "Send a new link pressed (ADR 0092): the button reads Sending… until the answer comes.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view(passed=tuple(k for k, _, _ in CHECKS), decided="approved", claim="sending"), pending=2),
+                       counts={"admin-listings": 2})
+
+
+@s("link-resent", "A new claim link was sent (L2-078 AC8; ADR 0092): a toast says so and that the old link no longer works.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view(passed=tuple(k for k, _, _ in CHECKS), decided="approved"), pending=2),
+                       counts={"admin-listings": 2},
+                       after=toast_region(toast("success", "New link sent", "The old link no longer works."), admin=True))
+
+
+@s("resend-failed", "Sending a new link failed (ADR 0092): a toast says nothing changed; the button is back.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view(passed=tuple(k for k, _, _ in CHECKS), decided="approved"), pending=2),
+                       counts={"admin-listings": 2},
+                       after=toast_region(toast("danger", "We couldn't send a new link", "Nothing changed. Try again in a moment.", role="alert"), admin=True))
 
 
 @s("declined", "Declined: the suggestion says the person who suggested it was told.")

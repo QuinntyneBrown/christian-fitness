@@ -114,7 +114,10 @@
                   [locked]="shown.locked"
                   [approving]="approving()"
                   [result]="shown.result"
+                  [resendable]="shown.resendable"
+                  [resending]="resending()"
                   (checkChange)="setCheck($event)"
+                  (resend)="resendClaimLink()"
                   (approve)="approve()"
                   (decline)="decline()"
                 />

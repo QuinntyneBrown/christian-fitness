@@ -30,6 +30,7 @@ export class ManageListingsPage {
   readonly declineButton: Locator;
   readonly hint: Locator;
   readonly result: Locator;
+  readonly resendButton: Locator;
   readonly loading: Locator;
   readonly skeletons: Locator;
   readonly empty: Locator;
@@ -72,6 +73,7 @@ export class ManageListingsPage {
     this.declineButton = this.panel.getByRole('button', { name: 'Decline' });
     this.hint = this.panel.locator('.suggestion__hint');
     this.result = this.panel.locator('.suggestion__result');
+    this.resendButton = this.panel.getByRole('button', { name: /^(Send a new link|Sending…)$/ });
     this.loading = this.main.locator('.skeleton-region[aria-busy="true"]');
     this.skeletons = this.loading.locator('.skeleton');
     this.empty = this.main.locator('.empty-state');

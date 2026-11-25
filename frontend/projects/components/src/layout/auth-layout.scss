@@ -133,6 +133,10 @@
 
 .auth__submit {
   margin-top: var(--space-8);
+  // Two ways on (the claim link's Sign in and Join) stack with a gap.
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 
   // A notice still waiting has no button; the slot takes no room.
   &:empty {

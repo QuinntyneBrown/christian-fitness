@@ -384,6 +384,7 @@ test.describe('Admin app, approving a suggestion', () => {
       );
       await expect(listings.result).toHaveAttribute('role', 'status');
       await expect(listings.approveButton).toHaveCount(0);
+      await expect(listings.resendButton).toHaveText('Send a new link');
       await expect(listings.check('Conversation')).toBeDisabled();
       await expect(listings.cardTag('Coach Marcus Delaney')).toHaveText('Approved');
       await expect(listings.tab('Suggestions')).toHaveText('Suggestions 2');
@@ -405,6 +406,7 @@ test.describe('Admin app, approving a suggestion', () => {
     await expect(listings.result).toHaveText(
       'Approved. It’s in the directory now, managed by our team.',
     );
+    await expect(listings.resendButton).toHaveCount(0);
   });
 
   test('an approval that does not go through says so and Approve listing stays', async ({
@@ -444,6 +446,95 @@ test.describe('Admin app, approving a suggestion', () => {
     await expect(listings.check('Credentials')).toBeDisabled();
     await expect(listings.approveButton).toHaveCount(0);
     await expect(listings.declineButton).toHaveCount(0);
+  });
+});
+
+const RESEND = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/claim-link$/;
+
+// L2-078 AC7 and AC8 (journey 19; ADR 0092; mocks admin-listings/approved, resending, link-resent,
+// resend-failed and claim-declined): an approved suggestion says where its claim link stands, and
+// while the link is open or expired staff can send a new one.
+test.describe('Admin app, the claim link of an approved suggestion', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  const approved = (claim: SuggestionDetailFixture['claim']): SuggestionDetailFixture => ({
+    ...CAST_SUGGESTIONS[2],
+    status: 'approved',
+    checks: ALL_PASSED,
+    claim,
+  });
+
+  for (const [claim, result, offered] of [
+    ['sent', 'Approved. We’ve sent them a link to claim and publish their listing.', 1],
+    ['expired', 'Approved. We’ve sent them a link to claim and publish their listing.', 1],
+    ['declined', 'Approved. They said this listing isn’t them, so it wasn’t published.', 0],
+    ['claimed', 'Approved.', 0],
+    ['staff-managed', 'Approved. It’s in the directory now, managed by our team.', 0],
+  ] as const) {
+    test(`a claim that is ${claim} says so${offered ? ' and offers Send a new link' : ''}`, async ({
+      page,
+      api,
+    }) => {
+      await page.clock.setFixedTime(LISTINGS_NOW);
+      answer(api, [approved(claim)]);
+      const listings = new ManageListingsPage(page);
+
+      await listings.open();
+
+      await expect(listings.result).toHaveText(result);
+      await expect(listings.resendButton).toHaveCount(offered);
+    });
+  }
+
+  test('Send a new link reads Sending…, then a toast says the old link no longer works', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const expired = approved('expired');
+    answer(api, [expired]);
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const sent: string[] = [];
+    api.on('POST', RESEND, async (request) => {
+      sent.push(new URL(request.url()).pathname);
+      await held;
+      return { status: 204 };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+
+    await listings.resendButton.click();
+
+    await expect(listings.resendButton).toHaveText('Sending…');
+    await expect(listings.resendButton).toBeDisabled();
+    await expect(listings.resendButton).toHaveAttribute('aria-busy', 'true');
+    release();
+    await expect(listings.toastTitle).toHaveText('New link sent');
+    await expect(listings.toastText).toHaveText('The old link no longer works.');
+    await expect(listings.alertToast).toHaveCount(0);
+    await expect(listings.resendButton).toHaveText('Send a new link');
+    await expect(listings.resendButton).toBeEnabled();
+    expect(sent).toEqual([`/api/admin/directory/suggestions/${expired.id}/claim-link`]);
+  });
+
+  test('a new link that does not go through says nothing changed and the button is back', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, [approved('sent')]);
+    api.on('POST', RESEND, () => ({ abort: true }));
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+
+    await listings.resendButton.click();
+
+    await expect(listings.toastTitle).toHaveText("We couldn't send a new link");
+    await expect(listings.toastText).toHaveText('Nothing changed. Try again in a moment.');
+    await expect(listings.alertToast).toHaveCount(1);
+    await expect(listings.resendButton).toHaveText('Send a new link');
+    await expect(listings.resendButton).toBeEnabled();
   });
 });
 

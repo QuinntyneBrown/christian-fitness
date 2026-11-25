@@ -1,4 +1,4 @@
-<header class="listing-head">
+<header [attr.class]="preview() ? 'listing-head listing-head--preview' : 'listing-head'">
   @if (loading()) {
     <div class="listing-head__who">
       <cf-skeleton shape="avatar-profile" square />
@@ -33,8 +33,15 @@
             >
           }
         </p>
-        <h1 class="display detail-title listing-head__name">{{ name() }}</h1>
-        <p class="subtitle">{{ tagline() }}</p>
+        @if (preview()) {
+          <p class="display detail-title listing-head__name">{{ name() }}</p>
+          @if (tagline()) {
+            <p class="subtitle">{{ tagline() }}</p>
+          }
+        } @else {
+          <h1 class="display detail-title listing-head__name">{{ name() }}</h1>
+          <p class="subtitle">{{ tagline() }}</p>
+        }
       </div>
     </div>
     <div class="listing-head__actions"><ng-content select="[slot=actions]" /></div>

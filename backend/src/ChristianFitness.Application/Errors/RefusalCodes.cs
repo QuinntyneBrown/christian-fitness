@@ -83,6 +83,18 @@ public static class RefusalCodes
     /// <summary>Staff already approved or declined the suggestion (L2-073 AC9; ADR 0090).</summary>
     public const string SuggestionDecided = "suggestion_decided";
 
+    /// <summary>No claim link has that token; says nothing of whether a listing exists (L2-078 AC9; ADR 0092).</summary>
+    public const string ClaimNotFound = "claim_not_found";
+
+    /// <summary>The claim link was already used, or its listing is no longer a draft (L2-078 AC9; ADR 0092).</summary>
+    public const string ClaimLinkUsed = "claim_link_used";
+
+    /// <summary>The claim link is past its 14 days, or a newer link voided it (L2-078 AC8; ADR 0092).</summary>
+    public const string ClaimLinkExpired = "claim_link_expired";
+
+    /// <summary>A new claim link was asked for a suggestion that is not approved or whose listing is no longer a draft (ADR 0092).</summary>
+    public const string ClaimClosed = "claim_closed";
+
     /// <summary>An approval arrived with fewer than four checks passed (L2-073 AC5; ADR 0090).</summary>
     public const string ChecksIncomplete = "checks_incomplete";
 
