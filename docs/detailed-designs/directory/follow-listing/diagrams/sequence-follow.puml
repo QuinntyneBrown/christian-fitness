@@ -23,7 +23,8 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 actor -> page : Press Follow
 page -> store : toggle(id, name)
-store --> page : following = true, followers + 1 at once (L2-056 AC1, AC3)
+store --> page : following = true, followers + 1, in flight at once (L2-056 AC1, AC3)
+page --> actor : aria-disabled="true" until it settles; a second press does nothing (L2-056 AC8)
 page --> actor : "Follow" (fixed label), aria-pressed="true", fill and check mark
 store -> client : follow(id)
 client -> ctrl : PUT /api/directory/{id}/follow
@@ -33,8 +34,10 @@ alt member suspended
   h --> ctrl : 403 account_suspended (L2-056 AC5)
 else listing not published
   h --> ctrl : 404 listing_not_found
+else 60 changes in the last hour
+  h --> ctrl : 429 too_many_attempts (L2-056 AC9)
 else allowed
-  h -> db : Insert (MemberId, ListingId) unless present (L2-056 AC4)
+  h -> db : Insert (MemberId, ListingId) unless present (L2-056 AC4); log the change, prune the past hour
   db --> h : Saved, or already there
   h -> db : Count followers
   db --> h : Count

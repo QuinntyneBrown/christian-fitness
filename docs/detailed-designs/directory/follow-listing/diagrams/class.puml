@@ -17,6 +17,10 @@ package "Backend" {
     +Guid ListingId
     +DateTimeOffset FollowedAt
   }
+  class ListingFollowChange {
+    +Guid MemberId
+    +DateTimeOffset ChangedAt
+  }
   class DirectoryListing {
     +Guid Id
     +ListingStatus Status
@@ -53,15 +57,17 @@ package "Frontend" {
     +unfollow(id): Observable<ListingFollowDto>
   }
   interface ListingFollowsApi <<LISTING_FOLLOWS>> {
-    +following(id): Signal<boolean>
-    +followers(id): Signal<number>
+    +follows: Signal<ReadonlyMap<id, FollowState>>
+    +track(listings): void
     +toggle(id, name): void
   }
   class ListingFollowStore <<domain>>
   class ToastStore <<existing>>
-  class Follow <<component>> {
+  class FollowButton <<component>> {
     +following: input<boolean>
     +name: input<string>
+    +large: input<boolean>
+    +busy: input<boolean>
     +toggled: output<void>
   }
 }
@@ -79,5 +85,7 @@ GetHomeHandler ..> ListingFollow : reads
 ListingFollowStore ..|> ListingFollowsApi
 ListingFollowStore ..> DirectoryApi
 ListingFollowStore ..> ToastStore : failure toast
-Follow ..> ListingFollowsApi : via page
+FollowButton ..> ListingFollowsApi : via page
+FollowListingHandler ..> ListingFollowChange : logs, prunes past hour
+UnfollowListingHandler ..> ListingFollowChange : logs, prunes past hour
 @enduml
