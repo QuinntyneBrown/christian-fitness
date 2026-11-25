@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Tick Came
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "EventAttendancePage" as page
+  participant "HttpAdminEventsService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminEventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SetAttendanceHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Tick Came for a member
+page -> client : setAttendance(id, memberId, true)
+client -> ctrl : PUT /api/admin/events/{id}/attendance/{memberId}
+ctrl -> handler : Send SetAttendanceCommand
+handler -> db : Read event and Registration
+alt event has not started
+  handler --> ctrl : Refusal event_not_started
+  ctrl --> client : 409 ProblemDetails with code
+  client --> page : Refused
+  page --> actor : Box put back, toast (L2-075 AC3, AC5)
+else member not registered
+  handler --> ctrl : Refusal not_registered
+  ctrl --> client : 404 ProblemDetails with code
+  client --> page : Refused
+  page --> actor : Box put back, toast (L2-075 AC3)
+else saved
+  handler -> db : Upsert Attendance and write audit entry
+  db --> handler : Saved
+  handler --> ctrl : Ok
+  ctrl --> client : 204
+  client --> page : Saved
+  page --> actor : Count updates (L2-075 AC2)
+end
+@enduml

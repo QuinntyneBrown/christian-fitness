@@ -19,8 +19,9 @@ def session_row(x: dict, *, joined: bool, pickable: bool, picked: tuple) -> str:
         end = (f'<label class="check"><input class="check__box" type="checkbox" name="dates" value="{x["n"]}"'
                f'{" checked" if x["n"] in picked else ""}> <span>Drop in<span class="visually-hidden"> on {x["weekday"]}, {x["month"]} {x["day"]}</span></span></label>')
     elif past:
-        end = (f'<span class="session-row__came">{icon("check")}You came</span>' if x["attended"]
-               else f'<span class="session-row__status">{"Missed" if joined else "Done"}</span>')
+        word = "Done" if not joined else "Missed" if x["attended"] is False else "Not recorded"
+        end = (f'<span class="session-row__came">{icon("check")}You came</span>' if x["attended"] is True
+               else f'<span class="session-row__status">{word}</span>')
     elif cancelled:
         end = '<span class="session-row__status">Cancelled</span>'
     elif x["event"]:
@@ -49,7 +50,9 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
     """mode: joined | join | joining | failed | drop | booking | booked | full"""
     remaining = [x for x in sr["sessions"] if x["status"] in ("next", "upcoming")]
     past = sum(1 for x in sr["sessions"] if x["status"] == "past")
-    attended = sum(1 for x in sr["sessions"] if x["attended"])
+    attended = sum(1 for x in sr["sessions"] if x["attended"] is True)
+    recorded = sum(1 for x in sr["sessions"] if x["status"] == "past" and x["attended"] is not None)
+    came = f"Came to {attended} of {recorded}" if recorded else "Attendance not recorded yet"
     paid = sr["series_price"] != "Free"
     if mode == "joined":
         pay = ('<p class="register__note">Your spot is reserved. Pay the host at your first session; online payment is not available yet.</p>'
@@ -57,7 +60,7 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
         return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're in for every session</p>
               {pay}
               <div class="series-progress">
-                <p class="series-progress__head"><span class="series-progress__label">Your progress</span><span class="series-progress__count">Came to {attended} of {past}</span></p>
+                <p class="series-progress__head"><span class="series-progress__label">Your progress</span><span class="series-progress__count">{came}</span></p>
                 {session_meter(sr, mine=True)}
               </div>
               <div class="btn-grid mt-3">

@@ -167,11 +167,12 @@ DRAFT_EVENT = {
 
 # ---------------------------------------------------------------------------
 # Event series (prototype shared/cf/data.ts `series`). A session is
-# (n, weekday, month, day, topic, status, attended, event id).
+# (n, weekday, month, day, topic, status, attended, event id). attended is True (came), False (did not)
+# or absent (attendance not recorded).
 # ---------------------------------------------------------------------------
 def _sessions(rows):
     return [{"n": i + 1, "weekday": r[0], "month": r[1], "day": r[2], "topic": r[3], "status": r[4],
-             "attended": len(r) > 5 and r[5] is True, "event": r[6] if len(r) > 6 else None} for i, r in enumerate(rows)]
+             "attended": r[5] if len(r) > 5 else None, "event": r[6] if len(r) > 6 else None} for i, r in enumerate(rows)]
 
 
 SERIES = [
@@ -183,7 +184,7 @@ SERIES = [
         "summary": "Eight weeks from walking to running a full 5K, together. Each week builds on the last, so the group stays together from week one to race day.",
         "sessions": _sessions([
             ("Tue", "Apr", "07", "Walk, run 60 seconds, repeat. Meet your pace group", "past", True),
-            ("Tue", "Apr", "14", "Run 90 seconds, walk 2 minutes", "past", True),
+            ("Tue", "Apr", "14", "Run 90 seconds, walk 2 minutes", "past", False),
             ("Tue", "Apr", "21", "Same intervals, six times through", "next", False, "c25k-week-3"),
             ("Tue", "Apr", "28", "First 5-minute run", "upcoming"),
             ("Tue", "May", "05", "Two 8-minute runs", "upcoming"),
