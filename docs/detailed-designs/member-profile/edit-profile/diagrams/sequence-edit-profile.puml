@@ -33,7 +33,7 @@ end box
 actor -> page : Choose Edit profile
 page -> page : import() EditProfileDialog (first use only), open it in a CDK Dialog with the screen's injector
 page -> dlg : Open with current values, focus Full name (L2-006 AC1)
-actor -> dlg : Change fields, choose home church visibility (unchecked by default, AC4)
+actor -> dlg : Change fields (church visibility is set in Preferences, AC4)
 actor -> dlg : Save changes
 alt validateProfile names a field (AC6)
   dlg --> actor : Error summary and inline errors; nothing sent

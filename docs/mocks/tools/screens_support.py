@@ -305,6 +305,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 <legend class="pref__legend">Who can see your profile</legend>
                 <div class="choice-group">{radios}</div>
               </fieldset>
+              {switch("privacy-church", "Show my home church", "Only signed-in members who can see your profile can see it. Never shown to visitors.", False, busy)}
               {switch("privacy-attendee", "Show me on attendee lists", "Others going to an event can see you’re going", True, busy)}
               {switch("privacy-dms", "Let anyone message me", "When off, only people in your groups can start a chat", False, busy)}"""
     areas = "".join(f'<option{" selected" if a == "Scarborough" else ""}>{a}</option>' for a in PREF_AREAS)

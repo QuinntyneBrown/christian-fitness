@@ -21,18 +21,30 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> page : Open /members/{id}
+alt no session
+  page -> client : publicMember(id)
+  client -> ctrl : GET /api/public/members/{id} (AllowAnonymous, public-reads)
+  ctrl -> h : Read Anyone profile
+  h -> db : Member and visibility
+  db --> h : Member, Visibility
+  alt Anyone
+    h --> ctrl : name, bio, interests only (no church or email)
+  else unknown or restricted
+    h --> ctrl : not_found
+  end
+else signed-in viewer
 page -> client : member(id)
-client -> ctrl : GET /api/members/{id}/profile (anonymous allowed)
-ctrl -> h : Send GetPublicProfileQuery(id, viewer?)
+client -> ctrl : GET /api/members/{id}/profile
+ctrl -> h : Send GetPublicProfileQuery(id, viewer)
 h -> db : Member (not being deleted) and MemberPreferences or defaults
 db --> h : Member, Visibility
 alt Anyone, or viewer is the member
-  h --> ctrl : PublicProfileDto (no email; home church only if shown) (L2-065 AC3)
+  h --> ctrl : PublicProfileDto (no email; home church only if shown) (L2-065 AC10)
 else Members and viewer signed in
   h --> ctrl : PublicProfileDto
 else JustMyGroups and viewer signed in
   h -> groups : ShareAGroupAsync(viewer, member)
-  groups -> db : Registrations for one event by both
+  groups -> db : Both still belong to one event chat, including past or cancelled
   db --> groups : Found or none
   alt shares a group
     groups --> h : true
@@ -41,8 +53,9 @@ else JustMyGroups and viewer signed in
     groups --> h : false
     h --> ctrl : RefusalException not_found (AC2)
   end
-else visitor on a Members or JustMyGroups profile
+else not admitted
   h --> ctrl : RefusalException not_found (AC2)
+end
 end
 ctrl --> client : 200 JSON or 404 ProblemDetails not_found
 client --> page : Profile or ApiError

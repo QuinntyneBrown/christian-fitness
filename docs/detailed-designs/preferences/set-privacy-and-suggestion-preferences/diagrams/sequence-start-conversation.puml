@@ -31,7 +31,7 @@ db --> rule : Off
 rule -> db : Any DirectMessage between the pair?
 db --> rule : None
 rule -> groups : ShareAGroupAsync(me, other)
-groups -> db : Registrations for one event by both
+groups -> db : Both still belong to one event chat, including past or cancelled
 db --> groups : None
 groups --> rule : false
 rule --> h : false
