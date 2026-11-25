@@ -25,7 +25,7 @@ actor -> page : Open Community Pick (or "Make it a pick" with ?event={id})
 page --> actor : Skeleton rows (L2-072 AC11)
 page -> client : events()
 client -> ctrl : GET /api/admin/community-pick/events
-ctrl -> h : Send ListPickableEventsQuery (Staff:CommunityPick; a Moderator gets Admins only)
+ctrl -> h : Send ListPickableEventsQuery (Staff:CommunityPick; open to Admin and Moderator)
 h -> db : Published, StartsAt > now, soonest first, with going
 db --> h : Rows, each with its latest pick (Last picked)
 h --> ctrl : PickableEventDto[]
