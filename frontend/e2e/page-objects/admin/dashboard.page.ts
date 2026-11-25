@@ -74,6 +74,13 @@ export class AdminDashboardPage {
     );
   }
 
+  /** Each waiting item's action as read aloud: its word, then the row it acts on. */
+  async attentionActions(): Promise<string[]> {
+    return this.attentionItems.evaluateAll((items) =>
+      items.map((item) => (item.querySelector('a')?.textContent ?? '').replace(/\s+/g, ' ').trim()),
+    );
+  }
+
   /** Each row as its cells' text: the week, then new members, registrations and messages. */
   async rowTexts(): Promise<string[][]> {
     return this.rows.evaluateAll((rows) =>

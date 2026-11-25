@@ -57,6 +57,11 @@ export class AdminShell {
     return this.nav.getByRole('link', { name });
   }
 
+  /** The count of work waiting beside the area named `label`, absent when nothing waits. */
+  navCount(label: string): Locator {
+    return this.navItems.filter({ hasText: label }).locator('.admin-nav__count');
+  }
+
   /**
    * Marks the loaded document, so a spec can tell an in-app navigation (the mark stays) from a
    * whole-page load (it goes).

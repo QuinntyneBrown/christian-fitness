@@ -44,6 +44,8 @@ public sealed class AuditBehaviorTests : IAsyncDisposable
         { "an auditable change refused after recording, before saving", new Change { Records = true, Throws = true }, Fails },
         { "an auditable change refused before recording", new Change { Throws = true }, Fails },
         { "an auditable change that names no record", new Change(), Fails },
+        { "an auditable command that found nothing to change", new Change { Unchanged = true }, None },
+        { "an auditable command that says it changed nothing after recording", new Change { Records = true, Unchanged = true }, Fails },
         { "a request that is not auditable", new Look(), None },
     };
 
@@ -99,9 +101,11 @@ public sealed class AuditBehaviorTests : IAsyncDisposable
 
         public bool Throws { get; init; }
 
+        public bool Unchanged { get; init; }
+
         string IAuditableCommand.AuditAction => "probe.changed";
 
-        public override string ToString() => $"Change(records: {Records}, saves: {Saves}, throws: {Throws})";
+        public override string ToString() => $"Change(records: {Records}, saves: {Saves}, throws: {Throws}, unchanged: {Unchanged})";
     }
 
     /// <summary>Any request that changes nothing.</summary>
@@ -117,6 +121,11 @@ public sealed class AuditBehaviorTests : IAsyncDisposable
             if (request.Records)
             {
                 audit.Record(Actor, "Probe", Changed);
+            }
+
+            if (request.Unchanged)
+            {
+                audit.Unchanged();
             }
 
             if (request.Throws)

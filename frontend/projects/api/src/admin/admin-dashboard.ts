@@ -18,6 +18,12 @@ export interface CommunityActivityDto {
   weeks: ActivityWeekDto[];
 }
 
+/** One listing suggestion waiting for review (`AwaitingSuggestionDto`, ADR 0090). */
+export interface AwaitingSuggestionDto {
+  id: string;
+  name: string;
+}
+
 /** One pending application as the Dashboard names it (`AwaitingApplicationDto`, ADR 0060). */
 export interface AwaitingApplicationDto {
   id: string;
@@ -47,6 +53,8 @@ export interface AwaitingListDto<T> {
 export interface WorkAwaitingStaffDto {
   applications?: AwaitingListDto<AwaitingApplicationDto>;
   flaggedMembers: AwaitingListDto<AwaitingFlaggedMemberDto>;
+  /** The listing suggestions waiting for review, for both roles (L2-020 AC11; ADR 0090). */
+  suggestions: AwaitingListDto<AwaitingSuggestionDto>;
 }
 
 /** What the admin Dashboard reads (L2-020; ADR 0059, ADR 0060). */

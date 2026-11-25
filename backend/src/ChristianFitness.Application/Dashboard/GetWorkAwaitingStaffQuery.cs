@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Admin;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.Services;
 using MediatR;
@@ -13,6 +14,9 @@ public sealed record AwaitingApplicationDto(Guid Id, string Name, string Role, D
 /// <summary>One flagged member as the Dashboard names it: who and staff's own note, as the Members screen shows them (ADR 0060).</summary>
 public sealed record AwaitingFlaggedMemberDto(Guid Id, string Name, string? Note);
 
+/// <summary>One listing suggestion waiting for review, as the Dashboard names it (L2-020 AC11; ADR 0090).</summary>
+public sealed record AwaitingSuggestionDto(Guid Id, string Name);
+
 /// <summary>How many wait in all and the oldest few of them.</summary>
 public sealed record AwaitingListDto<T>(int Total, IReadOnlyList<T> Items);
 
@@ -20,7 +24,8 @@ public sealed record AwaitingListDto<T>(int Total, IReadOnlyList<T> Items);
 public sealed record WorkAwaitingStaffDto(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     AwaitingListDto<AwaitingApplicationDto>? Applications,
-    AwaitingListDto<AwaitingFlaggedMemberDto> FlaggedMembers);
+    AwaitingListDto<AwaitingFlaggedMemberDto> FlaggedMembers,
+    AwaitingListDto<AwaitingSuggestionDto> Suggestions);
 
 /// <summary>Staff ask what is waiting for them (L2-020 AC7 to AC10; ADR 0060).</summary>
 public sealed record GetWorkAwaitingStaffQuery : IRequest<WorkAwaitingStaffDto>;
@@ -29,6 +34,7 @@ public sealed record GetWorkAwaitingStaffQuery : IRequest<WorkAwaitingStaffDto>;
 /// Counts the Pending applications and the Flagged members and names the oldest <see cref="Shown"/> of each: applications by
 /// submitted time, members by join time (no flag time is kept). A Moderator's answer has no applications, so none is read
 /// for them (ADR 0060). Name, role and the staff note are what the Services and Members screens already show their role.
+/// Both roles review listing suggestions, so both get the undecided ones, oldest submitted first (L2-020 AC11; ADR 0090).
 /// </summary>
 internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMember current) : IRequestHandler<GetWorkAwaitingStaffQuery, WorkAwaitingStaffDto>
 {
@@ -46,9 +52,18 @@ internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMemb
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         var members = new AwaitingListDto<AwaitingFlaggedMemberDto>(flaggedTotal, [.. flaggedRows.Select(m => new AwaitingFlaggedMemberDto(m.Id, m.Name, m.ModerationNote))]);
+        var waiting = db.ListingSuggestions.AsNoTracking().Where(s => s.Status == SuggestionStatus.Waiting);
+        var suggestionTotal = await waiting.CountAsync(cancellationToken).ConfigureAwait(false);
+        var suggestionRows = await waiting
+            .OrderBy(s => s.SubmittedAt).ThenBy(s => s.Id)
+            .Take(Shown)
+            .Select(s => new AwaitingSuggestionDto(s.Id, s.Name))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var suggestions = new AwaitingListDto<AwaitingSuggestionDto>(suggestionTotal, suggestionRows);
         if (role != StaffRoleName.Admin)
         {
-            return new WorkAwaitingStaffDto(null, members);
+            return new WorkAwaitingStaffDto(null, members, suggestions);
         }
 
         var pending = db.ProfessionalApplications.AsNoTracking().Where(a => a.Status == ApplicationStatus.Pending);
@@ -61,6 +76,7 @@ internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMemb
             .ConfigureAwait(false);
         return new WorkAwaitingStaffDto(
             new AwaitingListDto<AwaitingApplicationDto>(total, [.. rows.Select(a => new AwaitingApplicationDto(a.Id, a.Name, a.Role, a.SubmittedAt))]),
-            members);
+            members,
+            suggestions);
     }
 }

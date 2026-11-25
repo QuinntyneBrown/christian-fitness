@@ -7,6 +7,13 @@ namespace ChristianFitness.Application.Chat;
 /// </summary>
 public sealed record ChatAnswer(string? Code, string? Title, Guid? MemberId)
 {
+    /// <summary>
+    /// True when a direct conversation is with the Christian Fitness account, which takes no replies
+    /// (L2-014 AC8; ADR 0065); omitted otherwise.
+    /// </summary>
+    [global::System.Text.Json.Serialization.JsonIgnore(Condition = global::System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public bool? System { get; init; }
+
     public static ChatAnswer Ok { get; } = new(null, null, null);
 
     public static ChatAnswer Refused(string code) => new(code, null, null);

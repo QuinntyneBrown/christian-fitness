@@ -1,0 +1,50 @@
+// The admin page head and the Listings layout (docs/design-system/assets/components.css:
+// "page-head", "admin-title", "subtitle"); the tabs, pick cards, suggestion and table are the library's.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-4xl);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-5xl);
+    line-height: var(--line-height-none);
+  }
+}
+
+.subtitle {
+  color: var(--color-fg-muted);
+}
+
+.listings__picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.listings__more {
+  display: flex;
+  justify-content: center;
+}
+
+.listings__skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

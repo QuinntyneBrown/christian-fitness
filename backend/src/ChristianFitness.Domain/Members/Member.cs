@@ -75,6 +75,25 @@ public sealed class Member
     public DateTimeOffset JoinedAt { get; private set; }
 
     /// <summary>
+    /// An account the system owns, not a person (ADR 0065): it has no password, cannot sign in, is in
+    /// no member list and takes no replies.
+    /// </summary>
+    public bool IsSystem { get; private set; }
+
+    /// <summary>The Christian Fitness account (<see cref="SystemMembers"/>), with no password hash.</summary>
+    public static Member ChristianFitness(DateTimeOffset createdAt) => new()
+    {
+        Id = SystemMembers.ChristianFitnessId,
+        Name = SystemMembers.ChristianFitnessName,
+        Email = SystemMembers.ChristianFitnessEmail,
+        NormalizedEmail = NormalizeEmail(SystemMembers.ChristianFitnessEmail),
+        PasswordHash = string.Empty,
+        Status = MemberStatus.Active,
+        JoinedAt = createdAt,
+        IsSystem = true,
+    };
+
+    /// <summary>
     /// A new, active member. A blank home church is stored as none (L2-003 AC4); the interests
     /// are kept once each, in the order given.
     /// </summary>

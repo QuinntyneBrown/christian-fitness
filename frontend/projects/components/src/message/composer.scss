@@ -51,6 +51,38 @@
   }
 }
 
+// The note state (ADR 0065): a centred line in place of the field and Send.
+.composer--note {
+  justify-content: center;
+  min-height: var(--target-min);
+}
+
+.composer__note {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+  text-align: center;
+
+  a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+}
+
+// A send the server refused, above the composer (mock messages/system-refused).
+.composer__refused {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-2) var(--space-3) 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger-fg);
+}
+
 @media (min-width: 40rem) {
   .composer {
     padding: var(--space-4);

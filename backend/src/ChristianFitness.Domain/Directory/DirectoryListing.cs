@@ -160,6 +160,9 @@ public sealed class DirectoryListing
         Status = ListingStatus.Removed;
     }
 
+    /// <summary>The suggestion it was made from (ADR 0090).</summary>
+    public void MadeFrom(Guid suggestionId) => SuggestionId = suggestionId;
+
     /// <summary>Sets the stored photo, or clears it with none.</summary>
     public void ShowPhoto(string? photoKey) => PhotoKey = string.IsNullOrWhiteSpace(photoKey) ? null : photoKey;
 }

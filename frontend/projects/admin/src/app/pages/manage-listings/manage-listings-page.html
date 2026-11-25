@@ -1,0 +1,192 @@
+<div class="page-head">
+  <h1 class="admin-title">Listings</h1>
+  <p class="subtitle">Nothing goes in the directory until it passes all four checks.</p>
+</div>
+
+<cf-tabs label="Listings" [tabs]="tabs()" [current]="currentTab()" (navigate)="navigate($event)" />
+
+@if (tab() === 'suggestions') {
+  @switch (state().kind) {
+    @case ('loading') {
+      <cf-skeleton-region label="Loading suggestions">
+        <cf-split variant="picker-wide" flush>
+          <div class="listings__skeletons">
+            <cf-skeleton shape="tile" />
+            <cf-skeleton shape="tile" />
+          </div>
+          <div class="listings__skeletons">
+            <cf-skeleton shape="title" width="40" />
+            <cf-skeleton shape="text" width="90" />
+            <cf-skeleton shape="tile" />
+          </div>
+        </cf-split>
+      </cf-skeleton-region>
+    }
+    @case ('failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Suggestions didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="tryAgain()">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+          </svg>
+          Try again
+        </cf-button>
+      </cf-empty-state>
+    }
+    @default {
+      @if (cards().length === 0) {
+        <cf-empty-state
+          headingTag="p"
+          heading="No suggestions waiting"
+          text="When a member suggests someone for the directory, it shows here with the four checks to run."
+        >
+          <cf-button
+            slot="actions"
+            variant="secondary"
+            size="sm"
+            [href]="listedHref"
+            (click)="$event.preventDefault(); navigate(listedHref)"
+            >See what is listed</cf-button
+          >
+        </cf-empty-state>
+      } @else {
+        <cf-split variant="picker-wide" flush>
+          <div class="listings__picker">
+            <cf-pick-cards
+              label="Suggestions"
+              light
+              stack
+              [items]="cards()"
+              [current]="currentId()"
+              (picked)="choose($event)"
+            />
+            @if (state(); as list) {
+              @if (list.kind === 'ready' && list.list.next !== null) {
+                <div class="listings__more">
+                  <cf-button
+                    variant="secondary"
+                    [busy]="list.more"
+                    [disabled]="list.more"
+                    (click)="loadMoreSuggestions()"
+                    >Load more</cf-button
+                  >
+                </div>
+              }
+            }
+          </div>
+          @switch (detailState().kind) {
+            @case ('failed') {
+              <cf-empty-state
+                variant="error"
+                heading="This suggestion didn't load"
+                text="We couldn't reach Christian Fitness. Check your connection and try again."
+              >
+                <cf-button slot="actions" size="sm" (click)="tryAgain()">Try again</cf-button>
+              </cf-empty-state>
+            }
+            @case ('loading') {
+              <cf-skeleton-region label="Loading the suggestion">
+                <div class="listings__skeletons">
+                  <cf-skeleton shape="title" width="40" />
+                  <cf-skeleton shape="text" width="90" />
+                  <cf-skeleton shape="tile" />
+                </div>
+              </cf-skeleton-region>
+            }
+            @default {
+              @if (view(); as shown) {
+                <cf-suggestion
+                  [kind]="shown.kind"
+                  [name]="shown.name"
+                  [area]="shown.area"
+                  [website]="shown.website"
+                  [websiteLabel]="shown.websiteLabel"
+                  [note]="shown.note"
+                  [by]="shown.by"
+                  [checks]="shown.checks"
+                  [passed]="shown.passed"
+                  [canApprove]="shown.canApprove"
+                  [hint]="approveHint"
+                  [locked]="shown.locked"
+                  [approving]="approving()"
+                  [result]="shown.result"
+                  (checkChange)="setCheck($event)"
+                  (approve)="approve()"
+                  (decline)="decline()"
+                />
+              }
+            }
+          }
+        </cf-split>
+      }
+    }
+  }
+}
+
+@if (tab() === 'listed') {
+  @switch (listedState().kind) {
+    @case ('loading') {
+      <cf-table
+        caption="Listed"
+        [columns]="listedColumns"
+        [rows]="[]"
+        actionLabel="Edit"
+        [loading]="true"
+      />
+    }
+    @case ('failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Listings didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="tryListedAgain()">Try again</cf-button>
+      </cf-empty-state>
+    }
+    @default {
+      <cf-table
+        caption="Listed"
+        [columns]="listedColumns"
+        [rows]="listedRows()"
+        actionLabel="Edit"
+        [cell]="listedCell"
+        (action)="edit($event)"
+      />
+      <ng-template #listedCell let-row>
+        @if (listedViews().get(row.id); as view) {
+          <cf-listed-cell
+            [name]="view.name"
+            [initials]="view.initials"
+            [photoSrc]="view.photoSrc"
+            [person]="view.person"
+            [verified]="view.verified"
+          />
+        }
+      </ng-template>
+      @if (listedState(); as listed) {
+        @if (listed.kind === 'ready' && listed.next !== null) {
+          <div class="listings__more">
+            <cf-button
+              variant="secondary"
+              [busy]="listed.more"
+              [disabled]="listed.more"
+              (click)="loadMoreListed()"
+              >Load more</cf-button
+            >
+          </div>
+        }
+      }
+    }
+  }
+}
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

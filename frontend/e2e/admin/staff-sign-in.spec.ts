@@ -77,7 +77,13 @@ test.describe('Admin app, staff sign in', () => {
     await expect(shell.heading).toHaveText('Dashboard');
     expect(shell.location()).toBe('/');
     await expect.poll(() => shell.title()).toBe('Dashboard · Christian Fitness Admin');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Events', 'Services', 'Members']);
+    await expect(shell.navItems).toHaveText([
+      'Dashboard',
+      'Events',
+      'Listings',
+      'Services',
+      'Members',
+    ]);
     await expect(shell.currentItem).toHaveText('Dashboard');
     await expect(shell.userName).toHaveText('Dana Reyes');
     await expect(shell.userRole).toHaveText('Admin');

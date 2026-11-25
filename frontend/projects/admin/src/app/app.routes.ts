@@ -51,6 +51,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/event-registrations/event-registrations-page'),
       },
       {
+        // Listing suggestions and what is listed (journey 18; ADR 0090), for Admins and Moderators.
+        path: 'listings',
+        title: titled('Listings'),
+        loadComponent: () => import('./pages/manage-listings/manage-listings-page'),
+      },
+      {
         // The application queue (slice 21.1; ADR 0049).
         path: 'services',
         title: titled('Services'),

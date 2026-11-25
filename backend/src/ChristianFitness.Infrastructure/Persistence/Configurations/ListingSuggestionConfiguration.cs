@@ -24,6 +24,8 @@ internal sealed class ListingSuggestionConfiguration : IEntityTypeConfiguration<
         builder.Property(s => s.ChurchConnection).HasMaxLength(ListingSuggestion.ChurchConnectionMaxLength);
         builder.Property(s => s.Reason).HasMaxLength(ListingSuggestion.ReasonMaxLength);
         builder.Property(s => s.ContactEmail).HasMaxLength(ListingSuggestion.ContactEmailMaxLength);
+        builder.Property(s => s.DeclineReason).HasMaxLength(ListingSuggestion.DeclineReasonMaxLength);
+        builder.HasIndex(s => s.DecidedAt);
         builder.HasOne<Domain.Members.Member>().WithMany().HasForeignKey(s => s.SuggestedById).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(s => new { s.SuggestedById, s.SubmittedAt });
         builder.HasIndex(s => new { s.Status, s.SubmittedAt });

@@ -143,6 +143,38 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("DirectoryListings", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingClaim", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListingId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("ListingClaims", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingConnection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -218,10 +250,23 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DecidedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeclineReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("ListingId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("MayTellWhoSuggested")
                         .HasColumnType("boolean");
@@ -262,11 +307,36 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DecidedAt");
+
                     b.HasIndex("Status", "SubmittedAt");
 
                     b.HasIndex("SuggestedById", "SubmittedAt");
 
                     b.ToTable("ListingSuggestions", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.SuggestionCheck", b =>
+                {
+                    b.Property<Guid>("SuggestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Check")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ChangedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Passed")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("SuggestionId", "Check");
+
+                    b.ToTable("SuggestionChecks", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Events.ChatMessage", b =>
@@ -508,6 +578,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.PrimitiveCollection<string[]>("Interests")
                         .IsRequired()
                         .HasColumnType("text[]");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
@@ -872,6 +945,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("Sessions", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingClaim", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingConnection", b =>
                 {
                     b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
@@ -916,6 +998,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithMany()
                         .HasForeignKey("SuggestedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.SuggestionCheck", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.ListingSuggestion", null)
+                        .WithMany()
+                        .HasForeignKey("SuggestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

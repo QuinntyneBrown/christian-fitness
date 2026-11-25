@@ -1,0 +1,7 @@
+<span class="listed-cell">
+  <cf-listing-mark [initials]="initials()" [photoSrc]="photoSrc()" [person]="person()" size="sm" />
+  <span class="listed-cell__name">{{ name() }}</span>
+  @if (verified()) {
+    <cf-verified-mark />
+  }
+</span>

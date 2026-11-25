@@ -26,6 +26,11 @@ internal sealed partial class AuditBehavior<TRequest, TResponse>(AuditTrail trai
 
         trail.Open(command.AuditAction);
         var response = await next(cancellationToken).ConfigureAwait(false);
+        if (trail.NothingChanged)
+        {
+            return response;
+        }
+
         if (trail.Entry is null)
         {
             throw new InvalidOperationException($"{typeof(TRequest).Name} changed data without recording an audit entry.");

@@ -16,6 +16,12 @@
   margin-top: 0;
 }
 
+// The picker beside the record it chooses (Listings): a narrow column of pick cards.
+.split--picker-wide {
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
 @media (min-width: 64rem) {
   .split--home {
     grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
@@ -36,5 +42,9 @@
 
   .split--dashboard {
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+
+  .split--picker-wide {
+    grid-template-columns: var(--size-column-picker-wide) minmax(0, 1fr);
   }
 }

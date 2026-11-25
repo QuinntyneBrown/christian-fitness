@@ -1,0 +1,72 @@
+<cf-card>
+  <form class="suggestion" novalidate (submit)="submit($event)">
+    <p class="eyebrow">{{ kind() }}</p>
+    <h2 class="suggestion__name">{{ name() }}</h2>
+    <p class="suggestion__where">
+      {{ area() }}
+      @if (website(); as site) {
+        ·
+        <a class="suggestion__link" [href]="site" target="_blank" rel="noopener noreferrer"
+          >{{ websiteLabel() }}
+          <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 3h6v6" />
+            <path d="M10 14 21 3" />
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></svg
+          ><span class="visually-hidden"> (opens in a new tab)</span></a
+        >
+      }
+    </p>
+    @if (note(); as words) {
+      <blockquote class="suggestion__note">
+        <p>{{ words }}</p>
+      </blockquote>
+    }
+    <p class="suggestion__by">{{ by() }}</p>
+    <fieldset class="suggestion__checks">
+      <div class="suggestion__checks-head">
+        <legend class="suggestion__legend">Checks</legend>
+        <p class="section-head__note">{{ passed() }}</p>
+      </div>
+      <ul class="suggestion__list">
+        @for (row of checks(); track row.check) {
+          <li>
+            <label class="check-row">
+              <input
+                class="check-row__box"
+                type="checkbox"
+                name="check"
+                [value]="row.check"
+                [checked]="row.passed"
+                [disabled]="locked()"
+                (change)="tick(row.check, $event)"
+              />
+              <span>
+                <span class="check-row__label">{{ row.label }}</span>
+                <span class="check-row__desc">{{ row.standard }}</span>
+              </span>
+            </label>
+          </li>
+        }
+      </ul>
+    </fieldset>
+    <div class="suggestion__foot">
+      @if (result(); as said) {
+        <p class="suggestion__result" role="status">{{ said }}</p>
+      } @else {
+        <cf-button
+          type="submit"
+          [disabled]="!canApprove() || approving()"
+          [busy]="approving()"
+          [describedBy]="canApprove() ? null : hintId"
+          >{{ approving() ? 'Approving…' : 'Approve listing' }}</cf-button
+        >
+        <cf-button variant="secondary" [disabled]="approving()" (click)="decline.emit()"
+          >Decline</cf-button
+        >
+        @if (!canApprove()) {
+          <p class="suggestion__hint" [id]="hintId">{{ hint() }}</p>
+        }
+      }
+    </div>
+  </form>
+</cf-card>

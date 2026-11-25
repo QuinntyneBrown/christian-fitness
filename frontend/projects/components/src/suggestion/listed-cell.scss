@@ -1,0 +1,15 @@
+// The listed cell (suggestion.html, "Listed cell"): the mark, the name and the Verified mark on
+// one line in the Listed table.
+:host {
+  display: block;
+}
+
+.listed-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.listed-cell__name {
+  font-weight: var(--font-weight-semibold);
+}

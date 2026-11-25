@@ -1,8 +1,8 @@
 import type { StaffRoleName } from '@cf/api';
 import { pathOf } from '../errors/server-error';
 
-/** The four areas of the admin app, in the order the navigation lists them (L2-021 AC1). */
-export type AdminAreaKey = 'dashboard' | 'events' | 'services' | 'members';
+/** The areas of the admin app, in the order the navigation lists them (L2-021 AC1). */
+export type AdminAreaKey = 'dashboard' | 'events' | 'listings' | 'services' | 'members';
 
 /** One area: its key, the navigation's label and the path it opens. */
 export interface AdminArea {
@@ -11,10 +11,11 @@ export interface AdminArea {
   path: string;
 }
 
-/** Dashboard, Events, Services and Members (mock `admin-nav`; ADR 0011). */
+/** Dashboard, Events, Listings, Services and Members (mock `admin-nav`; ADR 0011, ADR 0090). */
 export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/' },
   { key: 'events', label: 'Events', path: '/events' },
+  { key: 'listings', label: 'Listings', path: '/listings' },
   { key: 'services', label: 'Services', path: '/services' },
   { key: 'members', label: 'Members', path: '/members' },
 ];
@@ -34,12 +35,12 @@ export function currentAdminArea(url: string): AdminAreaKey | null {
   return area?.key ?? null;
 }
 
-/** The areas a Moderator opens (L2-019 AC1; ADR 0020): they moderate members, nothing more. */
-const MODERATOR_AREAS: readonly AdminAreaKey[] = ['dashboard', 'members'];
+/** The areas a Moderator opens (L2-019 AC1; ADR 0020, ADR 0064): they moderate members and review listings. */
+const MODERATOR_AREAS: readonly AdminAreaKey[] = ['dashboard', 'listings', 'members'];
 
 /**
  * Whether `role` may use `area` (L2-019 AC1, AC2; ADR 0020): an Admin every area, a Moderator the
- * Dashboard and Members. The API decides each request with the same table (`StaffAccess`); this
+ * Dashboard, Listings and Members. The API decides each request with the same table (`StaffAccess`); this
  * only adapts what the admin app shows. A role it does not know opens nothing.
  */
 export function canManage(role: StaffRoleName, area: AdminAreaKey): boolean {

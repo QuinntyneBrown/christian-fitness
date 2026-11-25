@@ -26,8 +26,15 @@ export class WebEventChatPage {
   readonly unavailable: Locator;
   /** Report on received messages (slice 25.1; ADR 0000): one button per message from another member. */
   readonly reportButtons: Locator;
+  /** The Christian Fitness account (ADR 0065): the note that replaces the composer, its link and a refused send. */
+  readonly composerNote: Locator;
+  readonly feedbackLink: Locator;
+  readonly composerRefused: Locator;
 
   constructor(private readonly page: Page) {
+    this.composerNote = page.locator('.composer__note');
+    this.feedbackLink = this.composerNote.getByRole('link', { name: 'Send feedback' });
+    this.composerRefused = page.locator('.composer__refused');
     this.cancelledNotice = page.getByRole('status').filter({ hasText: 'This event was cancelled' });
     this.messagesLink = page.getByRole('link', { name: 'Back to messages' });
     this.unavailable = page.getByRole('heading', { name: "You can't message this member" });

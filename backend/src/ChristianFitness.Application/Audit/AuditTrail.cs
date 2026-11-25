@@ -16,6 +16,9 @@ public sealed class AuditTrail(IAppDbContext db, TimeProvider time)
     /// <summary>The entry the handler recorded, or none yet.</summary>
     internal AuditEntry? Entry { get; private set; }
 
+    /// <summary>The handler found nothing to change, so there is nothing to audit.</summary>
+    internal bool NothingChanged { get; private set; }
+
     /// <summary>Opens the trail for a command doing <paramref name="action"/>.</summary>
     internal void Open(string action)
     {
@@ -42,5 +45,19 @@ public sealed class AuditTrail(IAppDbContext db, TimeProvider time)
 
         Entry = AuditEntry.Record(actorMemberId, action, recordType, recordId, time.GetUtcNow());
         db.AuditEntries.Add(Entry);
+    }
+
+    /// <summary>
+    /// Says the command changed nothing, such as setting a check to the value it has (ADR 0090), so
+    /// no entry is recorded and none is required.
+    /// </summary>
+    public void Unchanged()
+    {
+        if (_action is null || Entry is not null)
+        {
+            throw new InvalidOperationException("Only an auditable command that recorded nothing changes nothing.");
+        }
+
+        NothingChanged = true;
     }
 }

@@ -20,6 +20,8 @@ public sealed class StaffAccessTests
         { StaffRoleName.Moderator, StaffArea.Events, false, "a Moderator does not manage events" },
         { StaffRoleName.Moderator, StaffArea.Services, false, "a Moderator does not manage services" },
         { StaffRoleName.Moderator, StaffArea.Members, true, "a Moderator moderates members" },
+        { StaffRoleName.Admin, StaffArea.Directory, true, "an Admin reviews listings (ADR 0064)" },
+        { StaffRoleName.Moderator, StaffArea.Directory, true, "a Moderator reviews listings (ADR 0064)" },
         // The backend's own rows: the console itself, and an endpoint in no area yet.
         { StaffRoleName.Admin, StaffArea.Console, true, "an Admin has a staff session" },
         { StaffRoleName.Moderator, StaffArea.Console, true, "a Moderator has a staff session" },

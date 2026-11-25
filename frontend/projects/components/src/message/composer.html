@@ -1,19 +1,35 @@
-<form class="composer" (submit)="submit($event)">
-  <label class="visually-hidden" [for]="inputId">{{ label() }}</label>
-  <input
-    class="composer__input"
-    [id]="inputId"
-    [placeholder]="label()"
-    autocomplete="off"
-    [value]="draft()"
-    (input)="type($event)"
-  />
-  <button class="composer__send" type="submit" aria-label="Send" [disabled]="empty()">
-    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"
-      />
-      <path d="m21.854 2.147-10.94 10.939" />
+@if (refusal(); as refusal) {
+  <p class="composer__refused" role="alert">
+    <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" x2="12" y1="8" y2="12" />
+      <line x1="12" x2="12.01" y1="16" y2="16" />
     </svg>
-  </button>
-</form>
+    {{ refusal }}
+  </p>
+}
+@if (locked()) {
+  <div class="composer composer--note">
+    <p class="composer__note"><ng-content /></p>
+  </div>
+} @else {
+  <form class="composer" (submit)="submit($event)">
+    <label class="visually-hidden" [for]="inputId">{{ label() }}</label>
+    <input
+      class="composer__input"
+      [id]="inputId"
+      [placeholder]="label()"
+      autocomplete="off"
+      [value]="draft()"
+      (input)="type($event)"
+    />
+    <button class="composer__send" type="submit" aria-label="Send" [disabled]="empty()">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"
+        />
+        <path d="m21.854 2.147-10.94 10.939" />
+      </svg>
+    </button>
+  </form>
+}

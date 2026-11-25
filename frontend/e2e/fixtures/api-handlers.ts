@@ -1,6 +1,7 @@
 import type { Request, Route } from '@playwright/test';
 import { NOTHING_AWAITING, QUIET_WEEKS } from './admin-dashboard';
 import { NO_APPLICATIONS } from './admin-applications';
+import { NO_COUNTS } from './admin-directory';
 import { TEAM_HOST } from './admin-events';
 import { NO_LISTINGS } from './admin-listings';
 import { NO_NOTIFICATIONS } from './notifications';
@@ -85,6 +86,7 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
  * `GET /api/admin/dashboard/activity` answers eight quiet weeks, so the Dashboard opens empty (ADR 0000), and
  * `GET /api/admin/dashboard/awaiting` answers nothing waiting (ADR 0060), and
+ * `GET /api/admin/counts` answers nothing waiting, so the admin navigation has no count (ADR 0090), and
  * `GET /api/admin/services/applications` answers an empty queue (ADR 0049), and
  * `GET /api/services` answers nobody listed, so Services opens empty (ADR 0051), and
  * `GET /api/services/{id}` answers 404 `service_not_found` (ADR 0052), and
@@ -123,6 +125,7 @@ export class ApiHandlers {
       path: '/api/admin/dashboard/awaiting',
       handler: () => ({ json: NOTHING_AWAITING }),
     },
+    { method: 'GET', path: '/api/admin/counts', handler: () => ({ json: NO_COUNTS }) },
     {
       method: 'GET',
       path: '/api/admin/services/applications',

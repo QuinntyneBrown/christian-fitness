@@ -4,6 +4,7 @@ import {
   answerAwaiting,
   BUSY_WEEKS,
   SOME_AWAITING,
+  THREE_SUGGESTIONS,
   type AwaitingFixture,
 } from '../fixtures/admin-dashboard';
 import { MODERATOR_SIGNED_IN } from '../fixtures/api-handlers';
@@ -156,6 +157,36 @@ test.describe('Admin app, the Dashboard work awaiting staff', () => {
     expect(asked.asked).toBe(1);
   });
 
+  // L2-020 AC11 (ADR 0090), mock admin-dashboard/default: the suggestions are one line, counted each.
+  test('names the waiting suggestions in one line ahead of the applications, and Check opens Listings', async ({
+    page,
+    api,
+  }) => {
+    answerAwaiting(api, { ...SOME_AWAITING, suggestions: THREE_SUGGESTIONS });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 7');
+    await expect(dashboard.attentionItems).toHaveCount(5);
+    expect((await dashboard.attentionTexts())[0]).toEqual({
+      title: '3 listings suggested by members',
+      meta: 'Eastside Ladies Who Lift, Coach Marcus Delaney, Rooted Physio',
+      href: '/listings',
+    });
+    expect((await dashboard.attentionTexts())[1]?.title).toBe(
+      'Hannah Bergstrom applied to list services',
+    );
+    expect(await dashboard.attentionActions()).toEqual([
+      'Check 3 listings suggested by members',
+      'Review Hannah Bergstrom applied to list services',
+      'Review Samuel Osei applied to list services',
+      'Review Lena Park, RD applied to list services',
+      'Review Kevin Brooks was flagged',
+    ]);
+    await expect(dashboard.seeAllLinks).toHaveCount(0);
+  });
+
   test('with more waiting than shown, says how many and links to all of them', async ({
     page,
     api,
@@ -293,6 +324,27 @@ test.describe('Admin app, the Dashboard work awaiting staff', () => {
       },
     ]);
     await expect(dashboard.attention).not.toContainText('applied to list services');
+  });
+
+  // L2-020 AC11 (ADR 0090): a Moderator reviews suggestions too; one is worded as one.
+  test('a Moderator is shown a single suggestion as one listing suggested by a member', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/session', () => ({ json: MODERATOR_SIGNED_IN }));
+    answerAwaiting(api, {
+      flaggedMembers: { total: 0, items: [] },
+      suggestions: { total: 1, items: [{ id: 's1', name: '<b>Rooted</b> Physio' }] },
+    });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 1');
+    expect(await dashboard.attentionTexts()).toEqual([
+      { title: '1 listing suggested by a member', meta: '<b>Rooted</b> Physio', href: '/listings' },
+    ]);
+    await expect(dashboard.attention.locator('b')).toHaveCount(0);
   });
 
   test('a Moderator with no flagged member is told only about reports', async ({ page, api }) => {

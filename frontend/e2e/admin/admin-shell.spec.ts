@@ -35,10 +35,16 @@ test.describe('Admin app, navigation at LG and wider', () => {
     await shell.open();
 
     await expect(shell.brandName).toHaveText('Christian Fitness');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Events', 'Services', 'Members']);
+    await expect(shell.navItems).toHaveText([
+      'Dashboard',
+      'Events',
+      'Listings',
+      'Services',
+      'Members',
+    ]);
     expect(
       await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
-    ).toEqual(['/', '/events', '/services', '/members']);
+    ).toEqual(['/', '/events', '/listings', '/services', '/members']);
     await expect(shell.currentItem).toHaveCount(1);
     await expect(shell.currentItem).toHaveText('Dashboard');
     expect(await shell.navIsOneRow()).toBe(false);
