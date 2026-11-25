@@ -98,7 +98,7 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   `readonly`; output `valueChange`. Slice 2.2 adds `error`, `errorLink` and `errorHref`: with an
   error the input is `aria-invalid="true"` and described by the `field__error` (id
   `{fieldId}-error`) in place of the hint, and the link, when given, follows the sentence as an
-  `inline-link`.
+  `link`.
 - **`InterestPicker`** — presentation component (`cf-interest-picker`) rendering the fieldset,
   the legend "What are you into?" and one `interest` toggle per option with `aria-pressed`;
   inputs `legend`, `options`, `selected`, `disabled`; output `toggled` with the pressed key. On a
@@ -183,7 +183,7 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
 ### Open questions
 
 - **Existing code contradicts the amended requirement.** `JoinPage` has no "Sign up with Google",
-  no `or-divider`, no Google mode and no terms line; `Member` has no `GoogleSubject` and requires a
+  no `divider--label`, no Google mode and no terms line; `Member` has no `GoogleSubject` and requires a
   password hash. The next slices add each.
 - **The Google photo.** The sign-in notice promises "we'll bring over your name and photo", and the
   `sso-account` line shows an avatar; `Member` has no photo, and `L2-049` AC9 forbids loading an

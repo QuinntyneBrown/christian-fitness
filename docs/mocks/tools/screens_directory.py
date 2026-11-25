@@ -192,7 +192,7 @@ def _():
            '<span class="skeleton skeleton--text-sm w-30"></span><span class="skeleton skeleton--text w-80"></span></div></li>')
     body = f"""    <div class="container page--detail">
       <a class="back-link" href="{href("events", "series")}">{icon("arrow-left")} All events</a>
-      <span class="skeleton skeleton--image-banner"></span>
+      <span class="skeleton skeleton--image-banner skeleton--image-banner-wide"></span>
       <div class="split split--detail">
         <div class="skeleton-stack">
           <span class="skeleton skeleton--text-sm w-30"></span>
@@ -264,7 +264,7 @@ def follow_button(l: dict, *, big: bool = False, following: bool | None = None) 
     on = l["following"] if following is None else following
     cls = "follow follow--lg" if big else "follow"
     return (f'<button class="{cls}" type="button" aria-pressed="{"true" if on else "false"}">'
-            f'{icon("check") if on else ""}{"Following" if on else "Follow"}<span class="visually-hidden"> {l["name"]}</span></button>')
+            f'{icon("check") if on else ""}Follow<span class="visually-hidden"> {l["name"]}</span></button>')
 
 
 def listing_row(l: dict) -> str:
@@ -302,7 +302,7 @@ def directory_page(body: str, *, active: str = "All", search: str = "", counts: 
       <div class="page-head">
         <div>
           <h1 class="display page-title">Directory</h1>
-          <p class="subtitle subtitle--measure">The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.</p>
+          <p class="subtitle subtitle--narrow">The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.</p>
           <p class="page-head__more"><a class="text-link text-link--ui" href="{href("suggest-listing")}">Know someone who belongs here? Suggest a listing</a></p>
         </div>
         <form class="search search--wide" role="search">
@@ -426,7 +426,7 @@ def profile_page(l: dict) -> str:
     sr_list, ev_list = hosted_by(l["id"])
     hosting = len(sr_list) + len(ev_list)
     verified = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if l["verified"] else ""
-    website = (f'<div class="key-facts__row"><dt>{icon("globe")}Website</dt><dd><a class="inline-link" href="https://{l["website"]}" rel="noopener noreferrer" target="_blank">{l["website"]}<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
+    website = (f'<div><dt>{icon("globe")}Website</dt><dd><a class="link" href="https://{l["website"]}" rel="noopener noreferrer" target="_blank">{l["website"]}<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
                if l["website"] else "")
     links = "".join(f"""<li><a class="mini-row" href="{listing_link(LS[i])}">
                   {listing_mark(LS[i], "sm")}
@@ -466,11 +466,11 @@ def profile_page(l: dict) -> str:
           </section>
         </div>
         <aside class="aside-stack aside-stack--tight sticky-aside" aria-label="About this listing">
-          <dl class="key-facts">
-            <div class="key-facts__row"><dt>{icon("map-pin")}Area</dt><dd>{l["area"]}</dd></div>
+          <dl class="spec-list">
+            <div><dt>{icon("map-pin")}Area</dt><dd>{l["area"]}</dd></div>
             {website}
-            <div class="key-facts__row"><dt>Followers</dt><dd>{l["followers"]:,}</dd></div>
-            <div class="key-facts__row"><dt>On Christian Fitness</dt><dd>{l["since"]}</dd></div>
+            <div><dt>Followers</dt><dd>{l["followers"]:,}</dd></div>
+            <div><dt>On Christian Fitness</dt><dd>{l["since"]}</dd></div>
           </dl>
           {connected}
         </aside>
@@ -507,7 +507,7 @@ def _():
     body = f"""    <div class="container page--detail">
       <a class="back-link" href="{href("directory")}">{icon("arrow-left")} Directory</a>
       <header class="listing-head">
-        <div class="listing-head__who"><span class="skeleton skeleton--avatar-2xl skeleton--square"></span>
+        <div class="listing-head__who"><span class="skeleton skeleton--avatar-profile skeleton--mark-xl"></span>
           <div class="listing-head__body skeleton-stack"><span class="skeleton skeleton--text-sm w-20"></span><h1 class="visually-hidden">Loading listing</h1>
           <span class="skeleton skeleton--title-lg"></span><span class="skeleton skeleton--text w-55"></span></div></div>
       </header>

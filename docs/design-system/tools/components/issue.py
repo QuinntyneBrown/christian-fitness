@@ -18,7 +18,7 @@ WEEK = "".join(f'<li class="event-row"><div class="event-row__date"><p class="ev
                f'<div class="event-row__body"><p class="event-row__title event-row__title--wrap">{e["title"]}</p>'
                f'<p class="event-row__meta">{e["weekday"]} {e["time"]} · {e["area"]} · {e["price"]}</p></div></li>' for e in MEMBER_EVENTS[:2])
 CAL = (f'<section class="issue__section"><h3 class="display rule-title">On the calendar</h3><ul class="list-divided">{WEEK}</ul>'
-       '<a class="inline-link issue__more" href="#top">See every event</a></section>')
+       '<a class="link issue__more" href="#top">See every event</a></section>')
 
 VERSE = ('<section class="issue__verse" aria-label="Scripture, example"><blockquote><p class="issue__quote">“Do you not know that your bodies are temples of the Holy Spirit?”</p>'
          '<cite class="issue__cite">1 Corinthians 6:19</cite></blockquote></section>')
@@ -84,7 +84,7 @@ SPEC = {
         + "<h3>Links</h3>",
         "matrix": matrix([("Default", ""), ("Hover", ' data-state="hover"'), ("Focus", ' data-state="focus"')], [
             ("Read the story", '<a class="btn btn--primary issue__action" href="#top"{a}>Read the story</a>'),
-            ("See every event", '<a class="inline-link issue__more" href="#top"{a}>See every event</a>', {"Hover": None}),
+            ("See every event", '<a class="link issue__more" href="#top"{a}>See every event</a>', {"Hover": None}),
             ("Footer link", '<footer class="issue__footer"><p class="issue__links"><a href="#top"{a}>Unsubscribe</a></p></footer>', {"Hover": None}),
         ]),
         "themes": themes(f'<div class="w-80">{issue(NOTE)}</div>', "block canvas"),

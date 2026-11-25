@@ -1,7 +1,7 @@
 from dslib import ex, icon, kbd, matrix, mock, themes
 
 DIRECTORY = ('<div class="page-head"><div><p class="display page-title">Directory</p>'
-             '<p class="subtitle subtitle--measure">The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.</p>'
+             '<p class="subtitle subtitle--narrow">The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.</p>'
              '<p class="page-head__more"><a class="text-link text-link--ui" href="#top">Know someone who belongs here? Suggest a listing</a></p></div>'
              f'<form class="search search--wide" role="search"><label class="visually-hidden" for="sh-search">Search the directory</label>{icon("search", "search__icon")}'
              '<input class="search__input" id="sh-search" type="search" placeholder="Search names, areas, sports"></form></div>')
@@ -29,7 +29,7 @@ SPEC = {
     "meta": ["Status: stable, extended", "Real headings (<code>h1</code>–<code>h3</code>)", "Every app"],
     "overview": """<p>These are typographic blocks, not containers: they name what follows. Use the real heading level the outline needs and pick the class for its look.</p>
 <ul>
-<li><b>Page head</b> (<code>.page-head</code>): the row at the top of a list page: title (<code>.page-title</code>), <code>.subtitle</code>, and a page action or search, as in the <a href="../patterns/navigation.html">navigation pattern</a>. <code>--wrap</code> keeps title and action on one wrapping row (the admin console). <code>.page-head__more</code> adds one secondary link under the subtitle (Directory: \"Suggest a listing\"). <code>.subtitle--measure</code> caps a long subtitle at <code>--layout-measure-narrow</code>.</li>
+<li><b>Page head</b> (<code>.page-head</code>): the row at the top of a list page: title (<code>.page-title</code>), <code>.subtitle</code>, and a page action or search, as in the <a href="../patterns/navigation.html">navigation pattern</a>. <code>--wrap</code> keeps title and action on one wrapping row (the admin console). <code>.page-head__more</code> adds one secondary link under the subtitle (Directory: \"Suggest a listing\"). <code>.subtitle--narrow</code> caps a long subtitle at <code>--layout-measure-narrow</code>.</li>
 <li><b>Title after a back link</b> (<code>.page-title--after-back</code>): a page title that follows a <a href="link.html">back link</a> (Preferences) gets 16px above it.</li>
 <li><b>Rule title</b> (<code>.rule-title</code>): a news-column heading over a 2px ink rule (rail \"Upcoming events\", \"Most read\"; the newsletter's \"On the calendar\"). <code>--inline</code> drops the rule when the title sits in a row that draws its own (\"Latest issue\" with its number).</li>
 <li><b>Section head</b> (<code>.section-head</code>): a <code>.section-title</code> with a muted note or link on the same baseline (\"Sessions · 3 done · 5 to go\").</li>
@@ -42,7 +42,7 @@ SPEC = {
         "callouts": [(4, 14), (4, 42), (4, 70), (80, 30)],
         "parts": [
             ("Page title", "<code>.display.page-title</code>, <code>--font-size-5xl</code>; the page's <code>h1</code>."),
-            ("Subtitle", "<code>.subtitle</code>, muted; <code>--measure</code> caps it at 36rem."),
+            ("Subtitle", "<code>.subtitle</code>, muted; <code>--narrow</code> caps it at the narrow measure."),
             ("More link", "<code>.page-head__more</code>: one secondary link, 8px under the subtitle."),
             ("Action or search", "The page's one action, aligned to the title's bottom from 640px."),
         ],
@@ -115,7 +115,7 @@ SPEC = {
         "snippet": '''<div class="page-head">
   <div>
     <h1 class="display page-title">Directory</h1>
-    <p class="subtitle subtitle--measure">The churches, clubs, coaches and companies behind every event…</p>
+    <p class="subtitle subtitle--narrow">The churches, clubs, coaches and companies behind every event…</p>
     <p class="page-head__more"><a class="text-link text-link--ui" href="/directory/suggest">Know someone who belongs here? Suggest a listing</a></p>
   </div>
   <form class="search search--wide" role="search">…</form>
@@ -131,7 +131,7 @@ SPEC = {
         "classes": [
             ("<code>.page-head</code> <code>--wrap</code> <code>__more</code>", "Title block and action; stacked then a row; wrapping row; one more link."),
             ("<code>.page-title</code> <code>--after-back</code>", "Page title; 16px above when it follows a back link."),
-            ("<code>.subtitle</code> <code>--measure</code>", "Muted line under a title; capped at 36rem."),
+            ("<code>.subtitle</code> <code>--narrow</code>", "Muted line under a title; capped at the narrow measure."),
             ("<code>.rule-title</code> <code>--inline</code>", "Column heading over a 2px ink rule; inline drops the rule."),
             ("<code>.section-head</code> <code>__note</code>", "Section title and a muted note on one baseline."),
             ("<code>.section-title</code> <code>--sm</code>", "Section heading; small in side columns."),
@@ -140,7 +140,7 @@ SPEC = {
     },
     "sources": {
         "mocks": [
-            mock("pages/directory/default", "page head with more link, subtitle--measure"),
+            mock("pages/directory/default", "page head with more link, subtitle--narrow"),
             mock("pages/preferences/default", "page-title--after-back"),
             mock("pages/landing/default", "rule titles in the rail"),
             mock("pages/subscribe/default", "rule-title--inline"),
@@ -148,6 +148,6 @@ SPEC = {
             mock("pages/listing-profile/default", "section-title--sm"),
             mock("pages/admin-listings/default", "eyebrow--sm, page-head--wrap"),
         ],
-        "drift": "<code>.subtitle--measure</code> and <code>.subtitle--narrow</code> are identical (both <code>--layout-measure-narrow</code>); keep one (open). <code>.section-head</code> has no wrap rule, so a long note squeezes the title on phones (open).",
+        "drift": "Closed: the duplicate <code>.subtitle--measure</code> was removed; <code>.subtitle--narrow</code> remains. <code>.section-head</code> has no wrap rule, so a long note squeezes the title on phones (open).",
     },
 }

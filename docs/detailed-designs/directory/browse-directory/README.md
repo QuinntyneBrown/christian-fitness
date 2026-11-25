@@ -60,7 +60,7 @@ Nothing on the screen reaches a person beyond what the listing publishes: rows c
 - **Kind names in the address.** `/directory?kind=<name>` does not fix `<name>`. A lower-case, hyphenated singular (`church-ministry`) is proposed; `<TO SUPPLY>` in an ADR. `L2-054` does not say what an unknown kind in the address shows; showing All, as Events does (`L2-009` AC9), is proposed.
 - **Paging states.** `L2-054` AC7 applies `L2-009` AC5 and AC7 to the directory, including the 200-item cap and the "didn't load" message for a next page. The directory mock has no `loading-more`, `more-error` or `capped` state, so their copy is `<TO SUPPLY>`; the states belong in the mock first.
 - **Search behaviour.** The minimum of 2 characters is a client rule in `L2-054` AC4. Whether the API refuses a shorter `q`, the maximum length of `q`, and the database collation and index for a case-insensitive search on PostgreSQL are `<TO SUPPLY>`.
-- **Design-system pages.** The blocks `listing-row`, `listing-mark`, `verified-mark`, `follow` and `directory-group` are styled in `docs/design-system/assets/components.css` but have no page in `docs/design-system/components/`. `AGENTS.md` requires each component built from its design-system page; the pages need extracting before the components are built.
+- **Design-system pages (resolved).** The blocks `listing-row`, `listing-mark`, `verified-mark`, `follow` and `directory-group` now have pages in `docs/design-system/components/` (`listing-row`, `follow-button`); each component is built from its page, as `AGENTS.md` requires.
 
 ## Requirements
 

@@ -328,7 +328,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 <div><p class="pref__legend">Delete your account</p><p class="pref__desc">Removes your profile and messages within 30 days</p></div>
                 <button class="btn btn--secondary btn--sm pref__delete" type="button" data-mock-href="{href("delete-account")}">Delete account</button>
               </div>
-              <p class="pref__note">Read how we handle your information in our <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
+              <p class="pref__note">Read how we handle your information in our <a class="link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
     nav = "".join(f'<li><a class="side-nav__link" href="#{i}">{l}</a></li>' for i, l in PREF_SECTIONS)
     return f"""    <div class="container page">
       <a class="back-link" href="{href("profile")}">{icon("arrow-left")} Profile</a>
@@ -481,7 +481,7 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
         {body}
         <div class="legal__questions">
           <p class="legal__questions-title">Questions?</p>
-          <p>Email privacy@christianfitness.ca, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 401 Richmond St W, Toronto, ON M5V 3A8.</p>
+          <p>Email privacy@christianfitness.ca, or <a class="link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 401 Richmond St W, Toronto, ON M5V 3A8.</p>
         </div>
       </div>
     </div>

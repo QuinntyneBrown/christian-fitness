@@ -5,7 +5,7 @@ title Components — Create a member account
 
 Container_Boundary(web, "Member web app") {
   Component(page, "JoinPage", "Angular routed component", "Join form, Sign up with Google, Finish your profile")
-  Component(gui, "GoogleButton, Divider, sso-notice", "components library", "google-button, or-divider, sso-account blocks")
+  Component(gui, "GoogleButton, Divider, sso-notice", "components library", "google-button, divider--label, sso-account blocks")
   Component(ses, "HttpSessionService", "SESSION_SERVICE", "startGoogle, completeGoogle")
   Component(ui, "InterestPicker", "components library", "Interest toggles")
   Component(svc, "HttpAccountService", "ACCOUNT_SERVICE", "HTTP client")

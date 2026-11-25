@@ -242,7 +242,7 @@ def issue() -> str:
         <section class="issue__section" aria-labelledby="issue-calendar">
           <h2 class="display rule-title" id="issue-calendar">On the calendar</h2>
           <ul class="list-divided">{week}</ul>
-          <a class="inline-link issue__more" href="{href("landing")}">See every event</a>
+          <a class="link issue__more" href="{href("landing")}">See every event</a>
         </section>
         <section class="issue__section" aria-labelledby="issue-briefs">
           <h2 class="display rule-title" id="issue-briefs">Worth your time</h2>
@@ -353,7 +353,7 @@ def story_page(st: dict, *, copied: bool = False) -> str:
       <div class="story__body">
         {paras}
         {related}
-        <p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="inline-link" href="{href("feedback", "correction")}">Send a correction</a></p>
+        <p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="link" href="{href("feedback", "correction")}">Send a correction</a></p>
       </div>
     </article>
     <section class="story-more" aria-labelledby="more-title">

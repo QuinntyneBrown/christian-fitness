@@ -45,7 +45,7 @@ The feature is a vertical slice from the Send feedback screen to the database. N
 - **Suspended members.** `L2-062` AC11 refuses a suspended member's suggestion; `L2-063` says nothing about feedback. `<TO SUPPLY>`.
 - **Screenshot refusal code.** `L2-063` AC4 names no code for a refused file; the validator needs one, and the event image upload's codes ([ADR 0025](../../../adr/0025-edit-an-event.md)) are the nearest precedent.
 - **Device detail.** AC6 says "device and browser family"; the inbox mock shows a version ("Safari 18"). The design keeps the major version only.
-- **Design-system blocks.** The mock's `context-chip` ("About this page") and the success `done` block have no design-system page of their own; they should be placed in `choice-card` or `form-layout` before they are built.
+- **Design-system blocks (resolved).** The mock's `context-chip` ("About this page") and the success `done` block are documented on the design-system page `steps`; the components are built from it.
 
 ## Requirements
 

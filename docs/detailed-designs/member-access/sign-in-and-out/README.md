@@ -130,9 +130,9 @@ route first asked for ([ADR 0012](../../../adr/0012-sign-in-protections.md)).
 
 - **Existing code contradicts the amended mock.** `SignInPage` renders through `AuthLayout`, with
   "Forgot your password?" under the password field and no Google button; the mock now draws the
-  `signin` card with "Forgot password?" beside the label. The `signin` block has no design-system
-  page yet: it belongs beside `AuthLayout` and `StaffLayout` in `components/src/layout/` once the
-  layout page draws it. The `invalid` message gains the Google hint. The next slices change each.
+  `signin` card with "Forgot password?" beside the label. The `signin` block now has a section on
+  the design-system `layout` page beside `AuthLayout` and `StaffLayout`; it is built in
+  `components/src/layout/` from that page. The `invalid` message gains the Google hint. The next slices change each.
 - **"Use another account".** It starts a new attempt; whether that attempt asks Google to show the
   chooser (`prompt=select_account`) is open in [sign in with Google](../sign-in-with-google/README.md).
 - **Too many Google attempts.** No mock state shows a 429 from the Google start (`L2-049` AC7); a

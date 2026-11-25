@@ -61,7 +61,7 @@ User-supplied names, areas, websites and the member's words are rendered as text
 - **"Admins only" copy.** `L2-019` AC5's sentence names Events and Services only; the wording for Listings, and for the other new Admin-only areas, is `<TO SUPPLY>`.
 - **Moderators.** Whether a Moderator should open Listings is open (`docs/mocks/README.md` open question 8); `L2-073` AC11 gives them "Admins only" and the design follows it.
 - **Navigation count.** `L2-021` AC3 puts the waiting count on Listings, with "3 suggestions to check" for assistive technology in the mock. Which endpoint serves the navigation's counts belongs to the admin navigation design.
-- **Design-system pages.** `pick-card`, `check-row`, `suggestion` and `row-link` have no page in `docs/design-system/components/`; they need one before they are built, or the panel is composed from existing library components.
+- **Design-system pages (resolved).** `pick-card` is documented on `pick-list`, and `check-row` and `row-link` on `suggestion`, in `docs/design-system/components/`; the panel is built from those pages (`suggestion`, `pick-list`, `listing-row`), with no further page needed.
 
 ## Requirements
 
