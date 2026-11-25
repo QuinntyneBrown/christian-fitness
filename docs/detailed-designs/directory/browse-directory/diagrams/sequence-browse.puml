@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — open the directory and choose a kind
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "DirectoryPage" as page
+  participant "DirectoryApi (DIRECTORY_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "DirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListDirectoryHandler" as h
+  participant "HostingCount" as host
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /directory
+page --> actor : Heading, search and chips; skeleton rows (L2-054 AC6)
+page -> client : list(null, null, null)
+client -> ctrl : GET /api/directory
+ctrl -> h : Send ListDirectoryQuery
+h -> db : Status == Published only (L2-054 AC8); count per kind
+db --> h : Kind counts
+h -> db : Order by kind order, name, id; take 51; caller's follows
+db --> h : Rows
+h -> host : Hosting for each row, now from TimeProvider
+host --> h : Counts
+h --> ctrl : DirectoryPageDto (counts, 50 rows, NextCursor)
+ctrl --> client : 200 JSON
+client --> page : DirectoryPageDto
+alt load failed
+  page --> actor : error-state "didn't load" with Try again (L2-054 AC6)
+else no published listing
+  page --> actor : empty-state pointing to Events
+else rows
+  page -> page : DirectoryFeed.groups(): one directory-group per kind with rows (L2-054 AC1)
+  page --> actor : Groups of listing-row with mark, Verified, tagline, area, hosting, Follow (L2-054 AC2)
+end
+actor -> page : Choose kind chip "Instructors"
+page -> page : Address /directory?kind=instructor; chip aria-current="page"; reset DirectoryFeed (L2-054 AC3)
+page -> client : list("Instructor", null, null)
+client -> ctrl : GET /api/directory?kind=Instructor
+ctrl -> h : Send ListDirectoryQuery
+h -> db : Same filter plus kind
+db --> h : Rows
+h --> ctrl : DirectoryPageDto
+ctrl --> client : 200 JSON
+client --> page : DirectoryPageDto
+page --> actor : One list without a group heading; chip counts unchanged
+@enduml

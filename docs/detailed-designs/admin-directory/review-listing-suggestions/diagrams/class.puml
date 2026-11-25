@@ -1,0 +1,126 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Review listing suggestions
+
+package "Backend" {
+  enum ListingCheck {
+    Credentials
+    Insurance
+    TwoReferences
+    Conversation
+  }
+  enum SuggestionStatus {
+    Waiting
+    Approved
+    Declined
+  }
+  class ListingSuggestion {
+    +Guid Id
+    +Guid SuggestedById
+    +SuggestionStatus Status
+    +DateTimeOffset? DecidedAt
+    +Guid? DecidedById
+    +string? DeclineReason
+    +Guid? ListingId
+    +SetCheck(check, passed, by, at): void
+    +Approve(by, at): DirectoryListing
+    +Decline(reason, by, at): void
+  }
+  class SuggestionCheck {
+    +ListingCheck Check
+    +bool Passed
+    +Guid? ChangedById
+    +DateTimeOffset? ChangedAt
+  }
+  class DirectoryListing {
+    +ListingStatus Status = Draft
+  }
+  class SetSuggestionCheckCommand <<IAuditableCommand>> {
+    +Guid SuggestionId
+    +ListingCheck Check
+    +bool Passed
+    +AuditAction = "suggestion.check_set"
+  }
+  class ApproveSuggestionCommand <<IAuditableCommand>> {
+    +Guid SuggestionId
+    +AuditAction = "suggestion.approved"
+  }
+  class DeclineSuggestionCommand <<IAuditableCommand, class>> {
+    +Guid SuggestionId
+    +string? Reason
+    +AuditAction = "suggestion.declined"
+  }
+  class ApproveSuggestionHandler
+  class DeclineSuggestionHandler
+  class SetSuggestionCheckHandler
+  class ListListingSuggestionsQuery
+  class SuggestionListDto {
+    +int Waiting
+    +int Listed
+    +SuggestionRowDto[] Suggestions
+  }
+  class SuggestionRowDto {
+    +Guid Id
+    +string Name
+    +string Kind
+    +string Area
+    +string? SenderName
+    +string Relation
+    +DateTimeOffset SubmittedAt
+    +string Status
+  }
+  class SuggestionOutcome
+  interface IEmailSender <<existing>>
+}
+
+package "Frontend" {
+  interface AdminDirectoryApi <<ADMIN_DIRECTORY_SERVICE>> {
+    +suggestions(): Observable<SuggestionListDto>
+    +suggestion(id): Observable<SuggestionDetailDto>
+    +setCheck(id, check, passed): Observable<CheckDto>
+    +approve(id): Observable<DecisionDto>
+    +decline(id): Observable<DecisionDto>
+    +listed(cursor): Observable<ListedPageDto>
+  }
+  class ManageListingsPage {
+    +tab: Signal<suggestions | listed>
+    +selected: Signal<string | null>
+  }
+  class listingChecksOf <<domain>> {
+    +passed: number
+    +label: "<n> of 4 passed"
+    +canApprove: boolean
+  }
+  class Tabs <<component, existing>>
+  class Table <<component, existing>>
+}
+
+ListingSuggestion "1" *-- "4" SuggestionCheck
+SuggestionCheck --> ListingCheck
+ListingSuggestion --> SuggestionStatus
+ListingSuggestion ..> DirectoryListing : creates draft on Approve
+SetSuggestionCheckHandler ..> SetSuggestionCheckCommand : handles
+ApproveSuggestionHandler ..> ApproveSuggestionCommand : handles
+DeclineSuggestionHandler ..> DeclineSuggestionCommand : handles
+ApproveSuggestionHandler ..> ListingSuggestion
+DeclineSuggestionHandler ..> ListingSuggestion
+SetSuggestionCheckHandler ..> ListingSuggestion
+ApproveSuggestionHandler ..> SuggestionOutcome
+DeclineSuggestionHandler ..> SuggestionOutcome
+ApproveSuggestionHandler ..> IEmailSender : claim link
+ListListingSuggestionsQuery ..> SuggestionListDto : answered by
+SuggestionListDto *-- SuggestionRowDto
+ManageListingsPage ..> AdminDirectoryApi
+ManageListingsPage ..> listingChecksOf
+ManageListingsPage *-- Tabs
+ManageListingsPage *-- Table
+@enduml

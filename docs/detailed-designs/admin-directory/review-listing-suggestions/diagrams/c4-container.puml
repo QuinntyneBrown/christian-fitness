@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Review listing suggestions
+
+Person(staff, "Admin", "Staff member with the Admin role")
+System_Boundary(cf, "Christian Fitness") {
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless)", "ManageListingsPage with components, domain and api libraries")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminDirectoryController, suggestion handlers, AuditBehavior")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Suggestions, checks, directory listings, direct messages, audit entries")
+}
+System_Ext(email, "Email provider", "Claim link")
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(staff, admin, "Uses", "HTTPS")
+Rel(admin, api, "Calls /api/admin/directory", "JSON/HTTPS, staff session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, email, "Sends claim link", "IEmailSender")
+Rel(api, otel, "Exports telemetry, route templates only", "OTLP")
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — open a listing's profile
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ListingProfilePage" as page
+  participant "DirectoryApi (DIRECTORY_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "DirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetListingProfileHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /directory/<id>
+page --> actor : Back link; skeletons under aria-busy (L2-055 AC8)
+page -> client : get(id)
+client -> ctrl : GET /api/directory/{id}
+ctrl -> h : Send GetListingProfileQuery
+h -> db : Listing where Status == Published
+alt unknown or not published
+  db --> h : None
+  h --> ctrl : 404 listing_not_found
+  ctrl --> client : ProblemDetails
+  client --> page : ApiError 404
+  page --> actor : Not-found view (L2-055 AC7)
+else published
+  db --> h : Listing, follower count, caller follows
+  h -> db : Series hosted with a session to come; one-off events to come, date order (now from TimeProvider)
+  db --> h : Hosting
+  h -> db : Connections whose connected listing is Published (L2-055 AC4)
+  db --> h : Connections
+  h --> ctrl : ListingProfileDto
+  ctrl --> client : 200 JSON
+  client --> page : ListingProfileDto
+  page -> page : websiteLinkOf(website): link only for https (L2-055 AC5)
+  page --> actor : listing-head, Hosting (series first, then events) or "isn't hosting anything right now", About, key-facts, Connected; all text, never HTML (L2-055 AC1-AC4, AC9)
+end
+opt request fails
+  page --> actor : error-state "This listing didn't load" with Try again and Directory (L2-055 AC8)
+end
+@enduml

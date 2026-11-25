@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — message a listing
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "ListingProfilePage" as page
+  participant "DirectoryApi (DIRECTORY_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "DirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "StartListingConversationHandler" as h
+  participant "DirectChat" as chat
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Message
+page -> client : startConversation(id)
+client -> ctrl : POST /api/directory/{id}/conversation
+ctrl -> h : Send StartListingConversationCommand
+h -> db : Published listing's MemberId
+db --> h : MemberId or none
+alt listing unknown or unpublished
+  h --> ctrl : 404 listing_not_found
+else no member answers for the listing
+  h --> ctrl : Refusal, code <TO SUPPLY>
+else member found
+  h -> chat : OtherNameAsync(caller, memberId)
+  alt suspended or the caller's own listing
+    chat --> h : null
+    h --> ctrl : 403 recipient_unavailable
+  else available
+    chat --> h : Name
+    h --> ctrl : ListingConversationDto(memberId)
+  end
+end
+ctrl --> client : 200 JSON or ProblemDetails
+client --> page : Result
+alt success
+  page --> actor : Navigate to /messages/<memberId> (L2-055 AC6, L2-014 AC1)
+else refused
+  page --> actor : Generic message; branch on code only
+end
+@enduml

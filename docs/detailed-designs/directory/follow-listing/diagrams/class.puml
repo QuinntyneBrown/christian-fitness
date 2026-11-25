@@ -1,0 +1,83 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Follow a listing
+
+package "Backend" {
+  class ListingFollow {
+    +Guid MemberId
+    +Guid ListingId
+    +DateTimeOffset FollowedAt
+  }
+  class DirectoryListing {
+    +Guid Id
+    +ListingStatus Status
+  }
+  class Member <<existing>> {
+    +Guid Id
+    +MemberStatus Status
+  }
+  class FollowListingCommand {
+    +Guid ListingId
+  }
+  class UnfollowListingCommand {
+    +Guid ListingId
+  }
+  class FollowListingHandler {
+    +Handle(c): Task<ListingFollowDto>
+  }
+  class UnfollowListingHandler {
+    +Handle(c): Task<ListingFollowDto>
+  }
+  class ListingFollowDto {
+    +bool Following
+    +int Followers
+  }
+  class GetHomeHandler <<existing>>
+  class FollowedFirst <<pure rule>> {
+    +Order(events, followedHostIds): IReadOnlyList
+  }
+}
+
+package "Frontend" {
+  interface DirectoryApi <<DIRECTORY_SERVICE>> {
+    +follow(id): Observable<ListingFollowDto>
+    +unfollow(id): Observable<ListingFollowDto>
+  }
+  interface ListingFollowsApi <<LISTING_FOLLOWS>> {
+    +following(id): Signal<boolean>
+    +followers(id): Signal<number>
+    +toggle(id, name): void
+  }
+  class ListingFollowStore <<domain>>
+  class ToastStore <<existing>>
+  class Follow <<component>> {
+    +following: input<boolean>
+    +name: input<string>
+    +toggled: output<void>
+  }
+}
+
+ListingFollow "*" --> "1" DirectoryListing
+ListingFollow "*" --> "1" Member
+FollowListingHandler ..> FollowListingCommand : handles
+UnfollowListingHandler ..> UnfollowListingCommand : handles
+FollowListingHandler ..> ListingFollow : adds once
+UnfollowListingHandler ..> ListingFollow : removes
+FollowListingHandler ..> ListingFollowDto : returns
+UnfollowListingHandler ..> ListingFollowDto : returns
+GetHomeHandler ..> FollowedFirst : uses
+GetHomeHandler ..> ListingFollow : reads
+ListingFollowStore ..|> ListingFollowsApi
+ListingFollowStore ..> DirectoryApi
+ListingFollowStore ..> ToastStore : failure toast
+Follow ..> ListingFollowsApi : via page
+@enduml

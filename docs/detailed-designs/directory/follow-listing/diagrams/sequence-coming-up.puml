@@ -1,0 +1,37 @@
+@startuml
+title UML sequence behaviour — followed hosts first in Home "Coming up"
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "HomePage" as page
+  participant "HomeApi (HOME_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "HomeController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetHomeHandler" as h
+  participant "FollowedFirst" as rule
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Home
+page -> client : Load home
+client -> ctrl : GET /api/home
+ctrl -> h : Send GetHomeQuery
+h -> db : Upcoming published events with HostListingId
+db --> h : Events
+h -> db : Caller's ListingFollows
+db --> h : Followed listing ids
+h -> rule : Order(events, followed ids)
+rule --> h : Followed hosts' events first, existing order kept within each part (L2-056 AC7)
+h --> ctrl : HomeDto
+ctrl --> client : 200 JSON
+client --> page : HomeDto
+page --> actor : "Coming up" with followed listings' dates first
+@enduml

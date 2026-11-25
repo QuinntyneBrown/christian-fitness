@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — tell the sender the outcome
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as staff
+actor "Member who suggested" as member
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageListingsPage" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Approve / Decline suggestion handler" as h
+  participant "SuggestionOutcome" as out
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+staff -> page : Approve listing or Decline
+page -> ctrl : POST .../approve or .../decline
+ctrl -> h : Send the decision command
+h -> db : Load the waiting suggestion
+db --> h : Suggestion
+h -> h : Record Approved or Declined (review design)
+h -> out : TellSender(suggestion, now)
+alt approved
+  out -> db : Add DirectMessage from Christian Fitness: approved (L2-062 AC9)
+else declined with a reason
+  out -> db : Add DirectMessage: declined, with staff's reason
+else declined without a reason
+  out -> db : Add DirectMessage: declined, no reason
+end
+h -> db : Save in one unit of work
+db --> h : Committed
+h --> ctrl : Decision
+ctrl --> page : 200 JSON
+member -> member : Reads the message in Messages
+@enduml

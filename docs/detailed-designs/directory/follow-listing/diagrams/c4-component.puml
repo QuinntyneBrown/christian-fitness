@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Follow a listing
+
+Container(web, "Member web app", "Angular", "Follow, ListingFollowStore, ToastStore, HttpDirectoryService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "DirectoryController", "ASP.NET Core controller", "PUT and DELETE /api/directory/{id}/follow")
+  Component(fh, "FollowListingHandler", "MediatR handler", "Refuses suspended members; adds the pair once")
+  Component(uh, "UnfollowListingHandler", "MediatR handler", "Removes the pair when present")
+  Component(home, "GetHomeHandler", "MediatR handler (existing)", "Coming up: followed hosts first")
+  Component(rule, "FollowedFirst", "Pure rule", "Orders events by followed host")
+  Component(ctx, "IAppDbContext", "Application abstraction", "ListingFollows, DirectoryListings, Members, Events")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "ListingFollows keyed by member and listing")
+Rel(web, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, fh, "Sends FollowListingCommand")
+Rel(ctrl, uh, "Sends UnfollowListingCommand")
+Rel(fh, ctx, "Reads and writes")
+Rel(uh, ctx, "Reads and writes")
+Rel(home, ctx, "Reads follows")
+Rel(home, rule, "Orders with")
+Rel(ctx, db, "Persists", "EF Core")
+@enduml

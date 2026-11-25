@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse the directory
+
+Container(web, "Member web app", "Angular", "DirectoryPage, ChipBar, DirectoryGroup, ListingRow, DirectoryFeed, HttpDirectoryService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "DirectoryController", "ASP.NET Core controller", "GET /api/directory")
+  Component(val, "ListDirectoryValidator", "FluentValidation", "Kind and cursor shape")
+  Component(h, "ListDirectoryHandler", "MediatR handler", "Published only, kind, search, page of 50, kind counts")
+  Component(host, "HostingCount", "Domain rule", "Series with a session to come plus one-off events to come")
+  Component(ctx, "IAppDbContext", "Application abstraction", "DirectoryListings, ListingFollows, Events, series")
+  Component(ent, "DirectoryListing", "Domain entity", "Kind, Name, Tagline, Area, Focus, Status")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Directory listings and follows")
+Rel(web, ctrl, "GET /api/directory?kind=&q=&cursor=", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ListDirectoryQuery")
+Rel(h, val, "Validated by")
+Rel(h, ctx, "Queries")
+Rel(h, host, "Counts hosting with")
+Rel(ctx, ent, "Materializes")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

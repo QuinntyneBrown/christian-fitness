@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a listing's profile
+
+Container(web, "Member web app", "Angular", "ListingProfilePage, ListingHead, HostingRow, MiniRow, websiteLinkOf, HttpDirectoryService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "DirectoryController", "ASP.NET Core controller", "GET /api/directory/{id}; POST /api/directory/{id}/conversation")
+  Component(get, "GetListingProfileHandler", "MediatR handler", "Published listing, hosting, published connections, follower count")
+  Component(conv, "StartListingConversationHandler", "MediatR handler", "Member who receives the listing's messages")
+  Component(chat, "DirectChat", "Application helper (existing)", "Refuses a suspended recipient or the caller")
+  Component(ctx, "IAppDbContext", "Application abstraction", "DirectoryListings, ListingConnections, ListingFollows, Events, series")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Directory and events")
+Rel(web, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, get, "Sends GetListingProfileQuery")
+Rel(ctrl, conv, "Sends StartListingConversationCommand")
+Rel(conv, chat, "Checks recipient with")
+Rel(get, ctx, "Queries")
+Rel(conv, ctx, "Queries")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

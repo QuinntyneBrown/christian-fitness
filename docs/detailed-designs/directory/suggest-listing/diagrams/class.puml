@@ -1,0 +1,112 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Suggest a listing
+
+package "Backend" {
+  enum SuggestionRelation {
+    Self
+    KnowThem
+    BeenThere
+  }
+  enum SuggestionStatus {
+    Waiting
+    Approved
+    Declined
+  }
+  class ListingSuggestion {
+    +Guid Id
+    +Guid SuggestedById
+    +SuggestionRelation Relation
+    +ListingKind Kind
+    +string Name
+    +string Where
+    +string? Website
+    +string? ChurchConnection
+    +string Reason
+    +string? ContactEmail
+    +bool MayTellWhoSuggested
+    +DateTimeOffset SubmittedAt
+    +SuggestionStatus Status
+    +DateTimeOffset? DecidedAt
+    +Guid? DecidedById
+    +string? DeclineReason
+    +Guid? ListingId
+  }
+  class SuggestListingCommand <<class, no ToString>> {
+    +string Relation
+    +string Kind
+    +string Name
+    +string Where
+    +string? Website
+    +string? ChurchConnection
+    +string Reason
+    +string? ContactEmail
+    +bool MayTellWhoSuggested
+  }
+  class SuggestListingValidator
+  class SuggestListingHandler {
+    +Handle(c): Task<SuggestionSentDto>
+  }
+  class SuggestionSentDto {
+    +Guid Id
+    +string Name
+  }
+  class AttemptWindow <<existing>> {
+    +Since(now): DateTimeOffset
+    +IsFull(count): bool
+  }
+  class SuggestionOutcome {
+    +TellSender(suggestion, now): void
+  }
+  class DirectMessage <<existing>>
+  class Member <<existing>>
+  class DirectoryListing
+}
+
+package "Frontend" {
+  interface ListingSuggestionsApi <<LISTING_SUGGESTIONS_SERVICE>> {
+    +suggest(dto: SuggestListingDto): Observable<SuggestionSentDto>
+  }
+  class HttpListingSuggestionsService
+  class SuggestListingPage {
+    +phase: Signal<editing | sending | failed | sent>
+    +send(): void
+    +suggestAnother(): void
+  }
+  class suggestionFormOf <<domain>> {
+    +labels and asked fields for a relation
+  }
+  class checkSuggestion <<domain>> {
+    +fields to mark before sending
+  }
+  class RadioGroup <<component, existing>>
+  class Alert <<component, existing>>
+}
+
+ListingSuggestion --> SuggestionRelation
+ListingSuggestion --> SuggestionStatus
+ListingSuggestion "*" --> "1" Member : sent by
+ListingSuggestion "0..1" --> "0..1" DirectoryListing : draft made on approval
+SuggestListingValidator ..> SuggestListingCommand : validates
+SuggestListingHandler ..> SuggestListingCommand : handles
+SuggestListingHandler ..> AttemptWindow : 5 within 1 day
+SuggestListingHandler ..> ListingSuggestion : creates
+SuggestListingHandler ..> SuggestionSentDto : returns
+SuggestionOutcome ..> DirectMessage : adds
+SuggestionOutcome ..> ListingSuggestion : reads outcome
+HttpListingSuggestionsService ..|> ListingSuggestionsApi
+SuggestListingPage ..> ListingSuggestionsApi
+SuggestListingPage ..> suggestionFormOf
+SuggestListingPage ..> checkSuggestion
+SuggestListingPage *-- RadioGroup
+SuggestListingPage *-- Alert
+@enduml

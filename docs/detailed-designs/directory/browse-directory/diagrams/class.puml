@@ -1,0 +1,129 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse the directory
+
+package "Backend" {
+  enum ListingKind {
+    Organization
+    Person
+    Instructor
+    Ambassador
+    Company
+    ChurchMinistry
+  }
+  enum ListingStatus {
+    Draft
+    Published
+    Declined
+    Removed
+  }
+  class DirectoryListing {
+    +Guid Id
+    +ListingKind Kind
+    +string Name
+    +string Tagline
+    +string Area
+    +string Description
+    +IReadOnlyList<string> Focus
+    +string? WebsiteUrl
+    +string? PhotoKey
+    +bool IsVerified
+    +ListingStatus Status
+    +DateTimeOffset ListedAt
+    +Guid? SuggestionId
+    +Guid? MemberId
+  }
+  class ListingFollow {
+    +Guid MemberId
+    +Guid ListingId
+    +DateTimeOffset FollowedAt
+  }
+  class HostingCount <<domain rule>> {
+    +Of(listingId, now): int
+  }
+  class ListDirectoryQuery {
+    +string? Kind
+    +string? Q
+    +string? Cursor
+    +PageSize = 50
+  }
+  class ListDirectoryHandler {
+    +Handle(query: ListDirectoryQuery): Task<DirectoryPageDto>
+  }
+  class ListDirectoryValidator
+  class DirectoryPageDto {
+    +KindCountDto[] Counts
+    +DirectoryListingRowDto[] Listings
+    +string? NextCursor
+  }
+  class KindCountDto {
+    +string Kind
+    +int Count
+  }
+  class DirectoryListingRowDto {
+    +Guid Id
+    +string Kind
+    +string Name
+    +string Tagline
+    +string Area
+    +string? PhotoUrl
+    +bool IsVerified
+    +int Hosting
+    +bool IsFollowing
+  }
+}
+
+package "Frontend" {
+  interface DirectoryApi <<DIRECTORY_SERVICE>> {
+    +list(kind, q, cursor): Observable<DirectoryPageDto>
+  }
+  class HttpDirectoryService
+  class DirectoryPage {
+    +kind: Signal<ListingKindName | null>
+    +search: Signal<string>
+    +chooseKind(kind): void
+    +clearSearch(): void
+    +loadMore(): void
+  }
+  class DirectoryFeed <<domain>> {
+    +items: DirectoryListingRowDto[]
+    +nextCursor: string | null
+    +appendPage(page): DirectoryFeed
+    +groups(feed): KindGroup[]
+  }
+  class DirectoryGroup <<component>>
+  class ListingRow <<component>>
+  class ListingMark <<component>>
+  class VerifiedMark <<component>>
+  class ChipBar <<component>>
+}
+
+DirectoryListing --> ListingKind
+DirectoryListing --> ListingStatus
+ListingFollow "*" --> "1" DirectoryListing
+ListDirectoryHandler ..> ListDirectoryQuery : handles
+ListDirectoryValidator ..> ListDirectoryQuery : validates
+ListDirectoryHandler ..> DirectoryListing : reads Published
+ListDirectoryHandler ..> ListingFollow : reads caller's
+ListDirectoryHandler ..> HostingCount : uses
+ListDirectoryHandler ..> DirectoryPageDto : returns
+DirectoryPageDto "1" *-- "0..50" DirectoryListingRowDto
+DirectoryPageDto "1" *-- "7" KindCountDto
+HttpDirectoryService ..|> DirectoryApi
+DirectoryPage ..> DirectoryApi
+DirectoryPage *-- DirectoryFeed
+DirectoryPage *-- ChipBar
+DirectoryPage *-- DirectoryGroup
+DirectoryGroup *-- ListingRow
+ListingRow *-- ListingMark
+ListingRow *-- VerifiedMark
+@enduml

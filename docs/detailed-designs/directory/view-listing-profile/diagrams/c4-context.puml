@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View a listing's profile
+
+Person(member, "Member", "Signed-in member of the Christian community")
+Person(staff, "Staff member", "Checks and approves directory listings")
+System(cf, "Christian Fitness", "Events, directory, services and messages for members; admin console for staff")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(member, cf, "Reads profiles and messages listings in", "HTTPS")
+Rel(staff, cf, "Checks listings in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml
