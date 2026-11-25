@@ -111,11 +111,15 @@ allows.
   `ImageKeys.WidthOf` reads the width from the JPEG, PNG or WebP header, and under 1,600 px is
   refused with `fieldCodes.image` = `image_invalid` (`L2-069` AC9). Audited as
   `story_image.uploaded`. A story may be published without an image.
-- **`PublishingClock`** — `BackgroundService` in Infrastructure with a 30-second timer from
-  `TimeProvider`. Each tick sends **`PublishDueStoriesCommand`** in a new scope; its handler
-  publishes every Scheduled story whose `PublishAt` has passed and audits `story.published` against
-  the Admin who scheduled it, so a story is published within a minute of its time (`L2-069` AC4).
-  The same clock sends `SendDueIssueCommand` (`build-and-schedule-newsletter`).
+- **`PublishingClock`** — the shared API `BackgroundService` of
+  [ADR 0069](../../../adr/0069-scheduled-work.md). Every 30 seconds, after taking the database
+  lease, it sends **`PublishDueStoriesCommand`** in a new scope; its handler persists each due
+  Scheduled story's Published status and audits `story.published` against the Admin who scheduled
+  it. It also runs due newsletter and daily maintenance jobs.
+- **Effective story status** — with `TimeProvider`, every story read treats Scheduled with
+  `PublishAt <= now` as Published even before the tick persists it. Landing, story, feed,
+  newsletter selection and staff reads use the same rule, as do status-changing commands: a
+  past-due story cannot be unscheduled. Reads do not write an audit entry (`L2-069` AC4).
 - **`GetStoryPreviewQuery`** — answers the reader's `PublishedStoryDto` shape for any status, to
   Admins only.
 
@@ -151,11 +155,6 @@ AC7).
 
 ### Open questions
 
-- **Scheduler.** The specification sets "within a minute" but not the mechanism. An in-process
-  `BackgroundService` fits ADR 0047's single replica; a second replica would publish twice without
-  a lease or a database lock. An alternative treats a Scheduled story whose time has passed as
-  Published in every read, with no timer. Either choice needs an ADR, and whether
-  `NewsletterUpkeep` (`news/confirm-and-unsubscribe`) is the same service.
 - **Autosave and the `saving` mock.** The `saving` state makes every field read-only, which suits
   an action but not a save every 2 seconds while typing. The design keeps fields editable during
   autosave and uses the read-only state for actions.
@@ -235,8 +234,8 @@ audited, and a toast names the result (`L2-069` AC2–AC7, AC14).
 
 ### Behaviour — publish a scheduled story
 
-`PublishingClock` publishes each Scheduled story whose time has passed within a minute (`L2-069`
-AC4, AC6).
+Reads show a due Scheduled story as Published; the leased `PublishingClock` persists the status
+and audit entry on a tick (`L2-069` AC4, AC6).
 
 ![Sequence diagram for publishing a scheduled story](diagrams/sequence-scheduled-publish.png)
 

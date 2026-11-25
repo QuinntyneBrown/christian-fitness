@@ -18,7 +18,7 @@ across the accounts, profile, messages and telemetry parts of the system.
 - **Telemetry redaction** — logging uses structured templates with no personal fields; `TelemetryRedactionProcessor` drops request/response bodies, query strings and headers; the HTTP instrumentation records `http.route` (template) rather than the URL. See `operations/emit-telemetry-and-health`.
 - **`RequestDataExportCommand` / `RequestDataExportHandler`** — assembles `DataExportDto` (profile, registrations, authored messages) for the caller only and returns it as a JSON download. Delivery format beyond JSON is `<TO SUPPLY>`.
 - **`RequestAccountDeletionCommand` / `RequestAccountDeletionHandler`** — records `Member.DeletionRequestedAt`, ends every session of the member and signs them out.
-- **`AccountErasureService`** — runs from a CLI command `cf erase-accounts` on a schedule (`<TO SUPPLY: scheduler>`). It deletes profile and registrations and anonymises authored messages (`Message.Text` replaced, author set to a placeholder) for every request older than 0 days and at most 30 days, using `TimeProvider`.
+- **`AccountErasureService`** — runs daily from the shared scheduler ([ADR 0069](../../../adr/0069-scheduled-work.md)) or manually through `cf erase-accounts`. The newer [download and delete data](../../preferences/download-and-delete-data/README.md) design defines when and how erasure takes place.
 - **Member web app** — `ProfilePage` exposes "Download my data" and "Delete my account"; deletion confirms in a CDK Dialog. No mock shows these controls yet: `<TO SUPPLY: mock state in pages/profile and a confirm dialog>`.
 
 ## Requirements
@@ -42,7 +42,7 @@ Members share personal and faith details with Christian Fitness; only redacted t
 
 ### Containers
 
-The API serves export and deletion requests; the CLI erases accounts whose deletion request is due; telemetry goes to the collector without personal data.
+The API serves export and deletion requests and schedules erasure; the CLI can run erasure manually. Telemetry goes to the collector without personal data.
 
 ![C4 container view: protect personal data](diagrams/c4-container.png)
 
@@ -66,6 +66,6 @@ The handler reads only the caller's profile, registrations and authored messages
 
 ### Behaviour — request deletion and erase within 30 days
 
-The request ends the member's sessions immediately; the CLI erasure run deletes or anonymises the data before 30 days pass.
+The request ends the member's sessions immediately; the scheduled erasure run deletes or anonymises due data.
 
 ![Sequence diagram: request deletion and erase within 30 days](diagrams/sequence-delete-account.png)

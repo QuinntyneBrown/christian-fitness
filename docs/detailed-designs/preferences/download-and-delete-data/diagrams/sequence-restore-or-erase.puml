@@ -15,9 +15,10 @@ end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SignInHandler" as signin
   participant "RestoreAccountHandler" as restore
-  participant "AccountErasureService (cf erase-accounts)" as erase
+  participant "AccountErasureService" as erase
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "PublishingClock" as clock
   database "Christian Fitness database" as db
   participant "IArchiveStore / screenshot store" as files
 end box
@@ -37,6 +38,8 @@ alt deleting (DeletionRequestedAt within 30 days)
   ctrl --> page : 200; Home
 end
 == Daily scheduled run ==
+clock -> db : Take lease on TimeProvider tick
+clock -> erase : Run daily erasure job when due
 erase -> db : Members with DeletionRequestedAt 30 days or more ago
 loop each due member
   erase -> db : Erase text of sent messages; delete registrations, preferences, follows, suggestions, feedback, exports

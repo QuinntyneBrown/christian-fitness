@@ -32,10 +32,13 @@ so a reader finds them from the site's address (`L2-060` AC3).
   cookies to every API response, so a feed sets no cookie (`L2-060` AC7).
 - **`GetStoryFeedHandler`** — takes a `PublicReadLimiter` lease (`news/read-story`); with none
   left it refuses with 429 `rate_limited`. An unknown section is 404 `not_found`. It reads the 30
-  newest stories with `Status = Published` (of the section, or all), newest `PublishedAt` first
+  newest effectively Published stories (of the section, or all), including Scheduled stories
+  whose `PublishAt` has passed ([ADR 0069](../../../adr/0069-scheduled-work.md)), newest effective
+  publication time first
   (`L2-060` AC1, AC6). Its `ETag` is a strong hash of the items' ids and `EditedAt` values, so an
   edit, a new story or an unpublished one changes it; `Last-Modified` is the newest of those
-  instants. When the request's validators match it answers `NotModified` and the result writes 304
+  instants, including the scheduled publication time for a story that became visible on read.
+  When the request's validators match it answers `NotModified` and the result writes 304
   with no body (`L2-060` AC2).
 - **`RssFeedResult`** — `IActionResult` in the Api layer that writes RSS 2.0 with
   `System.Xml.XmlWriter` (which escapes every value) as `application/rss+xml; charset=utf-8`, with

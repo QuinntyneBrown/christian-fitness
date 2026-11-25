@@ -81,12 +81,13 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
 - **Recipients** — every sender of an issue or an extra selects only Subscribed addresses with that
   kind switched on, so nothing reaches an unsubscribed address (`L2-058` AC6;
   `publishing/build-and-schedule-newsletter`).
-- **`NewsletterUpkeep`** — `BackgroundService` in Infrastructure with a timer from `TimeProvider`,
-  one per API (ADR 0047 runs one replica). Once a day it sends **`PurgeUnsubscribedCommand`**,
+- **`NewsletterUpkeep`** — daily job of the shared, leased `PublishingClock` scheduler
+  ([ADR 0069](../../../adr/0069-scheduled-work.md)), not a separate hosted service. It sends
+  **`PurgeUnsubscribedCommand`**,
   whose handler deletes every subscription whose `UnsubscribedAt` is at least 29 days old, with its
-  confirmations, so none outlives 30 days (`L2-058` AC6). The scheduling of daily and per-minute
-  work is shared with `publishing/write-review-publish-story` (see Open questions there). Tests
-  advance `FakeTimeProvider` and run the command directly.
+  confirmations, allowing a day for the daily run before 30 days (`L2-058` AC6). After an outage
+  the next available tick picks up overdue work. Tests advance `FakeTimeProvider` and run the
+  command directly.
 - **Telemetry** — the one-click route is recorded as its template
   (`api/public/newsletter/unsubscribe`) without its query string; no log or span carries a token or
   an address (`L2-058` AC7, `L2-033` AC2). The purge logs a count only.
