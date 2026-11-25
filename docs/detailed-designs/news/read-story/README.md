@@ -112,7 +112,7 @@ published stories.
 - **`public-reads`** — named ASP.NET Core rate-limiter policy for anonymous story, section,
   directory and feed reads. It counts by client IP in a sliding window of 120 requests per minute
   with six segments. A refusal is 429 ProblemDetails with code `too_many_requests` and
-  `Retry-After` (`L2-034` AC4–5, ADR 0061).
+  `Retry-After` (`L2-034` AC4–5, ADR 0072).
 
 Telemetry records the route template (`api/public/stories/{slug}`), never the slug value, the
 query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).

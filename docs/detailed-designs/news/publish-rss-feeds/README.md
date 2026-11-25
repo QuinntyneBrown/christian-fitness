@@ -14,7 +14,7 @@ section, and the Subscribe screen lists them with each address to copy or open i
 - **stories a week** — about how many stories a feed carries in a week, shown beside each feed
 
 Feeds are public reads: they need no account, set no cookie, and are rate limited per client IP
-(`L2-034` AC4–5, `L2-060` AC7, ADR 0061). Pros has no section feed; its stories appear in All
+(`L2-034` AC4–5, `L2-060` AC7, ADR 0072). Pros has no section feed; its stories appear in All
 stories. A feed carries nothing that identifies or reaches a member, and never a draft or a
 removed story (`L2-060` AC6). The landing page and Subscribe name the feeds in the document head
 so a reader finds them from the site's address (`L2-060` AC3).
@@ -38,7 +38,7 @@ so a reader finds them from the site's address (`L2-060` AC3).
 - **Feed output cache** — keeps each rendered feed for 15 minutes. Publishing, unpublishing or
   editing a published story evicts affected feeds by tag. Cached responses retain the conditional
   request behaviour; `ETag` and `Last-Modified` are refreshed on the next render. A reader or
-  intermediary may retain a fresh response for up to 900 seconds after API eviction (ADR 0061).
+  intermediary may retain a fresh response for up to 900 seconds after API eviction (ADR 0072).
 - **`GetStoryFeedHandler`** — an unknown section is 404 `not_found`. It reads the 30
   newest stories with `Status = Published` (of the section, or all), newest `PublishedAt` first
   (`L2-060` AC1, AC6). Its `ETag` is a strong hash of the items' ids and `EditedAt` values, so an
@@ -95,7 +95,7 @@ so a reader finds them from the site's address (`L2-060` AC3).
 
 The future nginx configuration copied by `frontend/Dockerfile` proxies exact `/feed` and
 `~ ^/[a-z0-9-]+/feed$` to the API before the `static.conf` include, its regex locations and the
-SPA fallback (ADR 0061). Unknown section slugs receive the API's 404. Today nginx proxies only
+SPA fallback (ADR 0072). Unknown section slugs receive the API's 404. Today nginx proxies only
 `/api/`; the change belongs to the feed slice.
 
 ## Requirements

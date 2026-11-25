@@ -11,7 +11,7 @@ How Christian Fitness is released and where it runs (ADR 0047). Every setting is
 
 ## Planned public feed routing
 
-ADR 0061 specifies a future change to the nginx configuration copied by `frontend/Dockerfile`
+ADR 0072 specifies a future change to the nginx configuration copied by `frontend/Dockerfile`
 from `frontend/deploy/`. It is not deployed yet. The member app's server will proxy exact
 `/feed` and regex `~ ^/[a-z0-9-]+/feed$` to the API before the `static.conf` include, its regex
 locations and the SPA fallback, preserving the request path and forwarding the client address
