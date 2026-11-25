@@ -8,9 +8,10 @@ import {
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
 import { AdminForbiddenPage } from '../page-objects/admin/forbidden.page';
 
+// ADR 0064: the words name no area, so a later Admins-only area needs no change to them.
 const LEAD =
-  'Events and Services are run by admins. As a moderator, you look after members from the Dashboard and Members.';
-const NOTE = 'Need to manage events or services? Ask a community director to make you an admin.';
+  'Only Admins can open this area. As a moderator, you can open the areas in your navigation, starting from the Dashboard.';
+const NOTE = 'Need to manage this area? Ask a community director to make you an admin.';
 
 /** The session answers a signed-in Moderator (L2-019; ADR 0020). */
 function signedInAsModerator(api: ApiHandlers): void {
@@ -35,6 +36,9 @@ test.describe('Admin app, a Moderator', () => {
       expect(
         await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
       ).toEqual(['/', '/listings', '/members']);
+      // L2-021 AC1: a Moderator's one list carries no group names.
+      await expect(shell.navGroups).toHaveCount(0);
+      expect(await shell.navListNames()).toEqual([null]);
       await expect(shell.currentItem).toHaveText('Dashboard');
       await expect(shell.userName).toHaveText('Joel Mensah');
       await expect(shell.userRole).toHaveText('Moderator');

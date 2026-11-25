@@ -10,6 +10,7 @@
     class="admin__nav"
     [items]="items()"
     [current]="current()"
+    [showGroups]="showGroups()"
     (navigate)="navigate.emit($event)"
   />
   <cf-admin-user

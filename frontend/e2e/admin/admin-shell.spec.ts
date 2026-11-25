@@ -24,12 +24,13 @@ function answerSignOut(api: ApiHandlers, reply: ApiReply): (string | undefined)[
   return sent;
 }
 
-// L2-021 AC1: at LG and wider the side navigation shows the four areas, with aria-current on the
-// one showing. Each area is a stand-in with its heading until its slice (ADR 0011).
+// L2-021 AC1: at LG and wider the side navigation shows Dashboard, then the areas under their
+// group headings, with aria-current on the one showing (ADR 0079, ADR 0090: an area is listed once
+// it has a screen, and a group only with an area in it).
 test.describe('Admin app, navigation at LG and wider', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test('the side navigation is one column of four links, Dashboard current', async ({ page }) => {
+  test('the side navigation is one column of the areas, Dashboard current', async ({ page }) => {
     const shell = new AdminShell(page);
 
     await shell.open();
@@ -50,6 +51,18 @@ test.describe('Admin app, navigation at LG and wider', () => {
     expect(await shell.navIsOneRow()).toBe(false);
     await expect(shell.userName).toBeVisible();
     await expect(shell.main).toHaveCount(1);
+  });
+
+  test('an Admin sees each group as a heading naming the list of its areas', async ({ page }) => {
+    const shell = new AdminShell(page);
+
+    await shell.open();
+
+    await expect(shell.navGroups).toHaveText(['Gather', 'Community']);
+    await expect(shell.navGroups.first()).toBeVisible();
+    await expect(shell.navGroupLinks('Gather')).toHaveText(['Events']);
+    await expect(shell.navGroupLinks('Community')).toHaveText(['Listings', 'Services', 'Members']);
+    expect(await shell.navListNames()).toEqual([null, 'Gather', 'Community']);
   });
 
   test('choosing an area opens it in the app and moves aria-current to it', async ({ page }) => {
@@ -94,6 +107,28 @@ test.describe('Admin app, navigation at LG and wider', () => {
   }
 });
 
+// L2-021 AC4: a navigation taller than the window scrolls its links within the side navigation,
+// while the brand and the signed-in person with Sign out stay in view.
+test.describe('Admin app, navigation taller than the window', () => {
+  test.use({ viewport: { width: 1280, height: 320 } });
+
+  test('the links scroll within the column and the brand and Sign out stay in view', async ({
+    page,
+  }) => {
+    const shell = new AdminShell(page);
+
+    await shell.open();
+    await expect(shell.heading).toHaveText('Dashboard');
+    expect(await shell.navScrollsWithin()).toBe(true);
+    await shell.navItem('Members').focus();
+
+    await expect(shell.navItem('Members')).toBeInViewport();
+    await expect(shell.brandName).toBeInViewport();
+    await expect(shell.signOutButton).toBeInViewport();
+    expect(await shell.pageScrollY()).toBe(0);
+  });
+});
+
 // L2-021 AC2 (as corrected in ADR 0011): below LG the sidebar is a band; the links sit in one row
 // that scrolls within itself, the page never scrolls sideways, and Sign out stays reachable.
 test.describe('Admin app, navigation below LG', () => {
@@ -114,6 +149,17 @@ test.describe('Admin app, navigation below LG', () => {
     const box = await shell.signOutBox();
     expect(box.width).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeGreaterThanOrEqual(44);
+  });
+
+  test('the group names are hidden and the lists run on in one row', async ({ page }) => {
+    const shell = new AdminShell(page);
+
+    await shell.open();
+
+    await expect(shell.heading).toHaveText('Dashboard');
+    await expect(shell.navGroups).toHaveCount(2);
+    for (const group of await shell.navGroups.all()) await expect(group).toBeHidden();
+    expect(await shell.navIsOneRow()).toBe(true);
   });
 
   test('the last link scrolls into reach and opens its area', async ({ page }) => {

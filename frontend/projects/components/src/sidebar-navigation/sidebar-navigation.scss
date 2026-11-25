@@ -67,6 +67,13 @@
 .admin__nav {
   grid-column: 1 / -1;
   min-width: 0;
+
+  // From LG the links take the height between the brand and the person, and scroll within it
+  // when they need more (L2-021 AC4).
+  @media (min-width: 64rem) {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
 }
 
 // The staff member sits at the end of the brand row below LG, at the foot from LG.
