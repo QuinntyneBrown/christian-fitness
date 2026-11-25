@@ -1045,6 +1045,24 @@
       }
     },
     {
+      "id": "admin-story-preview",
+      "kind": "page",
+      "title": "Story preview",
+      "group": "Admin console",
+      "route": "/admin/stories/:id/preview",
+      "opens_from": "admin-story-editor",
+      "source": "Derived: the Story Editor frame's \"Preview\" button, which has no screen in the prototype; the story as readers see it, opened in a new tab.",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One story; a missing one is the admin not-found page, and a Moderator sees Admins only."
+      }
+    },
+    {
       "id": "admin-newsletter",
       "kind": "page",
       "title": "Manage newsletter",
@@ -1077,6 +1095,9 @@
         "default",
         "selected",
         "date-cancelled",
+        "series-created",
+        "series-saved",
+        "date-added",
         "loading",
         "empty",
         "error"
@@ -1098,6 +1119,40 @@
       "not_applicable": {
         "invalid": "A confirmation with nothing to type."
       }
+    },
+    {
+      "id": "series-editor",
+      "kind": "dialog",
+      "title": "Series editor",
+      "group": "Admin console",
+      "opens_from": "admin-series",
+      "source": "Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "edit",
+        "edit-invalid",
+        "edit-busy",
+        "edit-failed"
+      ]
+    },
+    {
+      "id": "add-session",
+      "kind": "dialog",
+      "title": "Add a series date",
+      "group": "Admin console",
+      "opens_from": "admin-series",
+      "source": "Derived: the Manage Event Series frame's \"Add a date\" button, which has no screen in the prototype; it makes the session event.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ]
     },
     {
       "id": "admin-community-pick",
@@ -1136,9 +1191,25 @@
         "approved",
         "declined",
         "listed",
+        "listing-saved",
         "loading",
         "empty",
         "error"
+      ]
+    },
+    {
+      "id": "directory-listing-editor",
+      "kind": "dialog",
+      "title": "Directory listing editor",
+      "group": "Admin console",
+      "opens_from": "admin-listings",
+      "source": "Derived: Listed's \"Edit\" button, which has no screen in the prototype; the same editor a listing's owner gets after claiming it, opened by staff from Listed.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
       ]
     },
     {
