@@ -267,7 +267,7 @@ def member_footer() -> str:
 
 
 def bell(count: int, *, current: bool = False) -> str:
-    """The top bar's bell (ADR 0061): none, a count, or 9+ above nine; a screen reader hears the number."""
+    """The top bar's bell (ADR 0068): none, a count, or 9+ above nine; a screen reader hears the number."""
     label = f"Notifications, {count} unread" if count else "Notifications"
     badge = f'<span class="bell__count" aria-hidden="true">{"9+" if count > 9 else count}</span>' if count else ""
     return (f'<a class="bell" href="{href("notifications")}" aria-label="{label}"{CUR if current else ""}>'

@@ -200,11 +200,11 @@ navigation, say) must be made in the generator and in those files.
   (`default`, `many`, `loading`, `empty`, `error`): five kinds of row are drawn (reminder 24 hours
   before, cancelled event, cancelled series date, new dates from a followed host), each with a
   dot, bold title and the word "Unread" when unread. Chat replies stay as Messages' unread dots.
-  Preferences reads "In the app" and has one switch per kind (ADR 0061).
+  Preferences reads "In the app" and has one switch per kind (ADR 0068).
 
 ## Open questions
 
-1. ~~**Notification centre.**~~ Resolved by ADR 0061: an in-app inbox now (a bell in the top bar
+1. ~~**Notification centre.**~~ Resolved by ADR 0068: an in-app inbox now (a bell in the top bar
    and a Notifications screen), web push later. See "Notifications" under the decisions above.
 2. ~~**11 px labels.**~~ Closed: the phone tab bar and date badges are 12 px, the smallest step
    in the design system.

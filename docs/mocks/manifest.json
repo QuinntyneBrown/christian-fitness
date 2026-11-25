@@ -1024,7 +1024,7 @@
       "title": "Notifications",
       "group": "Member app",
       "route": "/notifications",
-      "source": "Added by ADR 0061 (no Magic Patterns frame)",
+      "source": "Added by ADR 0068 (no Magic Patterns frame)",
       "requirements": [],
       "states": [
         "default",

@@ -588,7 +588,7 @@ def _():
 
 
 # ===========================================================================
-# Notifications: the bell's inbox (ADR 0061)
+# Notifications: the bell's inbox (ADR 0068)
 # ===========================================================================
 # (kind icon, title, text, when, link, unread). The four kinds that notify: a reminder 24 hours before,
 # a cancelled event, a cancelled series date and new dates from a followed host.
@@ -627,7 +627,7 @@ def notifications_page(body: str, *, mark_all: bool = True, foot: str = "") -> s
 
 NOTES_FOOT = '<p class="notes-foot">That’s everything from the last 30 days.</p>'
 
-s = screen("notifications", "page", "Notifications", route="/notifications", source="Added by ADR 0061 (no Magic Patterns frame)",
+s = screen("notifications", "page", "Notifications", route="/notifications", source="Added by ADR 0068 (no Magic Patterns frame)",
            description="The bell's inbox: event reminders, cancelled events and series dates, and new dates from followed hosts.")
 
 
