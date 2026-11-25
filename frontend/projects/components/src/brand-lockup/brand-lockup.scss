@@ -36,3 +36,21 @@
     outline-color: var(--color-focus-ring-on-dark);
   }
 }
+
+// Compact (ADR 0084): below 28rem the seal stands alone in a 44 × 44 px target and the wordmark
+// is visually hidden, so it still names the link "Christian Fitness".
+@media (max-width: 27.999rem) {
+  .lockup--compact {
+    position: relative;
+    min-width: var(--target-comfortable);
+
+    .lockup__name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+  }
+}

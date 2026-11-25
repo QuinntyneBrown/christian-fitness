@@ -2,6 +2,8 @@ from dslib import ex, icon, kbd, matrix, mock, seal, themes
 
 LOCKUP = (f'<a class="lockup" href="#top">{seal("lockup", decorative=True)}'
           '<span class="lockup__name">Christian Fitness</span></a>')
+# The app header's lockup is the compact one: the seal alone below 28rem (ADR 0084).
+LOCKUP_COMPACT = LOCKUP.replace('class="lockup"', 'class="lockup lockup--compact"', 1)
 
 
 def app_header(cur="home", label="Primary example", unread=4, profile_cur=False):
@@ -12,7 +14,7 @@ def app_header(cur="home", label="Primary example", unread=4, profile_cur=False)
                  if key == "messages" and unread else "")
         links.append(f'<a class="app-nav__link" href="#top"{c}>{text}{badge}</a>')
     pc = ' aria-current="page"' if profile_cur else ""
-    return (f'<header class="app-header"><div class="app-header__inner">{LOCKUP}'
+    return (f'<header class="app-header"><div class="app-header__inner">{LOCKUP_COMPACT}'
             f'<nav class="app-nav" aria-label="{label}">{"".join(links)}</nav>'
             f'<a class="profile-button" href="#top" aria-label="Your profile"{pc}>GT</a>'
             '<button class="btn btn--ghost app-header__signout" type="button">Sign out</button></div></header>')
@@ -25,7 +27,7 @@ SITE = (f'<header class="site-header">{LOCKUP}<div class="site-header__actions">
 SPEC = {
     "lead": "The top bar carries the brand and the main places in the member app, and the sign-in and join actions on the public site.",
     "meta": ["Status: stable", "<code>&lt;header&gt;</code> + <code>&lt;nav&gt;</code>", "Sticky"],
-    "overview": """<p>There are two top bars. The <b>app header</b> (<code>.app-header</code>) sits on every signed-in member screen: the lockup, five primary links (Home, Events, Directory, Services, Messages), the profile button and a ghost "Sign out". The <b>site header</b> (<code>.site-header</code>) is the public bar: the lockup, a ghost "Sign in" and a primary "Join free". Since the landing page became the news front page, public pages use the <a href="masthead.html">masthead</a>, which reuses the site header's actions (<code>.site-header__actions</code>); no mock renders <code>.site-header</code> on its own now.</p>
+    "overview": """<p>There are two top bars. The <b>app header</b> (<code>.app-header</code>) sits on every signed-in member screen: the compact lockup, five primary links (Home, Events, Directory, Services, Messages), the <a href="bell.html">bell</a>, the profile button and a ghost "Sign out". The <b>site header</b> (<code>.site-header</code>) is the public bar: the lockup, a ghost "Sign in" and a primary "Join free". Since the landing page became the news front page, public pages use the <a href="masthead.html">masthead</a>, which reuses the site header's actions (<code>.site-header__actions</code>); no mock renders <code>.site-header</code> on its own now.</p>
 <ul>
 <li>Use the app header on every member screen; it is the desktop half of primary navigation. On phones its links hide and the <a href="tab-bar.html">tab bar</a> takes over.</li>
 <li>For public pages use the <a href="masthead.html">masthead</a>; keep <code>.site-header</code> for a public page without news sections, where the job is only to get someone signed in or joined.</li>
@@ -65,7 +67,8 @@ SPEC = {
     },
     "responsive": """<ul>
 <li>Below 768px (<code>--layout-breakpoint-md</code>) the primary links hide; the lockup and profile button stay, and the <a href="tab-bar.html">tab bar</a> carries navigation.</li>
-<li>Side padding is 16px on phones and 24px from 640px.</li>
+<li>Side padding is 16px on phones and 24px from 640px; the gap between the bar's parts is 12px below 640px and 24px from it.</li>
+<li>Below 28rem (448px) the app header's lockup is the <a href="brand-lockup.html">compact lockup</a>: the seal alone in a 44 × 44px link, still named "Christian Fitness". The bell, profile button and Sign out then fit at 320px without the page scrolling sideways (ADR 0084).</li>
 <li>The site header hides "Sign in" below 640px; "Join free" always shows, and sign-in is linked from the hero.</li>
 <li>The app header is <code>position: sticky</code> at the top with <code>--z-sticky</code>; content scrolls under it.</li>
 </ul>""",
@@ -94,7 +97,7 @@ SPEC = {
 </ul>""",
     "dodont": [
         ("do", app_header(cur="messages", label="Primary, do example"), "One current link, marked with <code>aria-current</code>."),
-        ("dont", '<header class="app-header"><div class="app-header__inner">' + LOCKUP + '<nav class="app-nav" aria-label="Primary, don\'t example"><a class="app-nav__link" href="#top">Home</a><a class="app-nav__link" href="#top">Events</a><a class="app-nav__link" href="#top">Directory</a><a class="app-nav__link" href="#top">Services</a><a class="app-nav__link" href="#top">Messages</a><a class="app-nav__link" href="#top">Settings</a><a class="app-nav__link" href="#top">Help</a></div></header>'.replace('</div></header>', '</nav></div></header>'),
+        ("dont", '<header class="app-header"><div class="app-header__inner">' + LOCKUP_COMPACT + '<nav class="app-nav" aria-label="Primary, don\'t example"><a class="app-nav__link" href="#top">Home</a><a class="app-nav__link" href="#top">Events</a><a class="app-nav__link" href="#top">Directory</a><a class="app-nav__link" href="#top">Services</a><a class="app-nav__link" href="#top">Messages</a><a class="app-nav__link" href="#top">Settings</a><a class="app-nav__link" href="#top">Help</a></div></header>'.replace('</div></header>', '</nav></div></header>'),
          "Extra links crowd the bar and have no tab-bar slot on phones; Settings and Help live in Profile."),
         ("do", SITE, "Public pages: one primary (Join free), sign-in as a ghost button."),
         ("dont", f'<header class="site-header">{LOCKUP}<div class="site-header__actions"><a class="btn btn--primary" href="#top">Sign in</a><a class="btn btn--primary" href="#top">Join free</a></div></header>',
@@ -114,7 +117,7 @@ SPEC = {
     "code": {
         "snippet": '''<header class="app-header">
   <div class="app-header__inner">
-    <a class="lockup" href="/home">…<span class="lockup__name">Christian Fitness</span></a>
+    <a class="lockup lockup--compact" href="/home">…<span class="lockup__name">Christian Fitness</span></a>
     <nav class="app-nav" aria-label="Primary">
       <a class="app-nav__link" href="/home" aria-current="page">Home</a>
       <a class="app-nav__link" href="/events">Events</a>

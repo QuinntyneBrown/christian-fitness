@@ -153,6 +153,12 @@ table { border-collapse: collapse; }
 }
 .lockup--light { color: var(--color-fg-on-brand); }
 .lockup--light:focus-visible { outline-color: var(--color-focus-ring-on-dark); }
+/* Compact (ADR 0084): the member top bar's lockup. Below 28rem the seal stands alone in a 44 × 44px
+   target and the wordmark is visually hidden, so it still names the link "Christian Fitness". */
+@media (max-width: 27.999rem) {
+  .lockup--compact { position: relative; min-width: var(--target-comfortable); min-height: var(--target-comfortable); }
+  .lockup--compact .lockup__name { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); }
+}
 
 /* ---------- Buttons ------------------------------------------------------ */
 .btn {

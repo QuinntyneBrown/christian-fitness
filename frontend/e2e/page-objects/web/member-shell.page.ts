@@ -96,6 +96,13 @@ export class WebMemberShell {
     return { width: box.width, height: box.height };
   }
 
+  /** How far the page is wider than the window, in CSS pixels: 0 when it does not scroll sideways. */
+  horizontalOverflow(): Promise<number> {
+    return this.page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+  }
+
   /** The path and query the address bar shows. */
   location(): string {
     const url = new URL(this.page.url());
