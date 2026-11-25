@@ -29,6 +29,7 @@ public sealed class DirectoryFactory : ApiFactory
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.ListingConnections.RemoveRange(db.ListingConnections);
         db.DirectoryListings.RemoveRange(db.DirectoryListings);
         db.Events.RemoveRange(db.Events);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -71,6 +72,15 @@ public sealed class DirectoryFactory : ApiFactory
         db.DirectoryListings.Add(listing);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return listing.Id;
+    }
+
+    /// <summary>Connects <paramref name="listing"/> to <paramref name="connected"/> as <paramref name="relation"/>, as staff will in the listing editor.</summary>
+    public async Task AddConnectionAsync(Guid listing, Guid connected, string relation)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.ListingConnections.Add(ListingConnection.Of(Guid.CreateVersion7(), listing, connected, relation));
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     /// <summary>Puts an event hosted by <paramref name="host"/> in the store: published, a draft, or published then cancelled.</summary>

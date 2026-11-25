@@ -12,13 +12,21 @@ import {
   ErrorPage,
   Hosting,
   Link,
+  List,
   ListingHead,
+  ListingMark,
+  MiniRow,
   SkeletonRegion,
   Skeleton,
   Split,
   TagList,
 } from '@cf/components';
-import { hostingEmptyText, hostingRowViewOf, listingProfileViewOf } from '@cf/domain';
+import {
+  connectionRowViewOf,
+  hostingEmptyText,
+  hostingRowViewOf,
+  listingProfileViewOf,
+} from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpDirectoryService } from '../../services/http-directory.service';
 
@@ -26,7 +34,9 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
  * A listing's profile at `/directory/:id` (L2-055; ADR 0085; mock `listing-profile/`): the back
  * link to the directory, the listing head, Hosting (its one-off events still to come, each leading
  * to the event, or a sentence when there are none), About with its focus tags, and beside it from LG the key
- * facts (area, an https website, followers and the year listed). `DIRECTORY_SERVICE` is bound
+ * facts (area, an https website, followers and the year listed) and Connected (each published
+ * listing it is linked to, with the relation and kind, leading to that profile).
+ * `DIRECTORY_SERVICE` is bound
  * here, so the client and its request live only while the screen does. While it loads, the head
  * and the columns are skeletons; an id that is not published (404) shows the not-found view; any
  * other failure shows "This listing didn't load" with Try again and Directory (a 5xx is the
@@ -42,7 +52,10 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
     ErrorPage,
     Hosting,
     Link,
+    List,
     ListingHead,
+    ListingMark,
+    MiniRow,
     Skeleton,
     SkeletonRegion,
     Split,
@@ -67,6 +80,9 @@ export default class ListingProfilePage {
   });
   protected readonly hosting = computed(() => this.profile()?.hosting.map(hostingRowViewOf) ?? []);
   protected readonly hostingEmpty = computed(() => hostingEmptyText(this.profile()?.name ?? ''));
+  protected readonly connections = computed(
+    () => this.profile()?.connections.map(connectionRowViewOf) ?? [],
+  );
   protected readonly facts = computed<readonly DescriptionItem[]>(() => {
     const profile = this.profile();
     const view = this.view();

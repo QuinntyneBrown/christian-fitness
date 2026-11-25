@@ -20,6 +20,10 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.section-title--sm {
+  font-size: var(--font-size-xl);
+}
+
 .prose {
   margin-top: var(--space-3);
   max-width: var(--layout-measure);

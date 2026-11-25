@@ -24,6 +24,14 @@ export interface HostingRowView {
   sub: string;
 }
 
+/** One Connected row as the member reads it. */
+export interface ConnectionRowView {
+  href: string;
+  mark: string;
+  name: string;
+  text: string;
+}
+
 /** The website fact as the member reads it. */
 export interface WebsiteView {
   text: string;
@@ -46,6 +54,8 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly hostingHeading: Locator;
   readonly hostingRows: Locator;
   readonly hostingEmpty: Locator;
+  readonly connected: Locator;
+  readonly connectedRows: Locator;
   readonly about: Locator;
   readonly aboutText: Locator;
   readonly focusTags: Locator;
@@ -67,6 +77,8 @@ export class WebListingProfilePage extends ErrorScreen {
     this.hostingHeading = this.hosting.getByRole('heading', { level: 2 });
     this.hostingRows = this.hosting.locator('a.hosting-row');
     this.hostingEmpty = this.hosting.locator('.hosting__empty');
+    this.connected = this.main.getByRole('region', { name: 'Connected' });
+    this.connectedRows = this.connected.locator('a.mini-row');
     this.about = this.main.getByRole('region', { name: 'About', exact: true });
     this.aboutText = this.about.locator('.lead');
     this.focusTags = this.about.locator('.tag');
@@ -119,6 +131,23 @@ export class WebListingProfilePage extends ErrorScreen {
           meta: text('.hosting-row__meta'),
           title: text('.hosting-row__title'),
           sub: text('.hosting-row__sub'),
+        };
+      }),
+    );
+  }
+
+  /** Each Connected row, in order: its address, its mark (a photo's address or the initials), name and line. */
+  async connectionViews(): Promise<ConnectionRowView[]> {
+    return this.connectedRows.evaluateAll((rows) =>
+      rows.map((row) => {
+        const text = (selector: string): string =>
+          (row.querySelector(selector)?.textContent ?? '').replace(/\s+/g, ' ').trim();
+        const photo = row.querySelector('img.listing-mark');
+        return {
+          href: row.getAttribute('href') ?? '',
+          mark: photo ? (photo.getAttribute('src') ?? '') : text('.listing-mark'),
+          name: text('.mini-row__name'),
+          text: text('.mini-row__text'),
         };
       }),
     );

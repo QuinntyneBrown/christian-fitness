@@ -21,6 +21,15 @@ export const SUNRISE_RUN: HostedEventFixture = {
   imageKey: null,
 };
 
+/** A published listing a profile is connected to (`ListingConnectionDto`, ADR 0085). */
+export interface ConnectionFixture {
+  id: string;
+  kind: KindFixture;
+  name: string;
+  photoKey: string | null;
+  relation: string;
+}
+
 /** A listing's profile as `GET /api/directory/{id}` answers it (ADR 0085). */
 export interface ListingProfileFixture {
   id: string;
@@ -37,6 +46,7 @@ export interface ListingProfileFixture {
   listedYear: number;
   hostingCount: number;
   hosting: HostedEventFixture[];
+  connections: ConnectionFixture[];
 }
 
 const idOf = (name: string): string => {
@@ -62,6 +72,22 @@ export const LAKESHORE: ListingProfileFixture = {
   listedYear: 2025,
   hostingCount: 0,
   hosting: [],
+  connections: [
+    {
+      id: idOf('Michael Chen'),
+      kind: 'ambassador',
+      name: 'Michael Chen',
+      photoKey: '1a2b3c4d5e6f708192a3b4c5d6e7f801.jpg',
+      relation: 'Run leader',
+    },
+    {
+      id: idOf('Northline Athletic'),
+      kind: 'company',
+      name: 'Northline Athletic',
+      photoKey: null,
+      relation: 'Shoe partner',
+    },
+  ],
 };
 
 /** Danielle Okafor, an instructor with a photo (mock `listing-profile/person`). */
@@ -81,6 +107,7 @@ export const OKAFOR: ListingProfileFixture = {
   listedYear: 2024,
   hostingCount: 0,
   hosting: [],
+  connections: [],
 };
 
 /** Christian Fitness, the team's own listing (mock `listing-profile/one-off`). */
@@ -100,6 +127,7 @@ export const TEAM: ListingProfileFixture = {
   listedYear: 2024,
   hostingCount: 1,
   hosting: [SUNRISE_RUN],
+  connections: [],
 };
 
 /** Northline Athletic, an unverified company (mock `listing-profile/unverified`). */
@@ -119,6 +147,7 @@ export const NORTHLINE: ListingProfileFixture = {
   listedYear: 2026,
   hostingCount: 0,
   hosting: [],
+  connections: [],
 };
 
 export const PROFILES: ListingProfileFixture[] = [LAKESHORE, OKAFOR, TEAM, NORTHLINE];

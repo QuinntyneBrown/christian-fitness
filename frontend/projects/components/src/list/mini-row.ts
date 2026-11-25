@@ -1,4 +1,5 @@
-import { booleanAttribute, Component, input } from '@angular/core';
+import { booleanAttribute, Component, input, output } from '@angular/core';
+import { isPlainClick } from '../link/plain-click';
 import { CountBadge } from '../badge/count-badge';
 import { UnreadDot } from '../badge/unread-dot';
 
@@ -8,7 +9,9 @@ import { UnreadDot } from '../badge/unread-dot';
  * decorative `cf-avatar`), the name, the time and the last line. As a `conversation` (the inbox),
  * the open one is `current` (`aria-current="true"`). Unread is bold text plus a signal read in
  * words ("3 unread"), so weight is never the only signal: `cf-unread-dot` on a person row and the
- * `cf-count-badge` pill on a conversation. Words are rendered as text.
+ * `cf-count-badge` pill on a conversation. A `routed` row hands a plain click to the screen as
+ * `navigate` with its address, so the screen can route; any other click, and every click on a row
+ * that is not `routed`, is the browser's. Words are rendered as text.
  */
 @Component({
   selector: 'cf-mini-row',
@@ -29,4 +32,13 @@ export class MiniRow {
   readonly conversation = input(false, { transform: booleanAttribute });
   /** The conversation open beside the list. */
   readonly current = input(false, { transform: booleanAttribute });
+  /** The screen routes a plain click itself, through `navigate`. */
+  readonly routed = input(false, { transform: booleanAttribute });
+  readonly navigate = output<string>();
+
+  protected follow(event: MouseEvent): void {
+    if (!this.routed() || !isPlainClick(event)) return;
+    event.preventDefault();
+    this.navigate.emit(this.href());
+  }
 }

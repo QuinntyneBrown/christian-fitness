@@ -15,7 +15,13 @@ namespace ChristianFitness.Application.Directory;
 public sealed record HostedEventDto(Guid Id, string Title, string Category, DateTimeOffset StartsAt, string Place, string? ImageKey);
 
 /// <summary>
-/// A published listing's profile (L2-055 AC1 to AC3; ADR 0085): what it publishes, its follower count and
+/// A published listing this one is connected to (L2-055 AC4), with the relation worded from this
+/// listing's side; the app shows its mark, name, relation and kind and leads to its profile.
+/// </summary>
+public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, string? PhotoKey, string Relation);
+
+/// <summary>
+/// A published listing's profile (L2-055 AC1 to AC5; ADR 0085): what it publishes, its follower count and
 /// the year it was listed, in Toronto. The website is served as stored; the app shows only an
 /// https address (L2-055 AC5). It carries no member id, contact detail or owner's name.
 /// </summary>
@@ -33,7 +39,8 @@ public sealed record ListingProfileDto(
     int Followers,
     int ListedYear,
     int HostingCount,
-    IReadOnlyList<HostedEventDto> Hosting);
+    IReadOnlyList<HostedEventDto> Hosting,
+    IReadOnlyList<ListingConnectionDto> Connections);
 
 /// <summary>Opens one listing's profile; anything but a published listing is 404 <c>listing_not_found</c> (L2-055 AC7).</summary>
 public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>
@@ -67,6 +74,18 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
             .Select(e => new HostedEventDto(e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.ImageKey))
             .ToList();
 
+        // Its connections to listings members can open, in the directory's order: kind, then folded name.
+        var connections = (await (
+                from c in db.ListingConnections.AsNoTracking()
+                join other in db.DirectoryListings.AsNoTracking() on c.ConnectedListingId equals other.Id
+                where c.ListingId == listing.Id && other.Status == ListingStatus.Published
+                orderby other.KindOrder, other.NameKey, other.Id
+                select new { other.Id, other.Kind, other.Name, other.PhotoKey, c.Relation })
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false))
+            .Select(c => new ListingConnectionDto(c.Id, ListingKinds.SlugOf(c.Kind), c.Name, c.PhotoKey, c.Relation))
+            .ToList();
+
         // Following arrives with journey 8; until then nobody follows a listing (ADR 0085).
         const int followers = 0;
         return new ListingProfileDto(
@@ -83,6 +102,7 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
             followers,
             EventSchedule.TorontoOf(listing.ListedAt).Date.Year,
             hostingCount,
-            hosting);
+            hosting,
+            connections);
     }
 }

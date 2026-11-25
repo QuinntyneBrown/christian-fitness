@@ -143,6 +143,32 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("DirectoryListings", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ConnectedListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Relation")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConnectedListingId");
+
+                    b.HasIndex("ListingId", "ConnectedListingId")
+                        .IsUnique();
+
+                    b.ToTable("ListingConnections", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingSuggestion", b =>
                 {
                     b.Property<Guid>("Id")
@@ -808,6 +834,21 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("Sessions", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingConnection", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("ConnectedListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingSuggestion", b =>

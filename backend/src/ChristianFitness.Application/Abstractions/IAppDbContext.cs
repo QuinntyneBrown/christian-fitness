@@ -69,6 +69,9 @@ public interface IAppDbContext
     /// <summary>The listings members suggested, waiting for staff's review (L2-062; ADR 0086).</summary>
     DbSet<ListingSuggestion> ListingSuggestions { get; }
 
+    /// <summary>Each listing's relation to another, worded from its side (L2-055 AC4; ADR 0085).</summary>
+    DbSet<ListingConnection> ListingConnections { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

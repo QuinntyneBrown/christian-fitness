@@ -71,7 +71,7 @@ terminal and never paste it into a ticket or a chat.
 | `Seed__StaffEmail`           | For `cf seed`     | The email of the first staff account, an Admin. A second run with the same email changes nothing.          | `admin@example.org`                                                         |
 | `Seed__StaffPassword`        | For `cf seed`     | Its first password, stored only as a PBKDF2 hash. Change it after the first sign-in.                         | from the secret store                                                       |
 | `Seed__StaffName`            | For `cf seed`     | Its display name.                                                                                           | `Community Admin`                                                           |
-| `Seed__DirectorySamples`     | No                | `true` adds the mocks' eleven sample directory listings beside the Christian Fitness team listing, which is always seeded (ADR 0082). Leave it unset in production, so the directory shows only listings staff checked. | `true` on a demonstration system |
+| `Seed__DirectorySamples`     | No                | `true` adds the mocks' eleven sample directory listings beside the Christian Fitness team listing, which is always seeded, and the mocks' connections between them, which each profile's Connected lists (ADR 0082, ADR 0085). Leave it unset in production, so the directory shows only listings staff checked. | `true` on a demonstration system |
 
 `cf migrate` installs the `pg_trgm` extension for the directory's search index (ADR 0082); it is a
 trusted extension, so the schema owner may create it without a superuser.

@@ -13,7 +13,7 @@ import {
 import { WebDirectoryPage } from '../page-objects/web/directory.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-055 AC1 to AC3, AC5, AC7, AC8 and AC9 (journey 6; ADR 0085): a member opens a listing's profile at
+// L2-055 AC1 to AC5, AC7, AC8 and AC9 (journey 6; ADR 0085): a member opens a listing's profile at
 // `/directory/<id>` and reads its head, About, area, https website, followers and the year listed
 // and what it hosts (mocks `listing-profile/default`, `person`, `one-off`, `unverified`, `loading`,
 // `error`). Hosted series arrive with journey 11.
@@ -141,6 +141,38 @@ test.describe('Member app, listing profile', () => {
     await expect(profile.hostingRows).toHaveCount(0);
   });
 
+  test('Connected lists each linked listing with its relation and kind, leading to its profile', async ({
+    page,
+    api,
+  }) => {
+    answerListingProfile(api, PROFILES);
+    const profile = new WebListingProfilePage(page);
+
+    await profile.open(LAKESHORE.id);
+
+    await expect(profile.connectedRows).toHaveCount(2);
+    expect(await profile.connectionViews()).toEqual([
+      {
+        href: `/directory/${LAKESHORE.connections[0]!.id}`,
+        mark: '/api/directory/photos/1a2b3c4d5e6f708192a3b4c5d6e7f801.jpg',
+        name: 'Michael Chen',
+        text: 'Run leader · Ambassador',
+      },
+      {
+        href: `/directory/${LAKESHORE.connections[1]!.id}`,
+        mark: 'NA',
+        name: 'Northline Athletic',
+        text: 'Shoe partner · Company',
+      },
+    ]);
+
+    await profile.connectedRows.nth(1).click();
+
+    await expect(page).toHaveURL(`/directory/${NORTHLINE.id}`);
+    await expect(profile.name).toHaveText('Northline Athletic');
+    await expect(profile.connected).toHaveCount(0);
+  });
+
   test('A website that is not https is not shown at all, neither as a link nor as text', async ({
     page,
     api,
@@ -166,6 +198,9 @@ test.describe('Member app, listing profile', () => {
       tagline: '<i>Fast</i> friends',
       description: '<img src=x onerror="alert(1)">Run with us',
       focus: ['<u>Running</u>'],
+      connections: [
+        { ...LAKESHORE.connections[1]!, name: '<b>Northline</b>', relation: '<i>Shoe</i> partner' },
+      ],
     };
     answerListingProfile(api, [marked]);
     const profile = new WebListingProfilePage(page);
@@ -178,6 +213,9 @@ test.describe('Member app, listing profile', () => {
     });
     await expect(profile.aboutText).toHaveText('<img src=x onerror="alert(1)">Run with us');
     await expect(profile.focusTags).toHaveText(['<u>Running</u>']);
+    expect(await profile.connectionViews()).toMatchObject([
+      { name: '<b>Northline</b>', text: '<i>Shoe</i> partner · Company' },
+    ]);
     await expect(profile.main.locator('b, i, u, img')).toHaveCount(0);
   });
 

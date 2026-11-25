@@ -61,6 +61,18 @@ export interface HostedEventDto {
 }
 
 /**
+ * A published listing a profile is connected to (`ListingConnectionDto`, ADR 0085), with the
+ * relation worded from the profile's side, such as "Run leader".
+ */
+export interface ListingConnectionDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+  photoKey: string | null;
+  relation: string;
+}
+
+/**
  * A published listing's profile (`ListingProfileDto`, ADR 0085): what it publishes, how many follow
  * it and the year it was listed. The website is as stored: the app shows only an https address
  * (L2-055 AC5). It carries no member id or contact detail.
@@ -82,6 +94,8 @@ export interface ListingProfileDto {
   hostingCount: number;
   /** The first 20 of them, in start order. */
   hosting: HostedEventDto[];
+  /** The published listings it is connected to, in kind then name order. */
+  connections: ListingConnectionDto[];
 }
 
 /** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0085). */

@@ -83,6 +83,14 @@
             </div>
             <aside class="listing-profile-page__aside" aria-label="About this listing">
               <cf-description-list variant="spec" [items]="facts()" />
+              @if (connections().length > 0) {
+                <section aria-labelledby="connected-title">
+                  <h2 class="display section-title section-title--sm" id="connected-title">
+                    Connected
+                  </h2>
+                  <cf-list variant="mini" [items]="connections()" [template]="connectionRow" />
+                </section>
+              }
             </aside>
           </cf-split>
         }
@@ -90,3 +98,21 @@
     </cf-container>
   }
 </main>
+
+<ng-template #connectionRow let-row>
+  <cf-mini-row
+    routed
+    [href]="row.href"
+    [name]="row.name"
+    [text]="row.text"
+    (navigate)="navigate($event)"
+  >
+    <cf-listing-mark
+      slot="avatar"
+      size="sm"
+      [initials]="row.initials"
+      [photoSrc]="row.photoSrc"
+      [person]="row.person"
+    />
+  </cf-mini-row>
+</ng-template>

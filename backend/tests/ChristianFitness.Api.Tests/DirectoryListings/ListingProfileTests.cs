@@ -7,7 +7,7 @@ using ChristianFitness.Domain.Events;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-055 AC1 to AC3, AC5, AC7 and AC9 (journey 6; ADR 0085): <c>GET /api/directory/{id}</c> answers a
+/// L2-055 AC1 to AC5, AC7 and AC9 (journey 6; ADR 0085): <c>GET /api/directory/{id}</c> answers a
 /// published listing's profile, with what it publishes and nothing else; a listing that is not
 /// published, or not there, is 404 <c>listing_not_found</c>.
 /// </summary>
@@ -40,7 +40,7 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
 
         Assert.Equal(HttpStatusCode.OK, status);
         Assert.Equal(
-            ["area", "description", "focus", "followers", "hosting", "hostingCount", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "tagline", "websiteUrl"],
+            ["area", "connections", "description", "focus", "followers", "hosting", "hostingCount", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "tagline", "websiteUrl"],
             profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(id, profile.GetProperty("id").GetGuid());
         Assert.Equal("organization", profile.GetProperty("kind").GetString());
@@ -126,6 +126,48 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
 
         Assert.Equal(0, profile.GetProperty("hostingCount").GetInt32());
         Assert.Empty(profile.GetProperty("hosting").EnumerateArray());
+    }
+
+    [Fact]
+    public async Task Given_a_listing_connected_to_others_When_its_profile_is_read_Then_Connected_lists_the_published_ones_with_their_relation()
+    {
+        await factory.ClearAsync();
+        var club = await factory.AddListingAsync(ListingKind.Organization, "Lakeshore Runners Fellowship");
+        var northline = await factory.AddListingAsync(ListingKind.Company, "Northline Athletic");
+        var michael = await factory.AddListingAsync(ListingKind.Ambassador, "Michael <i>Chen</i>", photoKey: "0f8e1c2d3b4a59687766554433221100.jpg");
+        var draft = await factory.AddListingAsync(ListingKind.Person, "Not Yet Listed", status: ListingStatus.Draft);
+        var removed = await factory.AddListingAsync(ListingKind.Instructor, "Taken Down", status: ListingStatus.Removed);
+        var fan = await factory.AddListingAsync(ListingKind.Person, "Points At The Club");
+        await factory.AddConnectionAsync(club, northline, "Shoe partner");
+        await factory.AddConnectionAsync(club, michael, "Run leader");
+        await factory.AddConnectionAsync(club, draft, "Coach");
+        await factory.AddConnectionAsync(club, removed, "Coach");
+        await factory.AddConnectionAsync(fan, club, "Member");
+
+        var (_, profile) = await ReadAsync(factory, club);
+
+        var connections = profile.GetProperty("connections").EnumerateArray().ToArray();
+        Assert.All(connections, c => Assert.Equal(
+            ["id", "kind", "name", "photoKey", "relation"],
+            c.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)));
+        Assert.Equal(
+            [(michael, "ambassador", "Michael <i>Chen</i>", "Run leader"), (northline, "company", "Northline Athletic", "Shoe partner")],
+            connections.Select(c => (c.GetProperty("id").GetGuid(), c.GetProperty("kind").GetString()!, c.GetProperty("name").GetString()!, c.GetProperty("relation").GetString()!)));
+        Assert.Equal("0f8e1c2d3b4a59687766554433221100.jpg", connections[0].GetProperty("photoKey").GetString());
+        Assert.Equal(JsonValueKind.Null, connections[1].GetProperty("photoKey").ValueKind);
+    }
+
+    [Fact]
+    public async Task Given_a_listing_with_no_published_connection_When_its_profile_is_read_Then_Connected_is_empty()
+    {
+        await factory.ClearAsync();
+        var club = await factory.AddListingAsync(ListingKind.Organization, "Lakeshore Runners Fellowship");
+        var draft = await factory.AddListingAsync(ListingKind.Person, "Not Yet Listed", status: ListingStatus.Draft);
+        await factory.AddConnectionAsync(club, draft, "Coach");
+
+        var (_, profile) = await ReadAsync(factory, club);
+
+        Assert.Empty(profile.GetProperty("connections").EnumerateArray());
     }
 
     [Theory]
