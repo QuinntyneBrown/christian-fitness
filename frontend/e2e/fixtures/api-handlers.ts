@@ -1,6 +1,7 @@
 import type { Request, Route } from '@playwright/test';
 import { NOTHING_AWAITING, QUIET_WEEKS } from './admin-dashboard';
 import { NO_APPLICATIONS } from './admin-applications';
+import { NO_COUNTS } from './admin-directory';
 import { TEAM_HOST } from './admin-events';
 import { NO_LISTINGS } from './admin-listings';
 import { NO_NOTIFICATIONS } from './notifications';
@@ -71,9 +72,6 @@ export const NO_ADMIN_EVENTS = {
 
 /** The staff list of members the fixture answers unless a spec says otherwise: nobody yet. */
 export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, members: [] };
-
-/** `GET /api/admin/counts` with nothing waiting, so the admin navigation shows no count (ADR 0090). */
-export const NO_COUNTS = { suggestions: 0 };
 
 /**
  * The answers a spec gives to the app's API requests. A spec registers a handler with `on`; the

@@ -129,6 +129,7 @@ internal sealed class ApproveSuggestionHandler(
         }
 
         audit.Record(current.Id, SuggestionReview.RecordType, suggestion.Id);
+        await SuggestionReview.SweepAsync(db, now, cancellationToken).ConfigureAwait(false);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await messages.PushAsync(cancellationToken).ConfigureAwait(false);
         if (emailLink is not null)
@@ -152,13 +153,15 @@ internal sealed class DeclineSuggestionHandler(IAppDbContext db, ICurrentMember 
     {
         ArgumentNullException.ThrowIfNull(request);
         var suggestion = await SuggestionReview.FindAsync(db, request.SuggestionId, cancellationToken).ConfigureAwait(false);
-        if (!suggestion.TryDecline(current.Id, time.GetUtcNow(), request.Reason))
+        var now = time.GetUtcNow();
+        if (!suggestion.TryDecline(current.Id, now, request.Reason))
         {
             throw SuggestionReview.Decided();
         }
 
         await messages.AddAsync(suggestion.SuggestedById, SuggestionOutcome.Declined(suggestion.Name), cancellationToken).ConfigureAwait(false);
         audit.Record(current.Id, SuggestionReview.RecordType, suggestion.Id);
+        await SuggestionReview.SweepAsync(db, now, cancellationToken).ConfigureAwait(false);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await messages.PushAsync(cancellationToken).ConfigureAwait(false);
         return new SuggestionDecisionDto("declined", null, null);

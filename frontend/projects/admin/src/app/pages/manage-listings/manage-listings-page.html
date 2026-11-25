@@ -55,14 +55,29 @@
         </cf-empty-state>
       } @else {
         <cf-split variant="picker-wide" flush>
-          <cf-pick-cards
-            label="Suggestions"
-            light
-            stack
-            [items]="cards()"
-            [current]="currentId()"
-            (picked)="choose($event)"
-          />
+          <div class="listings__picker">
+            <cf-pick-cards
+              label="Suggestions"
+              light
+              stack
+              [items]="cards()"
+              [current]="currentId()"
+              (picked)="choose($event)"
+            />
+            @if (state(); as list) {
+              @if (list.kind === 'ready' && list.list.next !== null) {
+                <div class="listings__more">
+                  <cf-button
+                    variant="secondary"
+                    [busy]="list.more"
+                    [disabled]="list.more"
+                    (click)="loadMoreSuggestions()"
+                    >Load more</cf-button
+                  >
+                </div>
+              }
+            }
+          </div>
           @switch (detailState().kind) {
             @case ('failed') {
               <cf-empty-state

@@ -171,6 +171,60 @@ test.describe('Admin app, listing suggestions', () => {
   });
 
   // Mock admin-listings/empty.
+  // L2-073 AC9 (ADR 0090): the list pages 50 at a time; Load more reads the next page below.
+  test('Load more reads the next suggestions after the last shown and adds them below', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const asked: (string | null)[] = [];
+    api.on('GET', LIST, (request) => {
+      const after = new URL(request.url()).searchParams.get('after');
+      asked.push(after);
+      return {
+        json:
+          after === null
+            ? suggestionList(CAST_SUGGESTIONS.slice(0, 2), { next: CAST_SUGGESTIONS[1].id })
+            : suggestionList(CAST_SUGGESTIONS.slice(2)),
+      };
+    });
+    api.on('GET', ONE, (request) => {
+      const id = ONE.exec(new URL(request.url()).pathname)?.[1];
+      return { json: CAST_SUGGESTIONS.find((s) => s.id === id) ?? CAST_SUGGESTIONS[0] };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+    await expect(listings.cards).toHaveCount(2);
+
+    await listings.loadMoreButton.click();
+
+    await expect(listings.cards).toHaveCount(CAST_SUGGESTIONS.length);
+    await expect(listings.loadMoreButton).toHaveCount(0);
+    expect(asked).toEqual([null, CAST_SUGGESTIONS[1].id]);
+  });
+
+  test('more suggestions that do not load keep those shown and a toast says so', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    api.on('GET', LIST, (request) =>
+      new URL(request.url()).searchParams.has('after')
+        ? { abort: true }
+        : { json: suggestionList(CAST_SUGGESTIONS.slice(0, 2), { next: CAST_SUGGESTIONS[1].id }) },
+    );
+    api.on('GET', ONE, () => ({ json: CAST_SUGGESTIONS[0] }));
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+    await expect(listings.cards).toHaveCount(2);
+
+    await listings.loadMoreButton.click();
+
+    await expect(listings.toastTitle).toHaveText("More suggestions didn't load");
+    await expect(listings.cards).toHaveCount(2);
+    await expect(listings.loadMoreButton).toBeEnabled();
+  });
+
   test('says when no suggestion waits and points to Listed', async ({ page, api }) => {
     api.on('GET', LIST, () => ({ json: { ...NO_SUGGESTIONS, listed: 12 } }));
     const listings = new ManageListingsPage(page);

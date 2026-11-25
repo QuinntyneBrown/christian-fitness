@@ -54,7 +54,9 @@ import { HttpAdminDirectoryService } from '../../services/http-admin-directory.s
 
 /** The list: skeletons, the answer (empty or not) with when it came, or the error state. */
 type ListState =
-  { kind: 'loading' } | { kind: 'ready'; list: SuggestionListDto; now: Date } | { kind: 'failed' };
+  | { kind: 'loading' }
+  | { kind: 'ready'; list: SuggestionListDto; now: Date; more: boolean }
+  | { kind: 'failed' };
 
 /** The chosen suggestion: on its way, shown, or not loaded. */
 type DetailState =
@@ -86,6 +88,7 @@ const ALREADY_DECIDED = 'This suggestion was already decided';
 /** The toasts announced at once, as failures. */
 /** The toast when the next page of Listed did not load. */
 const LISTED_MORE_FAILED = "More listings didn't load";
+const SUGGESTIONS_MORE_FAILED = "More suggestions didn't load";
 const FAILURES = new Set([TICK_FAILED, APPROVE_FAILED, ALREADY_DECIDED, LISTED_MORE_FAILED]);
 
 /** A decision made on this visit. */
@@ -282,7 +285,9 @@ export default class ManageListingsPage {
           // The suggestion showing is read again with the list, even when it stays the same one.
           this.shown.next(null);
           return this.directory.suggestions().pipe(
-            map((list) => ({ kind: 'ready', list, now: new Date() }) satisfies ListState),
+            map(
+              (list) => ({ kind: 'ready', list, now: new Date(), more: false }) satisfies ListState,
+            ),
             catchError(() => of({ kind: 'failed' } satisfies ListState)),
           );
         }),
@@ -396,6 +401,28 @@ export default class ManageListingsPage {
         this.dialogOpen = false;
         if (result === 'declined') this.decide(id, { status: 'declined', claim: null });
         if (result === 'stale') this.reload.next();
+      });
+  }
+
+  /** Reads the next 50 suggestions after the last shown and adds them below (L2-073 AC9; ADR 0090). */
+  protected loadMoreSuggestions(): void {
+    const state = this.state();
+    if (state.kind !== 'ready' || state.list.next === null || state.more) return;
+    this.state.set({ ...state, more: true });
+    this.directory
+      .suggestions(state.list.next)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (page) =>
+          this.state.set({
+            ...state,
+            list: { ...page, suggestions: [...state.list.suggestions, ...page.suggestions] },
+            more: false,
+          }),
+        error: () => {
+          this.state.set({ ...state, more: false });
+          this.toasts.show(SUGGESTIONS_MORE_FAILED, 'Try again in a moment.');
+        },
       });
   }
 

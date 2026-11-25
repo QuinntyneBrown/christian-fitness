@@ -37,6 +37,29 @@ public static class SuggestionReview
     /// <summary>The record type an audit entry names a suggestion by.</summary>
     public const string RecordType = "ListingSuggestion";
 
+    /// <summary>
+    /// Marks for deletion the suggestions decided more than <see cref="ListingSuggestion.KeptAfterDecision"/>
+    /// before <paramref name="now"/>, with their checks (L2-073 AC9; ADR 0090), for the caller's save, as
+    /// ADR 0083 sweeps notifications on write. The checks go explicitly as well as by cascade, so a store
+    /// without cascades keeps none.
+    /// </summary>
+    public static async Task SweepAsync(IAppDbContext db, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(db);
+        var cutoff = now - ListingSuggestion.KeptAfterDecision;
+        var expired = await db.ListingSuggestions
+            .Where(s => s.Status != SuggestionStatus.Waiting && s.DecidedAt < cutoff)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        if (expired.Count == 0)
+        {
+            return;
+        }
+
+        var ids = expired.Select(s => s.Id).ToList();
+        db.SuggestionChecks.RemoveRange(await db.SuggestionChecks.Where(c => ids.Contains(c.SuggestionId)).ToListAsync(cancellationToken).ConfigureAwait(false));
+        db.ListingSuggestions.RemoveRange(expired);
+    }
+
     private static readonly Dictionary<SuggestionRelation, string> RelationSlugs = new()
     {
         [SuggestionRelation.Myself] = "myself",
