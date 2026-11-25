@@ -2,6 +2,7 @@
   [attr.class]="conversation() ? 'mini-row conversation' : 'mini-row'"
   [href]="href()"
   [attr.aria-current]="current() ? 'true' : null"
+  (click)="follow($event)"
 >
   <span class="mini-row__avatar"><ng-content select="[slot=avatar]" /></span>
   <span class="mini-row__body">

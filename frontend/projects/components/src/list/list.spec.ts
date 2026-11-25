@@ -119,3 +119,35 @@ describe('MiniRow meta line', () => {
     expect((await miniRow({ conversation: true })).querySelector('.mini-row__meta')).toBeNull();
   });
 });
+
+// L2-055 AC4 (ADR 0087): a Connected row is routed by the screen; the inbox's rows stay plain links.
+describe('MiniRow routing', () => {
+  async function clicked(routed: boolean, init: MouseEventInit = {}) {
+    const fixture = TestBed.createComponent(MiniRow);
+    fixture.componentRef.setInput('href', '/directory/l-1');
+    fixture.componentRef.setInput('name', 'Northline Athletic');
+    fixture.componentRef.setInput('routed', routed);
+    const emitted: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => emitted.push(href));
+    await fixture.whenStable();
+    const link = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ...init });
+    link.dispatchEvent(click);
+    return { emitted, prevented: click.defaultPrevented };
+  }
+
+  it('hands a plain click on a routed row to the screen', async () => {
+    expect(await clicked(true)).toEqual({ emitted: ['/directory/l-1'], prevented: true });
+  });
+
+  it.each([{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { button: 1 }])(
+    'leaves a modified click (%o) to the browser',
+    async (init) => {
+      expect(await clicked(true, init)).toEqual({ emitted: [], prevented: false });
+    },
+  );
+
+  it('leaves every click on a row that is not routed to the browser', async () => {
+    expect(await clicked(false)).toEqual({ emitted: [], prevented: false });
+  });
+});

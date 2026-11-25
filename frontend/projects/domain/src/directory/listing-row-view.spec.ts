@@ -39,6 +39,7 @@ describe('listingRowViewOf', () => {
   it('shows an organization squared with its initials, verified, hosting one', () => {
     expect(listingRowViewOf(row({ hosting: 1 }))).toEqual({
       id: 'id-1',
+      href: '/directory/id-1',
       name: 'Christian Fitness',
       tagline: 'Faith-first fitness community for the GTA',
       area: 'Toronto-wide',

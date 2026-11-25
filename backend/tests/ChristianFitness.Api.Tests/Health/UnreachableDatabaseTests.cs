@@ -53,6 +53,7 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<ChristianFitness.Domain.Directory.DirectoryListing> DirectoryListings => throw new InvalidOperationException(Secret);
 
         public DbSet<ChristianFitness.Domain.Directory.ListingSuggestion> ListingSuggestions => throw new InvalidOperationException(Secret);
+        public DbSet<ChristianFitness.Domain.Directory.ListingConnection> ListingConnections => throw new InvalidOperationException(Secret);
         public DbSet<AuditEntry> AuditEntries => throw new InvalidOperationException(Secret);
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>

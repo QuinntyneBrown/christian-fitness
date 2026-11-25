@@ -102,6 +102,7 @@
 </main>
 <ng-template #listingRow let-row>
   <cf-listing-row
+    [href]="row.href"
     [name]="row.name"
     [tagline]="row.tagline"
     [area]="row.area"
@@ -111,6 +112,7 @@
     [photoSrc]="row.photoSrc"
     [hosting]="row.hosting"
     [hostingSome]="row.hostingSome"
+    (navigate)="navigate($event)"
   />
 </ng-template>
 <ng-template #skeletonRow>

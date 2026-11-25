@@ -1,41 +1,65 @@
 <dl [attr.class]="variant() === 'facts' ? 'facts' : 'spec-list'">
-  @for (item of items(); track $index) {
+  @for (row of rows(); track $index) {
     <div [attr.class]="variant() === 'facts' ? 'facts__item' : null">
-      @if (variant() === 'facts' && item.icon) {
-        <svg class="icon facts__icon" viewBox="0 0 24 24" aria-hidden="true">
-          @switch (item.icon) {
-            @case ('calendar') {
-              <path d="M8 2v4" />
-              <path d="M16 2v4" />
-              <rect width="18" height="18" x="3" y="4" rx="2" />
-              <path d="M3 10h18" />
-            }
-            @case ('clock') {
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            }
-            @case ('pin') {
-              <path
-                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-              />
-              <circle cx="12" cy="10" r="3" />
-            }
-            @case ('user') {
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            }
-          }
-        </svg>
-      }
       @if (variant() === 'facts') {
+        @if (row.$implicit.icon) {
+          <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="row" />
+        }
         <div class="facts__text">
-          <dt>{{ item.term }}</dt>
-          <dd [attr.class]="item.detail ? null : 'missing'">{{ item.detail || missingText() }}</dd>
+          <dt>{{ row.$implicit.term }}</dt>
+          <ng-container [ngTemplateOutlet]="detail" [ngTemplateOutletContext]="row" />
         </div>
       } @else {
-        <dt>{{ item.term }}</dt>
-        <dd [attr.class]="item.detail ? null : 'missing'">{{ item.detail || missingText() }}</dd>
+        <!-- prettier-ignore -->
+        <dt>@if (row.$implicit.icon) {<ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="row" />}{{ row.$implicit.term }}</dt>
+        <ng-container [ngTemplateOutlet]="detail" [ngTemplateOutletContext]="row" />
       }
     </div>
   }
 </dl>
+
+<ng-template #detail let-item>
+  @if (item.link; as link) {
+    <dd>
+      <cf-link [href]="link.href" external>{{ link.text }}</cf-link>
+    </dd>
+  } @else {
+    <dd [attr.class]="item.detail ? null : 'missing'">{{ item.detail || missingText() }}</dd>
+  }
+</ng-template>
+
+<ng-template #icon let-item>
+  <svg
+    [attr.class]="variant() === 'facts' ? 'icon facts__icon' : 'icon'"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    @switch (item.icon) {
+      @case ('calendar') {
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <rect width="18" height="18" x="3" y="4" rx="2" />
+        <path d="M3 10h18" />
+      }
+      @case ('clock') {
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      }
+      @case ('globe') {
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+        <path d="M2 12h20" />
+      }
+      @case ('pin') {
+        <path
+          d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+        />
+        <circle cx="12" cy="10" r="3" />
+      }
+      @case ('user') {
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      }
+    }
+  </svg>
+</ng-template>

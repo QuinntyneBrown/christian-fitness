@@ -484,11 +484,11 @@ def hosting_rows(l: dict) -> str:
     return f'<ul class="hosting">{"".join(rows)}</ul>'
 
 
-def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str:
+def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True, notice: str = "") -> str:
     sr_list, ev_list = hosted_by(l["id"])
     hosting = len(sr_list) + len(ev_list)
     verified = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if l["verified"] else ""
-    website = (f'<div><dt>{icon("globe")}Website</dt><dd><a class="link" href="https://{l["website"]}" rel="noopener noreferrer" target="_blank">{l["website"]}<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
+    website = (f'<div><dt>{icon("globe")}Website</dt><dd><a class="link" href="https://{l["website"]}" rel="noopener noreferrer" target="_blank">{l["website"].removeprefix("www.")}{icon("external-link", "link__external")}<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
                if l["website"] else "")
     links = "".join(f"""<li><a class="mini-row" href="{listing_link(LS[i])}">
                   {listing_mark(LS[i], "sm")}
@@ -499,6 +499,9 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
             <ul class="mini-list">{links}</ul>
           </section>""" if links else "")
     focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    # ADR 0061, ADR 0087: the same member owns a Services listing, so the profile links to it.
+    also = (f'\n          <p><a class="text-link" href="{href("services")}">Also offers services</a></p>'
+            if l["id"] == "okafor" else "")
     message = f'<a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>' if has_owner else ""
     actions = (f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="{href("owner-listing-editor")}">Edit listing</button>' if owner
                else f'{follow_button(l, big=True)}\n          {message}')
@@ -516,7 +519,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
         <div class="listing-head__actions">
           {actions}
         </div>
-      </header>
+      </header>{notice}
       <div class="split split--detail">
         <div>
           <section aria-labelledby="hosting-title">
@@ -535,7 +538,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
             {website}
             <div><dt>Followers</dt><dd>{l["followers"]:,}</dd></div>
             <div><dt>On Christian Fitness</dt><dd>{l["since"]}</dd></div>
-          </dl>
+          </dl>{also}
           {connected}
         </aside>
       </div>
@@ -570,6 +573,13 @@ def _():
 @s("unverified", "Northline Athletic, a company that is not verified and hosts nothing: no Verified mark, and the Hosting section says so.")
 def _():
     return member_shell("directory", profile_page(LS["northline"]))
+
+
+@s("message-failed", "Danielle Okafor after Message could not open the conversation (a refusal or no connection): a generic alert under the head; the profile stays as it was.")
+def _():
+    alert = form_alert("We couldn't open this conversation", "Try again in a moment.")
+    indented = "".join("\n      " + line for line in alert.split("\n"))
+    return member_shell("directory", profile_page(LS["okafor"], notice=indented))
 
 
 @s("owner", "Eastside Ladies Who Lift, seen by the member who claimed it: Edit listing replaces Follow and Message and opens the listing editor.")

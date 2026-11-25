@@ -8,8 +8,9 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Seeding;
 
 /// <summary>
-/// L2-054 AC10 (ADR 0067, ADR 0082): the seed adds the Listed Christian Fitness team listing by its
-/// stable id, the sample listings only when asked, and a second run changes nothing.
+/// L2-054 AC10 (ADR 0067, ADR 0082, ADR 0087): the seed adds the Listed Christian Fitness team listing
+/// by its stable id, the sample listings and their connections only when asked, and a second run
+/// changes nothing.
 /// </summary>
 public sealed class DirectoryListingSeedTests : IDisposable
 {
@@ -57,6 +58,27 @@ public sealed class DirectoryListingSeedTests : IDisposable
         Assert.Equal(first, again);
     }
 
+    [Fact]
+    public async Task Given_samples_asked_for_When_seed_runs_Then_the_mocks_connections_are_added_once_each()
+    {
+        var changes = await SamplesWithConnections().RunAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(12 + 21, changes);
+        var lakeshore = await (
+            from c in _db.ListingConnections
+            join other in _db.DirectoryListings on c.ConnectedListingId equals other.Id
+            join self in _db.DirectoryListings on c.ListingId equals self.Id
+            where self.Name == "Lakeshore Runners Fellowship"
+            orderby other.Name
+            select new { other.Name, c.Relation }).ToListAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(
+            [new { Name = "Michael Chen", Relation = "Run leader" }, new { Name = "Northline Athletic", Relation = "Shoe partner" }],
+            lakeshore);
+
+        Assert.Equal(0, await SamplesWithConnections().RunAsync(TestContext.Current.CancellationToken));
+        Assert.Equal(21, await _db.ListingConnections.CountAsync(TestContext.Current.CancellationToken));
+    }
+
     public void Dispose() => _db.Dispose();
 
     private SeedRunner RunnerFor(params SeedListing[] listings)
@@ -64,5 +86,17 @@ public sealed class DirectoryListingSeedTests : IDisposable
         _db.ChangeTracker.Clear();
         IAppDbContext db = _db;
         return new SeedRunner([.. listings.Select(l => new DirectoryListingSeed(l, _time))], db);
+    }
+
+    private SeedRunner SamplesWithConnections()
+    {
+        _db.ChangeTracker.Clear();
+        IAppDbContext db = _db;
+        return new SeedRunner(
+            [
+                .. new[] { DirectoryListingSeed.Team }.Concat(DirectoryListingSeed.Samples).Select(l => new DirectoryListingSeed(l, _time)),
+                .. ListingConnectionSeed.Samples.Select(c => new ListingConnectionSeed(c)),
+            ],
+            db);
     }
 }

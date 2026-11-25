@@ -48,6 +48,8 @@
             (requestBooking)="contact.requestBooking(item)"
             (startMessage)="contact.message(item.id)"
             (openContact)="contact.contact(item.id)"
+            [directoryHref]="directoryHref()"
+            (navigate)="navigate($event)"
           />
         </div>
       }

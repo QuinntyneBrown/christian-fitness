@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SERVICES_SERVICE, type ServiceListingDto } from '@cf/api';
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   ServiceDetail,
   SkeletonRegion,
 } from '@cf/components';
-import { serviceCategoryOf, servicesHref, verifiedText } from '@cf/domain';
+import { directoryListingHref, serviceCategoryOf, servicesHref, verifiedText } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpServicesService } from '../../services/http-services.service';
 import { ProfessionalContact } from '../../services/professional-contact';
@@ -43,6 +43,17 @@ export default class ServiceDetailPage {
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly listing = signal<ServiceListingDto | null>(null);
+  /** Where "Also in the directory" leads, or nowhere. */
+  protected readonly directoryHref = computed(() => {
+    const id = this.listing()?.directoryListingId ?? null;
+    return id === null ? '' : directoryListingHref(id);
+  });
+  private readonly router = inject(Router);
+
+  /** Follows a link inside the app through the router. */
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
+  }
   protected readonly backHref = signal('/services');
   protected readonly verified = computed(() => {
     const listing = this.listing();

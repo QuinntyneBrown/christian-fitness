@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 12% (5 of 36 journeys; 13 of 113 days)
+**% complete:** 14% (6 of 36 journeys; 16 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2460,3 +2460,28 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Never bind `[class.x]`" (5): no class or style bindings were added. Before the last rebase web's initial total was 280.13 kB, main's 280.10 kB plus 0.03 kB for the new route entry; the screen, the service and `afterNextRender` all stayed lazy (checked by grepping `main-*.js`). On journey 1's base it is 278.15 kB, under the warning.
 - "Break each rule alone" (5): applied to every backend rule of slice 3 and to the screen's failed and sending states in slice 2.
 - "The worktree-isolation guard refuses long shell commands" (4, 5): edits went through script files and `git` ran alone from the worktree root.
+
+## Journey 6: View a listing's profile
+
+**What slowed it**
+
+- The ADR was drafted as 0084, renamed 0085 when the member-header fix took 0084, and renamed again to 0087 at the final rebase because journeys 1 and 17 had taken 0085 and 0086 in the meantime. Only lines in the branch's own changed files were renumbered, by a script that listed every hit before writing, so journey 1's ADR 0085 references stayed untouched.
+- Journey 1 moved the member routes into `member-app.routes.ts` and journey 17 added a migration, so on rebase the route moved to the new file, the snapshot was taken from main and `AddListingConnections` was generated again so it sorts after `AddListingSuggestions`.
+- `IAppDbContext` has four hand-written test doubles (two join races, last place, unreachable database). A new `DbSet` breaks all four, and a parallel journey adding its own set conflicts in each; both sides were kept.
+- A slice-4 change to `ListingProfileDto` broke the domain library's spec fixture, and it was found only in slice 5, because only the e2e and component tests had been run after slice 4. Run `npm test` (both libraries) after every contract change, not only the suite closest to the change.
+- The first cross-link test passed with the "published only" filter removed: the draft it relied on was never the oldest, since the factory stamped a draft's `ListedAt` at the fixed clock and ignored `listedAt`. The factory now backdates any status, and the test fails without the filter.
+- An object literal in `[ngTemplateOutletContext]` and an `@let` each pulled Angular core code into the initial `main`. Precomputing contexts in a `computed`, as `cf-list` already did, kept `main` flat. The one lasting cost is the `--size-column-date` design-system token the hosting row needs, 0.03 kB in `styles.css`.
+- Python heredocs in Git Bash turned `"\n"` inside a string into a real newline twice. Edits with escapes went into script files or the Edit tool.
+
+**New lessons**
+
+- An e2e test that clicks a link and expects the next URL also passes when the link reloads the whole app. Prove in-app routing with a component test: a plain click is prevented and emitted, a modified click is left to the browser. Here `MiniRow` (`routed`) and `ServiceDetail` got that test.
+- A component that other screens use as a plain link (`MiniRow` on Home and Messages) takes routing only by an opt-in input, so its existing consumers keep their behaviour without changes.
+- When a slice needs a state the mocks do not draw (a failed Message), add the mock state (`listing-profile/message-failed`) and point the design at it before writing the screen.
+- To find which slice grew the initial bundle, check out an earlier commit's `frontend/projects` into the working tree, build, compare `main-*.js` and `styles-*.css` separately, then check out `HEAD` again. A change that leaves `main` alone but grows the total is in the global styles. Commit first: checking `HEAD` out again also discards uncommitted edits under that path, which happened once here and had to be redone. Move aside new files that do not compile against the older libraries.
+
+**How earlier lessons worked**
+
+- "Check `origin/main` and open PRs for the next ADR number right before each commit that adds one" (17): it was checked, and still overtaken by two merges before the push. Checking again at the final rebase caught it.
+- "Never bind `[class.x]`" (5): no class or style bindings; `[attr.class]` strings throughout. After the rebase web's initial total is 278.18 kB, main's 278.15 kB plus the 0.03 kB token; `main-*.js` is byte-for-byte the same size, since the route now sits in the lazy `member-app.routes.ts`.
+- "Break each rule alone" (5, 17): the Toronto listed year, the published filters on the profile, on connections and on Services' directory link, http websites, the owner check on Message and the routing guards each failed exactly their own tests when broken, and were restored.

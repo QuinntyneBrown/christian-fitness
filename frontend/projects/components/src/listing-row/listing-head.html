@@ -1,0 +1,42 @@
+<header class="listing-head">
+  @if (loading()) {
+    <div class="listing-head__who">
+      <cf-skeleton shape="avatar-profile" square />
+      <div class="listing-head__body listing-head__lines">
+        <cf-skeleton shape="text-sm" width="20" />
+        <h1 class="visually-hidden">{{ loadingLabel() }}</h1>
+        <cf-skeleton shape="title-lg" />
+        <cf-skeleton width="55" />
+      </div>
+    </div>
+  } @else {
+    <div class="listing-head__who">
+      <cf-listing-mark
+        size="xl"
+        [initials]="initials()"
+        [photoSrc]="photoSrc()"
+        [person]="person()"
+      />
+      <div class="listing-head__body">
+        <p class="eyebrow listing-head__kind">
+          {{ kind() }}
+          @if (verified()) {
+            <span class="listing-head__verified"
+              >·
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
+                />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              Verified</span
+            >
+          }
+        </p>
+        <h1 class="display detail-title listing-head__name">{{ name() }}</h1>
+        <p class="subtitle">{{ tagline() }}</p>
+      </div>
+    </div>
+    <div class="listing-head__actions"><ng-content select="[slot=actions]" /></div>
+  }
+</header>

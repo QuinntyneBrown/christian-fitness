@@ -1,0 +1,19 @@
+@if (rows().length > 0) {
+  <ul class="hosting">
+    @for (row of rows(); track row.id) {
+      <li>
+        <cf-hosting-row
+          [href]="row.href"
+          [imageSrc]="row.imageSrc"
+          [meta]="row.meta"
+          [heading]="row.title"
+          [sub]="row.sub"
+          [series]="row.series ?? false"
+          (navigate)="navigate.emit($event)"
+        />
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="hosting__empty">{{ empty() }}</p>
+}

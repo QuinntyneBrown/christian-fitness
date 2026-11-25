@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 12% (5 of 36 journeys; 13 of 113 days)
+**% complete:** 14% (6 of 36 journeys; 16 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -18,7 +18,7 @@ audit), so those are not listed on their own.
 | 3   | Staff sign in with Google Workspace    | Admin  | Staff sign in only with a team-domain Google account; the staff password and two-step are removed.             | 3             |
 | 4   | ✅ Search events and see mine          | Member | Search Events by title and show only the events I'm going to.                                                  | 2             |
 | 5   | ✅ Browse the directory                | Member | Find the organizations, people and ministries behind events, by kind and by search.                            | 3             |
-| 6   | View a listing's profile               | Member | See what a listing hosts and is connected to, and message its owner.                                           | 3             |
+| 6   | ✅ View a listing's profile            | Member | See what a listing hosts and is connected to, and message its owner.                                           | 3             |
 | 7   | See who hosts an event                 | Both   | Every event has a required host listing, chosen in the event editor and shown on the event.                    | 3             |
 | 8   | Follow a listing                       | Member | Follow or unfollow a listing from the directory or its profile.                                                | 2             |
 | 9   | Manage event series                    | Admin  | Staff create a series, edit its details and add dated sessions under the regrouped console navigation.         | 5             |
@@ -62,7 +62,7 @@ under `detailed-designs/` and the mocks under `mocks/` (pages, dialogs and notif
 | 3   | L2-018; L2-046; L2-049 AC15; ADR 0074                                    | admin-access/admin-sign-in                                        | admin-sign-in                                                           |
 | 4   | L2-075; L2-076                                                           | events/browse-events                                              | events                                                                  |
 | 5   | L2-054; L2-008 AC1–2; ADR 0071, 0077                                     | directory/browse-directory                                        | directory                                                               |
-| 6   | L2-055; L2-014 AC1–2, AC6; ADR 0061, 0066                                | directory/view-listing-profile                                    | listing-profile                                                         |
+| 6   | L2-055; L2-014 AC1–2, AC6; ADR 0061, 0066, 0087                          | directory/view-listing-profile                                    | listing-profile                                                         |
 | 7   | L2-010 AC4; L2-022 AC1, AC11–12; ADR 0067                                | events/view-event-detail, admin-events/create-and-edit-events     | event-detail, event-editor                                              |
 | 8   | L2-056 AC1–6, AC8–9                                                      | directory/follow-listing                                          | directory, listing-profile, toast                                       |
 | 9   | L2-071 AC1–3, AC6–8, AC10–16; L2-019; L2-021; ADR 0064, 0079, 0080       | admin-events/manage-event-series, admin-access/navigate-admin-app | admin-series, series-editor, add-session                                |

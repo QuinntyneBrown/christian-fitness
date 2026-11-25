@@ -42,6 +42,13 @@
       </svg>
       {{ verified() }}
     </p>
+    @if (directoryHref()) {
+      <p class="service-detail__also">
+        <cf-link variant="text" [href]="directoryHref()" (click)="follow($event)"
+          >Also in the directory</cf-link
+        >
+      </p>
+    }
     @if (problem()) {
       <div class="service-detail__problem">
         <cf-alert [heading]="problem()" />

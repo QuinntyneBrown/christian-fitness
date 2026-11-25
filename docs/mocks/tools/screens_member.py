@@ -1384,6 +1384,9 @@ def svc_list(items, current: str) -> str:
 
 def svc_detail(sv: dict) -> str:
     av = image(sv["image"], "avatar avatar--2xl avatar--photo-square") if sv.get("image") else avatar(sv["initials"], size="2xl")
+    # ADR 0061, ADR 0087: Danielle also owns a directory listing, so her card links to it.
+    also = (f'\n            <p class="service-detail__also"><a class="text-link" href="{href("listing-profile", "person")}">Also in the directory</a></p>'
+            if sv["id"] == "okafor" else "")
     return f"""<article class="card card--pad sticky-aside" aria-labelledby="svc-name">
             <div class="service-detail__head">
               {av}
@@ -1398,7 +1401,7 @@ def svc_detail(sv: dict) -> str:
               <div><dt>Credentials</dt><dd>{sv["credentials"]}</dd></div>
               <div><dt>Rate</dt><dd>{sv["price"]}</dd></div>
             </dl>
-            <p class="verified">{icon("badge-check")} Verified by Christian Fitness, March 2026</p>
+            <p class="verified">{icon("badge-check")} Verified by Christian Fitness, March 2026</p>{also}
             <div class="actions-split">
               <button class="btn btn--primary btn--md btn--grow" type="button" data-mock-href="{href("request-booking")}">Request a booking</button>
               <a class="btn btn--secondary btn--md btn--grow" href="{href("messages", "direct")}">Message</a>

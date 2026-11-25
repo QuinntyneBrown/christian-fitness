@@ -4,6 +4,8 @@ import { listingKindInfo } from './listing-kinds';
 /** What a `listing-row` shows (L2-054 AC2): the screen passes these to the component as they are. */
 export interface ListingRowView {
   id: string;
+  /** The listing's profile (L2-055). */
+  href: string;
   name: string;
   tagline: string;
   area: string;
@@ -21,6 +23,11 @@ export interface ListingRowView {
 
 const firstLetter = (word: string): string => Array.from(word)[0] ?? '';
 const isWord = (word: string): boolean => /\p{L}/u.test(firstLetter(word));
+
+/** A listing's profile address (ADR 0087). */
+export function directoryListingHref(id: string): string {
+  return `/directory/${encodeURIComponent(id)}`;
+}
 
 /**
  * The initials a listing's mark shows (mock `directory/default`): for a group, the first letters
@@ -42,6 +49,7 @@ export function listingInitials(kind: ListingKind, name: string): string {
 export function listingRowViewOf(row: DirectoryListingRowDto): ListingRowView {
   return {
     id: row.id,
+    href: directoryListingHref(row.id),
     name: row.name,
     tagline: row.tagline,
     area: row.area,

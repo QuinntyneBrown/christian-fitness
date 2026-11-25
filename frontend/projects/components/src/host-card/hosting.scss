@@ -1,0 +1,19 @@
+// The design system's Hosting list (docs/design-system/assets/components.css, "Directory and
+// listing profile": hosting, hosting__empty); each row is cf-hosting-row's.
+:host {
+  display: block;
+}
+
+.hosting {
+  margin-top: var(--space-4);
+
+  > li + li {
+    margin-top: var(--space-3);
+  }
+}
+
+.hosting__empty {
+  margin-top: var(--space-3);
+  max-width: var(--layout-lead-max);
+  color: var(--color-fg-muted);
+}

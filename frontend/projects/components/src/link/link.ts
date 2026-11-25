@@ -10,7 +10,7 @@ export type LinkVariant = 'inline' | 'text' | 'quiet' | 'ui' | 'back';
 
 /**
  * The design system's links (docs/design-system/components/link.html): a native `<a href>` that
- * only takes people somewhere. `external` opens a new tab with `rel="noopener"`, the out-arrow
+ * only takes people somewhere. `external` opens a new tab with `rel="noopener noreferrer"`, the out-arrow
  * and the hidden words "(opens in a new tab)"; `current` marks the link to the current page with
  * `aria-current="page"`. Links have no disabled state. The label is projected as text; text links
  * grow to a 44 × 44 px target on coarse pointers.

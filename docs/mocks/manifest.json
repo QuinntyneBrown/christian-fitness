@@ -853,6 +853,7 @@
         "person",
         "one-off",
         "unverified",
+        "message-failed",
         "owner",
         "loading",
         "error"

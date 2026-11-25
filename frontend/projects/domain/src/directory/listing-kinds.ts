@@ -3,6 +3,8 @@ import type { ListingKind } from '@cf/api';
 /** One listing kind as the directory names it (mock `directory/default`; L2-054 AC1). */
 export interface ListingKindInfo {
   kind: ListingKind;
+  /** The kind's name, as a profile's eyebrow shows it ("Church Ministry"). */
+  singular: string;
   /** The group heading and the chip's label. */
   plural: string;
   /** The one line under the group heading. */
@@ -15,31 +17,42 @@ export interface ListingKindInfo {
 export const LISTING_KINDS: readonly ListingKindInfo[] = [
   {
     kind: 'organization',
+    singular: 'Organization',
     plural: 'Organizations',
     blurb: 'Clubs and groups that run events',
     person: false,
   },
   {
     kind: 'person',
+    singular: 'Person',
     plural: 'People',
     blurb: 'Speakers, pastors and community voices',
     person: true,
   },
   {
     kind: 'instructor',
+    singular: 'Instructor',
     plural: 'Instructors',
     blurb: 'Certified coaches who lead sessions',
     person: true,
   },
   {
     kind: 'ambassador',
+    singular: 'Ambassador',
     plural: 'Ambassadors',
     blurb: 'Members who welcome newcomers',
     person: true,
   },
-  { kind: 'company', plural: 'Companies', blurb: 'Sponsors and local businesses', person: false },
+  {
+    kind: 'company',
+    singular: 'Company',
+    plural: 'Companies',
+    blurb: 'Sponsors and local businesses',
+    person: false,
+  },
   {
     kind: 'church-ministry',
+    singular: 'Church Ministry',
     plural: 'Church Ministries',
     blurb: 'Fitness and health ministries of local churches',
     person: false,

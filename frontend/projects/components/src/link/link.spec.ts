@@ -20,7 +20,7 @@ describe('Link', () => {
     const link = render({ href: 'https://example.org', external: true });
 
     expect(link.getAttribute('target')).toBe('_blank');
-    expect(link.getAttribute('rel')).toBe('noopener');
+    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
     expect(link.querySelector('.visually-hidden')?.textContent).toBe(' (opens in a new tab)');
     expect(link.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
   });

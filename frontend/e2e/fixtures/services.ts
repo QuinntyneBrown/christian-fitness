@@ -13,6 +13,8 @@ export interface ServiceListingFixture {
   publishedAt: string;
   /** Whether the listing publishes a contact link instead of taking messages here (ADR 0053). */
   hasContactLink: boolean;
+  /** The published directory listing of the same professional, for "Also in the directory" (ADR 0087). */
+  directoryListingId: string | null;
 }
 
 /** What the fixture answers unless a spec says otherwise: nobody listed (mock `services/empty`). */
@@ -30,6 +32,7 @@ export const DANIELLE: ServiceListingFixture = {
   about: 'Strength training for busy parents.',
   publishedAt: '2026-02-10T15:00:00Z',
   hasContactLink: false,
+  directoryListingId: null,
 };
 
 /** The mock `services/selected` listing: published March 2026. */
@@ -45,6 +48,7 @@ export const MARCUS: ServiceListingFixture = {
     'Practical meal planning for families and athletes. Covered by most extended health plans.',
   publishedAt: '2026-03-12T15:00:00Z',
   hasContactLink: false,
+  directoryListingId: null,
 };
 
 export const JAMES: ServiceListingFixture = {
@@ -58,6 +62,7 @@ export const JAMES: ServiceListingFixture = {
   about: 'Care for the whole person.',
   publishedAt: '2026-03-20T15:00:00Z',
   hasContactLink: false,
+  directoryListingId: null,
 };
 
 export const RUTH: ServiceListingFixture = {
@@ -71,6 +76,7 @@ export const RUTH: ServiceListingFixture = {
   about: 'Rehab after injury.',
   publishedAt: '2026-01-05T15:00:00Z',
   hasContactLink: false,
+  directoryListingId: null,
 };
 
 export const TASHA: ServiceListingFixture = {
@@ -84,6 +90,7 @@ export const TASHA: ServiceListingFixture = {
   about: 'Drills for every level.',
   publishedAt: '2026-04-01T15:00:00Z',
   hasContactLink: false,
+  directoryListingId: null,
 };
 
 export const CAST: ServiceListingFixture[] = [DANIELLE, MARCUS, JAMES, RUTH, TASHA];

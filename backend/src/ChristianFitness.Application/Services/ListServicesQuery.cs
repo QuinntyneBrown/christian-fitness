@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Services;
 using FluentValidation;
 using MediatR;
@@ -9,7 +10,49 @@ namespace ChristianFitness.Application.Services;
 
 /// <summary>One published listing as a member browses it (L2-013 AC1, AC3; ADR 0000).</summary>
 public sealed record ServiceListingDto(
-    Guid Id, string Name, string Role, string Category, string Where, string Price, string Credentials, string About, DateTimeOffset PublishedAt, bool HasContactLink);
+    Guid Id, string Name, string Role, string Category, string Where, string Price, string Credentials, string About, DateTimeOffset PublishedAt, bool HasContactLink,
+    Guid? DirectoryListingId);
+
+/// <summary>
+/// The published directory listing each Services listing names for "Also in the directory" (ADR 0061,
+/// ADR 0087): one owned by the same member or that staff linked to it, the oldest first.
+/// </summary>
+internal static class DirectoryLinks
+{
+    public static async Task<IReadOnlyDictionary<Guid, Guid>> ForAsync(IAppDbContext db, IReadOnlyCollection<ServiceListing> services, CancellationToken cancellationToken)
+    {
+        if (services.Count == 0)
+        {
+            return new Dictionary<Guid, Guid>();
+        }
+
+        var ids = services.Select(s => s.Id).ToList();
+        var members = services.Select(s => s.MemberId).Distinct().ToList();
+        var candidates = await db.DirectoryListings.AsNoTracking()
+            .Where(l => l.Status == ListingStatus.Published
+                && ((l.MemberId != null && members.Contains(l.MemberId.Value)) || (l.ServiceListingId != null && ids.Contains(l.ServiceListingId.Value))))
+            .OrderBy(l => l.ListedAt)
+            .ThenBy(l => l.Id)
+            .Select(l => new { l.Id, l.MemberId, l.ServiceListingId })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var links = new Dictionary<Guid, Guid>();
+        foreach (var service in services)
+        {
+            var match = candidates.FirstOrDefault(l => l.MemberId == service.MemberId || l.ServiceListingId == service.Id);
+            if (match is not null)
+            {
+                links[service.Id] = match.Id;
+            }
+        }
+
+        return links;
+    }
+
+    public static ServiceListingDto Dto(ServiceListing l, IReadOnlyDictionary<Guid, Guid> links) =>
+        new(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt, l.ContactUrl != null,
+            links.TryGetValue(l.Id, out var directory) ? directory : null);
+}
 
 /// <summary>The published listings, at most <see cref="ListServicesQuery.Limit"/>, and how many match in all (ADR 0051).</summary>
 public sealed record ServiceListingsDto(int Total, IReadOnlyList<ServiceListingDto> Services);
@@ -62,9 +105,8 @@ internal sealed class ListServicesHandler(IAppDbContext db) : IRequestHandler<Li
             .Take(ListServicesQuery.Limit)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
-        return new ServiceListingsDto(
-            total,
-            [.. rows.Select(l => new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt, l.ContactUrl != null))]);
+        var links = await DirectoryLinks.ForAsync(db, rows, cancellationToken).ConfigureAwait(false);
+        return new ServiceListingsDto(total, [.. rows.Select(l => DirectoryLinks.Dto(l, links))]);
     }
 }
 
@@ -79,6 +121,7 @@ internal sealed class GetServiceHandler(IAppDbContext db) : IRequestHandler<GetS
             .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
             .ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.ServiceNotFound, RefusalKind.NotFound);
-        return new ServiceListingDto(l.Id, l.Name, l.Role, l.Category.ToString(), l.Where, l.Price, l.Credentials, l.About, l.PublishedAt, l.ContactUrl != null);
+        var links = await DirectoryLinks.ForAsync(db, [l], cancellationToken).ConfigureAwait(false);
+        return DirectoryLinks.Dto(l, links);
     }
 }

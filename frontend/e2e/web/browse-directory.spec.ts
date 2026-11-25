@@ -67,7 +67,7 @@ test.describe('Member app, browse the directory', () => {
     await expect(directory.rows).toHaveCount(12);
     const rows = await directory.rowViews();
     expect(rows[0]).toEqual({
-      href: null,
+      href: `/directory/${CAST[0].id}`,
       initials: 'CF',
       shape: 'square',
       photo: null,

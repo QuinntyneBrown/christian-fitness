@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
+import type { EventCategory } from '../admin/admin-events';
 
 /**
  * A listing's kind as the API and the address name it (ADR 0071, ADR 0082), in the directory's
@@ -45,7 +46,68 @@ export interface DirectoryQuery {
   cursor: string | null;
 }
 
-/** The directory a member browses (L2-054; ADR 0082). */
+/**
+ * One event a listing hosts that is still to come (`HostedEventDto`, ADR 0087): the start as an
+ * ISO instant in UTC, which the screen words in Toronto.
+ */
+export interface HostedEventDto {
+  id: string;
+  title: string;
+  category: EventCategory;
+  startsAt: string;
+  place: string;
+  /** The key of its picture (`GET /api/events/images/{key}`), or none. */
+  imageKey: string | null;
+}
+
+/**
+ * A published listing a profile is connected to (`ListingConnectionDto`, ADR 0087), with the
+ * relation worded from the profile's side, such as "Run leader".
+ */
+export interface ListingConnectionDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+  photoKey: string | null;
+  relation: string;
+}
+
+/**
+ * A published listing's profile (`ListingProfileDto`, ADR 0087): what it publishes, how many follow
+ * it and the year it was listed. The website is as stored: the app shows only an https address
+ * (L2-055 AC5). It carries no member id or contact detail.
+ */
+export interface ListingProfileDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+  tagline: string;
+  area: string;
+  description: string;
+  focus: string[];
+  websiteUrl: string | null;
+  isVerified: boolean;
+  photoKey: string | null;
+  followers: number;
+  listedYear: number;
+  /** Whether a member owns it, so Message can reach someone (L2-055 AC6). */
+  hasOwner: boolean;
+  /** How many published one-off events it hosts that have not started. */
+  hostingCount: number;
+  /** The first 20 of them, in start order. */
+  hosting: HostedEventDto[];
+  /** The published listings it is connected to, in kind then name order. */
+  connections: ListingConnectionDto[];
+  /** The Services listing of the same owner, or that staff linked, for "Also offers services" (ADR 0061). */
+  serviceListingId: string | null;
+}
+
+/** Who receives a listing's messages: the member whose direct conversation Message opens. */
+export interface ListingConversationDto {
+  memberId: string;
+}
+
+/** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0087). */
 export interface DirectoryApi {
   /**
    * One page of the published listings in kind and name order, 50 to a page. A refusal
@@ -53,6 +115,20 @@ export interface DirectoryApi {
    * `HttpErrorResponse`; a 5xx opens the server-error screen.
    */
   list(query: DirectoryQuery): Observable<DirectoryPageDto>;
+
+  /**
+   * One published listing's profile. An unknown or unpublished id errors with a 404
+   * (`listing_not_found`); a 5xx opens the server-error screen.
+   */
+  get(id: string): Observable<ListingProfileDto>;
+
+  /**
+   * The member to open the direct conversation with when messaging a listing: its owner. A listing
+   * with no owner errors with a 409 (`listing_unreachable`), a suspended owner or the caller's own
+   * listing with a 403 (`recipient_unavailable`), and an unpublished one with a 404
+   * (`listing_not_found`).
+   */
+  startConversation(id: string): Observable<ListingConversationDto>;
 }
 
 /** Binds {@link DirectoryApi}; the Directory screen provides it on its own route component. */
