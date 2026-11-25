@@ -25,9 +25,9 @@ from contacting a professional through a listing.
   blocking, suspended or unavailable members and self-contact retain the ordinary rules.
 - The server verifies the published listing and its current owner when applying the exception; a
   member id alone is not evidence that the conversation was started through a listing. Since
-  opening a direct conversation stores nothing (ADR 0043), the listing context must also accompany
-  the first send and be checked there. Once a conversation exists, the normal rules for an open
-  conversation apply.
+  opening a direct conversation stores nothing (ADR 0043), listing context must accompany the
+  initial history, join and first send requests, and be checked wherever the preference is enforced.
+  Once a conversation exists, the normal rules for an open conversation apply.
 
 ## Consequences
 

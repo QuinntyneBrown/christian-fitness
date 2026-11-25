@@ -422,7 +422,7 @@ def hosting_rows(l: dict) -> str:
     return f'<ul class="hosting">{"".join(rows)}</ul>'
 
 
-def profile_page(l: dict) -> str:
+def profile_page(l: dict, *, has_owner: bool = True) -> str:
     sr_list, ev_list = hosted_by(l["id"])
     hosting = len(sr_list) + len(ev_list)
     verified = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if l["verified"] else ""
@@ -437,6 +437,7 @@ def profile_page(l: dict) -> str:
             <ul class="mini-list">{links}</ul>
           </section>""" if links else "")
     focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    message = f'<a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>' if has_owner else ""
     return f"""    <div class="container page--detail">
       <a class="back-link" href="{href("directory")}">{icon("arrow-left")} Directory</a>
       <header class="listing-head">
@@ -450,7 +451,7 @@ def profile_page(l: dict) -> str:
         </div>
         <div class="listing-head__actions">
           {follow_button(l, big=True)}
-          <a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>
+          {message}
         </div>
       </header>
       <div class="split split--detail">
@@ -485,6 +486,11 @@ s = screen("listing-profile", "page", "Listing profile", route="/directory/:id",
 @s("default", "Lakeshore Runners Fellowship, an organization Grace follows: what it hosts (a series), about, focus, area, website, followers and connected listings.")
 def _():
     return member_shell("directory", profile_page(LS["lakeshore-runners"]))
+
+
+@s("no-owner", "A staff-managed listing with no owner: Message is hidden and the website remains available.")
+def _():
+    return member_shell("directory", profile_page(LS["lakeshore-runners"], has_owner=False))
 
 
 @s("person", "Danielle Okafor, an instructor: a round photo instead of a squared mark; she hosts the Saturday Park Bootcamp series.")
