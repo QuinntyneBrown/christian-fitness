@@ -94,6 +94,9 @@ export class WebJoinPage {
   get age() {
     return this.form.getByRole('checkbox', { name: "I'm 16 or older" });
   }
+  agreementLink(name: string) {
+    return this.termsSentence.getByRole('link', { name });
+  }
   get termsSentence() {
     return this.form.locator('.auth__terms');
   }

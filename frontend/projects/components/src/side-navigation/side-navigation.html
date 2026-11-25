@@ -4,8 +4,7 @@
     @for (entry of entries(); track entry.id) {
       <li>
         <a
-          class="side-nav__link"
-          [class.side-nav__link--numbered]="numbered()"
+          [attr.class]="numbered() ? 'side-nav__link side-nav__link--numbered' : 'side-nav__link'"
           [href]="route() + '#' + entry.id"
         >
           @if (numbered()) {

@@ -15,7 +15,9 @@ for (const signedIn of [false, true]) {
       await expect(legal.heading).toHaveText('Terms of Service');
       await expect(page).toHaveTitle('Terms of Service · Christian Fitness');
       await expect(legal.effective).toHaveText('Effective April 1, 2026');
-      await expect(legal.eventTerms).toContainText('cancel your registration before the event starts');
+      await expect(legal.eventTerms).toContainText(
+        'cancel your registration before the event starts',
+      );
       await expect(legal.summary).toBeVisible();
       await expect(legal.note).toContainText('The full text below is what applies');
       await expect(legal.sections).toHaveCount(9);
@@ -23,10 +25,7 @@ for (const signedIn of [false, true]) {
       await expect(legal.contact).toContainText(
         '2091 Hurontario Street, Mississauga, Ontario, L5A 4E6',
       );
-      await expect(legal.contact.getByRole('link', { name: 'Send feedback' })).toHaveAttribute(
-        'href',
-        '/feedback',
-      );
+      await expect(legal.feedbackLink).toHaveAttribute('href', '/feedback');
       await expect(legal.headerLink('Privacy Policy')).toHaveAttribute('href', '/privacy');
       await expect(legal.headerLink('Christian Fitness')).toHaveAttribute('href', '/');
       expect(calls).toEqual([]);
