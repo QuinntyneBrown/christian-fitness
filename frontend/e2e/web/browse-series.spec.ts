@@ -171,3 +171,114 @@ test.describe('Member app, browse event series: the list', () => {
     await expect(events.showAllSeries).toHaveCount(0);
   });
 });
+
+// L2-050 AC2, AC3, AC7 and L2-075 (ADR 0081, ADR 0093): category, "Only series I've joined" and
+// the search narrow the Series view and live in the address.
+test.describe('Member app, browse event series: filters', () => {
+  const ALL = [COUCH_TO_5K, PARK_BOOTCAMP, HOOPS_DEVOTION];
+
+  test('A category narrows the list, marks its chip and joins the address; the tick narrows to joined series', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 3);
+    const asked = answerSeries(api, ALL);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series');
+    await expect(events.seriesRows).toHaveCount(3);
+
+    await events.seriesFilter('Workout').click();
+    await expect(page).toHaveURL(/\/events\?view=series&category=workout$/);
+    await expect(events.seriesFilter('Workout')).toHaveAttribute('aria-current', 'page');
+    await expect(events.seriesRows).toHaveCount(1);
+    expect((await events.readSeriesRows()).map((row) => row.title)).toEqual([
+      'Saturday Park Bootcamp',
+    ]);
+
+    await events.seriesFilter('All').click();
+    await events.joinedFilter.check();
+    await expect(page).toHaveURL(/\/events\?view=series&joined=true$/);
+    await expect(events.seriesRows).toHaveCount(1);
+    expect((await events.readSeriesRows()).map((row) => row.title)).toEqual([
+      'Couch to 5K Run Club',
+    ]);
+    expect(asked.requests).toEqual([
+      { category: null, q: null, joined: null },
+      { category: 'workout', q: null, joined: null },
+      { category: null, q: null, joined: null },
+      { category: null, q: null, joined: 'true' },
+    ]);
+
+    // Back returns to the unticked list; the count stays the unfiltered one.
+    await page.goBack();
+    await expect(page).toHaveURL(/\/events\?view=series$/);
+    await expect(events.joinedFilter).not.toBeChecked();
+    await expect(events.seriesRows).toHaveCount(3);
+    await expect(events.currentView).toHaveText('Series (3)');
+  });
+
+  test('Typing a search narrows the series once typing pauses, keeping the view and the filters', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 3);
+    const asked = answerSeries(api, ALL);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series&category=basketball');
+    await expect(events.seriesRows).toHaveCount(1);
+
+    await events.search.focus();
+    await events.typeSearch('  HOOPS ');
+    await expect(page).toHaveURL(/\/events\?view=series&category=basketball&q=HOOPS$/);
+    await expect(events.seriesRows).toHaveCount(1);
+    // One question for the whole word, not one a letter; the field keeps what was typed.
+    expect(asked.requests).toEqual([
+      { category: 'basketball', q: null, joined: null },
+      { category: 'basketball', q: 'HOOPS', joined: null },
+    ]);
+    await expect(events.search).toHaveValue('  HOOPS ');
+    await expect(events.currentView).toHaveText('Series (3)');
+  });
+
+  test('With no match, "No series here yet" offers Show all series, which clears the search, category and tick', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 3);
+    const asked = answerSeries(api, ALL);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series&category=run&q=yoga&joined=true');
+
+    await expect(events.seriesEmpty).toBeVisible();
+    await expect(events.seriesEmptyText).toBeVisible();
+    await expect(events.search).toHaveValue('yoga');
+    await expect(events.seriesFilter('Run')).toHaveAttribute('aria-current', 'page');
+    await expect(events.joinedFilter).toBeChecked();
+
+    await events.showAllSeries.click();
+
+    await expect(page).toHaveURL(/\/events\?view=series$/);
+    await expect(events.seriesRows).toHaveCount(3);
+    await expect(events.search).toHaveValue('');
+    await expect(events.search).toBeFocused();
+    await expect(events.joinedFilter).not.toBeChecked();
+    await expect(events.seriesFilter('All')).toHaveAttribute('aria-current', 'page');
+    expect(asked.requests.at(-1)).toEqual({ category: null, q: null, joined: null });
+  });
+
+  test('Switching views clears the other view’s filters', async ({ page, api }) => {
+    answerSeriesCount(api, 3);
+    answerSeries(api, ALL);
+    answerEvents(api, [SUNRISE_5K]);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series&category=run&q=couch');
+    await expect(events.seriesRows).toHaveCount(1);
+
+    await events.viewOption('By date').click();
+
+    await expect(page).toHaveURL(/\/events$/);
+    await expect(events.search).toHaveValue('');
+    await expect(events.cards).toHaveCount(1);
+    await expect(events.seriesRows).toHaveCount(0);
+  });
+});

@@ -12,10 +12,14 @@ namespace ChristianFitness.Api.Controllers;
 [Route("api/events/series")]
 public sealed class SeriesController(ISender sender) : ControllerBase
 {
-    /// <summary>The series with a session still to come, by their next session, at most 100 (L2-050 AC1, AC5).</summary>
+    /// <summary>
+    /// The series with a session still to come, by their next session, at most 100 (L2-050 AC1,
+    /// AC5), of one category when asked, whose title contains <paramref name="q"/>, and only the
+    /// signed-in member's when <paramref name="joined"/> is <c>true</c> (ADR 0093).
+    /// </summary>
     [HttpGet]
-    public async Task<ActionResult<SeriesListDto>> List(CancellationToken cancellationToken) =>
-        await sender.Send(new ListSeriesQuery(), cancellationToken).ConfigureAwait(false);
+    public async Task<ActionResult<SeriesListDto>> List([FromQuery] string? category, [FromQuery] string? q, [FromQuery] string? joined, CancellationToken cancellationToken) =>
+        await sender.Send(new ListSeriesQuery(category, q, joined), cancellationToken).ConfigureAwait(false);
 
     /// <summary>How many series the Series view lists with no filter (L2-050 AC6).</summary>
     [HttpGet("count")]

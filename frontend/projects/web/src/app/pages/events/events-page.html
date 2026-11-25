@@ -74,7 +74,7 @@
         }
       }
     } @else {
-      <cf-event-series-view (navigate)="navigate($event)" />
+      <cf-event-series-view (navigate)="navigate($event)" (cleared)="clearSeries()" />
     }
   </cf-container>
 </main>

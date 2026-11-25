@@ -50,11 +50,19 @@ internal static class MemberSeries
     /// <summary>Enrols the member with <paramref name="email"/> in <paramref name="series"/>.</summary>
     public static async Task EnrolAsync(AdminSeriesFactory factory, EventSeries series, string email)
     {
+        var memberId = await MemberIdAsync(factory, email);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.SeriesEnrolments.Add(SeriesEnrolment.Of(series.Id, memberId, series.PriceCents, series.CreatedAt));
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>The id of the member who joined with <paramref name="email"/>.</summary>
+    public static async Task<Guid> MemberIdAsync(AdminSeriesFactory factory, string email)
+    {
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var normalized = Domain.Members.Member.NormalizeEmail(email);
-        var memberId = await db.Members.Where(m => m.NormalizedEmail == normalized).Select(m => m.Id).SingleAsync(TestContext.Current.CancellationToken);
-        db.SeriesEnrolments.Add(SeriesEnrolment.Of(series.Id, memberId, series.PriceCents, series.CreatedAt));
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return await db.Members.Where(m => m.NormalizedEmail == normalized).Select(m => m.Id).SingleAsync(TestContext.Current.CancellationToken);
     }
 }

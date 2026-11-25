@@ -1,3 +1,17 @@
+<cf-chip-bar label="Filter series" divided>
+  @for (chip of chips(); track chip.href) {
+    <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate.emit($event)">{{
+      chip.label
+    }}</cf-chip>
+  }
+  <cf-checkbox
+    slot="after"
+    variant="compact"
+    label="Only series I've joined"
+    [checked]="selection().joined"
+    (checkedChange)="onJoined($event)"
+  />
+</cf-chip-bar>
 @if (state() === 'loading') {
   <cf-skeleton-region class="series-list" label="Loading series">
     <cf-list variant="card" [items]="skeletons" [template]="skeletonRow" />
@@ -14,7 +28,11 @@
   <cf-empty-state
     heading="No series here yet"
     text="Series are weekly or monthly programs you can join once and come to every time."
-  />
+  >
+    @if (filtered()) {
+      <cf-button slot="actions" size="sm" (click)="cleared.emit()">Show all series</cf-button>
+    }
+  </cf-empty-state>
 } @else {
   <cf-list class="series-list" variant="card" [items]="rows()" [template]="seriesRow" />
 }

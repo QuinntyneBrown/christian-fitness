@@ -35,6 +35,8 @@ import {
   eventsViewOptions,
   EVENT_SEARCH_DELAY_MS,
   hasMore,
+  seriesListHref,
+  seriesQueryOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpEventSeriesService } from '../../services/http-event-series.service';
@@ -89,6 +91,7 @@ export default class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly series = inject(EVENT_SERIES_SERVICE);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
   /** The selection the address holds: category, search and going (ADR 0081). */
   protected readonly query = signal<EventListQuery>({ category: null, q: '', going: false });
@@ -131,22 +134,20 @@ export default class EventsPage {
   protected readonly capped = computed(() => this.feed().capped);
 
   constructor() {
-    inject(ActivatedRoute)
-      .queryParamMap.pipe(takeUntilDestroyed())
-      .subscribe((params) => {
-        const view = eventsViewOf(params);
-        this.view.set(view);
-        const query = eventListQueryOf(params);
-        this.query.set(query);
-        if (eventSearchOf(this.term()) !== query.q) this.term.set(query.q);
-        if (view === 'date') {
-          this.loadFirst();
-        } else {
-          // The Series view asks for its own list; the date feed is dropped while it shows.
-          this.request?.unsubscribe();
-          this.feed.set(EMPTY_FEED);
-        }
-      });
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const view = eventsViewOf(params);
+      this.view.set(view);
+      const query = eventListQueryOf(params);
+      this.query.set(query);
+      if (eventSearchOf(this.term()) !== query.q) this.term.set(query.q);
+      if (view === 'date') {
+        this.loadFirst();
+      } else {
+        // The Series view asks for its own list; the date feed is dropped while it shows.
+        this.request?.unsubscribe();
+        this.feed.set(EMPTY_FEED);
+      }
+    });
     // Asked once on arrival, not on each filter (ADR 0093); a failure leaves "Series".
     this.series
       .count()
@@ -168,6 +169,13 @@ export default class EventsPage {
     this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
   }
 
+  /** "Show all series": the unfiltered Series view, the field emptied through the address and focused. */
+  protected clearSeries(): void {
+    clearTimeout(this.searchTimer);
+    this.navigate('/events?view=series');
+    this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
+  }
+
   /** "Only events I'm going to" was ticked or cleared: a new place in history, as a chip is. */
   protected onGoing(going: boolean): void {
     this.navigate(eventListHref({ ...this.query(), going }));
@@ -178,8 +186,13 @@ export default class EventsPage {
     this.term.set(text);
     clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => {
-      // The address is replaced: a search is one place in history, not one a letter.
-      const href = eventListHref({ ...this.query(), q: eventSearchOf(text) });
+      // The address is replaced: a search is one place in history, not one a letter. It keeps the
+      // view and that view's filters (ADR 0093).
+      const q = eventSearchOf(text);
+      const href =
+        this.view() === 'series'
+          ? seriesListHref({ ...seriesQueryOf(this.route.snapshot.queryParamMap), q })
+          : eventListHref({ ...this.query(), q });
       void this.router.navigateByUrl(href, { replaceUrl: true });
     }, EVENT_SEARCH_DELAY_MS);
   }
