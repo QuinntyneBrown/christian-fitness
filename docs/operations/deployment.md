@@ -43,9 +43,11 @@ A commit reaches `main`; `CI` runs; when it is green, `Deploy` (`.github/workflo
 
 1. builds `christian-fitness-backend` (API and `cf`) and `christian-fitness-frontend` (nginx with
    both apps) and pushes them to the registry, tagged with the commit;
-2. starts the release job, which runs `cf migrate`, then `cf seed`, and waits for it;
-3. applies `tools/deploy/containerapp.yaml` as a new revision and waits for its probes;
-4. asks the new revision for the member app's page and for `/api/public/events/upcoming`.
+2. adds the extensions the migrations create (`POSTGRES_EXTENSIONS`, today `PG_TRGM`) to the
+   database server's `azure.extensions` allow-list, keeping any already there;
+3. starts the release job, which runs `cf migrate`, then `cf seed`, and waits for it;
+4. applies `tools/deploy/containerapp.yaml` as a new revision and waits for its probes;
+5. asks the new revision for the member app's page and for `/api/public/events/upcoming`.
 
 A step that fails stops the run; the previous revision keeps serving. To release again, run
 `Deploy` by hand (Actions > Deploy > Run workflow). To go back, activate the previous revision:

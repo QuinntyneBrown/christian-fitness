@@ -74,7 +74,9 @@ terminal and never paste it into a ticket or a chat.
 | `Seed__DirectorySamples`     | No                | `true` adds the mocks' eleven sample directory listings beside the Christian Fitness team listing, which is always seeded, and the mocks' connections between them, which each profile's Connected lists (ADR 0082, ADR 0087). Leave it unset in production, so the directory shows only listings staff checked. | `true` on a demonstration system |
 
 `cf migrate` installs the `pg_trgm` extension for the directory's search index (ADR 0082); it is a
-trusted extension, so the schema owner may create it without a superuser.
+trusted extension, so the schema owner may create it without a superuser. Azure Database for
+PostgreSQL also requires it in the server parameter `azure.extensions` (`PG_TRGM`), or
+`CREATE EXTENSION` fails; the Deploy workflow adds it before migrating (docs/operations/deployment.md).
 
 A missing `Seed__*` setting stops `cf seed` with exit code 2, naming the setting, before anything
 is written. A missing connection string stops either command with exit code 2.

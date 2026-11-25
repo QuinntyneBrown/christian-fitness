@@ -26,6 +26,9 @@ env:
   REGISTRY: crchristianfitness
   APP: ca-christian-fitness
   RELEASE_JOB: caj-christian-fitness-release
+  POSTGRES: psql-christian-fitness
+  # The extensions the migrations create, upper case and space-separated, as azure.extensions names them.
+  POSTGRES_EXTENSIONS: PG_TRGM
 
 jobs:
   deploy:
@@ -69,6 +72,30 @@ jobs:
               --cache-to "type=registry,ref=$repository:buildcache,mode=max,image-manifest=true,oci-mediatypes=true" \
               --push
           done
+
+      # cf migrate creates the extensions the schema uses (pg_trgm for the directory's search,
+      # ADR 0082). Azure's flexible server refuses CREATE EXTENSION, even for a trusted extension,
+      # unless the extension is in its azure.extensions allow-list, so the release adds any that are
+      # missing and keeps the ones already there. The parameter is dynamic: no restart.
+      - name: Allow the database's extensions
+        run: |
+          allowed=$(az postgres flexible-server parameter show --resource-group "$RESOURCE_GROUP" \
+            --server-name "$POSTGRES" --name azure.extensions --query value --output tsv)
+          allowed=${allowed// /}
+          wanted=$allowed
+          for extension in $POSTGRES_EXTENSIONS; do
+            case ",${wanted^^}," in
+              *",$extension,"*) ;;
+              *) wanted="${wanted:+$wanted,}$extension" ;;
+            esac
+          done
+          if [ "$wanted" = "$allowed" ]; then
+            echo "azure.extensions already allows $POSTGRES_EXTENSIONS."
+          else
+            az postgres flexible-server parameter set --resource-group "$RESOURCE_GROUP" \
+              --server-name "$POSTGRES" --name azure.extensions --value "$wanted" --output none
+            echo "azure.extensions is now $wanted."
+          fi
 
       # cf migrate, then cf seed, with the code about to be served; the API never migrates (L2-041).
       - name: Migrate and seed
