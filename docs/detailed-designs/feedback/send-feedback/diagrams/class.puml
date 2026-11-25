@@ -27,9 +27,9 @@ class FeedbackNote {
   +Guid MemberId
   +FeedbackKind Kind
   +string Text
-  +string? PagePath
+  +string? PageRouteTemplate
   +string? PageTitle
-  +string? StorySlug
+  +Guid? StoryId
   +bool MayEmail
   +string Device
   +string Browser
@@ -43,9 +43,9 @@ class FeedbackNote {
 class SendFeedbackCommand {
   +string Kind
   +string Text
-  +string? PagePath
+  +string? PageRouteTemplate
   +string? PageTitle
-  +string? StorySlug
+  +Guid? StoryId
   +bool MayEmail
   +ReadOnlyMemory<byte>? Screenshot
 }

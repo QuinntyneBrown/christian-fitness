@@ -77,9 +77,9 @@ published stories.
 - **`storyAge`** — pure helper in the `domain` library: a publication instant and now to "2 hours
   ago", "Yesterday" or a date, in `America/Toronto`. The exact wording table is `<TO SUPPLY>`
   beyond the mock's examples; the landing page uses the same helper.
-- **Send a correction** — a link to Send feedback with "A correction" chosen and this story as the
-  page it is about (`L2-063` AC2). The query parameters are set by the feedback design
-  (`<TO SUPPLY>` until that design exists).
+- **Send a correction** — `/feedback?about=story:<id>&kind=correction`, with the stable story id,
+  opens Send feedback with "A correction" chosen and this story as the page it is about
+  (`L2-063` AC2, [ADR 0071](../../../adr/0071-addresses-and-slugs.md)).
 
 ### Christian Fitness API
 

@@ -22,7 +22,7 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
   participant "IFeedbackScreenshotStore" as store
 end box
-actor -> page : Send feedback in the footer (?from=path) or Send a correction (?kind=correction&story=slug)
+actor -> page : Feedback (?about=page:route-template or story:id),\nor correction (?about=story:id&kind=correction)
 page -> client : form()
 client -> ctrl : GET /api/feedback/form
 ctrl --> client : { email }
@@ -42,7 +42,7 @@ else valid
   page -> client : send(note, screenshot)
   client -> ctrl : POST /api/feedback (multipart)
   ctrl -> h : Send SendFeedbackCommand
-  h -> val : Text 1..2,000 (field_too_long, AC8), kind, file, app path
+  h -> val : Text 1..2,000 (field_too_long, AC8), kind, file, context
   val --> h : Valid
   h -> db : Count my notes in the last hour
   alt 10 or more
