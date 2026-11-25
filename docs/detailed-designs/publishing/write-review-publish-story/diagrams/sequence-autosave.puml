@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — write and autosave
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "StoryEditorPage" as page
+  participant "StoryEditorStore" as store
+  participant "AdminStoriesApi (ADMIN_STORIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminStoriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SaveStoryHandler" as h
+  participant "Story" as story
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Type in Headline, Summary or Story
+page -> store : edit(field, value)
+store -> store : Restart the 2-second pause timer (L2-069 AC11)
+note right of store : Only for Draft or In review; a Scheduled or Published story waits for Update
+store -> store : Pause reached
+alt story never saved (New story)
+  store -> client : create(fields)
+  client -> ctrl : POST /api/admin/stories
+  ctrl --> client : 201 AdminStoryDto (Draft, Version 1)
+  page -> page : Replace URL /stories/new with /stories/{id}
+else saved before
+  store -> client : save(id, fields, version)
+  client -> ctrl : PUT /api/admin/stories/{id}
+  ctrl -> h : Send SaveStoryCommand
+  h -> db : Story by id
+  alt version differs from the stored Version
+    h --> ctrl : RefusalException story_changed
+    ctrl --> client : 409 ProblemDetails
+    client --> store : ApiError story_changed
+    store --> page : Conflict: offer to load the newer version; typed text kept (L2-069 AC12)
+  else same version
+    h -> story : Edit(fields, now); Version + 1; slug from headline when empty (L2-069 AC8)
+    h -> db : Save
+    h --> ctrl : AdminStoryDto
+    ctrl --> client : 200 JSON
+    client --> store : Saved
+    store --> page : Bar reads "Saved just now"
+  end
+end
+opt request fails
+  store --> page : Bar reads "Not saved"; alert "We couldn't save your changes" above the story; text kept (L2-069 AC11)
+end
+@enduml

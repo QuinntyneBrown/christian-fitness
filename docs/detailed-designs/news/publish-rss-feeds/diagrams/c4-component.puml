@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Publish RSS feeds
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "SubscribePage", "Routed page /subscribe", "Feeds section, Copy URL")
+  Component(list, "FeedList, FeedItem", "Components library", "Blocks rss, feed-list, feed")
+  Component(fc, "HttpFeedsService", "FEEDS_SERVICE", "list()")
+  Component(clip, "NavigatorClipboard", "CLIPBOARD_SERVICE", "write(text)")
+  Component(flag, "CopiedFlag, feedlyUrl", "Domain library", "2-second Copied; reader address")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(feeds, "FeedsController", "ASP.NET Core controller, anonymous, no cookie", "GET /feed, GET /{section}/feed")
+  Component(pub, "PublicFeedsController", "ASP.NET Core controller, anonymous", "GET /api/public/feeds")
+  Component(q, "GetStoryFeedHandler", "MediatR handler", "30 newest published, version, 304")
+  Component(lq, "ListFeedsHandler", "MediatR handler", "Names, addresses, stories a week")
+  Component(w, "RssFeedResult", "IActionResult", "RSS 2.0 with XmlWriter; ETag, Last-Modified, Cache-Control")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Stories")
+Rel(page, fc, "Calls")
+Rel(page, list, "Renders")
+Rel(page, clip, "Copies")
+Rel(page, flag, "Uses")
+Rel(fc, pub, "JSON/HTTPS")
+Rel(pub, lq, "Sends ListFeedsQuery")
+Rel(feeds, q, "Sends GetStoryFeedQuery")
+Rel(feeds, w, "Returns")
+Rel(q, db, "Reads", "IAppDbContext")
+Rel(lq, db, "Reads", "IAppDbContext")
+@enduml

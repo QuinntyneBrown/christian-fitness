@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — read an issue on the web
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Reader" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "NewsletterPage" as page
+  participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
+  participant "SessionApi (SESSION_SERVICE)" as session
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetIssueHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /newsletter or /newsletter/<number>
+page --> actor : Bar back to the news; skeleton under the bar (L2-059 AC5)
+par issue
+  page -> client : issue(number?)
+  client -> ctrl : GET /api/public/newsletter/issues/latest or /{number}
+  ctrl -> h : Send GetIssueQuery
+  h -> h : PublicReadLimiter.TryAcquire(network)
+  h -> db : Issue with Status = Sent (latest by SentAt, or by number)
+  db --> h : Issue or none
+  alt none sent, or no such number, or not yet Sent
+    h --> ctrl : RefusalException not_found
+    ctrl --> client : 404 ProblemDetails
+    client --> page : ApiError not_found
+    page --> actor : Not-found view, address kept (L2-059 AC4)
+  else sent issue
+    h --> ctrl : IssueDto from the content captured at sending
+    ctrl --> client : 200 JSON
+    client --> page : IssueDto
+  end
+else who is reading
+  page -> session : current()
+  session --> page : SessionDto, or 401 for a visitor
+end
+page -> page : issueGreeting(session): first name for a member, none otherwise (L2-059 AC2)
+page --> actor : "Issue <n> · web version"; one article, one h1, masthead, note, big story with "Read the story", On the calendar, Worth your time, verse, footer (L2-059 AC1, AC6)
+opt request fails with no answer or a 4xx other than 404
+  page --> actor : "This issue didn't load" with Try again and Back to news (L2-059 AC5)
+end
+@enduml

@@ -1,0 +1,88 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Manage stories
+
+class ListAdminStoriesQuery {
+  +string? Status
+  +int Page
+}
+class ListAdminStoriesValidator {
+  status_invalid, page_invalid
+}
+class ListAdminStoriesHandler {
+  +Handle(query): Task<AdminStoryListDto>
+}
+class AdminStoryListDto {
+  +StoryCountsDto Counts
+  +AdminStoryReviewDto[] InReview
+  +AdminStoryRowDto[] Items
+  +int Page
+  +int PageCount
+}
+class StoryCountsDto {
+  +int All
+  +int Draft
+  +int InReview
+  +int Scheduled
+  +int Published
+}
+class AdminStoryRowDto {
+  +Guid Id
+  +string Headline
+  +string? Byline
+  +string? Section
+  +string Status
+  +DateTimeOffset When
+  +int? Reads
+}
+class AdminStoryReviewDto {
+  +Guid Id
+  +string Headline
+  +string? Byline
+  +string? Section
+  +DateTimeOffset SubmittedAt
+}
+class Story <<entity>> {
+  +StoryStatus Status
+  +DateTimeOffset ActivityAt
+  +DateTimeOffset? FirstPublishedAt
+}
+class StoryReadTally <<entity>> {
+  +Guid StoryId
+  +DateOnly Day
+  +int Count
+}
+enum StaffArea {
+  Console
+  Dashboard
+  Members
+  Events
+  Services
+  Publishing (new)
+  Unlisted
+}
+class AdminStoriesPage <<Angular page>>
+interface AdminStoriesApi <<ADMIN_STORIES_SERVICE>> {
+  +list(status, page): Observable<AdminStoryListDto>
+}
+class adminStoryTabs <<domain helper>>
+ListAdminStoriesHandler ..> ListAdminStoriesQuery : handles
+ListAdminStoriesValidator ..> ListAdminStoriesQuery : validates
+ListAdminStoriesHandler ..> Story : reads
+ListAdminStoriesHandler ..> StoryReadTally : sums
+ListAdminStoriesHandler ..> AdminStoryListDto
+AdminStoryListDto *-- StoryCountsDto
+AdminStoryListDto *-- "0..50" AdminStoryRowDto
+AdminStoryListDto *-- "*" AdminStoryReviewDto
+AdminStoriesPage ..> AdminStoriesApi
+AdminStoriesPage ..> adminStoryTabs
+@enduml

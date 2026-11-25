@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — publish a scheduled story when its time arrives
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "PublishingClock" as clock
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "PublishDueStoriesHandler" as h
+  participant "Story" as story
+  participant "AuditTrail" as audit
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+loop every 30 s on a TimeProvider timer (FakeTimeProvider in tests)
+  clock -> h : Send PublishDueStoriesCommand in a new scope
+  h -> db : Stories with Status = Scheduled and PublishAt <= now
+  db --> h : Due stories
+  loop each due story
+    h -> story : Publish(now): Published, PublishedAt = now (L2-069 AC4)
+    h -> audit : story.published by ScheduledBy
+    h -> db : Save; a Version clash skips it until the next tick
+  end
+  h --> clock : Count published; the log carries the count only
+end
+note over h : Published within a minute of its time. The front page, the feeds and the next issue read Status = Published, so the story appears there at once (L2-069 AC6)
+@enduml

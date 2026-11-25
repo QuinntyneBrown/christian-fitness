@@ -1,0 +1,117 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Write, review and publish a story
+
+enum StoryStatus {
+  Draft
+  InReview
+  Scheduled
+  Published
+}
+enum FrontPagePlacement {
+  Lead
+  TopHeadlines
+  Latest
+}
+enum StoryPointerKind {
+  None
+  Event
+  Listing
+}
+class Story <<entity>> {
+  +Guid Id
+  +string Slug
+  +string Headline
+  +string? Summary
+  +string Text
+  +StorySection? Section
+  +string? Byline
+  +string? ImageKey
+  +StoryStatus Status
+  +FrontPagePlacement Placement
+  +bool IncludeInWeekly
+  +StoryPointer PointsTo
+  +string? WriterNote
+  +DateTimeOffset? PublishAt
+  +DateTimeOffset? PublishedAt
+  +DateTimeOffset? SubmittedAt
+  +DateTimeOffset EditedAt
+  +DateTimeOffset ActivityAt
+  +Guid? ScheduledBy
+  +int Version
+  +Edit(fields, now): void
+  +SendForReview(now): void
+  +RequestChanges(now): void
+  +Publish(now): void
+  +Schedule(at, by, now): void
+  +Unschedule(now): void
+  +Unpublish(now): void
+  +ChangeSlug(slug): StorySlugRedirect?
+}
+class StoryPointer <<value>> {
+  +StoryPointerKind Kind
+  +Guid? TargetId
+}
+class StorySlugRedirect <<entity>> {
+  +string FormerSlug
+  +Guid StoryId
+}
+class StorySlug <<domain>> {
+  +{static} From(headline): string
+  +{static} IsValid(text): bool
+}
+class StoryFields {
+  +string Headline
+  +string? Summary
+  +string Text
+  +string? Section
+  +string? Byline
+  +string? Slug
+  +string? ImageKey
+  +string Placement
+  +bool IncludeInWeekly
+  +StoryPointerDto PointsTo
+  +DateOnly? PublishDate
+  +TimeOnly? PublishTime
+  +int Version
+}
+class SaveStoryCommand
+class PublishStoryCommand
+class SubmitStoryCommand
+class RequestStoryChangesCommand
+class UnscheduleStoryCommand
+class UnpublishStoryCommand
+class PublishDueStoriesCommand
+interface IAuditableCommand {
+  +AuditAction: string
+}
+class PublishStoryValidator {
+  headline_required, text_required
+  section_required, byline_required
+  publish_at_in_past, slug_invalid, slug_taken
+}
+Story --> StoryStatus
+Story --> FrontPagePlacement
+Story *-- StoryPointer
+StoryPointer --> StoryPointerKind
+Story "1" <-- "*" StorySlugRedirect
+Story ..> StorySlug
+SaveStoryCommand --|> StoryFields
+PublishStoryCommand --|> StoryFields
+PublishStoryValidator ..> PublishStoryCommand : validates
+IAuditableCommand <|.. PublishStoryCommand
+IAuditableCommand <|.. SubmitStoryCommand
+IAuditableCommand <|.. RequestStoryChangesCommand
+IAuditableCommand <|.. UnscheduleStoryCommand
+IAuditableCommand <|.. UnpublishStoryCommand
+PublishDueStoriesCommand ..> Story : publishes Scheduled when due
+@enduml

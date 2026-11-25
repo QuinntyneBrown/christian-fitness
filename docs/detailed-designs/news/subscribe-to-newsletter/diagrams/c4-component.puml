@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Subscribe to the newsletter
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "SubscribePage", "Routed page /subscribe", "Form, outcome, latest issue, feeds")
+  Component(store, "SubscribeForm", "Domain library", "Email check, states idle, submitting, sent, failed, limited")
+  Component(client, "HttpNewsletterService", "NEWSLETTER_SERVICE", "summary(), subscribe(request)")
+  Component(ui, "SubscribeBox, IssuePreview", "Components library", "Blocks subscribe, issue-preview")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "PublicNewsletterController", "ASP.NET Core controller, anonymous", "GET summary, POST subscriptions")
+  Component(val, "SubscribeValidator", "FluentValidation", "email_invalid")
+  Component(h, "SubscribeHandler", "MediatR handler", "Same answer for every address")
+  Component(lim, "SubscriptionLimiter", "AddressRateLimiter", "5 an hour per network")
+  Component(sub, "NewsletterSubscription", "Domain entity", "Pending, Subscribed, Unsubscribed and four extras")
+  Component(mailer, "NewsletterEmails", "Application service", "Composes the confirmation email")
+  Component(sender, "IEmailSender", "QueuedEmailSender", "Queues and returns (ADR 0010)")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Subscriptions and confirmation token hashes")
+Rel(page, store, "Holds")
+Rel(page, ui, "Renders")
+Rel(page, client, "Calls")
+Rel(client, ctrl, "JSON/HTTPS")
+Rel(ctrl, h, "Sends SubscribeCommand")
+Rel(h, val, "Validated by")
+Rel(h, lim, "Takes a lease")
+Rel(h, sub, "Creates or updates")
+Rel(h, mailer, "Builds email")
+Rel(h, sender, "Sends")
+Rel(h, db, "Reads and writes", "IAppDbContext")
+@enduml

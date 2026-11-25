@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — review, publish, schedule and unpublish
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "StoryEditorPage" as page
+  participant "AdminStoriesApi (ADMIN_STORIES_SERVICE)" as client
+  participant "ToastStore" as toasts
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminStoriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Story command handler" as h
+  participant "PublishStoryValidator" as val
+  participant "Story" as story
+  participant "AuditTrail" as audit
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Press the action storyActions(status) offers
+alt Send for review (Draft)
+  page -> client : submit(id, version)
+  client -> ctrl : POST /api/admin/stories/{id}/submit
+  ctrl -> h : SubmitStoryCommand: SendForReview, In review (L2-069 AC2)
+else Request changes (In review)
+  page -> client : requestChanges(id, version)
+  client -> ctrl : POST /api/admin/stories/{id}/request-changes
+  ctrl -> h : RequestStoryChangesCommand: RequestChanges, Draft (L2-069 AC3)
+else Publish now, Schedule, Approve & publish or Approve & schedule
+  page -> client : publish(id, fields with optional date and time)
+  client -> ctrl : POST /api/admin/stories/{id}/publish
+  ctrl -> h : PublishStoryCommand
+  h -> val : Headline, text, section, byline; time not in the past (L2-069 AC7)
+  alt something missing
+    val --> h : fieldCodes
+    h --> ctrl : 400 validation_failed, nothing published
+    ctrl --> client : ProblemDetails with fieldCodes
+    client --> page : ApiError
+    page --> actor : Alert above the story takes focus and names what is missing; fields aria-invalid
+  else complete
+    h -> story : Publish(now) or Schedule(at, admin, now) (L2-069 AC2, AC3)
+  end
+else Unschedule or Publish now (Scheduled)
+  page -> client : unschedule(id) or publish(id, fields)
+  client -> ctrl : POST …/unschedule or …/publish
+  ctrl -> h : Draft, or Published now (L2-069 AC4)
+else Update or Unpublish (Published)
+  page -> client : save(id, fields) or unpublish(id)
+  client -> ctrl : PUT /api/admin/stories/{id} or POST …/unpublish
+  ctrl -> h : Changes live at once, or Draft and off the front page, feeds and its address (L2-069 AC5)
+end
+h -> db : Story by id; Version must match, else 409 story_changed
+h -> audit : Record(admin, Story, id) for a status change (L2-069 AC14)
+h -> db : Save story and audit entry in one unit of work
+h --> ctrl : AdminStoryDto
+ctrl --> client : 200 JSON
+client --> page : New status
+page -> toasts : Toast naming what happened, such as "Approved and published" (L2-069 AC6)
+toasts --> actor : Toast in the region
+@enduml

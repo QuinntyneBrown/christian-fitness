@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Publish RSS feeds
+
+Person(reader, "Reader", "Opens Subscribe at its feeds")
+System_Ext(rss, "Feed reader", "Polls feeds")
+System_Boundary(cf, "Christian Fitness") {
+  Container(nginx, "Web front", "nginx (frontend/Dockerfile)", "Serves the member app; proxies /api/ and the feed paths to the API")
+  Container(web, "Member web app", "Angular", "SubscribePage feeds section; index.html names the feeds")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "FeedsController, PublicFeedsController")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Published stories")
+}
+Rel(reader, nginx, "Uses", "HTTPS")
+Rel(nginx, web, "Serves")
+Rel(rss, nginx, "GET /feed, /events/feed …", "HTTPS")
+Rel(nginx, api, "Proxies /api/ and feed paths", "HTTP")
+Rel(web, api, "GET /api/public/feeds", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
+@enduml

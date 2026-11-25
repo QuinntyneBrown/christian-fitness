@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — copy a story's link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Visitor or member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "StoryPage" as page
+  participant "ClipboardApi (CLIPBOARD_SERVICE)" as clip
+  participant "CopiedFlag" as flag
+  participant "StoryArticle" as article
+end box
+actor -> page : Press Copy link
+page -> clip : write(absolute story address)
+alt clipboard accepts
+  clip --> page : true
+  page -> flag : raise()
+  flag --> article : copied = true
+  article --> actor : Button reads "Link copied"; status message "Link copied" (L2-061 AC3)
+  flag -> flag : Timer of about 2 s (fake clock in unit tests)
+  flag --> article : copied = false
+  article --> actor : Button reads "Copy link" again
+else clipboard refuses
+  clip --> page : false
+  page --> article : showAddress = true
+  article --> actor : Address shown in a field and selected for copying by hand
+end
+note over flag : The timer ends with the page (takeUntilDestroyed; L2-037 AC2)
+@enduml

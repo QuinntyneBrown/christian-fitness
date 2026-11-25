@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Read a story
+
+Person(visitor, "Visitor or member", "Anyone, with or without an account")
+Person(admin, "Admin", "Writes and publishes stories")
+System(cf, "Christian Fitness", "Stories, events, directory and newsletter for the community")
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics without personal data")
+Rel(visitor, cf, "Reads stories in", "HTTPS")
+Rel(admin, cf, "Publishes stories in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

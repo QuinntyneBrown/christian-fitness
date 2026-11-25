@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Read the newsletter on the web
+
+Person(reader, "Reader", "Anyone; a signed-in member is greeted by first name")
+Person(admin, "Admin", "Builds and schedules each issue")
+System(cf, "Christian Fitness", "Sends The Abundant Weekly and keeps each sent issue on the web")
+Rel(reader, cf, "Reads /newsletter in", "HTTPS")
+Rel(admin, cf, "Schedules issues in", "HTTPS")
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Write, review and publish a story
+
+Container_Boundary(adminApp, "Admin web app") {
+  Component(page, "StoryEditorPage", "Routed page /stories/new and /stories/:id", "Bar, writing, Publishing panel")
+  Component(store, "StoryEditorStore, storyActions", "Domain library", "Fields, version, 2-second autosave, allowed actions")
+  Component(client, "HttpAdminStoriesService", "ADMIN_STORIES_SERVICE", "get, create, save, act, uploadImage, options")
+  Component(toasts, "ToastStore", "TOASTS_SERVICE", "Status-change toasts")
+  Component(preview, "StoryPreviewPage", "Routed page /stories/:id/preview", "StoryArticle as readers see it")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminStoriesController", "ASP.NET Core controller, Publishing area", "api/admin/stories")
+  Component(val, "StoryFieldsValidator, PublishStoryValidator", "FluentValidation", "Field codes")
+  Component(cmds, "Story command handlers", "MediatR handlers", "Save, submit, request changes, publish, schedule, unschedule, unpublish")
+  Component(ent, "Story", "Domain entity", "Status transitions, slug, version")
+  Component(clock, "PublishingClock", "BackgroundService", "Sends PublishDueStoriesCommand every 30 s")
+  Component(audit, "AuditTrail", "Application service", "One entry per status change")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Stories, StorySlugRedirects, AuditEntries")
+Rel(page, store, "Holds")
+Rel(page, client, "Calls")
+Rel(page, toasts, "Shows")
+Rel(client, ctrl, "JSON/HTTPS")
+Rel(preview, ctrl, "GET {id}/preview", "JSON/HTTPS")
+Rel(ctrl, cmds, "Sends one request per action")
+Rel(cmds, val, "Validated by")
+Rel(cmds, ent, "Loads and changes")
+Rel(cmds, audit, "Records")
+Rel(clock, cmds, "Sends PublishDueStoriesCommand")
+Rel(cmds, db, "Reads and writes", "IAppDbContext")
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage stories
+
+Person(admin, "Admin", "Staff session")
+System_Boundary(cf, "Christian Fitness") {
+  Container(adminApp, "Admin web app", "Angular", "AdminStoriesPage, admin shell navigation")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminStoriesController, ListAdminStoriesHandler")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Stories, StoryReadTallies, StaffRoles")
+}
+Rel(admin, adminApp, "Uses", "HTTPS")
+Rel(adminApp, api, "GET /api/admin/stories?status=&page=", "JSON/HTTPS, staff cookie")
+Rel(api, db, "Reads", "EF Core")
+@enduml

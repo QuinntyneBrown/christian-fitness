@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — a Moderator opens Stories
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Moderator" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "staffAuthGuard" as guard
+  participant "ForbiddenPage" as forbidden
+  participant "AdminStoriesApi (ADMIN_STORIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "StaffAreaAuthorizationHandler" as policy
+  participant "AdminStoriesController" as ctrl
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> guard : Open /stories or /stories/{id} by its address
+guard -> guard : Role Moderator, area Publishing not allowed
+guard --> forbidden : Show "Admins only" in place, address kept (L2-068 AC7; L2-019 AC5)
+forbidden --> actor : Heading takes focus; Go to dashboard
+note over actor, client : Navigation lists only Dashboard and Members for a Moderator
+actor -> client : Any request to api/admin/stories
+client -> policy : GET /api/admin/stories
+policy -> db : Role now held by the member
+db --> policy : Moderator
+policy --> client : 403 ProblemDetails forbidden_role; the controller never runs (L2-068 AC7)
+@enduml

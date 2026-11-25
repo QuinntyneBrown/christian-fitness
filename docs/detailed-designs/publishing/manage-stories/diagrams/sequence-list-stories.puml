@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — list stories
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminStoriesPage" as page
+  participant "AdminStoriesApi (ADMIN_STORIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminStoriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListAdminStoriesHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Stories, or choose a tab (/stories?status=review)
+page -> page : adminStoryTabs(address): current tab, aria-current (L2-068 AC3)
+page --> actor : Skeleton rows (L2-068 AC6)
+page -> client : list(status, page)
+client -> ctrl : GET /api/admin/stories?status=review&page=1
+ctrl -> h : Send ListAdminStoriesQuery
+h -> db : Counts by status; every In review story; page of 50 of the tab by ActivityAt desc (L2-068 AC1, AC8)
+h -> db : Sum of StoryReadTally for published rows
+db --> h : Rows
+h --> ctrl : AdminStoryListDto
+ctrl --> client : 200 JSON
+client --> page : Result
+alt no stories at all
+  page --> actor : "No stories yet" with New story (L2-068 AC6)
+else stories
+  page --> actor : "Waiting for your review" cards with Review; tabs with counts; table: title, byline, section, status, when, reads or "—" (L2-068 AC1–AC3)
+end
+opt no answer or a 4xx
+  page --> actor : "Stories didn't load" with Try again (L2-068 AC6)
+end
+actor -> page : Choose a title, Review or New story
+page --> actor : Story editor at /stories/{id} or /stories/new (L2-068 AC4)
+@enduml

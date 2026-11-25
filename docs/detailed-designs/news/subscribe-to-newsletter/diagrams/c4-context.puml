@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Subscribe to the newsletter
+
+Person(visitor, "Visitor", "Anyone with an email address, no account needed")
+System(cf, "Christian Fitness", "Stories, events and The Abundant Weekly")
+System_Ext(mail, "Email delivery", "SMTP relay (Azure Communication Services)")
+System_Ext(otel, "OpenTelemetry collector", "No address, token or body")
+Rel(visitor, cf, "Subscribes in", "HTTPS")
+Rel(cf, mail, "Sends the confirmation email via", "SMTP")
+Rel(mail, visitor, "Delivers the confirmation link to")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

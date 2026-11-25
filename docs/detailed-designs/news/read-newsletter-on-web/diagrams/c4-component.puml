@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read the newsletter on the web
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "NewsletterPage", "Routed page /newsletter and /newsletter/:number", "Bar, issue, greeting, states")
+  Component(issue, "IssueView", "Components library", "Block issue: masthead, note, big story, calendar, briefs, verse, footer")
+  Component(client, "HttpNewsletterService", "NEWSLETTER_SERVICE", "issue(number?)")
+  Component(session, "HttpSessionService", "SESSION_SERVICE", "current(): name, or 401")
+  Component(greet, "issueGreeting", "Domain library", "First name or none")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "PublicNewsletterController", "ASP.NET Core controller, anonymous", "GET issues/latest, GET issues/{number}")
+  Component(h, "GetIssueHandler", "MediatR handler", "Sent issues only")
+  Component(lim, "PublicReadLimiter", "AddressRateLimiter", "Public reads per network")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "NewsletterIssues")
+Rel(page, client, "Calls")
+Rel(page, session, "Asks who is signed in")
+Rel(page, greet, "Uses")
+Rel(page, issue, "Renders")
+Rel(client, ctrl, "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetIssueQuery")
+Rel(h, lim, "Takes a lease")
+Rel(h, db, "Reads", "IAppDbContext")
+@enduml

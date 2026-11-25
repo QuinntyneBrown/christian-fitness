@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — unsubscribe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Subscriber" as actor
+participant "Mail client" as mua
+box "Frontend — Member web app" #E0F2FE
+  participant "SubscribePage" as page
+  participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "UnsubscribeHandler" as h
+  participant "INewsletterTokens" as tokens
+  participant "NewsletterSubscription" as sub
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+alt Unsubscribe link in the email footer
+  actor -> page : Follow /subscribe#unsubscribe=<token>
+  page -> page : takeFragmentToken("unsubscribe"); replace URL with /subscribe (L2-058 AC7)
+  page -> client : unsubscribe(token)
+  client -> ctrl : POST /api/public/newsletter/unsubscriptions { token }
+else one-click from the mail client
+  actor -> mua : Press Unsubscribe
+  mua -> ctrl : POST /api/public/newsletter/unsubscribe?token=… body List-Unsubscribe=One-Click (L2-058 AC4)
+end
+ctrl -> h : Send UnsubscribeCommand
+h -> tokens : TryReadUnsubscribeToken(token)
+alt token not readable
+  tokens --> h : false
+  h --> ctrl : RefusalException subscription_link_expired
+  ctrl --> client : 400 ProblemDetails
+  page --> actor : Alert "That link has expired" and the form
+else token names a subscription
+  tokens --> h : subscriptionId
+  h -> db : Subscription by id
+  h -> sub : Unsubscribe(now): Weekly and every extra off, UnsubscribedAt kept from the first time (L2-058 AC5)
+  h -> db : Save
+  h --> ctrl : UnsubscribedDto(email)
+  ctrl --> client : 200 JSON (one-click: 200, no body)
+  client --> page : Unsubscribed
+  page --> actor : "You're unsubscribed" with the address and Subscribe again; following it again shows the same
+end
+@enduml

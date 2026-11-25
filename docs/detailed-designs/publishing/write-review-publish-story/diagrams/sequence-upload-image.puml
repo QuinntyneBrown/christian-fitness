@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — add or replace the lead image
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "StoryEditorPage" as page
+  participant "AdminStoriesApi (ADMIN_STORIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminStoriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "UploadStoryImageHandler" as h
+  participant "ImageKeys" as keys
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "FileSystemImageStore" as store
+end box
+actor -> page : "Add a lead image" or "Replace image", choose a file
+page -> client : uploadImage(file)
+client -> ctrl : POST /api/admin/stories/images (multipart)
+ctrl -> h : Send UploadStoryImageCommand
+h -> keys : Detect(first bytes); WidthOf(header)
+alt not JPEG, PNG or WebP, over 5 MB, or under 1600 px wide
+  h --> ctrl : 400 validation_failed, fieldCodes.image = image_invalid (L2-069 AC9)
+  ctrl --> client : ProblemDetails
+  page --> actor : Message under the image; previous image kept
+else valid
+  h -> store : SaveAsync(new key, bytes)
+  h --> ctrl : { imageKey }; audited story_image.uploaded
+  ctrl --> client : 201 JSON
+  page -> page : Set the image key in the fields; next save keeps it
+  page --> actor : Image shown in a 16:9 frame
+end
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Confirm and unsubscribe
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "SubscribePage", "Routed page /subscribe", "Reads #confirm= or #unsubscribe= once and drops it")
+  Component(frag, "takeFragmentToken", "Domain library", "Reads a named token from a fragment")
+  Component(client, "HttpNewsletterService", "NEWSLETTER_SERVICE", "confirm(token), unsubscribe(token)")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "PublicNewsletterController", "ASP.NET Core controller, anonymous", "POST confirmations, POST unsubscriptions, POST unsubscribe")
+  Component(confirm, "ConfirmSubscriptionHandler", "MediatR handler", "Single-use, 7-day token")
+  Component(unsub, "UnsubscribeHandler", "MediatR handler", "Newsletter and every extra at once")
+  Component(tokens, "INewsletterTokens", "DataProtectionNewsletterTokens", "Unsubscribe token for a subscription")
+  Component(upkeep, "NewsletterUpkeep", "BackgroundService", "Daily PurgeUnsubscribedCommand")
+  Component(purge, "PurgeUnsubscribedHandler", "MediatR handler", "Deletes addresses 30 days after unsubscribing")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "NewsletterSubscriptions, SubscriptionConfirmations")
+Rel(page, frag, "Uses")
+Rel(page, client, "Calls")
+Rel(client, ctrl, "JSON/HTTPS")
+Rel(ctrl, confirm, "Sends ConfirmSubscriptionCommand")
+Rel(ctrl, unsub, "Sends UnsubscribeCommand")
+Rel(unsub, tokens, "Reads the subscription id")
+Rel(upkeep, purge, "Sends PurgeUnsubscribedCommand")
+Rel(confirm, db, "Reads and writes", "IAppDbContext")
+Rel(unsub, db, "Writes", "IAppDbContext")
+Rel(purge, db, "Deletes", "IAppDbContext")
+@enduml

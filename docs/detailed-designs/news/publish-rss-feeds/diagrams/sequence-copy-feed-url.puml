@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — list feeds and copy a feed's address
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Reader" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SubscribePage" as page
+  participant "FeedsApi (FEEDS_SERVICE)" as client
+  participant "ClipboardApi (CLIPBOARD_SERVICE)" as clip
+  participant "CopiedFlag" as flag
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicFeedsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListFeedsHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+page -> client : list()
+client -> ctrl : GET /api/public/feeds
+ctrl -> h : Send ListFeedsQuery
+h -> db : Published stories per section in the recent window
+db --> h : Counts
+h --> ctrl : FeedSummaryDto[] with absolute URLs from MemberApp:BaseUrl
+ctrl --> client : 200 JSON
+client --> page : Feeds
+page --> actor : "All stories" first and stands out; each feed: name, about how many a week, address, Copy URL, Open in Feedly (L2-060 AC4)
+actor -> page : Press Copy URL on a feed
+page -> clip : write(feed url)
+alt clipboard accepts
+  clip --> page : true
+  page -> flag : raise() for that feed
+  page --> actor : Button reads "Copied" about 2 s; status "Feed address copied" (L2-060 AC5)
+else clipboard refuses
+  clip --> page : false
+  page --> actor : Feed address selected for copying by hand
+end
+actor -> page : Press Open in Feedly
+page --> actor : New tab at feedlyUrl(feed url), rel="noopener noreferrer"
+@enduml

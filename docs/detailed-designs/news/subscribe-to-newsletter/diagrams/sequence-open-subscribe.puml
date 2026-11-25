@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — open Subscribe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "LandingPage" as landing
+  participant "SubscribePage" as page
+  participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetNewsletterSummaryHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+alt from the landing page's newsletter box
+  actor -> landing : Enter email, press "Subscribe free"
+  landing -> page : Navigate to /subscribe with the email in navigation state (L2-057 AC1)
+else "Or follow by RSS"
+  actor -> landing : Press "Or follow by RSS"
+  landing -> page : Navigate to /subscribe#rss
+end
+page -> page : Fill the email field from navigation state; never from the URL
+page -> client : summary()
+client -> ctrl : GET /api/public/newsletter
+ctrl -> h : Send GetNewsletterSummaryQuery
+h -> db : Count Subscribed with Weekly on; latest Sent issue with lead and two more stories
+db --> h : Rows
+h --> ctrl : NewsletterSummaryDto
+ctrl --> client : 200 JSON
+client --> page : NewsletterSummaryDto
+page --> actor : Name, what it holds, when it is sent, form with three extras (Event alerts ticked), readers, latest issue, feeds (L2-057 AC2)
+opt opened at #rss
+  page -> page : Scroll to the feeds and move focus to their heading
+end
+@enduml

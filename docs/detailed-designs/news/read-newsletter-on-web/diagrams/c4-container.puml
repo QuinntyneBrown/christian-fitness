@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Read the newsletter on the web
+
+Person(reader, "Reader", "Opens /newsletter or /newsletter/<number>")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular", "NewsletterPage")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "PublicNewsletterController, GetIssueHandler")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "NewsletterIssues with the content captured at sending")
+}
+Rel(reader, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/public/newsletter/issues/latest or /{number}; GET /api/session", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
+@enduml
