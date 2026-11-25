@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
+import type { EventCategory } from '../admin/admin-events';
 
 /**
  * A listing's kind as the API and the address name it (ADR 0071, ADR 0082), in the directory's
@@ -46,6 +47,20 @@ export interface DirectoryQuery {
 }
 
 /**
+ * One event a listing hosts that is still to come (`HostedEventDto`, ADR 0085): the start as an
+ * ISO instant in UTC, which the screen words in Toronto.
+ */
+export interface HostedEventDto {
+  id: string;
+  title: string;
+  category: EventCategory;
+  startsAt: string;
+  place: string;
+  /** The key of its picture (`GET /api/events/images/{key}`), or none. */
+  imageKey: string | null;
+}
+
+/**
  * A published listing's profile (`ListingProfileDto`, ADR 0085): what it publishes, how many follow
  * it and the year it was listed. The website is as stored: the app shows only an https address
  * (L2-055 AC5). It carries no member id or contact detail.
@@ -63,6 +78,10 @@ export interface ListingProfileDto {
   photoKey: string | null;
   followers: number;
   listedYear: number;
+  /** How many published one-off events it hosts that have not started. */
+  hostingCount: number;
+  /** The first 20 of them, in start order. */
+  hosting: HostedEventDto[];
 }
 
 /** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0085). */

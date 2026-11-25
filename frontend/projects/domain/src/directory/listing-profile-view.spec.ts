@@ -14,6 +14,8 @@ const profile = (over: Partial<ListingProfileDto> = {}): ListingProfileDto => ({
   photoKey: null,
   followers: 612,
   listedYear: 2025,
+  hostingCount: 0,
+  hosting: [],
   ...over,
 });
 

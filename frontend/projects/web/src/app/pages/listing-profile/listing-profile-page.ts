@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DIRECTORY_SERVICE, type ListingProfileDto } from '@cf/api';
 import {
   Button,
@@ -10,6 +10,7 @@ import {
   DescriptionList,
   EmptyState,
   ErrorPage,
+  Hosting,
   Link,
   ListingHead,
   SkeletonRegion,
@@ -17,13 +18,14 @@ import {
   Split,
   TagList,
 } from '@cf/components';
-import { listingProfileViewOf } from '@cf/domain';
+import { hostingEmptyText, hostingRowViewOf, listingProfileViewOf } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpDirectoryService } from '../../services/http-directory.service';
 
 /**
  * A listing's profile at `/directory/:id` (L2-055; ADR 0085; mock `listing-profile/`): the back
- * link to the directory, the listing head, About with its focus tags, and beside it from LG the key
+ * link to the directory, the listing head, Hosting (its one-off events still to come, each leading
+ * to the event, or a sentence when there are none), About with its focus tags, and beside it from LG the key
  * facts (area, an https website, followers and the year listed). `DIRECTORY_SERVICE` is bound
  * here, so the client and its request live only while the screen does. While it loads, the head
  * and the columns are skeletons; an id that is not published (404) shows the not-found view; any
@@ -38,6 +40,7 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
     DescriptionList,
     EmptyState,
     ErrorPage,
+    Hosting,
     Link,
     ListingHead,
     Skeleton,
@@ -52,6 +55,7 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
 export default class ListingProfilePage {
   private readonly directory = inject(DIRECTORY_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private id = '';
   private request: Subscription | null = null;
 
@@ -61,6 +65,8 @@ export default class ListingProfilePage {
     const profile = this.profile();
     return profile ? listingProfileViewOf(profile) : null;
   });
+  protected readonly hosting = computed(() => this.profile()?.hosting.map(hostingRowViewOf) ?? []);
+  protected readonly hostingEmpty = computed(() => hostingEmptyText(this.profile()?.name ?? ''));
   protected readonly facts = computed<readonly DescriptionItem[]>(() => {
     const profile = this.profile();
     const view = this.view();
@@ -82,6 +88,11 @@ export default class ListingProfilePage {
         this.id = params.get('id') ?? '';
         this.load();
       });
+  }
+
+  /** Follows a link inside the app through the router. */
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
   }
 
   /** Asks for the profile again, in place. */

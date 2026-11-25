@@ -74,11 +74,11 @@ public sealed class DirectoryFactory : ApiFactory
     }
 
     /// <summary>Puts an event hosted by <paramref name="host"/> in the store: published, a draft, or published then cancelled.</summary>
-    public async Task AddEventAsync(Guid host, DateTimeOffset startsAt, EventStatus status = EventStatus.Published)
+    public async Task<Guid> AddEventAsync(Guid host, DateTimeOffset startsAt, EventStatus status = EventStatus.Published, string title = "Saturday run")
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var e = Event.CreateDraft("Saturday run", EventCategory.Run, startsAt, "Martin Goodman Trail", "Waterfront, Toronto", 0, 20, "Come run with us.", Now);
+        var e = Event.CreateDraft(title, EventCategory.Run, startsAt, "Martin Goodman Trail", "Waterfront, Toronto", 0, 20, "Come run with us.", Now);
         e.HostedBy(host);
         if (status != EventStatus.Draft)
         {
@@ -92,5 +92,6 @@ public sealed class DirectoryFactory : ApiFactory
 
         db.Events.Add(e);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return e.Id;
     }
 }

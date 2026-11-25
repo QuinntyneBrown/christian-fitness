@@ -1,6 +1,26 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
 import { answerPhotos, CAST, type KindFixture } from './directory';
 
+/** One event a listing hosts that is still to come (`HostedEventDto`, ADR 0085). */
+export interface HostedEventFixture {
+  id: string;
+  title: string;
+  category: 'run' | 'workout' | 'basketball' | 'mobility' | 'workshop' | 'retreat';
+  startsAt: string;
+  place: string;
+  imageKey: string | null;
+}
+
+/** The Easter Sunrise 5K: Saturday 18 April 2026, 6:45 AM in Toronto (mock `listing-profile/one-off`). */
+export const SUNRISE_RUN: HostedEventFixture = {
+  id: '0193a9c0-0000-7000-8000-00000000e501',
+  title: 'Easter Sunrise 5K',
+  category: 'run',
+  startsAt: '2026-04-18T10:45:00Z',
+  place: 'Martin Goodman Trail, Marilyn Bell Park',
+  imageKey: null,
+};
+
 /** A listing's profile as `GET /api/directory/{id}` answers it (ADR 0085). */
 export interface ListingProfileFixture {
   id: string;
@@ -15,6 +35,8 @@ export interface ListingProfileFixture {
   photoKey: string | null;
   followers: number;
   listedYear: number;
+  hostingCount: number;
+  hosting: HostedEventFixture[];
 }
 
 const idOf = (name: string): string => {
@@ -38,6 +60,8 @@ export const LAKESHORE: ListingProfileFixture = {
   photoKey: null,
   followers: 612,
   listedYear: 2025,
+  hostingCount: 0,
+  hosting: [],
 };
 
 /** Danielle Okafor, an instructor with a photo (mock `listing-profile/person`). */
@@ -55,6 +79,8 @@ export const OKAFOR: ListingProfileFixture = {
   photoKey: '0f8e1c2d3b4a59687766554433221100.jpg',
   followers: 935,
   listedYear: 2024,
+  hostingCount: 0,
+  hosting: [],
 };
 
 /** Christian Fitness, the team's own listing (mock `listing-profile/one-off`). */
@@ -72,6 +98,8 @@ export const TEAM: ListingProfileFixture = {
   photoKey: null,
   followers: 2140,
   listedYear: 2024,
+  hostingCount: 1,
+  hosting: [SUNRISE_RUN],
 };
 
 /** Northline Athletic, an unverified company (mock `listing-profile/unverified`). */
@@ -89,6 +117,8 @@ export const NORTHLINE: ListingProfileFixture = {
   photoKey: null,
   followers: 256,
   listedYear: 2026,
+  hostingCount: 0,
+  hosting: [],
 };
 
 export const PROFILES: ListingProfileFixture[] = [LAKESHORE, OKAFOR, TEAM, NORTHLINE];
@@ -130,4 +160,15 @@ export function answerListingProfile(
     return profile ? { json: profile } : problem(404, 'listing_not_found');
   });
   return asked;
+}
+
+/** Answers `GET /api/events/images/{key}` with a 1 × 1 PNG, as the event image endpoint does. */
+export function answerEventImages(api: ApiHandlers): void {
+  api.on('GET', /^\/api\/events\/images\/[0-9a-f]{32}\.(jpg|png|webp)$/, () => ({
+    headers: { 'content-type': 'image/png' },
+    body: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+      'base64',
+    ),
+  }));
 }

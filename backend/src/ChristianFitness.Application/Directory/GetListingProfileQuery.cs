@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Application.Events;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using MediatR;
@@ -8,7 +9,13 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Directory;
 
 /// <summary>
-/// A published listing's profile (L2-055 AC1; ADR 0085): what it publishes, its follower count and
+/// One event the listing hosts that is still to come (L2-055 AC2): the app words its category, date,
+/// time and place in Toronto and leads to the event.
+/// </summary>
+public sealed record HostedEventDto(Guid Id, string Title, string Category, DateTimeOffset StartsAt, string Place, string? ImageKey);
+
+/// <summary>
+/// A published listing's profile (L2-055 AC1 to AC3; ADR 0085): what it publishes, its follower count and
 /// the year it was listed, in Toronto. The website is served as stored; the app shows only an
 /// https address (L2-055 AC5). It carries no member id, contact detail or owner's name.
 /// </summary>
@@ -24,12 +31,18 @@ public sealed record ListingProfileDto(
     bool IsVerified,
     string? PhotoKey,
     int Followers,
-    int ListedYear);
+    int ListedYear,
+    int HostingCount,
+    IReadOnlyList<HostedEventDto> Hosting);
 
 /// <summary>Opens one listing's profile; anything but a published listing is 404 <c>listing_not_found</c> (L2-055 AC7).</summary>
-public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>;
+public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>
+{
+    /// <summary>The most hosting rows a profile shows; the count covers them all (ADR 0085).</summary>
+    public const int HostingLimit = 20;
+}
 
-internal sealed class GetListingProfileHandler(IAppDbContext db) : IRequestHandler<GetListingProfileQuery, ListingProfileDto>
+internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetListingProfileQuery, ListingProfileDto>
 {
     public async Task<ListingProfileDto> Handle(GetListingProfileQuery request, CancellationToken cancellationToken)
     {
@@ -38,6 +51,21 @@ internal sealed class GetListingProfileHandler(IAppDbContext db) : IRequestHandl
             .SingleOrDefaultAsync(l => l.Id == request.Id && l.Status == ListingStatus.Published, cancellationToken)
             .ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.ListingNotFound, RefusalKind.NotFound);
+
+        // The published one-off events it hosts that have not started (the directory row's rule, ADR 0082);
+        // series join first with journey 11.
+        var now = time.GetUtcNow();
+        var hosted = db.Events.AsNoTracking()
+            .Where(e => e.HostListingId == listing.Id && e.Status == EventStatus.Published && e.StartsAt > now);
+        var hostingCount = await hosted.CountAsync(cancellationToken).ConfigureAwait(false);
+        var hosting = (await hosted
+                .OrderBy(e => e.StartsAt)
+                .ThenBy(e => e.Id)
+                .Take(GetListingProfileQuery.HostingLimit)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false))
+            .Select(e => new HostedEventDto(e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.ImageKey))
+            .ToList();
 
         // Following arrives with journey 8; until then nobody follows a listing (ADR 0085).
         const int followers = 0;
@@ -53,6 +81,8 @@ internal sealed class GetListingProfileHandler(IAppDbContext db) : IRequestHandl
             listing.IsVerified,
             listing.PhotoKey,
             followers,
-            EventSchedule.TorontoOf(listing.ListedAt).Date.Year);
+            EventSchedule.TorontoOf(listing.ListedAt).Date.Year,
+            hostingCount,
+            hosting);
     }
 }

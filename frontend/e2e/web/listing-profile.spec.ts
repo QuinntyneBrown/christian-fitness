@@ -1,18 +1,22 @@
 import { expect, test } from '../fixtures/test';
 import { answerDirectory, CAST } from '../fixtures/directory';
 import {
+  answerEventImages,
   answerListingProfile,
   LAKESHORE,
   NORTHLINE,
   OKAFOR,
   PROFILES,
+  SUNRISE_RUN,
+  TEAM,
 } from '../fixtures/listing-profile';
 import { WebDirectoryPage } from '../page-objects/web/directory.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-055 AC1, AC5, AC7, AC8 and AC9 (journey 6; ADR 0085): a member opens a listing's profile at
+// L2-055 AC1 to AC3, AC5, AC7, AC8 and AC9 (journey 6; ADR 0085): a member opens a listing's profile at
 // `/directory/<id>` and reads its head, About, area, https website, followers and the year listed
-// (mocks `listing-profile/default`, `person`, `unverified`, `loading`, `error`).
+// and what it hosts (mocks `listing-profile/default`, `person`, `one-off`, `unverified`, `loading`,
+// `error`). Hosted series arrive with journey 11.
 test.describe('Member app, listing profile', () => {
   test('The profile shows the mark, kind, Verified, name, tagline, About with focus tags and the key facts', async ({
     page,
@@ -83,6 +87,58 @@ test.describe('Member app, listing profile', () => {
       text: 'northlineathletic.ca (opens in a new tab)',
       href: 'https://www.northlineathletic.ca/shop',
     });
+  });
+
+  test('Hosting counts the events still to come and lists each, leading to the event', async ({
+    page,
+    api,
+  }) => {
+    const later = {
+      ...SUNRISE_RUN,
+      id: '0193a9c0-0000-7000-8000-00000000e502',
+      title: 'Hoops & Prayer',
+      category: 'basketball' as const,
+      startsAt: '2026-11-03T00:30:00Z',
+      place: 'Regent Park Athletic Grounds',
+      imageKey: 'a1b2c3d4e5f60718293a4b5c6d7e8f90.jpg',
+    };
+    answerListingProfile(api, [{ ...TEAM, hostingCount: 2, hosting: [SUNRISE_RUN, later] }]);
+    answerEventImages(api);
+    const profile = new WebListingProfilePage(page);
+
+    await profile.open(TEAM.id);
+
+    await expect(profile.hostingHeading).toHaveText('Hosting 2');
+    expect(await profile.hostingViews()).toEqual([
+      {
+        href: `/events/${SUNRISE_RUN.id}`,
+        image: '/images/events/run.jpg',
+        meta: 'Run · Sat Apr 18',
+        title: 'Easter Sunrise 5K',
+        sub: '6:45 AM · Martin Goodman Trail, Marilyn Bell Park',
+      },
+      {
+        href: `/events/${later.id}`,
+        image: `/api/events/images/${later.imageKey}`,
+        meta: 'Basketball · Mon Nov 2',
+        title: 'Hoops & Prayer',
+        sub: '7:30 PM · Regent Park Athletic Grounds',
+      },
+    ]);
+    await expect(profile.hostingEmpty).toHaveCount(0);
+  });
+
+  test('A listing hosting nothing still to come says so, with no count', async ({ page, api }) => {
+    answerListingProfile(api, PROFILES);
+    const profile = new WebListingProfilePage(page);
+
+    await profile.open(NORTHLINE.id);
+
+    await expect(profile.hostingHeading).toHaveText('Hosting');
+    await expect(profile.hostingEmpty).toHaveText(
+      "Northline Athletic isn't hosting anything right now. Follow to hear when they post a date.",
+    );
+    await expect(profile.hostingRows).toHaveCount(0);
   });
 
   test('A website that is not https is not shown at all, neither as a link nor as text', async ({

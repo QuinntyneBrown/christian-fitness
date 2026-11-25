@@ -62,7 +62,20 @@
           />
           <cf-split variant="detail">
             <div>
-              <section aria-labelledby="about-title">
+              <section aria-labelledby="hosting-title">
+                <h2 class="display section-title" id="hosting-title">
+                  Hosting
+                  @if (listing.hostingCount > 0) {
+                    <span class="section-title__count">{{ listing.hostingCount }}</span>
+                  }
+                </h2>
+                <cf-hosting
+                  [rows]="hosting()"
+                  [empty]="hostingEmpty()"
+                  (navigate)="navigate($event)"
+                />
+              </section>
+              <section class="block-section" aria-labelledby="about-title">
                 <h2 class="display section-title" id="about-title">About</h2>
                 <p class="prose lead">{{ listing.description }}</p>
                 <cf-tag-list [tags]="listing.focus" outline />

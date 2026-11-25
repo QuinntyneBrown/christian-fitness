@@ -15,6 +15,15 @@ export interface ListingHeadView {
   tagline: string;
 }
 
+/** One hosting row as the member reads it. */
+export interface HostingRowView {
+  href: string;
+  image: string | null;
+  meta: string;
+  title: string;
+  sub: string;
+}
+
 /** The website fact as the member reads it. */
 export interface WebsiteView {
   text: string;
@@ -33,6 +42,10 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly backLink: Locator;
   readonly head: Locator;
   readonly name: Locator;
+  readonly hosting: Locator;
+  readonly hostingHeading: Locator;
+  readonly hostingRows: Locator;
+  readonly hostingEmpty: Locator;
   readonly about: Locator;
   readonly aboutText: Locator;
   readonly focusTags: Locator;
@@ -50,6 +63,10 @@ export class WebListingProfilePage extends ErrorScreen {
     this.backLink = this.main.getByRole('link', { name: 'Directory', exact: true }).first();
     this.head = this.main.locator('.listing-head');
     this.name = this.head.getByRole('heading', { level: 1 });
+    this.hosting = this.main.getByRole('region', { name: /^Hosting/ });
+    this.hostingHeading = this.hosting.getByRole('heading', { level: 2 });
+    this.hostingRows = this.hosting.locator('a.hosting-row');
+    this.hostingEmpty = this.hosting.locator('.hosting__empty');
     this.about = this.main.getByRole('region', { name: 'About', exact: true });
     this.aboutText = this.about.locator('.lead');
     this.focusTags = this.about.locator('.tag');
@@ -88,6 +105,23 @@ export class WebListingProfilePage extends ErrorScreen {
         tagline: text('.subtitle'),
       };
     });
+  }
+
+  /** Each hosting row, in order. */
+  async hostingViews(): Promise<HostingRowView[]> {
+    return this.hostingRows.evaluateAll((rows) =>
+      rows.map((row) => {
+        const text = (selector: string): string =>
+          (row.querySelector(selector)?.textContent ?? '').replace(/\s+/g, ' ').trim();
+        return {
+          href: row.getAttribute('href') ?? '',
+          image: row.querySelector('img.hosting-row__image')?.getAttribute('src') ?? null,
+          meta: text('.hosting-row__meta'),
+          title: text('.hosting-row__title'),
+          sub: text('.hosting-row__sub'),
+        };
+      }),
+    );
   }
 
   /** Each key fact, term to value, in order. */

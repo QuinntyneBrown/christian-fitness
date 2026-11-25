@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ChristianFitness.Domain.Directory;
+using ChristianFitness.Domain.Events;
 
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-055 AC1, AC5, AC7 and AC9 (journey 6; ADR 0085): <c>GET /api/directory/{id}</c> answers a
+/// L2-055 AC1 to AC3, AC5, AC7 and AC9 (journey 6; ADR 0085): <c>GET /api/directory/{id}</c> answers a
 /// published listing's profile, with what it publishes and nothing else; a listing that is not
 /// published, or not there, is 404 <c>listing_not_found</c>.
 /// </summary>
@@ -39,7 +40,7 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
 
         Assert.Equal(HttpStatusCode.OK, status);
         Assert.Equal(
-            ["area", "description", "focus", "followers", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "tagline", "websiteUrl"],
+            ["area", "description", "focus", "followers", "hosting", "hostingCount", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "tagline", "websiteUrl"],
             profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(id, profile.GetProperty("id").GetGuid());
         Assert.Equal("organization", profile.GetProperty("kind").GetString());
@@ -65,6 +66,66 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
         var (_, profile) = await ReadAsync(factory, id);
 
         Assert.Equal(2024, profile.GetProperty("listedYear").GetInt32());
+    }
+
+    [Fact]
+    public async Task Given_events_a_listing_hosts_When_its_profile_is_read_Then_Hosting_lists_its_published_events_still_to_come_in_date_order()
+    {
+        await factory.ClearAsync();
+        var club = await factory.AddListingAsync(ListingKind.Organization, "Lakeshore Runners Fellowship");
+        var other = await factory.AddListingAsync(ListingKind.Organization, "Faith & Footwork");
+        var later = await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(9), title: "Harbourfront 10K");
+        var sooner = await factory.AddEventAsync(club, DirectoryFactory.Now.AddMinutes(1), title: "Easter Sunrise 5K");
+        await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(2), EventStatus.Draft, "Draft run");
+        await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(3), EventStatus.Cancelled, "Cancelled run");
+        await factory.AddEventAsync(club, DirectoryFactory.Now, title: "Starting now");
+        await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(-1), title: "Yesterday's run");
+        await factory.AddEventAsync(other, DirectoryFactory.Now.AddDays(1), title: "Someone else's run");
+
+        var (_, profile) = await ReadAsync(factory, club);
+
+        Assert.Equal(2, profile.GetProperty("hostingCount").GetInt32());
+        var rows = profile.GetProperty("hosting").EnumerateArray().ToArray();
+        Assert.Equal([sooner, later], rows.Select(r => r.GetProperty("id").GetGuid()));
+        Assert.All(rows, row => Assert.Equal(
+            ["category", "id", "imageKey", "place", "startsAt", "title"],
+            row.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)));
+        Assert.Equal("Easter Sunrise 5K", rows[0].GetProperty("title").GetString());
+        Assert.Equal("run", rows[0].GetProperty("category").GetString());
+        Assert.Equal("Martin Goodman Trail", rows[0].GetProperty("place").GetString());
+        Assert.Equal(DirectoryFactory.Now.AddMinutes(1), rows[0].GetProperty("startsAt").GetDateTimeOffset());
+        Assert.Equal(JsonValueKind.Null, rows[0].GetProperty("imageKey").ValueKind);
+    }
+
+    [Fact]
+    public async Task Given_a_listing_hosting_more_than_20_events_When_its_profile_is_read_Then_the_first_20_show_and_the_count_covers_all()
+    {
+        await factory.ClearAsync();
+        var club = await factory.AddListingAsync(ListingKind.Organization, "St. Paul's Sports Ministry");
+        for (var day = 1; day <= 21; day++)
+        {
+            await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(day), title: $"Run {day:00}");
+        }
+
+        var (_, profile) = await ReadAsync(factory, club);
+
+        Assert.Equal(21, profile.GetProperty("hostingCount").GetInt32());
+        Assert.Equal(
+            Enumerable.Range(1, 20).Select(day => $"Run {day:00}"),
+            profile.GetProperty("hosting").EnumerateArray().Select(r => r.GetProperty("title").GetString()!));
+    }
+
+    [Fact]
+    public async Task Given_a_listing_hosting_nothing_still_to_come_When_its_profile_is_read_Then_Hosting_is_empty()
+    {
+        await factory.ClearAsync();
+        var quiet = await factory.AddListingAsync(ListingKind.Company, "Northline Athletic");
+        await factory.AddEventAsync(quiet, DirectoryFactory.Now.AddDays(-2));
+
+        var (_, profile) = await ReadAsync(factory, quiet);
+
+        Assert.Equal(0, profile.GetProperty("hostingCount").GetInt32());
+        Assert.Empty(profile.GetProperty("hosting").EnumerateArray());
     }
 
     [Theory]

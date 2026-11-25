@@ -41,6 +41,8 @@ export * from './event-card/event-card';
 export * from './event-card/event-grid';
 export * from './file-field/file-field';
 export * from './footer/footer';
+export * from './host-card/hosting';
+export * from './host-card/hosting-row';
 export * from './form-field/form-field';
 export * from './form-layout/form-layout';
 export * from './form-layout/form-page';
