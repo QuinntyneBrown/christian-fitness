@@ -150,12 +150,10 @@ python3 .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks
 | assets/components.css (states) | No disabled style on `.event-choice`; no `data-state="hover"` hooks on story links and cards, footer links, text links, event choices, series rows, host cards, hosting rows and listing rows; `.section-head` did not wrap. | Added. |
 | assets/ds.css (docs chrome) | The docs' `a` rule loaded after components.css and underlined every link inside the specimens. | Scoped to unclassed links (`a:where(:not([class]))`). |
 | assets/components.css (open) | About 25 fixed widths in the new blocks (story measure 48rem, figure 64rem, picker and inbox columns, thumbnails, `.feed__copy` 7rem) are raw rem, not layout or size tokens. | Open: tokenise when the screens are built. |
-| tokens (closed, 2026-11-25) | `--color-accent` was 2.16:1 on the dark surface, so switch tracks, checked boxes and radios, the segmented current fill, spinners, progress bars and unread dots fell under 3:1 in dark. | Dark accent changed from `#8f2a4a` to `#b54465` (relative luminance 0.149): 3.31:1 on the surface, 3.02:1 on the raised surface and 5.28:1 under white text. Dark hover changed from `#a3345a` to `#b8436c` and active from `#b8436c` to `#c34a71` to retain distinct states; light tokens are unchanged. Accent and checked-switch hover pairs added to `contrast-pairs.json`. |
+| tokens (open) | `--color-accent` is 2.16:1 on the dark surface, so switch tracks, checked boxes and radios, the segmented current fill, spinners, progress bars and unread dots fall under 3:1 in dark (the label or a second cue carries the state). | Open: needs a brand decision on the dark accent (an L between about 0.13 and 0.18 would pass 3:1 on the surface and 4.5:1 under white text). |
 | mocks (open) | Mocks the extraction did not change: `pages/join/google` and `google-submitting` overflow 11px at 360px (`.auth__brand`, `.auth__main`); Sign out has no rule and shows at every width; Most read titles are not links; `.or-divider` duplicates `.divider--label`, `.inline-link` duplicates `.link`, `.subtitle--measure` duplicates `.subtitle--narrow`, `.key-facts` nearly duplicates `.spec-list`; the follow button changes its label while toggling `aria-pressed`; skeleton ratios differ from the loaded banner, date column and listing mark. | Open: listed on each component page under Sources. |
 
 ## Verification
-Dark accent decision, 2026-11-25: `check_contrast.py` passed 182 pair/theme checks with 0 failures; `check_design_system.py` reported 0 errors and 0 warnings.
-
 Run on 2026-11-25, after adding the pages for the new mocks:
 
 - `check_contrast.py`: 174 pairs passed in light and dark, 0 failed.
