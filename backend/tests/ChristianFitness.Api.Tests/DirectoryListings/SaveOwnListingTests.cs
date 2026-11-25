@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-079 AC1, AC3 and AC4 (journey 20; ADR 0094): <c>PUT /api/directory/{id}</c> saves the owner's
+/// L2-079 AC1, AC3 and AC4 (journey 20; ADR 0095): <c>PUT /api/directory/{id}</c> saves the owner's
 /// about, website, photo, focus tags and contact at once and audits it <c>listing.edited</c>; anyone
 /// else is refused <c>not_listing_owner</c>, and a field that breaks a rule is refused
 /// <c>validation_failed</c> with its code.

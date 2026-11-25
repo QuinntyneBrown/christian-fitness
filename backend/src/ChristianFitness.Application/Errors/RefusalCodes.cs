@@ -36,10 +36,10 @@ public static class RefusalCodes
     /// <summary>The published directory listing has no owner to message (L2-014 AC2, L2-055 AC6; ADR 0066, ADR 0087).</summary>
     public const string ListingUnreachable = "listing_unreachable";
 
-    /// <summary>The caller does not own the listing they tried to edit or upload a photo for (L2-079 AC1; ADR 0094).</summary>
+    /// <summary>The caller does not own the listing they tried to edit or upload a photo for (L2-079 AC1; ADR 0095).</summary>
     public const string NotListingOwner = "not_listing_owner";
 
-    /// <summary>Staff tried to decide a waiting name or kind, and none waits (ADR 0094).</summary>
+    /// <summary>Staff tried to decide a waiting name or kind, and none waits (ADR 0095).</summary>
     public const string NoChangeWaiting = "no_change_waiting";
 
     /// <summary>The listing publishes a contact link, so Message is not offered (L2-014 AC2; ADR 0053).</summary>

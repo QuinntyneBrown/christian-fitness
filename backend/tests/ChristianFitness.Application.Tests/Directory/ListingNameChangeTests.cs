@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Application.Tests.Directory;
 
 /// <summary>
-/// L2-079 AC2 and AC5 (ADR 0094): a name or kind the owner sends that differs from the live one
+/// L2-079 AC2 and AC5 (ADR 0095): a name or kind the owner sends that differs from the live one
 /// waits for staff while the live one stays; sending the live one again withdraws it; asking again
 /// for the same change keeps when it was first asked. One row per case.
 /// </summary>

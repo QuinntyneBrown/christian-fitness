@@ -12,13 +12,13 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Directory;
 
 /// <summary>
-/// What the owner's save answers (L2-079 AC4, AC5; ADR 0094): the listing as now saved, and whether
+/// What the owner's save answers (L2-079 AC4, AC5; ADR 0095): the listing as now saved, and whether
 /// a new name or kind waits for staff after it.
 /// </summary>
 public sealed record OwnListingSavedDto(bool NameChangePending, ListingProfileDto Listing);
 
 /// <summary>
-/// The owner saves their listing (L2-079; ADR 0094): about, website, photo, focus tags and contact
+/// The owner saves their listing (L2-079; ADR 0095): about, website, photo, focus tags and contact
 /// go live at once; a new name or kind waits for staff. A class, so no generated <c>ToString</c>
 /// prints the contact email, the about or the website. Audited <c>listing.edited</c>.
 /// </summary>
@@ -45,7 +45,7 @@ public sealed class UpdateOwnListingCommand(
     public string? ContactEmail { get; } = contactEmail;
 }
 
-/// <summary>The owner's editor's limits and field codes beyond the staff editor's (ADR 0094).</summary>
+/// <summary>The owner's editor's limits and field codes beyond the staff editor's (ADR 0095).</summary>
 public static class OwnListingRules
 {
     public const int FocusMaxCount = 6;
@@ -64,7 +64,7 @@ public static class OwnListingRules
         [.. (focus ?? []).Select(tag => (tag ?? string.Empty).Trim()).Where(tag => tag.Length > 0)];
 }
 
-/// <summary>Each field's rule; the sentences never repeat a value (ADR 0094).</summary>
+/// <summary>Each field's rule; the sentences never repeat a value (ADR 0095).</summary>
 internal sealed class UpdateOwnListingValidator : AbstractValidator<UpdateOwnListingCommand>
 {
     public UpdateOwnListingValidator(IImageStore images)
@@ -129,7 +129,7 @@ internal sealed class UpdateOwnListingHandler(IAppDbContext db, ICurrentMember c
 }
 
 /// <summary>
-/// An owner stores a photo for their listing (L2-079 AC1; ADR 0094): only a member who owns a
+/// An owner stores a photo for their listing (L2-079 AC1; ADR 0095): only a member who owns a
 /// published listing may, else 403 <c>not_listing_owner</c>; the photo is judged and audited as
 /// staff's is (<c>listing_photo.uploaded</c>).
 /// </summary>

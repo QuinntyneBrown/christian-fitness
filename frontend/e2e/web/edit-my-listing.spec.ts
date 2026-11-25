@@ -9,7 +9,7 @@ import {
 import { OwnerListingEditorDialog } from '../page-objects/web/owner-listing-editor.dialog';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-079 (journey 20; ADR 0094): the member who owns a listing edits it from its profile
+// L2-079 (journey 20; ADR 0095): the member who owns a listing edits it from its profile
 // (mocks `listing-profile/owner` and `owner-listing-editor/`).
 test.describe('Member app, edit my listing', () => {
   test('The owner sees Edit listing in place of Follow and Message, and it opens the editor on the listing as it stands', async ({

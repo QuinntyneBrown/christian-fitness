@@ -51,7 +51,7 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly backLink: Locator;
   readonly head: Locator;
   readonly messageButton: Locator;
-  /** The owner's Edit listing, in place of Follow and Message (ADR 0094). */
+  /** The owner's Edit listing, in place of Follow and Message (ADR 0095). */
   readonly editListingButton: Locator;
   /** The success toasts: each `role="status"` toast in the toast region. */
   readonly successToasts: Locator;

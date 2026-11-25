@@ -41,7 +41,7 @@ export interface OwnerListingEditorResult {
 
 /**
  * The owner's listing editor, "Edit your listing" (mock docs/mocks/dialogs/owner-listing-editor/;
- * L2-079; ADR 0094): a CDK Dialog rendering the library's dialog with the listing's name, about,
+ * L2-079; ADR 0095): a CDK Dialog rendering the library's dialog with the listing's name, about,
  * website, photo, focus tags (one comma field) and contact email. Focus starts on Name. A chosen
  * photo is uploaded at once and saved with the listing by its key. While a
  * save is on its way the button reads "Saving…", the fields hold still and the dialog stays open;

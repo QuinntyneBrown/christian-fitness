@@ -27,7 +27,7 @@ public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, str
 /// <c>ServiceListingId</c> names the Services listing of the same owner, or that staff linked, for
 /// "Also offers services" (ADR 0061). <c>Following</c> says whether the signed-in caller follows it,
 /// <c>false</c> for an anonymous caller (ADR 0088). <c>IsOwner</c> says the signed-in caller owns it,
-/// and only then is <c>Owner</c> given, with what the owner's editor opens on (ADR 0094). It carries
+/// and only then is <c>Owner</c> given, with what the owner's editor opens on (ADR 0095). It carries
 /// no member id or owner's name, and a contact detail only in <c>Owner</c>.
 /// </summary>
 public sealed record ListingProfileDto(
@@ -53,7 +53,7 @@ public sealed record ListingProfileDto(
     OwnListingDto? Owner);
 
 /// <summary>
-/// What only the owner reads of their listing (L2-079 AC2; ADR 0094): its contact email, and the
+/// What only the owner reads of their listing (L2-079 AC2; ADR 0095): its contact email, and the
 /// name and kind waiting for staff, by ADR 0082's kind slug.
 /// </summary>
 public sealed record OwnListingDto(string? ContactEmail, string? PendingName, string? PendingKind);

@@ -104,14 +104,14 @@ export interface ListingProfileDto {
   serviceListingId: string | null;
   /** Whether the signed-in member follows it (ADR 0088). */
   following: boolean;
-  /** Whether the signed-in member owns it: the profile shows Edit listing (ADR 0094). */
+  /** Whether the signed-in member owns it: the profile shows Edit listing (ADR 0095). */
   isOwner: boolean;
-  /** What only the owner reads, or none for anyone else (ADR 0094). */
+  /** What only the owner reads, or none for anyone else (ADR 0095). */
   owner: OwnListingDto | null;
 }
 
 /**
- * What only the owner reads of their listing (`OwnListingDto`, ADR 0094): the contact email shown
+ * What only the owner reads of their listing (`OwnListingDto`, ADR 0095): the contact email shown
  * to members who message it, and a new name or kind waiting for staff.
  */
 export interface OwnListingDto {
@@ -130,7 +130,7 @@ export interface ListingFollowDto {
 }
 
 /**
- * What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0094): the name and kind (a new one
+ * What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0095): the name and kind (a new one
  * waits for staff), the about, the website as typed or none, the photo's key, the focus tags and
  * the contact email or none.
  */
@@ -193,14 +193,14 @@ export interface DirectoryApi {
   unfollow(id: string): Observable<ListingFollowDto>;
 
   /**
-   * The owner saves their listing (L2-079; ADR 0094). A refusal errors with an `ApiError`:
+   * The owner saves their listing (L2-079; ADR 0095). A refusal errors with an `ApiError`:
    * 400 `validation_failed` with `fieldCodes`, 403 `not_listing_owner`, 404 `listing_not_found`.
    */
   updateOwn(id: string, update: OwnListingUpdateDto): Observable<OwnListingSavedDto>;
 
   /**
    * The owner stores a photo for their listing and gets its key, saved with {@link updateOwn}
-   * (ADR 0094). A refusal errors with an `ApiError`: 400 `validation_failed` with
+   * (ADR 0095). A refusal errors with an `ApiError`: 400 `validation_failed` with
    * `fieldCodes.photo` `photo_invalid`, 403 `not_listing_owner`.
    */
   uploadPhoto(file: File): Observable<OwnListingPhotoDto>;

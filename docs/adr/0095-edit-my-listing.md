@@ -1,4 +1,4 @@
-# 0094. Editing my listing: the owner's read and save, a waiting name or kind on the listing, approval from Listed, and the staff editor's same fields
+# 0095. Editing my listing: the owner's read and save, a waiting name or kind on the listing, approval from Listed, and the staff editor's same fields
 
 ## Status
 
@@ -62,12 +62,15 @@ from what the codebase now holds:
 - **Staff approve or decline it in Listed.** `ListedListingDto` gains `focus`, `contactEmail`,
   `pendingName` and `pendingKind`. A row with a waiting change shows under its name "New name
   waiting: {name}" (or "New kind waiting: {kind}") with Approve and Decline (mock
-  `admin-listings/change-waiting`, drawn by `listed-cell`'s new `change` variant).
+  `admin-listings/change-waiting`, drawn by `listed-cell`'s new `change` variant, whose buttons are
+  its own `listed-cell__action` element with the row link's look, since a block never styles the
+  table's `row-link`).
   `POST api/admin/directory/listings/{id}/change/approve` applies it and `.../change/decline` drops
-  it; both answer the row as saved, 404 `not_found` for an unknown listing and 409
+  it; both answer the row as saved, 404 `listing_not_found` for an unpublished listing and 409
   `no_change_waiting` when nothing waits. Audited `listing.change_approved` and
   `listing.change_declined`. Toasts: "{new name} is the new name" and "The directory shows it
-  now."; "Kept {name}" and "The new name was declined."; a failure "We couldn't save that
+  now."; "Kept {name}" and "The new name was declined." (for a kind alone, "{kind} is the new kind"
+  and "The new kind was declined."); a failure "We couldn't save that
   decision", "Nothing changed. Try again in a moment.". Telling the owner the outcome waits for a
   notification kind (journey 14's list has none for it).
 - **Staff edit the same fields (AC8).** Listed's editor gains Focus and Contact email. A staff save
