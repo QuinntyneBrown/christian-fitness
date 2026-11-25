@@ -7,6 +7,11 @@
           The churches, clubs, coaches and companies behind every event. Follow one to see their new
           dates first.
         </p>
+        <p class="page-head__more">
+          <cf-link variant="ui" href="/directory/suggest"
+            >Know someone who belongs here? Suggest a listing</cf-link
+          >
+        </p>
       </div>
       <cf-search-field
         wide
@@ -49,6 +54,9 @@
     } @else if (none() && q() !== null) {
       <cf-empty-state headingTag="p" heading="No one by that name yet" [text]="noMatchText()">
         <cf-button slot="actions" size="sm" (click)="clearSearch()">Clear search</cf-button>
+        <cf-button slot="actions" size="sm" variant="secondary" href="/directory/suggest"
+          >Suggest a listing</cf-button
+        >
       </cf-empty-state>
     } @else if (none() && kind() !== null) {
       <cf-empty-state headingTag="p" heading="Nothing here yet" [text]="noKindText()">

@@ -1,0 +1,24 @@
+<div class="form-page">
+  @if (done()) {
+    <div class="form-page__main"><ng-content select="[slot=done]" /></div>
+  } @else {
+    <form class="form-page__main" novalidate (submit)="onSubmit($event)">
+      <h1 class="display page-title">{{ heading() }}</h1>
+      @if (lead(); as text) {
+        <p class="form-page__lead">{{ text }}</p>
+      }
+      <div class="form-page__alert"><ng-content select="[slot=alert]" /></div>
+      <ng-content />
+      <div class="form-page__foot">
+        <ng-content select="[slot=actions]" />
+        @if (sentAs(); as text) {
+          <p class="form-page__as">{{ text }}</p>
+        }
+      </div>
+    </form>
+  }
+  <aside class="form-page__aside form-page__aside--low" [attr.aria-labelledby]="asideTitleId">
+    <h2 class="display section-title" [id]="asideTitleId">{{ asideHeading() }}</h2>
+    <ng-content select="[slot=aside]" />
+  </aside>
+</div>

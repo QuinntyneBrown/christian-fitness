@@ -1,0 +1,9 @@
+<section class="done" role="status" tabindex="-1">
+  <span class="done__icon"
+    ><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 6 9 17l-5-5" /></svg
+  ></span>
+  <h1 class="display page-title done__title">{{ heading() }}</h1>
+  <p class="done__text"><ng-content /></p>
+  <div class="done__actions"><ng-content select="[slot=actions]" /></div>
+</section>

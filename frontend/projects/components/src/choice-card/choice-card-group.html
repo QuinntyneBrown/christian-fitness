@@ -1,0 +1,24 @@
+<fieldset class="form-section">
+  <legend class="form-section__legend">{{ legend() }}</legend>
+  <div [attr.class]="'choice-grid choice-grid--' + columns()">
+    @for (option of options(); track option.value) {
+      <label class="choice choice-card">
+        <input
+          class="choice__input"
+          type="radio"
+          [name]="name()"
+          [value]="option.value"
+          [checked]="option.value === value()"
+          [disabled]="disabled() || (option.disabled ?? false)"
+          (change)="onChange($event)"
+        />
+        <span>
+          <span class="choice__label">{{ option.label }}</span>
+          @if (option.description; as text) {
+            <span class="choice__desc">{{ text }}</span>
+          }
+        </span>
+      </label>
+    }
+  </div>
+</fieldset>

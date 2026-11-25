@@ -1,0 +1,79 @@
+// The design system's form page (docs/design-system/assets/components.css, "Forms": form-page,
+// form-page__lead, __foot, __as, __aside--low; typography: display, page-title, section-title).
+// Projected slots are spaced by their wrappers, since emulated encapsulation does not reach them.
+:host {
+  display: block;
+}
+
+.form-page {
+  margin-top: var(--space-4);
+  display: grid;
+  gap: var(--space-12);
+
+  > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 40rem) 1fr;
+    gap: var(--space-16);
+  }
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.form-page__lead {
+  margin-top: var(--space-3);
+  max-width: var(--layout-lead-max);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+}
+
+// The alert sits in its own form section above the fields (mock `suggest-listing/error`).
+.form-page__alert {
+  margin-top: var(--space-8);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.form-page__foot {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  padding-top: var(--space-6);
+}
+
+.form-page__as {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+// Lowered to the first field beside the form.
+.form-page__aside--low {
+  @media (min-width: 64rem) {
+    padding-top: var(--space-20);
+  }
+}

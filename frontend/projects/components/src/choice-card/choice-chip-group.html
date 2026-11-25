@@ -1,0 +1,18 @@
+<fieldset class="form-section">
+  <legend class="form-section__legend">{{ legend() }}</legend>
+  <div class="cluster form-section__body">
+    @for (option of options(); track option.value) {
+      <label class="chip chip--choice"
+        ><input
+          class="chip__input"
+          type="radio"
+          [name]="name()"
+          [value]="option.value"
+          [checked]="option.value === value()"
+          [disabled]="disabled() || (option.disabled ?? false)"
+          (change)="onChange($event)"
+        />{{ option.label }}</label
+      >
+    }
+  </div>
+</fieldset>

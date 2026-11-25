@@ -1,0 +1,151 @@
+<main id="main" class="suggest-listing-page">
+  <cf-container page="default">
+    <cf-link variant="back" href="/directory">Directory</cf-link>
+    <cf-form-page
+      heading="Suggest a listing"
+      lead="Know a church ministry, club, coach or business that belongs here? Tell us about them and we’ll do the checking."
+      asideHeading="What happens next"
+      [sentAs]="sentAs()"
+      [done]="phase() === 'sent'"
+      (send)="send()"
+    >
+      @if (phase() === 'sent') {
+        <cf-done slot="done" [heading]="thanks()"
+          >We’ve got your suggestion for
+          <strong class="suggest-listing__name">{{ suggested() }}</strong>. Our team will look into
+          it this week, and we’ll message you here when it’s decided either way.
+          <cf-button slot="actions" size="md" href="/directory">Back to the directory</cf-button>
+          <cf-button slot="actions" size="md" variant="secondary" (click)="another()"
+            >Suggest another</cf-button
+          >
+        </cf-done>
+      }
+      @if (refusal() === 'failed') {
+        <cf-alert slot="alert" heading="We couldn't send your suggestion"
+          ><p>
+            Something went wrong on our side. Everything you typed is still here, so try again in a
+            moment.
+          </p></cf-alert
+        >
+      }
+      @if (refusal() === 'invalid') {
+        <cf-alert slot="alert" heading="Check the highlighted fields" [focusOnShow]="false"
+          ><p>Everything you typed is still here.</p></cf-alert
+        >
+      }
+      @if (refusal() === 'limit') {
+        <cf-alert slot="alert" heading="You've sent 5 suggestions today"
+          ><p>You can suggest more tomorrow. Everything you typed is still here.</p></cf-alert
+        >
+      }
+      @if (refusal() === 'suspended') {
+        <cf-alert slot="alert" heading="Your account is suspended"
+          ><p>Suggestions can't be sent while your account is suspended.</p></cf-alert
+        >
+      }
+      <cf-choice-card-group
+        legend="Who are you suggesting?"
+        name="relation"
+        [options]="relations"
+        [value]="values().relation"
+        [disabled]="sending()"
+        (valueChange)="chooseRelation($event)"
+      />
+      <cf-choice-chip-group
+        legend="What kind of listing?"
+        name="kind"
+        [options]="kinds"
+        [value]="values().kind"
+        [disabled]="sending()"
+        (valueChange)="chooseKind($event)"
+      />
+      <div class="suggest-listing__fields">
+        <cf-text-field
+          fieldId="f-name"
+          [label]="view().nameLabel"
+          name="name"
+          [value]="values().name"
+          [error]="fieldErrors().name"
+          [readonly]="sending()"
+          (valueChange)="edit('name', $event)"
+        />
+        <div class="suggest-listing__pair">
+          <cf-text-field
+            fieldId="f-where"
+            label="Where they meet or work"
+            name="where"
+            [value]="values().where"
+            [error]="fieldErrors().where"
+            [readonly]="sending()"
+            (valueChange)="edit('where', $event)"
+          />
+          <cf-text-field
+            fieldId="f-website"
+            label="Website or social"
+            name="website"
+            optional
+            [value]="values().website"
+            [error]="fieldErrors().website"
+            [readonly]="sending()"
+            (valueChange)="edit('website', $event)"
+          />
+        </div>
+        <cf-text-field
+          fieldId="f-church"
+          label="Church connection"
+          name="church"
+          optional
+          hint="For example: meets at Danforth Baptist"
+          [value]="values().churchConnection"
+          [error]="fieldErrors().churchConnection"
+          [readonly]="sending()"
+          (valueChange)="edit('churchConnection', $event)"
+        />
+        <cf-textarea
+          fieldId="f-why"
+          [label]="view().reasonLabel"
+          name="why"
+          rows="4"
+          [value]="values().reason"
+          [error]="fieldErrors().reason"
+          [readonly]="sending()"
+          (valueChange)="edit('reason', $event)"
+        />
+        @if (view().asksContact) {
+          <cf-text-field
+            fieldId="f-their-email"
+            label="Their email"
+            name="their-email"
+            type="email"
+            optional
+            hint="So we can reach them directly"
+            [value]="values().email"
+            [error]="fieldErrors().email"
+            [readonly]="sending()"
+            (valueChange)="edit('email', $event)"
+          />
+        }
+        @if (view().asksContact) {
+          <cf-checkbox
+            label="It’s fine to tell them you suggested them"
+            name="tell"
+            [checked]="values().mayTellWhoSuggested"
+            [disabled]="sending()"
+            (checkedChange)="allowTelling($event)"
+          />
+        }
+      </div>
+      @if (phase() !== 'sent') {
+        <cf-button
+          slot="actions"
+          type="submit"
+          size="md"
+          [disabled]="sending()"
+          [busy]="sending()"
+          >{{ sending() ? 'Sending…' : 'Send suggestion' }}</cf-button
+        >
+      }
+      <cf-steps slot="aside" [items]="steps" />
+    </cf-form-page>
+  </cf-container>
+</main>

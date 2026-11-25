@@ -76,6 +76,8 @@ public sealed class LastPlaceRaceTests(LastPlaceRaceTests.Factory factory) : ICl
 
         public DbSet<ChristianFitness.Domain.Notifications.Notification> Notifications => db.Notifications;
         public DbSet<ChristianFitness.Domain.Directory.DirectoryListing> DirectoryListings => db.DirectoryListings;
+
+        public DbSet<ChristianFitness.Domain.Directory.ListingSuggestion> ListingSuggestions => db.ListingSuggestions;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);

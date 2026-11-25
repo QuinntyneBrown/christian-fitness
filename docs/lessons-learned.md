@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 10% (4 of 36 journeys; 11 of 113 days)
+**% complete:** 12% (5 of 36 journeys; 13 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2435,3 +2435,28 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 - Native links with the complete path and fragment kept the keyboard contents test green. Binding the class attribute and lazy-loading the other member routes reduced the initial build from 279.67 kB to 277.81 kB without changing budgets.
 - A fake clock and different effective dates for the two documents proved that the server chooses both versions at Join, independently of values submitted by the browser.
+
+## Journey 17: Suggest a listing
+
+**What slowed it**
+
+- The ADR was written as 0084, then the member-header fix took 0084 and journey 1 took 0085 on main, so it is 0086, renamed everywhere twice. `docs/adr/README.md` is outside Prettier's reach and main's table is no longer column-aligned, so each rebase conflict was settled by taking main's file and appending the one row.
+- Journey 1 moved the member routes from `app.routes.ts` into a lazy `member-app.routes.ts` and added a migration timestamped after this branch's. On rebase the route went to the new file, and the migration was removed and generated again from main's snapshot, so it sorts after `AddLegalAcceptance`.
+- The validator, the suspension check and the daily limit were written with slice 2's handler, so slice 3's API tests passed at once. Each rule was then broken alone by a script (suspension, the limit of 5, the host's dot, Myself's email, the church limit, https only), each failed exactly its own case, and each was restored from the copy the script held.
+- The thanks panel could not take focus in `ngAfterViewInit`: its content is projected into an `@if` branch of `cf-form-page`, which is not attached until the next render. `afterNextRender` focuses it, and the initial total did not move.
+- Playwright's `check()` on a choice chip's visually hidden radio is intercepted by its label, so the page object clicks the label, as a person does.
+- `ng serve` on Windows sometimes missed a new export in a library's `public-api.ts` and reported it missing; touching the file re-ran the build.
+- Handing Prettier a folder (`../docs/adr`) rewrote six unrelated ADRs. They were restored, and only named files were formatted after that.
+
+**New lessons**
+
+- Check `origin/main` and open PRs for the next ADR number right before each commit that adds one, not when the ADR is drafted. Parallel journeys take numbers in the meantime.
+- A rule that answers a client with a code is one row in a case table in both directions: the API test sends the value and expects `{ field: code }` by exact keys, and the domain helper maps the same code to its sentence. The boundary rows ("at the limit is stored") catch an off-by-one that the refusal rows alone pass.
+- A rolling window is proven at its edge: advance a `FakeTimeProvider` to one tick before the first attempt is a day old (still refused), then one tick more (allowed).
+- A component that focuses projected content waits for `afterNextRender`. A content child inside a parent's `@if` is not in the DOM in the child's own view hooks.
+
+**How earlier lessons worked**
+
+- "Never bind `[class.x]`" (5): no class or style bindings were added. Before the last rebase web's initial total was 280.13 kB, main's 280.10 kB plus 0.03 kB for the new route entry; the screen, the service and `afterNextRender` all stayed lazy (checked by grepping `main-*.js`). On journey 1's base it is 278.15 kB, under the warning.
+- "Break each rule alone" (5): applied to every backend rule of slice 3 and to the screen's failed and sending states in slice 2.
+- "The worktree-isolation guard refuses long shell commands" (4, 5): edits went through script files and `git` ran alone from the worktree root.

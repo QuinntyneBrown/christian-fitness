@@ -59,6 +59,10 @@ export class WebDirectoryPage {
   readonly noResultsHeading: Locator;
   readonly noResultsText: Locator;
   readonly clearSearch: Locator;
+  /** "Know someone who belongs here? Suggest a listing" under the heading (L2-062 AC1). */
+  readonly suggestLink: Locator;
+  /** "Suggest a listing" in the no-results state. */
+  readonly noResultsSuggest: Locator;
   readonly loadingMore: Locator;
   readonly moreError: Locator;
   readonly moreRetry: Locator;
@@ -91,6 +95,12 @@ export class WebDirectoryPage {
     this.noResultsHeading = this.main.getByText('No one by that name yet', { exact: true });
     this.noResultsText = this.main.locator('.empty-state__text');
     this.clearSearch = this.main.getByRole('button', { name: 'Clear search' });
+    this.suggestLink = this.main.locator('.page-head').getByRole('link', {
+      name: 'Know someone who belongs here? Suggest a listing',
+    });
+    this.noResultsSuggest = this.main
+      .locator('.empty-state__actions')
+      .getByRole('link', { name: 'Suggest a listing', exact: true });
     this.loadingMore = this.main.getByText('Loading more listings…', { exact: true });
     this.moreError = this.main.getByText("More listings didn't load.", { exact: true });
     this.moreRetry = this.main.locator('.feed-end').getByRole('button', { name: 'Try again' });

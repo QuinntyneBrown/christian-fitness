@@ -69,6 +69,12 @@ const routes: Routes = [
         loadComponent: () => import('./pages/directory/directory-page'),
       },
       {
+        // A member suggests someone, or themselves, for the directory (L2-062; ADR 0086).
+        path: 'directory/suggest',
+        title: titled('Suggest a listing'),
+        loadComponent: () => import('./pages/suggest-listing/suggest-listing-page'),
+      },
+      {
         // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0000); the list is slice 16.1.
         path: 'services',
         title: titled('Services'),
