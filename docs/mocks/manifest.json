@@ -1119,7 +1119,10 @@
         "date-cancelled",
         "loading",
         "empty",
-        "error"
+        "error",
+        "series-created",
+        "series-saved",
+        "date-added"
       ]
     },
     {
@@ -1182,7 +1185,8 @@
         "listed",
         "loading",
         "empty",
-        "error"
+        "error",
+        "listing-saved"
       ]
     },
     {
@@ -1314,7 +1318,7 @@
       "title": "Series editor",
       "group": "Admin console",
       "opens_from": "admin-series",
-      "source": "Derived: host selection in the New series and Edit details drawers (ADR 0067).",
+      "source": "Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms.",
       "requirements": [],
       "states": [
         "default",
@@ -1323,7 +1327,12 @@
         "searching",
         "selected",
         "no-results",
-        "invalid"
+        "invalid",
+        "busy",
+        "failed",
+        "edit-invalid",
+        "edit-busy",
+        "edit-failed"
       ],
       "not_applicable": {
         "busy": "Only the host picker is specified; the complete series save flow is not yet designed."
@@ -1363,6 +1372,54 @@
         "not-started",
         "loading",
         "error"
+      ]
+    },
+    {
+      "id": "admin-story-preview",
+      "kind": "page",
+      "title": "Story preview",
+      "group": "Admin console",
+      "route": "/admin/stories/:id/preview",
+      "opens_from": "admin-story-editor",
+      "source": "Derived: the Story Editor frame's \"Preview\" button, which has no screen in the prototype; the story as readers see it, opened in a new tab.",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One story; a missing one is the admin not-found page, and a Moderator sees Admins only."
+      }
+    },
+    {
+      "id": "add-session",
+      "kind": "dialog",
+      "title": "Add a series date",
+      "group": "Admin console",
+      "opens_from": "admin-series",
+      "source": "Derived: the Manage Event Series frame's \"Add a date\" button, which has no screen in the prototype; it makes the session event.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "directory-listing-editor",
+      "kind": "dialog",
+      "title": "Directory listing editor",
+      "group": "Admin console",
+      "opens_from": "admin-listings",
+      "source": "Derived: Listed's \"Edit\" button, which has no screen in the prototype; the same editor a listing's owner gets after claiming it, opened by staff from Listed.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
       ]
     }
   ]

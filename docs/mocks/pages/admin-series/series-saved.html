@@ -3,19 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Series editor · searching — Christian Fitness mocks</title>
-<meta name="mock:kind" content="dialog">
-<meta name="mock:screen" content="series-editor">
-<meta name="mock:state" content="searching">
-<meta name="mock:source" content="Derived: host selection in the New series and Edit details drawers (ADR 0067).">
-<meta name="description" content="Search Listed hosts and choose a matching listing.">
+<title>Manage event series · series-saved — Christian Fitness mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="admin-series">
+<meta name="mock:state" content="series-saved">
+<meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Manage Event Series (g6Yoc6foAh3AGmnPX2Khdx)">
+<meta name="description" content="Edit details saved: the summary shows the changes and a toast says so.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
-<div inert aria-hidden="true">
 <div class="admin">
   <aside class="admin__sidebar">
     <div class="admin__brand">
@@ -62,7 +61,7 @@
               <p class="muted">Hosted by Lakeshore Runners Fellowship</p>
               <p class="series-summary-card__facts"><span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Every Tuesday, 6:30 PM · Apr 7 – May 26</span><span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Humber Bay Park East</span></p>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/series-editor/edit.html">Edit details</button>
+            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/series-editor/edit.html">Edit details<span class="visually-hidden">: Couch to 5K Run Club</span></button>
             <dl class="series-summary-card__stats">
               <div><dt>Joined</dt><dd>31 of 40</dd>
                 <dd><meter class="fill__meter" min="0" max="40" value="31">78% full</meter></dd></div>
@@ -72,7 +71,7 @@
           </div>
           <div class="section-head mt-section">
             <h3 class="display section-title">Sessions</h3>
-            <button class="btn btn--link" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a date</button>
+            <button class="btn btn--link" type="button" data-mock-href="../../dialogs/add-session/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a date</button>
           </div>
           <ol class="card card--list admin-sessions"><li class="admin-session admin-session--past"><span class="admin-session__n" aria-hidden="true">1</span>
                 <span class="admin-session__date">Tue Apr 07</span>
@@ -97,31 +96,25 @@
     </div>
   </main>
 </div>
-</div>
-<div class="scrim" aria-hidden="true"></div>
-<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drw-title" data-dismiss-on-escape>
-  <div class="drawer__head">
-    <h2 class="display drawer__title" id="drw-title">New series</h2>
-    <button class="icon-button" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-  </div>
-  <form class="drawer__body" novalidate>
-<div class="field"><label class="field__label" for="f-host">Host (required)</label><input class="input" id="f-host" name="host" type="text" value="Lakeshore" aria-describedby="f-host-hint" required><span class="field__hint" id="f-host-hint">Choose a Listed directory listing.</span></div><ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html"><span class="pick-card__title">Lakeshore Runners Fellowship</span><span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a><p class="field__hint">Other series fields are not yet specified.</p>
-  </form>
-  <div class="drawer__foot">
-<button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-series/default.html">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>
-  </div>
-</aside>
+<section class="toast-region toast-region--admin" aria-label="Notifications"><div role="status" aria-live="polite"><div class="toast toast--success">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+      <div class="toast__body"><p class="toast__title">Couch to 5K Run Club updated</p><p class="toast__text">Members see the changes now.</p></div>
+      <button class="icon-button icon-button--sm toast__close" type="button" aria-label="Dismiss"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div></div></section>
 <nav class="mock-bar" aria-label="Mock navigation">
   <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
-  <span class="mock-bar__screen">Series editor</span>
+  <span class="mock-bar__screen">Manage event series</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
-    <li><a href="edit.html">edit</a></li>
-    <li><a href="edit-bootcamp.html">edit-bootcamp</a></li>
-    <li><a href="searching.html" aria-current="page">searching</a></li>
+    <li><a href="moderator.html">moderator</a></li>
     <li><a href="selected.html">selected</a></li>
-    <li><a href="no-results.html">no-results</a></li>
-    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="date-cancelled.html">date-cancelled</a></li>
+    <li><a href="series-created.html">series-created</a></li>
+    <li><a href="series-saved.html" aria-current="page">series-saved</a></li>
+    <li><a href="date-added.html">date-added</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

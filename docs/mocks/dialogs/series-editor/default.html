@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="series-editor">
 <meta name="mock:state" content="default">
 <meta name="mock:source" content="Derived: host selection in the New series and Edit details drawers (ADR 0067).">
-<meta name="description" content="A new series defaults to the Christian Fitness team host.">
+<meta name="description" content="New series: title, host, description, image, series and drop-in prices, capacity, location and suggestion area; Create series.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -62,7 +62,7 @@
               <p class="muted">Hosted by Lakeshore Runners Fellowship</p>
               <p class="series-summary-card__facts"><span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Every Tuesday, 6:30 PM · Apr 7 – May 26</span><span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Humber Bay Park East</span></p>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/series-editor/edit.html">Edit details</button>
+            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/series-editor/edit.html">Edit details<span class="visually-hidden">: Couch to 5K Run Club</span></button>
             <dl class="series-summary-card__stats">
               <div><dt>Joined</dt><dd>31 of 40</dd>
                 <dd><meter class="fill__meter" min="0" max="40" value="31">78% full</meter></dd></div>
@@ -72,7 +72,7 @@
           </div>
           <div class="section-head mt-section">
             <h3 class="display section-title">Sessions</h3>
-            <button class="btn btn--link" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a date</button>
+            <button class="btn btn--link" type="button" data-mock-href="../../dialogs/add-session/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a date</button>
           </div>
           <ol class="card card--list admin-sessions"><li class="admin-session admin-session--past"><span class="admin-session__n" aria-hidden="true">1</span>
                 <span class="admin-session__date">Tue Apr 07</span>
@@ -99,18 +99,29 @@
 </div>
 </div>
 <div class="scrim" aria-hidden="true"></div>
-<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drw-title" data-dismiss-on-escape>
-  <div class="drawer__head">
-    <h2 class="display drawer__title" id="drw-title">New series</h2>
-    <button class="icon-button" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc" data-dismiss-on-escape>
+  <div class="dialog__head">
+    <div><h2 class="display dialog__title" id="dlg-title">New series</h2><p class="dialog__sub" id="dlg-desc">Dates are added from the series itself, once it exists.</p></div>
+    <button class="icon-button dialog__close" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
-  <form class="drawer__body" novalidate>
-<div class="field"><label class="field__label" for="f-host">Host (required)</label><input class="input" id="f-host" name="host" type="text" value="Christian Fitness" aria-describedby="f-host-hint" required><span class="field__hint" id="f-host-hint">Choose a Listed directory listing.</span></div><a href="searching.html">Search hosts</a><p class="field__hint">Other series fields are not yet specified.</p>
-  </form>
-  <div class="drawer__foot">
-<button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-series/default.html">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>
+  <div class="dialog__body">
+
+    <div class="field"><label class="field__label" for="f-title">Title</label><input class="input" id="f-title" autofocus name="title" type="text" value="Sunday Stretch &amp; Prayer"></div>
+    <div class="field"><label class="field__label" for="f-host">Host</label><select class="select" id="f-host" name="host"><option>Christian Fitness</option><option>Lakeshore Runners Fellowship</option><option>Grace Fellowship Move Ministry</option><option>St. Paul’s Sports Ministry</option><option>Danielle Okafor</option><option>Tasha Grant</option><option selected>Faith &amp; Footwork</option><option>Michael Chen</option><option>Priya Nair</option><option>Rev. James Whitfield</option><option>Kingdom Fuel Nutrition</option><option>Northline Athletic</option></select></div>
+    <div class="field"><label class="field__label" for="f-description">Description</label><textarea class="textarea" id="f-description" name="description" rows="3" aria-describedby="f-description-hint">Forty minutes of gentle stretching and mobility, then a short time of prayer. All levels, no equipment.</textarea><span class="field__hint" id="f-description-hint">Up to 1,000 characters</span></div>
+    <div class="field file-field"><span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-labelledby="f-image-label" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
+    <div class="field-grid">
+      <div class="field"><label class="field__label" for="f-series-price">Series price</label><input class="input" id="f-series-price" name="series-price" type="text" value="Free" aria-describedby="f-series-price-hint"><span class="field__hint" id="f-series-price-hint">Leave blank for free</span></div>
+      <div class="field"><label class="field__label" for="f-drop-in-price">Drop-in price</label><input class="input" id="f-drop-in-price" name="drop-in-price" type="text" value="Free" aria-describedby="f-drop-in-price-hint"><span class="field__hint" id="f-drop-in-price-hint">Leave blank if there is no drop-in</span></div>
+    </div>
+    <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="25" min="1" inputmode="numeric"></div>
+    <div class="field"><label class="field__label" for="f-place">Location</label><input class="input" id="f-place" name="place" type="text" value="St. Lawrence Community Rec Centre"></div>
+    <div class="field"><label class="field__label" for="f-area">Suggestion area</label><input class="input" id="f-area" name="area" type="text" value="Downtown" aria-describedby="f-area-hint"><span class="field__hint" id="f-area-hint">Where members are told about it: neighbourhood and city</span></div>
   </div>
-</aside>
+  <div class="dialog__foot">
+<button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-series/default.html">Cancel</button><button class="btn btn--primary btn--grow" type="submit" data-mock-href="../../pages/admin-series/series-created.html">Create series</button>
+  </div>
+</div>
 <nav class="mock-bar" aria-label="Mock navigation">
   <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
   <span class="mock-bar__screen">Series editor</span>
@@ -122,6 +133,11 @@
     <li><a href="selected.html">selected</a></li>
     <li><a href="no-results.html">no-results</a></li>
     <li><a href="invalid.html">invalid</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="edit-invalid.html">edit-invalid</a></li>
+    <li><a href="edit-busy.html">edit-busy</a></li>
+    <li><a href="edit-failed.html">edit-failed</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
