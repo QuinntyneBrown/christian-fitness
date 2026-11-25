@@ -2,6 +2,7 @@ import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { EventCategory, EventHostDto } from '../admin/admin-events';
 import type { AdminSessionState, SeriesCadenceDto } from '../admin/admin-series';
+import type { EventHostCardDto } from './events';
 
 /** `GET /api/events/series/count`: how many series the Series view lists with no filter (L2-050 AC6). */
 export interface SeriesCountDto {
@@ -51,6 +52,31 @@ export interface SeriesSelection {
   joined: boolean;
 }
 
+/**
+ * One series as its page shows it (`SeriesDetailDto`, L2-051; ADR 0094). Times are ISO instants in
+ * UTC, which the app words in Toronto.
+ */
+export interface SeriesDetailDto {
+  id: string;
+  title: string;
+  category: EventCategory;
+  summary: string;
+  /** The key of its picture (`GET /api/events/images/{key}`), or none. */
+  imageKey: string | null;
+  /** Who hosts it, as the event page's "Hosted by" card has it. */
+  host: EventHostCardDto;
+  cadence: SeriesCadenceDto;
+  /** The next held session's start, else the last held one's. */
+  startsAt: string;
+  /** The first and last held dates' starts. */
+  firstStartsAt: string;
+  lastStartsAt: string;
+  place: string;
+  area: string;
+  /** The signed-in member has joined it. */
+  joined: boolean;
+}
+
 /** The event series a member browses (L2-050; ADR 0093). */
 export interface EventSeriesApi {
   /**
@@ -64,7 +90,14 @@ export interface EventSeriesApi {
    * errors with the `HttpErrorResponse`; the switch then reads "Series".
    */
   count(): Observable<SeriesCountDto>;
+
+  /**
+   * One series (L2-051; ADR 0094). A 5xx opens the server-error screen; any failure errors with
+   * the `HttpErrorResponse` (404 `series_not_found` for one that does not open), so the page shows
+   * its own not-found or failed state.
+   */
+  get(id: string): Observable<SeriesDetailDto>;
 }
 
-/** Binds {@link EventSeriesApi}; the Events screen provides it on its own route component. */
+/** Binds {@link EventSeriesApi}; the Events and Event series screens provide it on their own route components. */
 export const EVENT_SERIES_SERVICE = new InjectionToken<EventSeriesApi>('EVENT_SERIES_SERVICE');

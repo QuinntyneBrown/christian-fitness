@@ -1,0 +1,122 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using ChristianFitness.Domain.Directory;
+
+namespace ChristianFitness.Api.Tests.Series;
+
+/// <summary>
+/// L2-051 AC1 and AC6 (ADR 0080, ADR 0091, ADR 0094): a member opens one series and reads what its
+/// page shows as data: the head, the host and whether they joined it. A series opens while one of
+/// its dates is held, whatever its date; an unknown id, a series with no dates or with only
+/// cancelled ones is 404 <c>series_not_found</c>.
+/// </summary>
+public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<AdminSeriesFactory>
+{
+    private const string Email = "grace.series.view@example.org";
+
+    [Fact]
+    public async Task Given_Couch_to_5K_When_a_member_who_joined_opens_it_Then_its_head_and_host_answer_as_the_mock_draws_them()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, Email);
+        var lakeshore = await factory.AddListingAsync(ListingKind.Organization, "Lakeshore Runners Fellowship", verified: true);
+        var couch = AdminSeries.NewSeries("Couch to 5K Run Club", now, host: lakeshore);
+        await factory.AddCouchTo5KAsync(couch);
+        await MemberSeries.EnrolAsync(factory, couch, Email);
+
+        var series = await OpenAsync(client, cookie, couch.Id);
+
+        Assert.Equal(
+            [
+                "id", "title", "category", "summary", "imageKey", "host", "cadence", "startsAt", "firstStartsAt", "lastStartsAt",
+                "place", "area", "joined",
+            ],
+            AdminSeries.Keys(series));
+        Assert.Equal(couch.Id.ToString(), series.GetProperty("id").GetString());
+        Assert.Equal("Couch to 5K Run Club", series.GetProperty("title").GetString());
+        Assert.Equal("run", series.GetProperty("category").GetString());
+        Assert.Equal("Eight weeks from walking to running a full 5K, together.", series.GetProperty("summary").GetString());
+        Assert.Equal(JsonValueKind.Null, series.GetProperty("imageKey").ValueKind);
+        var host = series.GetProperty("host");
+        Assert.Equal(["id", "kind", "name", "isVerified", "photoKey"], AdminSeries.Keys(host));
+        Assert.Equal(lakeshore.ToString(), host.GetProperty("id").GetString());
+        Assert.Equal("organization", host.GetProperty("kind").GetString());
+        Assert.Equal("Lakeshore Runners Fellowship", host.GetProperty("name").GetString());
+        Assert.True(host.GetProperty("isVerified").GetBoolean());
+        Assert.Equal(2, series.GetProperty("cadence").GetProperty("weekday").GetInt32());
+        Assert.Equal(7, series.GetProperty("cadence").GetProperty("dates").GetInt32());
+        Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 21)), series.GetProperty("startsAt").GetDateTimeOffset());
+        Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 7)), series.GetProperty("firstStartsAt").GetDateTimeOffset());
+        Assert.Equal(AdminSeries.At(new DateOnly(2026, 5, 26)), series.GetProperty("lastStartsAt").GetDateTimeOffset());
+        Assert.Equal("Humber Bay Park East", series.GetProperty("place").GetString());
+        Assert.Equal("Etobicoke, Toronto", series.GetProperty("area").GetString());
+        Assert.True(series.GetProperty("joined").GetBoolean());
+    }
+
+    [Fact]
+    public async Task Given_a_series_the_member_has_not_joined_When_they_open_it_Then_joined_is_false()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "hana.series.view@example.org");
+        var series = AdminSeries.NewSeries("Saturday Park Bootcamp", now);
+        await factory.AddSeriesAsync(series, [new(new DateOnly(2026, 4, 25))], joined: 3);
+
+        var answer = await OpenAsync(client, cookie, series.Id);
+
+        Assert.False(answer.GetProperty("joined").GetBoolean());
+    }
+
+    [Fact]
+    public async Task Given_a_finished_series_When_a_member_opens_it_Then_it_opens_with_its_last_held_date_as_its_time()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "ivy.series.view@example.org");
+        var winter = AdminSeries.NewSeries("Winter Hoops", now);
+        await factory.AddSeriesAsync(winter, [new(new DateOnly(2026, 2, 5)), new(new DateOnly(2026, 2, 12)), new(new DateOnly(2026, 2, 19), Cancelled: true)]);
+
+        var answer = await OpenAsync(client, cookie, winter.Id);
+
+        Assert.Equal(AdminSeries.At(new DateOnly(2026, 2, 12)), answer.GetProperty("startsAt").GetDateTimeOffset());
+    }
+
+    public static TheoryData<string> Unopened() => ["unknown", "no dates", "only cancelled dates"];
+
+    [Theory]
+    [MemberData(nameof(Unopened))]
+    public async Task Given_a_series_with_no_held_date_or_none_at_all_When_a_member_opens_it_Then_it_is_404_series_not_found(string row)
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, $"june.{row.Replace(' ', '-')}.series.view@example.org");
+        var id = Guid.CreateVersion7();
+        if (row != "unknown")
+        {
+            var series = AdminSeries.NewSeries($"Series with {row}", now);
+            await factory.AddSeriesAsync(series, row == "no dates" ? [] : [new(new DateOnly(2026, 4, 22), Cancelled: true), new(new DateOnly(2026, 4, 1), Cancelled: true)]);
+            id = series.Id;
+        }
+
+        using var response = await Browser.SendAsync(client, HttpMethod.Get, $"{MemberSeries.Path}/{id}", cookie);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal("series_not_found", problem.GetProperty("code").GetString());
+    }
+
+    [Fact]
+    public async Task Given_a_visitor_When_they_open_a_series_Then_they_are_refused_401()
+    {
+        using var client = Browser.CreateClient(factory);
+
+        using var response = await Browser.SendAsync(client, HttpMethod.Get, $"{MemberSeries.Path}/{Guid.CreateVersion7()}", null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    private static async Task<JsonElement> OpenAsync(HttpClient client, string cookie, Guid id)
+    {
+        using var response = await Browser.SendAsync(client, HttpMethod.Get, $"{MemberSeries.Path}/{id}", cookie);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+    }
+}

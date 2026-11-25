@@ -1,4 +1,6 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
+import { type EventHostCard, hostCardOf } from './events';
+import { LAKESHORE } from './listing-profile';
 
 /**
  * Answers `GET /api/events/series/count` with `count` (ADR 0093), or refuses it with `fail`.
@@ -134,6 +136,69 @@ export function answerSeries(
         ),
       },
     };
+  });
+  return asked;
+}
+
+/** A series as `GET /api/events/series/{id}` answers it (`SeriesDetailDto`, ADR 0094). */
+export interface SeriesDetail {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  imageKey: string | null;
+  host: EventHostCard;
+  cadence: { weekday: number | null; dates: number };
+  /** The next held session's start, else the last held one's. */
+  startsAt: string;
+  firstStartsAt: string;
+  lastStartsAt: string;
+  place: string;
+  area: string;
+  joined: boolean;
+}
+
+/**
+ * Couch to 5K Run Club as the mock `event-series/default` draws it: eight Tuesdays at 6:30 PM from
+ * April 7 at Humber Bay Park East, hosted by Lakeshore Runners Fellowship (verified), next April 21,
+ * joined.
+ */
+export const COUCH_TO_5K_DETAIL: SeriesDetail = {
+  id: COUCH_TO_5K.id,
+  title: 'Couch to 5K Run Club',
+  category: 'run',
+  summary:
+    'Eight weeks from walking to running a full 5K, together. Each week builds on the last, so the group stays together from week one to race day.',
+  imageKey: null,
+  host: hostCardOf(LAKESHORE),
+  cadence: { weekday: 2, dates: 7 },
+  startsAt: '2026-04-21T22:30:00Z',
+  firstStartsAt: '2026-04-07T22:30:00Z',
+  lastStartsAt: '2026-05-26T22:30:00Z',
+  place: 'Humber Bay Park East',
+  area: 'Etobicoke, Toronto',
+  joined: true,
+};
+
+/**
+ * Answers `GET /api/events/series/{id}` for each of `series`, and 404 `series_not_found` for any
+ * other id, as the API does (ADR 0094); `reply` may answer a request, by its zero-based number,
+ * otherwise (a refusal, or a reply held until a promise settles). Returns the ids asked for, in order.
+ */
+export function answerSeriesDetail(
+  api: ApiHandlers,
+  series: SeriesDetail[],
+  reply: (requestNumber: number) => ApiReply | Promise<ApiReply> | null = () => null,
+): string[] {
+  const asked: string[] = [];
+  api.on('GET', /^\/api\/events\/series\/[0-9a-f-]{36}$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/').pop() ?? '';
+    const number = asked.length;
+    asked.push(id);
+    const own = await reply(number);
+    if (own) return own;
+    const found = series.find((row) => row.id === id);
+    return found ? { json: found } : { status: 404, json: { code: 'series_not_found' } };
   });
   return asked;
 }

@@ -1,14 +1,20 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { EventSeriesApi, SeriesCountDto, SeriesListDto, SeriesSelection } from '@cf/api';
+import type {
+  EventSeriesApi,
+  SeriesCountDto,
+  SeriesDetailDto,
+  SeriesListDto,
+  SeriesSelection,
+} from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
- * {@link EventSeriesApi} over HTTP: `GET /api/events/series?category=&q=&joined=true` and
- * `GET /api/events/series/count` (ADR 0093); the member is the session's, never named in the
- * request. A 5xx opens the server-error screen through the interceptor; every failure passes on to
- * the screen. It holds no state, and is provided on the Events screen, so it lives only while the
- * screen does.
+ * {@link EventSeriesApi} over HTTP: `GET /api/events/series?category=&q=&joined=true`,
+ * `GET /api/events/series/count` (ADR 0093) and `GET /api/events/series/{id}` (ADR 0094); the
+ * member is the session's, never named in the request. A 5xx opens the server-error screen through the interceptor; every failure passes on to
+ * the screen. It holds no state, and is provided on the Events and Event series screens, so it
+ * lives only while a screen does.
  */
 @Injectable()
 export class HttpEventSeriesService implements EventSeriesApi {
@@ -24,5 +30,9 @@ export class HttpEventSeriesService implements EventSeriesApi {
 
   count(): Observable<SeriesCountDto> {
     return this.http.get<SeriesCountDto>('/api/events/series/count');
+  }
+
+  get(id: string): Observable<SeriesDetailDto> {
+    return this.http.get<SeriesDetailDto>(`/api/events/series/${encodeURIComponent(id)}`);
   }
 }

@@ -1,0 +1,80 @@
+<main id="main" class="event-series">
+  <cf-container page="detail">
+    @if (state() === 'not-found') {
+      <cf-error-page
+        code="404"
+        heading="Page not found"
+        text="That link may be old, or the page has moved. Everything else is right where you left it."
+      >
+        <cf-button slot="actions" href="/" size="sm">Go to home</cf-button>
+        <cf-button slot="actions" href="/events" variant="secondary" size="sm"
+          >Browse events</cf-button
+        >
+      </cf-error-page>
+    } @else {
+      <cf-link href="/events?view=series" variant="back">All events</cf-link>
+      @if (state() === 'loading') {
+        <cf-skeleton-region label="Loading series">
+          <cf-skeleton shape="image-banner-wide" />
+          <div class="event-series__split">
+            <div class="event-series__skeletons">
+              <cf-skeleton shape="text-sm" width="30" />
+              <cf-skeleton shape="title-lg" />
+              <cf-skeleton shape="text" width="80" />
+              <cf-skeleton shape="text" width="80" />
+              <cf-skeleton shape="text" width="90" />
+            </div>
+            <cf-card class="event-series__aside" variant="pad-sm">
+              <div class="event-series__skeletons">
+                <cf-skeleton shape="title" width="30" />
+                <cf-skeleton shape="button-block" />
+                <cf-skeleton shape="button-block" />
+                <cf-skeleton shape="text-sm" width="80" />
+              </div>
+            </cf-card>
+          </div>
+        </cf-skeleton-region>
+      } @else if (state() === 'failed') {
+        <h1 class="visually-hidden">Event series</h1>
+        <cf-empty-state
+          variant="error"
+          heading="This series didn't load"
+          text="We couldn't reach Christian Fitness. Your place, if you have one, is safe."
+        >
+          <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+          <cf-button slot="actions" size="sm" variant="secondary" href="/events?view=series"
+            >All events</cf-button
+          >
+        </cf-empty-state>
+      } @else if (view(); as series) {
+        <img class="banner-image" [src]="series.imageSrc" alt="" width="1376" height="768" />
+        <div class="event-series__split">
+          <div class="event-series__content">
+            <p class="eyebrow">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m17 2 4 4-4 4" />
+                <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                <path d="m7 22-4-4 4-4" />
+                <path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg
+              ><span>{{ series.eyebrow }}</span>
+            </p>
+            <h1 class="detail-title">{{ series.title }}</h1>
+            <cf-description-list variant="facts" [items]="facts()" />
+            <p class="series-summary">{{ series.summary }}</p>
+          </div>
+          <aside class="event-series__aside" aria-label="Sign up">
+            <cf-host-card
+              [href]="series.host.href"
+              [name]="series.host.name"
+              [initials]="series.host.initials"
+              [photoSrc]="series.host.photoSrc"
+              [person]="series.host.person"
+              [verified]="series.host.verified"
+              (navigate)="open($event)"
+            />
+          </aside>
+        </div>
+      }
+    }
+  </cf-container>
+</main>
