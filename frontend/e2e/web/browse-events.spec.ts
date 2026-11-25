@@ -73,7 +73,13 @@ test.describe('Member app, browse events', () => {
 
     await events.open();
 
-    await expect(events.navLinks).toHaveText(['Home', 'Events', 'Services', 'Messages']);
+    await expect(events.navLinks).toHaveText([
+      'Home',
+      'Events',
+      'Directory',
+      'Services',
+      'Messages',
+    ]);
     await expect(events.currentNavLink).toHaveText('Events');
   });
 

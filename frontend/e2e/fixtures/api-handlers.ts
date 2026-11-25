@@ -3,15 +3,18 @@ import { NOTHING_AWAITING, QUIET_WEEKS } from './admin-dashboard';
 import { NO_APPLICATIONS } from './admin-applications';
 import { NO_LISTINGS } from './admin-listings';
 import { NO_NOTIFICATIONS } from './notifications';
+import { NO_DIRECTORY } from './directory';
 import { NO_SERVICES } from './services';
 
 /**
- * What a handler answers: a status (200 unless given) and a JSON body, or no body; or, with
- * `abort`, no answer at all, as when the network drops (the request fails with status 0).
+ * What a handler answers: a status (200 unless given) and a JSON body, raw bytes (`body`, such as
+ * an image), or no body; or, with `abort`, no answer at all, as when the network drops (the request
+ * fails with status 0).
  */
 export interface ApiReply {
   status?: number;
   json?: unknown;
+  body?: Buffer;
   headers?: Record<string, string>;
   abort?: boolean;
 }
@@ -85,6 +88,7 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/services/{id}` answers 404 `service_not_found` (ADR 0052), and
  * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044), and
  * `GET /api/notifications` answers nothing yet, so the member shell's bell has no badge (ADR 0083).
+ * `GET /api/directory` answers nobody listed, so the Directory opens empty (ADR 0082).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -133,6 +137,7 @@ export class ApiHandlers {
       path: '/api/home',
       handler: () => ({ json: { nextEvent: null, suggested: [], unreadCount: 0 } }),
     },
+    { method: 'GET', path: '/api/directory', handler: () => ({ json: NO_DIRECTORY }) },
     {
       method: 'GET',
       path: '/api/conversations',
@@ -167,6 +172,7 @@ export class ApiHandlers {
       status: reply.status ?? 200,
       headers: reply.headers,
       ...(reply.json === undefined ? {} : { json: reply.json }),
+      ...(reply.body === undefined ? {} : { body: reply.body }),
     });
     return true;
   }

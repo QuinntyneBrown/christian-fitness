@@ -3,5 +3,8 @@
   [href]="href()"
   [attr.aria-current]="current() ? 'page' : null"
   (click)="follow($event)"
-  ><ng-content
-/></a>
+  ><ng-content />
+  @if (count() !== null) {
+    <span class="chip__count">{{ count() }}</span>
+  }
+</a>

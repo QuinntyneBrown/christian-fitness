@@ -63,6 +63,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/event-detail/event-detail-page'),
       },
       {
+        // The directory: published listings by kind, with kind chips and a search (L2-054; ADR 0082).
+        path: 'directory',
+        title: titled('Directory'),
+        loadComponent: () => import('./pages/directory/directory-page'),
+      },
+      {
         // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0000); the list is slice 16.1.
         path: 'services',
         title: titled('Services'),

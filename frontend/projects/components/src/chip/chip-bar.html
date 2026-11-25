@@ -1,7 +1,21 @@
-<div class="chip-bar" role="group" [attr.aria-label]="label()">
+@if (nav()) {
+  <nav class="chip-bar" [class.chip-bar--scroll]="scroll()" [attr.aria-label]="label()">
+    <ng-container [ngTemplateOutlet]="chips" />
+  </nav>
+} @else {
+  <div
+    class="chip-bar"
+    [class.chip-bar--scroll]="scroll()"
+    role="group"
+    [attr.aria-label]="label()"
+  >
+    <ng-container [ngTemplateOutlet]="chips" />
+  </div>
+}
+<ng-template #chips>
   <ng-content />
   @if (divided()) {
     <span class="chip-bar__divider" aria-hidden="true"></span>
   }
   <ng-content select="[slot=after]" />
-</div>
+</ng-template>

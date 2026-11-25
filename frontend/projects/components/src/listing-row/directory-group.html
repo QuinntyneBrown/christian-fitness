@@ -1,0 +1,11 @@
+<section class="directory-group">
+  @if (heading(); as title) {
+    <div class="directory-group__head">
+      <h2 class="display section-title">{{ title }}</h2>
+      @if (blurb(); as text) {
+        <p class="directory-group__blurb">{{ text }}</p>
+      }
+    </div>
+  }
+  <ng-content />
+</section>

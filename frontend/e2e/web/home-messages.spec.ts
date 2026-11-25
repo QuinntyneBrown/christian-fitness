@@ -164,7 +164,7 @@ test.describe('Member app, unread messages on Home', () => {
     await home.open();
 
     await expect(home.mobileNav).toBeVisible();
-    await expect(home.mobileItems).toHaveCount(5);
+    await expect(home.mobileItems).toHaveCount(6);
     await expect(home.mobileCurrentItem).toHaveText('Home');
     await expect(home.mobileMessagesLink).toHaveAccessibleName('Messages, 4 unread');
     const boxes = await home.mobileItems.evaluateAll((links) =>

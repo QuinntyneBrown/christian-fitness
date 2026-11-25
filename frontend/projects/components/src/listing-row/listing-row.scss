@@ -1,0 +1,133 @@
+// The design system's listing row (docs/design-system/assets/components.css, "Directory and
+// listing profile": listing-row).
+:host {
+  display: block;
+}
+
+.listing-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-right: var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-right: var(--space-5);
+  }
+}
+
+.listing-row__link {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0%;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  text-align: left;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  @media (min-width: 40rem) {
+    padding: var(--space-5);
+  }
+}
+
+a.listing-row__link:hover {
+  background: var(--color-bg-canvas);
+
+  .listing-row__name {
+    color: var(--color-fg-accent);
+  }
+}
+
+.listing-row__body {
+  display: block;
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.listing-row__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.listing-row__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-weight: var(--font-weight-semibold);
+
+  > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.listing-row__tagline {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.listing-row__area {
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.listing-row__area--inline {
+  display: flex;
+  margin-top: var(--space-1);
+  gap: var(--space-1);
+}
+
+.listing-row__area--col {
+  display: none;
+  width: var(--size-column-area);
+  flex-shrink: 0;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.listing-row__hosting {
+  display: none;
+  width: var(--size-column-hosting);
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.listing-row__hosting--some {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+@media (min-width: 48rem) {
+  .listing-row__area--inline {
+    display: none;
+  }
+
+  .listing-row__area--col {
+    display: flex;
+  }
+}
+
+@media (min-width: 64rem) {
+  .listing-row__hosting {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listing-row__link {
+    transition: none;
+  }
+}

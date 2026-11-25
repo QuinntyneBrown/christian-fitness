@@ -1,0 +1,11 @@
+// The design system's verified mark (docs/design-system/assets/components.css: verified-mark).
+:host {
+  display: contents;
+}
+
+.verified-mark {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  color: var(--color-fg-accent);
+}

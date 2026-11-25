@@ -1,0 +1,36 @@
+// The design system's directory group (docs/design-system/assets/components.css, "Directory and
+// listing profile": directory-groups, directory-group; typography: display, section-title).
+:host {
+  display: block;
+}
+
+:host + :host {
+  margin-top: var(--space-10);
+}
+
+.directory-group__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.directory-group__blurb {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

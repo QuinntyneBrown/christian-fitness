@@ -13,6 +13,12 @@
   }
 }
 
+.search--wide {
+  @media (min-width: 40rem) {
+    width: var(--layout-conversations-width);
+  }
+}
+
 .search__icon {
   pointer-events: none;
   position: absolute;
