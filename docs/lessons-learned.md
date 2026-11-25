@@ -2545,7 +2545,8 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 **How earlier lessons worked**
 
 - "Never bind `[class.x]`" (5): `pick-cards` composes its class with `[attr.class]`; the initial
-  totals stayed at main's, web 278.18 kB and admin 279.98 kB, after every slice.
+  totals stayed at main's after every slice: web 278.18 kB (278.21 kB once rebased on journey
+  8's token) and admin 279.98 kB.
 - "A `setTimeout` cleared on each key and on destroy, not `debounceTime`" (4): the Host search
   waits 250 ms that way.
 - "Prove in-app routing with a component test" (6): `HostCard` has one; the e2e test only proves
