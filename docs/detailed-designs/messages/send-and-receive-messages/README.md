@@ -127,9 +127,9 @@ history by the other member's id. The same page, thread and composer serve it. `
 `DirectMessages` and pushed with `MessageReceived` to both members' connections, whose `eventId` is the
 other member's id. History is `GET /api/messages/{memberId}/messages?before=` and the read marker
 `POST /api/messages/{memberId}/read` (a `ChatReadMarkers` row keyed by the other member). The profile's
-Message button starts it; the list's `direct` rows open it.
+Message button starts it; the list's `direct` rows open it. A member who is both a Services professional and a directory listing's owner has one conversation per other member, so Message from either profile opens the same thread (ADR 0061).
 
-## The Christian Fitness system account (ADR 0061)
+## The Christian Fitness system account (ADR 0065)
 
 Suggestion outcomes, claim links and feedback replies reach members as ordinary `DirectMessage`s
 from a seeded system member, "Christian Fitness" (`SystemMembers.ChristianFitnessId`, created

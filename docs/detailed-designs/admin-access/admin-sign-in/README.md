@@ -11,7 +11,7 @@ staff session, ends an idle or old session, and shows a "Staff only" screen when
 staff something they may not see.
 
 - **staff member** — person whose account holds a staff role (Admin or Moderator, see `staff-roles`)
-- **team's domain** — Google Workspace domain whose accounts may open the console (`christianfitness.ca` in the mocks)
+- **team's domain** — Google Workspace domain whose accounts may open the console (`christian.fitness`)
 - **staff session** — authenticated cookie session issued by the admin sign-in and accepted only by admin endpoints
 - **idle timeout** — interval of 30 minutes without a request after which a staff session expires
 - **maximum session age** — interval of 12 hours after which a staff session ends whatever its activity, so Google is asked again
@@ -37,7 +37,7 @@ applies.
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`): the brand, the heading "Staff sign
-  in", the lead "Use your @christianfitness.ca Google Workspace account." with the domain in
+  in", the lead "Use your @christian.fitness Google Workspace account." with the domain in
   `strong`, one `GoogleButton` ("Sign in with Google") and the note "Passwords and two-step
   verification are managed by Google Workspace. Leaving the team ends console access the same day."
   There is no email or password field (`L2-018` AC1). Pressing the button calls
@@ -48,7 +48,7 @@ applies.
   session navigates to the Dashboard (`L2-018` AC2). A refusal is read by `staffSignInRefusalOf`
   (`domain`), reworked for Google:
   - 403 `wrong_domain` — an `SsoNotice` (`role="alert"`, focused) titled "That's not a staff
-    account", naming the account and saying "Only @christianfitness.ca accounts can open the
+    account", naming the account and saying "Only @christian.fitness accounts can open the
     console. Pick your work account instead."; the button reads "Try another Google account"
     (`L2-018` AC3, mock `wrong-domain`);
   - 403 `not_staff` — the notice titled "No admin access yet", naming the account and saying "Your
@@ -59,7 +59,8 @@ applies.
 
   The account named comes from the refusal's `account` extension and is rendered as text. With the
   router state `{ session: 'expired' }` (read once by `sessionEndingOf`) the page shows "Your session
-  expired" with "You were signed out after 30 minutes without activity. Sign in again to carry on."
+  expired" with "You were signed out after 12 hours. Sign in again to continue." (the 12-hour maximum,
+  ADR 0062; the mock `session-expired` shows it)
   (`L2-018` AC6, mock `session-expired`).
 - **`SsoNotice`** — presentation component in the components library under its design-system name
   (`components/src/sso-notice/`, block `sso-notice`, design-system page "Sign-in notice"): optional
@@ -141,12 +142,12 @@ for the team's domain in Google Workspace (`L2-046` AC2).
   still describe `cf two-step` and the seeded staff password (`seed-staff-password`). The next
   slices remove each of them, with a migration that drops the two-step tables, so that
   `/sign-in/verify` is the admin not-found page (`L2-046` AC1), and supersede ADR 0013.
-- **The first staff account.** `cf seed` creates the first staff account with a password. With
-  Google, it needs only the account's email of the team's domain and the Admin role; how the seed
-  names that email is `<TO SUPPLY>`.
-- **Session-expired wording after 12 hours.** The mock `session-expired` says "after 30 minutes
-  without activity". A session ended by the 12-hour maximum also answers `session_expired`; whether
-  it needs words of its own is not settled.
+- **The first staff account.** With Google, `cf seed` reads the required `Seed:AdminEmail` setting
+  for the first Admin's `@christian.fitness` account. It refuses with a clear error if the setting
+  is missing; no email is hard-coded. The existing password-based seed remains until this change.
+- **Session-expired wording after 12 hours.** A session ended by the 12-hour maximum also answers
+  `session_expired` and says "You were signed out after 12 hours. Sign in again to continue." (ADR 0062,
+  mock `session-expired`).
 - **Not configured, too many attempts and suspended staff.** No mock state of Staff sign in shows
   the start refused for a missing setting (`L2-018` AC10), a 429 (`L2-049` AC7) or a suspended staff
   account; each needs a mock state, or a stand-in in an ADR, before its slice.

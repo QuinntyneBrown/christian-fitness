@@ -22,7 +22,7 @@ and [admin sign-in](../../admin-access/admin-sign-in/README.md).
 - **hosted domain** — Google Workspace domain of an account (the ID token's `hd` claim), absent for a personal Google account
 - **Google identity** — subject, email, `email_verified`, name, picture and hosted domain read from one checked ID token
 - **linked account** — member account that has stored a Google subject
-- **team's domain** — Google Workspace domain whose accounts may open the Admin web app (`christianfitness.ca` in the mocks)
+- **team's domain** — Google Workspace domain whose accounts may open the Admin web app (`christian.fitness`)
 
 The person presses "Continue with Google" or "Sign up with Google" (member app) or "Sign in with
 Google" (admin app). The button reads "Opening Google…", and the browser leaves for Google in a
@@ -179,10 +179,10 @@ choices below marked `<TO SUPPLY>` are its open points.
 
 ### Open questions
 
-- **Error codes and the external identity's lifetime.** `L2-049` names `too_many_attempts` only. The
-  codes for "no Google identity or unverified email", "no member account on this Google account" and
-  "Google not configured", the status of the no-account answer and how long `__Host-cf-google`
-  lives are `<TO SUPPLY>`, for the ADR of the first slice.
+- **Error codes and the external identity's lifetime.** Settled by
+  [ADR 0062](../../../adr/0062-first-google-sign-in-slice.md) (`L2-049` AC11 and AC12):
+  `google_email_unverified`, `no_account`, `account_suspended`, `account_deleting` and
+  `google_unavailable`; `__Host-cf-google` lasts 10 minutes.
 - **Unverified email on screen.** `L2-049` AC3 refuses an unverified Google email, but no mock state
   shows it. The screens show the "didn't finish" message (`L2-004` AC11, `L2-003` AC11, `L2-018` AC8)
   until a mock says otherwise.
@@ -191,13 +191,11 @@ choices below marked `<TO SUPPLY>` are its open points.
 - **Not configured on screen.** `L2-018` AC10 says the admin app refuses to start sign-in while a
   setting is missing; no mock state shows what Staff sign in then says, and the spec is silent on the
   member app.
-- **The Google picture.** `L2-049` AC2 lets sign-in use the picture, and the no-account notice says
-  "we'll bring over your name and photo", but `Member` has no photo, and `L2-049` AC9 forbids loading
-  an image from Google in either app. Copying the picture into `IImageStore` on the server, or not
-  using it, needs a decision.
-- **Account chooser.** Whether every attempt asks Google to show the chooser (`prompt=select_account`),
-  or only "Use another account" and "Try another Google account", is not stated; the mocks show the
-  chooser on every attempt.
+- **The Google picture.** Settled by ADR 0062 (`L2-049` AC14): the server copies it into
+  `IImageStore` once at join if the member keeps it; the browser never loads it from Google.
+- **Account chooser.** Settled by ADR 0062 (`L2-049` AC13): `prompt=select_account` only for "Use
+  another account" and "Try another Google account". The mocks that show the chooser on every attempt
+  are stand-ins for Google's own screen.
 
 ## Requirements
 
