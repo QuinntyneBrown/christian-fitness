@@ -46,8 +46,8 @@ The feature is a vertical slice from the Event detail screen to the database.
 - Settled in ADR 0031: the error code for a missing or unpublished event is `event_not_found`, and a past published event stays viewable.
 - **Which sessions are "next".** The mock lists Apr 28, May 5 and May 19 after the Apr 21 session, leaving out May 12. The design reads that as cancelled sessions being skipped; `L2-010` AC5 says only "upcoming sessions". Whether a cancelled date is skipped or shown as "Cancelled" is `<TO SUPPLY>` by [view an event series](../view-event-series/README.md).
 - **Session with no event page.** `L2-050` says each session that has an event page is also listed as an event. A next date with no event page is shown as text; `eventId` is optional for that reason. Whether such a date links anywhere is `<TO SUPPLY>`.
-- **Host of older events.** Every event needs a host for `L2-010` AC4. The migration backfills existing events to the Christian Fitness team listing; Admins set a Listed host in the editor (ADR 0062).
-- **Registration wording.** `L2-010` AC3 and the page say "You're going"; the mocks `default.html` and `session.html` now read "You're registered". The requirement or the mock should change so that the two agree.
+- **Host of older events.** Every event needs a host for `L2-010` AC4. The migration backfills existing events to the Christian Fitness team listing; Admins set a Listed host in the editor (ADR 0067).
+- **Registration wording.** `L2-010` AC3 and the registered event mocks say "You're going".
 - **Card components.** Neither `host-card` nor `series-card` has a page in `docs/design-system/components/`. The design builds them as composites of library parts; if the design system later adds them, the components move under those names.
 - **Code behind the requirement.** `EventDetailDto` has no host or series, `GetEventHandler` reads neither, and the page renders neither card. Each is work for the next slices, after the directory's listings and the series exist.
 

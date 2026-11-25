@@ -59,7 +59,8 @@ applies.
 
   The account named comes from the refusal's `account` extension and is rendered as text. With the
   router state `{ session: 'expired' }` (read once by `sessionEndingOf`) the page shows "Your session
-  expired" with "You were signed out after 30 minutes without activity. Sign in again to carry on."
+  expired" with "You were signed out after 12 hours. Sign in again to continue." (the 12-hour maximum,
+  ADR 0062; the mock `session-expired` shows it)
   (`L2-018` AC6, mock `session-expired`).
 - **`SsoNotice`** — presentation component in the components library under its design-system name
   (`components/src/sso-notice/`, block `sso-notice`, design-system page "Sign-in notice"): optional
@@ -144,9 +145,9 @@ for the team's domain in Google Workspace (`L2-046` AC2).
 - **The first staff account.** With Google, `cf seed` reads the required `Seed:AdminEmail` setting
   for the first Admin's `@christian.fitness` account. It refuses with a clear error if the setting
   is missing; no email is hard-coded. The existing password-based seed remains until this change.
-- **Session-expired wording after 12 hours.** The mock `session-expired` says "after 30 minutes
-  without activity". A session ended by the 12-hour maximum also answers `session_expired`; whether
-  it needs words of its own is not settled.
+- **Session-expired wording after 12 hours.** A session ended by the 12-hour maximum also answers
+  `session_expired` and says "You were signed out after 12 hours. Sign in again to continue." (ADR 0062,
+  mock `session-expired`).
 - **Not configured, too many attempts and suspended staff.** No mock state of Staff sign in shows
   the start refused for a missing setting (`L2-018` AC10), a 429 (`L2-049` AC7) or a suspended staff
   account; each needs a mock state, or a stand-in in an ADR, before its slice.
