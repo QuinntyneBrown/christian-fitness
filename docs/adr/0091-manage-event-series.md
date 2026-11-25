@@ -1,4 +1,4 @@
-# 0090. Manage event series and the grouped console navigation
+# 0091. Manage event series and the grouped console navigation
 
 ## Status
 
@@ -30,16 +30,16 @@ these open or disagreed:
 
 ## Decision
 
-- **Navigation.** `ADMIN_AREAS` carries each area's group (none, Publish, Gather or Community) and
-  lists the areas that have a screen: Dashboard; Gather: Events, Event series; Community: Services,
-  Members. A group shows only when it holds an area the role opens, so Publish appears with
+- **Navigation.** `ADMIN_AREAS` lists the areas that have a screen and `adminNavOf` (ADR 0090)
+  gives each its group (none, Publish, Gather or Community): Dashboard; Gather: Events, Event
+  series; Community: Listings, Services, Members. A group shows only when it holds an area the role opens, so Publish appears with
   Stories or Newsletter. Each later area joins the list, in `L2-021`'s order, with its screen. An
   Admin sees each group as an `h2.admin-nav__group` over a `ul.admin-nav__list` labelled by it,
   Dashboard in an unlabelled list first (ADR 0079); a Moderator sees one unlabelled list. Below LG
   the group names are hidden and the lists run on in one sideways row. From LG the links scroll
-  inside the column while the brand and the person stay in view (AC4). The counts of AC3 wait for
-  `GET /api/admin/counts` and the admin hub (ADR 0079), a slice of their own; until then no link
-  carries one.
+  inside the column while the brand and the person stay in view (AC4). Of AC3's counts, Listings'
+  suggestions come from `GET /api/admin/counts` (ADR 0090); the others wait for the admin hub (ADR
+  0079), a slice of their own.
 - **Moderator areas (ADR 0064).** `StaffArea` gains `Series` (route segment `series`), opened to
   Admins and Moderators by `StaffAccess.Allows`; the other ADR 0064 areas gain their member with
   their first controller, as ADR 0064 says. `canManage` opens `series` to a Moderator. The "Admins
