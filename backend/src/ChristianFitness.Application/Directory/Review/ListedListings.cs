@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Account;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Events;
@@ -26,14 +27,38 @@ public sealed record ListedListingsDto(int Total, IReadOnlyList<ListedListingDto
 public sealed record ListListedListingsQuery(Guid? After) : IRequest<ListedListingsDto>;
 
 /// <summary>
-/// Staff change a listing's name, kind, area, tagline, about, website and photo, never its Verified
-/// mark (L2-073 AC13, L2-079 AC8). Audited <c>listing.updated</c>.
+/// Staff change a listing's name, kind, area, tagline, about, website, photo, focus tags and contact
+/// email, never its Verified mark (L2-073 AC13, L2-079 AC8; ADR 0095). Their name and kind apply at
+/// once and drop any the owner asked for. A class, so no generated <c>ToString</c> prints the
+/// contact email. Audited <c>listing.updated</c>.
 /// </summary>
-public sealed record UpdateDirectoryListingCommand(
-    Guid Id, string? Name, string? Kind, string? Area, string? Tagline, string? About, string? Website, string? PhotoKey)
+public sealed class UpdateDirectoryListingCommand(
+    Guid id, string? name, string? kind, string? area, string? tagline, string? about, string? website, string? photoKey,
+    IReadOnlyList<string>? focus, string? contactEmail)
     : IRequest<ListedListingDto>, IAuditableCommand
 {
     string IAuditableCommand.AuditAction => "listing.updated";
+
+    public Guid Id { get; } = id;
+
+    public string? Name { get; } = name;
+
+    public string? Kind { get; } = kind;
+
+    public string? Area { get; } = area;
+
+    public string? Tagline { get; } = tagline;
+
+    public string? About { get; } = about;
+
+    public string? Website { get; } = website;
+
+    public string? PhotoKey { get; } = photoKey;
+
+    /// <summary>The focus tags, or none to keep the listing's.</summary>
+    public IReadOnlyList<string>? Focus { get; } = focus;
+
+    public string? ContactEmail { get; } = contactEmail;
 }
 
 /// <summary>The key an uploaded listing photo is kept under (ADR 0090).</summary>
@@ -143,6 +168,16 @@ internal sealed class UpdateDirectoryListingValidator : AbstractValidator<Update
             .MustAsync(async (key, cancellationToken) => ImageKeys.IsKey(key) && await images.ExistsAsync(key!, cancellationToken).ConfigureAwait(false))
             .When(c => c.PhotoKey is not null)
             .WithErrorCode(DirectoryListingRules.PhotoInvalid).WithMessage("Choose the image again");
+        RuleFor(c => c.Focus)
+            .Must(focus => OwnListingRules.TagsOf(focus).Count <= OwnListingRules.FocusMaxCount)
+            .WithErrorCode(OwnListingRules.FocusTooMany).WithMessage("Use 6 tags or fewer")
+            .Must(focus => OwnListingRules.TagsOf(focus).All(tag => tag.Length <= DirectoryListing.FocusTagMaxLength))
+            .WithErrorCode(OwnListingRules.FocusTooLong).WithMessage("Keep each tag to 40 characters or fewer");
+        RuleFor(c => c.ContactEmail)
+            .Must(email => (email ?? string.Empty).Trim().Length <= DirectoryListing.ContactEmailMaxLength)
+            .WithErrorCode(OwnListingRules.ContactTooLong).WithMessage("Use 254 characters or fewer")
+            .Must(email => string.IsNullOrWhiteSpace(email) || CreateAccountValidator.EmailPattern().IsMatch(email.Trim()))
+            .WithErrorCode(OwnListingRules.ContactInvalid).WithMessage(CreateAccountValidator.EmailInvalid);
     }
 }
 
@@ -157,9 +192,12 @@ internal sealed class UpdateDirectoryListingHandler(IAppDbContext db, ICurrentMe
             ?? throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
         ListingSuggestion.TryReadWebsite(request.Website, out var website);
         listing.Describe(
-            ListingKinds.KindOf(request.Kind)!.Value, request.Name!, request.Tagline ?? string.Empty, request.Area!, listing.Focus,
-            request.About ?? string.Empty, website);
+            ListingKinds.KindOf(request.Kind)!.Value, request.Name!, request.Tagline ?? string.Empty, request.Area!,
+            request.Focus is null ? listing.Focus : OwnListingRules.TagsOf(request.Focus), request.About ?? string.Empty, website);
         listing.ShowPhoto(request.PhotoKey);
+        listing.SetContact(request.ContactEmail);
+        // Staff have reviewed the name and kind they saved, so nothing the owner asked for waits.
+        listing.DeclineRename();
         audit.Record(current.Id, ListedListing.RecordType, listing.Id);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return ListedListing.Of(listing, await ListingFollows.CountAsync(db, listing.Id, cancellationToken).ConfigureAwait(false));

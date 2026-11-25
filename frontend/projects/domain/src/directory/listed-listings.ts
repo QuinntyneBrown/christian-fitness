@@ -1,6 +1,7 @@
 import type { ApiError, DirectoryListingUpdateDto, ListedListingDto, ListingKind } from '@cf/api';
 import { listingKindInfo } from './listing-kinds';
 import { listingInitials } from './listing-row-view';
+import { focusTagsOf } from './own-listing';
 import { kindLabel } from './suggestion-review';
 
 /** A Listed row as the table shows it (mock `admin-listings/listed`; L2-073 AC10). */
@@ -85,11 +86,15 @@ export interface DirectoryListingEditorValues {
   photoKey: string | null;
   /** The chosen photo's file name, once one is chosen on this visit. */
   photoName: string | null;
+  /** The focus tags, one comma field (ADR 0095). */
+  focus: string;
+  /** As typed; blank for none. */
+  contact: string;
 }
 
 /** The editor's fields, by the names its errors use. */
 export type DirectoryListingFieldKey =
-  'name' | 'kind' | 'area' | 'tagline' | 'about' | 'website' | 'photo';
+  'name' | 'kind' | 'area' | 'tagline' | 'about' | 'website' | 'photo' | 'focus' | 'contact';
 
 /** The message under each field the server refused, by field. */
 export type DirectoryListingFieldErrors = Partial<Record<DirectoryListingFieldKey, string>>;
@@ -103,6 +108,8 @@ const FIELD_ORDER: readonly DirectoryListingFieldKey[] = [
   'about',
   'website',
   'photo',
+  'focus',
+  'contact',
 ];
 
 /** The id of each field control, which the error summary links name (the mock `f-…` ids). */
@@ -114,6 +121,8 @@ const FIELD_IDS: Record<DirectoryListingFieldKey, string> = {
   about: 'f-about',
   website: 'f-website',
   photo: 'f-image',
+  focus: 'f-focus',
+  contact: 'f-contact',
 };
 
 /** What each field code says to staff (ADR 0090); the sentences the server writes are never shown. */
@@ -128,6 +137,10 @@ const MESSAGES: Record<string, string> = {
   website_invalid: 'Enter a web address like lakeshorerunners.ca',
   website_too_long: 'Use 200 characters or fewer',
   photo_invalid: 'Use a JPEG, PNG or WebP image up to 5 MB',
+  focus_too_many: 'Use 6 tags or fewer',
+  focus_too_long: 'Keep each tag to 40 characters or fewer',
+  contact_invalid: 'Enter an email address like name@example.com',
+  contact_too_long: 'Use 254 characters or fewer',
 };
 
 /** The server's field names, by the editor's: the photo is sent as `photoKey`, uploaded as `photo`. */
@@ -140,6 +153,8 @@ const FIELD_OF: Record<string, DirectoryListingFieldKey> = {
   website: 'website',
   photoKey: 'photo',
   photo: 'photo',
+  focus: 'focus',
+  contactEmail: 'contact',
 };
 
 const UNKNOWN_CODE = 'Check this field';
@@ -155,10 +170,12 @@ export function directoryListingValuesOf(listing: ListedListingDto): DirectoryLi
     website: listing.website ?? '',
     photoKey: listing.photoKey,
     photoName: null,
+    focus: listing.focus.join(', '),
+    contact: listing.contactEmail ?? '',
   };
 }
 
-/** What a save sends: the values as typed, a blank website as none. */
+/** What a save sends: the values as typed, the focus as tags, a blank website or contact as none. */
 export function directoryListingUpdateOf(
   values: DirectoryListingEditorValues,
 ): DirectoryListingUpdateDto {
@@ -170,6 +187,8 @@ export function directoryListingUpdateOf(
     about: values.about,
     website: values.website.trim() === '' ? null : values.website,
     photoKey: values.photoKey,
+    focus: focusTagsOf(values.focus),
+    contactEmail: values.contact.trim() === '' ? null : values.contact,
   };
 }
 

@@ -178,6 +178,10 @@ export interface DirectoryListingUpdateDto {
   about: string;
   website: string | null;
   photoKey: string | null;
+  /** The focus tags (ADR 0095). */
+  focus: string[];
+  /** The contact email, or none (ADR 0095). */
+  contactEmail: string | null;
 }
 
 /** `POST photos`: the key a photo is kept under. */

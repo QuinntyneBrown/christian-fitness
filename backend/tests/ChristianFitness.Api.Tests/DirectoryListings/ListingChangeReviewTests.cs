@@ -94,6 +94,66 @@ public sealed class ListingChangeReviewTests(RegisterForEventFactory factory) : 
         Assert.True(await _review.InDbAsync(db => db.AuditEntries.AnyAsync(e => e.RecordId == id && e.Action == "listing.change_declined", TestContext.Current.CancellationToken)));
     }
 
+    [Fact]
+    public async Task Given_a_waiting_name_When_staff_save_the_listing_in_their_editor_Then_their_name_focus_and_contact_apply_at_once_and_nothing_waits()
+    {
+        var id = await ListingAsync("Staff Eastside Ladies", "Staff Eastside Strength");
+        var (staff, cookie, _) = await _review.StaffAsync("dana.change6@example.org", StaffRoleName.Moderator);
+        using var _staff = staff;
+
+        using var response = await ReviewSuggestions.SendAsync(staff, HttpMethod.Put, $"/listings/{id}", cookie, StaffEdit(("name", "Staff Eastside Iron")));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var row = await ReviewSuggestions.JsonAsync(response);
+        Assert.Equal(("Staff Eastside Iron", "organization"), (row.GetProperty("name").GetString(), row.GetProperty("kind").GetString()));
+        Assert.Equal(JsonValueKind.Null, row.GetProperty("pendingName").ValueKind);
+        Assert.Equal(["Strength", "Prayer"], row.GetProperty("focus").EnumerateArray().Select(f => f.GetString()!));
+        Assert.Equal("coach@eastside.example", row.GetProperty("contactEmail").GetString());
+        var stored = await _review.InDbAsync(db => db.DirectoryListings.SingleAsync(l => l.Id == id, TestContext.Current.CancellationToken));
+        Assert.Equal(("Staff Eastside Iron", (string?)null, "coach@eastside.example"), (stored.Name, stored.PendingName, stored.ContactEmail));
+    }
+
+    [Theory]
+    [InlineData("focus", "seven", "focus_too_many")]
+    [InlineData("contactEmail", "coach at eastside", "contact_invalid")]
+    public async Task Given_a_field_that_breaks_its_rule_When_staff_save_it_Then_it_is_refused_with_its_code(string field, string value, string code)
+    {
+        var id = await ListingAsync($"Staff Field {field}");
+        var (staff, cookie, _) = await _review.StaffAsync($"dana.change7.{field}@example.org".ToLowerInvariant(), StaffRoleName.Moderator);
+        using var _staff = staff;
+        object sent = value == "seven" ? SevenTags : value;
+
+        using var response = await ReviewSuggestions.SendAsync(staff, HttpMethod.Put, $"/listings/{id}", cookie, StaffEdit((field, sent)));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(code, (await ReviewSuggestions.JsonAsync(response)).GetProperty("fieldCodes").GetProperty(field).GetString());
+    }
+
+    private static readonly string[] SevenTags = ["a", "b", "c", "d", "e", "f", "g"];
+    private static readonly string[] StaffFocus = ["Strength", "Prayer"];
+
+    private static Dictionary<string, object?> StaffEdit(params (string Key, object? Value)[] changes)
+    {
+        var body = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["name"] = "Staff Eastside Ladies",
+            ["kind"] = "organization",
+            ["area"] = "East York",
+            ["tagline"] = "A tagline",
+            ["about"] = "About it.",
+            ["website"] = null,
+            ["photoKey"] = null,
+            ["focus"] = StaffFocus,
+            ["contactEmail"] = "coach@eastside.example",
+        };
+        foreach (var (key, value) in changes)
+        {
+            body[key] = value;
+        }
+
+        return body;
+    }
+
     [Theory]
     [InlineData("approve")]
     [InlineData("decline")]

@@ -16,6 +16,8 @@ export class DirectoryListingEditorDialog {
   readonly tagline: Locator;
   readonly about: Locator;
   readonly website: Locator;
+  readonly focus: Locator;
+  readonly contact: Locator;
   readonly photoInput: Locator;
   readonly photoName: Locator;
   readonly photoError: Locator;
@@ -41,6 +43,8 @@ export class DirectoryListingEditorDialog {
     this.tagline = this.dialog.getByLabel('Tagline');
     this.about = this.dialog.getByLabel('About');
     this.website = this.dialog.getByLabel('Website');
+    this.focus = this.dialog.getByLabel('Focus');
+    this.contact = this.dialog.getByLabel('Contact email');
     this.photoInput = this.dialog.locator('input[type="file"]');
     this.photoName = this.dialog.locator('.file-field__name');
     this.photoError = this.dialog.locator('#f-image-error');

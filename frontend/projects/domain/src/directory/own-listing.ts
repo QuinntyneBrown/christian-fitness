@@ -45,12 +45,17 @@ export function ownListingUpdateOf(values: OwnListingEditorValues): OwnListingUp
     about: values.about,
     website: values.website.trim() === '' ? null : values.website,
     photoKey: values.photoKey,
-    focus: values.focus
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter((tag) => tag !== ''),
+    focus: focusTagsOf(values.focus),
     contactEmail: values.contact.trim() === '' ? null : values.contact,
   };
+}
+
+/** A focus field's tags: split on commas, trimmed, blanks dropped (ADR 0095). */
+export function focusTagsOf(text: string): string[] {
+  return text
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter((tag) => tag !== '');
 }
 
 /** The editor's fields, by the names its errors use. */

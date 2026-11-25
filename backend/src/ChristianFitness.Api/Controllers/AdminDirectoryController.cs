@@ -60,7 +60,8 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     {
         ArgumentNullException.ThrowIfNull(body);
         return await sender.Send(
-            new UpdateDirectoryListingCommand(id, body.Name, body.Kind, body.Area, body.Tagline, body.About, body.Website, body.PhotoKey),
+            new UpdateDirectoryListingCommand(
+                id, body.Name, body.Kind, body.Area, body.Tagline, body.About, body.Website, body.PhotoKey, body.Focus, body.ContactEmail),
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -105,6 +106,10 @@ public sealed class DirectoryListingBody
     public string? Website { get; init; }
 
     public string? PhotoKey { get; init; }
+
+    public IReadOnlyList<string>? Focus { get; init; }
+
+    public string? ContactEmail { get; init; }
 }
 
 /// <summary>What a tick sends.</summary>

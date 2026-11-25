@@ -89,10 +89,21 @@ describe('a Listed row', () => {
 
 // L2-073 AC13 (mocks directory-listing-editor/default and invalid): the staff editor.
 describe('the staff listing editor', () => {
-  it('opens on the listing as it stands and sends a blank website as none', () => {
-    const values = directoryListingValuesOf({ ...LAKESHORE, website: null });
-    expect(values.website).toBe('');
-    expect(directoryListingUpdateOf({ ...values, website: '  ' })).toEqual({
+  it('opens on the listing as it stands and sends a blank website and contact as none', () => {
+    const values = directoryListingValuesOf({
+      ...LAKESHORE,
+      website: null,
+      focus: ['Running', 'Beginners'],
+    });
+    expect([values.website, values.focus, values.contact]).toEqual(['', 'Running, Beginners', '']);
+    expect(
+      directoryListingUpdateOf({
+        ...values,
+        website: '  ',
+        focus: ' Running,, Prayer ',
+        contact: ' ',
+      }),
+    ).toEqual({
       name: 'Lakeshore Runners Fellowship',
       kind: 'organization',
       area: 'Etobicoke',
@@ -100,7 +111,15 @@ describe('the staff listing editor', () => {
       about: 'A west-end run club.',
       website: null,
       photoKey: null,
+      focus: ['Running', 'Prayer'],
+      contactEmail: null,
     });
+  });
+
+  it('opens on the contact email staff can see (ADR 0095)', () => {
+    expect(
+      directoryListingValuesOf({ ...LAKESHORE, contactEmail: 'hello@lakeshore.example' }).contact,
+    ).toBe('hello@lakeshore.example');
   });
 
   it.each([
@@ -115,6 +134,15 @@ describe('the staff listing editor', () => {
     ['website', 'website_too_long', 'Use 200 characters or fewer', 'f-website'],
     ['photoKey', 'photo_invalid', 'Use a JPEG, PNG or WebP image up to 5 MB', 'f-image'],
     ['photo', 'photo_invalid', 'Use a JPEG, PNG or WebP image up to 5 MB', 'f-image'],
+    ['focus', 'focus_too_many', 'Use 6 tags or fewer', 'f-focus'],
+    ['focus', 'focus_too_long', 'Keep each tag to 40 characters or fewer', 'f-focus'],
+    [
+      'contactEmail',
+      'contact_invalid',
+      'Enter an email address like name@example.com',
+      'f-contact',
+    ],
+    ['contactEmail', 'contact_too_long', 'Use 254 characters or fewer', 'f-contact'],
   ])('a refused %s (%s) reads "%s" and links %s', (field, code, text, target) => {
     const errors = directoryListingErrorsOf({
       status: 400,
@@ -139,7 +167,7 @@ describe('the staff listing editor', () => {
   it.each<[string, unknown, boolean]>([
     ['a field refusal', { status: 400, code: 'validation_failed', fieldCodes: {} }, false],
     ['no answer', { status: 0, code: 'network' }, false],
-    ['a field the editor lacks', { status: 400, fieldCodes: { focus: 'x' } }, false],
+    ['a field the editor lacks', { status: 400, fieldCodes: { verified: 'x' } }, false],
   ])('%s is not a field error', (_why, error) => {
     expect(directoryListingErrorsOf(error)).toBeNull();
   });
