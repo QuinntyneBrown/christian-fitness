@@ -1,13 +1,15 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { type ListingKind, SESSION_SERVICE } from '@cf/api';
+import { LISTING_SUGGESTIONS_SERVICE, type ListingKind, SESSION_SERVICE } from '@cf/api';
 import {
+  Alert,
   Button,
   Checkbox,
   ChoiceCardGroup,
   ChoiceChipGroup,
   Container,
+  Done,
   FormPage,
   Link,
   type StepItem,
@@ -26,7 +28,10 @@ import {
   type SuggestionFieldErrors,
   type SuggestionForm,
   suggestionFormOf,
+  suggestionRequestOf,
+  thanksOf,
 } from '@cf/domain';
+import { HttpListingSuggestionsService } from '../../services/http-listing-suggestions.service';
 
 /** "What happens next", in order (L2-062 AC2; mock `suggest-listing/default`). */
 const STEPS: readonly StepItem[] = [
@@ -43,33 +48,38 @@ const STEPS: readonly StepItem[] = [
 ];
 
 /**
- * Suggest a listing at `/directory/suggest` (L2-062; ADR 0084; mock
+ * Suggest a listing at `/directory/suggest` (L2-062; ADR 0085; mock
  * `docs/mocks/pages/suggest-listing/`): who is suggested as three choice cards, the kind as six
  * choice chips, the details, and "What happens next" beside the form. Myself changes the name and
  * reason labels and drops their email and the permission (`suggestionFormOf`). A blank name or
  * place is marked before anything is sent and focus moves to the first (`checkSuggestion`). The
- * "How we vet every listing" link waits for the publishing journeys (ADR 0084:
+ * "How we vet every listing" link waits for the publishing journeys (ADR 0085:
  * `vetting-unavailable`).
  */
 @Component({
   selector: 'cf-suggest-listing-page',
   imports: [
+    Alert,
     Button,
     Checkbox,
     ChoiceCardGroup,
     ChoiceChipGroup,
     Container,
+    Done,
     FormPage,
     Link,
     Steps,
     Textarea,
     TextField,
   ],
+  providers: [{ provide: LISTING_SUGGESTIONS_SERVICE, useClass: HttpListingSuggestionsService }],
   templateUrl: './suggest-listing-page.html',
   styleUrl: './suggest-listing-page.scss',
 })
 export default class SuggestListingPage {
   private readonly document = inject(DOCUMENT);
+  private readonly suggestions = inject(LISTING_SUGGESTIONS_SERVICE);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly relations = SUGGESTION_RELATIONS;
   protected readonly kinds = SUGGESTION_KINDS;
@@ -80,12 +90,24 @@ export default class SuggestListingPage {
   protected readonly fieldErrors = signal<SuggestionFieldErrors>({});
   /** "Sent as" and the member's name, once the session has said who it is. */
   protected readonly sentAs = signal<string | null>(null);
+  private readonly memberName = signal<string | null>(null);
+  /** Typing, on its way, refused or failed (the form stays), or sent (the thanks replaces it). */
+  protected readonly phase = signal<'editing' | 'sending' | 'failed' | 'sent'>('editing');
+  protected readonly sending = computed(() => this.phase() === 'sending');
+  /** Whom the stored suggestion names, as the API answered it. */
+  protected readonly suggested = signal('');
+  protected readonly thanks = computed(() => thanksOf(this.memberName()));
 
   constructor() {
     inject(SESSION_SERVICE)
       .current()
       .pipe(takeUntilDestroyed())
-      .subscribe({ next: (session) => this.sentAs.set(`Sent as ${session.name}`) });
+      .subscribe({
+        next: (session) => {
+          this.memberName.set(session.name);
+          this.sentAs.set(`Sent as ${session.name}`);
+        },
+      });
   }
 
   protected chooseRelation(value: string): void {
@@ -118,5 +140,26 @@ export default class SuggestListingPage {
       this.document.getElementById(first)?.focus();
       return;
     }
+    if (this.sending()) return;
+    this.phase.set('sending');
+    this.suggestions
+      .suggest(suggestionRequestOf(this.form()))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stored) => {
+          this.suggested.set(stored.name);
+          this.phase.set('sent');
+        },
+        // The form and everything typed stay, so the member can send again.
+        error: () => this.phase.set('failed'),
+      });
+  }
+
+  /** Suggest another: a new, empty form. */
+  protected another(): void {
+    this.form.set(emptySuggestionForm());
+    this.fieldErrors.set({});
+    this.suggested.set('');
+    this.phase.set('editing');
   }
 }

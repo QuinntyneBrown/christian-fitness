@@ -103,6 +103,11 @@ export class WebSuggestListingPage {
     return this.kinds.getByRole('radio', { name: label, exact: true });
   }
 
+  /** Chooses a kind as a member does: by its chip, whose radio is visually hidden. */
+  async chooseKind(label: string): Promise<void> {
+    await this.kinds.locator('label.chip', { hasText: new RegExp(`^${label}$`) }).click();
+  }
+
   /** The labels of a radio group's choices, in order, and the one chosen. */
   async choices(group: 'relations' | 'kinds'): Promise<{ labels: string[]; chosen: string }> {
     return this[group].evaluate((fieldset) => {

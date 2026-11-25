@@ -6,13 +6,34 @@
       lead="Know a church ministry, club, coach or business that belongs here? Tell us about them and we’ll do the checking."
       asideHeading="What happens next"
       [sentAs]="sentAs()"
+      [done]="phase() === 'sent'"
       (send)="send()"
     >
+      @if (phase() === 'sent') {
+        <cf-done slot="done" [heading]="thanks()"
+          >We’ve got your suggestion for
+          <strong class="suggest-listing__name">{{ suggested() }}</strong>. Our team will look into
+          it this week, and we’ll message you here when it’s decided either way.
+          <cf-button slot="actions" size="md" href="/directory">Back to the directory</cf-button>
+          <cf-button slot="actions" size="md" variant="secondary" (click)="another()"
+            >Suggest another</cf-button
+          >
+        </cf-done>
+      }
+      @if (phase() === 'failed') {
+        <cf-alert slot="alert" heading="We couldn't send your suggestion"
+          ><p>
+            Something went wrong on our side. Everything you typed is still here, so try again in a
+            moment.
+          </p></cf-alert
+        >
+      }
       <cf-choice-card-group
         legend="Who are you suggesting?"
         name="relation"
         [options]="relations"
         [value]="values().relation"
+        [disabled]="sending()"
         (valueChange)="chooseRelation($event)"
       />
       <cf-choice-chip-group
@@ -20,6 +41,7 @@
         name="kind"
         [options]="kinds"
         [value]="values().kind"
+        [disabled]="sending()"
         (valueChange)="chooseKind($event)"
       />
       <div class="suggest-listing__fields">
@@ -29,6 +51,7 @@
           name="name"
           [value]="values().name"
           [error]="fieldErrors().name"
+          [readonly]="sending()"
           (valueChange)="edit('name', $event)"
         />
         <div class="suggest-listing__pair">
@@ -38,6 +61,7 @@
             name="where"
             [value]="values().where"
             [error]="fieldErrors().where"
+            [readonly]="sending()"
             (valueChange)="edit('where', $event)"
           />
           <cf-text-field
@@ -47,6 +71,7 @@
             optional
             [value]="values().website"
             [error]="fieldErrors().website"
+            [readonly]="sending()"
             (valueChange)="edit('website', $event)"
           />
         </div>
@@ -58,6 +83,7 @@
           hint="For example: meets at Danforth Baptist"
           [value]="values().churchConnection"
           [error]="fieldErrors().churchConnection"
+          [readonly]="sending()"
           (valueChange)="edit('churchConnection', $event)"
         />
         <cf-textarea
@@ -67,6 +93,7 @@
           rows="4"
           [value]="values().reason"
           [error]="fieldErrors().reason"
+          [readonly]="sending()"
           (valueChange)="edit('reason', $event)"
         />
         @if (view().asksContact) {
@@ -79,6 +106,7 @@
             hint="So we can reach them directly"
             [value]="values().email"
             [error]="fieldErrors().email"
+            [readonly]="sending()"
             (valueChange)="edit('email', $event)"
           />
         }
@@ -87,11 +115,21 @@
             label="It’s fine to tell them you suggested them"
             name="tell"
             [checked]="values().mayTellWhoSuggested"
+            [disabled]="sending()"
             (checkedChange)="allowTelling($event)"
           />
         }
       </div>
-      <cf-button slot="actions" type="submit" size="md">Send suggestion</cf-button>
+      @if (phase() !== 'sent') {
+        <cf-button
+          slot="actions"
+          type="submit"
+          size="md"
+          [disabled]="sending()"
+          [busy]="sending()"
+          >{{ sending() ? 'Sending…' : 'Send suggestion' }}</cf-button
+        >
+      }
       <cf-steps slot="aside" [items]="steps" />
     </cf-form-page>
   </cf-container>

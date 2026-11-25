@@ -106,7 +106,7 @@ export function suggestionFormOf(relation: SuggestionRelation): SuggestionFormVi
 }
 
 /**
- * The fields to mark before sending (L2-062 AC4; ADR 0084): a blank name or place. Every other
+ * The fields to mark before sending (L2-062 AC4; ADR 0085): a blank name or place. Every other
  * rule is the API's; a form with no key here is sent.
  */
 export function checkSuggestion(form: SuggestionForm): SuggestionFieldErrors {
@@ -138,7 +138,7 @@ const optional = (text: string): string | null => {
 };
 
 /**
- * The request the form sends (ADR 0084): every text trimmed and a blank optional one as `null`;
+ * The request the form sends (ADR 0085): every text trimmed and a blank optional one as `null`;
  * for Myself, the hidden email and permission are left out whatever they held.
  */
 export function suggestionRequestOf(form: SuggestionForm): SuggestListingDto {

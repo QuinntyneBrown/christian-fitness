@@ -22,7 +22,7 @@ const STEPS = [
   },
 ];
 
-// L2-062 AC2 to AC4 (ADR 0084; mock `suggest-listing/vetting-unavailable`, `self`, `invalid`): the
+// L2-062 AC2 to AC4 (ADR 0085; mock `suggest-listing/vetting-unavailable`, `self`, `invalid`): the
 // form asks who and what kind, the details and the permission, beside "What happens next"; Myself
 // changes the labels and drops the email and the permission; a missing name or place sends nothing.
 test.describe('Member app, suggest a listing: the form', () => {
@@ -78,7 +78,7 @@ test.describe('Member app, suggest a listing: the form', () => {
     await expect(suggest.sentAs).toHaveText('Sent as Grace Thompson');
     await expect(suggest.asideHeading).toHaveText('What happens next');
     expect(await suggest.stepViews()).toEqual(STEPS);
-    // No story can be published before the publishing journeys (ADR 0084): `vetting-unavailable`.
+    // No story can be published before the publishing journeys (ADR 0085): `vetting-unavailable`.
     await expect(suggest.vettingLink).toHaveCount(0);
   });
 
@@ -149,4 +149,148 @@ test.describe('Member app, suggest a listing: the form', () => {
     await expect(suggest.where).toHaveAttribute('aria-invalid', 'true');
     expect(sent).toEqual([]);
   });
+});
+
+/** The mock's suggestion as the screen sends it: trimmed, a blank optional text as null. */
+const MOCK_SENT = {
+  relation: 'someone-i-know',
+  kind: 'organization',
+  name: 'Eastside Ladies Who Lift',
+  where: 'Danforth & Pape, Toronto',
+  website: 'instagram.com/eastsideladieslift',
+  churchConnection: null,
+  reason:
+    'Saturday morning strength group out of Danforth Baptist. About 25 women, coached by a CSEP trainer.',
+  email: null,
+  mayTellWhoSuggested: true,
+};
+
+const STORED = { id: '0193b1c0-0000-7000-8000-00000000e001', name: 'Eastside Ladies Who Lift' };
+
+// L2-062 AC5 and AC6 (ADR 0085; mock `submitting`, `success`, `error`): a valid suggestion is sent,
+// the button reads "Sending…" meanwhile, and the thanks replaces the form; a failure keeps it all.
+test.describe('Member app, suggest a listing: sending', () => {
+  test('while it is on its way the button reads Sending… and the form holds still, then the thanks replaces it', async ({
+    page,
+    api,
+  }) => {
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => (answer = resolve));
+    api.on('POST', SUGGESTIONS, async () => {
+      await answered;
+      return { status: 201, json: STORED };
+    });
+    const suggest = new WebSuggestListingPage(page);
+    await suggest.open();
+    await suggest.fillMockSuggestion();
+    await suggest.name.fill('  Eastside Ladies Who Lift ');
+
+    const request = await suggest.sendAndAwaitRequest();
+
+    expect(request.postDataJSON()).toEqual(MOCK_SENT);
+    await expect(suggest.sendButton).toHaveText('Sending…');
+    await expect(suggest.sendButton).toBeDisabled();
+    await expect(suggest.sendButton).toHaveAttribute('aria-busy', 'true');
+    await expect(suggest.name).toHaveJSProperty('readOnly', true);
+    await expect(suggest.reason).toHaveJSProperty('readOnly', true);
+    await expect(suggest.relation('Myself')).toBeDisabled();
+    await expect(suggest.kind('Person')).toBeDisabled();
+    await expect(suggest.tell).toBeDisabled();
+
+    answer();
+
+    await expect(suggest.done).toHaveAttribute('role', 'status');
+    await expect(suggest.done).toBeFocused();
+    await expect(suggest.doneTitle).toHaveText('Thanks, Grace');
+    await expect(suggest.doneText).toHaveText(
+      'We’ve got your suggestion for Eastside Ladies Who Lift. Our team will look into it this week, and we’ll message you here when it’s decided either way.',
+    );
+    await expect(suggest.doneName).toHaveText('Eastside Ladies Who Lift');
+    await expect(suggest.form).toHaveCount(0);
+    await expect(suggest.backToDirectory).toHaveAttribute('href', '/directory');
+    expect(await suggest.stepViews()).toHaveLength(4);
+
+    await suggest.suggestAnother.click();
+
+    await expect(suggest.done).toHaveCount(0);
+    expect(await suggest.choices('relations')).toMatchObject({ chosen: 'Someone I know' });
+    expect(await suggest.choices('kinds')).toMatchObject({ chosen: 'Organization' });
+    expect((await suggest.fieldViews()).map((field) => field.value)).toEqual([
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ]);
+    await expect(suggest.tell).toBeChecked();
+    await expect(suggest.sendButton).toHaveText('Send suggestion');
+  });
+
+  test('Myself sends no email and no permission, and the thanks names who was suggested', async ({
+    page,
+    api,
+  }) => {
+    api.on('POST', SUGGESTIONS, () => ({
+      status: 201,
+      json: { id: STORED.id, name: 'Coach Marcus Delaney' },
+    }));
+    const suggest = new WebSuggestListingPage(page);
+    await suggest.open();
+    await suggest.email.fill('marcus@delaney.example');
+    await suggest.relation('Myself').check();
+    await suggest.chooseKind('Instructor');
+    await suggest.name.fill('Coach Marcus Delaney');
+    await suggest.where.fill('Mississauga');
+    await suggest.church.fill('Hope Church Mississauga');
+
+    const request = await suggest.sendAndAwaitRequest();
+
+    expect(request.postDataJSON()).toEqual({
+      relation: 'myself',
+      kind: 'instructor',
+      name: 'Coach Marcus Delaney',
+      where: 'Mississauga',
+      website: null,
+      churchConnection: 'Hope Church Mississauga',
+      reason: null,
+    });
+    await expect(suggest.doneName).toHaveText('Coach Marcus Delaney');
+  });
+
+  for (const failure of [
+    { why: 'a server error', reply: { status: 500, json: { code: 'server_error' } } },
+    { why: 'no answer', reply: { abort: true } },
+  ]) {
+    test(`${failure.why} shows a message above the form and keeps everything typed`, async ({
+      page,
+      api,
+    }) => {
+      api.on('POST', SUGGESTIONS, () => failure.reply);
+      const suggest = new WebSuggestListingPage(page);
+      await suggest.open();
+      await suggest.relation('Somewhere I’ve been').check();
+      await suggest.chooseKind('Company');
+      await suggest.fillMockSuggestion();
+      await suggest.church.fill('Danforth Baptist');
+      await suggest.email.fill('lead@eastside.example');
+      await suggest.tell.uncheck();
+      const before = await suggest.fieldViews();
+
+      await suggest.sendAndAwaitRequest();
+
+      await expect(suggest.alert).toHaveAttribute('role', 'alert');
+      await expect(suggest.alert).toBeFocused();
+      await expect(suggest.alertTitle).toHaveText("We couldn't send your suggestion");
+      await expect(suggest.alertText).toHaveText(
+        'Something went wrong on our side. Everything you typed is still here, so try again in a moment.',
+      );
+      expect(await suggest.fieldViews()).toEqual(before);
+      expect(await suggest.choices('relations')).toMatchObject({ chosen: 'Somewhere I’ve been' });
+      expect(await suggest.choices('kinds')).toMatchObject({ chosen: 'Company' });
+      await expect(suggest.tell).not.toBeChecked();
+      await expect(suggest.sendButton).toHaveText('Send suggestion');
+      await expect(suggest.sendButton).toBeEnabled();
+    });
+  }
 });

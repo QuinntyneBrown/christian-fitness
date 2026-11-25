@@ -2,11 +2,11 @@ import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { ListingKind } from './directory';
 
-/** How the member knows whom they suggest (ADR 0084): the three cards of the form. */
+/** How the member knows whom they suggest (ADR 0085): the three cards of the form. */
 export type SuggestionRelation = 'myself' | 'someone-i-know' | 'somewhere-ive-been';
 
 /**
- * A suggestion as `POST /api/directory/suggestions` takes it (L2-062; ADR 0084): every text trimmed,
+ * A suggestion as `POST /api/directory/suggestions` takes it (L2-062; ADR 0085): every text trimmed,
  * a blank optional one as `null`. For `myself` there is no `email` and no `mayTellWhoSuggested`.
  * The values are plain text, never rendered as HTML.
  */
@@ -28,7 +28,7 @@ export interface ListingSuggestionDto {
   name: string;
 }
 
-/** Suggesting a listing for the directory (L2-062; ADR 0084). */
+/** Suggesting a listing for the directory (L2-062; ADR 0085). */
 export interface ListingSuggestionsApi {
   /**
    * Sends the signed-in member's suggestion and answers it as stored (AC5). A refusal or no answer

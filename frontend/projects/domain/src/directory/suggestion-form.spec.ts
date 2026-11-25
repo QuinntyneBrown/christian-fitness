@@ -54,7 +54,7 @@ describe('suggestionFormOf', () => {
   });
 });
 
-// L2-062 AC4 (ADR 0084): only a blank name or place is marked before sending. One case per row.
+// L2-062 AC4 (ADR 0085): only a blank name or place is marked before sending. One case per row.
 describe('checkSuggestion', () => {
   it.each<{ why: string; form: Partial<SuggestionForm>; expected: Record<string, string> }>([
     { why: 'name and place given', form: { name: 'A', where: 'B' }, expected: {} },
@@ -108,7 +108,7 @@ describe('clearSuggestionError', () => {
   });
 });
 
-// ADR 0084: trimmed, blank optional text as null, and nothing of the contact for Myself.
+// ADR 0085: trimmed, blank optional text as null, and nothing of the contact for Myself.
 describe('suggestionRequestOf', () => {
   it('trims every text and sends a blank optional one as null', () => {
     expect(suggestionRequestOf(filled)).toEqual({
