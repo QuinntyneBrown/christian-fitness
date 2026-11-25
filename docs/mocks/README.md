@@ -209,8 +209,9 @@ navigation, say) must be made in the generator and in those files.
 5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
    Services professional and a directory listing, with different copy, and the console has both
    Services (applications) and Listings (suggestions). One record or two? One review or two?
-6. **Messaging an organization.** A listing's Message button opens a direct conversation. For an
-   organization, company or ministry, who receives it?
+6. **Messaging an organization (resolved).** Its owner receives messages; an ownerless listing
+   hides Message and offers its website or contact where available. ADR 0061 records the exception
+   to the owner's messaging preference and the `listing_unreachable` refusal.
 7. **Who writes stories.** The editor shows a writer's note and "Sent back to Priya", but the
    bylines (Priya Raman, Naomi Clarke, Marcus Bell) are not staff, and staff roles are Admin and
    Moderator. Do writers get accounts and a role, or do Admins write under any byline?
