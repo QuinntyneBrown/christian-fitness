@@ -163,6 +163,25 @@ export class WebListingProfilePage extends ErrorScreen {
     return readFollow(this.followButton);
   }
 
+  /**
+   * Presses Follow from the keyboard. Playwright's click waits while a control is `aria-disabled`,
+   * so a press during a request in flight is made by focus and key, as a keyboard user makes it.
+   */
+  async pressFollowByKey(key: 'Enter' | ' ' = 'Enter'): Promise<void> {
+    await this.followButton.focus();
+    await this.page.keyboard.press(key === ' ' ? 'Space' : key);
+  }
+
+  /** Each danger toast's title and text, in order. */
+  async failureToastViews(): Promise<[string, string][]> {
+    return this.failureToasts.evaluateAll((toasts) =>
+      toasts.map((toast) => [
+        (toast.querySelector('.toast__title')?.textContent ?? '').trim(),
+        (toast.querySelector('.toast__text')?.textContent ?? '').trim(),
+      ]),
+    );
+  }
+
   /** The facts' follower count, as the member reads it. */
   async followers(): Promise<string> {
     return (await this.factViews()).find(([term]) => term === 'Followers')?.[1] ?? '';

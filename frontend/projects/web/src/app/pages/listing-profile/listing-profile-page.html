@@ -146,3 +146,8 @@
     />
   </cf-mini-row>
 </ng-template>
+<cf-toast-region
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

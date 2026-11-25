@@ -57,4 +57,80 @@ test.describe('Member app, follow a listing', () => {
     await expect(page.getByRole('dialog')).toHaveCount(0);
     expect(sent).toEqual([{ method: 'DELETE', id: OKAFOR.id }]);
   });
+
+  test('The button changes at once and is aria-disabled while its request is in flight, so a second press does nothing', async ({
+    page,
+    api,
+  }) => {
+    let release = (): void => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    answerListingProfile(api, [LAKESHORE]);
+    const sent = answerListingFollows(
+      api,
+      [{ id: LAKESHORE.id, following: false, followers: 612 }],
+      (n) => (n === 0 ? { hold: held } : null),
+    );
+    const profile = new WebListingProfilePage(page);
+    await profile.open(LAKESHORE.id);
+
+    await profile.followButton.click();
+
+    await expect(profile.followButton).toHaveAttribute('aria-disabled', 'true');
+    expect(await profile.followView()).toMatchObject({ pressed: 'true', check: true });
+    await expect.poll(() => profile.followers()).toBe('613');
+    await profile.pressFollowByKey('Enter');
+    await profile.pressFollowByKey(' ');
+    await expect(profile.followButton).toHaveAttribute('aria-pressed', 'true');
+    expect(sent).toEqual([{ method: 'PUT', id: LAKESHORE.id }]);
+
+    release();
+
+    await expect(profile.followButton).not.toHaveAttribute('aria-disabled');
+    expect(await profile.followView()).toMatchObject({ pressed: 'true', disabled: null });
+    await expect.poll(() => profile.followers()).toBe('613');
+    expect(sent).toEqual([{ method: 'PUT', id: LAKESHORE.id }]);
+  });
+
+  // One row per direction and failure: the button and the count go back, and a toast names the listing.
+  for (const { what, following, fault, title } of [
+    {
+      what: 'a follow the server fails',
+      following: false,
+      fault: { status: 503, code: 'unavailable' },
+      title: "We couldn't follow Lakeshore Runners Fellowship",
+    },
+    {
+      what: 'an unfollow with no connection',
+      following: true,
+      fault: { abort: true },
+      title: "We couldn't unfollow Lakeshore Runners Fellowship",
+    },
+  ]) {
+    test(`After ${what}, the button goes back and a toast says to try again`, async ({
+      page,
+      api,
+    }) => {
+      answerListingProfile(api, [{ ...LAKESHORE, following }]);
+      const sent = answerListingFollows(
+        api,
+        [{ id: LAKESHORE.id, following, followers: 612 }],
+        () => fault,
+      );
+      const profile = new WebListingProfilePage(page);
+      await profile.open(LAKESHORE.id);
+
+      await profile.followButton.click();
+
+      await expect(profile.failureToasts).toHaveCount(1);
+      expect(await profile.failureToastViews()).toEqual([[title, 'Try again in a moment.']]);
+      expect(await profile.followView()).toMatchObject({
+        pressed: String(following),
+        check: following,
+        disabled: null,
+      });
+      expect(await profile.followers()).toBe('612');
+      await expect(profile.followButton).toBeFocused();
+      expect(sent).toHaveLength(1);
+    });
+  }
 });

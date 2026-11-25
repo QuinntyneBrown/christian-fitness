@@ -2,7 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DIRECTORY_SERVICE, LISTING_FOLLOWS, type ListingProfileDto } from '@cf/api';
+import {
+  DIRECTORY_SERVICE,
+  LISTING_FOLLOWS,
+  type ListingProfileDto,
+  TOASTS_SERVICE,
+} from '@cf/api';
 import {
   Alert,
   Button,
@@ -23,6 +28,8 @@ import {
   Skeleton,
   Split,
   TagList,
+  type ToastData,
+  ToastRegion,
 } from '@cf/components';
 import {
   connectionRowViewOf,
@@ -31,6 +38,7 @@ import {
   hostingRowViewOf,
   ListingFollowStore,
   listingProfileViewOf,
+  ToastStore,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpDirectoryService } from '../../services/http-directory.service';
@@ -67,10 +75,12 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
     SkeletonRegion,
     Split,
     TagList,
+    ToastRegion,
   ],
   providers: [
     { provide: DIRECTORY_SERVICE, useClass: HttpDirectoryService },
     { provide: LISTING_FOLLOWS, useClass: ListingFollowStore },
+    { provide: TOASTS_SERVICE, useClass: ToastStore },
   ],
   templateUrl: './listing-profile-page.html',
   styleUrl: './listing-profile-page.scss',
@@ -78,6 +88,7 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
 export default class ListingProfilePage {
   private readonly directory = inject(DIRECTORY_SERVICE);
   private readonly follows = inject(LISTING_FOLLOWS);
+  protected readonly toasts = inject(TOASTS_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private id = '';
@@ -97,6 +108,15 @@ export default class ListingProfilePage {
     const id = this.profile()?.id;
     return id === undefined ? null : (this.follows.follows().get(id) ?? null);
   });
+  /** A failed follow or unfollow, as a danger toast (L2-056 AC3; mock `directory/follow-failed`). */
+  protected readonly toastViews = computed<ToastData[]>(() =>
+    this.toasts.toasts().map(({ id, title, text }) => ({
+      id: String(id),
+      tone: 'danger',
+      heading: title,
+      text,
+    })),
+  );
   protected readonly hosting = computed(() => this.profile()?.hosting.map(hostingRowViewOf) ?? []);
   protected readonly hostingEmpty = computed(() => hostingEmptyText(this.profile()?.name ?? ''));
   protected readonly connections = computed(
@@ -136,6 +156,10 @@ export default class ListingProfilePage {
   /** Follows or unfollows the listing at once (L2-056 AC1 to AC3). */
   protected toggleFollow(listing: ListingProfileDto): void {
     this.follows.toggle(listing.id, listing.name);
+  }
+
+  protected dismissToast(id: string): void {
+    this.toasts.dismiss(Number(id));
   }
 
   /** Routes a plain click on a link; any other click is the browser's. */
