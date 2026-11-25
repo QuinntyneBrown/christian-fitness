@@ -73,7 +73,7 @@ public sealed class ListSuggestionsTests(RegisterForEventFactory factory) : ICla
         Assert.Equal(HttpStatusCode.OK, self.StatusCode);
         var detail = await ReviewSuggestions.JsonAsync(self);
         Assert.Equal(
-            ["area", "checks", "from", "id", "kind", "name", "reason", "relation", "status", "submittedAt", "website"],
+            ["area", "checks", "claim", "from", "id", "kind", "name", "reason", "relation", "status", "submittedAt", "website"],
             detail.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(
             ("instructor", "Coach Marcus Delaney", "Mississauga", "https://delaneyperformance.ca", "I run speed and agility for youth athletes.", "myself", "waiting"),

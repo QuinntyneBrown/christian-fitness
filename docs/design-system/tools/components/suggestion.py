@@ -17,7 +17,8 @@ def view(uid="sg", passed=3, decided="", busy=False):
     checks = "".join(f"<li>{check(i, uid, i < passed, bool(decided) or busy)}</li>" for i in range(4))
     if decided:
         foot = ('<p class="suggestion__result" role="status">' + ("Approved. We’ve sent them a link to claim and publish their listing." if decided == "approved"
-                else "Declined. The person who suggested it has been told.") + "</p>")
+                else "Declined. The person who suggested it has been told.") + "</p>"
+                + ('<button class="btn btn--secondary btn--md" type="button">Send a new link</button>' if decided == "approved" else ""))
     else:
         ok = passed == 4
         approve = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{SPIN}Approving…</button>' if busy
@@ -83,7 +84,9 @@ SPEC = {
     "variants": "<h3>Waiting</h3>" + ex(view("v1"), "Three of four checks: Approve listing is disabled and the hint says why (listings default).")
     + "<h3>Ready</h3>" + ex(view("v2", passed=4), "All four passed: Approve listing is available (listings ready).")
     + "<h3>Decided</h3>" + ex(view("v3", passed=4, decided="approved") + view("v4", decided="declined"),
-                              "The decision replaces the buttons with a status line; the checks lock (approved, declined).", mod="stack")
+                              "The decision replaces the buttons with a status line; the checks lock (approved, declined). "
+                              "While a claim link is open or expired, Send a new link follows the line and reads “Sending…”, "
+                              "disabled and <code>aria-busy</code>, while it waits (ADR 0091; resending).", mod="stack")
     + "<h3>Listed cell</h3>" + ex(LISTED, "Mark, name and verified mark in the Listed table.", True),
     "sizes": "<p>One size. The card has 24px padding, 32px from 640px. Check rows are 12px block padding with a 28px (<code>--space-7</code>) checkbox. The listed cell's mark is <code>--size-avatar-md</code>.</p>",
     "states": {

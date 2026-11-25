@@ -80,6 +80,12 @@ export class HttpAdminDirectoryService implements AdminDirectoryApi {
       .post<SuggestionDecisionDto>(`${BASE}/suggestions/${encodeURIComponent(id)}/approve`, null)
       .pipe(catchError(asApiError));
   }
+
+  resendClaimLink(id: string): Observable<void> {
+    return this.http
+      .post<void>(`${BASE}/suggestions/${encodeURIComponent(id)}/claim-link`, null)
+      .pipe(catchError(asApiError));
+  }
 }
 
 function asApiError(error: unknown): Observable<never> {

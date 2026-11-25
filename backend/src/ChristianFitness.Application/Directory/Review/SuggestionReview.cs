@@ -29,7 +29,8 @@ public sealed record SuggestionDetailDto(
     string? From,
     DateTimeOffset SubmittedAt,
     string Status,
-    IReadOnlyList<SuggestionCheckDto> Checks);
+    IReadOnlyList<SuggestionCheckDto> Checks,
+    string? Claim);
 
 /// <summary>The slugs and lookups the review shares (ADR 0090).</summary>
 public static class SuggestionReview

@@ -22,6 +22,8 @@ export interface SuggestionDetailFixture {
   submittedAt: string;
   status: 'waiting' | 'approved' | 'declined';
   checks: { check: string; passed: boolean }[];
+  /** Where an approved suggestion's claim link stands (ADR 0091); none before approval. */
+  claim: 'sent' | 'expired' | 'claimed' | 'declined' | 'staff-managed' | null;
 }
 
 /** The mocks' "now" for Listings, so "4 hours ago" reads as it does there: Nov 25, 2026, 3 PM UTC. */
@@ -49,6 +51,7 @@ export const CAST_SUGGESTIONS: SuggestionDetailFixture[] = [
     from: 'Adaeze Kalu',
     submittedAt: '2026-11-25T11:00:00Z',
     status: 'waiting',
+    claim: null,
     checks: checks('credentials'),
   },
   {
@@ -63,6 +66,7 @@ export const CAST_SUGGESTIONS: SuggestionDetailFixture[] = [
     from: null,
     submittedAt: '2026-11-24T13:00:00Z',
     status: 'waiting',
+    claim: null,
     checks: checks('credentials', 'insurance', 'two-references'),
   },
   {
@@ -76,6 +80,7 @@ export const CAST_SUGGESTIONS: SuggestionDetailFixture[] = [
     from: 'Jordan Reid',
     submittedAt: '2026-11-22T15:00:00Z',
     status: 'waiting',
+    claim: null,
     checks: checks(),
   },
 ];

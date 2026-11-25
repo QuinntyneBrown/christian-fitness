@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Directory.Claims;
 using ChristianFitness.Domain.Directory;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -58,8 +59,11 @@ internal sealed class ListListingSuggestionsHandler(IAppDbContext db, TimeProvid
     }
 }
 
-/// <summary>Answers the panel's fields and the four checks; an unknown id is 404 <c>suggestion_not_found</c>.</summary>
-internal sealed class GetListingSuggestionHandler(IAppDbContext db) : IRequestHandler<GetListingSuggestionQuery, SuggestionDetailDto>
+/// <summary>
+/// Answers the panel's fields, the four checks and where an approved suggestion's claim stands (ADR 0091);
+/// an unknown id is 404 <c>suggestion_not_found</c>.
+/// </summary>
+internal sealed class GetListingSuggestionHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetListingSuggestionQuery, SuggestionDetailDto>
 {
     public async Task<SuggestionDetailDto> Handle(GetListingSuggestionQuery request, CancellationToken cancellationToken)
     {
@@ -79,6 +83,7 @@ internal sealed class GetListingSuggestionHandler(IAppDbContext db) : IRequestHa
             sender,
             suggestion.SubmittedAt,
             SuggestionReview.StatusSlugOf(suggestion.Status),
-            SuggestionReview.ChecksOf(await SuggestionReview.RowsAsync(db, suggestion.Id, cancellationToken).ConfigureAwait(false)));
+            SuggestionReview.ChecksOf(await SuggestionReview.RowsAsync(db, suggestion.Id, cancellationToken).ConfigureAwait(false)),
+            await ClaimLinkDelivery.StateOfAsync(db, suggestion, time.GetUtcNow(), cancellationToken).ConfigureAwait(false));
     }
 }

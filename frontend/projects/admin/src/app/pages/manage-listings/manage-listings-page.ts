@@ -33,6 +33,7 @@ import {
 } from '@cf/components';
 import {
   APPROVE_HINT,
+  claimResendable,
   decisionResult,
   decisionTag,
   kindLabel,
@@ -85,11 +86,19 @@ const TICK_FAILED = "We couldn't save that check";
 const APPROVE_FAILED = "We couldn't approve the suggestion";
 /** The toast when another member of staff decided it first. */
 const ALREADY_DECIDED = 'This suggestion was already decided';
+/** The toast of a new claim link that did not go out (mock `admin-listings/resend-failed`). */
+const RESEND_FAILED = "We couldn't send a new link";
 /** The toasts announced at once, as failures. */
 /** The toast when the next page of Listed did not load. */
 const LISTED_MORE_FAILED = "More listings didn't load";
 const SUGGESTIONS_MORE_FAILED = "More suggestions didn't load";
-const FAILURES = new Set([TICK_FAILED, APPROVE_FAILED, ALREADY_DECIDED, LISTED_MORE_FAILED]);
+const FAILURES = new Set([
+  TICK_FAILED,
+  APPROVE_FAILED,
+  ALREADY_DECIDED,
+  LISTED_MORE_FAILED,
+  RESEND_FAILED,
+]);
 
 /** A decision made on this visit. */
 interface Decision {
@@ -150,6 +159,8 @@ export default class ManageListingsPage {
   private readonly decisions = signal<Readonly<Partial<Record<string, Decision>>>>({});
   /** An approval of the suggestion showing is on its way. */
   protected readonly approving = signal(false);
+  /** A new claim link for the suggestion showing is on its way. */
+  protected readonly resending = signal(false);
   protected readonly listedState = signal<ListedState>({ kind: 'loading' });
   private readonly listedReload = new Subject<void>();
   private listedAsked = false;
@@ -215,6 +226,7 @@ export default class ManageListingsPage {
     const detail = state.detail;
     const decision = this.decisions()[detail.id];
     const status = decision?.status ?? detail.status;
+    const claim = decision?.claim ?? detail.claim;
     const checks: CheckRowItem[] = LISTING_CHECKS.map((info) => ({
       check: info.check,
       label: info.label,
@@ -233,7 +245,8 @@ export default class ManageListingsPage {
       passed: passedLine(detail.checks),
       canApprove: passedCount(detail.checks) === LISTING_CHECKS.length,
       locked: status !== 'waiting' || this.approving(),
-      result: status === 'waiting' ? null : decisionResult(status, decision?.claim ?? null),
+      result: status === 'waiting' ? null : decisionResult(status, claim),
+      resendable: status === 'approved' && claimResendable(claim),
     };
   });
   protected readonly approveHint = APPROVE_HINT;
@@ -375,6 +388,35 @@ export default class ManageListingsPage {
           this.decide(id, { status: 'approved', claim: answer.claim });
         },
         error: (error: unknown) => this.refused(error, APPROVE_FAILED),
+      });
+  }
+
+  /**
+   * Sends a new claim link for the approved suggestion showing (L2-078 AC8; ADR 0091): the button
+   * reads "Sending…" while it waits, then a toast says the old link no longer works, or that
+   * nothing changed.
+   */
+  protected resendClaimLink(): void {
+    const state = this.detailState();
+    if (state.kind !== 'ready' || this.resending()) return;
+    const id = state.detail.id;
+    this.resending.set(true);
+    this.directory
+      .resendClaimLink(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.resending.set(false);
+          this.decisions.update((decisions) => ({
+            ...decisions,
+            [id]: { status: 'approved', claim: 'sent' },
+          }));
+          this.toasts.show('New link sent', 'The old link no longer works.');
+        },
+        error: () => {
+          this.resending.set(false);
+          this.toasts.show(RESEND_FAILED, 'Nothing changed. Try again in a moment.');
+        },
       });
   }
 

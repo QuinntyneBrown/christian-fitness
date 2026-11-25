@@ -1,5 +1,6 @@
 import type { SuggestionDetailDto, SuggestionSummaryDto } from '@cf/api';
 import {
+  claimResendable,
   decisionResult,
   decisionTag,
   kindLabel,
@@ -40,6 +41,7 @@ const DETAIL: SuggestionDetailDto = {
   submittedAt: '2026-11-22T15:00:00Z',
   status: 'waiting',
   checks: [],
+  claim: null,
 };
 
 // L2-073 AC2 (ADR 0090): each card says the kind, the area, who sent it and when.
@@ -89,12 +91,42 @@ describe('a decided suggestion', () => {
     },
     { status: 'approved', claim: null, expected: 'Approved.' },
     {
+      status: 'approved',
+      claim: 'sent',
+      expected: 'Approved. We’ve sent them a link to claim and publish their listing.',
+    },
+    {
+      status: 'approved',
+      claim: 'expired',
+      expected: 'Approved. We’ve sent them a link to claim and publish their listing.',
+    },
+    {
+      status: 'approved',
+      claim: 'declined',
+      expected: 'Approved. They said this listing isn’t them, so it wasn’t published.',
+    },
+    { status: 'approved', claim: 'claimed', expected: 'Approved.' },
+    {
       status: 'declined',
       claim: null,
       expected: 'Declined. The person who suggested it has been told.',
     },
   ])('$status with claim $claim reads "$expected"', ({ status, claim, expected }) => {
     expect(decisionResult(status, claim)).toBe(expected);
+  });
+
+  // L2-078 AC8 (ADR 0091): Send a new link while a link is out, open or expired.
+  it.each<{ claim: SuggestionClaim | null; expected: boolean }>([
+    { claim: 'email', expected: true },
+    { claim: 'message', expected: true },
+    { claim: 'sent', expected: true },
+    { claim: 'expired', expected: true },
+    { claim: 'claimed', expected: false },
+    { claim: 'declined', expected: false },
+    { claim: 'staff-managed', expected: false },
+    { claim: null, expected: false },
+  ])('a claim $claim offers a new link: $expected', ({ claim, expected }) => {
+    expect(claimResendable(claim)).toBe(expected);
   });
 
   it.each<{ why: string; error: unknown; expected: 'decided' | 'failed' }>([

@@ -1,3 +1,4 @@
+using ChristianFitness.Application.Directory.Claims;
 using ChristianFitness.Application.Directory.Review;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -39,6 +40,14 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     [HttpPost("suggestions/{id:guid}/decline")]
     public async Task<ActionResult<SuggestionDecisionDto>> Decline(Guid id, [FromBody] DeclineSuggestionBody? body, CancellationToken cancellationToken) =>
         await sender.Send(new DeclineSuggestionCommand(id, body?.Reason), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Sends a new claim link for an approved suggestion; the old one stops working (ADR 0091).</summary>
+    [HttpPost("suggestions/{id:guid}/claim-link")]
+    public async Task<IActionResult> ResendClaimLink(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new ResendClaimLinkCommand(id), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
 
     /// <summary>The published listings in name order, 50 after <paramref name="after"/>.</summary>
     [HttpGet("listings")]
