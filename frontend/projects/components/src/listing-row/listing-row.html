@@ -48,7 +48,10 @@
       <circle cx="12" cy="10" r="3" /></svg
     ><span>{{ area() }}</span></span
   >
-  <span class="listing-row__hosting" [class.listing-row__hosting--some]="hostingSome()">{{
-    hosting()
-  }}</span>
+  <span
+    [attr.class]="
+      hostingSome() ? 'listing-row__hosting listing-row__hosting--some' : 'listing-row__hosting'
+    "
+    >{{ hosting() }}</span
+  >
 </ng-template>

@@ -21,4 +21,9 @@ export class ChipBar {
   readonly nav = input(false, { transform: booleanAttribute });
   /** Below 640 px the chips stay on one line and scroll sideways within the bar (`chip-bar--scroll`). */
   readonly scroll = input(false, { transform: booleanAttribute });
+
+  /** The bar's classes, composed here: a `[class.x]` binding would add Angular's styling code to every app's initial bundle. */
+  protected classes(): string {
+    return this.scroll() ? 'chip-bar chip-bar--scroll' : 'chip-bar';
+  }
 }

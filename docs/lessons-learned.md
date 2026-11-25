@@ -2402,7 +2402,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - Npgsql may translate `string.Contains(parameter)` to `strpos`, which a trigram index cannot serve; the search is an explicit, escaped `EF.Functions.Like`, and an `r_n` case proves `_` is literal.
 - The worktree guard refused shell commands that `cd` to a computed path or mix git with other steps; honest-red breaks were made with small edit scripts and restored from a scratchpad copy, and git ran alone from the worktree root.
 - Other agents shared the machine: CPU stood at 100% and unrelated specs (event detail, admin server error) failed once each in full runs and passed 3 of 3 alone. Another agent's dev-server log also landed in a same-named scratchpad file, so logs got slice-specific names.
-- The local Windows build reports about 5 kB more initial bundle than CI's Linux build for the same commit (admin's untouched `main` measured the same 264 kB locally), so the budget was judged by the difference between the apps and by CI's number, not by the local total. Copying the design system's whole `tokens.css` would have added 0.62 kB of unused tokens; only the two listing-row tokens were added.
+- The first CI run showed both apps 4.4 kB over main's initial totals, admin included, though admin uses nothing of the directory. A local "base" for admin had been measured with this branch's library changes in place, so the growth was first misread as a Windows-against-Linux difference. Reverting the library changes one folder at a time found it: the first `[class.x]` binding in the codebase (`search--wide`, then `chip-bar--scroll` and `listing-row__hosting--some`) pulls Angular's styling instructions into `main` of every app that reaches the component. Each became an `[attr.class]` string, as the library's other components already compose theirs; admin is back to main's 279.98 kB. Web is 280.10 kB: the new lazy route costs 0.30 kB (measured by reverting `app.routes.ts` alone) and the two listing-row tokens 0.05 kB, so it is 0.1 kB over the 280 kB warning, well under the 290 kB error. Copying the design system's whole `tokens.css` would have added 0.62 kB of unused tokens, so only the two were added.
 
 **New lessons**
 
@@ -2410,10 +2410,11 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - `fastForward` past a debounce after one keystroke, then type the second, proves a one-character search is never sent; asserting only the final request does not.
 - A rate-limit test pins its own client address (`ApiFactory.ClientAddressHeader`) while the shared fixture gives every other request a random one, so a limit test never starves its neighbours in the collection.
 - Let the status-code page write a limiter's 429: `OnRejected` sets `Retry-After` and overrides the ProblemDetails code, so the refusal has the same shape as every other.
+- Never bind `[class.x]` in a library component: compose the class string and bind `[attr.class]`. One such binding anywhere an app reaches adds about 4.3 kB to that app's initial bundle. Measure a base by checking out the base's files, never by a build that already holds the change.
 - A cursor over a name puts the name last and splits with a count, so a `|` in a name cannot break it.
 
 **How earlier lessons worked**
 
 - "Prove a rule red by breaking it alone" (1.1 on): each backend rule (status filter, hosting `>`, seed publish, escape, signed-in exemption, minimum length) failed exactly its tests; restored.
 - "A fixture default for a new call" (15.1 on): `GET /api/directory` answers nobody listed by default, and the six-item navigation changed three older specs and the tab-bar unit test, found by grepping for the five-item lists.
-- "Measure bundle changes on both apps" (bundle follow-up): admin, untouched, served as the baseline for web's 0.07 kB growth.
+- "Measure bundle changes on both apps" (bundle follow-up) and "the first use of an `@angular/core` API can grow `main`" (AGENTS.md): applied too late. Admin's growth with no admin code was the signal; comparing CI's totals with main's run of the same base caught it before merge.
