@@ -166,6 +166,17 @@ export class WebEventsPage {
     );
   }
 
+  /** Each card's series line, or null for a standalone event (L2-009 AC1). */
+  seriesLines(): Promise<(string | null)[]> {
+    return this.cards.evaluateAll((cards) =>
+      cards.map(
+        (card) =>
+          card.querySelector('.event-card__series')?.textContent?.replace(/\s+/g, ' ').trim() ??
+          null,
+      ),
+    );
+  }
+
   /** The page head's subtitle. */
   get subtitle(): Locator {
     return this.page.locator('.page-head .subtitle');

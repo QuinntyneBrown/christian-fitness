@@ -33,6 +33,14 @@ internal static class MemberSeries
         return await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
     }
 
+    /// <summary>Reads the first page of By date with <paramref name="query"/> (no leading <c>?</c>); asserts 200.</summary>
+    public static async Task<JsonElement> EventsAsync(HttpClient client, string cookie, string query = "")
+    {
+        using var response = await Browser.SendAsync(client, HttpMethod.Get, query.Length == 0 ? "/api/events" : $"/api/events?{query}", cookie);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+    }
+
     /// <summary>The titles of a list, in order.</summary>
     public static List<string?> TitlesOf(JsonElement list) =>
         [.. list.GetProperty("series").EnumerateArray().Select(s => s.GetProperty("title").GetString())];

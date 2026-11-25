@@ -54,6 +54,7 @@ export * from './events/event-detail-view';
 export * from './events/event-full';
 export * from './events/event-category-filter';
 export * from './events/event-list-query';
+export * from './events/series-cadence';
 export * from './events/series-filter';
 export * from './events/series-row-view';
 export * from './events/events-no-results';

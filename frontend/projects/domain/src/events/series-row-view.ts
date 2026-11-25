@@ -1,5 +1,6 @@
 import type { AdminSessionState, SeriesRowDto } from '@cf/api';
-import { seriesCadenceText, seriesDayOf, seriesTimeOf } from './admin-series-view';
+import { seriesDayOf, seriesTimeOf } from './admin-series-view';
+import { seriesCadenceText } from './series-cadence';
 import { eventImageSrc, priceOf } from './event-card-view';
 import { EVENT_TIME_ZONE } from './event-when';
 

@@ -17,6 +17,16 @@
     <p class="event-card__meta">
       {{ type() }} · <span class="visually-hidden">{{ date() }}, </span>{{ time() }}
     </p>
+    @if (series(); as line) {
+      <p class="event-card__series">
+        <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m17 2 4 4-4 4" />
+          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+          <path d="m7 22-4-4 4-4" />
+          <path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg
+        ><span>{{ line }}</span>
+      </p>
+    }
     @if (headingLevel() === 3) {
       <h3 class="event-card__title">{{ heading() }}</h3>
     } @else {

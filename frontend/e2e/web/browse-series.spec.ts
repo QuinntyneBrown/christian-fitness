@@ -1,5 +1,5 @@
 import { expect, test } from '../fixtures/test';
-import { answerEvents, SUNRISE_5K } from '../fixtures/events';
+import { answerEvents, generatedEvent, SUNRISE_5K } from '../fixtures/events';
 import {
   answerSeries,
   answerSeriesCount,
@@ -74,52 +74,53 @@ test.describe('Member app, browse event series: the view switch', () => {
 
 // L2-050 AC1, AC4, AC5 (ADR 0093): the Series view lists series by next session as rows.
 test.describe('Member app, browse event series: the list', () => {
-  test('The Series view lists each series as the mock draws it, in the order the API gives, each leading to its series', async ({
-    page,
-    api,
-  }) => {
-    answerSeriesCount(api, 3);
-    const asked = answerSeries(api, [COUCH_TO_5K, PARK_BOOTCAMP, HOOPS_DEVOTION]);
-    const events = new WebEventsPage(page);
-    await events.openWith('?view=series');
+  test(
+    'The Series view lists each series as the mock draws it, in the order the API gives, each leading to its series',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerSeriesCount(api, 3);
+      const asked = answerSeries(api, [COUCH_TO_5K, PARK_BOOTCAMP, HOOPS_DEVOTION]);
+      const events = new WebEventsPage(page);
+      await events.openWith('?view=series');
 
-    await expect(events.seriesRows).toHaveCount(3);
-    expect(await events.readSeriesRows()).toEqual([
-      {
-        href: `/events/series/${COUCH_TO_5K.id}`,
-        meta: 'Every Tuesday · 6:30 PM',
-        title: 'Couch to 5K Run Club',
-        sub: 'Lakeshore Runners Fellowship · Etobicoke · Apr 7 – May 26',
-        bars: ['done', 'done', 'next', '', '', 'cancelled', '', ''],
-        done: '2 of 7 sessions done',
-        end: 'Joined',
-        next: 'Next Apr 21',
-      },
-      {
-        href: `/events/series/${PARK_BOOTCAMP.id}`,
-        meta: 'Every Saturday · 8:00 AM',
-        title: 'Saturday Park Bootcamp',
-        sub: 'Danielle Okafor · Waterfront · Apr 4 – May 23',
-        bars: ['done', 'done', 'done', 'next', '', '', '', ''],
-        done: '3 of 8 sessions done',
-        end: '$64 for all 8',
-        next: 'Next Apr 25',
-      },
-      {
-        href: `/events/series/${HOOPS_DEVOTION.id}`,
-        meta: '6 dates · 7:00 PM',
-        title: 'Women’s Hoops & Devotion',
-        sub: 'Faith & Footwork · Downtown · Jan – Jun',
-        bars: ['done', 'done', 'done', 'next', '', ''],
-        done: '3 of 6 sessions done',
-        end: 'Free',
-        next: 'Next Apr 30',
-      },
-    ]);
-    // Asked with no filter; the date list was never asked for.
-    expect(asked.requests).toEqual([{ category: null, q: null, joined: null }]);
-    await expect(events.cards).toHaveCount(0);
-  });
+      await expect(events.seriesRows).toHaveCount(3);
+      expect(await events.readSeriesRows()).toEqual([
+        {
+          href: `/events/series/${COUCH_TO_5K.id}`,
+          meta: 'Every Tuesday · 6:30 PM',
+          title: 'Couch to 5K Run Club',
+          sub: 'Lakeshore Runners Fellowship · Etobicoke · Apr 7 – May 26',
+          bars: ['done', 'done', 'next', '', '', 'cancelled', '', ''],
+          done: '2 of 7 sessions done',
+          end: 'Joined',
+          next: 'Next Apr 21',
+        },
+        {
+          href: `/events/series/${PARK_BOOTCAMP.id}`,
+          meta: 'Every Saturday · 8:00 AM',
+          title: 'Saturday Park Bootcamp',
+          sub: 'Danielle Okafor · Waterfront · Apr 4 – May 23',
+          bars: ['done', 'done', 'done', 'next', '', '', '', ''],
+          done: '3 of 8 sessions done',
+          end: '$64 for all 8',
+          next: 'Next Apr 25',
+        },
+        {
+          href: `/events/series/${HOOPS_DEVOTION.id}`,
+          meta: '6 dates · 7:00 PM',
+          title: 'Women’s Hoops & Devotion',
+          sub: 'Faith & Footwork · Downtown · Jan – Jun',
+          bars: ['done', 'done', 'done', 'next', '', ''],
+          done: '3 of 6 sessions done',
+          end: 'Free',
+          next: 'Next Apr 30',
+        },
+      ]);
+      // Asked with no filter; the date list was never asked for.
+      expect(asked.requests).toEqual([{ category: null, q: null, joined: null }]);
+      await expect(events.cards).toHaveCount(0);
+    },
+  );
 
   test('While the list loads, skeleton rows show; then the rows replace them', async ({
     page,
@@ -264,6 +265,35 @@ test.describe('Member app, browse event series: filters', () => {
     await expect(events.joinedFilter).not.toBeChecked();
     await expect(events.seriesFilter('All')).toHaveAttribute('aria-current', 'page');
     expect(asked.requests.at(-1)).toEqual({ category: null, q: null, joined: null });
+  });
+
+  test('By date shows a series’ session with its series line, and a standalone event without one', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 3);
+    answerEvents(api, [
+      SUNRISE_5K,
+      {
+        ...generatedEvent(1),
+        title: 'Couch to 5K Run Club',
+        series: {
+          id: COUCH_TO_5K.id,
+          title: 'Couch to 5K Run Club',
+          number: 3,
+          total: 8,
+          cadence: { weekday: 2, dates: 7 },
+        },
+      },
+    ]);
+    const events = new WebEventsPage(page);
+    await events.open();
+
+    await expect(events.cards).toHaveCount(2);
+    expect(await events.seriesLines()).toEqual([
+      null,
+      'Part of Couch to 5K Run Club · Session 3 of 8 · Every Tuesday',
+    ]);
   });
 
   test('Switching views clears the other view’s filters', async ({ page, api }) => {

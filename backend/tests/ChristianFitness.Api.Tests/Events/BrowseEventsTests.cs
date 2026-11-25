@@ -74,8 +74,10 @@ public sealed class BrowseEventsTests(BrowseEventsFactory factory) : IClassFixtu
         var ours = page.GetProperty("events").EnumerateArray().Where(e => e.GetProperty("id").GetString() is { } id && (id == later.ToString() || id == sooner.ToString())).ToList();
         Assert.Equal([sooner.ToString(), later.ToString()], ours.Select(e => e.GetProperty("id").GetString()));
         Assert.Equal(
-            ["area", "capacity", "category", "going", "id", "imageKey", "place", "priceCents", "startsAt", "title"],
+            ["area", "capacity", "category", "going", "id", "imageKey", "place", "priceCents", "series", "startsAt", "title"],
             ours[1].EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        // A standalone event is part of no series (ADR 0093).
+        Assert.Equal(JsonValueKind.Null, ours[1].GetProperty("series").ValueKind);
         Assert.Equal(("Later Run", "workout", 1000, 50, 38, "0123456789abcdef0123456789abcdef.jpg"), (
             ours[1].GetProperty("title").GetString(),
             ours[1].GetProperty("category").GetString(),

@@ -80,3 +80,28 @@ describe('eventCardViewOf', () => {
     );
   });
 });
+
+// L2-009 AC1 (ADR 0080, ADR 0093): a session's card adds its series line; a standalone event none.
+describe('eventCardViewOf, a session', () => {
+  it.each([
+    {
+      cadence: { weekday: 2, dates: 7 },
+      number: 3,
+      total: 8,
+      expected: 'Part of Couch to 5K Run Club · Session 3 of 8 · Every Tuesday',
+    },
+    {
+      cadence: { weekday: null, dates: 6 },
+      number: 4,
+      total: 6,
+      expected: 'Part of Couch to 5K Run Club · Session 4 of 6 · 6 dates',
+    },
+  ])('reads "$expected"', ({ cadence, number, total, expected }) => {
+    const series = { id: 's1', title: 'Couch to 5K Run Club', number, total, cadence };
+    expect(eventCardViewOf({ ...SUNRISE, series }).series).toBe(expected);
+  });
+
+  it.each([{ series: null }, {}])('has no series line for a standalone event (%o)', (extra) => {
+    expect(eventCardViewOf({ ...SUNRISE, ...extra })).not.toHaveProperty('series');
+  });
+});

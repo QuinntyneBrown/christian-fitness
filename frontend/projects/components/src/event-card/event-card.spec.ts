@@ -70,6 +70,21 @@ describe('EventCard', () => {
     );
   });
 
+  it('reads a session’s series line after the time and before the title; a standalone event has none', async () => {
+    const session = await render({
+      series: 'Part of Couch to 5K Run Club · Session 3 of 8 · Every Tuesday',
+    });
+    const standalone = await render();
+
+    expect(readableText(session.querySelector('a')!)).toBe(
+      'Run · Apr 18, Sat 6:45 AM Part of Couch to 5K Run Club · Session 3 of 8 · Every Tuesday Easter Sunrise 5K Martin Goodman Trail, Marilyn Bell Park 142 going Free',
+    );
+    expect(session.querySelector('.event-card__series svg')?.getAttribute('aria-hidden')).toBe(
+      'true',
+    );
+    expect(standalone.querySelector('.event-card__series')).toBeNull();
+  });
+
   it('hides the image and the date badge, and titles the card with a heading', async () => {
     const el = await render();
 

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Series;
 using ChristianFitness.Domain.Events;
 using FluentValidation;
 using MediatR;
@@ -8,7 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
-/// <summary>An event as a member's list shows it (L2-009 AC1; ADR 0027); the app words the date and the price.</summary>
+/// <summary>
+/// The series a session belongs to, as its card reads it (L2-009 AC1; ADR 0080, ADR 0093): its
+/// number and the total among all the series' dates in date order, cancelled ones included, and the
+/// cadence as numbers.
+/// </summary>
+public sealed record EventSeriesTagDto(Guid Id, string Title, int Number, int Total, SeriesCadenceDto Cadence);
+
+/// <summary>
+/// An event as a member's list shows it (L2-009 AC1; ADR 0027); the app words the date and the
+/// price. <see cref="Series"/> is a session's series, none for a standalone event.
+/// </summary>
 public sealed record EventSummaryDto(
     Guid Id,
     string Title,
@@ -19,7 +30,8 @@ public sealed record EventSummaryDto(
     int PriceCents,
     int Capacity,
     int Going,
-    string? ImageKey);
+    string? ImageKey,
+    EventSeriesTagDto? Series = null);
 
 /// <summary>One page of the member list and the cursor of the next, or none when this is the last.</summary>
 public sealed record EventPageDto(IReadOnlyList<EventSummaryDto> Events, string? NextCursor);
@@ -133,6 +145,12 @@ internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader re
             events = events.Where(e => mine.Contains(e.Id));
         }
 
+        // Only each series' first session of those that match (ADR 0080, ADR 0093): a session is
+        // kept when no matching session of its series starts before it (ties by id).
+        var matching = events;
+        events = events.Where(e => e.SeriesId == null
+            || !matching.Any(o => o.SeriesId == e.SeriesId && (o.StartsAt < e.StartsAt || (o.StartsAt == e.StartsAt && o.Id.CompareTo(e.Id) < 0))));
+
         if (request.Cursor is not null && EventCursor.TryParse(request.Cursor, out var after))
         {
             events = events.Where(e => e.StartsAt > after.StartsAt || (e.StartsAt == after.StartsAt && e.Id.CompareTo(after.Id) > 0));
@@ -146,13 +164,47 @@ internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader re
             .ConfigureAwait(false);
         var page = found.Take(ListEventsQuery.PageSize).ToList();
         var going = await registrations.GoingForAsync([.. page.Select(e => e.Id)], cancellationToken).ConfigureAwait(false);
+        var tags = await SeriesTags.OfAsync(db, page, cancellationToken).ConfigureAwait(false);
 
         var summaries = page
             .Select(e => new EventSummaryDto(
                 e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.Area, e.PriceCents, e.Capacity,
-                going.GetValueOrDefault(e.Id), e.ImageKey))
+                going.GetValueOrDefault(e.Id), e.ImageKey, tags.GetValueOrDefault(e.Id)))
             .ToList();
         var next = found.Count > ListEventsQuery.PageSize ? EventCursor.Of(page[^1].StartsAt, page[^1].Id) : null;
         return new EventPageDto(summaries, next);
+    }
+}
+
+/// <summary>The series tag of each session on a page (ADR 0080, ADR 0093), read in two questions.</summary>
+internal static class SeriesTags
+{
+    public static async Task<Dictionary<Guid, EventSeriesTagDto>> OfAsync(IAppDbContext db, IReadOnlyCollection<Event> page, CancellationToken cancellationToken)
+    {
+        var seriesIds = page.Where(e => e.SeriesId is not null).Select(e => e.SeriesId!.Value).Distinct().ToList();
+        if (seriesIds.Count == 0)
+        {
+            return [];
+        }
+
+        var titles = await db.EventSeries.AsNoTracking()
+            .Where(s => seriesIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, s => s.Title, cancellationToken)
+            .ConfigureAwait(false);
+        var sessions = await SeriesReads.SessionsOfAsync(db, seriesIds, cancellationToken).ConfigureAwait(false);
+        var tags = new Dictionary<Guid, EventSeriesTagDto>();
+        foreach (var e in page.Where(e => e.SeriesId is not null))
+        {
+            var all = sessions[e.SeriesId!.Value].ToList();
+            var cadence = SeriesSchedule.CadenceOf(all.Select(s => s.Times));
+            tags[e.Id] = new EventSeriesTagDto(
+                e.SeriesId.Value,
+                titles[e.SeriesId.Value],
+                all.FindIndex(s => s.Id == e.Id) + 1,
+                all.Count,
+                SeriesCadenceDto.Of(cadence));
+        }
+
+        return tags;
     }
 }

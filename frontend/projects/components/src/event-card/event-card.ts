@@ -28,7 +28,8 @@ export function eventCardEnd(price: string, spotsLeft: number | undefined): Even
  * nested link or button. The image is decorative and the date badge hidden; the date is repeated
  * in visually hidden text in the meta line. The title is a heading (`h2` in the grid, or `h3`), so
  * the grid can be navigated by heading. "Going" is a word on the image when the member is
- * registered, and few spots left is said in words, not colour alone. Words are rendered as text.
+ * registered, and few spots left is said in words, not colour alone. A session of a series adds
+ * its series line under the meta line (`event-card__series`). Words are rendered as text.
  */
 @Component({
   selector: 'cf-event-card',
@@ -56,6 +57,8 @@ export class EventCard {
   readonly price = input.required<string>();
   /** Spots left, passed only when few remain. */
   readonly spotsLeft = input<number>();
+  /** A session's series line, "Part of … · Session 3 of 8 · Every Tuesday"; none for a standalone event. */
+  readonly series = input<string>();
   /** The member is registered: shows "Going" on the image. */
   readonly registered = input(false, { transform: booleanAttribute });
 

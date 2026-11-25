@@ -13,6 +13,14 @@ export interface EventSummary {
   capacity: number;
   going: number;
   imageKey: string | null;
+  /** A session's series (ADR 0093): its number and total among all its dates, and the cadence. */
+  series?: {
+    id: string;
+    title: string;
+    number: number;
+    total: number;
+    cadence: { weekday: number | null; dates: number };
+  } | null;
 }
 
 /** The first event of the mock `events/default`: 6:45 AM on Saturday, April 18 in Toronto. */

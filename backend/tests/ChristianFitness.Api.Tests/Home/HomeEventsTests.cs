@@ -104,8 +104,10 @@ public sealed class HomeEventsTests(HomeFactory factory) : IClassFixture<HomeFac
         var next = home.GetProperty("nextEvent");
         Assert.Equal(sooner.ToString(), next.GetProperty("id").GetString());
         Assert.Equal(
-            ["area", "capacity", "category", "going", "id", "imageKey", "place", "priceCents", "startsAt", "title"],
+            ["area", "capacity", "category", "going", "id", "imageKey", "place", "priceCents", "series", "startsAt", "title"],
             next.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        // A standalone event is part of no series (ADR 0093).
+        Assert.Equal(JsonValueKind.Null, next.GetProperty("series").ValueKind);
         Assert.Equal((1, "mobility"), (next.GetProperty("going").GetInt32(), next.GetProperty("category").GetString()));
     }
 

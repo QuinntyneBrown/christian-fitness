@@ -1,10 +1,6 @@
-import type {
-  AdminSeriesDto,
-  AdminSeriesRowDto,
-  AdminSessionState,
-  SeriesCadenceDto,
-} from '@cf/api';
+import type { AdminSeriesDto, AdminSeriesRowDto, AdminSessionState } from '@cf/api';
 import { capacityUsed } from './capacity-used';
+import { seriesCadenceText } from './series-cadence';
 import { eventImageSrc, priceOf } from './event-card-view';
 import { EVENT_TIME_ZONE } from './event-when';
 
@@ -56,20 +52,10 @@ export interface AdminSeriesView {
   sessions: AdminSessionView[];
 }
 
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
 // Made once on first use, not at import: formatters are costly to create.
 let timeFormat: Intl.DateTimeFormat | undefined;
 let rangeFormat: Intl.DateTimeFormat | undefined;
 let sessionFormat: Intl.DateTimeFormat | undefined;
-
-/** How often a series meets, in words (ADR 0091): "Every Tuesday", "6 dates", "No dates yet". */
-export function seriesCadenceText(cadence: SeriesCadenceDto): string {
-  const day = cadence.weekday === null ? undefined : WEEKDAYS[cadence.weekday];
-  if (day) return `Every ${day}`;
-  if (cadence.dates === 0) return 'No dates yet';
-  return cadence.dates === 1 ? '1 date' : `${cadence.dates} dates`;
-}
 
 /** "6:30 PM" in Toronto; ICU's narrow no-break space before AM and PM becomes a plain space. */
 export function seriesTimeOf(instant: string): string {
