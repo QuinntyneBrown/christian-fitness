@@ -6,7 +6,7 @@ Each issue of The Abundant Weekly is emailed to its subscribers and also kept on
 anyone can read the latest issue without subscribing (`L1-018`). The landing page footer, the
 Subscribe screen's "Read the full issue" and "Read last week's issue" lead here. This feature is
 the Newsletter page of the Member web app at `/newsletter` and `/newsletter/<number>` (mock
-`docs/mocks/pages/newsletter/`, states `default`, `loading` and `error`).
+`docs/mocks/pages/newsletter/`, states `default`, `unpublished`, `loading` and `error`).
 
 - **issue** — one numbered edition of the newsletter, built and scheduled by an Admin (`publishing/build-and-schedule-newsletter`)
 - **sent issue** — issue whose sending has finished; only sent issues are on the web
@@ -15,7 +15,7 @@ the Newsletter page of the Member web app at `/newsletter` and `/newsletter/<num
 
 The page shows one `article`: the masthead with the newsletter's name, issue number and date; the
 editor's note; the big story with image, title, summary and "Read the story"; "On the calendar"
-with the next four published events at the time of sending; "Worth your time" with three more
+with the next four published events at the time of sending regardless of featured toggles; "Worth your time" with three more
 stories; a verse with its reference; and the footer. A signed-in member is greeted by first name;
 anyone else is not greeted.
 
@@ -57,22 +57,19 @@ anyone else is not greeted.
 - **`GetIssueHandler`** — takes a `PublicReadLimiter` lease (`news/read-story`), then reads the
   `NewsletterIssue` with `Status = Sent`, the latest by `SentAt` or the one with that number. None
   sent, an unknown number, or an issue not yet sent is refused with 404 `not_found` (`L2-059` AC4).
-  It answers `IssueDto`: `number`, `sentAt`, the newsletter's name and the captured content.
+  It answers `IssueDto`: `number`, `sentAt`, the newsletter's name and the captured content,
+  excluding every story that is no longer published, including the lead if applicable. Already
+  sent emails cannot change (`L2-059` AC7).
 - **Captured content** — `NewsletterIssue.Sent` (`IssueContent`) is written by the sending
   handler at the moment sending starts (`publishing/build-and-schedule-newsletter`): the editor's
   note and sign-off, the big story and the briefs as `IssueStoryItem` (slug, section, title,
   summary, byline, image key) and the next four published events as `IssueEventItem` (start, title,
   area, price), so the web version reads as the email did and later edits do not change it
-  (`L2-059` AC1). Dates and weekdays are shown in `America/Toronto`.
+  (`L2-059` AC1), except that the web response hides stories since unpublished. Dates and weekdays
+  are shown in `America/Toronto`.
 
 ### Open questions
 
-- **"On the calendar".** `L2-059` AC1 shows "the next four published events at the time of
-  sending", while the builder offers "Events this week" as toggles (`L2-070` AC2). Whether the
-  toggles choose the calendar, or the calendar is always the next four, is not settled; the design
-  captures the toggled events and caps them at four (`<TO SUPPLY>`).
-- **Unpublished stories.** The captured content links to stories by slug. A story unpublished
-  after sending leads to the not-found view; whether the issue should hide it is not specified.
 - **Email body.** The web version and the email share `IssueContent`; whether the email itself is
   HTML is open in `confirm-and-unsubscribe`.
 - **Mock "loading" bar.** The mock's loading bar already names "Issue 48"; for `/newsletter` the
@@ -86,7 +83,7 @@ criteria; the text below condenses those criteria faithfully.
 
 | L2 ID    | Refines (L1) | Requirement |
 | -------- | ------------ | ----------- |
-| `L2-059` | `L1-018`     | Given a sent issue, `/newsletter` shall show the latest issue as the email reads: the masthead with name, issue number and date; the editor's note; the big story with image, title, summary and "Read the story", which opens it; "On the calendar" with the next four published events at the time of sending (date, title, weekday, time, area and price); "Worth your time" with three more stories; a verse with its reference; and the footer. `/newsletter/<number>` shall show that issue. A bar above the issue shall lead back to the news and read "Issue <number> · web version", and the greeting shall use the reader's first name only for a signed-in member. In the footer, "Manage preferences" and "Follow by RSS" shall lead to Subscribe and its feeds and "Unsubscribe" to Subscribe; only the link in a subscriber's own email shall unsubscribe. No sent issue, or an unknown number, shall show the not-found view. Loading shall show a skeleton under the bar; a failure shall offer Try again and a way back to the news. The issue shall be one `article` with one `h1`, headings in order, a reading width of no more than 42rem and no horizontal overflow at XS. |
+| `L2-059` | `L1-018`     | `/newsletter` shall show the latest sent issue and `/newsletter/<number>` that issue, including the next four published events at sending regardless of featured toggles. A story unpublished after sending shall be hidden on the web; sent emails cannot change. A bar shall identify the web version, and only a signed-in member is greeted by name. Footer links shall lead to Subscribe and its feeds; only a subscriber's own email link unsubscribes. Unknown issues shall show not-found, loading shall show a skeleton and failure shall offer Try again and a way back. The issue shall be one `article` with one `h1`, headings in order, at most 42rem wide and without horizontal overflow at XS. |
 
 ## Diagrams
 

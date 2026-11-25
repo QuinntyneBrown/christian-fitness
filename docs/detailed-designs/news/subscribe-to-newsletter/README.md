@@ -11,7 +11,6 @@ law asks for (`docs/mocks/README.md`, "Newsletter confirmation and unsubscribe")
 - **subscription** — an email address's standing with the newsletter: Pending, Subscribed or Unsubscribed
 - **pending** — address that asked to subscribe and has not followed its confirmation link
 - **extras** — the three optional emails beside the Weekly: Event alerts, Training plan of the week and Morning devotion
-- **readers** — number of Subscribed addresses with the Weekly on
 - **network** — client address as rate limits count it: an IPv4 address, or the /64 of an IPv6 address (`IClientAddress`)
 
 This feature covers the Subscribe screen of the Member web app at `/subscribe` (mock
@@ -38,19 +37,20 @@ to send the newsletter, never shared, and never written to a span, metric or log
   `FEEDS_SERVICE` and `CLIPBOARD_SERVICE` (`publish-rss-feeds`). On open it fills the email field
   from navigation state, asks `summary()` and, at `#rss`, moves focus to the feeds heading. It
   composes the mock's blocks: `masthead masthead--plain` with Back to news, `subscribe` (lead,
-  form, extras, note), `issue-preview` and `rss`. At XS the email field and button stack and the
+  form, note), `issue-preview` and `rss`. Neither reader count nor add-on controls are shown;
+  add-on emails are deferred until someone owns writing and scheduling them. At XS the email field and button stack and the
   latest issue follows the form (`L2-057` AC9); the layout lives in the blocks' stylesheets.
 - **`SubscribeForm`** — signal store in the `domain` library, on the page's `providers`. It holds
-  the email, the extras (Event alerts ticked by default, `L2-057` AC2) and a state: `idle`,
+  the email and a state: `idle`,
   `invalid`, `submitting`, `sent`, `failed`, `limited`. `emailError(email)` answers "That email
   doesn't look right. Check for a typo and try again." for an empty value or one that is not
   `local@domain.tld` in form (the exact pattern is `<TO SUPPLY>`; the server is the authority).
   Typing clears `invalid` (`L2-057` AC3). A refusal with `too_many_attempts` sets `limited`; a 5xx
-  or no answer sets `failed`; both keep the email and extras (`L2-057` AC6, AC7). Unit tests cover
+  or no answer sets `failed`; both keep the email (`L2-057` AC6, AC7). Unit tests cover
   each transition.
 - **Presentation** — the form is built from the library's `TextField` (`input--pill input--lg`),
-  `Button` (`btn--primary btn--lg`, `aria-busy` while submitting), `Checkbox` (`check check--ui`)
-  and `Alert` for `error`, `limited` and `link-expired`. The outcome "Check your inbox" is a
+  `Button` (`btn--primary btn--lg`, `aria-busy` while submitting) and `Alert` for `error`, `limited`
+  and `link-expired`. The outcome "Check your inbox" is a
   `role="status"` region that takes focus, names the address as text and offers "Read last week's
   issue" (`/newsletter`) and "Use a different email", which returns the form empty (`L2-057` AC4).
   **`IssuePreview`** (block `issue-preview`) shows "Latest issue", the number, the lead story with
@@ -68,7 +68,7 @@ to send the newsletter, never shared, and never written to a span, metric or log
   Antiforgery applies to the POST as to every unsafe request (`L2-030` AC3); the page fetches a
   token from `GET /api/antiforgery` first.
 - **`GetNewsletterSummaryQuery`** / handler — answers `NewsletterSummaryDto`: `name`, `about`,
-  `cadence` ("Every Saturday, 7 AM"), `readers` and `latest` (`IssuePreviewDto`: number, lead
+  `cadence` ("Every Saturday, 7 AM") and `latest` (`IssuePreviewDto`: number, lead
   story and two more from the most recent Sent issue, or none). The name, description and cadence
   come from configuration (`Newsletter:Name`, `Newsletter:About`, `Newsletter:Cadence`), documented
   in `docs/operations/settings.md` with the change.
@@ -83,12 +83,14 @@ to send the newsletter, never shared, and never written to a span, metric or log
   - none or Unsubscribed — `NewsletterSubscription.Request` makes it Pending; a new
     `SubscriptionConfirmation` is issued and the confirmation email sent;
   - Pending — a new confirmation is issued with the extras now chosen and the email sent again;
-  - Subscribed — `UpdateExtras` sets the extras now chosen and no email is sent (`L2-057` AC5).
+  - Subscribed — `UpdateExtras` changes any explicitly submitted extras without confirmation,
+    leaving omitted extras, the address and Weekly subscription unchanged. If extras change,
+    send "Your newsletter settings changed" with an undo link (`L2-057` AC5).
 
   Each case answers `SubscribeAnswerDto(email)` with 202; the answer does not say which case ran.
 - **`NewsletterSubscription`** — entity in `ChristianFitness.Domain/Newsletter`: `Email` (unique,
   normalized), `Status`, `Weekly`, `Extras` (`NewsletterExtras`: `EventAlerts`, `TrainingPlan`,
-  `MorningDevotion`), `RequestedAt`, `ConsentedAt`, `UnsubscribedAt`. A class with no generated
+  `MorningDevotion`), `RequestedAt`, `ConsentedAt`, `ConsentSource`, `UnsubscribedAt`. A class with no generated
   `ToString`, so the address is never printed by accident (the pattern of `EmailMessage`).
 - **`SubscriptionConfirmation`** — entity: the SHA-256 hash of a 32-byte base64url token, the
   extras chosen, `ExpiresAt` 7 days after issue and `UsedAt`, as `PasswordReset` keeps its token
@@ -99,15 +101,18 @@ to send the newsletter, never shared, and never written to a span, metric or log
   and that ignoring it subscribes nobody (`L2-058` AC1). It is sent through the existing
   **`IEmailSender`**: `QueuedEmailSender` queues it and returns, so the answer takes as long
   whether or not an email was sent (ADR 0010).
+- **Settings-change undo** — the notification links to an opaque, scoped token identifying the
+  change, not the address or an unsubscribe action. Undo restores the previous extras for that
+  change without changing the address or Weekly subscription; it must not overwrite subsequent
+  settings changes. Tokens and addresses are never logged. The public form omits extras, so its
+  current submission leaves them unchanged. The accepted risk is that someone knowing an address
+  can otherwise add or remove submitted extras without confirming ownership.
 - **Telemetry** — spans carry the route template only (`TelemetryRedactionProcessor`); no log line
   names the address or the token; the delivery failure log names the exception type only, as
   `EmailDispatcher` does today.
 
 ### Open questions
 
-- **Extras of a subscribed address.** `L2-057` AC5 updates a subscribed address's extras on a new
-  submission, with no confirmation. Anyone who knows the address can then turn its extras on or
-  off. The specification settles it; the risk is recorded for review.
 - **Pending addresses never confirmed.** The specification deletes unsubscribed addresses within
   30 days (`L2-058` AC6) but says nothing of Pending ones. Deleting a Pending subscription once
   its last confirmation expires is proposed and needs a decision.
@@ -116,8 +121,6 @@ to send the newsletter, never shared, and never written to a span, metric or log
 - **Design-system gaps.** The mocks' blocks `subscribe`, `issue-preview`, `rss` and `feed` have no
   page in `docs/design-system/components/`. They are built as composites from library components
   unless the design system adds them first.
-- **Readers in the copy.** "Joined by 6,800 readers" is the live count; whether a small count is
-  shown or hidden is not specified.
 
 ## Requirements
 
@@ -127,7 +130,7 @@ acceptance criteria; the text below condenses those criteria faithfully.
 
 | L2 ID    | Refines (L1)       | Requirement |
 | -------- | ------------------ | ----------- |
-| `L2-057` | `L1-018`, `L1-013` | Anyone shall be able to subscribe to The Abundant Weekly with an email address and no account, and nothing shall be sent until the owner confirms. The landing page's newsletter box shall open `/subscribe` with the email filled in, and "Or follow by RSS" shall open it at its feeds. Subscribe shall show the newsletter's name, contents and schedule, an Email address field, "Subscribe free", "Also send me" with three optional labelled tick boxes (Event alerts ticked by default; Training plan of the week; Morning devotion), the number of readers, the latest issue's lead story and two more with "Read the full issue", and the feeds. A malformed or empty email shall send nothing and mark the field `aria-invalid="true"` with "That email doesn't look right. Check for a typo and try again.", cleared by typing. A valid email shall show "Subscribing…" on a disabled button and then "Check your inbox" (`role="status"`, focused) naming the address, with "Read last week's issue" and "Use a different email". An address already subscribed or awaiting confirmation shall get the same answer and screen; an awaiting address shall be sent the confirmation again and a subscribed one shall have its extras updated. A server failure or no answer shall show a message above the form and keep the email and extras. More than 5 subscriptions from one network in an hour shall be refused with `too_many_attempts` and HTTP 429 and a message to try later. An address shall be stored for sending only, never shared, and carried by no span, metric or log. At XS the field and button shall stack, the latest issue shall follow the form and each feed's actions shall sit under its address. |
+| `L2-057` | `L1-018`, `L1-013` | Anyone shall be able to subscribe with an email address and no account. Subscribe shall show the newsletter details, email field, latest issue preview and feeds, but not a reader count or add-on controls. Invalid addresses shall show an error; valid submissions shall show the same "Check your inbox" result regardless of subscription status. A pending address shall receive confirmation again; explicitly submitted extras for a subscribed address shall update without confirmation and any change shall send a settings-changed email with an undo link. Omitted extras stay unchanged. Failures shall preserve the email; rate limiting, privacy and XS layout follow AC7–AC9. |
 | `L2-033` | `L1-013`           | No log, metric or span shall contain an email, name, home church, message text, token, query string or body (AC2). |
 
 ## Diagrams

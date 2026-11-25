@@ -6,7 +6,7 @@ Each Saturday at 7 AM The Abundant Weekly goes to every confirmed subscriber (`L
 builds each issue in the Admin web app from published stories and events, tests it, and schedules
 it; at its time the system sends it once and keeps it on the web (`L1-022`). This feature is the
 console's Newsletter screen (mock `docs/mocks/pages/admin-newsletter/`, states `default`,
-`invalid`, `submitting`, `scheduled`, `test-sent`, `loading` and `error`) and the sending behind
+`invalid`, `submitting`, `scheduled`, `missed`, `test-sent`, `loading` and `error`) and the sending behind
 it.
 
 - **issue** — one numbered edition of the newsletter, Draft, Scheduled, Sending or Sent
@@ -17,7 +17,7 @@ it.
 - **confirmed subscriber** — Subscribed address with the Weekly on (`news/subscribe-to-newsletter`)
 - **missed issue** — issue still a Draft when its send time passed, so nothing was sent
 - **recipient mark** — per-recipient random mark, stored only as a hash with no link to the subscriber, that counts an open or a click once
-- **add-on emails** — event alerts, the training plan and devotions, which send on their own schedules and are not built here
+- **add-on emails** — event alerts, the training plan and devotions, deferred until someone owns writing and scheduling them
 
 The screen shows the newsletter's name, confirmed subscribers and cadence; the next issue's
 number and status; its Subject line, Editor's note, The big story, Also this week, Events this
@@ -35,7 +35,8 @@ share of opens and clicks.
   the mock's `split split--builder` layout with library components: `TextField` (subject, verse,
   reference), `Textarea` (editor's note), `Select` (the big story), `Checkbox` rows (block
   `pick-row`) for Also this week with "<n> of 3", toggle `Button`s with `aria-pressed` for Events
-  this week (block `interest`), the `send-card` composite ("Goes out" or "Scheduled for", date,
+  this week (block `interest`) selecting which of the next four events to feature, without changing
+  the calendar (`L2-059` AC1), the `send-card` composite ("Goes out" or "Scheduled for", date,
   "7:00 AM Eastern · <n> people", Schedule issue or "Unschedule to edit", Preview, Send me a test,
   `p role="status"`), the note on add-on emails (`L2-070` AC11), and a `Table` of sent issues.
   Loading shows skeletons, a failure "The newsletter didn't load" with Try again (`L2-070` AC12).
@@ -46,7 +47,8 @@ share of opens and clicks.
   `canPick(id)` is false for every unticked story once three are ticked, so the rest show as
   unavailable (`L2-070` AC2). In `scheduled` every field is read-only (`L2-070` AC6). `fieldCodes`
   mark each field `aria-invalid` with what to add ("Add a subject line before scheduling.";
-  `L2-070` AC5). Unit tests cover each rule.
+  `L2-070` AC5). A Draft autosaves through `save` 2 seconds after typing stops and shows
+  "Saved {time}" after success, as the story editor does (`L2-070` AC14). Unit tests cover each rule.
 - **`IssuePreviewPage`** — routed page at `newsletter/preview` in `projects/admin`, opened by
   Preview in a new tab; it renders the components library's `IssueView`
   (`news/read-newsletter-on-web`) from `GET …/issues/{number}/preview` (`L2-070` AC9). The mock's
@@ -64,7 +66,7 @@ share of opens and clicks.
 - **`GetNewsletterDeskQuery`** / handler — answers the name and cadence (settings of
   `news/subscribe-to-newsletter`), the number of confirmed subscribers (`L2-070` AC1), the next
   issue (number, status, send time, fields, `missedSend`), the published stories newest first
-  with section, age and `includeInWeekly`, the published upcoming events of the issue's week, and
+  with section, age and `includeInWeekly`, the next four published upcoming events, and
   the sent issues newest first with number, date, subject and opened and clicked shares
   (`L2-070` AC10). When no next issue exists it creates Draft number n + 1 with the next cadence
   time (Saturday 7:00 AM Toronto, through `EventSchedule`).
@@ -87,15 +89,17 @@ share of opens and clicks.
   (`write-review-publish-story`). For the issue whose send time has passed:
   - still a Draft: `MarkMissed()` and nothing is sent; the Dashboard's "Needs attention" says the
     issue was not scheduled (`L2-070` AC8; `admin-dashboard/view-dashboard`), and the Admin may
-    schedule it for a later time the same day;
+    schedule it for any later time that same day in `America/Toronto`; after that day an unsent
+    issue returns to Draft and is not sent unless scheduled again;
   - Scheduled: `StartSending` captures the `IssueContent` (`news/read-newsletter-on-web`), sets
     Sending, and writes one `IssueDelivery` (subscription, a fresh random mark token) and one
     `IssueRecipientMark` (the mark's hash only) per confirmed subscriber, in one unit of work, so
     a second tick finds nothing to send (`L2-070` AC7). Audited as `newsletter_issue.sent` against
-    the Admin who scheduled it.
+    the Admin who scheduled it, marked "sent by scheduler".
 - **`IssueSender`** — `BackgroundService` in Infrastructure that takes unsent `IssueDelivery` rows
   in batches, composes each email through `NewsletterEmails` (greeting by first name where a member
-  account has that address, else none; the subscriber's own Unsubscribe link and `List-Unsubscribe`
+  account has that address, reading the name only at send time, or "Hi there" for a non-member or
+  member without a name; the subscriber's own Unsubscribe link and `List-Unsubscribe`
   headers, `L2-058` AC4; an open image and links carrying the mark), hands it to `IEmailSender` and
   marks the delivery sent. With none left it sets the issue Sent with `SentAt` and
   `RecipientCount` and deletes the deliveries, which ends every link between a mark and a
@@ -115,26 +119,9 @@ share of opens and clicks.
   `IssueDelivery` table is this design's durable queue, and `IssueSender` needs back-pressure from
   the transport (or a transport-level batch API) before it hands over more. The SMTP relay's
   sending limits are `<TO SUPPLY>`. This needs an ADR.
-- **Saving a draft issue.** The mock has no Save button and no saved indicator, and `L2-070` says
-  nothing of keeping a draft between visits. The design saves fields with `SaveIssueCommand` after
-  a pause, as the story editor does; that behaviour, and its interval, need confirming and a mock
-  state.
-- **Rescheduling a missed issue.** `L2-070` AC8 lets a missed issue be scheduled for a later time
-  the same day, but the send card has no time field. A mock state and the rule for the time (any
-  later time that day, Toronto) are `<TO SUPPLY>`.
-- **Events this week and On the calendar.** The builder toggles events; the web version shows "the
-  next four published events at the time of sending" (`L2-059` AC1). See
-  `news/read-newsletter-on-web`.
 - **Opens and clicks.** An open image is blocked or prefetched by many mail clients, so open shares
   are estimates. Whether tracking images and redirected links are acceptable under the Privacy
   Policy (`L2-067`) is `<TO SUPPLY>`.
-- **Who scheduled a sent issue.** The audit entry for `newsletter_issue.sent` names the Admin who
-  scheduled it, since the clock has no member; whether that is the intended "who" is `<TO SUPPLY>`.
-- **Add-on emails.** They "send on their own schedules" (`L2-070` AC11), but nothing builds or
-  schedules them (`docs/mocks/README.md`, open question 14).
-- **First name of a subscriber.** A subscriber is greeted by first name "where one is known"; the
-  only source is a member account with the same address, which `L2-033` treats as personal data
-  read only at sending.
 
 ## Requirements
 
@@ -144,7 +131,7 @@ criteria; the text below condenses those criteria faithfully.
 
 | L2 ID    | Refines (L1)       | Requirement |
 | -------- | ------------------ | ----------- |
-| `L2-070` | `L1-022`, `L1-018` | Newsletter shall show the newsletter's name, how many subscribers are confirmed and when it is sent, and the next issue with its number and status (Draft or Scheduled). The issue shall have a Subject line, an Editor's note, "The big story" chosen from published stories, "Also this week" with up to three more published stories ticked ("<n> of 3", the rest unavailable once three are ticked), "Events this week" as toggles over published upcoming events, and a Verse to carry with its Reference. Stories marked "Include in the Weekly" shall be ticked under "Also this week" until three are, newest first. The send card shall show the date and time, the time zone, how many people it goes to, and "Schedule issue". An empty subject, no big story or an empty editor's note shall schedule nothing and mark the field with what to add. A complete issue shall become Scheduled with its fields locked, the card reading "Scheduled for" with "Unschedule to edit", which makes it a Draft again until sending starts. At its time a Scheduled issue shall be sent once to every confirmed subscriber with the newsletter on, greeting each by first name where known and carrying their own Unsubscribe link, and shall appear on the web and under "Sent". An issue still a Draft at its time shall send nothing, be named in the Dashboard's "Needs attention", and be schedulable for a later time the same day. "Send me a test" shall send the issue as it stands only to the Admin's own address, read "Test sent" and name the address in a `status` message; Preview shall open the web version in a new tab. "Sent" shall show each issue's number, date, subject and the shares who opened and clicked, counted without storing which subscriber did either. The screen shall say the add-on emails send on their own schedules. Loading shall show skeletons; a failure shall offer Try again; a Moderator shall see "Admins only". Scheduling, unscheduling and sending shall each record an audit entry of who and which issue. |
+| `L2-070` | `L1-022`, `L1-018` | The Admin shall build, preview, test and schedule an issue with published stories, a verse and featured selections from the next four events; the calendar always includes the next four. Drafts shall autosave 2 seconds after typing stops and show "Saved {time}". A scheduled issue shall be locked and sent once; the member's first name is read at send time, with "Hi there" for non-members or unnamed members. A missed issue can be scheduled for a later time that day in Toronto; after that day an unsent issue returns to Draft. Sent audit entries name the scheduling Admin and say "sent by scheduler". Add-ons are deferred pending ownership. Validation, test sending, aggregate metrics, loading, errors and access control follow AC1–AC13. |
 
 ## Diagrams
 

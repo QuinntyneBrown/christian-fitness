@@ -372,9 +372,9 @@ MOST_READ = [
 NEWSLETTER = {"name": "The Abundant Weekly", "cadence": "Every Saturday, 7 AM", "readers": "6,800", "issue": 48,
               "date": "Saturday, April 11, 2026"}
 ADD_ONS = [
-    ("events", "Event alerts", "New runs, workouts and retreats the day they post"),
-    ("plan", "Training plan of the week", "One short session to do on your own, Mondays"),
-    ("devotion", "Morning devotion", "Two minutes of scripture for body and spirit, weekdays"),
+    ("events", "Event alerts", "New runs, workouts and retreats. Not sending yet."),
+    ("plan", "Training plan of the week", "A short session to do on your own. Not sending yet."),
+    ("devotion", "Morning devotion", "Scripture for body and spirit. Not sending yet."),
 ]
 FEEDS = [
     ("all", "All stories", "https://christianfitness.ca/feed", "~20 a week"),

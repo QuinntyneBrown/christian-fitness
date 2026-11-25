@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from urllib.parse import quote
 
-from cf_data import ADD_ONS, FEEDS, GOOGLE_MEMBER, GOOGLE_STAFF, MEMBER_EVENTS, NEWSLETTER, ST, STORIES, STORY_BODY
+from cf_data import FEEDS, GOOGLE_MEMBER, GOOGLE_STAFF, MEMBER_EVENTS, NEWSLETTER, ST, STORIES, STORY_BODY
 from cf_ui import busy_label, error_block, form_alert, google_g, href, icon, image, loading_region, lockup, screen, seal
 from screens_member import SRC, ev_link, story_link
 
@@ -26,11 +26,6 @@ def subscribe_form(*, invalid: bool = False, busy: bool = False, failed: bool = 
              if invalid else "")
     submit = (f'<button class="btn btn--primary btn--lg" type="submit" disabled aria-busy="true">{busy_label("Subscribing…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg" type="submit">Subscribe free</button>')
-    d = " disabled" if busy else ""
-    addons = "".join(f"""<li><label class="check check--ui subscribe__addon">
-                  <input class="check__box" type="checkbox" name="also" value="{i}"{" checked" if i == "events" else ""}{d}>
-                  <span><span class="subscribe__addon-label">{label}</span><span class="subscribe__addon-detail">{detail}</span></span>
-                </label></li>""" for i, label, detail in ADD_ONS)
     value = "grace.thompson@gmail" if invalid else email
     return f"""<form class="subscribe__form" action="success.html" novalidate>
             {alert}
@@ -40,11 +35,7 @@ def subscribe_form(*, invalid: bool = False, busy: bool = False, failed: bool = 
               {submit}
             </div>
             {error}
-            <fieldset class="subscribe__addons">
-              <legend class="field__label">Also send me</legend>
-              <ul class="list-ruled">{addons}</ul>
-            </fieldset>
-            <p class="subscribe__note">Joined by {N["readers"]} readers. One click to unsubscribe, and we never share your address.</p>
+            <p class="subscribe__note">One click to unsubscribe, and we never share your address.</p>
           </form>"""
 
 
@@ -157,7 +148,7 @@ def _():
 def _():
     return subscribe(subscribe_panel(
         "circle-check", "You're subscribed",
-        'The Abundant Weekly will arrive at <strong>grace.thompson@gmail.com</strong> on Saturday at 7 AM, with event alerts as they post.',
+        'The Abundant Weekly will arrive at <strong>grace.thompson@gmail.com</strong> on Saturday at 7 AM.',
         f'<a class="btn btn--primary" href="{href("newsletter")}">Read last week’s issue {icon("arrow-right")}</a>').replace('tabindex="-1"', 'tabindex="-1" autofocus'))
 
 
@@ -206,7 +197,7 @@ def issue_page(inner: str) -> str:
 </div>"""
 
 
-def issue() -> str:
+def issue(*, unpublished: bool = False) -> str:
     lead, more = STORIES[0], STORIES[1:]
     briefs = "".join(f"""<li class="headline">
             <div class="headline__body">
@@ -215,7 +206,7 @@ def issue() -> str:
               <p class="story__meta">{x["author"]}</p>
             </div>
             {image(x["image"], "headline__image")}
-          </li>""" for x in (more[2], more[3], more[5]))
+          </li>""" for x in ((more[3], more[5]) if unpublished else (more[2], more[3], more[5])))
     week = "".join(f"""<li class="event-row">
             <div class="event-row__date"><p class="event-row__month">{e["month"]}</p><p class="event-row__day">{e["day"]}</p></div>
             <div class="event-row__body"><p class="event-row__title event-row__title--wrap">{e["title"]}</p><p class="event-row__meta">{e["weekday"]} {e["time"]} · {e["area"]} · {e["price"]}</p></div>
@@ -260,7 +251,7 @@ def issue() -> str:
         <p class="issue__links">
           <a href="{href("subscribe")}">Manage preferences</a>
           <a href="{href("subscribe", "default", "rss")}">Follow by RSS</a>
-          <a href="{href("subscribe", "unsubscribed")}">Unsubscribe</a>
+          <a href="{href("subscribe")}">Unsubscribe</a>
         </p>
         <p>Christian Fitness · Toronto, ON</p>
       </footer>
@@ -274,6 +265,11 @@ s = screen("newsletter", "page", "Newsletter", route="/newsletter", source=SRC +
 @s("default", "The web version of the latest issue, as the email reads: the editor's note, the big story, the week's events, three more stories, a verse, and the footer with preferences, RSS and Unsubscribe.")
 def _():
     return issue_page(issue())
+
+
+@s("unpublished", "A story was unpublished after sending: the web issue hides it; the sent email is unchanged.")
+def _():
+    return issue_page(issue(unpublished=True))
 
 
 @s("loading", "The issue is loading: the viewer bar is there; the issue shows as skeletons.")
