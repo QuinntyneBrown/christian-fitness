@@ -5,6 +5,7 @@
       Recurring programs. Members join the whole series or drop in to one date.
     </p>
   </div>
+  <cf-button (click)="newSeries()">New series</cf-button>
 </div>
 
 <ng-template #failed>
@@ -59,7 +60,9 @@
       <cf-empty-state
         heading="No series yet"
         text="A series is a run of dated sessions members join once, such as eight Tuesdays of Couch to 5K."
-      />
+      >
+        <cf-button slot="actions" size="sm" (click)="newSeries()">New series</cf-button>
+      </cf-empty-state>
     } @else {
       <div class="split split--picker">
         <cf-pick-cards

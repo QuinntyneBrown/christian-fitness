@@ -1,0 +1,149 @@
+<cf-dialog
+  heading="New series"
+  subtitle="Dates are added from the series itself, once it exists."
+  [titleId]="headingId"
+  [descriptionId]="descriptionId"
+  (closed)="close()"
+>
+  @if (errorItems().length > 0) {
+    @for (shown of [round()]; track shown) {
+      <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+    }
+  } @else if (failed()) {
+    <cf-alert heading="Couldn't create the series">
+      The server didn't respond. Nothing was changed and what you typed is still here; try again.
+    </cf-alert>
+  }
+  <cf-text-field
+    fieldId="f-title"
+    label="Title"
+    name="title"
+    [value]="values().title"
+    [error]="errors().title"
+    [readonly]="saving()"
+    (valueChange)="set('title', $event)"
+  />
+  <cf-select
+    fieldId="f-category"
+    label="Category"
+    name="category"
+    [options]="categories"
+    [value]="values().category"
+    [error]="errors().category"
+    [disabled]="saving()"
+    (valueChange)="setCategory($event)"
+  />
+  <cf-text-field
+    fieldId="f-host"
+    label="Host"
+    name="host"
+    autocomplete="off"
+    hint="Search Listed directory listings"
+    [value]="values().hostName"
+    [error]="errors().host"
+    [readonly]="saving()"
+    (valueChange)="searchHost($event)"
+  />
+  @if (hostChoices().length > 0) {
+    <cf-pick-cards
+      label="Matching hosts"
+      stack
+      [items]="hostChoices()"
+      (picked)="chooseHost($event)"
+    />
+  }
+  <p class="series-editor__host-status" id="f-host-status" role="status">{{ hostStatus() }}</p>
+  <cf-textarea
+    fieldId="f-description"
+    label="Description"
+    name="description"
+    rows="3"
+    hint="Up to 1,000 characters"
+    [value]="values().description"
+    [error]="errors().description"
+    [readonly]="saving()"
+    (valueChange)="set('description', $event)"
+  />
+  <cf-file-field
+    fieldId="f-image"
+    label="Image"
+    name="image"
+    optional
+    hint="JPEG, PNG or WebP, up to 5 MB"
+    [accept]="imageTypes"
+    [fileName]="values().imageName"
+    [error]="errors().image"
+    [disabled]="saving() || uploading()"
+    (fileChosen)="chooseImage($event)"
+    (removed)="removeImage()"
+  />
+  <cf-form-layout layout="grid">
+    <cf-text-field
+      fieldId="f-series-price"
+      label="Series price"
+      name="series-price"
+      hint="Leave blank for free"
+      [value]="values().seriesPrice"
+      [error]="errors().seriesPrice"
+      [readonly]="saving()"
+      (valueChange)="set('seriesPrice', $event)"
+    />
+    <cf-text-field
+      fieldId="f-drop-in-price"
+      label="Drop-in price"
+      name="drop-in-price"
+      hint="Leave blank if there is no drop-in"
+      [value]="values().dropInPrice"
+      [error]="errors().dropInPrice"
+      [readonly]="saving()"
+      (valueChange)="set('dropInPrice', $event)"
+    />
+  </cf-form-layout>
+  <cf-text-field
+    fieldId="f-capacity"
+    label="Capacity"
+    name="capacity"
+    type="number"
+    inputmode="numeric"
+    [min]="1"
+    [value]="values().capacity"
+    [error]="errors().capacity"
+    [readonly]="saving()"
+    (valueChange)="set('capacity', $event)"
+  />
+  <cf-text-field
+    fieldId="f-place"
+    label="Location"
+    name="place"
+    [value]="values().location"
+    [error]="errors().location"
+    [readonly]="saving()"
+    (valueChange)="set('location', $event)"
+  />
+  <cf-text-field
+    fieldId="f-area"
+    label="Suggestion area"
+    name="area"
+    hint="Where members are told about it: neighbourhood and city"
+    [value]="values().area"
+    [error]="errors().area"
+    [readonly]="saving()"
+    (valueChange)="set('area', $event)"
+  />
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button
+    slot="foot"
+    grow
+    [busy]="saving()"
+    [disabled]="saving() || uploading()"
+    (click)="save()"
+  >
+    @if (saving()) {
+      Creating…
+    } @else {
+      Create series
+    }
+  </cf-button>
+</cf-dialog>

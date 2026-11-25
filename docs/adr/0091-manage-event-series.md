@@ -103,5 +103,5 @@ these open or disagreed:
 - Journeys 10 to 13 build on `EventSeries`, the session fields and `SeriesEnrolment` without a new
   table; journey 12 adds joining (and the enrolment's status rules), journey 15 cancelling and
   restoring a date, which this screen does not offer yet.
-- A Moderator's navigation reads Dashboard, Event series and Members until their other areas ship.
+- A Moderator's navigation reads Dashboard, Event series, Listings and Members until their other areas ship.
 - The navigation counts and the admin hub remain to be built (`L2-021` AC3).

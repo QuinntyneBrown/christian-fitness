@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -73,7 +73,11 @@ type SeriesState =
 export default class AdminSeriesPage {
   private readonly api = inject(ADMIN_SERIES_SERVICE);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly toasts = inject(TOASTS_SERVICE);
+  /** True while an editor is open, so a second press opens no other. */
+  private editorOpen = false;
 
   /** Asks for the list, and so the chosen series, again. */
   private readonly reload = new Subject<void>();
@@ -96,7 +100,7 @@ export default class AdminSeriesPage {
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
       id: String(id),
-      tone: 'info',
+      tone: 'success',
       heading: title,
       text,
     })),
@@ -142,6 +146,27 @@ export default class AdminSeriesPage {
 
   protected choose(id: string): void {
     void this.router.navigate(['/series'], { queryParams: { id } });
+  }
+
+  /**
+   * New series (L2-071 AC12): opens the series editor; a created series is chosen, the list asked
+   * for again and a toast says so.
+   */
+  protected async newSeries(): Promise<void> {
+    if (this.editorOpen) return;
+    this.editorOpen = true;
+    // The editor and CDK Dialog load on the first New series, not with the page.
+    const { openSeriesEditor } = await import('../../dialogs/series-editor/series-editor-dialog');
+    if (this.destroyRef.destroyed) return;
+    openSeriesEditor(this.injector)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((created) => {
+        this.editorOpen = false;
+        if (!created) return;
+        this.toasts.show(`${created.title} created`, 'Add its first date so members can join.');
+        this.choose(created.id);
+        this.reload.next();
+      });
   }
 
   protected tryAgain(): void {

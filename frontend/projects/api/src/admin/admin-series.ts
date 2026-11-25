@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
-import type { EventCategory, EventHostDto } from './admin-events';
+import type { EventCategory, EventHostDto, EventHostListDto, EventImageDto } from './admin-events';
 
 /**
  * How often a series meets, as numbers (ADR 0091): the Toronto weekday (0 Sunday to 6 Saturday)
@@ -62,13 +62,46 @@ export interface AdminSeriesDto extends AdminSeriesRowDto {
   sessions: AdminSessionDto[];
 }
 
-/** Staff list and open event series (L2-071; ADR 0091); Moderators use it as Admins do. */
+/**
+ * What the series editor sends to create or save a series (L2-071 AC12; ADR 0091): the prices in
+ * cents (the series price 0 is free; a drop-in price of `null` is no drop-in), `null` for a number
+ * that was not one, which the API refuses with the field's code.
+ */
+export interface SeriesDraftDto {
+  title: string;
+  category: EventCategory;
+  summary: string;
+  imageKey: string | null;
+  hostListingId: string | null;
+  priceCents: number | null;
+  dropInPriceCents: number | null;
+  capacity: number | null;
+  place: string;
+  area: string;
+}
+
+/** Staff list, open and create event series (L2-071; ADR 0091); Moderators use it as Admins do. */
 export interface AdminSeriesApi {
   /** Every series, by its next session. A failure errors with an `ApiError`. */
   list(): Observable<AdminSeriesListDto>;
 
   /** One series and its sessions. An unknown id errors with code `not_found` (404). */
   get(id: string): Observable<AdminSeriesDto>;
+
+  /**
+   * New series (L2-071 AC12): the series with no dates. A field the API refuses errors with code
+   * `validation_failed` (400) naming it in `fieldCodes`.
+   */
+  create(draft: SeriesDraftDto): Observable<AdminSeriesDto>;
+
+  /** The host a new series starts with: the Christian Fitness team listing (L2-071 AC10). */
+  defaultHost(): Observable<EventHostDto>;
+
+  /** The Listed directory listings whose name matches `q`, for the Host picker (L2-071 AC10). */
+  searchHosts(q: string): Observable<EventHostListDto>;
+
+  /** Keeps one image (JPEG, PNG or WebP, up to 5 MB) and answers its key; `image_invalid` otherwise. */
+  uploadImage(file: File): Observable<EventImageDto>;
 }
 
 /** Binds {@link AdminSeriesApi}; the Event series page provides it on its routed component. */

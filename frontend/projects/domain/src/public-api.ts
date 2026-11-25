@@ -45,6 +45,7 @@ export * from './members/member-moderation';
 export * from './admin/session-expiry';
 export * from './events/admin-event-tabs';
 export * from './events/admin-series-view';
+export * from './events/series-draft';
 export * from './events/event-card-view';
 export * from './events/event-detail-view';
 export * from './events/event-full';
