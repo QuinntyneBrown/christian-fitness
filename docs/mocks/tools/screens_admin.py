@@ -48,8 +48,8 @@ def signin(mode: str = "") -> str:
     elif mode == "failed":
         alert = '<div class="auth__alert">' + form_alert("Google sign-in didn't finish", "You're not signed in. Try again in a moment.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
     elif mode == "session-expired":
-        # L2-018 AC6: the staff session ended after 30 idle minutes (ADR 0016).
-        alert = '<div class="auth__alert">' + form_alert("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on.") + "</div>"
+        # L2-018 AC6: the staff session ended at the 12-hour maximum (ADR 0062); idle expiry is ADR 0016.
+        alert = '<div class="auth__alert">' + form_alert("Your session expired", "You were signed out after 12 hours. Sign in again to continue.") + "</div>"
     label = "Try another Google account" if mode in notices else "Sign in with Google"
     return staff(f"""    <h1 class="display staff__title">Staff sign in</h1>
     <p class="staff__lead">Use your <strong>@{STAFF_DOMAIN}</strong> Google Workspace account.</p>
@@ -89,20 +89,20 @@ def _():
     return signin("failed")
 
 
-@s("session-expired", "The staff session ended after 30 minutes without a request: sign in again (L2-018 AC6).")
+@s("session-expired", "The staff session ended after the 12-hour maximum: sign in again (L2-018 AC9, ADR 0062).")
 def _():
     return signin("session-expired")
 
 
 def forbidden(*, busy: bool = False, role: bool = False) -> str:
     if role:
-        # A Moderator on an Admins-only area (L2-019 AC5; ADR 0020): their session is valid, so the
+        # A Moderator on an Admins-only area (L2-019 AC5; ADR 0064): their session is valid, so the
         # way out is the Dashboard, not Sign out.
         return staff(f"""    <form action="{href("admin-dashboard")}" novalidate>
       <h1 class="display staff__title" tabindex="-1">Admins only</h1>
-      <p class="staff__lead">Events and Services are run by admins. As a moderator, you look after members from the Dashboard and Members.</p>
+      <p class="staff__lead">Only Admins can open this area. As a moderator, you can open the areas in your navigation, starting from the Dashboard.</p>
       <a class="btn btn--primary btn--lg btn--block auth__submit" href="{href("admin-dashboard", "moderator")}">Go to dashboard</a>
-      <p class="staff__note">Need to manage events or services? Ask a community director to make you an admin.</p>
+      <p class="staff__note">Need to manage this area? Ask a community director to make you an admin.</p>
     </form>""")
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing out…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign out</button>')
@@ -129,7 +129,7 @@ def _():
     return forbidden(busy=True)
 
 
-@s("role", "A Moderator opened Events or Services, or a read was refused forbidden_role (L2-019 AC5; ADR 0020): \"Admins only\", the heading takes focus, Go to dashboard; the title is \"Admins only · Christian Fitness Admin\".")
+@s("role", "A Moderator opened an Admins-only area (Stories, Events or Services), or a read was refused forbidden_role (L2-019 AC5; ADR 0064): \"Admins only\", the heading takes focus, Go to dashboard; the title is \"Admins only · Christian Fitness Admin\".")
 def _():
     return forbidden(role=True)
 
@@ -232,7 +232,7 @@ def fill_list() -> str:
 def dashboard(*, queue: str | None = None, count: str = "4", upcoming: str | None = None, stats: str | None = None,
               staff: dict | None = None) -> str:
     staff = staff or ADMIN
-    # A Moderator manages neither services nor events (L2-019 AC5; ADR 0020): no applications to
+    # A Moderator manages neither services nor events (L2-019 AC5; ADR 0064): no applications to
     # review and no link to manage events.
     admin = staff["role"] != "Moderator"
     q, n = queue_items(applications=admin)
@@ -288,7 +288,7 @@ def _():
     return admin_shell("admin-dashboard", body)
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0020): the navigation lists Dashboard and Members only; the queue holds member reports, and Upcoming events has no Manage link.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064): the navigation lists Dashboard, Newsletter, Event series, Community Pick, Listings, Members and Feedback, without group names; the queue holds the listing suggestions, new feedback and member reports, and Upcoming events has no Manage link.")
 def _():
     return admin_shell("admin-dashboard", dashboard(count="1", staff=MODERATOR), staff=MODERATOR)
 

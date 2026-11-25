@@ -3,7 +3,7 @@ Layout and copy follow the Magic Patterns prototype "Admin Console" frames Manag
 Newsletter, Manage Event Series, Community Pick, Manage Listings and Feedback Inbox."""
 from __future__ import annotations
 
-from cf_data import (ADMIN_STORIES, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
+from cf_data import (ADMIN_STORIES, MODERATOR, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
                      PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
 from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, field, form_alert, href, icon,
                    image, listing_mark, loading_region, screen, select, textarea, toast, toast_region, verified_badge)
@@ -357,6 +357,11 @@ def _():
     return admin_shell("admin-newsletter", newsletter_page())
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Newsletter: the navigation shows their areas, without group names, and the issue is built, scheduled and sent as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(), staff=MODERATOR)
+
+
 @s("scheduled", "The issue is scheduled: its fields are locked and the card offers \"Unschedule to edit\".")
 def _():
     return admin_shell("admin-newsletter", newsletter_page(scheduled=True))
@@ -452,6 +457,11 @@ def _():
     return admin_shell("admin-series", series_admin(SR["couch-to-5k"]))
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Event series: the navigation shows their areas, without group names, and series and their dates are managed as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"]), staff=MODERATOR)
+
+
 @s("selected", "Saturday Park Bootcamp chosen: a paid series with a drop-in price.")
 def _():
     return admin_shell("admin-series", series_admin(SR["park-bootcamp"]))
@@ -518,13 +528,16 @@ def _():
 # Community Pick
 # ===========================================================================
 PLATFORMS = ["Instagram", "Facebook", "WhatsApp", "Slack"]
+PICKED = {"hoops-night": "Apr 6"}  # id -> when the console last picked it
 PICK_NOTE = "Flat, stroller-friendly, and you finish as the sun comes up."
 
 
-def pick_art(e: dict, shape: str) -> str:
-    """The branded graphic, drawn in HTML here; the product renders it to a PNG at the size named beside it."""
-    return f"""<div class="pick-art pick-art--{shape}" role="img" aria-label="Community Pick graphic: {e["title"]}, {e["weekday"]} {e["month"]} {int(e["day"])}">
-              {image(e["image"], "pick-art__photo")}
+def pick_art(e: dict, shape: str, photo: bool = True) -> str:
+    """The branded graphic, drawn in HTML here; the product renders it to a PNG at the size named beside it.
+    An event with no image gets the brand pattern in place of the photo."""
+    back = image(e["image"], "pick-art__photo") if photo else '<div class="pick-art__pattern"></div>'
+    return f"""<div class="pick-art pick-art--{shape}{"" if photo else " pick-art--pattern"}" role="img" aria-label="Community Pick graphic: {e["title"]}, {e["weekday"]} {e["month"]} {int(e["day"])}">
+              {back}
               <div class="pick-art__shade"></div>
               <p class="pick-art__label">Community Pick</p>
               <div class="pick-art__body"><p class="pick-art__title">{e["title"]}</p><p class="pick-art__when">{e["weekday"]} {e["month"]} {int(e["day"])} · {e["time"]} · {e["area"]}</p>
@@ -546,49 +559,51 @@ def caption(text: str, hint: str = "") -> str:
           </div>"""
 
 
-def pick_assets(e: dict, platform: str) -> str:
+def pick_assets(e: dict, platform: str, photo: bool = True) -> str:
     slug = f'community-pick-{e["id"]}'
+    art_of = lambda ev, shape: pick_art(ev, shape, photo)  # noqa: E731
     link = f'www.christian.fitness/e/{e["id"]}'
     when = f'{e["weekday"]}, {e["month"]} {int(e["day"])} at {e["time"]}'
     left = e["capacity"] - e["going"]
     tabs_ = "".join(f'<a class="segmented__option segmented__option--ink" href="{"default" if p == "Instagram" else p.lower()}.html"{CUR if p == platform else ""}>{p}</a>' for p in PLATFORMS)
     head = f'<nav class="segmented segmented--flush" aria-label="Platform">{tabs_}</nav>'
     if platform == "Instagram":
-        body = f"""<div class="assets assets--insta">{asset("Post · 1080 × 1080", f"{slug}-instagram-post.png", pick_art(e, "square"))}{asset("Story · 1080 × 1920", f"{slug}-instagram-story.png", pick_art(e, "story"))}</div>
-          {caption(f"Community Pick: {e['title']}\n\n{PICK_NOTE}\n\n{when}\n{e['place']}\n{e['price']}. Register at the link in bio.\n\n#ChristianFitness #CommunityPick #TorontoFitness #FaithAndFitness")}"""
+        body = f"""<div class="assets assets--insta">{asset("Post · 1080 × 1080", f"{slug}-instagram-post.png", art_of(e, "square"))}{asset("Story · 1080 × 1920", f"{slug}-instagram-story.png", art_of(e, "story"))}</div>
+          {caption(f"Community Pick: {e['title']}\n\n{PICK_NOTE}\n\n{when}\n{e['place']}\n{e['price']}. Link in bio, or register at {link}\n\n#ChristianFitness #CommunityPick #TorontoFitness #FaithAndFitness")}"""
     elif platform == "Facebook":
-        body = f"""{asset("Link image · 1200 × 630", f"{slug}-facebook.png", pick_art(e, "landscape"))}
+        body = f"""{asset("Link image · 1200 × 630", f"{slug}-facebook.png", art_of(e, "landscape"))}
           {caption(f"This week’s Community Pick: {e['title']}.\n\n{PICK_NOTE}\n\n{when} · {e['place']}\n{e['price']}, {left} spots left.\n\nRegister: https://{link}")}"""
     elif platform == "WhatsApp":
-        body = f"""<div class="assets assets--pair">{asset("Image · 1080 × 1080", f"{slug}-whatsapp.png", pick_art(e, "square"))}
+        body = f"""<div class="assets assets--pair">{asset("Image · 1080 × 1080", f"{slug}-whatsapp.png", art_of(e, "square"))}
           {caption(f"*Community Pick: {e['title']}*\n_{PICK_NOTE}_\n\n{when}\n{e['place']}\n{e['price']}\n\nRegister: https://{link}", "Asterisks and underscores format as bold and italic in WhatsApp.")}</div>"""
     else:
         body = f"""<div class="card card--pad-sm slack-preview" aria-label="How the post will look in Slack">
             <span class="avatar avatar--group" aria-hidden="true">CF</span>
             <div class="slack-preview__body"><p><strong>Christian Fitness</strong> <span class="muted">9:02 AM</span></p>
-              <p><strong>Community Pick:</strong> <span class="slack-preview__link">{e["title"]}</span></p><p>{PICK_NOTE}</p><p>{when} · {e["place"]}</p>
-              <div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{pick_art(e, "landscape")}</div></div>
+              <p><strong>Community Pick:</strong> <span class="slack-preview__link">{e["title"]}</span></p><p>{PICK_NOTE}</p><p>{when} · {e["place"]} · {e["price"]}</p>
+              <div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{art_of(e, "landscape")}</div></div>
           </div>
-          <div class="assets assets--pair">{asset("Unfurl image · 1200 × 630", f"{slug}-slack.png", pick_art(e, "landscape"))}
-          {caption(f"*Community Pick:* &lt;https://{link}|{e['title']}&gt;\n{PICK_NOTE}\n{when} · {e['place']}", "Slack formatting: the title becomes a link.")}</div>"""
+          <div class="assets assets--pair">{asset("Unfurl image · 1200 × 630", f"{slug}-slack.png", art_of(e, "landscape"))}
+          {caption(f"*Community Pick:* &lt;https://{link}|{e['title']}&gt;\n{PICK_NOTE}\n{when} · {e['place']} · {e['price']}", "Slack formatting: the title becomes a link.")}</div>"""
     return head + f'<div class="pick-assets">{body}</div>'
 
 
-def pick_page(right: str, *, creating: bool = False, made: bool = True, events: list | None = None, failed: bool = False) -> str:
+def pick_page(right: str, *, creating: bool = False, changed: bool = False, events: list | None = None, failed: bool = False) -> str:
     events = MEMBER_EVENTS if events is None else events
     rows = "".join(f"""<li><label class="event-choice"><input class="event-choice__input" type="radio" name="event" value="{x["id"]}"{" checked" if i == 0 else ""}{" disabled" if creating else ""}>
               {image(x["image"], "event-choice__image")}
-              <span class="event-choice__body"><span class="event-choice__when">{x["weekday"]} {x["month"]} {x["day"]}</span><span class="event-choice__title">{x["title"]}</span><span class="event-choice__area">{x["area"]}</span></span>
+              <span class="event-choice__body"><span class="event-choice__when">{x["weekday"]} {x["month"]} {x["day"]}</span><span class="event-choice__title">{x["title"]}</span><span class="event-choice__area">{x["area"]}{" · Last picked " + PICKED[x["id"]] if x["id"] in PICKED else ""}</span></span>
             </label></li>""" for i, x in enumerate(events))
     btn = (f'<button class="btn btn--primary btn--lg btn--block" type="submit" disabled aria-busy="true">{busy_label("Creating…")}</button>' if creating
-           else f'<button class="btn btn--primary btn--lg btn--block" type="submit" data-mock-href="default.html">{icon("sparkles")}{"Recreate assets" if made else "Create assets"}</button>')
+           else f'<button class="btn btn--primary btn--lg btn--block" type="submit" data-mock-href="default.html">{icon("sparkles")}{"Recreate assets" if changed else "Create assets"}</button>')
+    stale = ('<p class="caption__hint" role="status">You changed the event or note. Recreate to update.</p>' if changed else "")
     err = ('<p class="register__error" role="alert">We couldn\'t create the assets. Try again in a moment.</p>' if failed else "")
     return f"""{admin_header("Community Pick", "Choose an event and get branded posts for Instagram, Facebook, WhatsApp and Slack.")}
       <div class="split split--pick">
         <form class="sticky-aside" novalidate>
           <fieldset><legend class="field__label field__label--md">Event</legend><ul class="event-choices">{rows}</ul></fieldset>
           <div class="pick-note">{textarea("Why it’s a pick", "note", PICK_NOTE, rows=2, hint=f"One line. It goes on the graphics and in every caption. {len(PICK_NOTE)} of 70 characters.", readonly=creating)}</div>
-          {err}{btn}
+          {err}{stale}{btn}
         </form>
         <section aria-label="Assets">{right}</section>
       </div>"""
@@ -606,14 +621,19 @@ def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram")))
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Community Pick: the navigation shows their areas, without group names, and the assets are made and downloaded as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram")), staff=MODERATOR)
+
+
 @s("pick", "Before anything is made: choose an event, write one line on why it is a pick, and Create assets; the right side previews what will come.")
 def _():
-    return admin_shell("admin-community-pick", pick_page(PICK_EMPTY, made=False))
+    return admin_shell("admin-community-pick", pick_page(PICK_EMPTY))
 
 
 @s("creating", "Create assets pressed: the button is busy and the event and note are read-only.")
 def _():
-    return admin_shell("admin-community-pick", pick_page(PICK_EMPTY, creating=True, made=False))
+    return admin_shell("admin-community-pick", pick_page(PICK_EMPTY, creating=True))
 
 
 @s("facebook", "Facebook chosen: one link image and a caption with the registration link and spots left.")
@@ -631,9 +651,19 @@ def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Slack")))
 
 
+@s("changed", "The event or note was changed after the assets were made: a notice and \"Recreate assets\"; the assets shown stay those last made.")
+def _():
+    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram"), changed=True))
+
+
+@s("no-image", "An event with no image: the graphic is built from the brand pattern, with the title, date and place set in type.")
+def _():
+    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram", photo=False)))
+
+
 @s("failed", "Creating the assets failed: a message above the button, which stays usable; nothing on the right changes.")
 def _():
-    return admin_shell("admin-community-pick", pick_page(PICK_EMPTY, made=False, failed=True))
+    return admin_shell("admin-community-pick", pick_page(PICK_EMPTY, failed=True))
 
 
 @s("loading", "Events loading: the event list shows as skeleton rows.")
@@ -723,6 +753,11 @@ def _():
     return admin_shell("admin-listings", listings_page(suggestion_view()))
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Listings: the navigation shows their areas, without group names, and suggestions are checked, approved and declined as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view()), staff=MODERATOR)
+
+
 @s("unchecked", "Another suggestion chosen (Rooted Physio, from a member who knows them): no check passed yet.")
 def _():
     return admin_shell("admin-listings", listings_page(suggestion_view("s3")))
@@ -782,7 +817,8 @@ def _():
 FB_STATE = {"f1": "default", "f2": "correction", "f3": "default", "f4": "resolved"}
 
 
-def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False) -> str:
+def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False,
+                   moderator: bool = False) -> str:
     st = {x["id"]: x["status"] for x in FEEDBACK} | (status or {})
     f = next(x for x in FEEDBACK if x["id"] == sel)
     shown = [x for x in FEEDBACK if tab == "All" or st[x["id"]] == tab]
@@ -793,7 +829,7 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
     rows = rows or '<li class="feedback-row feedback-row--empty">Nothing here.</li>'
     counts = [("All", len(FEEDBACK), "default.html")] + [(k, sum(1 for v in st.values() if v == k), "default.html" if k != "Resolved" else "resolved.html") for k in ("New", "Replied", "Resolved")]
     story = (f'<p class="feedback__link"><a class="btn btn--secondary btn--sm" href="{href("admin-story-editor", "published")}">{icon("pen-line")}Open the story to correct it</a></p>'
-             if f["kind"] == "Content" else "")
+             if f["kind"] == "Content" and not moderator else "")
     first = f["from"].split()[0]
     send = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
             else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>')
@@ -840,7 +876,12 @@ def _():
 @s("replied", "The reply was sent: the note is Replied, the reply box is empty again and a toast confirms it; one fewer note is new.")
 def _():
     return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}), counts={"admin-feedback": 1},
-                       after=toast_region(toast("success", "Reply sent to Michael", "He gets it by email."), admin=True))
+                       after=toast_region(toast("success", "Reply sent.", "Michael Chen gets it by email."), admin=True))
+
+
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on a correction to a story: the navigation shows their areas, and the note can be read, answered and resolved, but \"Open the story to correct it\" is not offered, since Stories is Admins only.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox("f2", moderator=True), staff=MODERATOR)
 
 
 @s("resolved", "A resolved note chosen: it can be reopened.")

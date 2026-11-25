@@ -9,7 +9,7 @@ Christian Fitness connects members with Christian professionals the team has vet
 
 This feature covers the contact action in a listing's detail (mock `docs/mocks/pages/services/selected.html`). When the listing is linked to a professional's account, Message opens a direct conversation with that professional in Messages. When it is not linked, Contact opens the professional's published contact link; the link is not sent to the browser until the member chooses Contact.
 
-ADR 0061 settles the intended listing behaviour: the recipient is the owner, Message on a published,
+ADR 0066 settles the intended listing behaviour: the recipient is the owner, Message on a published,
 claimed listing is exempt from the owner's messaging preference, and a listing with no owner hides
 Message and refuses a conversation attempt with `listing_unreachable`. Its website or contact is
 offered where available. The slice 17.1 behaviour described below is the existing implementation
@@ -38,6 +38,8 @@ The feature is a vertical slice from the listing detail to the database.
 - A suspended professional or the caller's own listing is refused `recipient_unavailable` (as direct messages, ADR 0043); a suspended caller is refused by the session.
 - Codes: `service_not_found` (404), `professional_not_linked` (409), `contact_link_not_found` (404), `recipient_unavailable` (403).
 - A listing is linked unless it has a `ContactUrl`; the conversation is the pair, so `startConversation` answers the professional's `memberId` and Messages opens `/messages/{memberId}`.
+
+A professional who also owns a directory listing keeps two records (ADR 0061). The Services detail shows "Also in the directory" to the published listing when the owning member matches or staff linked it (`L2-014` AC6); Message uses the professional's member id, so it opens the same direct conversation as the listing's Message (ADR 0043).
 
 ## Requirements
 

@@ -51,6 +51,7 @@
         "default",
         "redirecting",
         "google",
+        "google-invalid",
         "google-submitting",
         "google-failed",
         "invalid",
@@ -162,6 +163,7 @@
         "series",
         "series-joined",
         "series-empty",
+        "series-search-no-results",
         "series-loading",
         "series-error",
         "loading",
@@ -171,8 +173,10 @@
         "more-error",
         "capped",
         "no-results",
+        "search-no-results",
         "filtered",
-        "going"
+        "going",
+        "going-empty"
       ]
     },
     {
@@ -1070,6 +1074,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "scheduled",
         "test-sent",
         "invalid",
@@ -1091,6 +1096,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "selected",
         "date-cancelled",
         "loading",
@@ -1125,11 +1131,14 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "pick",
         "creating",
         "facebook",
         "whatsapp",
         "slack",
+        "changed",
+        "no-image",
         "failed",
         "loading",
         "empty",
@@ -1146,6 +1155,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "unchecked",
         "ready",
         "approving",
@@ -1170,6 +1180,7 @@
         "correction",
         "replying",
         "replied",
+        "moderator",
         "resolved",
         "loading",
         "empty",
