@@ -48,6 +48,11 @@ export interface EventHostDto {
   name: string;
 }
 
+/** `GET /api/admin/events/hosts?q=`: at most 10 Listed listings whose name holds the search. */
+export interface EventHostListDto {
+  hosts: EventHostDto[];
+}
+
 /**
  * `POST /api/admin/events`: the event editor's fields (L2-022 AC1). The start is the Toronto date
  * (`yyyy-MM-dd`) and time (`HH:mm`) staff typed; a price or capacity that is not a number is sent as
@@ -129,6 +134,12 @@ export interface AdminEventsApi {
 
   /** The host a new event starts with: the Christian Fitness team listing (ADR 0088). */
   defaultHost(): Observable<EventHostDto>;
+
+  /**
+   * The Listed listings whose name holds `q`, in name order, at most 10; a search under 2
+   * characters answers none. A failure errors with an `ApiError` (ADR 0088).
+   */
+  searchHosts(q: string): Observable<EventHostListDto>;
 
   /** The event as the editor opens it. An unknown id errors with code `not_found` (404). */
   get(id: string): Observable<AdminEventDetailDto>;

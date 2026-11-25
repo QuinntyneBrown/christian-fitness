@@ -21,7 +21,7 @@ editor finds the default and the matches, the refusal codes, what a choice in th
   directory listings whose folded name contains the folded search (2 to 100 characters, the
   directory's rules: `LIKE` with escaped wildcards, ADR 0082), in name order, each as
   `EventHostDto` (`id`, `kind` slug, `name`); a search under 2 characters answers none, and one
-  over 100 is 400 `validation_failed` with `fieldCodes.q` = `query_too_long`.
+  over 100 is 400 with code `query_too_long`, as the directory's is.
   `GET /api/admin/events/hosts/default` answers the team listing (ADR 0067's stable id) as an
   `EventHostDto`. `GET /api/admin/events/{id}` adds `host`, the saved host as an `EventHostDto`.
 - **Saving.** Create and edit take `hostListingId`. A missing one is refused with

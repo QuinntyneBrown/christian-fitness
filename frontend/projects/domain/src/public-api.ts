@@ -50,6 +50,7 @@ export * from './events/event-category-filter';
 export * from './events/event-list-query';
 export * from './events/events-no-results';
 export * from './events/event-draft';
+export * from './events/event-host-picker';
 export * from './events/event-feed';
 export * from './events/event-refusal';
 export * from './events/event-toast';

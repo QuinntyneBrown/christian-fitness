@@ -1,4 +1,4 @@
-import type { ApiReply } from './api-handlers';
+import type { ApiHandlers, ApiReply } from './api-handlers';
 
 /** An event as `GET /api/admin/events` answers it. */
 export interface AdminEventFixture {
@@ -199,3 +199,27 @@ export const RETREAT_DETAIL: AdminEventDetailFixture = {
   status: 'draft',
   host: TEAM_HOST,
 };
+
+/**
+ * Answers `GET /api/admin/events/hosts?q=` as the API does (ADR 0088): the `hosts` whose name
+ * holds the search, ignoring case, at most 10. `fail` answers a search, by its zero-based number,
+ * with no answer at all. Returns the searches asked, in order.
+ */
+export function answerHostSearch(
+  api: ApiHandlers,
+  hosts: EventHostFixture[],
+  fail: (searchNumber: number) => boolean = () => false,
+): string[] {
+  const asked: string[] = [];
+  api.on('GET', '/api/admin/events/hosts', (request) => {
+    const q = new URL(request.url()).searchParams.get('q') ?? '';
+    const number = asked.length;
+    asked.push(q);
+    if (fail(number)) return { abort: true };
+    const term = q.trim().toLowerCase();
+    return {
+      json: { hosts: hosts.filter((h) => h.name.toLowerCase().includes(term)).slice(0, 10) },
+    };
+  });
+  return asked;
+}

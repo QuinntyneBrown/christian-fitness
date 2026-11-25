@@ -1,0 +1,13 @@
+<ul
+  [attr.class]="stack() ? 'pick-cards pick-cards--stack' : 'pick-cards'"
+  [attr.aria-label]="label()"
+>
+  @for (item of items(); track item.id) {
+    <li>
+      <button class="pick-card" type="button" (click)="picked.emit(item.id)">
+        <span class="pick-card__title">{{ item.title }}</span>
+        <span class="pick-card__meta">{{ item.meta }}</span>
+      </button>
+    </li>
+  }
+</ul>

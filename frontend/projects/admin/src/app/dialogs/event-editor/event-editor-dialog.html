@@ -45,7 +45,17 @@
     hint="Choose a Listed directory listing."
     [value]="values().hostName"
     [readonly]="working()"
+    (valueChange)="searchHost($event)"
   />
+  @if (hostChoices().length > 0) {
+    <cf-pick-cards
+      label="Matching hosts"
+      stack
+      [items]="hostChoices()"
+      (picked)="chooseHost($event)"
+    />
+  }
+  <p class="event-editor__host-status" id="f-host-status" role="status">{{ hostStatus() }}</p>
   <cf-form-layout layout="grid">
     <cf-text-field
       fieldId="f-date"

@@ -79,6 +79,7 @@ export * from './pagination/pagination';
 export * from './pagination/pagination-items';
 export * from './profile-hero/profile-hero';
 export * from './progress-bar/progress-bar';
+export * from './pick-list/pick-cards';
 export * from './radio-group/radio-group';
 export * from './select/select';
 export * from './sidebar-navigation/admin-nav';

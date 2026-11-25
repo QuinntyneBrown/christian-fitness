@@ -1,14 +1,16 @@
 import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import { DOCUMENT } from '@angular/common';
 import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, type Subscription } from 'rxjs';
 import {
   ADMIN_EVENTS_SERVICE,
   type AdminEventDetailDto,
   type AdminEventDto,
   type ApiError,
   type EventCategory,
+  type EventHostDto,
 } from '@cf/api';
 import {
   Alert,
@@ -16,6 +18,7 @@ import {
   Drawer,
   FileField,
   FormLayout,
+  PickCards,
   Select,
   type SelectOption,
   Textarea,
@@ -31,6 +34,12 @@ import {
   eventErrorHeading,
   eventErrorItems,
   goingDateOf,
+  HOST_SEARCH_DELAY_MS,
+  HOST_SEARCH_FAILED_TEXT,
+  hostChoiceViewOf,
+  type HostChoiceView,
+  hostNoMatchesText,
+  hostSearchTermOf,
   type EventFieldErrors,
   eventFieldErrorsOf,
   type EventFieldKey,
@@ -83,7 +92,7 @@ export interface EventEditorResult {
  */
 @Component({
   selector: 'cf-event-editor-dialog',
-  imports: [Alert, Button, Drawer, FileField, FormLayout, Select, Textarea, TextField],
+  imports: [Alert, Button, Drawer, FileField, FormLayout, PickCards, Select, Textarea, TextField],
   templateUrl: './event-editor-dialog.html',
   styleUrl: './event-editor-dialog.scss',
 })
@@ -94,6 +103,11 @@ export class EventEditorDialog {
   private readonly data = inject<EventEditorData>(DIALOG_DATA);
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+  /** The Host search waiting for the typing to stop, and the one on its way (ADR 0088). */
+  private hostTimer: ReturnType<typeof setTimeout> | undefined;
+  private hostSearch: Subscription | null = null;
+  private hostMatches: readonly EventHostDto[] = [];
 
   protected readonly headingId = HEADING_ID;
   protected readonly imageTypes = IMAGE_TYPES;
@@ -120,6 +134,7 @@ export class EventEditorDialog {
       )
       .subscribe(() => this.close());
     if (!this.editing) this.askDefaultHost();
+    this.destroyRef.onDestroy(() => clearTimeout(this.hostTimer));
   }
   protected readonly values = signal<EventEditorValues>(this.data.values);
   protected readonly saving = signal(false);
@@ -129,6 +144,10 @@ export class EventEditorDialog {
   protected readonly uploading = signal(false);
   protected readonly failed = signal(false);
   protected readonly errors = signal<EventFieldErrors>({});
+  /** The matching hosts the picker offers, as pick cards. */
+  protected readonly hostChoices = signal<readonly HostChoiceView[]>([]);
+  /** The line under the Host field: no match, or a search that failed. */
+  protected readonly hostStatus = signal('');
 
   protected errorItems(): readonly { text: string; target: string }[] {
     return eventErrorItems(this.errors());
@@ -146,6 +165,42 @@ export class EventEditorDialog {
   protected setCategory(value: string): void {
     this.values.update((values) => ({ ...values, category: value as EventCategory }));
     this.clearError('category');
+  }
+
+  /**
+   * The Host field's text (ADR 0088): any edit clears the choice; from 2 characters, the matches
+   * are asked for once the typing stops, and a new edit drops a search still on its way.
+   */
+  protected searchHost(text: string): void {
+    this.values.update((values) => ({ ...values, hostName: text, hostListingId: null }));
+    clearTimeout(this.hostTimer);
+    this.hostSearch?.unsubscribe();
+    this.hostChoices.set([]);
+    this.hostStatus.set('');
+    const term = hostSearchTermOf(text);
+    if (term === null) return;
+    this.hostTimer = setTimeout(() => {
+      this.hostSearch = this.events
+        .searchHosts(term)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: ({ hosts }) => {
+            this.hostMatches = hosts;
+            this.hostChoices.set(hosts.map(hostChoiceViewOf));
+            if (hosts.length === 0) this.hostStatus.set(hostNoMatchesText(term));
+          },
+          error: () => this.hostStatus.set(HOST_SEARCH_FAILED_TEXT),
+        });
+    }, HOST_SEARCH_DELAY_MS);
+  }
+
+  /** Makes the chosen match the host, closes the list and returns to the field. */
+  protected chooseHost(id: string): void {
+    const host = this.hostMatches.find((match) => match.id === id);
+    if (!host || this.working()) return;
+    this.values.update((values) => ({ ...values, hostListingId: host.id, hostName: host.name }));
+    this.hostChoices.set([]);
+    this.document.getElementById('f-host')?.focus();
   }
 
   protected close(): void {
