@@ -21,6 +21,7 @@ export * from './directory/listing-suggestions';
 export * from './directory/listing-claims';
 export * from './errors/api-error';
 export * from './events/events';
+export * from './events/event-series';
 export * from './events/public-events';
 export * from './home/home';
 export * from './notifications/notifications';

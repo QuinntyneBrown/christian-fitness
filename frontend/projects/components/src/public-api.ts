@@ -85,6 +85,7 @@ export * from './review-card/series-summary-card';
 export * from './session-list/admin-sessions';
 export * from './radio-group/radio-group';
 export * from './select/select';
+export * from './segmented-control/segmented-control';
 export * from './sidebar-navigation/admin-nav';
 export * from './sidebar-navigation/admin-user';
 export * from './sidebar-navigation/sidebar-navigation';

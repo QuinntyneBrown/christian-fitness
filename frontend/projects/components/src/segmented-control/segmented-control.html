@@ -1,0 +1,20 @@
+<nav [attr.class]="trackClass()" [attr.aria-label]="label()">
+  @for (option of options(); track option.href) {
+    <a
+      [attr.class]="optionClass()"
+      [href]="option.href"
+      [attr.aria-current]="option.current ? 'page' : null"
+      (click)="follow($event, option.href)"
+    >
+      @if (option.icon === 'repeat') {
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m17 2 4 4-4 4" />
+          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+          <path d="m7 22-4-4 4-4" />
+          <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+        </svg>
+      }
+      {{ option.label }}</a
+    >
+  }
+</nav>

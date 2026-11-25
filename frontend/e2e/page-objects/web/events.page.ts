@@ -150,4 +150,24 @@ export class WebEventsPage {
       cards.map((card) => card.querySelector('img')?.getAttribute('src') ?? null),
     );
   }
+
+  /** The page head's subtitle. */
+  get subtitle(): Locator {
+    return this.page.locator('.page-head .subtitle');
+  }
+
+  /** The view switch, "By date" and "Series (<count>)" (L2-009 AC11; ADR 0093). */
+  get viewSwitch(): Locator {
+    return this.page.getByRole('navigation', { name: 'View' });
+  }
+
+  /** One option of the view switch, by its whole name. */
+  viewOption(name: string): Locator {
+    return this.viewSwitch.getByRole('link', { name, exact: true });
+  }
+
+  /** The option of the view switch marked current. */
+  get currentView(): Locator {
+    return this.viewSwitch.locator('[aria-current="page"]');
+  }
 }

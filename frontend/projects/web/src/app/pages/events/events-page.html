@@ -3,7 +3,9 @@
     <div class="page-head">
       <div>
         <h1 class="display page-title">Events</h1>
-        <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
+        <p class="subtitle">
+          From the churches, clubs and coaches in our directory. Free unless marked.
+        </p>
       </div>
       <cf-search-field
         label="Search events"
@@ -12,61 +14,64 @@
         (valueChange)="onSearch($event)"
       />
     </div>
-    <cf-chip-bar label="Filter events" divided>
-      @for (chip of chips(); track chip.href) {
-        <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate($event)">{{
-          chip.label
-        }}</cf-chip>
-      }
-      <cf-checkbox
-        slot="after"
-        variant="compact"
-        label="Only events I'm going to"
-        [checked]="query().going"
-        (checkedChange)="onGoing($event)"
-      />
-    </cf-chip-bar>
-    @if (state() === 'loading') {
-      <cf-skeleton-region label="Loading events">
-        <cf-event-grid [items]="skeletons" [template]="skeletonCard" />
-      </cf-skeleton-region>
-    } @else if (state() === 'failed') {
-      <cf-empty-state
-        variant="error"
-        heading="Events didn't load"
-        text="We couldn't reach Christian Fitness. Check your connection and try again."
-      >
-        <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
-      </cf-empty-state>
-    } @else if (cards().length === 0 && noResults(); as empty) {
-      <cf-empty-state [heading]="empty.heading" [text]="empty.text">
-        <cf-button slot="actions" size="sm" (click)="clear()">{{ empty.action }}</cf-button>
-      </cf-empty-state>
-    } @else if (cards().length === 0) {
-      <cf-empty-state
-        heading="No events yet"
-        text="The team posts runs, workouts and gatherings every week. They'll show up here as soon as they're live."
-      >
-        <cf-button slot="actions" size="sm" href="/home">Back to home</cf-button>
-      </cf-empty-state>
-    } @else {
-      <cf-event-grid [items]="cards()" [template]="eventCard" />
-      @if (watching()) {
-        <div class="feed-end" cfInView (inView)="loadMore()"></div>
-      } @else if (more() === 'loading') {
-        <div class="feed-end"><cf-spinner label="Loading more events…" /></div>
-      } @else if (more() === 'failed') {
-        <div class="feed-end">
-          <cf-inline-message
-            heading="More events didn't load."
-            text="The ones above are still here."
-            (retry)="loadMore()"
-          />
-        </div>
-      } @else if (capped()) {
-        <div class="feed-end">
-          <p>Showing the next 200 events. Choose a category to see others.</p>
-        </div>
+    <cf-segmented-control label="View" [options]="viewOptions()" (navigate)="navigate($event)" />
+    @if (view() === 'date') {
+      <cf-chip-bar label="Filter events" divided>
+        @for (chip of chips(); track chip.href) {
+          <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate($event)">{{
+            chip.label
+          }}</cf-chip>
+        }
+        <cf-checkbox
+          slot="after"
+          variant="compact"
+          label="Only events I'm going to"
+          [checked]="query().going"
+          (checkedChange)="onGoing($event)"
+        />
+      </cf-chip-bar>
+      @if (state() === 'loading') {
+        <cf-skeleton-region label="Loading events">
+          <cf-event-grid [items]="skeletons" [template]="skeletonCard" />
+        </cf-skeleton-region>
+      } @else if (state() === 'failed') {
+        <cf-empty-state
+          variant="error"
+          heading="Events didn't load"
+          text="We couldn't reach Christian Fitness. Check your connection and try again."
+        >
+          <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+        </cf-empty-state>
+      } @else if (cards().length === 0 && noResults(); as empty) {
+        <cf-empty-state [heading]="empty.heading" [text]="empty.text">
+          <cf-button slot="actions" size="sm" (click)="clear()">{{ empty.action }}</cf-button>
+        </cf-empty-state>
+      } @else if (cards().length === 0) {
+        <cf-empty-state
+          heading="No events yet"
+          text="The team posts runs, workouts and gatherings every week. They'll show up here as soon as they're live."
+        >
+          <cf-button slot="actions" size="sm" href="/home">Back to home</cf-button>
+        </cf-empty-state>
+      } @else {
+        <cf-event-grid [items]="cards()" [template]="eventCard" />
+        @if (watching()) {
+          <div class="feed-end" cfInView (inView)="loadMore()"></div>
+        } @else if (more() === 'loading') {
+          <div class="feed-end"><cf-spinner label="Loading more events…" /></div>
+        } @else if (more() === 'failed') {
+          <div class="feed-end">
+            <cf-inline-message
+              heading="More events didn't load."
+              text="The ones above are still here."
+              (retry)="loadMore()"
+            />
+          </div>
+        } @else if (capped()) {
+          <div class="feed-end">
+            <p>Showing the next 200 events. Choose a category to see others.</p>
+          </div>
+        }
       }
     }
   </cf-container>
