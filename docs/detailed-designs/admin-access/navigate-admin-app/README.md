@@ -17,8 +17,9 @@ from `admin-sign-in` and the counts of work waiting.
 - **stacked card** — table row rendered as a vertical card below viewport LG
 
 An Admin sees all ten links (mocks `docs/mocks/pages/admin-*/default.html`, block `admin-nav`).
-A Moderator sees only the areas the role opens, Dashboard and Members, with no group names
-(`L2-019` AC5; mock `docs/mocks/pages/admin-dashboard/moderator.html`). The new areas have designs
+A Moderator sees only the areas the role opens (Dashboard, Newsletter, Event series, Community
+Pick, Listings, Members and Feedback; not Stories, Events or Services), with no group names
+(`L2-019` AC1 and AC5, ADR 0064; mock `docs/mocks/pages/admin-dashboard/moderator.html`). The new areas have designs
 of their own: [manage stories](../../publishing/manage-stories/README.md),
 [review listing suggestions](../../admin-directory/review-listing-suggestions/README.md) and
 [read the feedback inbox](../../feedback/read-feedback-inbox/README.md).
@@ -56,8 +57,8 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   for its path and every path under it. A story's editor sits under `/stories/<id>`, so Stories
   stays current while a story is edited (`L2-021` AC1; mock `admin-story-editor/`).
 - **`canManage` / `areasFor`** — the role table of [staff roles](../staff-roles/README.md). A
-  Moderator keeps Dashboard and Members; an Admin opens every area. Which new areas a Moderator
-  opens is an open question.
+  Moderator opens Dashboard, Newsletter, Event series, Community Pick, Listings, Members and
+  Feedback (ADR 0064); an Admin opens every area.
 - **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):
   `cf-skip-link` first, then `cf-sidebar-navigation` and `main#main.admin__main`, the routed page
   projected (`L2-038` AC8; [ADR 0019](../../../adr/0019-design-system-layout-navigation-and-migration.md)).
@@ -91,8 +92,9 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   Dashboard's waiting-work answer ([view the dashboard](../../admin-dashboard/view-dashboard/README.md)),
   `GET /api/admin/dashboard/awaiting`, which `L2-020` AC11 extends with stories in review,
   suggestions and new feedback; the members' total is the answer's flagged-members total. A
-  Moderator's answer carries only flagged members, so a Moderator's Members link alone can carry a
-  count. The shell asks once on entry and again after each `NavigationEnd` that changes area, so a
+  Moderator's answer carries flagged members, listing suggestions and new feedback but no stories
+  or applications, so a Moderator's Members, Listings and Feedback links can carry a count and
+  Stories and Services are not shown to them. The shell asks once on entry and again after each `NavigationEnd` that changes area, so a
   count falls after staff resolve work; a failed request leaves the links without counts and shows
   no error.
 - **`DataTable`** — presentation component for the `table` block inside `table-wrap`. Below LG a
@@ -105,10 +107,9 @@ on desktop").
 
 ### Open questions
 
-- **Moderators and the new areas.** `L2-021` AC1 limits a Moderator to the areas the role opens,
-  and the mocks give them none of the new ones. `docs/mocks/README.md` (open question 8) asks
-  whether a Moderator opens Feedback. The answer changes `canManage`, the API's `StaffAccess` table
-  and `L2-019`, and needs an ADR amending ADR 0020.
+- **Moderators and the new areas.** Settled by ADR 0064 (amending ADR 0020) and `L2-019` AC1: a
+  Moderator opens Newsletter, Event series, Community Pick, Listings and Feedback, and not
+  Stories. `canManage`, the API's `StaffAccess` table and `L2-019` carry the same table.
 - **Members count.** `L2-021` AC3 counts "reports" for Members and the mock names "1 report to
   review"; the Dashboard counts flagged members (`L2-020` AC7). Whether a report of a message
   (ADR 0058) and a flagged member are the same count is `<TO SUPPLY>`. The design uses the

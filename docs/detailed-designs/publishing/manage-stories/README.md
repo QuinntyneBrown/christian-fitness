@@ -48,7 +48,7 @@ it; a Moderator sees "Admins only" (`L2-019` AC5).
   yesterday", "Submitted 1 hour ago", "Sat Apr 18, 6:00 AM" or "Today, 7:12 AM" in
   `America/Toronto`. The full wording table is `<TO SUPPLY>` beyond the mock's rows.
 - **Navigation** — `ADMIN_AREAS` (`domain/src/admin/admin-areas.ts`) gains `stories` and
-  `newsletter` in the Publish group, outside a Moderator's areas. Stories carries the number of
+  `newsletter` in the Publish group; Stories is outside a Moderator's areas, Newsletter is inside them (ADR 0064). Stories carries the number of
   stories in review as `admin-nav__count` with `aria-label` "1 story to review" / "<n> stories to
   review" (`L2-068` AC5). Where the shell reads that count is set with the grouped navigation
   (`admin-access/navigate-admin-app`); the list's `counts.inReview` is the same number.
@@ -60,7 +60,7 @@ it; a Moderator sees "Admins only" (`L2-019` AC5).
 - **`AdminStoriesController`** — `GET api/admin/stories?status=&page=` sends one
   **`ListAdminStoriesQuery`**. The `stories` segment maps to `StaffArea.Publishing`, which only
   Admins pass; a Moderator is refused by `StaffAreaAuthorizationHandler` with 403 `forbidden_role`
-  before any controller runs, on this and every other stories endpoint (`L2-068` AC7; ADR 0020).
+  before any controller runs, on this and every other stories endpoint (`L2-068` AC7; ADR 0020, ADR 0064).
 - **`ListAdminStoriesValidator`** — refuses an unknown status or a page below 1 with 400
   `validation_failed` (`fieldCodes` `status_invalid`, `page_invalid`).
 - **`ListAdminStoriesHandler`** — answers `AdminStoryListDto`: `counts` by status (All, Draft, In
@@ -79,8 +79,9 @@ it; a Moderator sees "Admins only" (`L2-019` AC5).
   (`L2-068` AC1).
 - **Review cards.** Decided (issue 91): at most 3 above the list, then "All {n} in review"
   (`L2-068` AC2).
-- **Moderators and Feedback.** Whether a Moderator opens any of the new areas is an open question
-  of the mocks (`docs/mocks/README.md`, open question 8); for Stories `L2-068` AC7 settles it.
+- **Moderators and the new areas.** Settled by ADR 0064 and `L2-019` AC1: Stories stays Admins only
+  (`L2-068` AC7); Newsletter, Event series, Community Pick, Listings and Feedback are open to a
+  Moderator too.
 
 ## Requirements
 

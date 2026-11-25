@@ -6,8 +6,9 @@ The Admin web app serves two kinds of staff with different duties. This feature 
 roles, enforces them on every admin endpoint, and records an audit entry for each staff change.
 
 - **Admin** — staff role allowed every admin action
-- **Moderator** — staff role allowed the staff session, the Dashboard and Members, and refused
-  event and service management
+- **Moderator** — staff role allowed the staff session, the Dashboard, Members, Newsletter, Event
+  series, Community Pick, Listings and Feedback, and refused Stories, Events and Services
+  ([ADR 0064](../../../adr/0064-moderator-areas.md), amending ADR 0020)
 - **staff area** — part of the admin console an endpoint belongs to, named by the first segment
   of its route under `api/admin`: the console itself (the session), Dashboard, Members, Events,
   Services, each area a later slice names (Stories, Newsletter, Event series, Community Pick,
@@ -29,8 +30,9 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   one per member. `cf seed` grants the first account Admin; a screen to grant or change roles is
   not in scope (open question 1).
 - **`StaffArea`** and **`StaffAccess.Allows(role, area)`** — the Domain rule, one table: an Admin
-  may use every area; a Moderator may use `Console`, `Dashboard` and `Members` and nothing else, so
-  `Events`, `Services` and `Unlisted` are closed to them. The same table, without `Console` and
+  may use every area; a Moderator may use `Console`, `Dashboard`, `Members`, `Newsletter`, `Series`,
+  `CommunityPick`, `Directory` (Listings) and `Feedback`, so `Publishing` (Stories), `Events`, `Services` and
+  `Unlisted` are closed to them (`L2-019` AC1 holds the table, ADR 0064). The same table, without `Console` and
   `Unlisted`, is the `domain` library's `canManage` (below), and both suites hold its rows.
 - **`StaffAreaConvention`** (Api) — replaces slice 9.1's staff area convention: every controller
   routed under `api/admin` gets the policy of its area, read from the segment after the prefix
@@ -41,16 +43,18 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   [sign in with Google](../../member-access/sign-in-with-google/README.md)) still opts out.
 - **New areas** — the grouped navigation of `L2-021` AC1 adds six areas: Stories, Newsletter,
   Event series, Community Pick, Listings and Feedback
-  ([navigate the admin app](../navigate-admin-app/README.md)). Until a slice adds its
-  `StaffArea` value and route segment, each one's endpoints are `Unlisted` and closed to
-  Moderators, which matches the mocks: a Moderator sees only Dashboard and Members
-  (`docs/mocks/pages/admin-dashboard/moderator.html`). Each slice adds one `StaffArea` value, one
-  row to `StaffAccess` and to `canManage`, and one case to both suites' tables.
+  ([navigate the admin app](../navigate-admin-app/README.md)). ADR 0064 settles them: Stories is
+  Admins only; the other five are open to a Moderator too, which matches the mocks
+  (`docs/mocks/pages/admin-dashboard/moderator.html` and the `moderator` state of each area).
+  Until a slice adds its `StaffArea` value and route segment, its endpoints are `Unlisted` and
+  closed to Moderators. Each slice adds one `StaffArea` value, one row to `StaffAccess` and to
+  `canManage` as the table says, and one case to both suites' tables.
 - **Area policies** — one per `StaffArea`, `Staff` for `Console` (the name slice 9.1 gave the
   staff policy) and `Staff:{Area}` for the others: the staff cookie scheme, an authenticated user
   and a `StaffAreaRequirement(area)`. The `StaffOnly` and `AdminOnly` of other designs are these
-  policies: `Staff:Dashboard` and `Staff:Members` admit both roles, `Staff:Events` and
-  `Staff:Services` only Admins.
+  policies: `Staff:Dashboard`, `Staff:Members`, `Staff:Newsletter`, `Staff:Series`,
+  `Staff:CommunityPick`, `Staff:Directory` and `Staff:Feedback` admit both roles, `Staff:Publishing` (Stories),
+  `Staff:Events` and `Staff:Services` only Admins.
 - **`StaffAreaAuthorizationHandler`** (Infrastructure) — reads the member id from the session and
   that member's `StaffRole` through `IAppDbContext`, once per request, and asks
   `StaffAccess.Allows`. No role fails with the reason `not_staff`; a role the area refuses fails
@@ -65,7 +69,7 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   `ADMIN_AREAS` that role may open; the navigation drops the group names for a Moderator
   (`L2-021` AC1).
 - **`AdminShell`** — builds the navigation from `areasFor(staff.role)` once the session has
-  loaded, and shows no link before that, so a Moderator never sees Events or Services
+  loaded, and shows no link before that, so a Moderator never sees Stories, Events or Services
   (`L2-019` AC5, `L2-021` AC1).
 - **`staffAuthGuard`** — besides the session, checks `canManage` for the area of the URL the
   navigation is going to; a refused area redirects (`RedirectCommand`) to `/admins-only` with
@@ -75,10 +79,10 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   "Staff only".
 - **`ForbiddenPage`** at `/admins-only` — the same lazy screen with the route data
   `{ reason: 'role' }` and the title "Admins only · Christian Fitness Admin": the heading "Admins
-  only", which takes focus, "Events and Services are run by admins. As a moderator, you look
-  after members from the Dashboard and Members.", a "Go to dashboard" link (`Button` with `href`,
-  a whole-document load, as the error screens do) and the note "Need to manage events or
-  services? Ask a community director to make you an admin." (mock
+  only", which takes focus, "Only Admins can open this area. As a moderator, you can open the
+  areas in your navigation, starting from the Dashboard." (general, so no area is named), a "Go to
+  dashboard" link (`Button` with `href`, a whole-document load, as the error screens do) and the
+  note "Need to manage this area? Ask a community director to make you an admin." (mock
   `docs/mocks/pages/admin-forbidden/role.html`). A Moderator's session is valid, so there is no
   Sign out here; the shell has one.
 - **`IAuditableCommand`** (Application) — the marker every data-changing staff command carries,
@@ -117,7 +121,7 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members but cannot manage events or services (HTTP 403, code `forbidden_role`). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry; a refused or failed one records none. Given a role changed or taken away, the next request applies it (`not_staff` when taken away). Given a Moderator, the navigation lists only Dashboard and Members, and Events or Services by address shows "Admins only". |
+| `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members and run Newsletter, Event series, Community Pick, Listings and Feedback but cannot manage stories, events or services (HTTP 403, code `forbidden_role`; the table is in `L2-019` AC1, ADR 0064). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry; a refused or failed one records none. Given a role changed or taken away, the next request applies it (`not_staff` when taken away). Given a Moderator, the navigation lists only the areas the table opens to them, and Stories, Events or Services by address shows "Admins only". |
 | `L2-021` | `L1-009` | Given viewport LG or wider, a Moderator's side navigation shall show only the areas the role opens, without group names, with `aria-current="page"` on the current one (acceptance criterion 1). |
 | `L2-047` | `L1-008`, `L1-015` | A 403 to a read shall show "Staff only", except `forbidden_role`, which shall show "Admins only"; a 403 to a change shall be handled by the screen that sent it, as Staff sign in does for `not_staff` (acceptance criteria 1 and 3). |
 
@@ -167,19 +171,17 @@ address kept (`L2-019` AC5).
 
 ## Open questions
 
-1. Granting, changing and taking away roles has no screen: `cf seed` grants the first Admin, and
-   anything else is a change in the database until a later slice adds one. The API already applies
-   such a change at the next request.
-2. Nothing reads the audit trail yet: no endpoint or screen lists entries, and no job deletes them.
-   Slice 29.2 keeps every entry (ADR 0023); the slice that adds an audit view decides who may read
-   it and whether entries older than a period are deleted.
-3. Which of the six new areas a Moderator opens is not settled: `L2-019` AC1 and AC5 name only
-   Dashboard and Members, and `docs/mocks/README.md` (open question 8) asks about Feedback. A
-   change needs an amendment of `L2-019` and of ADR 0020.
-4. The "Admins only" screen's words name only Events and Services (`L2-019` AC5). A Moderator who
-   opens Stories or Listings by its address sees the same screen; `L2-068` AC7 says so for
-   Stories. Whether its sentence should name the other areas, or stay general, is `<TO SUPPLY>`
-   in `L2-019`.
+1. **Known gap: no screen grants roles.** Granting, changing and taking away roles has no screen:
+   `cf seed` grants the first Admin, and anything else is a change in the database until a later
+   slice adds one. The API already applies such a change at the next request.
+2. **Known gap: nothing reads or prunes the audit trail.** No endpoint or screen lists entries, and
+   no job deletes them. Slice 29.2 keeps every entry (ADR 0023); the slice that adds an audit view
+   decides who may read it and whether entries older than a period are deleted.
+3. ~~Which of the six new areas a Moderator opens.~~ Settled by ADR 0064 and `L2-019` AC1: Stories
+   is Admins only; Newsletter, Event series, Community Pick, Listings and Feedback are open to a
+   Moderator.
+4. ~~The "Admins only" screen's words.~~ Settled by ADR 0064: they are general ("Only Admins can
+   open this area."), and `L2-019` AC5 no longer names Events and Services.
 5. With staff signing in through Google Workspace (`L2-018`), a staff role still hangs on a
    `Member`. A Workspace account maps to that member by Google subject: a verified email in the
    team's domain is matched to the pre-created staff member on first sign-in and the subject is bound
