@@ -90,8 +90,8 @@ so a reader finds them from the site's address (`L2-060` AC3).
 
 ### Open questions
 
-- **Feed addresses.** The mock shows `https://christianfitness.ca/feed`; ADR 0047 serves the member
-  app at `www.christian.fitness`. The addresses follow `MemberApp:BaseUrl`, whichever it is.
+- **Feed addresses.** The production origin is `https://www.christian.fitness`, so the all-stories
+  feed is `https://www.christian.fitness/feed`. Addresses follow `MemberApp:BaseUrl`.
 
 The future nginx configuration copied by `frontend/Dockerfile` proxies exact `/feed` and
 `~ ^/[a-z0-9-]+/feed$` to the API before the `static.conf` include, its regex locations and the

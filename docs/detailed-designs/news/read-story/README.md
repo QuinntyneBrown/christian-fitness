@@ -8,6 +8,10 @@ can read without an account (`L1-018`). The landing page lists them (`L2-001`, d
 newsletter links to them (`read-newsletter-on-web`). This feature is the page each of those leads
 to: `/stories/<slug>` in the Member web app (mock `docs/mocks/pages/story/`).
 
+The fixed address `/news/how-we-vet-every-listing` also opens the seeded vetting story. Like
+the ordinary story route, it returns the not-found view when that story is missing or unpublished;
+the Suggest a listing link is hidden in those cases.
+
 - **story** — article staff write and publish in the Admin web app (`publishing/write-review-publish-story`)
 - **published story** — story whose status is Published; Draft, In review and Scheduled stories are not public
 - **section** — one of Events, Training, Nutrition, Faith & Body, Community and Pros
