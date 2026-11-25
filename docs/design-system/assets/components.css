@@ -756,6 +756,7 @@ table { border-collapse: collapse; }
 .auth__brand {
   display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-10);
   background: var(--color-bg-brand); color: var(--color-fg-on-brand); padding: var(--space-8) var(--space-6);
+  min-width: 0; overflow-wrap: anywhere;
 }
 @media (min-width: 40rem) { .auth__brand { padding-inline: var(--space-10); } }
 @media (min-width: 64rem) { .auth__brand { padding-block: var(--space-12); } }
@@ -767,7 +768,7 @@ table { border-collapse: collapse; }
 .auth__points li { display: flex; align-items: center; gap: var(--space-3); }
 .auth__points li + li { margin-top: var(--space-3); }
 .auth__points .icon { color: var(--color-fg-on-brand-highlight); }
-.auth__main { display: flex; align-items: flex-start; justify-content: center; padding: var(--space-10) var(--space-6); }
+.auth__main { display: flex; align-items: flex-start; justify-content: center; min-width: 0; padding: var(--space-10) var(--space-6); overflow-wrap: anywhere; }
 @media (min-width: 40rem) { .auth__main { padding-inline: var(--space-10); } }
 @media (min-width: 64rem) { .auth__main { align-items: center; padding-block: var(--space-12); } }
 .auth__form { width: 100%; max-width: var(--layout-form-max); }
@@ -2197,3 +2198,4 @@ a.feedback-row:hover, .feedback-row[data-state="hover"] { background: var(--colo
 .pref__row--block > legend + * { clear: both; }
 .auth__terms { margin-top: var(--space-4); text-align: center; font-size: var(--font-size-sm); color: var(--color-fg-muted); }
 .auth__terms .inline-link { font-weight: var(--font-weight-regular); color: inherit; }
+.pick-art__pattern { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0 4cqw, var(--color-bg-brand-inverse) 4cqw 4.6cqw); opacity: 0.35; }

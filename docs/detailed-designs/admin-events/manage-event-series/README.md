@@ -40,14 +40,14 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 
 ### Open questions
 
-- The dialog says "anyone who dropped in for this date is refunded". There is no online payment (`L2-011` AC5), so the system refunds nothing; what is refunded and by whom is `<TO SUPPLY>` and the copy should match (`docs/mocks/README.md` open question 12).
-- "Told" is a notice in the series' group chat in this design. Whether members are also emailed or notified on their phone is `<TO SUPPLY>` (`docs/mocks/README.md` open question 1).
-- The dialog names only "The <n> members who joined the series"; drop-ins for that date are counted in the toast but not named in the dialog's count. The wording needs a decision.
+- Resolved (#89): there is no online payment (`L2-011` AC5), so the dialog says "Everyone going to this date will be told. If anyone paid for it, the host will sort out refunds with them directly." and the system refunds nothing.
+- Resolved (#89): members are told in the series group chat and by an in-app notification (ADR for the notification channel, #76).
+- Resolved (#89): the dialog counts drop-ins too, "12 people are going to this date (9 joined, 3 dropped in)."; the mock reads "34 people ... (31 joined, 3 dropped in)".
 - New series, Edit details and Add a date have no screen in the mocks (`docs/mocks/README.md` open question 10). Until a requirement and mock exist, series and sessions come from the CLI's idempotent seed; `L2-071` AC6 for changed and added dates holds by construction once they exist, since sessions are events.
 - The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.
 - The list's order is not stated (`L2-071` AC1); the mock lists by first session date. `<TO SUPPLY>`.
 - The `loading` mock draws a table skeleton beside the cards, unlike the loaded list; the skeleton should mirror the `admin-sessions` list.
-- `docs/detailed-designs/admin-events/publish-and-cancel-events` describes a `Conversation` entity and an `AdminOnly` policy that the code does not have; this design follows the code (`IChatChannel`, staff areas).
+- `docs/detailed-designs/admin-events/publish-and-cancel-events` described a `Conversation` entity and an `AdminOnly` policy that the code does not have; it now follows the code (`IChatChannel`, `AuthenticationSetup.StaffPolicy`), as does this design.
 
 ## Requirements
 

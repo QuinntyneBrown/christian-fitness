@@ -231,10 +231,10 @@
         "default",
         "list",
         "direct",
-        "history",
         "draft",
         "send-failed",
         "cancelled",
+        "history",
         "loading",
         "empty",
         "error"
@@ -522,7 +522,7 @@
         "success"
       ],
       "not_applicable": {
-        "invalid": "The optional reason is limited to 500 characters by the textarea; the dialog has no other input."
+        "invalid": "The only field is an optional reason capped by maxlength=500, so no input can be invalid."
       }
     },
     {
@@ -647,7 +647,7 @@
         "failed"
       ],
       "not_applicable": {
-        "invalid": "Confirmation has no fields to validate."
+        "invalid": "A confirmation with no input."
       }
     },
     {
@@ -664,7 +664,7 @@
         "failed"
       ],
       "not_applicable": {
-        "invalid": "Confirmation has no fields to validate."
+        "invalid": "A confirmation with no input."
       }
     },
     {
@@ -681,7 +681,7 @@
         "failed"
       ],
       "not_applicable": {
-        "invalid": "Confirmation has no fields to validate."
+        "invalid": "A confirmation with no input."
       }
     },
     {
@@ -1133,6 +1133,8 @@
         "facebook",
         "whatsapp",
         "slack",
+        "changed",
+        "no-image",
         "failed",
         "loading",
         "empty",
