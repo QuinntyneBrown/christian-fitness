@@ -79,7 +79,7 @@ published stories.
   beyond the mock's examples; the landing page uses the same helper.
 - **Send a correction** — `/feedback?about=story:<id>&kind=correction`, with the stable story id,
   opens Send feedback with "A correction" chosen and this story as the page it is about
-  (`L2-063` AC2, [ADR 0061](../../../adr/0061-addresses-and-slugs.md)).
+  (`L2-063` AC2, [ADR 0071](../../../adr/0071-addresses-and-slugs.md)).
 
 ### Christian Fitness API
 

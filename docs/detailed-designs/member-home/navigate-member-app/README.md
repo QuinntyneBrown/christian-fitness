@@ -77,7 +77,7 @@ has no footer (`L2-008` AC5).
   four links, each a target of at least 44 px tall (`L2-008` AC5):
   - **Send feedback** — `/feedback?about=page:<route-template>`, or
     `/feedback?about=story:<id>` on a story, carrying "About this page" through reload and
-    sign-in ([ADR 0061](../../../adr/0061-addresses-and-slugs.md), `L2-063` AC1);
+    sign-in ([ADR 0071](../../../adr/0071-addresses-and-slugs.md), `L2-063` AC1);
   - **Preferences** — `/preferences` (`L2-064` AC1);
   - **Privacy** — `/privacy` (`L2-067` AC4);
   - **Terms** — `/terms` (`L2-067` AC4).

@@ -1,4 +1,4 @@
-# 0061. Addresses and slugs for sections, kinds, stories and picks
+# 0071. Addresses and slugs for sections, kinds, stories and picks
 
 ## Status
 

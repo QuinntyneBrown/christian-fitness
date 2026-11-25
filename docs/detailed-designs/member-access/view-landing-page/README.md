@@ -156,7 +156,7 @@ The slice runs from the landing route to the stories and events tables. The mock
   `PublicServicesController` with `ListLandingProfessionalsQuery` in the API, serve a section the
   page no longer has (ADR 0057). `GetUpcomingEventsQuery.MaxTake` is 3. The next slices replace the
   layout, remove the professionals parts and supersede ADR 0057 and the layout parts of ADR 0037.
-- **Section in the address.** [ADR 0061](../../../adr/0061-addresses-and-slugs.md) uses the
+- **Section in the address.** [ADR 0071](../../../adr/0071-addresses-and-slugs.md) uses the
   feed slug: `/?section=faith-body` for Faith & Body. An unknown section shows all stories
   in Latest, the landing page's all-stories view.
 - **Member count.** The join card shows "2,400+ members across the GTA". ADR 0037 left a member
