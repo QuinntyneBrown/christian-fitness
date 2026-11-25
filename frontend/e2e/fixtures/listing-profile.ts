@@ -44,6 +44,7 @@ export interface ListingProfileFixture {
   photoKey: string | null;
   followers: number;
   listedYear: number;
+  hasOwner: boolean;
   hostingCount: number;
   hosting: HostedEventFixture[];
   connections: ConnectionFixture[];
@@ -70,6 +71,7 @@ export const LAKESHORE: ListingProfileFixture = {
   photoKey: null,
   followers: 612,
   listedYear: 2025,
+  hasOwner: true,
   hostingCount: 0,
   hosting: [],
   connections: [
@@ -105,6 +107,7 @@ export const OKAFOR: ListingProfileFixture = {
   photoKey: '0f8e1c2d3b4a59687766554433221100.jpg',
   followers: 935,
   listedYear: 2024,
+  hasOwner: true,
   hostingCount: 0,
   hosting: [],
   connections: [],
@@ -125,6 +128,7 @@ export const TEAM: ListingProfileFixture = {
   photoKey: null,
   followers: 2140,
   listedYear: 2024,
+  hasOwner: false,
   hostingCount: 1,
   hosting: [SUNRISE_RUN],
   connections: [],
@@ -145,6 +149,7 @@ export const NORTHLINE: ListingProfileFixture = {
   photoKey: null,
   followers: 256,
   listedYear: 2026,
+  hasOwner: false,
   hostingCount: 0,
   hosting: [],
   connections: [],
@@ -200,4 +205,27 @@ export function answerEventImages(api: ApiHandlers): void {
       'base64',
     ),
   }));
+}
+
+/** The owner `POST /api/directory/{id}/conversation` answers, or the refusal it gives instead. */
+export type ConversationReply = { memberId: string } | ProfileFault;
+
+/**
+ * Answers `POST /api/directory/{id}/conversation` with `reply`, and returns the ids asked for, in
+ * order (ADR 0085).
+ */
+export function answerListingConversation(api: ApiHandlers, reply: ConversationReply): string[] {
+  const asked: string[] = [];
+  api.on('POST', /^\/api\/directory\/[0-9a-f-]{36}\/conversation$/, (request): ApiReply => {
+    asked.push(new URL(request.url()).pathname.split('/')[3] ?? '');
+    if (reply && 'memberId' in reply) return { json: { memberId: reply.memberId } };
+    if (reply?.abort) return { abort: true };
+    const status = reply?.status ?? 500;
+    return {
+      status,
+      headers: { 'content-type': 'application/problem+json' },
+      json: { status, code: reply?.code ?? 'error' },
+    };
+  });
+  return asked;
 }

@@ -1,6 +1,7 @@
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Time.Testing;
@@ -72,6 +73,29 @@ public sealed class DirectoryFactory : ApiFactory
         db.DirectoryListings.Add(listing);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return listing.Id;
+    }
+
+    /// <summary>
+    /// Makes <paramref name="member"/> the listing's owner, as a claim will (journeys 18 and 19); no
+    /// product path sets an owner yet, so the store's value is set directly.
+    /// </summary>
+    public async Task OwnAsync(Guid listing, Guid member)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var row = await db.DirectoryListings.SingleAsync(l => l.Id == listing, TestContext.Current.CancellationToken);
+        db.Entry(row).Property(l => l.MemberId).CurrentValue = member;
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>Suspends the member, as a moderator does.</summary>
+    public async Task SuspendAsync(Guid member)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var row = await db.Members.SingleAsync(m => m.Id == member, TestContext.Current.CancellationToken);
+        Assert.True(row.TrySuspend("Repeated harassment"));
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     /// <summary>Connects <paramref name="listing"/> to <paramref name="connected"/> as <paramref name="relation"/>, as staff will in the listing editor.</summary>

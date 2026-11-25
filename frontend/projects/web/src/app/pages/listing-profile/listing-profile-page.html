@@ -59,7 +59,20 @@
             [person]="shown.person"
             [initials]="shown.initials"
             [photoSrc]="shown.photoSrc"
-          />
+          >
+            @if (listing.hasOwner) {
+              <cf-button slot="actions" variant="secondary" size="md" (click)="message()"
+                >Message</cf-button
+              >
+            }
+          </cf-listing-head>
+          @if (messageFailed()) {
+            <div class="listing-profile-page__alert">
+              <cf-alert heading="We couldn't open this conversation"
+                >Try again in a moment.</cf-alert
+              >
+            </div>
+          }
           <cf-split variant="detail">
             <div>
               <section aria-labelledby="hosting-title">

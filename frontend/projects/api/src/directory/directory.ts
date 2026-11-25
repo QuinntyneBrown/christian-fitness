@@ -90,12 +90,19 @@ export interface ListingProfileDto {
   photoKey: string | null;
   followers: number;
   listedYear: number;
+  /** Whether a member owns it, so Message can reach someone (L2-055 AC6). */
+  hasOwner: boolean;
   /** How many published one-off events it hosts that have not started. */
   hostingCount: number;
   /** The first 20 of them, in start order. */
   hosting: HostedEventDto[];
   /** The published listings it is connected to, in kind then name order. */
   connections: ListingConnectionDto[];
+}
+
+/** Who receives a listing's messages: the member whose direct conversation Message opens. */
+export interface ListingConversationDto {
+  memberId: string;
 }
 
 /** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0085). */
@@ -112,6 +119,14 @@ export interface DirectoryApi {
    * (`listing_not_found`); a 5xx opens the server-error screen.
    */
   get(id: string): Observable<ListingProfileDto>;
+
+  /**
+   * The member to open the direct conversation with when messaging a listing: its owner. A listing
+   * with no owner errors with a 409 (`listing_unreachable`), a suspended owner or the caller's own
+   * listing with a 403 (`recipient_unavailable`), and an unpublished one with a 404
+   * (`listing_not_found`).
+   */
+  startConversation(id: string): Observable<ListingConversationDto>;
 }
 
 /** Binds {@link DirectoryApi}; the Directory screen provides it on its own route component. */

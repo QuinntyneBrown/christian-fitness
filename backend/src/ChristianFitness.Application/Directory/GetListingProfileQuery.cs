@@ -23,7 +23,8 @@ public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, str
 /// <summary>
 /// A published listing's profile (L2-055 AC1 to AC5; ADR 0085): what it publishes, its follower count and
 /// the year it was listed, in Toronto. The website is served as stored; the app shows only an
-/// https address (L2-055 AC5). It carries no member id, contact detail or owner's name.
+/// https address (L2-055 AC5). <c>HasOwner</c> says whether Message can reach anyone (L2-055 AC6);
+/// it carries no member id, contact detail or owner's name.
 /// </summary>
 public sealed record ListingProfileDto(
     Guid Id,
@@ -38,6 +39,7 @@ public sealed record ListingProfileDto(
     string? PhotoKey,
     int Followers,
     int ListedYear,
+    bool HasOwner,
     int HostingCount,
     IReadOnlyList<HostedEventDto> Hosting,
     IReadOnlyList<ListingConnectionDto> Connections);
@@ -101,6 +103,7 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
             listing.PhotoKey,
             followers,
             EventSchedule.TorontoOf(listing.ListedAt).Date.Year,
+            listing.MemberId is not null,
             hostingCount,
             hosting,
             connections);

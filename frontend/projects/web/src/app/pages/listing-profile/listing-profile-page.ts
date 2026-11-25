@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DIRECTORY_SERVICE, type ListingProfileDto } from '@cf/api';
 import {
+  Alert,
   Button,
   Container,
   type DescriptionItem,
@@ -45,6 +46,7 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
 @Component({
   selector: 'cf-listing-profile-page',
   imports: [
+    Alert,
     Button,
     Container,
     DescriptionList,
@@ -71,9 +73,12 @@ export default class ListingProfilePage {
   private readonly router = inject(Router);
   private id = '';
   private request: Subscription | null = null;
+  private messaging: Subscription | null = null;
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly profile = signal<ListingProfileDto | null>(null);
+  /** Message could not open the conversation: a refusal or a lost connection. */
+  protected readonly messageFailed = signal(false);
   protected readonly view = computed(() => {
     const profile = this.profile();
     return profile ? listingProfileViewOf(profile) : null;
@@ -111,6 +116,28 @@ export default class ListingProfilePage {
     void this.router.navigateByUrl(href);
   }
 
+  /**
+   * Asks who receives the listing's messages and opens that conversation (L2-055 AC6). A refusal
+   * or a lost connection shows one generic alert; a click while asking is ignored.
+   */
+  protected message(): void {
+    if (this.messaging) return;
+    this.messageFailed.set(false);
+    this.messaging = this.directory
+      .startConversation(this.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ memberId }) => {
+          this.messaging = null;
+          void this.router.navigateByUrl(`/messages/${encodeURIComponent(memberId)}`);
+        },
+        error: () => {
+          this.messaging = null;
+          this.messageFailed.set(true);
+        },
+      });
+  }
+
   /** Asks for the profile again, in place. */
   protected retry(): void {
     this.load();
@@ -118,6 +145,9 @@ export default class ListingProfilePage {
 
   private load(): void {
     this.request?.unsubscribe();
+    this.messaging?.unsubscribe();
+    this.messaging = null;
+    this.messageFailed.set(false);
     this.state.set('loading');
     this.request = this.directory
       .get(this.id)

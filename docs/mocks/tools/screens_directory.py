@@ -484,7 +484,7 @@ def hosting_rows(l: dict) -> str:
     return f'<ul class="hosting">{"".join(rows)}</ul>'
 
 
-def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str:
+def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True, notice: str = "") -> str:
     sr_list, ev_list = hosted_by(l["id"])
     hosting = len(sr_list) + len(ev_list)
     verified = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if l["verified"] else ""
@@ -519,7 +519,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
         <div class="listing-head__actions">
           {actions}
         </div>
-      </header>
+      </header>{notice}
       <div class="split split--detail">
         <div>
           <section aria-labelledby="hosting-title">
@@ -573,6 +573,13 @@ def _():
 @s("unverified", "Northline Athletic, a company that is not verified and hosts nothing: no Verified mark, and the Hosting section says so.")
 def _():
     return member_shell("directory", profile_page(LS["northline"]))
+
+
+@s("message-failed", "Danielle Okafor after Message could not open the conversation (a refusal or no connection): a generic alert under the head; the profile stays as it was.")
+def _():
+    alert = form_alert("We couldn't open this conversation", "Try again in a moment.")
+    indented = "".join("\n      " + line for line in alert.split("\n"))
+    return member_shell("directory", profile_page(LS["okafor"], notice=indented))
 
 
 @s("owner", "Eastside Ladies Who Lift, seen by the member who claimed it: Edit listing replaces Follow and Message and opens the listing editor.")

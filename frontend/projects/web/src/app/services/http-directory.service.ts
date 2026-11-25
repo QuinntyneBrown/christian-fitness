@@ -1,11 +1,17 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { DirectoryApi, DirectoryPageDto, DirectoryQuery, ListingProfileDto } from '@cf/api';
+import type {
+  DirectoryApi,
+  DirectoryPageDto,
+  DirectoryQuery,
+  ListingConversationDto,
+  ListingProfileDto,
+} from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
  * {@link DirectoryApi} over HTTP: `GET /api/directory?kind=&q=&cursor=` (ADR 0082) and
- * `GET /api/directory/{id}` (ADR 0085). A 5xx opens
+ * `GET /api/directory/{id}` and `POST /api/directory/{id}/conversation` (ADR 0085). A 5xx opens
  * the server-error screen through the interceptor; every failure passes on to the screen. It holds
  * no state, and is provided on the Directory screen, so it lives only while the screen does.
  */
@@ -23,5 +29,12 @@ export class HttpDirectoryService implements DirectoryApi {
 
   get(id: string): Observable<ListingProfileDto> {
     return this.http.get<ListingProfileDto>(`/api/directory/${encodeURIComponent(id)}`);
+  }
+
+  startConversation(id: string): Observable<ListingConversationDto> {
+    return this.http.post<ListingConversationDto>(
+      `/api/directory/${encodeURIComponent(id)}/conversation`,
+      null,
+    );
   }
 }

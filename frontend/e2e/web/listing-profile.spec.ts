@@ -1,7 +1,10 @@
+import { SIGNED_IN } from '../fixtures/api-handlers';
+import { FakeChatHub } from '../fixtures/chat';
 import { expect, test } from '../fixtures/test';
 import { answerDirectory, CAST } from '../fixtures/directory';
 import {
   answerEventImages,
+  answerListingConversation,
   answerListingProfile,
   LAKESHORE,
   NORTHLINE,
@@ -11,12 +14,14 @@ import {
   TEAM,
 } from '../fixtures/listing-profile';
 import { WebDirectoryPage } from '../page-objects/web/directory.page';
+import { WebEventChatPage } from '../page-objects/web/event-chat.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-055 AC1 to AC5, AC7, AC8 and AC9 (journey 6; ADR 0085): a member opens a listing's profile at
+// L2-055 AC1 to AC9 and L2-014 AC1 to AC2 (journey 6; ADR 0085): a member opens a listing's profile at
 // `/directory/<id>` and reads its head, About, area, https website, followers and the year listed
-// and what it hosts (mocks `listing-profile/default`, `person`, `one-off`, `unverified`, `loading`,
-// `error`). Hosted series arrive with journey 11.
+// and what it hosts, and messages its owner (mocks `listing-profile/default`, `person`, `one-off`,
+// `unverified`, `no-owner`, `message-failed`, `loading`, `error`). Hosted series arrive with
+// journey 11.
 test.describe('Member app, listing profile', () => {
   test('The profile shows the mark, kind, Verified, name, tagline, About with focus tags and the key facts', async ({
     page,
@@ -172,6 +177,64 @@ test.describe('Member app, listing profile', () => {
     await expect(profile.name).toHaveText('Northline Athletic');
     await expect(profile.connected).toHaveCount(0);
   });
+
+  test("Message opens the direct conversation with the listing's owner", async ({ page, api }) => {
+    const owner = '0190c0de-0000-7000-8000-0000000000d4';
+    answerListingProfile(api, PROFILES);
+    const asked = answerListingConversation(api, { memberId: owner });
+    await FakeChatHub.install(page, api, {
+      code: null,
+      title: 'Danielle Okafor',
+      memberId: SIGNED_IN.memberId,
+    });
+    const profile = new WebListingProfilePage(page);
+    const chat = new WebEventChatPage(page);
+
+    await profile.open(OKAFOR.id);
+    await profile.messageButton.click();
+
+    await expect(page).toHaveURL(`/messages/${owner}`);
+    await expect(chat.chatTitle).toHaveText('Danielle Okafor');
+    expect(asked).toEqual([OKAFOR.id]);
+  });
+
+  test('A listing with no owner offers no Message, and its website remains', async ({
+    page,
+    api,
+  }) => {
+    answerListingProfile(api, [{ ...LAKESHORE, hasOwner: false }]);
+    const profile = new WebListingProfilePage(page);
+
+    await profile.open(LAKESHORE.id);
+
+    await expect(profile.name).toHaveText(LAKESHORE.name);
+    await expect(profile.messageButton).toHaveCount(0);
+    await expect(profile.website).toHaveAttribute('href', 'https://lakeshorerunners.ca/');
+  });
+
+  for (const refusal of [
+    { status: 409, code: 'listing_unreachable' },
+    { status: 403, code: 'recipient_unavailable' },
+    { abort: true },
+  ]) {
+    test(`A Message that cannot open (${refusal.code ?? 'no connection'}) says so and stays on the profile`, async ({
+      page,
+      api,
+    }) => {
+      answerListingProfile(api, PROFILES);
+      answerListingConversation(api, refusal);
+      const profile = new WebListingProfilePage(page);
+
+      await profile.open(OKAFOR.id);
+      await profile.messageButton.click();
+
+      await expect(profile.messageAlert).toContainText("We couldn't open this conversation");
+      await expect(profile.messageAlert).toContainText('Try again in a moment.');
+      await expect(profile.messageAlert).toBeFocused();
+      await expect(page).toHaveURL(`/directory/${OKAFOR.id}`);
+      await expect(profile.name).toHaveText('Danielle Okafor');
+    });
+  }
 
   test('A website that is not https is not shown at all, neither as a link nor as text', async ({
     page,

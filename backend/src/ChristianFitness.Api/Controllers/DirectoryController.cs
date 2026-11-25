@@ -10,7 +10,7 @@ namespace ChristianFitness.Api.Controllers;
 /// <summary>
 /// The directory (L2-054, L2-055; ADR 0082, ADR 0085). Anyone may read the list and a profile, since
 /// they answer only what published listings publish, and an anonymous caller is held to the
-/// public-reads limit (ADR 0072).
+/// public-reads limit (ADR 0072). Messaging a listing needs a session.
 /// </summary>
 [ApiController]
 [Route("api/directory")]
@@ -29,4 +29,9 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
     [EnableRateLimiting(PublicReads.Policy)]
     public async Task<ActionResult<ListingProfileDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetListingProfileQuery(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>The member to open the direct conversation with when messaging a listing: its owner (L2-055 AC6).</summary>
+    [HttpPost("{id:guid}/conversation")]
+    public async Task<ActionResult<ListingConversationDto>> StartConversation(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new StartListingConversationCommand(id), cancellationToken).ConfigureAwait(false);
 }

@@ -49,6 +49,8 @@ export interface WebsiteView {
 export class WebListingProfilePage extends ErrorScreen {
   readonly backLink: Locator;
   readonly head: Locator;
+  readonly messageButton: Locator;
+  readonly messageAlert: Locator;
   readonly name: Locator;
   readonly hosting: Locator;
   readonly hostingHeading: Locator;
@@ -72,6 +74,8 @@ export class WebListingProfilePage extends ErrorScreen {
     super(page);
     this.backLink = this.main.getByRole('link', { name: 'Directory', exact: true }).first();
     this.head = this.main.locator('.listing-head');
+    this.messageButton = this.head.getByRole('button', { name: 'Message' });
+    this.messageAlert = this.main.getByRole('alert');
     this.name = this.head.getByRole('heading', { level: 1 });
     this.hosting = this.main.getByRole('region', { name: /^Hosting/ });
     this.hostingHeading = this.hosting.getByRole('heading', { level: 2 });
