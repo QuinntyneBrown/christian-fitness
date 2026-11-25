@@ -756,66 +756,6 @@ def _():
         "Series didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", ref="CF-A9R3"))
 
 
-def series_editor(state: str) -> str:
-    invalid = state == "invalid"
-    selected = state in ("edit", "edit-bootcamp", "selected")
-    value = "" if invalid else "Lakeshore" if state == "searching" else "Northside" if state == "no-results" else "Danielle Okafor" if state == "edit-bootcamp" else "Lakeshore Runners Fellowship" if selected else "Christian Fitness"
-    alert = error_summary("1 thing to fix", [("Choose a Listed host", "f-host")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') if invalid else ""
-    host = field("Host (required)", "host", value, required=True,
-                 error="Choose a Listed host" if invalid else "",
-                 hint="" if invalid else "Choose a Listed directory listing.")
-    if state == "searching":
-        results = '<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html"><span class="pick-card__title">Lakeshore Runners Fellowship</span><span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a>'
-    elif state == "no-results":
-        results = '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="searching.html">Search again</a>'
-    else:
-        results = '<a href="searching.html">Search hosts</a>'
-    body = f'{alert}{host}{results}<p class="field__hint">Other series fields are not yet specified.</p>'
-    foot = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>'
-    return over_admin("admin-series", series_admin(SR["park-bootcamp" if state == "edit-bootcamp" else "couch-to-5k"]),
-                      drawer("Edit series" if state in ("edit", "edit-bootcamp") else "New series", body, foot))
-
-
-s = screen("series-editor", "dialog", "Series editor", group=G, opens_from="admin-series",
-           source="Derived: host selection in the New series and Edit details drawers (ADR 0067).",
-           not_applicable={"busy": "Only the host picker is specified; the complete series save flow is not yet designed."})
-
-
-@s("default", "A new series defaults to the Christian Fitness team host.")
-def _():
-    return series_editor("default")
-
-
-@s("edit", "Edit a series with its saved host.")
-def _():
-    return series_editor("edit")
-
-
-@s("edit-bootcamp", "Edit Saturday Park Bootcamp with its saved host Danielle Okafor.")
-def _():
-    return series_editor("edit-bootcamp")
-
-
-@s("searching", "Search Listed hosts and choose a matching listing.")
-def _():
-    return series_editor("searching")
-
-
-@s("selected", "A matching Listed host has been selected.")
-def _():
-    return series_editor("selected")
-
-
-@s("no-results", "A host search with no matching Listed listings.")
-def _():
-    return series_editor("no-results")
-
-
-@s("invalid", "A missing host shows an error at the field and in the summary.")
-def _():
-    return series_editor("invalid")
-
-
 def cancel_session(*, busy: bool = False, failed: bool = False) -> str:
     alert = ('<div class="dialog__alert">' + form_alert("We couldn't cancel this date", "Nothing was changed and nobody was told. Try again in a moment.") + "</div>"
              if failed else "")
@@ -847,15 +787,25 @@ def _():
     return cancel_session(failed=True)
 
 
-def series_editor(*, edit: bool = False, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
+def series_editor(*, edit: bool = False, invalid: bool = False, busy: bool = False, failed: bool = False, host: str = "",
+                  bootcamp: bool = False) -> str:
+    """The series dialog. host is "" (the saved or default host), "searching", "selected" or "no-results" (ADR 0067)."""
     if edit:
-        v = dict(title="Couch to 5K Run Club", host=LS["lakeshore-runners"]["name"], price="Free", drop="Free", cap="40",
-                 place="Humber Bay Park East", area="Etobicoke", desc=SR["couch-to-5k"]["summary"])
+        sr = SR["park-bootcamp" if bootcamp else "couch-to-5k"]
+        v = dict(title=sr["title"], host="Danielle Okafor" if bootcamp else LS["lakeshore-runners"]["name"], price="Free", drop="Free",
+                 cap="30" if bootcamp else "40", place="Centennial Park, Etobicoke" if bootcamp else "Humber Bay Park East",
+                 area="Etobicoke", desc=sr["summary"])
     else:
-        v = dict(title="Sunday Stretch & Prayer", host=LS["faith-footwork"]["name"], price="Free", drop="Free", cap="25",
+        v = dict(title="Sunday Stretch & Prayer", host="Christian Fitness", price="Free", drop="Free", cap="25",
                  place="St. Lawrence Community Rec Centre", area="Downtown",
                  desc="Forty minutes of gentle stretching and mobility, then a short time of prayer. All levels, no equipment.")
-    title_err = cap_err = ""
+    if host == "searching":
+        v["host"] = "Lakeshore"
+    elif host == "no-results":
+        v["host"] = "Northside"
+    elif host == "selected":
+        v["host"] = LS["lakeshore-runners"]["name"]
+    title_err = cap_err = host_err = ""
     alert = ""
     if invalid:
         if edit:
@@ -863,21 +813,32 @@ def series_editor(*, edit: bool = False, invalid: bool = False, busy: bool = Fal
             cap_err = "31 members have joined. Set a capacity of at least 31"
             alert = error_summary("1 thing to fix before saving", [(cap_err, "f-capacity")])
         else:
-            v.update(title="", cap="0")
+            v.update(title="", host="", cap="0")
             title_err = "Give the series a title members will recognize"
+            host_err = "Choose a Listed host"
             cap_err = "Set a capacity of at least 1"
-            alert = error_summary("2 things to fix before saving", [(title_err, "f-title"), (cap_err, "f-capacity")])
+            alert = error_summary("3 things to fix before saving",
+                                  [(title_err, "f-title"), (host_err, "f-host"), (cap_err, "f-capacity")])
         alert = alert.replace('tabindex="-1"', 'tabindex="-1" autofocus')
     if failed:
         alert = form_alert("Couldn't save the changes" if edit else "Couldn't create the series",
                            "The server didn't respond. Nothing was changed and what you typed is still here; try again.")
     ro = busy
-    hosts = [x["name"] for x in LISTINGS]
+    if host == "searching":
+        results = ('<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html">'
+                   f'<span class="pick-card__title">{LS["lakeshore-runners"]["name"]}</span>'
+                   '<span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a>')
+    elif host == "no-results":
+        results = '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="searching.html">Search again</a>'
+    elif ro:
+        results = ""
+    else:
+        results = '<a href="searching.html">Search hosts</a>'
     body = f"""{alert}
     {field("Title", "title", v["title"], error=title_err, readonly=ro)}
-    {select("Host", "host", hosts, v["host"], disabled=ro)}
+    {field("Host", "host", v["host"], required=True, error=host_err, hint="" if host_err else "Search Listed directory listings", readonly=ro)}{results}
     {textarea("Description", "description", v["desc"], rows=3, hint="Up to 1,000 characters", readonly=ro)}
-    {file_field("Image", "image", filename="couch-to-5k.jpg" if edit else "", hint="JPEG, PNG or WebP, up to 5 MB", optional=True, readonly=ro)}
+    {file_field("Image", "image", filename="couch-to-5k.jpg" if edit and not bootcamp else "", hint="JPEG, PNG or WebP, up to 5 MB", optional=True, readonly=ro)}
     <div class="field-grid">
       {field("Series price", "series-price", v["price"], hint="Leave blank for free", readonly=ro)}
       {field("Drop-in price", "drop-in-price", v["drop"], hint="Leave blank if there is no drop-in", readonly=ro)}
@@ -890,23 +851,38 @@ def series_editor(*, edit: bool = False, invalid: bool = False, busy: bool = Fal
     go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…" if edit else "Creating…")}</button>' if busy
           else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{to}">{verb}</button>')
     cancel = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}"{" disabled" if busy else ""}>Cancel</button>'
-    html = dialog("Edit series details" if edit else "New series", body, cancel + go, did="dlg",
-                  sub="Dates are added from the series itself, once it exists." if not edit else "Couch to 5K Run Club · changes show to members at once")
-    if not invalid and not busy:
+    sub = f"{v['title']} · changes show to members at once" if edit else "Dates are added from the series itself, once it exists."
+    html = dialog("Edit series details" if edit else "New series", body, cancel + go, did="dlg", sub=sub)
+    if not invalid and not busy and not host:
         html = autofocus_first(html, 'id="f-title"')
-    return over_admin("admin-series", series_admin(SR["couch-to-5k"]), html)
+    return over_admin("admin-series", series_admin(SR["park-bootcamp" if bootcamp else "couch-to-5k"]), html)
 
 
 s = screen("series-editor", "dialog", "Series editor", group=G, opens_from="admin-series",
-           source="Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms.")
+           source="Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms. The Host picker follows ADR 0067.")
 
 
-@s("default", "New series: title, host, description, image, series and drop-in prices, capacity, location and suggestion area; Create series.")
+@s("default", "New series: title, a Host defaulting to the Christian Fitness team listing, description, image, series and drop-in prices, capacity, location and suggestion area; Create series.")
 def _():
     return series_editor()
 
 
-@s("invalid", "Create pressed with no title and no capacity: both fields marked, an error summary focused; nothing is saved.")
+@s("searching", "Searching Listed hosts: matching listings show as choices.")
+def _():
+    return series_editor(host="searching")
+
+
+@s("selected", "A matching Listed host has been chosen.")
+def _():
+    return series_editor(host="selected")
+
+
+@s("no-results", "A host search with no matching Listed listings says so.")
+def _():
+    return series_editor(host="no-results")
+
+
+@s("invalid", "Create pressed with no title, no host and no capacity: each field marked, an error summary focused; nothing is saved.")
 def _():
     return series_editor(invalid=True)
 
@@ -921,9 +897,14 @@ def _():
     return series_editor(failed=True)
 
 
-@s("edit", "Edit details on Couch to 5K Run Club: the same fields filled in; Save changes.")
+@s("edit", "Edit details on Couch to 5K Run Club: the same fields filled in with its saved host; Save changes.")
 def _():
     return series_editor(edit=True)
+
+
+@s("edit-bootcamp", "Edit Saturday Park Bootcamp with its saved host Danielle Okafor.")
+def _():
+    return series_editor(edit=True, bootcamp=True)
 
 
 @s("edit-invalid", "Capacity set below the 31 who joined: the field is marked and says the lowest allowed; nothing is saved.")

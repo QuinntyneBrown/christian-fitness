@@ -1117,12 +1117,12 @@
         "moderator",
         "selected",
         "date-cancelled",
-        "loading",
-        "empty",
-        "error",
         "series-created",
         "series-saved",
-        "date-added"
+        "date-added",
+        "loading",
+        "empty",
+        "error"
       ]
     },
     {
@@ -1183,10 +1183,10 @@
         "approved",
         "declined",
         "listed",
+        "listing-saved",
         "loading",
         "empty",
-        "error",
-        "listing-saved"
+        "error"
       ]
     },
     {
@@ -1318,25 +1318,22 @@
       "title": "Series editor",
       "group": "Admin console",
       "opens_from": "admin-series",
-      "source": "Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms.",
+      "source": "Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms. The Host picker follows ADR 0067.",
       "requirements": [],
       "states": [
         "default",
-        "edit",
-        "edit-bootcamp",
         "searching",
         "selected",
         "no-results",
         "invalid",
         "busy",
         "failed",
+        "edit",
+        "edit-bootcamp",
         "edit-invalid",
         "edit-busy",
         "edit-failed"
-      ],
-      "not_applicable": {
-        "busy": "Only the host picker is specified; the complete series save flow is not yet designed."
-      }
+      ]
     },
     {
       "id": "notifications",

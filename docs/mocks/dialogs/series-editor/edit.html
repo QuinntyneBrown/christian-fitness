@@ -7,8 +7,8 @@
 <meta name="mock:kind" content="dialog">
 <meta name="mock:screen" content="series-editor">
 <meta name="mock:state" content="edit">
-<meta name="mock:source" content="Derived: host selection in the New series and Edit details drawers (ADR 0067).">
-<meta name="description" content="Edit details on Couch to 5K Run Club: the same fields filled in; Save changes.">
+<meta name="mock:source" content="Derived: the Manage Event Series frame&#x27;s &quot;New series&quot; and &quot;Edit details&quot; buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms. The Host picker follows ADR 0067.">
+<meta name="description" content="Edit details on Couch to 5K Run Club: the same fields filled in with its saved host; Save changes.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -107,7 +107,7 @@
   <div class="dialog__body">
 
     <div class="field"><label class="field__label" for="f-title">Title</label><input class="input" id="f-title" autofocus name="title" type="text" value="Couch to 5K Run Club"></div>
-    <div class="field"><label class="field__label" for="f-host">Host</label><select class="select" id="f-host" name="host"><option>Christian Fitness</option><option selected>Lakeshore Runners Fellowship</option><option>Grace Fellowship Move Ministry</option><option>St. Paul’s Sports Ministry</option><option>Danielle Okafor</option><option>Tasha Grant</option><option>Faith &amp; Footwork</option><option>Michael Chen</option><option>Priya Nair</option><option>Rev. James Whitfield</option><option>Kingdom Fuel Nutrition</option><option>Northline Athletic</option></select></div>
+    <div class="field"><label class="field__label" for="f-host">Host</label><input class="input" id="f-host" name="host" type="text" value="Lakeshore Runners Fellowship" aria-describedby="f-host-hint" required><span class="field__hint" id="f-host-hint">Search Listed directory listings</span></div><a href="searching.html">Search hosts</a>
     <div class="field"><label class="field__label" for="f-description">Description</label><textarea class="textarea" id="f-description" name="description" rows="3" aria-describedby="f-description-hint">Eight weeks from walking to running a full 5K, together. Each week builds on the last, so the group stays together from week one to race day.</textarea><span class="field__hint" id="f-description-hint">Up to 1,000 characters</span></div>
     <div class="field file-field"><span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-labelledby="f-image-label" hidden><span class="file-field__name">couch-to-5k.jpg</span><button class="btn btn--ghost btn--sm" type="button">Remove<span class="visually-hidden"> image</span></button></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
     <div class="field-grid">
@@ -127,14 +127,14 @@
   <span class="mock-bar__screen">Series editor</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
-    <li><a href="edit.html" aria-current="page">edit</a></li>
-    <li><a href="edit-bootcamp.html">edit-bootcamp</a></li>
     <li><a href="searching.html">searching</a></li>
     <li><a href="selected.html">selected</a></li>
     <li><a href="no-results.html">no-results</a></li>
     <li><a href="invalid.html">invalid</a></li>
     <li><a href="busy.html">busy</a></li>
     <li><a href="failed.html">failed</a></li>
+    <li><a href="edit.html" aria-current="page">edit</a></li>
+    <li><a href="edit-bootcamp.html">edit-bootcamp</a></li>
     <li><a href="edit-invalid.html">edit-invalid</a></li>
     <li><a href="edit-busy.html">edit-busy</a></li>
     <li><a href="edit-failed.html">edit-failed</a></li>
