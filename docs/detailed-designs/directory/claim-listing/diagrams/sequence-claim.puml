@@ -7,10 +7,10 @@ skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Suggested party or sender" as party
 box "Frontend — Member web app" #E0F2FE
-  participant "ClaimListingPage" as page
+  participant "ClaimSignInPage or ClaimListingPage" as page
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "ClaimsController" as ctrl
+  participant "ListingClaimsController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "Claim handlers" as h
@@ -20,34 +20,33 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 party -> page : Opens /claim/{token}
-alt signed out
-  page --> party : Sign in or Join, then back to the link
-end
-page -> ctrl : GET /api/claims/{token}
-ctrl -> h : GetClaimQuery
+page -> ctrl : GET /api/claims/{token} (anonymous)
+ctrl -> h : GetListingClaimQuery
 h -> db : Find claim by hash of token
 alt unknown
   h --> page : 404 claim_not_found
-else expired
-  h --> page : 410 claim_link_expired
-else used
+else used, or listing no longer a draft
   h --> page : 409 claim_link_used
-else valid
-  h --> page : 200 listing preview
+else expired or voided
+  h --> page : 410 claim_link_expired
+else signed out
+  h --> page : 200 name and expiry only
+  page --> party : Sign in or Join, then back to the link
+else signed in
+  h --> page : 200 name, expiry and preview
 end
 party -> page : Publish my listing
 page -> ctrl : POST /api/claims/{token}/publish
-ctrl -> h : PublishClaimCommand
-h -> claim : Publish(member, now)
-claim -> claim : Listing Listed, owner = member, link spent
-h -> db : Save and audit in one unit of work
+ctrl -> h : PublishListingClaimCommand
+h -> claim : Spend(now)
+h -> db : Listing Published, owner = member, link spent, audit listing.claimed
 h --> page : 200
 page --> party : Your listing is live
 party -> page : This isn't me
 page -> ctrl : POST /api/claims/{token}/decline
-ctrl -> h : DeclineClaimCommand
-h -> claim : Decline(now)
-claim -> claim : Listing Declined, link spent
-h -> db : Save, audit, tell staff
+ctrl -> h : DeclineListingClaimCommand
+h -> claim : Spend(now)
+h -> db : Listing Declined, link spent, audit listing.claim_declined
 h --> page : 200
+page --> party : Thanks for letting us know
 @enduml

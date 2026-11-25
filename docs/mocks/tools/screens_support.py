@@ -827,20 +827,24 @@ def claim_card(*, busy: bool = False, failed: bool = False, confirm: bool = Fals
     </div>"""
 
 
-def claim_signed_out() -> str:
+def claim_signed_out(title: str = "", lead: str = "", actions: str = "", alt: str = "") -> str:
+    title = title or f"Claim {EASTSIDE['name']}"
+    lead = lead or "Sign in or join first, so the listing is yours and you can edit it later. We bring you straight back here."
+    actions = actions or (f'<a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>\n'
+                          f'        <a class="btn btn--secondary btn--lg btn--block" href="{href("join")}">Join Christian Fitness</a>')
+    alt = alt if alt is not None else ""
+    alt_line = f'\n      <p class="auth__alt">{alt}</p>' if alt else ""
     return f"""<div class="signin">
   <header class="signin__header">
     {lockup(href("landing"))}
   </header>
   <main id="main" class="signin__main">
     <div class="signin__card">
-      <h1 class="display auth__title">Claim {EASTSIDE["name"]}</h1>
-      <p class="auth__lead">Sign in or join first, so the listing is yours and you can edit it later. We bring you straight back here.</p>
+      <h1 class="display auth__title" tabindex="-1">{title}</h1>
+      <p class="auth__lead">{lead}</p>
       <div class="form-page__foot">
-        <a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>
-        <a class="btn btn--secondary btn--lg btn--block" href="{href("join")}">Join Christian Fitness</a>
-      </div>
-      <p class="auth__alt">This link works once and expires on {CLAIM_EXPIRY}.</p>
+        {actions}
+      </div>{alt_line}
     </div>
   </main>
 </div>"""
@@ -858,7 +862,19 @@ def _():
 
 @s("signed-out", "The link opened signed out: the listing is named, and Sign in or Join comes first; the visitor returns here afterwards.")
 def _():
-    return claim_signed_out()
+    return claim_signed_out(alt=f"This link works once and expires on {CLAIM_EXPIRY}.")
+
+
+@s("signed-out-expired", "An expired link opened signed out (ADR 0091): the same sentence as signed in, in the sign-in card, and nothing of the listing.")
+def _():
+    return claim_signed_out("This link has expired", "This link has expired. Ask us for a new one.",
+                            f'<a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>')
+
+
+@s("signed-out-claimed", "A used link opened signed out (ADR 0091): the same sentence as signed in, in the sign-in card, and nothing of the listing.")
+def _():
+    return claim_signed_out("This listing has already been claimed", "A link works once. If that was you, sign in, find your listing in the directory and use Edit listing.",
+                            f'<a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>')
 
 
 @s("loading", "The link is being checked: the listing as skeletons.")
