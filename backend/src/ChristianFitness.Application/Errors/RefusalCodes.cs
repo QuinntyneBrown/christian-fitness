@@ -71,6 +71,9 @@ public static class RefusalCodes
     /// <summary>The member a direct message goes to is unknown, suspended or the sender (L2-014; ADR 0043).</summary>
     public const string RecipientUnavailable = "recipient_unavailable";
 
+    /// <summary>The direct message goes to the Christian Fitness account, which takes no replies (L2-014 AC8; ADR 0065).</summary>
+    public const string SystemAccount = "system_account";
+
     /// <summary>A field is longer than its limit (L2-003 AC6).</summary>
     public const string FieldTooLong = "field_too_long";
 

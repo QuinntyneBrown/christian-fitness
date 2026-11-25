@@ -21,6 +21,8 @@ export interface ChatAnswerDto {
   code: string | null;
   title: string | null;
   memberId: string | null;
+  /** True when a direct conversation is with the Christian Fitness account, which takes no replies (ADR 0065). */
+  system?: boolean;
 }
 
 /** Where the connection to the chat is. */

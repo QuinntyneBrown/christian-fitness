@@ -47,8 +47,9 @@ internal sealed class MemberCredentials(IAppDbContext db, IPasswordHasherService
             throw new RefusalException(RefusalCodes.TooManyAttempts, RefusalKind.TooManyRequests);
         }
 
+        // The Christian Fitness account cannot sign in: it is checked as an unknown email (ADR 0065).
         var member = await db.Members
-            .SingleOrDefaultAsync(m => m.NormalizedEmail == normalizedEmail, cancellationToken)
+            .SingleOrDefaultAsync(m => m.NormalizedEmail == normalizedEmail && !m.IsSystem, cancellationToken)
             .ConfigureAwait(false);
         var verified = hasher.Verify(member?.PasswordHash ?? (_unknownMemberHash ??= hasher.Hash(Guid.NewGuid().ToString("N"))), password);
         if (member is null || !verified)

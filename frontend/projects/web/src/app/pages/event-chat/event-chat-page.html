@@ -6,7 +6,15 @@
       }}</cf-link>
       <div class="chat-page__who">
         <h1 class="chat-page__name">{{ title() }}</h1>
-        <p class="chat-page__sub">{{ direct ? 'Direct message' : 'Event group' }}</p>
+        <p class="chat-page__sub">
+          {{
+            system()
+              ? "Official account · Doesn't read replies"
+              : direct
+                ? 'Direct message'
+                : 'Event group'
+          }}
+        </p>
       </div>
     </header>
     <cf-thread
@@ -35,7 +43,17 @@
         You can still read the chat, but no new messages can be sent.
       </cf-alert>
     } @else {
-      <cf-composer [label]="'Message ' + title()" (send)="send($event)" />
+      <cf-composer
+        [label]="'Message ' + title()"
+        [locked]="system()"
+        [refusal]="
+          systemRefused() ? 'That message wasn\'t sent. This account doesn\'t take messages.' : null
+        "
+        (send)="send($event)"
+      >
+        This account doesn't read replies. To reach the team, use
+        <a href="/feedback">Send feedback</a>.
+      </cf-composer>
     }
   } @else if (state() === 'connecting') {
     <cf-skeleton-region label="Opening chat" heading>

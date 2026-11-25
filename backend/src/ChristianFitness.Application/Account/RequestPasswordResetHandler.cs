@@ -35,7 +35,8 @@ internal sealed class RequestPasswordResetHandler(
         var member = await db.Members
             .SingleOrDefaultAsync(m => m.NormalizedEmail == normalizedEmail, cancellationToken)
             .ConfigureAwait(false);
-        if (member is null)
+        // The Christian Fitness account has no password to reset: answered as for no account (ADR 0065).
+        if (member is null || member.IsSystem)
         {
             return;
         }

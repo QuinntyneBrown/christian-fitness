@@ -17,6 +17,8 @@ export interface JoinAnswer {
   code: string | null;
   title: string | null;
   memberId: string | null;
+  /** True for the Christian Fitness account, which takes no replies (ADR 0065, ADR 0087). */
+  system?: boolean;
 }
 
 /** The messages in a page of history (L2-016 AC6). */
@@ -72,6 +74,7 @@ export class FakeChatHub {
   private socket: WebSocketRoute | null = null;
   private count = 0;
   private failing = 0;
+  private refusal: string | null = null;
 
   private constructor(
     private join: JoinAnswer,
@@ -117,6 +120,11 @@ export class FakeChatHub {
   /** The next `count` sends fail: the hub answers the invocation with an error. */
   failNextSends(count: number): void {
     this.failing = count;
+  }
+
+  /** Every later send is answered with the refusal `code` and stored nowhere, as `system_account` is (ADR 0065). */
+  refuseSends(code: string): void {
+    this.refusal = code;
   }
 
   /** The event is cancelled while the page is in its chat: the hub pushes `EventCancelled` (ADR 0041). */
@@ -171,6 +179,12 @@ export class FakeChatHub {
     if ((frame.target === 'Send' || frame.target === 'SendDirect') && this.failing > 0) {
       this.failing -= 1;
       this.frame({ type: 3, invocationId: frame.invocationId, error: 'The send failed.' });
+      return;
+    }
+    if ((frame.target === 'Send' || frame.target === 'SendDirect') && this.refusal !== null) {
+      this.sent.push(text ?? '');
+      const refused = { code: this.refusal, title: null, memberId: null };
+      this.frame({ type: 3, invocationId: frame.invocationId, result: refused });
       return;
     }
     let result: JoinAnswer = { code: null, title: null, memberId: null };

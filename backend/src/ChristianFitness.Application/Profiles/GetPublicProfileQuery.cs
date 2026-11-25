@@ -29,7 +29,7 @@ public sealed record PublicProfileDto(
     }
 }
 
-/// <summary>An id that names nobody, or is not an id, is 404. It logs nothing (L2-033 AC2).</summary>
+/// <summary>An id that names nobody, the Christian Fitness account (ADR 0065) or is not an id, is 404. It logs nothing (L2-033 AC2).</summary>
 internal sealed class GetPublicProfileHandler(IAppDbContext db) : IRequestHandler<GetPublicProfileQuery, PublicProfileDto>
 {
     public async Task<PublicProfileDto> Handle(GetPublicProfileQuery request, CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ internal sealed class GetPublicProfileHandler(IAppDbContext db) : IRequestHandle
             throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
         }
 
-        var member = await db.Members.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id, cancellationToken).ConfigureAwait(false)
+        var member = await db.Members.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id && !m.IsSystem, cancellationToken).ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
         return PublicProfileDto.Of(member);
     }

@@ -66,8 +66,10 @@ internal sealed class SearchMembersHandler(IAppDbContext db, IRegistrationReader
 {
     public async Task<MemberListDto> Handle(SearchMembersQuery request, CancellationToken cancellationToken)
     {
-        var total = await db.Members.CountAsync(cancellationToken).ConfigureAwait(false);
-        var members = db.Members.AsNoTracking();
+        // The Christian Fitness account is not a person: it is never listed or counted (ADR 0065).
+        var people = db.Members.AsNoTracking().Where(m => !m.IsSystem);
+        var total = await people.CountAsync(cancellationToken).ConfigureAwait(false);
+        var members = people;
         if (MemberStatusNames.StatusOf(request.Status) is { } status)
         {
             members = members.Where(m => m.Status == status);

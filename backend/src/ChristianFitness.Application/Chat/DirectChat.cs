@@ -47,7 +47,7 @@ internal sealed class JoinDirectHandler(IAppDbContext db) : IRequestHandler<Join
         var name = await DirectChat.OtherNameAsync(db, request.MemberId, request.OtherId, cancellationToken).ConfigureAwait(false);
         return name is null
             ? ChatAnswer.Refused(RefusalCodes.RecipientUnavailable)
-            : new ChatAnswer(null, name, request.MemberId);
+            : new ChatAnswer(null, name, request.MemberId) { System = request.OtherId == SystemMembers.ChristianFitnessId ? true : null };
     }
 }
 
@@ -61,6 +61,11 @@ internal sealed class SendDirectMessageHandler(IAppDbContext db, IChatChannel ch
         if (otherName is null)
         {
             return ChatAnswer.Refused(RefusalCodes.RecipientUnavailable);
+        }
+
+        if (request.OtherId == SystemMembers.ChristianFitnessId)
+        {
+            return ChatAnswer.Refused(RefusalCodes.SystemAccount);
         }
 
         if (string.IsNullOrWhiteSpace(request.Text) || request.Text.Length > SendChatMessageHandler.MaxLength)

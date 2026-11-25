@@ -69,6 +69,10 @@ export default class EventChatPage {
   protected readonly title = signal('');
   /** True once staff cancelled the event: a notice replaces the composer (ADR 0041). */
   protected readonly cancelled = signal(false);
+  /** The Christian Fitness account (ADR 0065): a note replaces the composer, since it takes no replies. */
+  protected readonly system = signal(false);
+  /** A send it refused (`system_account`), from a client that still offered the composer. */
+  protected readonly systemRefused = signal(false);
   protected readonly hasEarlier = signal(false);
   protected readonly loadingEarlier = signal(false);
   protected readonly earlierFailed = signal(false);
@@ -132,6 +136,11 @@ export default class EventChatPage {
     try {
       const answer = await this.chat.send(this.id, text, this.direct);
       if (answer.code === null) return;
+      if (answer.code === 'system_account') {
+        this.system.set(true);
+        this.systemRefused.set(true);
+        return;
+      }
     } catch {
       // The connection is down: the message is kept below.
     }
@@ -236,6 +245,8 @@ export default class EventChatPage {
     this.earlierFailed.set(false);
     this.atLatest.set(true);
     this.cancelled.set(false);
+    this.system.set(false);
+    this.systemRefused.set(false);
     try {
       const answer = await this.chat.join(this.id, this.direct);
       if (this.destroyRef.destroyed) return;
@@ -253,6 +264,7 @@ export default class EventChatPage {
         this.hasEarlier.set(page.hasMore);
         this.cancelled.update((live) => live || page.cancelled);
         this.title.set(answer.title ?? '');
+        this.system.set(answer.system === true);
         this.memberId.set(answer.memberId ?? '');
         this.state.set('open');
         this.markRead();
