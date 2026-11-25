@@ -16,29 +16,38 @@ class Event {
   +string Title
   +EventCategory Category
   +DateTimeOffset StartsAt
-  +DateTimeOffset EndsAt
   +string Place
   +string Area
-  +decimal Price
-  +string Summary
-  +string ImageUrl
+  +int PriceCents
   +int Capacity
-  +int GoingCount
+  +string Summary
+  +string? ImageKey
   +EventStatus Status
+  +Guid HostListingId <<new>>
+  +Guid? SeriesId <<new>>
 }
 class Registration {
-  +Guid Id
   +Guid EventId
   +Guid MemberId
   +RegistrationStatus Status
 }
 class Conversation {
   +Guid Id
-  +ConversationKind Kind
   +Guid? EventId
 }
+class "Listing (directory)" as Listing {
+  +Guid Id
+  +string Name
+  +string Kind
+  +bool Verified
+}
+class "EventSeries (view-event-series)" as EventSeries {
+  +Guid Id
+  +string Title
+  +string Cadence
+}
 class GetEventQuery {
-  +Guid EventId
+  +Guid Id
 }
 class GetEventHandler {
   +Handle(query: GetEventQuery): Task<EventDetailDto>
@@ -46,35 +55,68 @@ class GetEventHandler {
 class EventDetailDto {
   +Guid Id
   +string Title
-  +EventCategory Category
+  +string Category
   +DateTimeOffset StartsAt
-  +DateTimeOffset EndsAt
   +string Place
   +string Area
-  +decimal Price
-  +string Summary
-  +string ImageUrl
-  +int Going
+  +int PriceCents
   +int Capacity
-  +bool IsGoing
-  +Guid? GroupChatId
+  +int Going
+  +string Summary
+  +string? ImageKey
+  +string? Registration
+  +EventHostDto Host <<new>>
+  +EventSeriesCardDto? Series <<new>>
+}
+class EventHostDto <<new>> {
+  +Guid Id
+  +string Name
+  +string Kind
+  +string Initials
+  +bool Verified
+}
+class EventSeriesCardDto <<new>> {
+  +Guid Id
+  +string Title
+  +string Cadence
+  +int Number
+  +int Total
+  +bool Joined
+  +NextSessionDto[] Next
+}
+class NextSessionDto <<new>> {
+  +Guid? EventId
+  +DateTimeOffset StartsAt
+  +string Topic
+}
+interface EventsApi {
+  +get(id): Observable<EventDetailDto>
 }
 class EventDetailPage {
   +event: Signal<EventDetailDto | null>
-  +notFound: Signal<boolean>
+  +chatHref(): string
 }
-class EventRegisterPanel {
-  +going: input<number>
-  +capacity: input<number>
-  +isGoing: input<boolean>
-  +groupChatId: input<string | null>
-  +register: output<void>
-  +cancel: output<void>
+class HostCard {
+  +name, kind, initials, href: input<string>
+  +verified: input<boolean>
+}
+class SeriesCard {
+  +meta, title, href: input<string>
+  +dates: input<{when, topic}[]>
+  +joined: input<boolean>
 }
 Event "1" --> "*" Registration
 Event "1" --> "0..1" Conversation : group chat
+Event --> "1" Listing : hosted by
+Event --> "0..1" EventSeries : session of
 GetEventHandler ..> GetEventQuery : handles
 GetEventHandler ..> EventDetailDto : returns
-EventDetailPage *-- EventRegisterPanel
-EventDetailPage ..> EventDetailDto
+GetEventHandler ..> Listing : reads
+GetEventHandler ..> EventSeries : reads
+EventDetailDto *-- EventHostDto
+EventDetailDto *-- "0..1" EventSeriesCardDto
+EventSeriesCardDto *-- "0..3" NextSessionDto
+EventDetailPage ..> EventsApi : EVENTS_SERVICE
+EventDetailPage --> HostCard
+EventDetailPage --> SeriesCard
 @enduml

@@ -10,7 +10,8 @@ roles, enforces them on every admin endpoint, and records an audit entry for eac
   event and service management
 - **staff area** — part of the admin console an endpoint belongs to, named by the first segment
   of its route under `api/admin`: the console itself (the session), Dashboard, Members, Events,
-  Services, or none yet (unlisted)
+  Services, each area a later slice names (Stories, Newsletter, Event series, Community Pick,
+  Listings, Feedback), or none yet (unlisted)
 - **audit entry** — stored record of who changed which record, what changed and when
 
 Enforcement happens on the server: the Admin web app hides what a Moderator cannot use, but the
@@ -36,7 +37,15 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   (`session` → `Console`, `dashboard`, `members`, `events`, `services`; any other segment →
   `Unlisted`, so a new area is closed to Moderators until its slice names it). No controller
   names a policy, so slice 10.1's `api/admin/events` and every later admin endpoint are covered
-  without a change. `[AllowAnonymous]` (the two sign-in steps) still opts out.
+  without a change. `[AllowAnonymous]` (starting Google sign-in and its return,
+  [sign in with Google](../../member-access/sign-in-with-google/README.md)) still opts out.
+- **New areas** — the grouped navigation of `L2-021` AC1 adds six areas: Stories, Newsletter,
+  Event series, Community Pick, Listings and Feedback
+  ([navigate the admin app](../navigate-admin-app/README.md)). Until a slice adds its
+  `StaffArea` value and route segment, each one's endpoints are `Unlisted` and closed to
+  Moderators, which matches the mocks: a Moderator sees only Dashboard and Members
+  (`docs/mocks/pages/admin-dashboard/moderator.html`). Each slice adds one `StaffArea` value, one
+  row to `StaffAccess` and to `canManage`, and one case to both suites' tables.
 - **Area policies** — one per `StaffArea`, `Staff` for `Console` (the name slice 9.1 gave the
   staff policy) and `Staff:{Area}` for the others: the staff cookie scheme, an authenticated user
   and a `StaffAreaRequirement(area)`. The `StaffOnly` and `AdminOnly` of other designs are these
@@ -52,7 +61,9 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   default handler's 403 becomes ProblemDetails with that `code` and nothing else (`L2-032`). No
   log, metric or span records the role or the member.
 - **`canManage(role, area)`** (`domain`, `admin-areas.ts`) — the frontend half of the table, for
-  the four `AdminAreaKey`s. `areasFor(role)` lists `ADMIN_AREAS` that role may open.
+  every `AdminAreaKey`: four today, ten once the grouped navigation lands. `areasFor(role)` lists
+  `ADMIN_AREAS` that role may open; the navigation drops the group names for a Moderator
+  (`L2-021` AC1).
 - **`AdminShell`** — builds the navigation from `areasFor(staff.role)` once the session has
   loaded, and shows no link before that, so a Moderator never sees Events or Services
   (`L2-019` AC5, `L2-021` AC1).
@@ -72,15 +83,20 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   Sign out here; the shell has one.
 - **`IAuditableCommand`** (Application) — the marker every data-changing staff command carries,
   with `AuditAction`, a stable name `{record}.{past tense}` implemented explicitly so it is never
-  bound from a request body. `VerifyTwoStepCommand` is `staff_session.started` and
-  `StaffSignOutCommand` `staff_session.ended`; `CreateEventCommand` (slice 10.1) is `event.created`, and every
-  later staff command adds the marker and one `Record` call, nothing else. The handler does not
+  bound from a request body. The command that completes a staff Google sign-in is
+  `staff_session.started` (its name is `<TO SUPPLY>` by
+  [sign in with Google](../../member-access/sign-in-with-google/README.md); `VerifyTwoStepCommand`
+  carried the action until `L2-046` was withdrawn) and `StaffSignOutCommand`
+  `staff_session.ended`; `CreateEventCommand` (slice 10.1) is `event.created`, and every later
+  staff command adds the marker and one `Record` call, nothing else. The new requirements that ask
+  for an audit entry "as `L2-019` AC3 states" (stories, the newsletter, series dates, listing
+  suggestions and feedback replies) use this marker unchanged. The handler does not
   save: the behaviour's one `SaveChangesAsync` commits the change and its entry together.
 - **`AuditTrail`** (Application, scoped) — the request's pending entry. The behaviour opens it with
   the command's action; the handler calls `Record(actorMemberId, recordType, recordId)` once, when
   the change is going ahead and before it saves, which adds the `AuditEntry` to `IAppDbContext`, so
   a change saved there is committed with its entry. Only the handler knows the actor for certain
-  (the second sign-in step is anonymous until it succeeds, and sign-out reads the member before the
+  (the sign-in return is anonymous until it succeeds, and sign-out reads the member before the
   session ends) and the record (a created record's id). `Record` outside an auditable command, or
   twice, throws.
 - **`AuditBehavior<TRequest, TResponse>`** (Application) — the MediatR pipeline behaviour after
@@ -102,8 +118,8 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-019` | `L1-008` | Given staff roles Admin and Moderator, when a Moderator uses the admin app, then they can moderate members but cannot manage events or services (HTTP 403, code `forbidden_role`). Given an Admin, when they use the admin app, then every admin action is allowed. Given any staff action that changes data, when it succeeds, then an audit entry records who, what, which record and when, without personal data in telemetry; a refused or failed one records none. Given a role changed or taken away, the next request applies it (`not_staff` when taken away). Given a Moderator, the navigation lists only Dashboard and Members, and Events or Services by address shows "Admins only". |
-| `L2-021` | `L1-009` | The navigation shows the areas the signed-in role opens, `aria-current="page"` on the current one. |
-| `L2-047` | `L1-008`, `L1-015` | A 403 to a read shows "Staff only", except `forbidden_role`, which shows "Admins only". |
+| `L2-021` | `L1-009` | Given viewport LG or wider, a Moderator's side navigation shall show only the areas the role opens, without group names, with `aria-current="page"` on the current one (acceptance criterion 1). |
+| `L2-047` | `L1-008`, `L1-015` | A 403 to a read shall show "Staff only", except `forbidden_role`, which shall show "Admins only"; a 403 to a change shall be handled by the screen that sent it, as Staff sign in does for `not_staff` (acceptance criteria 1 and 3). |
 
 ## Diagrams
 
@@ -157,3 +173,14 @@ address kept (`L2-019` AC5).
 2. Nothing reads the audit trail yet: no endpoint or screen lists entries, and no job deletes them.
    Slice 29.2 keeps every entry (ADR 0023); the slice that adds an audit view decides who may read
    it and whether entries older than a period are deleted.
+3. Which of the six new areas a Moderator opens is not settled: `L2-019` AC1 and AC5 name only
+   Dashboard and Members, and `docs/mocks/README.md` (open question 8) asks about Feedback. A
+   change needs an amendment of `L2-019` and of ADR 0020.
+4. The "Admins only" screen's words name only Events and Services (`L2-019` AC5). A Moderator who
+   opens Stories or Listings by its address sees the same screen; `L2-068` AC7 says so for
+   Stories. Whether its sentence should name the other areas, or stay general, is `<TO SUPPLY>`
+   in `L2-019`.
+5. With staff signing in through Google Workspace (`L2-018`), a staff role still hangs on a
+   `Member`. How a Workspace account maps to that member (by Google subject or email, and who
+   creates it) is `<TO SUPPLY>` by [sign in with Google](../../member-access/sign-in-with-google/README.md);
+   this feature reads the role by member id either way.

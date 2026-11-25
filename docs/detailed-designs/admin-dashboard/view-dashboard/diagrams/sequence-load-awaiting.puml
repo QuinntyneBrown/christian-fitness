@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Load the work awaiting staff
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminDashboardPage" as page
+  participant "work-awaiting helpers" as dom
+  participant "HttpAdminDashboardService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDashboardController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetWorkAwaitingStaffHandler" as handler
+  participant "StaffRoles" as roles
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Dashboard
+page --> actor : Skeleton blocks in Needs attention
+page -> client : awaiting()
+client -> ctrl : GET /api/admin/dashboard/awaiting
+ctrl -> handler : Send GetWorkAwaitingStaffQuery
+handler -> roles : OfAsync(caller)
+roles --> handler : Admin or Moderator
+handler -> db : Count Flagged members; oldest 3
+alt Admin (L2-020 AC7, AC11)
+  handler -> db : Count stories in review; oldest 3 (id, title, writer, submitted)
+  handler -> db : Count listing suggestions waiting; oldest 3 (id, name)
+  handler -> db : Count new feedback (no note text read)
+  handler -> db : Count Pending applications; oldest 3
+  handler --> ctrl : stories, suggestions, feedback, applications, flaggedMembers
+else Moderator (L2-020 AC8, AC11)
+  handler --> ctrl : flaggedMembers only; no other key
+end
+ctrl --> client : 200 JSON
+client --> page : WorkAwaitingStaffDto
+page -> dom : awaitingRowsOf, awaitingTotalOf, awaitingMoreOf
+dom --> page : Stories, suggestions line, feedback line,\napplications, flagged members; total of all items
+alt something waits
+  page --> actor : "Needs attention" with the total; Review (editor),\nCheck (Listings), Read (Feedback), Review (Services, Members)
+else nothing waits (L2-020 AC9)
+  page --> actor : "You're all caught up"
+else request fails (L2-020 AC10)
+  client --> page : ApiError
+  page --> actor : "Work waiting didn't load" with Try again;\nCommunity activity unaffected
+  actor -> page : Try again
+  page -> client : awaiting() alone
+end
+@enduml

@@ -45,6 +45,12 @@ enum StaffArea {
   Members
   Events
   Services
+  Stories <<later slice>>
+  Newsletter <<later slice>>
+  Series <<later slice>>
+  CommunityPick <<later slice>>
+  Listings <<later slice>>
+  Feedback <<later slice>>
   Unlisted
 }
 class StaffAccess <<static>> {

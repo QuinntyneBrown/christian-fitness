@@ -2,89 +2,181 @@
 
 ## Overview
 
-Every admin screen shares one layout: a brand block, a side navigation, the signed-in staff
-member and a main area. This feature defines that shell and how it adapts to small screens. It
-has no backend behaviour of its own; it calls only the session endpoint from `admin-sign-in`.
+Every admin screen shares one layout: a brand block, a side navigation, the signed-in staff member
+and a main area. This feature defines that shell, how its links are grouped, how it shows work
+waiting in each area, and how it adapts to small screens. Its only requests are the staff session
+from `admin-sign-in` and the counts of work waiting.
 
 - **admin shell** — layout component that hosts every admin route
-- **side navigation** — list of the four areas Dashboard, Events, Services and Members (a Moderator sees Dashboard and Members)
-- **stacked card** — table row rendered as a vertical card below viewport LG (992 px)
+- **area** — one top-level screen of the console, reached by one link of the side navigation
+- **side navigation** — Dashboard, then the areas in three named groups: Publish (Stories,
+  Newsletter), Gather (Events, Event series, Community Pick) and Community (Listings, Services,
+  Members, Feedback)
+- **navigation group** — named heading over related areas, shown only to an Admin at LG or wider
+- **waiting count** — number on an area's link of the items that wait for staff there
+- **stacked card** — table row rendered as a vertical card below viewport LG
+
+An Admin sees all ten links (mocks `docs/mocks/pages/admin-*/default.html`, block `admin-nav`).
+A Moderator sees only the areas the role opens, Dashboard and Members, with no group names
+(`L2-019` AC5; mock `docs/mocks/pages/admin-dashboard/moderator.html`). The new areas have designs
+of their own: [manage stories](../../publishing/manage-stories/README.md),
+[review listing suggestions](../../admin-directory/review-listing-suggestions/README.md) and
+[read the feedback inbox](../../feedback/read-feedback-inbox/README.md).
 
 ## Description
 
 - **`AdminShell`** — routed layout component in `projects/admin` that parents every staff route
-  behind `staffAuthGuard`, a `canActivateChild` guard, so every move between areas checks the
-  staff session: an expired one returns staff to Staff sign in and a refused one (403) shows the
-  "Staff only" screen (`admin-sign-in`; [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)). It reads the staff session once for the name, role and initials
-  (`initialsOf`) and lists only the areas that role opens (`areasFor`, `staff-roles`;
-  [ADR 0020](../../../adr/0020-staff-roles-by-area.md)), keeps the current area (`currentAdminArea` over the router's URL after each
-  `NavigationEnd`), hands a plain click on a link to the router and signs out
+  behind `staffAuthGuard`, a `canActivateChild` guard, so every move between areas checks the staff
+  session: an expired one returns staff to Staff sign in and a refused one (403) shows the "Staff
+  only" screen (`admin-sign-in`; [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md)).
+  It reads the staff session once for the name, role and initials (`initialsOf`), lists only the
+  areas that role opens (`areasFor`; [ADR 0020](../../../adr/0020-staff-roles-by-area.md)), keeps
+  the current area (`currentAdminArea` after each `NavigationEnd`), merges the waiting counts into
+  the items, hands a plain click on a link to the router and signs out
   ([ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md)).
-- **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):
-  `cf-skip-link` first, then `cf-sidebar-navigation` and `main#main.admin__main` with
-  `admin__page`, the routed page projected. The first Tab reaches "Skip to content", which moves
-  focus to `main` (`L2-038` AC2, AC8; [ADR 0019](../../../adr/0019-design-system-layout-navigation-and-migration.md)).
-- **`SidebarNavigation`** — the design system's sidebar navigation (`admin__sidebar`) in
-  `components/sidebar-navigation/`: the brand (`cf-seal`, "Christian Fitness", "Admin console"),
-  `AdminNav` and `AdminUser`. From 1024 px a sticky 256 px column; below, a band with the brand
-  and Sign out on one row and the links under them.
-- **`AdminNav`** — the page's `admin-nav` block (`admin-nav__item`), part of the sidebar
-  navigation. Inputs: the items and the current key; it sets `aria-current="page"` on the current
-  item. Links are real `href`s; a plain click (`isPlainClick`, shared by every navigation
-  component) emits `navigate` instead of loading the page. An item's optional `count`
-  (`admin-nav__count`) is named by a full phrase ("3 applications waiting") and gone at zero; the
-  dashboard summary (slice 28.1) and the queues' slices fill it.
-- **`AdminUser`** — the sidebar navigation's `admin__user`: initials, name and role from LG, and
-  the 44 × 44 px Sign out icon button (`admin__signout`) at every viewport.
-- **`ADMIN_AREAS`**, **`currentAdminArea`** — in `domain`: the four areas and their paths, and
-  which one a URL is in. `canManage` from `staff-roles` filters them by role in slice 29.1.
-- **`AreaPage`** — the stand-in each area opens until its slice: its heading only (Dashboard 28.1,
-  Events 10.1, Services 21.1, Members 26.1).
-- **`DataTable`** — presentation component for block `table` inside `table-wrap`, built with the
-  first admin table (slice 10.1). Below LG a container style turns each row into a stacked card
-  with `table__strong` as its heading, so the page never scrolls horizontally.
+- **`ADMIN_AREAS`** — the `domain` library's ordered list of areas (`admin/admin-areas.ts`). The
+  design grows it from four to ten entries and adds each entry's `group`:
 
-The design system's LG is 1024 px (`64rem`), which the components follow; `docs/specs/L2.md`
-gives 992 px. A menu button was planned below LG; the design system and the mocks draw a band
-instead, and `L2-021` AC2 was corrected to it (ADR 0011).
+  | Key | Label | Group | Path |
+  |-----|-------|-------|------|
+  | `dashboard` | Dashboard | none | `/` |
+  | `stories` | Stories | Publish | `/stories` |
+  | `newsletter` | Newsletter | Publish | `/newsletter` |
+  | `events` | Events | Gather | `/events` |
+  | `series` | Event series | Gather | `/series` |
+  | `community-pick` | Community Pick | Gather | `/community-pick` |
+  | `listings` | Listings | Community | `/listings` |
+  | `services` | Services | Community | `/services` |
+  | `members` | Members | Community | `/members` |
+  | `feedback` | Feedback | Community | `/feedback` |
+
+  The paths of the six new areas are `<TO SUPPLY>` by their own designs; `/series` is shown rather
+  than `/events/series` so that `currentAdminArea`'s prefix rule never marks Events for a series.
+- **`currentAdminArea(url)`** — the area a URL is in: the Dashboard for `/` alone, any other area
+  for its path and every path under it. A story's editor sits under `/stories/<id>`, so Stories
+  stays current while a story is edited (`L2-021` AC1; mock `admin-story-editor/`).
+- **`canManage` / `areasFor`** — the role table of [staff roles](../staff-roles/README.md). A
+  Moderator keeps Dashboard and Members; an Admin opens every area. Which new areas a Moderator
+  opens is an open question.
+- **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):
+  `cf-skip-link` first, then `cf-sidebar-navigation` and `main#main.admin__main`, the routed page
+  projected (`L2-038` AC8; [ADR 0019](../../../adr/0019-design-system-layout-navigation-and-migration.md)).
+- **`SidebarNavigation`** — the design system's sidebar navigation (`admin__sidebar`) in
+  `components/sidebar-navigation/`. From LG it is a column: the brand at the top, `AdminNav` in
+  the middle and `AdminUser` at the foot. When the links are taller than the window, only
+  `AdminNav` scrolls, so the brand and Sign out stay in view (`L2-021` AC4). Below LG it is a band:
+  the brand and Sign out on one row and the links in one row under them, scrolling sideways within
+  the band, without group names (`L2-021` AC2).
+- **`AdminNav`** — the `admin-nav` block. Inputs: `items`, `current` and `showGroups`. It renders
+  each item as `admin-nav__item` with `aria-current="page"` on the current one, and, when
+  `showGroups` is true, an `admin-nav__group` heading before the first item of each group. A plain
+  click (`isPlainClick`) emits `navigate`. The item's `count` shows as `admin-nav__count`, named by
+  its `countLabel`, and is absent at zero (`L2-021` AC3). The icon switch gains the six new keys.
+- **`AdminNavItem`** — `key`, `label`, `href`, optional `group`, `count` and `countLabel`. The
+  design adds `group`; the other fields exist.
+- **`AdminUser`** — initials, name and role from LG, and the 44 × 44 px Sign out icon button
+  (`admin__signout`) at every viewport.
+- **Waiting counts** — the five counts of `L2-021` AC3, each with its phrase:
+
+  | Area | Counts | Phrase (mock) |
+  |------|--------|---------------|
+  | Stories | stories in review | "1 story to review" |
+  | Listings | listing suggestions waiting | "3 suggestions to check" |
+  | Services | pending applications | "3 applications waiting" |
+  | Members | reports | "1 report to review" |
+  | Feedback | new notes | "2 new notes" |
+
+  A pure helper in `domain`, `waitingCountsFor(totals)`, turns the totals into `count` and
+  `countLabel` per key, singular and plural, and leaves out a zero. The totals come from the
+  Dashboard's waiting-work answer ([view the dashboard](../../admin-dashboard/view-dashboard/README.md)),
+  `GET /api/admin/dashboard/awaiting`, which `L2-020` AC11 extends with stories in review,
+  suggestions and new feedback; the members' total is the answer's flagged-members total. A
+  Moderator's answer carries only flagged members, so a Moderator's Members link alone can carry a
+  count. The shell asks once on entry and again after each `NavigationEnd` that changes area, so a
+  count falls after staff resolve work; a failed request leaves the links without counts and shows
+  no error.
+- **`DataTable`** — presentation component for the `table` block inside `table-wrap`. Below LG a
+  container style turns each row into a stacked card with `table__strong` as its heading, so the
+  page never scrolls horizontally (`L2-021` AC2).
+
+The design system's LG is 1024 px (`64rem`), which the components follow; `docs/specs/L2.md` gives
+992 px. The mocks place the sidebar as a column from 1024 px (`docs/mocks/README.md`, "Admin sidebar
+on desktop").
+
+### Open questions
+
+- **Moderators and the new areas.** `L2-021` AC1 limits a Moderator to the areas the role opens,
+  and the mocks give them none of the new ones. `docs/mocks/README.md` (open question 8) asks
+  whether a Moderator opens Feedback. The answer changes `canManage`, the API's `StaffAccess` table
+  and `L2-019`, and needs an ADR amending ADR 0020.
+- **Members count.** `L2-021` AC3 counts "reports" for Members and the mock names "1 report to
+  review"; the Dashboard counts flagged members (`L2-020` AC7). Whether a report of a message
+  (ADR 0058) and a flagged member are the same count is `<TO SUPPLY>`. The design uses the
+  flagged-members total until that is settled.
+- **Count source and freshness.** Reusing the Dashboard's waiting-work query makes each area
+  change read the oldest three of every queue as well as the totals. A totals-only query on the
+  same handler (`GET /api/admin/dashboard/awaiting?totals` or a separate endpoint) would be lighter;
+  the choice is `<TO SUPPLY>` and belongs in ADR 0060's successor.
+- **Group headings.** The mock draws each group name as a `<p class="admin-nav__group">` between
+  links. Assistive technology then reads the names as text, not as groups. A list per group,
+  labelled by its heading (`<ul aria-labelledby>`), is the platform's practice; the mock's class
+  names stay either way. This needs a decision in the design system's sidebar navigation page.
+- **Area paths.** The paths of Stories, Newsletter, Event series, Community Pick, Listings and
+  Feedback are `<TO SUPPLY>` by their designs.
+- **Code behind the requirement.** `ADMIN_AREAS` lists four areas with no groups, `AdminNav`
+  renders no group headings and has no icons for the new keys, the shell fills no counts, and the
+  sidebar does not yet scroll its links alone. The admin app also still routes `sign-in/verify`
+  to the two-step screen of the withdrawn `L2-046`. Each is work for the next slices.
 
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-021` | `L1-009` | Given viewport LG or wider, when staff use the admin app, then a side navigation shows Dashboard, Events, Services and Members with `aria-current="page"` on the current one. Given viewport below LG, when staff use the admin app, then the side navigation becomes a band at the top: the same four links in one row that scrolls sideways within itself, Sign out stays reachable, and tables become stacked cards without horizontal page scroll. |
-| `L2-038` | `L1-015` | Given any interaction, when performed by keyboard only, then it is reachable in a logical order with a visible focus indicator. Given either app's shell, when the first Tab is pressed, then "Skip to content" shows and moves focus to the screen's `main`. Given a component in `docs/design-system/components/`, when a screen needs it, then it comes from the components library under its design-system name. |
+| `L2-021` | `L1-009` | Given viewport LG or wider, when an Admin uses the admin app, then a side navigation shall show Dashboard, then three named groups: Publish (Stories, Newsletter), Gather (Events, Event series, Community Pick) and Community (Listings, Services, Members, Feedback), with `aria-current="page"` on the current one (Stories while a story is edited); a Moderator's shall show only the areas the role opens, without group names. Given viewport below LG, the side navigation shall become a band at the top with the same links in one row, without group names, scrolling sideways within itself; Sign out shall stay reachable, and tables shall become stacked cards without horizontal page scroll. Given work waiting, Stories, Listings, Services, Members and Feedback shall each carry the number waiting, with its meaning in words for assistive technology, and no number when none waits. Given a navigation taller than the window at LG or wider, the links shall scroll within the side navigation while the brand and the signed-in person with Sign out stay in view (acceptance criteria 1–4). |
+| `L2-019` | `L1-008` | Given a Moderator, the admin navigation shall show only the areas the role opens (acceptance criterion 5). |
+| `L2-038` | `L1-015` | Given any interaction, when performed by keyboard only, then it shall be reachable in a logical order with a visible focus indicator. Given either app's shell, when the first Tab is pressed, then "Skip to content" shall show and move focus to the screen's `main`. Given a component in `docs/design-system/components/`, when a screen needs it, then it shall come from the components library under its design-system name. |
 
 ## Diagrams
 
 ### System context
 
-Staff members move between the four admin areas of Christian Fitness.
+Staff members move between the areas of the admin web app of Christian Fitness.
 
 ![C4 system context for admin navigation](diagrams/c4-context.png)
 
 ### Containers
 
-Navigation runs in the Admin web app; it calls the API only to read the staff session.
+Navigation runs in the Admin web app. It calls the API to read the staff session and the totals of
+work waiting.
 
 ![C4 container view for admin navigation](diagrams/c4-container.png)
 
 ### Components
 
-`AdminShell` renders `AdminLayout`, which composes the skip link and `SidebarNavigation` (with `AdminNav` and
-`AdminUser`) around the routed page.
+`AdminShell` renders `AdminLayout`, which composes the skip link and `SidebarNavigation` (with
+`AdminNav` and `AdminUser`) around the routed page. The shell reads the session from
+`StaffSessionController` and the waiting totals from `AdminDashboardController`.
 
 ![C4 component view for admin navigation](diagrams/c4-component.png)
 
 ### Class structure
 
-The shell reads the router and the session; presentation components take inputs only.
+`ADMIN_AREAS` carries each area's group; `areasFor` filters it by role and `waitingCountsFor`
+turns the totals into counts with their phrases. Presentation components take inputs only.
 
 ![Class diagram for admin navigation](diagrams/class.png)
 
 ### Behaviour — navigate between areas
 
-Choosing an item checks the staff session, loads the area lazily without reloading the page and moves `aria-current`;
-below LG the same links sit in the band (`L2-021` AC1–AC2).
+Choosing an item checks the staff session, loads the area lazily and moves `aria-current`. An
+Admin at LG sees the group names; a Moderator and every viewport below LG see none (`L2-021`
+AC1–AC2, AC4).
 
 ![Sequence diagram for navigating between areas](diagrams/sequence-navigate.png)
+
+### Behaviour — show work waiting
+
+The shell asks for the waiting totals on entry and on each change of area, and each area with work
+waiting carries its number with the meaning in words (`L2-021` AC3).
+
+![Sequence diagram for showing waiting counts](diagrams/sequence-waiting-counts.png)

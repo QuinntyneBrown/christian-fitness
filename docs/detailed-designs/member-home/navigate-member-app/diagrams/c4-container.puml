@@ -5,16 +5,16 @@ title Containers — Navigate the member app
 
 Person(user, "Member", "Signed-in community member")
 System_Boundary(cf, "Christian Fitness") {
-  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; member screens")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, events, registrations, conversations")
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; shell, header, tab bar, footer")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "ConversationsController")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, conversations, read markers")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
 }
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 
-Rel(user, web, "Uses header or bottom bar", "HTTPS")
-Rel(web, api, "Requests unread count", "JSON/HTTPS")
-Rel(api, db, "Reads and writes", "EF Core")
+Rel(user, web, "Uses header, bottom bar and footer", "HTTPS")
+Rel(web, api, "GET /api/conversations (unread counts)", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
 Rel(cli, db, "Migrates and seeds", "EF Core")
 Rel(api, otel, "Exports telemetry", "OTLP")
 @enduml

@@ -14,6 +14,17 @@ class ProfilePage {
   +profile: Signal<OwnProfileDto|null>
   +state: Signal<'loading'|'loaded'|'failed'>
   +retry(): void
+  +edit(): void
+}
+class ProfileHero {
+  +name, initials, meta: input<string>
+  +homeChurch, city: input<string|null>
+  +loading: input<boolean>
+  [slot=action]: Edit profile, Preferences
+}
+class Button {
+  +variant: input<string>
+  +href: input<string|undefined>
 }
 class MemberProfilePage {
   +profile: Signal<PublicProfileDto|null>
@@ -40,9 +51,8 @@ class UpcomingEventDto {
   +imageUrl: string|null
 }
 class PublicProfileDto {
-  +fullName: string
-  +initials: string
-  +bio: string
+  +name: string
+  +bio: string|null
   +interests: string[]
   +homeChurch?: string
 }
@@ -51,7 +61,7 @@ class GetPublicProfileHandler
 interface IRegistrationReader {
   +UpcomingForAsync(memberId, now): UpcomingEventDto[]
 }
-class NoRegistrationsYet
+class DatabaseRegistrations
 class Member {
   +Guid Id
   +string Name
@@ -71,10 +81,12 @@ HttpProfileService ..|> ProfileApi
 ProfilePage ..> ProfileApi : injects PROFILE_SERVICE
 MemberProfilePage ..> ProfileApi : injects PROFILE_SERVICE
 OwnProfileDto *-- UpcomingEventDto
+ProfilePage --> ProfileHero
+ProfileHero --> "2" Button : projected actions
 GetOwnProfileHandler ..> Member
 GetOwnProfileHandler ..> IRegistrationReader
-NoRegistrationsYet ..|> IRegistrationReader : until slice 6.1
-IRegistrationReader ..> Registration : slice 6.1
+DatabaseRegistrations ..|> IRegistrationReader
+DatabaseRegistrations ..> Registration : reads
 GetOwnProfileHandler ..> OwnProfileDto : returns
 GetPublicProfileHandler ..> Member
 GetPublicProfileHandler ..> PublicProfileDto : returns

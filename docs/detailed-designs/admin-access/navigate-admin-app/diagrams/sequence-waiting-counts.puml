@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Show work waiting in the admin navigation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminShell" as shell
+  participant "waitingCountsFor" as counts
+  participant "HttpAdminDashboardService" as client
+  participant "AdminNav" as nav
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDashboardController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetWorkAwaitingStaffHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> shell : Open the console, or change area
+shell -> client : awaiting()
+client -> ctrl : GET /api/admin/dashboard/awaiting
+ctrl -> handler : Send GetWorkAwaitingStaffQuery
+handler -> db : Read caller's staff role
+alt Admin
+  handler -> db : Count stories in review, suggestions,\npending applications, flagged members, new feedback
+else Moderator
+  handler -> db : Count flagged members only
+end
+handler --> ctrl : WorkAwaitingStaffDto (totals and oldest items)
+ctrl --> client : 200 JSON
+client --> shell : Totals
+shell -> counts : waitingCountsFor(totals)
+counts --> shell : count and countLabel per area; zero left out
+shell -> nav : items with counts
+nav --> actor : "3" on Listings, named "3 suggestions to check";\nno number where none waits (L2-021 AC3)
+opt Request fails
+  client --> shell : Error
+  shell -> nav : items without counts; no error shown
+end
+@enduml

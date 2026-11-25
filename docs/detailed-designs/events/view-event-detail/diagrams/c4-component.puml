@@ -3,17 +3,29 @@
 LAYOUT_WITH_LEGEND()
 title Components — View event detail
 
-Container(web, "Member web app", "Angular", "EventDetailPage, EventRegisterPanel, HttpEventsService")
+Container_Boundary(web, "Member web app") {
+  Component(page, "EventDetailPage", "Angular routed page", "Facts, prose, register card, states")
+  Component(host, "HostCard", "components library", "host-card: mark, kind, name, Verified")
+  Component(series, "SeriesCard", "components library", "series-card: line, title, next dates, action")
+  Component(dom, "sessionLineOf", "domain library", "Words the series line and dates")
+  Component(svc, "HttpEventsService", "EVENTS_SERVICE", "GET /api/events/{id}")
+}
 Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "EventsController", "ASP.NET Core controller", "GET /api/events/{id}")
-  Component(h, "GetEventHandler", "MediatR handler", "Published check, IsGoing, GroupChatId")
+  Component(h, "GetEventHandler", "MediatR handler", "Published check, registration, host, series")
   Component(user, "ICurrentMember", "Application abstraction", "Signed-in member id")
-  Component(ctx, "IAppDbContext", "Application abstraction", "Events, Registrations, Conversations")
+  Component(reg, "IRegistrationReader", "Application abstraction", "Going count")
+  Component(ctx, "IAppDbContext", "Application abstraction", "Events, registrations, listings, series")
 }
-ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events, registrations, conversations")
-Rel(web, ctrl, "GET /api/events/{id}", "JSON/HTTPS")
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events, registrations, listings, series")
+Rel(page, host, "Renders under the register card")
+Rel(page, series, "Renders for a session")
+Rel(page, dom, "Words with")
+Rel(page, svc, "get(id)")
+Rel(svc, ctrl, "GET /api/events/{id}", "JSON/HTTPS")
 Rel(ctrl, h, "Sends GetEventQuery")
 Rel(h, user, "Reads member id")
+Rel(h, reg, "Reads going")
 Rel(h, ctx, "Queries")
 Rel(ctx, db, "Reads", "EF Core")
 @enduml

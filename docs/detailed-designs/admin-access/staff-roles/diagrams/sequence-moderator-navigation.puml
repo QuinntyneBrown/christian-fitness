@@ -35,4 +35,5 @@ rule --> guard : false
 guard --> page : RedirectCommand /admins-only, browserUrl /events
 page --> actor : "Admins only", heading focused, Go to dashboard
 note over page : A GET refused 403 forbidden_role opens\nthe same screen (forbiddenInterceptor)
+note over shell : The admin navigation lists no Stories, Newsletter,\nEvent series, Community Pick, Listings or Feedback\nand no group names for a Moderator (L2-021 AC1);\nopening one by address shows "Admins only" too
 @enduml

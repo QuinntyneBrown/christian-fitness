@@ -37,10 +37,11 @@ ctrl -> h : Send GetOwnProfileQuery (member from the session)
 h -> db : Load the caller's Member
 db --> h : Member
 h -> reg : UpcomingForAsync(member id, now)
-reg --> h : Upcoming events, soonest first (none until slice 6.1)
+reg --> h : Upcoming events, soonest first
 h --> ctrl : OwnProfileDto
 ctrl --> client : 200 JSON
 client --> page : Profile
+page --> actor : Hero with "Edit profile" and "Preferences" (L2-005 AC1)
 alt Has upcoming events (L2-005 AC1)
   page --> actor : Name, initials avatar, member since, church, city, bio, goals, interests, Going to
 else No events (L2-005 AC2)
@@ -48,5 +49,13 @@ else No events (L2-005 AC2)
 end
 alt 4xx or no answer (L2-043 AC5)
   page --> actor : "Your profile didn't load" with Try again and Back to home
+end
+opt Member chooses Preferences
+  actor -> page : Choose "Preferences"
+  page --> actor : Router opens /preferences (L2-064 AC1)
+end
+opt Member chooses Edit profile
+  actor -> page : Choose "Edit profile"
+  page --> actor : Edit profile dialog opens (edit-profile design)
 end
 @enduml

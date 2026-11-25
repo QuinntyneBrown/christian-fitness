@@ -9,6 +9,6 @@ System(cf, "Christian Fitness", "Christian community for health in body and spir
 System_Ext(otel, "OpenTelemetry collector", "Receives telemetry without personal data")
 
 Rel(staff, cf, "Reviews activity and waiting work in")
-Rel(member, cf, "Uses the member web app of")
+Rel(member, cf, "Registers, messages, suggests listings and sends feedback in")
 Rel(cf, otel, "Exports telemetry to", "OTLP")
 @enduml

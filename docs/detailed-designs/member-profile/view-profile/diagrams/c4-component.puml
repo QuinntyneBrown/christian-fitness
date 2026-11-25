@@ -6,13 +6,13 @@ title Components — View a profile
 Container_Boundary(web, "Member web app") {
   Component(page, "ProfilePage", "Angular routed component", "Own profile")
   Component(mpage, "MemberProfilePage", "Angular routed component", "Public profile")
-  Component(ui, "ProfileHero, TagList, GoingList, EmptyInline, ProfileSkeleton", "components library", "Presentation")
+  Component(ui, "ProfileHero, Button, TagList, GoingList, EmptyInline, ProfileSkeleton", "components library", "Presentation; Edit profile and Preferences actions")
   Component(svc, "HttpProfileService", "PROFILE_SERVICE", "HTTP client")
 }
 Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "ProfileController", "ASP.NET Core controller", "GET own and public profile")
   Component(h1, "GetOwnProfileHandler", "MediatR handler", "Own fields and registrations")
-  Component(reg, "IRegistrationReader", "Application abstraction", "Upcoming events; none until slice 6.1")
+  Component(reg, "IRegistrationReader", "Application abstraction", "Upcoming events (DatabaseRegistrations)")
   Component(h2, "GetPublicProfileHandler", "MediatR handler", "Public fields only")
 }
 ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Persistent store")
@@ -26,6 +26,6 @@ Rel(ctrl, h1, "Sends GetOwnProfileQuery")
 Rel(ctrl, h2, "Sends GetPublicProfileQuery")
 Rel(h1, db, "Reads Member", "EF Core")
 Rel(h1, reg, "Asks for upcoming events")
-Rel(reg, db, "Reads Registration, Event (slice 6.1)", "EF Core")
+Rel(reg, db, "Reads Registration, Event", "EF Core")
 Rel(h2, db, "Reads Member", "EF Core")
 @enduml

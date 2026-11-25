@@ -31,38 +31,67 @@ class Event {
   +DateTimeOffset StartsAt
   +string Place
   +string Area
-  +decimal Price
+  +int PriceCents
   +int Capacity
-  +int GoingCount
+  +string Summary
+  +string? ImageKey
   +EventStatus Status
+  +Guid HostListingId <<new>>
+  +Guid? SeriesId <<new>>
+}
+class "EventSeries (browse-event-series)" as EventSeries {
+  +Guid Id
+  +string Cadence
+}
+class "Listing (directory)" as Listing {
+  +Guid Id
+  +string Name
 }
 class ListEventsQuery {
-  +EventCategory? Category
   +string? Cursor
+  +string? Category
 }
+class ListEventsValidator
 class ListEventsHandler {
   +Handle(query: ListEventsQuery): Task<EventPageDto>
 }
 class EventPageDto {
-  +EventSummaryDto[] Items
+  +EventSummaryDto[] Events
   +string? NextCursor
 }
 class EventSummaryDto {
   +Guid Id
   +string Title
-  +EventCategory Category
+  +string Category
   +DateTimeOffset StartsAt
   +string Place
-  +decimal Price
-  +int Going
+  +string Area
+  +int PriceCents
   +int Capacity
-  +bool IsGoing
+  +int Going
+  +string? ImageKey
+  +SeriesSessionDto? SeriesSession <<new>>
+}
+class SeriesSessionDto <<new>> {
+  +Guid SeriesId
+  +int Number
+  +int Total
+  +string Cadence
 }
 interface EventsApi {
-  +listEvents(category?, cursor?): Observable<EventPageDto>
+  +page(cursor, category?): Observable<EventPageDto>
+}
+interface IRegistrationReader
+class "sessionLineOf(summary)" as sessionLine <<function>> {
+  "Session <n> of <total> · <cadence>" or none
+}
+class EventCard {
+  +event: input<EventSummary>
 }
 class HttpEventsService
 class EventsPage {
+  +view: Signal<'date' | 'series'>
+  +seriesCount: Signal<number | null>
   +category: Signal<EventCategory | null>
   +selectCategory(c): void
   +clearFilter(): void
@@ -79,6 +108,14 @@ EventsPage ..> EventsApi : EVENTS_SERVICE
 EventsPage *-- EventFeed
 ListEventsHandler ..> ListEventsQuery : handles
 ListEventsHandler ..> Event : reads
+ListEventsHandler ..> EventSeries : reads cadence, total
+ListEventsHandler ..> IRegistrationReader : going
+ListEventsValidator ..> ListEventsQuery : validates
+EventSummaryDto *-- "0..1" SeriesSessionDto
+Event --> "0..1" EventSeries
+Event --> "1" Listing : hosted by
+EventsPage --> EventCard
+EventCard ..> sessionLine
 ListEventsHandler ..> EventPageDto : returns
 EventPageDto "1" *-- "0..20" EventSummaryDto
 Event --> EventCategory

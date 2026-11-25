@@ -11,17 +11,24 @@ skinparam class {
 }
 title Class structure — Navigate the member app
 class MemberShell {
-  +unread: Signal<number>
-  +current: Signal<string>
-  +signingOut: Signal<boolean>
-  +signOut(): void
+  #destinations: MemberDestination[]
+  #current: Signal<MemberDestinationKey | null>
+  #showFooter: Signal<boolean>
+  #signingOut: Signal<boolean>
+  #navigate(href: string): void
+  #signOut(): void
+}
+class "placeOf(url)" as placeOf <<function>> {
+  /directory, /directory/:id -> directory
+  /events, /events/... -> events
+  /profile, /preferences -> profile
+  /feedback -> null
 }
 class SkipLink {
   +target: input<string>
 }
 class TopBar {
   +variant: input<'app'|'site'>
-  +homeHref: input<string>
   +destinations: input<MemberDestination[]>
   +current: input<MemberDestinationKey | null>
   +unread: input<number>
@@ -36,29 +43,51 @@ class TabBar {
   +unread: input<number>
   +navigate: output<string>
 }
+class Footer {
+  +variant: input<'site'|'app'>
+  +year: input<number>
+  +feedbackHref: input<string>
+  +navigate: output<string>
+}
 class CountBadge {
   +count: input<number>
 }
 class MemberDestination {
-  +key: 'home'|'events'|'services'|'messages'|'profile'
+  +key: MemberDestinationKey
   +label: string
   +href: string
 }
-interface UnreadCountApi {
-  +count: Signal<number>
+enum MemberDestinationKey {
+  home
+  events
+  directory
+  services
+  messages
+  profile
+}
+class MemberInbox {
+  +state: Signal<'loading'|'loaded'|'failed'>
+  +conversations: Signal<ConversationSummaryDto[]>
+  +unread: Signal<number>
+  +refresh(): void
+}
+interface ConversationsApi {
+  +list(): Observable<ConversationSummaryDto[]>
 }
 interface SessionApi {
   +signOut(): Observable<void>
 }
-interface ChatConnection
+MemberShell ..> placeOf : current destination
 MemberShell --> SkipLink
 MemberShell --> TopBar
 MemberShell --> TabBar
+MemberShell --> Footer : app variant
 TopBar --> CountBadge
 TabBar --> CountBadge
-TopBar --> "5" MemberDestination
-TabBar --> "5" MemberDestination
-MemberShell ..> UnreadCountApi : injects UNREAD_COUNT_SERVICE
+TopBar --> "6" MemberDestination
+TabBar --> "6" MemberDestination
+MemberDestination --> MemberDestinationKey
+MemberShell *-- MemberInbox : providers
+MemberInbox ..> ConversationsApi : injects CONVERSATIONS
 MemberShell ..> SessionApi : injects SESSION_SERVICE
-UnreadCountApi ..> ChatConnection : CHAT_CONNECTION
 @enduml

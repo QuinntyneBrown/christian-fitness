@@ -5,6 +5,15 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
 actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "EventsPage" as page
@@ -23,12 +32,12 @@ actor -> page : Open Events
 page -> client : page(null, null)
 client -> ctrl : GET /api/events
 ctrl -> h : Send ListEventsQuery
-h -> db : Published, StartsAt > now, order by StartsAt, take 21 (L2-009)
-db --> h : Rows
+h -> db : Published, StartsAt > now, order by StartsAt, take 21 (L2-009 AC1, AC4)
+db --> h : Rows with going counts and, for sessions,\nseries number, total and cadence
 h --> ctrl : EventPageDto (20 items, NextCursor)
 ctrl --> client : 200 JSON
 client --> page : EventPageDto
-page --> actor : event-card list with going/capacity
+page --> actor : event-card list with going/capacity;\na session adds "Session 3 of 8 · Every Tuesday" (L2-009 AC1)
 actor -> page : Select category chip
 page -> page : Address /events?category=run; reset EventFeed; chip aria-current="page"
 page -> client : page(null, "run")
