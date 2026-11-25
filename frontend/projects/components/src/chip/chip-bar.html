@@ -1,14 +1,9 @@
 @if (nav()) {
-  <nav class="chip-bar" [class.chip-bar--scroll]="scroll()" [attr.aria-label]="label()">
+  <nav [attr.class]="classes()" [attr.aria-label]="label()">
     <ng-container [ngTemplateOutlet]="chips" />
   </nav>
 } @else {
-  <div
-    class="chip-bar"
-    [class.chip-bar--scroll]="scroll()"
-    role="group"
-    [attr.aria-label]="label()"
-  >
+  <div [attr.class]="classes()" role="group" [attr.aria-label]="label()">
     <ng-container [ngTemplateOutlet]="chips" />
   </div>
 }
