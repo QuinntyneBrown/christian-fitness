@@ -181,6 +181,7 @@ address kept (`L2-019` AC5).
    Stories. Whether its sentence should name the other areas, or stay general, is `<TO SUPPLY>`
    in `L2-019`.
 5. With staff signing in through Google Workspace (`L2-018`), a staff role still hangs on a
-   `Member`. How a Workspace account maps to that member (by Google subject or email, and who
-   creates it) is `<TO SUPPLY>` by [sign in with Google](../../member-access/sign-in-with-google/README.md);
+   `Member`. A Workspace account maps to that member by Google subject: a verified email in the
+   team's domain is matched to the pre-created staff member on first sign-in and the subject is bound
+   ([ADR 0062](../../../adr/0062-first-google-sign-in-slice.md)); an Admin creates later staff;
    this feature reads the role by member id either way.
