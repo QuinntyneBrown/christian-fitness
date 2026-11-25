@@ -14,6 +14,9 @@ public enum StaffArea
 
     Services,
 
+    /// <summary>Listings and listing suggestions, <c>api/admin/directory</c> (ADR 0064, ADR 0087).</summary>
+    Directory,
+
     /// <summary>An admin endpoint in no area above yet: closed to Moderators until a slice names its area.</summary>
     Unlisted,
 }

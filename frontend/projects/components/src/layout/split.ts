@@ -1,7 +1,7 @@
 import { booleanAttribute, Component, input } from '@angular/core';
 
 /** The pages' two-column ratios (layout.html, "Split"). */
-export type SplitVariant = 'home' | 'detail' | 'profile' | 'services' | 'dashboard';
+export type SplitVariant = 'home' | 'detail' | 'profile' | 'services' | 'dashboard' | 'picker-wide';
 
 /**
  * The design system's split (docs/design-system/components/layout.html, "Split"): one column on
@@ -20,6 +20,9 @@ export class Split {
   readonly flush = input(false, { transform: booleanAttribute });
 
   protected classes(): string {
-    return `split split--${this.variant()}${this.flush() ? ' split--flush' : ''}`;
+    const variant = this.variant();
+    const modifier =
+      variant === 'picker-wide' ? 'split--picker split--picker-wide' : `split--${variant}`;
+    return `split ${modifier}${this.flush() ? ' split--flush' : ''}`;
   }
 }

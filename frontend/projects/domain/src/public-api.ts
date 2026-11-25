@@ -75,3 +75,4 @@ export * from './directory/listing-connections';
 export * from './directory/directory-filter';
 export * from './legal/legal-versions';
 export * from './directory/suggestion-form';
+export * from './directory/suggestion-review';

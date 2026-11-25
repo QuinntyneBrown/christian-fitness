@@ -1,13 +1,42 @@
-<ul
-  [attr.class]="stack() ? 'pick-cards pick-cards--stack' : 'pick-cards'"
-  [attr.aria-label]="label()"
->
-  @for (item of items(); track item.id) {
-    <li>
-      <button class="pick-card" type="button" (click)="picked.emit(item.id)">
-        <span class="pick-card__title">{{ item.title }}</span>
-        <span class="pick-card__meta">{{ item.meta }}</span>
-      </button>
-    </li>
+@if (links()) {
+  <nav [attr.aria-label]="label()">
+    <ng-container *ngTemplateOutlet="list; context: { $implicit: null }" />
+  </nav>
+} @else {
+  <ng-container *ngTemplateOutlet="list; context: { $implicit: label() }" />
+}
+
+<ng-template #list let-named>
+  <ul [attr.class]="listClass()" [attr.aria-label]="named">
+    @for (item of items(); track item.id) {
+      <li>
+        @if (item.href !== undefined) {
+          <a
+            [attr.class]="cardClass()"
+            [href]="item.href"
+            [attr.aria-current]="item.id === current() ? 'page' : null"
+            (click)="follow($event, item)"
+          >
+            <ng-container *ngTemplateOutlet="card; context: { $implicit: item }" />
+          </a>
+        } @else {
+          <button [attr.class]="cardClass()" type="button" (click)="picked.emit(item.id)">
+            <ng-container *ngTemplateOutlet="card; context: { $implicit: item }" />
+          </button>
+        }
+      </li>
+    }
+  </ul>
+</ng-template>
+
+<ng-template #card let-item>
+  <span class="pick-card__title"
+    >{{ item.title }}
+    @if (item.tag) {
+      <span class="pick-card__tag">{{ item.tag }}</span>
+    }
+  </span>
+  @for (line of linesOf(item); track $index) {
+    <span class="pick-card__meta">{{ line }}</span>
   }
-</ul>
+</ng-template>

@@ -21,7 +21,7 @@ function signedInAsModerator(api: ApiHandlers): void {
 test.describe('Admin app, a Moderator', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test('the navigation lists Dashboard and Members only, and names the role', async ({
+  test('the navigation lists Dashboard, Listings and Members only, and names the role', async ({
     page,
     api,
   }) => {
@@ -31,10 +31,10 @@ test.describe('Admin app, a Moderator', () => {
     await shell.open();
 
     await expect(shell.heading).toHaveText('Dashboard');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Members']);
+    await expect(shell.navItems).toHaveText(['Dashboard', 'Listings', 'Members']);
     expect(
       await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
-    ).toEqual(['/', '/members']);
+    ).toEqual(['/', '/listings', '/members']);
     await expect(shell.currentItem).toHaveText('Dashboard');
     await expect(shell.userName).toHaveText('Joel Mensah');
     await expect(shell.userRole).toHaveText('Moderator');
@@ -97,7 +97,7 @@ test.describe('Admin app, a Moderator on an Admins-only area', () => {
 
     await expect(shell.heading).toHaveText('Dashboard');
     expect(shell.location()).toBe('/');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Members']);
+    await expect(shell.navItems).toHaveText(['Dashboard', 'Listings', 'Members']);
   });
 
   // L2-019 AC4: an Admin made Moderator while signed in meets the new role on their next screen.
@@ -113,7 +113,13 @@ test.describe('Admin app, a Moderator on an Admins-only area', () => {
     const forbidden = new AdminForbiddenPage(page);
 
     await shell.open('/');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Events', 'Services', 'Members']);
+    await expect(shell.navItems).toHaveText([
+      'Dashboard',
+      'Events',
+      'Listings',
+      'Services',
+      'Members',
+    ]);
     demoted = true;
     await shell.navItem('Events').click();
 

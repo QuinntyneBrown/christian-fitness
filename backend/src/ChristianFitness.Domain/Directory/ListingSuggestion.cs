@@ -54,6 +54,27 @@ public sealed class ListingSuggestion
 
     public SuggestionStatus Status { get; private set; }
 
+    /// <summary>When staff approved or declined it; none while it waits (L2-073 AC9).</summary>
+    public DateTimeOffset? DecidedAt { get; private set; }
+
+    /// <summary>The staff member who decided it.</summary>
+    public Guid? DecidedById { get; private set; }
+
+    /// <summary>Staff's optional reason for declining, kept for staff only and never sent (L2-073 AC8).</summary>
+    public string? DeclineReason { get; private set; }
+
+    /// <summary>The draft listing approval made from it.</summary>
+    public Guid? ListingId { get; private set; }
+
+    /// <summary>The longest decline reason staff may keep (ADR 0087).</summary>
+    public const int DeclineReasonMaxLength = 500;
+
+    /// <summary>A decided suggestion stays in the console's list this long after its decision (ADR 0077).</summary>
+    public static readonly TimeSpan ListedAfterDecision = TimeSpan.FromDays(90);
+
+    /// <summary>A decided suggestion is purged this long after its decision (ADR 0078).</summary>
+    public static readonly TimeSpan KeptAfterDecision = TimeSpan.FromDays(365);
+
     /// <summary>
     /// A Waiting suggestion sent by <paramref name="suggestedById"/> at <paramref name="submittedAt"/>
     /// (ADR 0086). Texts are trimmed and a blank optional one is none; the website is read by

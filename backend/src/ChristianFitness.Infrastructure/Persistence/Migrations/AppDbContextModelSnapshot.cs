@@ -218,10 +218,23 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DecidedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeclineReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("ListingId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("MayTellWhoSuggested")
                         .HasColumnType("boolean");
@@ -261,6 +274,8 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DecidedAt");
 
                     b.HasIndex("Status", "SubmittedAt");
 

@@ -6,6 +6,7 @@ export * from './account/account';
 export * from './account/interests';
 export * from './account/session';
 export * from './admin/admin-dashboard';
+export * from './admin/admin-directory';
 export * from './admin/admin-events';
 export * from './admin/admin-members';
 export * from './admin/admin-services';

@@ -7,12 +7,13 @@ import {
   type AdminAreaKey,
 } from './admin-areas';
 
-// L2-021 AC1: the navigation lists four areas and marks the one the URL is in (ADR 0011).
+// L2-021 AC1: the navigation lists the areas and marks the one the URL is in (ADR 0011).
 describe('ADMIN_AREAS', () => {
-  it('lists Dashboard, Events, Services and Members with their paths', () => {
+  it('lists Dashboard, Events, Listings, Services and Members with their paths', () => {
     expect(ADMIN_AREAS.map((area) => [area.label, area.path])).toEqual([
       ['Dashboard', '/'],
       ['Events', '/events'],
+      ['Listings', '/listings'],
       ['Services', '/services'],
       ['Members', '/members'],
     ]);
@@ -47,6 +48,13 @@ describe('canManage', () => {
     { role: 'Admin', area: 'events', allowed: true, why: 'an Admin manages events' },
     { role: 'Admin', area: 'services', allowed: true, why: 'an Admin manages services' },
     { role: 'Admin', area: 'members', allowed: true, why: 'an Admin moderates members' },
+    { role: 'Admin', area: 'listings', allowed: true, why: 'an Admin reviews listings (ADR 0064)' },
+    {
+      role: 'Moderator',
+      area: 'listings',
+      allowed: true,
+      why: 'a Moderator reviews listings (ADR 0064)',
+    },
     { role: 'Moderator', area: 'dashboard', allowed: true, why: 'a Moderator sees the dashboard' },
     {
       role: 'Moderator',
@@ -71,16 +79,21 @@ describe('canManage', () => {
 });
 
 describe('areasFor', () => {
-  it('lists all four areas for an Admin, in navigation order', () => {
+  it('lists every area for an Admin, in navigation order', () => {
     expect(areasFor('Admin').map((area) => area.key)).toEqual([
       'dashboard',
       'events',
+      'listings',
       'services',
       'members',
     ]);
   });
 
-  it('lists the Dashboard and Members for a Moderator', () => {
-    expect(areasFor('Moderator').map((area) => area.key)).toEqual(['dashboard', 'members']);
+  it('lists the Dashboard, Listings and Members for a Moderator', () => {
+    expect(areasFor('Moderator').map((area) => area.key)).toEqual([
+      'dashboard',
+      'listings',
+      'members',
+    ]);
   });
 });

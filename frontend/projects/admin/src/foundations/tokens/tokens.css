@@ -310,6 +310,8 @@
   --size-date-col-lg: 3.5rem;
   --size-thumb-w: 5rem;
   --size-thumb-h: 4rem;
+  --size-column-picker-wide: 18.75rem; /* listing suggestions picker */
+  --size-card-pick: 16rem;             /* pick card in the phone scroller */
   --size-meter: 0.375rem;
   --size-divider-h: 1.5rem;
   --size-switch-w: 2.75rem;

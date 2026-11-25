@@ -6,7 +6,7 @@ import { isPlainClick } from '../link/plain-click';
  * work waits for staff, how much and what it is, read in full ("3 applications waiting").
  */
 export interface AdminNavItem {
-  key: 'dashboard' | 'events' | 'services' | 'members';
+  key: 'dashboard' | 'events' | 'listings' | 'services' | 'members';
   label: string;
   href: string;
   /** Work waiting in the area; no count shows at zero or without one. */

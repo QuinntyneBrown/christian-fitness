@@ -74,6 +74,15 @@ public static class RefusalCodes
     /// <summary>The direct message goes to the Christian Fitness account, which takes no replies (L2-014 AC8; ADR 0065).</summary>
     public const string SystemAccount = "system_account";
 
+    /// <summary>No listing suggestion has that id (L2-073; ADR 0087).</summary>
+    public const string SuggestionNotFound = "suggestion_not_found";
+
+    /// <summary>Staff already approved or declined the suggestion (L2-073 AC9; ADR 0087).</summary>
+    public const string SuggestionDecided = "suggestion_decided";
+
+    /// <summary>An approval arrived with fewer than four checks passed (L2-073 AC5; ADR 0087).</summary>
+    public const string ChecksIncomplete = "checks_incomplete";
+
     /// <summary>A field is longer than its limit (L2-003 AC6).</summary>
     public const string FieldTooLong = "field_too_long";
 

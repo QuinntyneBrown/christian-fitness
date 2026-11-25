@@ -10,7 +10,7 @@ public static class StaffAccess
     public static bool Allows(StaffRoleName role, StaffArea area) => role switch
     {
         StaffRoleName.Admin => true,
-        StaffRoleName.Moderator => area is StaffArea.Console or StaffArea.Dashboard or StaffArea.Members,
+        StaffRoleName.Moderator => area is StaffArea.Console or StaffArea.Dashboard or StaffArea.Members or StaffArea.Directory,
         _ => false,
     };
 }
