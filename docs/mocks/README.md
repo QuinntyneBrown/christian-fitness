@@ -117,7 +117,7 @@ navigation, say) must be made in the generator and in those files.
 ## Decisions where the prototype is silent or conflicts with the rules
 
 - **Dark theme.** The prototype is light only. Dark keeps the brand: warm near-black surfaces,
-  Bordeaux brightened to `#8f2a4a` for buttons, accent text in rose `#f0a8bf`, Borealis focus rings.
+  Bordeaux brightened to `#b54465` for buttons, accent text in rose `#f0a8bf`, Borealis focus rings.
 - **Focus ring.** The prototype outlines the lockup in Borealis, which is 1.9:1 on white. Focus is
   Bordeaux on light surfaces and Borealis on dark ones (admin sidebar, brand panels, dark theme).
 - **Touch targets.** Filter chips, small buttons, the profile avatar and row links are 36 px tall
