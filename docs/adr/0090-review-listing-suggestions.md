@@ -116,7 +116,10 @@ yet (journeys 8, 9, 30 and ADR 0069).
   members" (one: "1 listing suggested by a member") with the names and Check opening `/listings`,
   ahead of the applications, and the heading counts each suggestion.
 - **Components.** The screen builds the design system's `suggestion` (with `check-row` and
-  `listed-cell`) and `pick-list` (pick cards) in the components library. `review-card`, named in
+  `listed-cell`) and `pick-list` (pick cards) in the components library. `PickCards` is one
+  component in both forms: cards with an `href` are links in a labelled `nav` that choose the record
+  the page shows, and ADR 0089's cards without one stay buttons that choose a value in a form; both
+  emit `picked` with the card's id. `review-card`, named in
   the issue, is the Stories call-out (journey 22) and is not used here.
 
 ## Consequences

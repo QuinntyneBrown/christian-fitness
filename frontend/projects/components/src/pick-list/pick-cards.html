@@ -30,8 +30,8 @@
 </ng-template>
 
 <ng-template #card let-item>
-  <span class="pick-card__title"
-    >{{ item.title }}
+  <span class="pick-card__title">
+    <span>{{ item.title }}</span>
     @if (item.tag) {
       <span class="pick-card__tag">{{ item.tag }}</span>
     }
