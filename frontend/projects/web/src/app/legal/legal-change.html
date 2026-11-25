@@ -1,0 +1,17 @@
+@if (summaryFor()) {
+  @if (summary(); as revision) {
+    <section id="whats-changing" class="legal-change" aria-labelledby="change-title">
+      <h2 id="change-title">What’s changing on {{ dateLabel(revision.date) }}</h2>
+      <p>{{ revision.summary }}</p>
+    </section>
+  }
+} @else if (notices.banner(); as revision) {
+  <cf-banner
+    [lead]="'We\'re updating our Privacy Policy and Terms on ' + dateLabel(revision.date) + '.'"
+    text="Using Christian Fitness after that date means you accept them."
+    actionLabel="Read what's changing."
+    [actionHref]="'/' + revision.document + '#whats-changing'"
+    dismissible
+    (dismissed)="notices.dismiss(revision.date)"
+  />
+}

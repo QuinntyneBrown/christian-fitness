@@ -1,5 +1,6 @@
 <cf-skip-link />
 <cf-top-bar variant="site" homeHref="/" documentHref="/privacy" documentLabel="Privacy Policy" />
+<cf-legal-change />
 <main id="main">
   <cf-container page="default"
     ><cf-prose
@@ -7,7 +8,7 @@
       [effective]="effective"
       [points]="points"
       [sections]="sections"
-      ><cf-side-navigation
+      ><cf-legal-change slot="change" summaryFor="terms" /><cf-side-navigation
         slot="contents"
         route="/terms"
         [entries]="sections"
