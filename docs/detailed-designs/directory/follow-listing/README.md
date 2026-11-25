@@ -8,7 +8,7 @@ Christian Fitness is a Christian community for health in body and spirit in the 
 - **follower count** — number of members who follow a listing; the only fact about followers anyone but staff receives
 - **optimistic change** — button state changed at the press, before the server answers, and put back if the request fails
 
-A member follows or stops following a listing from its row in the directory (`docs/mocks/pages/directory/`) or from its profile (`docs/mocks/pages/listing-profile/`). Following is instant both ways, with no confirmation (`docs/mocks/README.md`, decision "Follow"). A failed request puts the button back and shows a toast (mock state `directory/follow-failed`). A followed listing's new events and series come first in the member's Home "Coming up" (`L2-056` AC7). Preferences' switch "New dates from listings you follow" (`L2-064` AC4) belongs to the preferences design and is not part of this feature.
+A member follows or stops following a listing from its row in the directory (`docs/mocks/pages/directory/`) or from its profile (`docs/mocks/pages/listing-profile/`). Following is instant both ways, with no confirmation (`docs/mocks/README.md`, decision "Follow"). A failed request puts the button back and shows a toast (mock state `directory/follow-failed`). A followed listing's new events and series rank ahead of others, after the area, in the member's Home suggestions (`L2-056` AC7; ADR 0061). Preferences' switch "New dates from listings you follow" (`L2-064` AC4) belongs to the preferences design and is not part of this feature.
 
 ## Description
 
@@ -30,13 +30,13 @@ The feature is a vertical slice from the Follow button to the database, plus one
 - **`UnfollowListingCommand` / `UnfollowListingHandler`** — removes the caller's `ListingFollow` when there is one and otherwise writes nothing (`L2-056` AC4). Whether a suspended member may unfollow is not stated; the design refuses only following.
 - **`ListingFollow`** — new domain entity with `MemberId`, `ListingId` and `FollowedAt`, keyed by the pair, so a follow twice cannot create two rows. A second concurrent insert of the same pair is a unique-key conflict the handler treats as success; EF Core InMemory raises no `DbUpdateException`, so the test injects it through `IAppDbContext` (`AGENTS.md`, backend tests).
 - **Follower privacy** — no member endpoint lists who follows a listing; the profile and the follow answer carry the count only (`L2-056` AC6). The console's Listed tab shows the count too (`L2-073` AC10). No staff endpoint naming followers is specified.
-- **`GetHomeHandler`** (existing, `ChristianFitness.Application/Events/GetHomeQuery.cs`) — Home's "Coming up" orders events whose host listing the member follows ahead of the others, then keeps its existing order within each part (`L2-056` AC7). The rule is a pure function, `FollowedFirst`, tested with one case per row of a table.
+- **`GetHomeHandler`** (existing, `ChristianFitness.Application/Events/GetHomeQuery.cs`) — Home's suggested events order events whose host listing the member follows ahead of the others within the member's area or GTA-wide events, then by interest match and date (`L2-056` AC7, `L2-065` AC7; ADR 0061). The rule is a pure function, `FollowedFirst`, tested with one case per row of a table.
 
 Telemetry records the route template `/api/directory/{id}/follow`, never the member or listing name (`L2-040`, `L2-033` AC2).
 
 ### Open questions
 
-- **Home "Coming up".** `L2-007` names the next registered event and up to three suggested events; `L2-056` AC7 names a "Coming up" list that the Home mock draws. The design applies the order to whichever list Home serves as "Coming up"; the Home design owns that list. "Publishes a new event or series" does not say which events count as new; the design orders all upcoming events of followed hosts first. Both depend on events and series having a host listing (browse-directory design, Open questions).
+- **Home "Coming up".** Resolved by ADR 0061: "Coming up" is the member's next three registrations (`L2-007` AC6) and the follow ranks Home's suggested events. A followed host's new events are those published after the follow and not yet seen. This depends on events and series having a host listing (browse-directory design, Open questions).
 - **Presses while a request is in flight.** `L2-056` AC3 changes the button at once but does not say what a second press does before the first answers. Keeping one request per listing and sending the last state when it settles is proposed; `<TO SUPPLY>` in an ADR.
 - **Rate limit.** No limit on follow requests is specified (`L2-034` names messages, accounts and resets only).
 - **Notifications.** Telling followers about new dates (`L2-064` AC4) needs a notification channel the mocks do not draw (`docs/mocks/README.md` open question 1).
@@ -47,7 +47,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 | L2 ID    | Refines (L1) | Requirement |
 | -------- | ------------ | ----------- |
-| `L2-056` | `L1-017`     | Pressing Follow on a listing the member does not follow, in the directory or on the profile, shall follow it; the button shall read "Following" with `aria-pressed="true"` and a check mark, and the profile's follower count shall rise by one. Pressing Following shall stop following at once, with no confirmation, and the count shall fall by one. The button shall change at once; if the request fails it shall go back and a toast shall say "We couldn't follow <name>" (or "unfollow") and to try again. Following twice, or unfollowing a listing not followed, shall succeed and change nothing. A suspended member's follow shall be refused with code `account_suspended`. Anyone but staff shall be given only the count of followers, never the members. A followed listing's new event or series shall come ahead of events from listings not followed in the member's Home "Coming up". |
+| `L2-056` | `L1-017`     | Pressing Follow on a listing the member does not follow, in the directory or on the profile, shall follow it; the button shall read "Following" with `aria-pressed="true"` and a check mark, and the profile's follower count shall rise by one. Pressing Following shall stop following at once, with no confirmation, and the count shall fall by one. The button shall change at once; if the request fails it shall go back and a toast shall say "We couldn't follow <name>" (or "unfollow") and to try again. Following twice, or unfollowing a listing not followed, shall succeed and change nothing. A suspended member's follow shall be refused with code `account_suspended`. Anyone but staff shall be given only the count of followers, never the members. A followed listing's new event or series shall rank ahead of events from listings not followed in the member's Home suggestions. |
 | `L2-054` | `L1-017`     | At XS each directory row shall keep its Follow button at 44 × 44 px or more. |
 | `L2-031` | `L1-013`     | A member shall change only their own follows. |
 
@@ -55,7 +55,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-A member follows listings in Christian Fitness; the follow orders what Home shows them.
+A member follows listings in Christian Fitness; the follow orders what Home suggests to them.
 
 ![C4 system context: follow a listing](diagrams/c4-context.png)
 

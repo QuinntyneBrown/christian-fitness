@@ -44,17 +44,15 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 
 ### Enforcement: suggestions (AC6, AC7)
 
-- **`GetHomeHandler`** (existing) suggests the three soonest published events of the categories the member's interests name (`InterestCategories.For`). It shall order events of the member's area and interests first. `Event.Area` is free text of at most 100 characters, not one of the eight suggestion areas, so the match needs a rule (open question).
-- **Landing stories** — AC7 asks the landing page to order stories for the member, but `L2-001` AC8 sends a signed-in member from `/` to Home; see Open questions.
+- **`GetHomeHandler`** (existing) suggests the three soonest published events of the categories the member's interests name (`InterestCategories.For`). It orders events by the rule of ADR 0061: (1) the member's area or GTA-wide, then within those (2) events of a followed listing, (3) events matching an interest, (4) the rest, ties by date. Events gain a suggestion area (the eight areas or GTA-wide) chosen in the event editor; the free-text `Event.Area` stays for display, and existing events are mapped by staff review, unmapped ones becoming GTA-wide.
+- **Landing page** — the landing page is for visitors and orders by date only; `L2-001` AC8 sends a signed-in member to Home, where the ordering applies (ADR 0061).
 
 ### Open questions
 
 - **Public profile route.** `Anyone` needs an anonymous endpoint and a page outside the member shell. An ADR should record the route (for example `/members/:id` served outside the shell with the guard removed) and how the page behaves with and without a session.
 - **Messaging a professional or listing.** With "Let anyone message me" off for every new member, `L2-014` and `L2-055` AC6 contact would be refused. An ADR should decide whether a conversation started from a published listing is exempt.
 - **"Just my groups" and past events.** A registration stays after its event, so members of a past event's chat still share a group. Whether a past or cancelled event's chat counts is `<TO SUPPLY>`.
-- **Area matching.** Events record a free-text area. Either events gain a suggestion area, or a mapping table relates places to areas; an ADR is needed. How the area, interests and followed listings (`L2-056` AC7) combine in Home's order is not stated.
-- **Landing order.** `L2-065` AC7 and `L2-001` AC8 contradict each other for a signed-in member; the requirement needs correcting.
-- **Interest list.** The mock lists Running, Strength, Basketball, Nutrition, Mobility, Walking, Retreats and Pickleball; `Interests.All` holds running, strength, basketball, walking-groups, mobility, nutrition, cycling and retreats. Pickleball is missing from the code and Cycling from the mock.
+- ~~Area matching, landing order and interest list~~ — resolved by ADR 0061: events gain a suggestion area; the order is area, followed host, interest, then the rest; the landing page orders by date only; the interest list is the union, with `INTERESTS` in `@cf/api` as the single source.
 - **Home church.** Preferences sets who sees the whole profile; whether the home church deserves its own setting is open (mocks README open question 4). It stays under `ShowHomeChurch` from Edit profile.
 - **Privacy Policy wording.** The policy mock says hosts see the name and email of people registered; no host access exists in the code, and `L2-065` AC4 says only that hosts still see attendees (see [read the Privacy Policy and Terms](../../legal/read-privacy-policy-and-terms/README.md)).
 
@@ -64,7 +62,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-065` | `L1-019`, `L1-013` | 1. "Who can see your profile" shall be one radio group of Anyone, Members and Just my groups, with Members for a new member. 2. A Members profile shall show the not-found view to a visitor who is not signed in; a Just my groups profile shall show it to a member who shares no group chat; staff shall see it in the admin app either way. 3. An Anyone profile shall show a visitor only the public fields of `L2-005` AC3, never the email, and the home church only where chosen. 4. With "Show me on attendee lists" off, the member shall be counted in going but not named or pictured to other members; the host and staff still see them. 5. With "Let anyone message me" off, the default, a member who shares no group chat shall be refused a new direct conversation with `messages_restricted` and Message shall say why; open conversations stay open. 6. "Your area" shall be one of eight areas and Interests shall be `aria-pressed` toggles set from the profile, with a check mark as well as colour. 7. Home suggestions and the landing story order shall put the member's area and interests first; interests saved here are the profile's interests. 8. A change shall use the save bar of `L2-064` AC5 to AC7. 9. No span, metric or log shall carry a setting's value. |
+| `L2-065` | `L1-019`, `L1-013` | 1. "Who can see your profile" shall be one radio group of Anyone, Members and Just my groups, with Members for a new member. 2. A Members profile shall show the not-found view to a visitor who is not signed in; a Just my groups profile shall show it to a member who shares no group chat; staff shall see it in the admin app either way. 3. An Anyone profile shall show a visitor only the public fields of `L2-005` AC3, never the email, and the home church only where chosen. 4. With "Show me on attendee lists" off, the member shall be counted in going but not named or pictured to other members; the host and staff still see them. 5. With "Let anyone message me" off, the default, a member who shares no group chat shall be refused a new direct conversation with `messages_restricted` and Message shall say why; open conversations stay open. 6. "Your area" shall be one of eight areas and Interests shall be `aria-pressed` toggles set from the profile, with a check mark as well as colour. 7. Home's suggested events shall be ordered, ties by date, by (1) the member's area or GTA-wide, then within those (2) followed listings' events, (3) interest matches, (4) the rest; the landing page, for visitors, orders by date only; interests saved here are the profile's interests. 8. A change shall use the save bar of `L2-064` AC5 to AC7. 9. No span, metric or log shall carry a setting's value. |
 | `L2-031` | `L1-013` | 2, 3. Another member's private data shall be refused with 403 or 404 and no data, and guessing ids shall reveal nothing. |
 | `L2-033` | `L1-013` | 2. No log, metric or span shall contain an email, name, home church, message text, token, query string or body. |
 
@@ -108,6 +106,6 @@ Joining or sending to a member who accepts messages only from their groups is re
 
 ### Behaviour — attendee list and suggestions
 
-An attendee list names only the members who show themselves, while going counts everyone; Home suggests the member's area and interests first.
+An attendee list names only the members who show themselves, while going counts everyone; Home suggests the member's area first, then followed hosts, then interests (ADR 0061).
 
 ![Sequence diagram: attendee list and suggestions](diagrams/sequence-attendees-and-suggestions.png)
