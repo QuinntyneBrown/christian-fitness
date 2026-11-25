@@ -32,13 +32,13 @@ else one-click from the mail client
   mua -> ctrl : POST /api/public/newsletter/unsubscribe?token=… body List-Unsubscribe=One-Click (L2-058 AC4)
 end
 ctrl -> h : Send UnsubscribeCommand
-h -> tokens : TryReadUnsubscribeToken(token)
-alt token not readable
-  tokens --> h : false
-  h --> ctrl : RefusalException subscription_link_expired
-  ctrl --> client : 400 ProblemDetails
-  page --> actor : Alert "That link has expired" and the form
-else token names a subscription
+h -> tokens : FindSubscription(token hash)
+alt token unknown or subscription purged
+  tokens --> h : none
+  h --> ctrl : Success without address
+  ctrl --> client : 200
+  page --> actor : "You're unsubscribed" and Subscribe again
+else token names an existing subscription
   tokens --> h : subscriptionId
   h -> db : Subscription by id
   h -> sub : Unsubscribe(now): Weekly and every extra off, UnsubscribedAt kept from the first time (L2-058 AC5)

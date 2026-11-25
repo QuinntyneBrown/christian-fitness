@@ -333,7 +333,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 {dl}
               </div>
               <div class="pref__row pref__row--split">
-                <div><p class="pref__legend">Delete your account</p><p class="pref__desc">Removes your profile and messages within 30 days</p></div>
+                <div><p class="pref__legend">Delete your account</p><p class="pref__desc">Erases your profile and sent message text after 30 days</p></div>
                 <button class="btn btn--secondary btn--sm pref__delete" type="button" data-mock-href="{href("delete-account")}">Delete account</button>
               </div>
               <p class="pref__note">Read how we handle your information in our <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
@@ -423,7 +423,7 @@ def _():
 def delete_account(*, busy: bool = False, failed: bool = False, invalid: bool = False) -> str:
     alert = ('<div class="dialog__alert">' + form_alert("We couldn't delete your account", "Nothing was changed. Try again in a moment.") + "</div>"
              if failed else "")
-    body = f"""{alert}<p class="prose">Your profile, registrations, follows and the messages you sent are removed within 30 days, and you are signed out now. Places you hold at events go back to other members. This can’t be undone after the 30 days.</p>
+    body = f"""{alert}<p class="prose">If you delete your account, you'll be signed out immediately and your event places will go back to other members. Your profile, registrations and follows are removed after 30 days. Messages you sent will show as removed. Messages others sent you aren't affected. You can restore your account during the 30 days; after that, deletion can't be undone.</p>
     <div class="dialog__field">{field('Type "delete" to confirm', "confirm", "delet" if invalid else ("delete" if busy or failed else ""), error="Type the word delete to confirm." if invalid else "", autocomplete="off", readonly=busy)}</div>"""
     keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("preferences")}"{" disabled" if busy else ""}>Keep my account</button>'
     go = (f'<button class="btn btn--danger btn--grow" type="submit" disabled aria-busy="true">{busy_label("Deleting…")}</button>' if busy
@@ -525,9 +525,11 @@ PRIVACY_SECTIONS = [
         "Your church affiliation and health goals can reveal sensitive things about you. We treat them as sensitive information: they are never used for advertising and never shared with other members unless you put them on your public profile."]),
     ("choices", "Your choices", [
         "In Preferences you can control who sees your profile, whether you appear on attendee lists, who can message you, and every email and notification we send.",
-        "You can request a download of your data or delete your account from Preferences. Deletion is completed within 30 days."]),
+        "You can request a download of your data or delete your account from Preferences. You can restore your account during the 30-day grace period."]),
     ("retention", "How long we keep it", [
-        "We keep your information while your account is open. After deletion we remove it within 30 days, except records we must keep by law."]),
+        "We keep your account information while your account is open. After you request deletion, your account is hidden immediately; after 30 days we erase it and your data. Messages you sent then show as “Message removed” from “Deleted member”. Messages others sent you stay with them.",
+        "Download archives are deleted seven days after they are ready, or when you request account deletion. Decided listing suggestions and their contact emails are kept for 12 months after the decision. Decided message reports are kept for 12 months after the decision. Declined professional applications and associated declined listings are kept for 12 months after decline. Data belonging only to you is erased sooner if your account is erased.",
+        "Audit entries are kept for two years after the action, with identifying references to you removed when your account is erased. Only Admins can read them. Newsletter subscriptions that are never confirmed are deleted 30 days after the latest request; unsubscribed addresses are deleted within 30 days unless they subscribe again."]),
     ("security", "Security", [
         "Your data is encrypted in transit and at rest and stored on servers in Canada. Our email delivery provider may process email addresses outside Canada, only to send you the email you ask for. Staff access is limited to the team members who need it."]),
     ("children", "Young people", [
