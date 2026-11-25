@@ -1,3 +1,8 @@
+using System.Globalization;
+using ChristianFitness.Application.Email;
+using ChristianFitness.Application.Legal;
+using ChristianFitness.Domain.Legal;
+using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Application.Admin;
 using ChristianFitness.Application.Seeding;
 using ChristianFitness.Infrastructure;
@@ -13,6 +18,7 @@ using Microsoft.Extensions.Logging;
 const string Usage = """
     Usage: cf <command>
 
+      announce-legal-change <privacy|terms> <yyyy-mm-dd>  Deliver a service notice to every member.
       migrate           Apply the pending database migrations.
       seed              Insert the seed data that is missing; a second run changes nothing.
       two-step <email>  Give a staff account a new authenticator secret and print its
@@ -24,13 +30,17 @@ const string Usage = """
     """;
 
 var command = args.FirstOrDefault();
-if (command is not ("migrate" or "seed" or "two-step") || (command == "two-step" && (args.Length < 2 || string.IsNullOrWhiteSpace(args[1]))))
+var announce = command == "announce-legal-change";
+var version = default(DateOnly);
+if ((announce && (args.Length != 3 || args[1] is not ("privacy" or "terms") ||
+    !DateOnly.TryParseExact(args[2], "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out version))) ||
+    command is not ("migrate" or "seed" or "two-step" or "announce-legal-change") || (command == "two-step" && (args.Length < 2 || string.IsNullOrWhiteSpace(args[1]))))
 {
     await Console.Error.WriteLineAsync(Usage).ConfigureAwait(false);
     return 1;
 }
 
-var commandArguments = command == "two-step" ? 2 : 1;
+var commandArguments = announce ? 3 : command == "two-step" ? 2 : 1;
 var builder = Host.CreateApplicationBuilder(args[commandArguments..]);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
@@ -73,10 +83,35 @@ if (command == "two-step")
     builder.Services.AddScoped<StaffTwoStepSetUp>();
 }
 
+if (announce)
+{
+    builder.Services.AddEmail(builder.Configuration, isDevelopment: false);
+    // A short-lived command must await SMTP delivery, not leave messages in the API's queue.
+    builder.Services.AddSingleton<IEmailSender>(sp => sp.GetRequiredService<SmtpEmailTransport>());
+    builder.Services.AddSingleton(TimeProvider.System);
+    builder.Services.AddSingleton(LegalDocuments.Published);
+    builder.Services.AddScoped<LegalAnnouncement>();
+}
+
 using var host = builder.Build();
 await using var scope = host.Services.CreateAsyncScope();
 
-if (command == "migrate")
+if (announce)
+{
+    try
+    {
+        var sent = await scope.ServiceProvider.GetRequiredService<LegalAnnouncement>()
+            .SendAsync(args[1], version, CancellationToken.None).ConfigureAwait(false);
+        Console.WriteLine($"Service notices sent: {sent}.");
+    }
+    catch (Exception failure) when (failure is not OperationCanceledException)
+    {
+        // Mail exceptions can include a recipient or SMTP credentials.
+        await Console.Error.WriteLineAsync("Legal announcement failed. Check the schedule and mail configuration.").ConfigureAwait(false);
+        return 3;
+    }
+}
+else if (command == "migrate")
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var pending = (await db.Database.GetPendingMigrationsAsync().ConfigureAwait(false)).ToList();
