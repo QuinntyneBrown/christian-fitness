@@ -1,11 +1,11 @@
 import { LegalChange } from '../../legal/legal-change';
-import { LegalNotice } from '../../legal/legal-notice';
+import { legalNoticeProvider } from '../../legal/legal-notice';
 import { Component } from '@angular/core';
 import { Container, SideNavigation, Prose, SkipLink, TopBar } from '@cf/components';
 import { LegalVersions } from '@cf/domain';
 @Component({
   selector: 'cf-privacy-page',
-  providers: [LegalNotice],
+  providers: [legalNoticeProvider],
   imports: [LegalChange, Container, SideNavigation, Prose, SkipLink, TopBar],
   templateUrl: './privacy-page.html',
   styleUrl: './privacy-page.scss',

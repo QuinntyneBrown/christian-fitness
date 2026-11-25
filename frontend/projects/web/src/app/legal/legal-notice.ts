@@ -1,19 +1,13 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
-import { LegalVersions, type LegalDocument } from '@cf/domain';
+import { LEGAL_NOTICE, type LegalRevision, type LegalNoticeView } from '@cf/api';
 
 export const legalDate = (date: string) =>
   new Intl.DateTimeFormat('en-CA', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(date));
-interface Revision {
-  document: LegalDocument;
-  date: string;
-  summary: string;
-}
-
 @Injectable()
-export class LegalNotice {
+class LegalNotice implements LegalNoticeView {
   private readonly dom = inject(DOCUMENT);
-  private readonly revisions: Revision[] = (['privacy', 'terms'] as const)
+  private readonly revisions: LegalRevision[] = (['privacy', 'terms'] as const)
     .flatMap((document) => {
       const meta = this.dom.querySelector<HTMLMetaElement>(
         'meta[name="cf-' + document + '-change"]',
@@ -24,17 +18,23 @@ export class LegalNotice {
     })
     .sort((a, b) => a.date.localeCompare(b.date));
   private readonly now = signal(new Date());
-  private readonly dismissed = signal('');
+  private readonly dismissed = signal<readonly string[]>([]);
   readonly visible = computed(() =>
-    this.revisions.filter(
-      (revision) =>
-        new LegalVersions({ privacy: [revision.date], terms: [revision.date] }).upcoming(
-          revision.document,
-          this.now(),
-        ) === revision.date,
-    ),
+    this.revisions.filter((revision) => revision.date > this.now().toISOString().slice(0, 10)),
   );
-  readonly banner = computed(() => this.visible().find((r) => r.date !== this.dismissed()));
+  readonly banner = computed(() => {
+    const pending = this.visible().filter((revision) => !this.dismissed().includes(revision.date));
+    const first = pending[0];
+    if (!first) return undefined;
+    const documents = pending.filter((revision) => revision.date === first.date);
+    const title =
+      documents.length === 2
+        ? 'Privacy Policy and Terms'
+        : first.document === 'privacy'
+          ? 'Privacy Policy'
+          : 'Terms of Service';
+    return { ...first, title };
+  });
   constructor() {
     if (!this.revisions.length) return;
     let timer: ReturnType<typeof setTimeout>;
@@ -51,7 +51,7 @@ export class LegalNotice {
     inject(DestroyRef).onDestroy(() => clearTimeout(timer));
   }
   dismiss(date: string) {
-    this.dismissed.set(date);
+    this.dismissed.update((dates) => [...dates, date]);
     const h = this.dom.querySelector<HTMLElement>('main h1');
     if (h) {
       h.tabIndex = -1;
@@ -59,3 +59,5 @@ export class LegalNotice {
     }
   }
 }
+
+export const legalNoticeProvider = { provide: LEGAL_NOTICE, useClass: LegalNotice };

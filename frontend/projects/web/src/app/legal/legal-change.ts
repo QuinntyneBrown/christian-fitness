@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Banner } from '@cf/components';
-import type { LegalDocument } from '@cf/domain';
-import { LegalNotice, legalDate } from './legal-notice';
+import { LEGAL_NOTICE, type LegalDocument } from '@cf/api';
+import { legalDate } from './legal-notice';
 
 @Component({
   selector: 'cf-legal-change',
@@ -11,7 +11,7 @@ import { LegalNotice, legalDate } from './legal-notice';
 })
 export class LegalChange {
   readonly summaryFor = input<LegalDocument>();
-  protected readonly notices = inject(LegalNotice);
+  protected readonly notices = inject(LEGAL_NOTICE);
   protected readonly dateLabel = legalDate;
   protected readonly summary = computed(() =>
     this.notices.visible().find((r) => r.document === this.summaryFor()),
