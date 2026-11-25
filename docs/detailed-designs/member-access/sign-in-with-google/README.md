@@ -22,7 +22,7 @@ and [admin sign-in](../../admin-access/admin-sign-in/README.md).
 - **hosted domain** — Google Workspace domain of an account (the ID token's `hd` claim), absent for a personal Google account
 - **Google identity** — subject, email, `email_verified`, name, picture and hosted domain read from one checked ID token
 - **linked account** — member account that has stored a Google subject
-- **team's domain** — Google Workspace domain whose accounts may open the Admin web app (`christianfitness.ca` in the mocks)
+- **team's domain** — Google Workspace domain whose accounts may open the Admin web app (`christian.fitness`)
 
 The person presses "Continue with Google" or "Sign up with Google" (member app) or "Sign in with
 Google" (admin app). The button reads "Opening Google…", and the browser leaves for Google in a

@@ -28,7 +28,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 - **Acceptance at Join** — `Member` gains `AcceptedTermsVersion`, `AcceptedPrivacyVersion` (`DateOnly`, the effective dates) and `AcceptedLegalAt`. `CreateAccountHandler`, and the Google "Finish your profile" handler of `L2-003` AC9, record the versions in force at that moment from the server's own `LegalDocuments` constants, never from a value the browser sends (AC5). Migration `AddLegalAcceptance` adds the columns; existing members keep none.
 - **`LegalDocuments`** — constants in `ChristianFitness.Domain/Legal/` listing the same versions and dates as `LegalVersions` in `@cf/domain`. One inline case table of versions serves the unit tests of both stacks, so the two lists cannot drift (AGENTS.md, "a rule computed in both stacks").
 - **Change notice email** — a CLI command `cf announce-legal-change <document> <version>` sends one `EmailMessage` to every member through `IEmailSender` in bounded batches, at least 30 days before the effective date (AC6). It logs only the count sent. It is a service notice (transactional under CASL), so it reaches every member whatever their email preferences say (`L2-064` AC3; [preferences](../../preferences/set-email-and-notification-preferences/README.md)).
-- **Truth of the text** — before either page is published, each statement it makes about the system shall be checked against the deployed system (AC8). Each row below has its evidence or the change made to the text (decided 2026-11-24; mocks README open question 12, closed). The team's address is `privacy@christian.fitness` (the deployed domain, ADR 0047) and the postal address is the one in the mocks:
+- **Truth of the text** — before either page is published, each statement it makes about the system shall be checked against the deployed system (AC8). Each row below has its evidence or the change made to the text (decided 2026-11-24; mocks README open question 12, closed). The team's address is `privacy@christian.fitness` (the deployed domain, ADR 0047) and the postal address is 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6:
 
 | Statement in the mocks | Evidence or change | Status |
 |---|---|---|
@@ -47,6 +47,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 
 ### Open questions
 
+- **Contact.** The legal contact is `privacy@christian.fitness`, at 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.
 - **Banner copy.** The change banner's wording and mock are `<TO SUPPLY>`.
 - **Statements to build.** Rows marked "once built" are true when their slices ship (age confirmation, deletion, the notice command); the text shall not be published before them (AC8).
 - **Who writes the text.** The documents live in the app's source, so a change ships as a release; no console screen edits them.
