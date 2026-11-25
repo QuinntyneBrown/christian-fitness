@@ -335,7 +335,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
             {send}
           </section>
           <div class="btn-row"><a class="btn btn--secondary btn--sm btn--grow" href="{href("newsletter")}">{icon("eye")}Preview</a>{test}</div>
-          <p class="visually-hidden" role="status">{"Test sent to dana@christianfitness.ca" if tested else ""}</p>
+          <p class="visually-hidden" role="status">{"Test sent to dana@christian.fitness" if tested else ""}</p>
           <p class="builder__note">Add-on emails (event alerts, training plan, devotions) send on their own schedules.</p>
         </aside>
       </form>
@@ -548,7 +548,7 @@ def caption(text: str, hint: str = "") -> str:
 
 def pick_assets(e: dict, platform: str) -> str:
     slug = f'community-pick-{e["id"]}'
-    link = f'christianfitness.ca/e/{e["public_id"]}'
+    link = f'www.christian.fitness/e/{e["public_id"]}'
     when = f'{e["weekday"]}, {e["month"]} {int(e["day"])} at {e["time"]}'
     left = e["capacity"] - e["going"]
     tabs_ = "".join(f'<a class="segmented__option segmented__option--ink" href="{"default" if p == "Instagram" else p.lower()}.html"{CUR if p == platform else ""}>{p}</a>' for p in PLATFORMS)
@@ -567,7 +567,7 @@ def pick_assets(e: dict, platform: str) -> str:
             <span class="avatar avatar--group" aria-hidden="true">CF</span>
             <div class="slack-preview__body"><p><strong>Christian Fitness</strong> <span class="muted">9:02 AM</span></p>
               <p><strong>Community Pick:</strong> <span class="slack-preview__link">{e["title"]}</span></p><p>{PICK_NOTE}</p><p>{when} · {e["place"]}</p>
-              <div class="slack-preview__unfurl"><p class="slack-preview__site">christianfitness.ca</p>{pick_art(e, "landscape")}</div></div>
+              <div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{pick_art(e, "landscape")}</div></div>
           </div>
           <div class="assets assets--pair">{asset("Unfurl image · 1200 × 630", f"{slug}-slack.png", pick_art(e, "landscape"))}
           {caption(f"*Community Pick:* &lt;https://{link}|{e['title']}&gt;\n{PICK_NOTE}\n{when} · {e['place']}", "Slack formatting: the title becomes a link.")}</div>"""
