@@ -206,9 +206,9 @@ navigation, say) must be made in the generator and in those files.
    (`AGENTS.md`); the mocks work either way.
 4. **Home church.** Preferences sets who sees the whole profile; should home church have its own
    switch, since it is sensitive (L2-033)?
-5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
-   Services professional and a directory listing, with different copy, and the console has both
-   Services (applications) and Listings (suggestions). One record or two? One review or two?
+5. **Services and the directory.** Resolved (ADR 0061): two records and two reviews, cross-linked
+   through the owning member ("Also offers services" on the listing profile, `person.html`;
+   "Also in the directory" on Services), and Message reaches the same conversation from either.
 6. **Messaging an organization.** A listing's Message button opens a direct conversation. For an
    organization, company or ministry, who receives it?
 7. **Who writes stories.** The editor shows a writer's note and "Sent back to Priya", but the
