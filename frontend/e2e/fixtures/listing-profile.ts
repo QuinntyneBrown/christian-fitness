@@ -237,6 +237,7 @@ export const EASTSIDE_OWNED: ListingProfileFixture = {
   listedYear: 2026,
   hasOwner: true,
   hostingCount: 0,
+  series: [],
   hosting: [],
   connections: [],
   serviceListingId: null,
