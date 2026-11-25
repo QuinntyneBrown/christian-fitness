@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
-import { Container, Prose, SkipLink, TopBar } from '@cf/components';
+import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Container, SideNavigation, Prose, SkipLink, TopBar } from '@cf/components';
 import { LegalVersions } from '@cf/domain';
 @Component({
   selector: 'cf-terms-page',
-  imports: [Container, Prose, SkipLink, TopBar],
+  imports: [Container, SideNavigation, Prose, SkipLink, TopBar],
   templateUrl: './terms-page.html',
   styleUrl: './terms-page.scss',
 })
 export default class TermsPage {
+  protected readonly router = inject(Router);
   protected readonly effective = new Intl.DateTimeFormat('en-CA', {
     dateStyle: 'long',
     timeZone: 'UTC',
