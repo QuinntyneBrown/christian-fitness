@@ -32,7 +32,7 @@ SECTION_STATE = {"Latest": "default", "Events": "section", "Training": "section-
 
 
 def story_link(st: dict) -> str:
-    return href("story", {"sabbath-rest": "plain"}.get(st["id"], "default"))
+    return href("story", {"sabbath-rest": "plain", "how-we-vet-every-listing": "vetting"}.get(st["id"], "default"))
 
 
 def story_meta(st: dict) -> str:

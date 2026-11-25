@@ -9,7 +9,7 @@ Container_Boundary(admin, "Admin web app") {
   Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "registrations, exportRegistrations")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AdminOnly")
+  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "Staff policy")
   Component(list, "GetEventRegistrationsHandler", "MediatR handler", "Rows and total")
   Component(exp, "ExportEventRegistrationsHandler", "MediatR handler", "CSV export")
   Component(csv, "RegistrationsCsvWriter", "Application service", "Name and date only")

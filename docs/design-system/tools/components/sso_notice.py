@@ -31,8 +31,8 @@ def staff(title, email, text, a=""):
 
 
 WRONG = staff("That's not a staff account", "dana.reyes@gmail.com",
-              "Only @christianfitness.ca accounts can open the console. Pick your work account instead.")
-NO_ACCESS = staff("No admin access yet", "events@christianfitness.ca",
+              "Only @christian.fitness accounts can open the console. Pick your work account instead.")
+NO_ACCESS = staff("No admin access yet", "events@christian.fitness",
                   "Your Workspace account is fine, but it hasn’t been given a console role. Ask an Admin to add you to the team.")
 
 SPEC = {
@@ -105,7 +105,7 @@ SPEC = {
     },
     "content": """<ul>
 <li>Always show the account Google returned, in full: \"dana.reyes@gmail.com\".</li>
-<li>Say what is wrong in the person's terms, then what to do: \"Only @christianfitness.ca accounts can open the console. Pick your work account instead.\"</li>
+<li>Say what is wrong in the person's terms, then what to do: \"Only @christian.fitness accounts can open the console. Pick your work account instead.\"</li>
 <li>Staff titles are short and plain: \"That's not a staff account\", \"No admin access yet\".</li>
 <li>Name the roles as the product does: \"Ask an Admin to add you to the team\".</li>
 <li>\"Signing in with Google\" under the email; \"Change\" (with hidden \"how you sign in\").</li>
@@ -146,7 +146,7 @@ SPEC = {
 <div class="sso-notice sso-notice--spaced" role="alert" tabindex="-1">
   <p class="sso-notice__title"><svg class="icon" aria-hidden="true">…</svg>That's not a staff account</p>
   <p class="sso-notice__account"><svg class="google-g google-g--sm" aria-hidden="true">…</svg><span>dana.reyes@gmail.com</span></p>
-  <p class="sso-notice__text">Only @christianfitness.ca accounts can open the console. Pick your work account instead.</p>
+  <p class="sso-notice__text">Only @christian.fitness accounts can open the console. Pick your work account instead.</p>
 </div>''',
         "classes": [
             ("<code>.sso-account</code> <code>__body</code> <code>__email</code> <code>__via</code> <code>__change</code>", "The account a profile is being made with."),
