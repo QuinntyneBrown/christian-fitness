@@ -129,6 +129,12 @@ export interface ListedListingFixture {
   photoKey: string | null;
   verified: boolean;
   followers: number;
+  focus: string[];
+  /** Staff see it (ADR 0095). */
+  contactEmail: string | null;
+  /** A name or kind the owner asked for, waiting for staff (ADR 0095), or none. */
+  pendingName: string | null;
+  pendingKind: string | null;
 }
 
 /** Listed in name order (mock `admin-listings/listed`: some of its rows, and the unverified one). */
@@ -144,6 +150,10 @@ export const CAST_LISTED: ListedListingFixture[] = [
     photoKey: null,
     verified: true,
     followers: 2140,
+    focus: [],
+    contactEmail: null,
+    pendingName: null,
+    pendingKind: null,
   },
   {
     id: '0193a9c0-1000-7000-8000-000000000002',
@@ -156,6 +166,10 @@ export const CAST_LISTED: ListedListingFixture[] = [
     photoKey: '0123456789abcdef0123456789abcdef.jpg',
     verified: true,
     followers: 935,
+    focus: [],
+    contactEmail: null,
+    pendingName: null,
+    pendingKind: null,
   },
   {
     id: '0193a9c0-1000-7000-8000-000000000003',
@@ -169,6 +183,10 @@ export const CAST_LISTED: ListedListingFixture[] = [
     photoKey: null,
     verified: true,
     followers: 612,
+    focus: [],
+    contactEmail: null,
+    pendingName: null,
+    pendingKind: null,
   },
   {
     id: '0193a9c0-1000-7000-8000-000000000004',
@@ -181,6 +199,10 @@ export const CAST_LISTED: ListedListingFixture[] = [
     photoKey: null,
     verified: false,
     followers: 256,
+    focus: [],
+    contactEmail: null,
+    pendingName: null,
+    pendingKind: null,
   },
 ];
 
@@ -191,3 +213,21 @@ export function listedPage(
 ) {
   return { total, listings, next };
 }
+
+/** Eastside, published, with a new name waiting for staff (mock `admin-listings/change-waiting`; ADR 0095). */
+export const EASTSIDE_WAITING: ListedListingFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000ea501',
+  kind: 'organization',
+  name: 'Eastside Ladies Who Lift',
+  area: 'East York',
+  tagline: 'Saturday morning strength group out of Danforth Baptist',
+  about: 'About 25 women, coached by a CSEP trainer.',
+  website: 'https://eastsideladies.ca',
+  photoKey: null,
+  verified: true,
+  followers: 41,
+  focus: ['Strength', 'Beginners', 'Women'],
+  contactEmail: 'eastsideladies@example.org',
+  pendingName: 'Eastside Women’s Strength',
+  pendingKind: 'organization',
+};

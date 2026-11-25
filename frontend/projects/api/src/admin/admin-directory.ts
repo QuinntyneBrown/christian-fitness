@@ -125,6 +125,15 @@ export interface AdminDirectoryApi {
    */
   updateListing(id: string, update: DirectoryListingUpdateDto): Observable<ListedListingDto>;
 
+  /**
+   * `POST listings/{id}/change/approve`: the name and kind the owner asked for go live (L2-079 AC5;
+   * ADR 0095). Refusals: 409 `no_change_waiting`, 404 `listing_not_found`.
+   */
+  approveListingChange(id: string): Observable<ListedListingDto>;
+
+  /** `POST listings/{id}/change/decline`: the live name and kind stay. Refusals as {@link approveListingChange}. */
+  declineListingChange(id: string): Observable<ListedListingDto>;
+
   /** `POST photos`: keeps one photo; 400 with `fieldCodes.photo` `photo_invalid` when it is not one. */
   uploadPhoto(file: File): Observable<ListingPhotoDto>;
 }
@@ -143,6 +152,14 @@ export interface ListedListingDto {
   verified: boolean;
   /** How many members follow it: 0 until members can follow (journey 8). */
   followers: number;
+  /** Its focus tags (ADR 0095). */
+  focus: string[];
+  /** The contact email the owner gave, which staff see (ADR 0095), or none. */
+  contactEmail: string | null;
+  /** A name the owner asked for, waiting for staff (L2-079 AC5; ADR 0095), or none. */
+  pendingName: string | null;
+  /** The kind waiting with {@link pendingName}, or none. */
+  pendingKind: ListingKind | null;
 }
 
 /** A page of Listed: how many are published, up to 50 in name order, and the id to read on from. */

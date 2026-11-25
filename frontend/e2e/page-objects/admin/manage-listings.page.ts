@@ -180,6 +180,21 @@ export class ManageListingsPage {
     return this.listedRow(name).locator('img.listing-mark');
   }
 
+  /** A listed row's waiting name or kind line (mock `admin-listings/change-waiting`; ADR 0095). */
+  listedChange(name: string): Locator {
+    return this.listedRow(name).locator('.listed-cell__change');
+  }
+
+  /** A listed row's waiting change's Approve. */
+  approveChangeButton(name: string): Locator {
+    return this.listedRow(name).getByRole('button', { name: /^Approve the new (name|kind) of / });
+  }
+
+  /** A listed row's waiting change's Decline. */
+  declineChangeButton(name: string): Locator {
+    return this.listedRow(name).getByRole('button', { name: /^Decline the new (name|kind) of / });
+  }
+
   /** A listed row's Verified mark. */
   listedVerified(name: string): Locator {
     return this.listedRow(name).locator('.verified-mark');

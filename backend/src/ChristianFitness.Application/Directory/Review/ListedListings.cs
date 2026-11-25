@@ -16,7 +16,8 @@ namespace ChristianFitness.Application.Directory.Review;
 /// follow it (ADR 0088).
 /// </summary>
 public sealed record ListedListingDto(
-    Guid Id, string Kind, string Name, string Area, string Tagline, string About, string? Website, string? PhotoKey, bool Verified, int Followers);
+    Guid Id, string Kind, string Name, string Area, string Tagline, string About, string? Website, string? PhotoKey, bool Verified, int Followers,
+    IReadOnlyList<string> Focus, string? ContactEmail, string? PendingName, string? PendingKind);
 
 /// <summary>A page of Listed: how many are published, up to 50 in name order, and the id to read on from, or none.</summary>
 public sealed record ListedListingsDto(int Total, IReadOnlyList<ListedListingDto> Listings, Guid? Next);
@@ -111,7 +112,8 @@ internal static class ListedListing
 
     public static ListedListingDto Of(DirectoryListing listing, int followers) => new(
         listing.Id, ListingKinds.SlugOf(listing.Kind), listing.Name, listing.Area, listing.Tagline, listing.Description,
-        listing.WebsiteUrl, listing.PhotoKey, listing.IsVerified, followers);
+        listing.WebsiteUrl, listing.PhotoKey, listing.IsVerified, followers,
+        listing.Focus, listing.ContactEmail, listing.PendingName, listing.PendingKind is { } kind ? ListingKinds.SlugOf(kind) : null);
 }
 
 /// <summary>Each field's rule; the sentences never repeat a value (ADR 0090).</summary>

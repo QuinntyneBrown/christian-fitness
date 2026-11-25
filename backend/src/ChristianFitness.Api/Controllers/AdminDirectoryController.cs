@@ -64,6 +64,16 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
             cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>Approves the name and kind an owner asked for (ADR 0095).</summary>
+    [HttpPost("listings/{id:guid}/change/approve")]
+    public Task<ListedListingDto> ApproveChange(Guid id, CancellationToken cancellationToken) =>
+        sender.Send(new ApproveListingChangeCommand(id), cancellationToken);
+
+    /// <summary>Declines the name and kind an owner asked for (ADR 0095).</summary>
+    [HttpPost("listings/{id:guid}/change/decline")]
+    public Task<ListedListingDto> DeclineChange(Guid id, CancellationToken cancellationToken) =>
+        sender.Send(new DeclineListingChangeCommand(id), cancellationToken);
+
     /// <summary>Stores one listing photo and answers 201 with its key. Larger bodies than the limit are refused before this runs.</summary>
     [HttpPost("photos")]
     [RequestSizeLimit(PhotoBodyLimit)]

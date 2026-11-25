@@ -76,9 +76,9 @@ table { border-collapse: collapse; }
   .btn--sm, .chip, .interest, .text-link, .profile-button, .icon-button, .tabs__tab, .row-link {
     position: relative;
   }
-  .row-link, .sso-account__change, .btn--link, .btn--link-quiet { position: relative; }
+  .row-link, .listed-cell__action, .sso-account__change, .btn--link, .btn--link-quiet { position: relative; }
   .btn--sm::after, .chip::after, .interest::after, .text-link::after, .profile-button::after, .icon-button::after, .tabs__tab::after,
-  .row-link::after, .sso-account__change::after, .btn--link::after, .btn--link-quiet::after {
+  .row-link::after, .listed-cell__action::after, .sso-account__change::after, .btn--link::after, .btn--link-quiet::after {
     content: ""; position: absolute; left: 50%; top: 50%; translate: -50% -50%;
     width: max(100%, var(--target-comfortable)); height: max(100%, var(--target-comfortable));
   }
@@ -2162,6 +2162,13 @@ button.pick-card { width: 100%; text-align: left; }
 .suggestion__hint { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
 .suggestion__result { font-weight: var(--font-weight-semibold); }
 .listed-cell { display: flex; align-items: center; gap: var(--space-3); }
+/* A name or kind an owner asked for, waiting under the live one with Approve and Decline (ADR 0095). */
+.listed-cell--change { flex-wrap: wrap; }
+.listed-cell__change { display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); padding-left: calc(var(--size-avatar-md) + var(--space-3)); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+.listed-cell__new { font-weight: var(--font-weight-semibold); color: var(--color-fg-default); }
+.listed-cell__action { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-fg-accent); border-radius: var(--radius-xs); }
+.listed-cell__action:hover { text-decoration: underline; text-underline-offset: var(--space-0-5); }
+.listed-cell__action:disabled { color: var(--color-fg-muted); cursor: default; text-decoration: none; }
 
 /* ---------- Admin: feedback inbox --------------------------------------- */
 .feedback-list { align-self: start; }

@@ -14,6 +14,15 @@ export interface ListedRowView {
   kind: string;
   area: string;
   followers: string;
+  /** The name or kind the owner asked for, waiting for staff (L2-079 AC5), or none. */
+  change: ListedChangeView | null;
+}
+
+/** A waiting change as its row says it: "New name waiting: {name}" or "New kind waiting: {kind}". */
+export interface ListedChangeView {
+  what: 'name' | 'kind';
+  label: string;
+  value: string;
 }
 
 let countFormat: Intl.NumberFormat | undefined;
@@ -36,7 +45,32 @@ export function listedRowViewOf(listing: ListedListingDto): ListedRowView {
     kind: kindLabel(listing.kind),
     area: listing.area,
     followers: countFormat.format(listing.followers),
+    change: listedChangeOf(listing),
   };
+}
+
+/** The waiting change: the name when it differs from the live one, else the kind (ADR 0095). */
+function listedChangeOf(listing: ListedListingDto): ListedChangeView | null {
+  if (listing.pendingName === null || listing.pendingKind === null) return null;
+  if (listing.pendingName !== listing.name) {
+    return { what: 'name', label: 'New name waiting:', value: listing.pendingName };
+  }
+  return { what: 'kind', label: 'New kind waiting:', value: kindLabel(listing.pendingKind) };
+}
+
+/**
+ * What a decided change's toast says, from the listing as it was before (mock
+ * `admin-listings/change-approved`; ADR 0095): the new name or kind once approved, the kept name
+ * once declined.
+ */
+export function listingChangeToast(
+  decision: 'approved' | 'declined',
+  before: ListedListingDto,
+): [string, string] {
+  const change = listedChangeOf(before);
+  const what = change?.what ?? 'name';
+  if (decision === 'declined') return [`Kept ${before.name}`, `The new ${what} was declined.`];
+  return [`${change?.value ?? before.name} is the new ${what}`, 'The directory shows it now.'];
 }
 
 /** What the staff editor's fields hold, as typed (mock `directory-listing-editor/default`). */

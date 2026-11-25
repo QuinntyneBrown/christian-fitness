@@ -7,6 +7,7 @@ import {
   directoryListingUpdateOf,
   directoryListingValuesOf,
   listedRowViewOf,
+  listingChangeToast,
 } from './listed-listings';
 
 const LAKESHORE: ListedListingDto = {
@@ -20,6 +21,10 @@ const LAKESHORE: ListedListingDto = {
   photoKey: null,
   verified: true,
   followers: 2140,
+  focus: [],
+  contactEmail: null,
+  pendingName: null,
+  pendingKind: null,
 };
 
 // L2-073 AC10 (mock admin-listings/listed): a Listed row.
@@ -35,7 +40,33 @@ describe('a Listed row', () => {
       kind: 'Organization',
       area: 'Etobicoke',
       followers: '2,140',
+      change: null,
     });
+  });
+
+  // L2-079 AC5 (ADR 0095; mock admin-listings/change-waiting): a waiting name or kind.
+  it.each([
+    ['nothing waits', null, null, null],
+    [
+      'a new name waits',
+      'Lakeshore Runners',
+      'organization',
+      { what: 'name', label: 'New name waiting:', value: 'Lakeshore Runners' },
+    ],
+    [
+      'a new kind waits with the live name',
+      'Lakeshore Runners Fellowship',
+      'church-ministry',
+      { what: 'kind', label: 'New kind waiting:', value: 'Church Ministry' },
+    ],
+    [
+      'a new name and kind: the name is shown',
+      'Lakeshore Runners',
+      'company',
+      { what: 'name', label: 'New name waiting:', value: 'Lakeshore Runners' },
+    ],
+  ] as const)('shows the change when %s', (_, pendingName, pendingKind, change) => {
+    expect(listedRowViewOf({ ...LAKESHORE, pendingName, pendingKind }).change).toEqual(change);
   });
 
   it('shows a person round, with their photo', () => {
@@ -119,5 +150,43 @@ describe('the staff listing editor', () => {
     [{ status: 0, code: 'network' }, false],
   ])('%j finds the listing gone: %s', (error, gone) => {
     expect(directoryListingGone(error)).toBe(gone);
+  });
+});
+
+// L2-079 AC5 (ADR 0095; mock admin-listings/change-approved): what a decision's toast says.
+describe('a decided listing change', () => {
+  const waiting = {
+    ...LAKESHORE,
+    pendingName: 'Lakeshore Runners',
+    pendingKind: 'organization',
+  } as const;
+
+  it.each([
+    [
+      'approved',
+      'name',
+      waiting,
+      ['Lakeshore Runners is the new name', 'The directory shows it now.'],
+    ],
+    [
+      'declined',
+      'name',
+      waiting,
+      ['Kept Lakeshore Runners Fellowship', 'The new name was declined.'],
+    ],
+    [
+      'approved',
+      'kind',
+      { ...LAKESHORE, pendingName: LAKESHORE.name, pendingKind: 'company' },
+      ['Company is the new kind', 'The directory shows it now.'],
+    ],
+    [
+      'declined',
+      'kind',
+      { ...LAKESHORE, pendingName: LAKESHORE.name, pendingKind: 'company' },
+      ['Kept Lakeshore Runners Fellowship', 'The new kind was declined.'],
+    ],
+  ] as const)('%s, of a new %s', (decision, _, before, toast) => {
+    expect(listingChangeToast(decision, before)).toEqual(toast);
   });
 });
