@@ -73,6 +73,8 @@
           </div>
         }
       }
+    } @else {
+      <cf-event-series-view (navigate)="navigate($event)" />
     }
   </cf-container>
 </main>

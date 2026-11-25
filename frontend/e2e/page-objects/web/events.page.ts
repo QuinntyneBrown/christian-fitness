@@ -12,6 +12,21 @@ export interface EventCardRow {
   end: string;
 }
 
+/** One series row as the member reads it (mock `events/series`). */
+export interface SeriesRowRead {
+  href: string | null;
+  meta: string;
+  title: string;
+  sub: string;
+  /** Each bar's modifier: `done`, `next`, `cancelled`, or `` for one still to come. */
+  bars: string[];
+  /** The meter's text for assistive technology. */
+  done: string;
+  /** "Joined" or the price. */
+  end: string;
+  next: string;
+}
+
 /**
  * The member app's Events at `/events` (mock `docs/mocks/pages/events/`): the page head, the grid of
  * event cards, and the loading, empty, error and paging states. Owns the selectors of that screen.
@@ -164,6 +179,72 @@ export class WebEventsPage {
   /** One option of the view switch, by its whole name. */
   viewOption(name: string): Locator {
     return this.viewSwitch.getByRole('link', { name, exact: true });
+  }
+
+  /** The Series view's rows (L2-050 AC1). */
+  get seriesRows(): Locator {
+    return this.page.locator('a.series-row');
+  }
+
+  /** The Series view's skeleton rows while it loads (L2-050 AC4). */
+  get seriesLoading(): Locator {
+    return this.page.getByText('Loading series', { exact: true });
+  }
+
+  get seriesError(): Locator {
+    return this.page.getByRole('heading', { name: "Series didn't load" });
+  }
+
+  /** "No series here yet" (L2-050 AC3). */
+  get seriesEmpty(): Locator {
+    return this.page.getByRole('heading', { name: 'No series here yet' });
+  }
+
+  get seriesEmptyText(): Locator {
+    return this.page.getByText(
+      'Series are weekly or monthly programs you can join once and come to every time.',
+    );
+  }
+
+  get showAllSeries(): Locator {
+    return this.page.getByRole('button', { name: 'Show all series' });
+  }
+
+  /** A category chip of the Series view. */
+  seriesFilter(name: string): Locator {
+    return this.page
+      .getByRole('group', { name: 'Filter series' })
+      .getByRole('link', { name, exact: true });
+  }
+
+  /** The "Only series I've joined" checkbox (L2-050 AC2). */
+  get joinedFilter(): Locator {
+    return this.page.getByRole('checkbox', { name: "Only series I've joined" });
+  }
+
+  /** Reads every series row, in order. */
+  async readSeriesRows(): Promise<SeriesRowRead[]> {
+    return this.seriesRows.evaluateAll((rows) =>
+      rows.map((row) => {
+        const text = (selector: string): string =>
+          (row.querySelector(selector)?.textContent ?? '').replace(/\s+/g, ' ').trim();
+        return {
+          href: row.getAttribute('href'),
+          meta: text('.series-row__meta'),
+          title: text('.series-row__title'),
+          sub: text('.series-row__sub'),
+          bars: [...row.querySelectorAll('.session-meter__bar')].map((bar) =>
+            (bar.getAttribute('class') ?? '').replace(
+              /^session-meter__bar ?(session-meter__bar--)?/,
+              '',
+            ),
+          ),
+          done: text('.session-meter + .visually-hidden'),
+          end: text('.series-row__price, .tag'),
+          next: text('.series-row__next'),
+        };
+      }),
+    );
   }
 
   /** The option of the view switch marked current. */

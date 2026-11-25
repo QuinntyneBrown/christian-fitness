@@ -39,6 +39,7 @@ import {
 import type { Subscription } from 'rxjs';
 import { HttpEventSeriesService } from '../../services/http-event-series.service';
 import { HttpEventsService } from '../../services/http-events.service';
+import { EventSeriesView } from './event-series-view';
 import { InView } from './in-view';
 
 /** How many skeleton cards stand in while the first page loads (mock `events/loading`). */
@@ -68,6 +69,7 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
     EmptyState,
     EventCard,
     EventGrid,
+    EventSeriesView,
     InlineMessage,
     InView,
     SearchField,

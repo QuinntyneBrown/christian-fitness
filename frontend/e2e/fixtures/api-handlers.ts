@@ -93,7 +93,8 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044), and
  * `GET /api/notifications` answers nothing yet, so the member shell's bell has no badge (ADR 0083).
  * `GET /api/directory` answers nobody listed, so the Directory opens empty (ADR 0082).
- * `GET /api/events/series/count` answers none, so Events' switch reads "Series (0)" (ADR 0093).
+ * `GET /api/events/series/count` and `GET /api/events/series` answer none, so Events' switch reads
+ * "Series (0)" and its Series view is empty (ADR 0093).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -150,6 +151,7 @@ export class ApiHandlers {
     },
     { method: 'GET', path: '/api/directory', handler: () => ({ json: NO_DIRECTORY }) },
     { method: 'GET', path: '/api/events/series/count', handler: () => ({ json: { count: 0 } }) },
+    { method: 'GET', path: '/api/events/series', handler: () => ({ json: { series: [] } }) },
     {
       method: 'GET',
       path: '/api/conversations',

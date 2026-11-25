@@ -72,7 +72,7 @@ export function seriesCadenceText(cadence: SeriesCadenceDto): string {
 }
 
 /** "6:30 PM" in Toronto; ICU's narrow no-break space before AM and PM becomes a plain space. */
-function timeOf(instant: string): string {
+export function seriesTimeOf(instant: string): string {
   timeFormat ??= new Intl.DateTimeFormat('en-US', {
     timeZone: EVENT_TIME_ZONE,
     hour: 'numeric',
@@ -82,7 +82,7 @@ function timeOf(instant: string): string {
 }
 
 /** "Apr 7" in Toronto. */
-function dayOf(instant: string): string {
+export function seriesDayOf(instant: string): string {
   rangeFormat ??= new Intl.DateTimeFormat('en-US', {
     timeZone: EVENT_TIME_ZONE,
     month: 'short',
@@ -111,7 +111,7 @@ export function seriesPickCardOf(row: AdminSeriesRowDto): SeriesPickCardView {
   return {
     id: row.id,
     title: row.title,
-    meta: row.startsAt ? `${cadence} · ${timeOf(row.startsAt)}` : cadence,
+    meta: row.startsAt ? `${cadence} · ${seriesTimeOf(row.startsAt)}` : cadence,
     count: `${row.joined} / ${row.capacity} joined`,
     href: `/series?id=${encodeURIComponent(row.id)}`,
   };
@@ -128,10 +128,10 @@ export function adminSeriesViewOf(series: AdminSeriesDto): AdminSeriesView {
   const { startsAt, firstStartsAt, lastStartsAt } = series;
   let when: string | null = null;
   if (startsAt && firstStartsAt && lastStartsAt) {
-    const first = dayOf(firstStartsAt);
-    const last = dayOf(lastStartsAt);
+    const first = seriesDayOf(firstStartsAt);
+    const last = seriesDayOf(lastStartsAt);
     const range = first === last ? first : `${first} – ${last}`;
-    when = `${seriesCadenceText(series.cadence)}, ${timeOf(startsAt)} · ${range}`;
+    when = `${seriesCadenceText(series.cadence)}, ${seriesTimeOf(startsAt)} · ${range}`;
   }
   const price = priceOf(series.priceCents);
   return {

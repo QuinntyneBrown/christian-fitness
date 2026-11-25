@@ -1,6 +1,12 @@
 import { expect, test } from '../fixtures/test';
 import { answerEvents, SUNRISE_5K } from '../fixtures/events';
-import { answerSeriesCount } from '../fixtures/series';
+import {
+  answerSeries,
+  answerSeriesCount,
+  COUCH_TO_5K,
+  HOOPS_DEVOTION,
+  PARK_BOOTCAMP,
+} from '../fixtures/series';
 import { WebEventsPage } from '../page-objects/web/events.page';
 
 const SUBTITLE = 'From the churches, clubs and coaches in our directory. Free unless marked.';
@@ -63,5 +69,105 @@ test.describe('Member app, browse event series: the view switch', () => {
 
     await expect(events.cards).toHaveCount(1);
     await expect(events.viewOption('Series')).toBeVisible();
+  });
+});
+
+// L2-050 AC1, AC4, AC5 (ADR 0093): the Series view lists series by next session as rows.
+test.describe('Member app, browse event series: the list', () => {
+  test('The Series view lists each series as the mock draws it, in the order the API gives, each leading to its series', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 3);
+    const asked = answerSeries(api, [COUCH_TO_5K, PARK_BOOTCAMP, HOOPS_DEVOTION]);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series');
+
+    await expect(events.seriesRows).toHaveCount(3);
+    expect(await events.readSeriesRows()).toEqual([
+      {
+        href: `/events/series/${COUCH_TO_5K.id}`,
+        meta: 'Every Tuesday · 6:30 PM',
+        title: 'Couch to 5K Run Club',
+        sub: 'Lakeshore Runners Fellowship · Etobicoke · Apr 7 – May 26',
+        bars: ['done', 'done', 'next', '', '', 'cancelled', '', ''],
+        done: '2 of 7 sessions done',
+        end: 'Joined',
+        next: 'Next Apr 21',
+      },
+      {
+        href: `/events/series/${PARK_BOOTCAMP.id}`,
+        meta: 'Every Saturday · 8:00 AM',
+        title: 'Saturday Park Bootcamp',
+        sub: 'Danielle Okafor · Waterfront · Apr 4 – May 23',
+        bars: ['done', 'done', 'done', 'next', '', '', '', ''],
+        done: '3 of 8 sessions done',
+        end: '$64 for all 8',
+        next: 'Next Apr 25',
+      },
+      {
+        href: `/events/series/${HOOPS_DEVOTION.id}`,
+        meta: '6 dates · 7:00 PM',
+        title: 'Women’s Hoops & Devotion',
+        sub: 'Faith & Footwork · Downtown · Jan – Jun',
+        bars: ['done', 'done', 'done', 'next', '', ''],
+        done: '3 of 6 sessions done',
+        end: 'Free',
+        next: 'Next Apr 30',
+      },
+    ]);
+    // Asked with no filter; the date list was never asked for.
+    expect(asked.requests).toEqual([{ category: null, q: null, joined: null }]);
+    await expect(events.cards).toHaveCount(0);
+  });
+
+  test('While the list loads, skeleton rows show; then the rows replace them', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 1);
+    let release: () => void = () => undefined;
+    const held = new Promise<null>((resolve) => (release = () => resolve(null)));
+    answerSeries(api, [COUCH_TO_5K], () => held);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series');
+
+    await expect(events.seriesLoading).toBeAttached();
+    await expect(events.loading).toBeAttached();
+    await expect(events.currentView).toHaveText('Series (1)');
+
+    release();
+    await expect(events.seriesRows).toHaveCount(1);
+    await expect(events.loading).toHaveCount(0);
+  });
+
+  test('When the list cannot be loaded, Try again asks again while the switch stays', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesCount(api, 1);
+    const asked = answerSeries(api, [COUCH_TO_5K], (n) =>
+      n === 0 ? { status: 400, json: { code: 'error' } } : null,
+    );
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series');
+
+    await expect(events.seriesError).toBeVisible();
+    await expect(events.currentView).toHaveText('Series (1)');
+
+    await events.retryButton.click();
+    await expect(events.seriesRows).toHaveCount(1);
+    expect(asked.requests).toHaveLength(2);
+  });
+
+  test('With no series listed, the view says so', async ({ page, api }) => {
+    answerSeriesCount(api, 0);
+    answerSeries(api, []);
+    const events = new WebEventsPage(page);
+    await events.openWith('?view=series');
+
+    await expect(events.seriesEmpty).toBeVisible();
+    await expect(events.seriesEmptyText).toBeVisible();
+    await expect(events.showAllSeries).toHaveCount(0);
   });
 });
