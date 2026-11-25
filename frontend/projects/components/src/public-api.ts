@@ -63,6 +63,7 @@ export * from './menu/menu-keys';
 export * from './message/composer';
 export * from './message/thread';
 export * from './next-event/next-event';
+export * from './notification-row/notification-row';
 export * from './pagination/pagination';
 export * from './pagination/pagination-items';
 export * from './profile-hero/profile-hero';

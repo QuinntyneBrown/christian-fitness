@@ -100,6 +100,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/member-profile/member-profile-page'),
       },
       {
+        // The member's in-app inbox, opened from the bell (ADR 0068, ADR 0083).
+        path: 'notifications',
+        title: titled('Notifications'),
+        loadComponent: () => import('./pages/notifications/notifications-page'),
+      },
+      {
         // The signed-in member's own profile (L2-005; ADR 0015).
         path: 'profile',
         title: titled('Profile'),

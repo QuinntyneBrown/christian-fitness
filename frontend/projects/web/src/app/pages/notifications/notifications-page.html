@@ -1,0 +1,83 @@
+<main id="main" class="notifications-page">
+  <cf-container page="default">
+    <div class="notes-head">
+      <div>
+        <h1 class="display page-title">Notifications</h1>
+        <p class="subtitle">
+          Reminders, cancellations and new dates from hosts you follow. We keep the latest 50 from
+          the last 30 days.
+        </p>
+      </div>
+      <div class="notes-head__actions">
+        @if (state() === 'loaded' && rows().length) {
+          <cf-button
+            variant="secondary"
+            size="sm"
+            [busy]="marking()"
+            [disabled]="marking()"
+            (click)="markAllRead()"
+            ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" /></svg
+            >Mark all as read</cf-button
+          >
+        }
+        <cf-button variant="link" href="/preferences#notifications"
+          >Notification settings</cf-button
+        >
+      </div>
+    </div>
+    @if (state() === 'loading') {
+      <cf-skeleton-region label="Loading your notifications">
+        <div class="notes">
+          <cf-list variant="card" [items]="skeletons" [template]="skeletonRow" />
+        </div>
+      </cf-skeleton-region>
+    } @else if (state() === 'failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Notifications didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+      </cf-empty-state>
+    } @else if (rows().length === 0) {
+      <cf-empty-state
+        variant="tight"
+        heading="No notifications yet"
+        text="Reminders for events you’ve joined, cancellations and new dates from hosts you follow will appear here."
+      >
+        <cf-button slot="actions" size="sm" href="/events">Browse events</cf-button>
+      </cf-empty-state>
+    } @else {
+      <div class="notes">
+        <cf-list variant="card" label="Notifications" [items]="rows()" [template]="noteRow" />
+      </div>
+      <p class="notes-foot">That’s everything from the last 30 days.</p>
+    }
+  </cf-container>
+</main>
+<ng-template #noteRow let-row>
+  <cf-notification-row
+    [href]="row.href"
+    [icon]="row.icon"
+    [heading]="row.title"
+    [text]="row.text"
+    [time]="row.time"
+    [unread]="row.unread"
+    (navigate)="navigate($event)"
+  />
+</ng-template>
+<ng-template #skeletonRow>
+  <div class="notes__skeleton">
+    <cf-skeleton shape="avatar" />
+    <div class="notes__skeleton-lines">
+      <cf-skeleton shape="text" width="55" />
+      <cf-skeleton shape="text-sm" width="80" />
+    </div>
+  </div>
+</ng-template>
+<cf-toast-region
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

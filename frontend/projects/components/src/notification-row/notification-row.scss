@@ -1,0 +1,58 @@
+// The design system's notification row (docs/design-system/assets/components.css: "Bell and
+// notification row"). The list card around it is cf-list's.
+:host {
+  display: block;
+}
+
+.note__link {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  padding: var(--space-4);
+  color: inherit;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+
+.note__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+
+.note__body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.note__title {
+  font-weight: var(--font-weight-medium);
+}
+
+.note--unread .note__title {
+  font-weight: var(--font-weight-bold);
+}
+
+.note__text,
+.note__time {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+.note__dot {
+  display: flex;
+  margin-top: var(--space-2);
+}
