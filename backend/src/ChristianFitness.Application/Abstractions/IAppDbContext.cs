@@ -1,6 +1,7 @@
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,9 @@ public interface IAppDbContext
 
     /// <summary>The professionals published on Services (L2-025 AC2; ADR 0050).</summary>
     DbSet<ServiceListing> ServiceListings { get; }
+
+    /// <summary>The members' in-app notifications (ADR 0068, ADR 0083).</summary>
+    DbSet<Notification> Notifications { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

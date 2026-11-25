@@ -432,6 +432,47 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("TwoStepFailures", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Href")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId", "CreatedAt");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Services.ProfessionalApplication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -638,6 +679,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Members.TwoStepFailure", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
                 {
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithMany()

@@ -2,6 +2,7 @@ using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<ProfessionalApplication> ProfessionalApplications => Set<ProfessionalApplication>();
 
     public DbSet<ServiceListing> ServiceListings => Set<ServiceListing>();
+
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
