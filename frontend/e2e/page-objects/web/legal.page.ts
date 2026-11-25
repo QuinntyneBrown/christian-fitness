@@ -2,9 +2,7 @@ import type { Page } from '@playwright/test';
 
 export class LegalPage {
   get changeBanner() {
-    return this.page
-      .getByRole('status')
-      .filter({ hasText: "We're updating our Privacy Policy and Terms" });
+    return this.page.getByRole('status').filter({ hasText: "We're updating our " });
   }
   get changeLink() {
     return this.changeBanner.getByRole('link', { name: "Read what's changing." });
@@ -28,6 +26,12 @@ export class LegalPage {
   get collection() {
     return this.page.locator('#collect');
   }
+  get feedbackLink() {
+    return this.contact.getByRole('link', { name: 'Send feedback' });
+  }
+  get contentsLinks() {
+    return this.contents.getByRole('link');
+  }
   get contact() {
     return this.page.locator('.legal__questions');
   }
@@ -48,6 +52,9 @@ export class LegalPage {
   }
   get sections() {
     return this.page.locator('.legal__section h2');
+  }
+  hasHorizontalOverflow() {
+    return this.page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   }
   get currentVersion() {
     return this.page.getByRole('link', { name: 'Read the current version' });

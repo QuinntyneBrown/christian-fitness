@@ -1,4 +1,5 @@
-export type LegalDocument = 'privacy' | 'terms';
+import type { LegalDocument } from '@cf/api';
+export type { LegalDocument } from '@cf/api';
 type Schedule = Record<LegalDocument, readonly string[]>;
 export class LegalVersions {
   constructor(

@@ -1,5 +1,5 @@
 import { LegalChange } from '../legal/legal-change';
-import { LegalNotice } from '../legal/legal-notice';
+import { legalNoticeProvider } from '../legal/legal-notice';
 import { Footer } from '@cf/components';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -58,7 +58,7 @@ const DESTINATIONS: readonly MemberDestination[] = [
   host: { '[attr.data-offline-ready]': 'offlineReady() ? "" : null' },
   imports: [LegalChange, Footer, Banner, RouterOutlet, SkipLink, TabBar, TopBar],
   providers: [
-    LegalNotice,
+    legalNoticeProvider,
     { provide: CONVERSATIONS, useClass: HttpConversationsService },
     MemberInbox,
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
