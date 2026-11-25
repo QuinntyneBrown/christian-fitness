@@ -34,6 +34,17 @@
   }
 }
 
+// A count after the label: muted, and inheriting the current chip's inverse colour.
+.chip__count {
+  margin-left: var(--space-2);
+  color: var(--color-fg-muted);
+
+  [aria-current='page'] > & {
+    color: inherit;
+    opacity: var(--opacity-busy);
+  }
+}
+
 // Touch: a 44 × 44 px target without changing the look (L2-038 AC4).
 @media (pointer: coarse) {
   .chip {

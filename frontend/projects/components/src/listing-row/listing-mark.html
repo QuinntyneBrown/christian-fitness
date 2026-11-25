@@ -1,0 +1,12 @@
+@if (photo(); as src) {
+  <img
+    [attr.class]="classes()"
+    [src]="src"
+    alt=""
+    width="1024"
+    height="1024"
+    (error)="onError(src)"
+  />
+} @else {
+  <span [attr.class]="classes()" aria-hidden="true">{{ initials() }}</span>
+}

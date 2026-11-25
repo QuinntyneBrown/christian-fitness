@@ -287,6 +287,8 @@
   --layout-meter-width: 14rem;
   --layout-schedule-time: 5.5rem;
   --layout-sticky-offset: 6rem;
+  --size-column-area: 9rem;           /* listing row area */
+  --size-column-hosting: 7rem;        /* listing row hosting; feed copy button */
 
   /* ---------- Semantic: sizes ------------------------------------------ */
   --size-icon-xs: 0.875rem;  /* 14px */

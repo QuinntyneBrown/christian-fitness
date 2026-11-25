@@ -1,3 +1,4 @@
+using ChristianFitness.Application.Directory;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Events;
 using ChristianFitness.Application.Members;
@@ -73,7 +74,7 @@ public static class ProblemCodes
             Extensions = { ["code"] = CodeFor(list.Select(failure => failure.ErrorCode)) },
         };
         var fieldCodes = list
-            .Where(failure => EventFieldCodes.All.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode) || DecideApplicationRules.FieldCodes.Contains(failure.ErrorCode) || ListServicesRules.FieldCodes.Contains(failure.ErrorCode) || EditListingRules.FieldCodes.Contains(failure.ErrorCode))
+            .Where(failure => EventFieldCodes.All.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode) || DecideApplicationRules.FieldCodes.Contains(failure.ErrorCode) || ListServicesRules.FieldCodes.Contains(failure.ErrorCode) || EditListingRules.FieldCodes.Contains(failure.ErrorCode) || ListDirectoryRules.FieldCodes.Contains(failure.ErrorCode))
             .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First().ErrorCode, StringComparer.Ordinal);
         if (fieldCodes.Count > 0)
@@ -95,7 +96,7 @@ public static class ProblemCodes
     }
 
     /// <summary>The specific refusal codes, the one a client most needs first.</summary>
-    private static readonly string[] Precedence = [RefusalCodes.FieldTooLong, RefusalCodes.TooManyGoals];
+    private static readonly string[] Precedence = [RefusalCodes.FieldTooLong, RefusalCodes.TooManyGoals, ListDirectoryRules.QueryTooLong];
 
     /// <summary>A body that could not be read at all: no field to name, nothing of it repeated.</summary>
     public static ValidationProblemDetails Unreadable() =>

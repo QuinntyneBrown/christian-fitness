@@ -405,7 +405,7 @@ def _():
 
 @s("capped", "100 listings shown: the list stops with a note, since more would slow the page.")
 def _():
-    note = '<div class="feed-end"><p>Showing the first 100. Narrow your search.</p></div>'
+    note = '<div class="feed-end"><p>Showing the first 200. Narrow your search.</p></div>'
     return member_shell("directory", directory_page(groups(LISTINGS) + note))
 
 

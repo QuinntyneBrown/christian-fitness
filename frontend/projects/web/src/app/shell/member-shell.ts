@@ -25,13 +25,14 @@ import { MemberNotifications } from '../services/member-notifications';
 import { SignalRChatConnection } from '../services/signalr-chat-connection';
 
 /**
- * The places of the member app so far (ADR 0027, 0042, 0045, 0000).
+ * The places of the member app (L2-008 AC1; ADR 0027, 0042, 0045, 0000, 0082).
  * `TopBar` omits Profile from its link row (the avatar button covers it from MD up); `TabBar`
- * shows all five below MD (L2-008 AC1, AC2).
+ * shows all six below MD (L2-008 AC1, AC2).
  */
 const DESTINATIONS: readonly MemberDestination[] = [
   { key: 'home', label: 'Home', href: '/home' },
   { key: 'events', label: 'Events', href: '/events' },
+  { key: 'directory', label: 'Directory', href: '/directory' },
   { key: 'services', label: 'Services', href: '/services' },
   { key: 'messages', label: 'Messages', href: '/messages' },
   { key: 'profile', label: 'Profile', href: '/profile' },
@@ -152,6 +153,7 @@ function placeOf(url: string): MemberDestinationKey | null {
   if (path === '/home') return 'home';
   if (path === '/messages' || path.startsWith('/messages/')) return 'messages';
   if (path === '/services') return 'services';
+  if (path === '/directory' || path.startsWith('/directory/')) return 'directory';
   if (path === '/events' || path.startsWith('/events/')) return 'events';
   return null;
 }

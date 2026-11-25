@@ -53,6 +53,12 @@ public sealed class Event
 
     public EventStatus Status { get; private set; }
 
+    /// <summary>
+    /// The directory listing that hosts it (ADR 0067, ADR 0082): the Christian Fitness team listing
+    /// until an Admin chooses another in the editor (journey 7).
+    /// </summary>
+    public Guid HostListingId { get; private set; } = Directory.DirectoryListing.TeamListingId;
+
     public DateTimeOffset CreatedAt { get; private set; }
 
     /// <summary>
@@ -130,6 +136,9 @@ public sealed class Event
         Summary = summary.Trim();
         ImageKey = imageKey;
     }
+
+    /// <summary>Makes <paramref name="listingId"/> its host (ADR 0067); the caller has checked it is a Listed directory listing.</summary>
+    public void HostedBy(Guid listingId) => HostListingId = listingId;
 
     /// <summary>
     /// Makes a draft visible to members (L2-023 AC3; ADR 0026). Only a draft can be published; the

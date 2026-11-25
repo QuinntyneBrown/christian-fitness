@@ -1,0 +1,60 @@
+// The member page head, the directory's groups and the foot of a paged list
+// (docs/design-system/assets/components.css: "page-head", "page-title", "subtitle", display,
+// directory-groups; docs/mocks/assets/ui.css: "feed-end"); the search, the chips, the groups and
+// the rows are the library's.
+:host {
+  display: block;
+}
+
+.directory-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  @media (min-width: 40rem) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.subtitle--narrow {
+  max-width: var(--layout-measure-narrow);
+}
+
+.directory-groups {
+  margin-top: var(--space-8);
+}
+
+.feed-end {
+  display: flex;
+  justify-content: center;
+  min-height: var(--space-8);
+  padding: var(--space-8) 0;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}

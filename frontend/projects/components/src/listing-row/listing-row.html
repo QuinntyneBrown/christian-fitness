@@ -1,0 +1,54 @@
+@if (loading()) {
+  <div class="listing-row">
+    <div class="listing-row__link">
+      <cf-skeleton shape="avatar" square />
+      <div class="listing-row__body listing-row__lines">
+        <cf-skeleton width="40" />
+        <cf-skeleton shape="text-sm" width="80" />
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="listing-row">
+    @if (href(); as link) {
+      <a class="listing-row__link" [href]="link" (click)="follow($event, link)">
+        <ng-container [ngTemplateOutlet]="head" />
+      </a>
+    } @else {
+      <div class="listing-row__link">
+        <ng-container [ngTemplateOutlet]="head" />
+      </div>
+    }
+  </div>
+}
+<ng-template #head>
+  <cf-listing-mark [initials]="initials()" [photoSrc]="photoSrc()" [person]="person()" />
+  <span class="listing-row__body">
+    <span class="listing-row__name"
+      ><span>{{ name() }}</span>
+      @if (verified()) {
+        <cf-verified-mark />
+      }
+    </span>
+    <span class="listing-row__tagline">{{ tagline() }}</span>
+    <span class="listing-row__area listing-row__area--inline"
+      ><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+        />
+        <circle cx="12" cy="10" r="3" /></svg
+      >{{ area() }}</span
+    >
+  </span>
+  <span class="listing-row__area listing-row__area--col"
+    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+      />
+      <circle cx="12" cy="10" r="3" /></svg
+    ><span>{{ area() }}</span></span
+  >
+  <span class="listing-row__hosting" [class.listing-row__hosting--some]="hostingSome()">{{
+    hosting()
+  }}</span>
+</ng-template>

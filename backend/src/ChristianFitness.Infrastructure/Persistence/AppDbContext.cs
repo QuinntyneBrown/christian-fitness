@@ -1,6 +1,7 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
@@ -42,12 +43,18 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
+    public DbSet<DirectoryListing> DirectoryListings => Set<DirectoryListing>();
+
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
 
     public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
         Database.CanConnectAsync(cancellationToken);
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) =>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Trigram indexes serve the directory's "contains" search (ADR 0082).
+        modelBuilder.HasPostgresExtension("pg_trgm");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+    }
 }

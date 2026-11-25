@@ -1,0 +1,110 @@
+<main id="main" class="directory-page">
+  <cf-container page="default">
+    <div class="page-head">
+      <div>
+        <h1 class="display page-title">Directory</h1>
+        <p class="subtitle subtitle--narrow">
+          The churches, clubs, coaches and companies behind every event. Follow one to see their new
+          dates first.
+        </p>
+      </div>
+      <cf-search-field
+        wide
+        label="Search the directory"
+        placeholder="Search names, areas, sports"
+        [maxLength]="searchMax"
+        [value]="searchText()"
+        (valueChange)="onSearch($event)"
+      />
+    </div>
+    <cf-chip-bar nav scroll label="Filter the directory by kind">
+      @for (chip of chips(); track chip.href) {
+        <cf-chip
+          [href]="chip.href"
+          [current]="chip.current"
+          [count]="chip.count"
+          (navigate)="navigate($event)"
+          >{{ chip.label }}</cf-chip
+        >
+      }
+    </cf-chip-bar>
+    @if (state() === 'loading') {
+      <cf-skeleton-region label="Loading the directory">
+        <div class="directory-groups">
+          @for (group of skeletons; track group.id) {
+            <cf-directory-group>
+              <cf-list variant="card" [items]="group.rows" [template]="skeletonRow" />
+            </cf-directory-group>
+          }
+        </div>
+      </cf-skeleton-region>
+    } @else if (state() === 'failed') {
+      <cf-empty-state
+        variant="error"
+        heading="The directory didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+      </cf-empty-state>
+    } @else if (none() && q() !== null) {
+      <cf-empty-state headingTag="p" heading="No one by that name yet" [text]="noMatchText()">
+        <cf-button slot="actions" size="sm" (click)="clearSearch()">Clear search</cf-button>
+      </cf-empty-state>
+    } @else if (none() && kind() !== null) {
+      <cf-empty-state headingTag="p" heading="Nothing here yet" [text]="noKindText()">
+        <cf-button slot="actions" size="sm" (click)="navigate('/directory')">Show all</cf-button>
+      </cf-empty-state>
+    } @else if (none()) {
+      <cf-empty-state
+        heading="No listings yet"
+        text="Churches, clubs, coaches and companies appear here once our team has checked them."
+      >
+        <cf-button slot="actions" size="sm" href="/events">Browse events</cf-button>
+      </cf-empty-state>
+    } @else {
+      <div class="directory-groups">
+        @for (group of groups(); track group.info.kind) {
+          <cf-directory-group
+            [heading]="kind() === null ? group.info.plural : null"
+            [blurb]="kind() === null ? group.info.blurb : null"
+          >
+            <cf-list variant="card" [items]="group.rows" [template]="listingRow" />
+          </cf-directory-group>
+        }
+      </div>
+      @if (watching()) {
+        <div class="feed-end" cfInView (inView)="loadMore()"></div>
+      } @else if (more() === 'loading') {
+        <div class="feed-end"><cf-spinner label="Loading more listings…" /></div>
+      } @else if (more() === 'failed') {
+        <div class="feed-end">
+          <cf-inline-message
+            heading="More listings didn't load."
+            text="The ones above are still here."
+            (retry)="loadMore()"
+          />
+        </div>
+      } @else if (capped()) {
+        <div class="feed-end">
+          <p>Showing the first 200. Narrow your search.</p>
+        </div>
+      }
+    }
+  </cf-container>
+</main>
+<ng-template #listingRow let-row>
+  <cf-listing-row
+    [name]="row.name"
+    [tagline]="row.tagline"
+    [area]="row.area"
+    [verified]="row.verified"
+    [person]="row.person"
+    [initials]="row.initials"
+    [photoSrc]="row.photoSrc"
+    [hosting]="row.hosting"
+    [hostingSome]="row.hostingSome"
+  />
+</ng-template>
+<ng-template #skeletonRow>
+  <cf-listing-row loading />
+</ng-template>

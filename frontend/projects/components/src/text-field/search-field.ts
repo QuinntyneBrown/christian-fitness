@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { booleanAttribute, Component, input, output } from '@angular/core';
 
 /**
  * The design system's search pill (docs/design-system/components/text-field.html, "Search"): a
@@ -17,6 +17,10 @@ export class SearchField {
   readonly placeholder = input<string>();
   readonly name = input<string>('q');
   readonly value = input('');
+  /** The wider pill from 640 px (`search--wide`), as the directory's. */
+  readonly wide = input(false, { transform: booleanAttribute });
+  /** The most characters the field takes, or no limit. */
+  readonly maxLength = input<number | null>(null);
 
   readonly valueChange = output<string>();
 

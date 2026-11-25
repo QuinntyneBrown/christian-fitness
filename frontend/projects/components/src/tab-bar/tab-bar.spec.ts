@@ -5,6 +5,7 @@ import { TabBar } from './tab-bar';
 const DESTINATIONS: readonly MemberDestination[] = [
   { key: 'home', label: 'Home', href: '/home' },
   { key: 'events', label: 'Events', href: '/events' },
+  { key: 'directory', label: 'Directory', href: '/directory' },
   { key: 'services', label: 'Services', href: '/services' },
   { key: 'messages', label: 'Messages', href: '/messages' },
   { key: 'profile', label: 'Profile', href: '/profile' },
@@ -32,15 +33,23 @@ function nameOf(link: Element): string {
 }
 
 describe('TabBar', () => {
-  it('is a navigation named "Primary, mobile" of five links, each named by its label', async () => {
+  it('is a navigation named "Primary, mobile" of six links, each named by its label', async () => {
     const { el } = await render();
 
     expect(el.querySelector('nav')?.getAttribute('aria-label')).toBe('Primary, mobile');
     const links = [...el.querySelectorAll('nav a')];
-    expect(links.map(nameOf)).toEqual(['Home', 'Events', 'Services', 'Messages', 'Profile']);
+    expect(links.map(nameOf)).toEqual([
+      'Home',
+      'Events',
+      'Directory',
+      'Services',
+      'Messages',
+      'Profile',
+    ]);
     expect(links.map((a) => a.getAttribute('href'))).toEqual([
       '/home',
       '/events',
+      '/directory',
       '/services',
       '/messages',
       '/profile',
@@ -54,6 +63,7 @@ describe('TabBar', () => {
   it.each<[string | null, string[]]>([
     ['home', ['Home']],
     ['events', ['Events']],
+    ['directory', ['Directory']],
     ['profile', ['Profile']],
     [null, []],
   ])('with %s current, %j is marked', async (current, marked) => {
@@ -69,7 +79,7 @@ describe('TabBar', () => {
   ])('with %i unread, Messages reads "%s" (dot %s)', async (unread, name, dot) => {
     const { el } = await render({ unread });
 
-    const messages = [...el.querySelectorAll('nav a')][3];
+    const messages = el.querySelector('nav a[href="/messages"]')!;
     expect(nameOf(messages)).toBe(name);
     const shownDot = messages.querySelector('.tab-bar__dot');
     expect(shownDot !== null).toBe(dot);

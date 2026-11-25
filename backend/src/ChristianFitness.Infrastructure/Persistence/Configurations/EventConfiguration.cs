@@ -1,3 +1,4 @@
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,6 +24,11 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.Summary).HasMaxLength(Event.SummaryMaxLength).IsRequired();
         builder.Property(e => e.ImageKey).HasMaxLength(Event.ImageKeyMaxLength);
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
+        // Every event has a host; the team listing is the database's default too, so an older revision
+        // inserting an event without one during a rollout still gets a host (ADR 0067, ADR 0082).
+        builder.Property(e => e.HostListingId).HasDefaultValue(DirectoryListing.TeamListingId);
+        builder.HasOne<DirectoryListing>().WithMany().HasForeignKey(e => e.HostListingId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(e => new { e.HostListingId, e.Status, e.StartsAt });
         builder.HasIndex(e => new { e.Status, e.StartsAt });
         builder.HasIndex(e => e.StartsAt);
     }

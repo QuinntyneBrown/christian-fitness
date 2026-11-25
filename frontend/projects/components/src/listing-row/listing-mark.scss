@@ -1,0 +1,44 @@
+// The design system's listing mark (docs/design-system/assets/components.css, "Directory and
+// listing profile": listing-mark).
+:host {
+  display: contents;
+}
+
+.listing-mark {
+  display: flex;
+  width: var(--size-avatar-xl);
+  height: var(--size-avatar-xl);
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+  font-family: var(--font-family-display);
+  font-size: calc(var(--size-avatar-xl) * 0.36);
+  font-weight: var(--font-weight-semibold);
+}
+
+.listing-mark--person {
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+
+.listing-mark--sm {
+  width: var(--size-avatar-md);
+  height: var(--size-avatar-md);
+  font-size: calc(var(--size-avatar-md) * 0.36);
+}
+
+.listing-mark--xl {
+  width: var(--size-avatar-3xl);
+  height: var(--size-avatar-3xl);
+  font-size: calc(var(--size-avatar-3xl) * 0.36);
+  border-radius: var(--radius-lg);
+}
+
+.listing-mark--person.listing-mark--xl {
+  border-radius: var(--radius-full);
+}

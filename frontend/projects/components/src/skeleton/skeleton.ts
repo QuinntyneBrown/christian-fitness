@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 
 /** The exact box of the part a skeleton stands in for (skeleton.html, "Code"). */
 export type SkeletonShape =
@@ -39,9 +39,11 @@ export type SkeletonWidth = '10' | '20' | '30' | '40' | '50' | '55' | '80' | '90
 export class Skeleton {
   readonly shape = input<SkeletonShape>('text');
   readonly width = input<SkeletonWidth>();
+  /** A rounded square instead of a circle, for a squared mark such as a listing's (`skeleton--square`). */
+  readonly square = input(false, { transform: booleanAttribute });
 
   protected classes(): string {
     const width = this.width();
-    return `skeleton skeleton--${this.shape()}${width ? ` w-${width}` : ''}`;
+    return `skeleton skeleton--${this.shape()}${this.square() ? ' skeleton--square' : ''}${width ? ` w-${width}` : ''}`;
   }
 }

@@ -81,6 +81,10 @@
   flex-shrink: 0;
 }
 
+.skeleton--avatar.skeleton--square {
+  border-radius: var(--radius-md);
+}
+
 .skeleton--avatar {
   width: var(--size-avatar-lg);
   height: var(--size-avatar-lg);

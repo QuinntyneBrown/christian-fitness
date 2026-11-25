@@ -5,7 +5,8 @@ import { isPlainClick } from '../link/plain-click';
  * The design system's filter chip (docs/design-system/components/chip.html): a link to a filtered
  * view, inside a `cf-chip-bar`. The current filter carries `aria-current="page"` and takes the
  * inverse fill, so the state is announced and never carried by colour alone. 36 px tall, growing
- * to a 44 × 44 px target on coarse pointers; never shrinks or truncates. The label is projected.
+ * to a 44 × 44 px target on coarse pointers; never shrinks or truncates. The label is projected;
+ * a `count` follows it in muted text.
  */
 @Component({
   selector: 'cf-chip',
@@ -15,6 +16,8 @@ import { isPlainClick } from '../link/plain-click';
 export class Chip {
   readonly href = input.required<string>();
   readonly current = input(false, { transform: booleanAttribute });
+  /** A count after the label (`chip__count`), such as the listings of a kind; none when null. */
+  readonly count = input<string | number | null>(null);
   readonly navigate = output<string>();
 
   protected follow(event: MouseEvent): void {

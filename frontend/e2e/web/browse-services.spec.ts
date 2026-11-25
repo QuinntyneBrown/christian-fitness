@@ -174,13 +174,20 @@ test.describe('Member app, browse professionals', () => {
 
     await services.open();
     await expect(services.rows).toHaveCount(5);
-    await expect(services.navLinks).toHaveText(['Home', 'Events', 'Services', 'Messages']);
+    await expect(services.navLinks).toHaveText([
+      'Home',
+      'Events',
+      'Directory',
+      'Services',
+      'Messages',
+    ]);
     await expect(services.currentNavLink).toHaveText('Services');
 
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(services.mobileItems).toHaveText([
       'Home',
       'Events',
+      'Directory',
       'Services',
       'Messages',
       'Profile',
