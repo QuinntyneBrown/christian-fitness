@@ -439,8 +439,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
     focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
     message = f'<a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>' if has_owner else ""
     actions = (f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="{href("owner-listing-editor")}">Edit listing</button>' if owner
-               else f'{follow_button(l, big=True)}
-          {message}')
+               else f'{follow_button(l, big=True)}\n          {message}')
     return f"""    <div class="container page--detail">
       <a class="back-link" href="{href("directory")}">{icon("arrow-left")} Directory</a>
       <header class="listing-head">

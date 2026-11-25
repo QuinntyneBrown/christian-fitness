@@ -277,7 +277,7 @@ def _():
 CATS = ["Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 
 
-def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False, image_invalid=False, capacity_below=False, draft=False, publish_failed=False) -> str:
+def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=False, image_invalid=False, capacity_below=False, draft=False, publish_failed=False, published=False, host_state="") -> str:
     if edit and not draft:
         v = dict(title="Saturday Park Bootcamp", cat="Workout", date="2026-04-25", time="08:00", place="Trillium Park, Ontario Place",
                  area="Waterfront, Toronto", price="$10", cap="50", desc=EV["park-bootcamp"]["summary"])
@@ -303,10 +303,27 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
                            "The server didn't respond. Your changes are still here; try again.")
     if publish_failed:
         alert = form_alert("Couldn't publish the event", "Your changes are saved as a draft. Try again.")
+    if host_state == "invalid":
+        alert = error_summary("1 thing to fix", [("Choose a Listed host", "f-host")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
     ro = busy or saving
-    body = f"""    {alert}
-    {field("Title", "title", v["title"], error=title_err, readonly=ro)}
+    host_value = ("Lakeshore" if host_state == "searching" else
+                  "Northside" if host_state == "no-results" else
+                  "Lakeshore Runners Fellowship" if host_state == "selected" else
+                  "" if host_state == "invalid" else
+                  "Danielle Okafor" if edit and not draft else "Christian Fitness")
+    host = field("Host (required)", "host", host_value, required=True, readonly=ro,
+                 error="Choose a Listed host" if host_state == "invalid" else "",
+                 hint="" if host_state == "invalid" else "Choose a Listed directory listing.")
+    if not ro:
+        if host_state == "searching":
+            host += '<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="host-selected.html"><span class="pick-card__title">Lakeshore Runners Fellowship</span><span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="host-no-results.html">See no results</a>'
+        elif host_state == "no-results":
+            host += '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="host-searching.html">Search again</a>'
+        else:
+            host += '<a href="host-searching.html">Search hosts</a>'
+    body = f"""{'    ' + alert + chr(10) if alert else ''}    {field("Title", "title", v["title"], error=title_err, readonly=ro)}
     {select("Category", "category", CATS, v["cat"], disabled=ro)}
+    {host}
     <div class="field-grid">
       {field("Date", "date", v["date"], type_="date", error=date_err, readonly=ro)}
       {field("Start time", "time", v["time"], type_="time", readonly=ro)}
@@ -318,7 +335,7 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
       {field("Capacity", "capacity", v["cap"], type_="number", extra='min="1" inputmode="numeric"', error=capacity_err, readonly=ro)}
     </div>
     {textarea("Summary", "summary", v["desc"], rows=4, hint="Up to 1,000 characters", readonly=ro)}
-    {file_field("Image", "image", filename="park-bootcamp.jpg" if edit and not draft and not image_invalid else "", hint="JPEG, PNG or WebP, up to 5 MB", error=image_err, optional=True, readonly=ro)}"""
+    {file_field("Image", "image", filename="park-bootcamp.jpg" if edit and not draft and not image_invalid else "", hint="JPEG, PNG or WebP, up to 5 MB", error=image_err, optional=True, readonly=ro).replace('<span class="field__label" id="f-image-label">', '<label class="field__label" id="f-image-label" for="f-image-input">', 1).replace('</span></span><div class="file-field__row">', '</span></label><div class="file-field__row">', 1)}"""
     publish_label = "Save changes" if edit and not draft else "Publish"
     publish = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Publishing…")}</button>' if busy
                else f'<button class="btn btn--primary btn--grow" type="button" disabled>{publish_label}</button>' if saving
@@ -331,9 +348,12 @@ def event_editor(*, edit=False, invalid=False, busy=False, saving=False, failed=
     if edit and not draft:
         save = (f'<button class="btn btn--primary btn--grow" type="button" disabled aria-busy="true">{busy_label("Saving…")}</button>' if saving
                 else f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("admin-toast", "changes-saved")}">Save changes</button>')
-        foot = f'    {save}'
+        actions = (f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-event-registrations")}">View registrations</button>\n'
+                   f'    <button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("cancel-event")}">Cancel event</button>\n    '
+                   if published else "")
+        foot = f'    {actions}{save}'
     html = drawer("Edit event" if edit else "New event", body, foot)
-    if not invalid and not busy and not saving:
+    if not invalid and not busy and not saving and not image_invalid and not capacity_below and host_state != "invalid":
         html = autofocus_first(html, 'id="f-title"')
     return over_admin("admin-events", A.manage_events(A.ev_table(A.ev_rows("All"))), html)
 
@@ -346,6 +366,26 @@ s = screen("event-editor", "dialog", "Event editor", opens_from="admin-events",
 def _():
     return event_editor() + note("Slides in from the right over 260 ms (fades under reduced motion); scrim click, Close and Escape dismiss; full width on phones.",
                                  "top: 1rem; left: 1rem;")
+
+
+@s("host-searching", "Search Listed hosts and choose a matching listing.")
+def _():
+    return event_editor(host_state="searching")
+
+
+@s("host-selected", "A matching Listed host has been selected.")
+def _():
+    return event_editor(host_state="selected")
+
+
+@s("host-no-results", "A host search with no matching Listed listings.")
+def _():
+    return event_editor(host_state="no-results")
+
+
+@s("host-invalid", "A missing host shows an error at the field and in the summary.")
+def _():
+    return event_editor(host_state="invalid")
 
 
 @s("edit", "Editing Saturday Park Bootcamp: same drawer, an image chosen, Save changes.")
@@ -371,6 +411,11 @@ def _():
 @s("edit-draft", "Editing the Whole Life Retreat draft: Save changes keeps it a draft, Publish makes it live.")
 def _():
     return event_editor(edit=True, draft=True)
+
+
+@s("edit-published", "Editing a published event offers registrations, cancellation and saving changes.")
+def _():
+    return event_editor(edit=True, published=True)
 
 
 @s("publish-failed", "Publishing failed after the fields were saved: message at the top of the drawer, everything kept, Publish tries again.")

@@ -16,6 +16,8 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
 
 ## Description
 
+The event editor includes a required searchable Host picker (`L2-022` AC11–12). An Admin selects a Listed directory listing; a new event defaults to the Christian Fitness team listing and an edit retains its saved host. No results are explained in the picker. A missing or no-longer-Listed selection is refused with `validation_failed`, shown at the field and in the error summary, without losing other values. `Event.HostListingId` is non-null and existing events are backfilled as in ADR 0067.
+
 - **`AdminEventsPage`** — routed page at `/events` in `projects/admin`
   (`docs/mocks/pages/admin-events/`, states `default`, `published`, `draft`, `loading`, `empty`,
   `tab-empty`, `error`): tabs All, Published and Draft as links (`?status=published`,

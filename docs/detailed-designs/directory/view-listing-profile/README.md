@@ -45,7 +45,7 @@ Every name, tagline, description, focus tag, relation and website is plain text,
 ### Open questions
 
 - **Services and directory records (decided, ADR 0061).** Danielle Okafor's profile here (instructor, East York) and her Services listing (trainer, from $70) are two records with their own copy. When the same member owns both, or staff set `ServiceListingId`, the profile shows an "Also offers services" link to the published Services listing (mock `person.html`), and none otherwise. Message opens the same direct conversation from either profile, because conversations are keyed by the two members (ADR 0043).
-- **Hosts.** The Hosting section depends on a `HostListingId` on events and series and on the event series entity of the event series designs. Who sets a host is not specified (browse-directory design, Open questions).
+- **Hosts.** The Hosting section reads the required `HostListingId` on events and series. Admins choose a Listed directory listing; older records receive the Christian Fitness team listing (ADR 0067).
 - **Website without https.** `L2-055` AC5 renders only an `https` address as a link. Whether an `http` or scheme-less website shows as text or not at all is `<TO SUPPLY>`; showing it as text is proposed.
 - **Connections.** No requirement or mock says how connections are created or edited. They are seed data until a staff screen is specified.
 - **Error copy.** A load failure says "We couldn't load this profile. Check your connection and try again."

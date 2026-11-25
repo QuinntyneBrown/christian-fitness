@@ -56,31 +56,31 @@
                 <td class="table__nowrap">Apr 18 · 6:45 AM</td>
                 <td class="table__nowrap"><span class="table__strong">142</span><span class="muted"> / 200</span></td>
                 <td><span class="status status--published">Published</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Easter Sunrise 5K</span></button></td>
+                <td class="table__end"><span class="row-actions"><a class="row-link row-link--quiet" href="../../pages/admin-community-pick/pick.html">Make it a pick<span class="visually-hidden">: Easter Sunrise 5K</span></a><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Easter Sunrise 5K</span></button></span></td>
               </tr><tr>
                 <td><p class="table__strong">Saturday Park Bootcamp</p><p class="table__sub">Trillium Park, Ontario Place</p></td>
                 <td class="table__nowrap">Apr 25 · 8:00 AM</td>
                 <td class="table__nowrap"><span class="table__strong">38</span><span class="muted"> / 50</span></td>
                 <td><span class="status status--published">Published</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Saturday Park Bootcamp</span></button></td>
+                <td class="table__end"><span class="row-actions"><a class="row-link row-link--quiet" href="../../pages/admin-community-pick/pick.html">Make it a pick<span class="visually-hidden">: Saturday Park Bootcamp</span></a><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Saturday Park Bootcamp</span></button></span></td>
               </tr><tr>
                 <td><p class="table__strong">Women's Hoops & Devotion Night</p><p class="table__sub">St. Lawrence Community Rec Centre</p></td>
                 <td class="table__nowrap">Apr 30 · 7:00 PM</td>
                 <td class="table__nowrap"><span class="table__strong">24</span><span class="muted"> / 30</span></td>
                 <td><span class="status status--published">Published</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Women's Hoops & Devotion Night</span></button></td>
+                <td class="table__end"><span class="row-actions"><a class="row-link row-link--quiet" href="../../pages/admin-community-pick/pick.html">Make it a pick<span class="visually-hidden">: Women's Hoops & Devotion Night</span></a><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Women's Hoops & Devotion Night</span></button></span></td>
               </tr><tr>
                 <td><p class="table__strong">Stretch & Pray: Mobility Morning</p><p class="table__sub">Grace Fellowship Hall</p></td>
                 <td class="table__nowrap">May 06 · 9:30 AM</td>
                 <td class="table__nowrap"><span class="table__strong">17</span><span class="muted"> / 25</span></td>
                 <td><span class="status status--published">Published</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Stretch & Pray: Mobility Morning</span></button></td>
+                <td class="table__end"><span class="row-actions"><a class="row-link row-link--quiet" href="../../pages/admin-community-pick/pick.html">Make it a pick<span class="visually-hidden">: Stretch & Pray: Mobility Morning</span></a><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Stretch & Pray: Mobility Morning</span></button></span></td>
               </tr><tr>
                 <td><p class="table__strong">Whole Life Retreat</p><p class="table__sub">Muskoka Woods, Rosseau</p></td>
                 <td class="table__nowrap">May 22 · 4:00 PM</td>
                 <td class="table__nowrap"><span class="table__strong">0</span><span class="muted"> / 60</span></td>
                 <td><span class="status status--draft">Draft</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Whole Life Retreat</span></button></td>
+                <td class="table__end"><span class="row-actions"><button class="row-link" type="button" data-mock-href="../../dialogs/event-editor/edit.html">Edit<span class="visually-hidden"> Whole Life Retreat</span></button></span></td>
               </tr></tbody>
           </table>
         </div>
@@ -95,9 +95,9 @@
     <button class="icon-button" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
   <form class="drawer__body" novalidate>
-    
     <div class="field"><label class="field__label" for="f-title">Title</label><input class="input" id="f-title" autofocus name="title" type="text" value="Whole Life Retreat"></div>
     <div class="field"><label class="field__label" for="f-category">Category</label><select class="select" id="f-category" name="category"><option>Run</option><option>Workout</option><option>Basketball</option><option>Mobility</option><option>Workshop</option><option selected>Retreat</option></select></div>
+    <div class="field"><label class="field__label" for="f-host">Host (required)</label><input class="input" id="f-host" name="host" type="text" value="Christian Fitness" aria-describedby="f-host-hint" required><span class="field__hint" id="f-host-hint">Choose a Listed directory listing.</span></div><a href="host-searching.html">Search hosts</a>
     <div class="field-grid">
       <div class="field"><label class="field__label" for="f-date">Date</label><input class="input" id="f-date" name="date" type="date" value="2026-05-22"></div>
       <div class="field"><label class="field__label" for="f-time">Start time</label><input class="input" id="f-time" name="time" type="time" value="16:00"></div>
@@ -109,7 +109,7 @@
       <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="60" min="1" inputmode="numeric"></div>
     </div>
     <div class="field"><label class="field__label" for="f-summary">Summary</label><textarea class="textarea" id="f-summary" name="summary" rows="4" aria-describedby="f-summary-hint">Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.</textarea><span class="field__hint" id="f-summary-hint">Up to 1,000 characters</span></div>
-    <div class="field file-field"><label class="field__label" id="f-image-label" for="f-image-input">Image <span class="field__optional">(optional)</span></label><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
+    <div class="field file-field"><label class="field__label" id="f-image-label" for="f-image-input">Image <span class="field__optional">(optional)</span></label><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-labelledby="f-image-label" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
   </form>
   <div class="drawer__foot">
     <button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../notifications/admin-toast/changes-saved.html">Save changes</button>
@@ -121,6 +121,10 @@
   <span class="mock-bar__screen">Event editor</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
+    <li><a href="host-searching.html">host-searching</a></li>
+    <li><a href="host-selected.html">host-selected</a></li>
+    <li><a href="host-no-results.html">host-no-results</a></li>
+    <li><a href="host-invalid.html">host-invalid</a></li>
     <li><a href="edit.html">edit</a></li>
     <li><a href="edit-saving.html">edit-saving</a></li>
     <li><a href="edit-invalid.html">edit-invalid</a></li>

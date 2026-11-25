@@ -575,6 +575,10 @@
       "requirements": [],
       "states": [
         "default",
+        "host-searching",
+        "host-selected",
+        "host-no-results",
+        "host-invalid",
         "edit",
         "edit-saving",
         "edit-invalid",
@@ -821,13 +825,13 @@
       "requirements": [],
       "states": [
         "default",
+        "no-owner",
         "person",
         "one-off",
         "unverified",
         "owner",
         "loading",
-        "error",
-        "no-owner"
+        "error"
       ],
       "not_applicable": {
         "empty": "One listing, not a collection; a listing that hosts nothing is the unverified state, and a missing listing is the not-found page."
@@ -1292,6 +1296,27 @@
         "review",
         "saved"
       ]
+    },
+    {
+      "id": "series-editor",
+      "kind": "dialog",
+      "title": "Series editor",
+      "group": "Admin console",
+      "opens_from": "admin-series",
+      "source": "Derived: host selection in the New series and Edit details drawers (ADR 0067).",
+      "requirements": [],
+      "states": [
+        "default",
+        "edit",
+        "edit-bootcamp",
+        "searching",
+        "selected",
+        "no-results",
+        "invalid"
+      ],
+      "not_applicable": {
+        "busy": "Only the host picker is specified; the complete series save flow is not yet designed."
+      }
     }
   ]
 }
