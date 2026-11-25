@@ -58,6 +58,7 @@ export * from './events/capacity-used';
 export * from './events/event-when';
 export * from './events/home-events';
 export * from './events/home-messages';
+export * from './notifications/notification-list';
 export * from './notifications/toast-store';
 export * from './members/profile-rules';
 export * from './services/application-rules';

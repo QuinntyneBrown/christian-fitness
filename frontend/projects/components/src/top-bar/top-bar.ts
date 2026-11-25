@@ -1,5 +1,6 @@
 import { booleanAttribute, Component, computed, input, output } from '@angular/core';
 import { CountBadge } from '../badge/count-badge';
+import { Bell } from '../bell/bell';
 import { BrandLockup } from '../brand-lockup/brand-lockup';
 import { Button } from '../button/button';
 import { isPlainClick } from '../link/plain-click';
@@ -14,7 +15,8 @@ export type TopBarVariant = 'app' | 'site';
  * The `app` header (`app-header`) sits on every signed-in member screen: the lockup linking to
  * `homeHref`, the `app-nav` links labelled "Primary" from MD up (every destination but Profile,
  * the current one marked `aria-current="page"`, Messages carrying the unread count read as
- * "4 unread"), the profile button (`profile-button`, the member's initials, named "Your profile",
+ * "4 unread"), the bell (`bell`, with `notificationsHref`: unread notifications, current on that
+ * screen; ADR 0068), the profile button (`profile-button`, the member's initials, named "Your profile",
  * with its gold ring when Profile is current) and a ghost **Sign out** button 44 px tall at every
  * viewport (L2-008 AC1, AC3, AC4; ADR 0009). With no destinations there is no `nav`. A plain click
  * on a link or the profile button emits `navigate` with its `href`; a modified click is the
@@ -25,7 +27,7 @@ export type TopBarVariant = 'app' | 'site';
  */
 @Component({
   selector: 'cf-top-bar',
-  imports: [BrandLockup, Button, CountBadge],
+  imports: [Bell, BrandLockup, Button, CountBadge],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.scss',
 })
@@ -38,6 +40,12 @@ export class TopBar {
   readonly current = input<MemberDestinationKey | null>(null);
   /** Unread messages, shown on Messages; none at zero. */
   readonly unread = input(0);
+  /** Where the bell goes; without it, no bell shows (ADR 0068). */
+  readonly notificationsHref = input<string>();
+  /** Unread notifications, on the bell; none at zero. */
+  readonly notificationsUnread = input(0);
+  /** True on the Notifications screen: the bell is `aria-current="page"`. */
+  readonly notificationsCurrent = input(false, { transform: booleanAttribute });
   /** Where the profile button goes; without it, no button shows. */
   readonly profileHref = input<string>();
   /** The signed-in member's initials, shown in the profile button. */

@@ -11,6 +11,7 @@ export * from './avatar/initials';
 export * from './badge/count-badge';
 export * from './badge/status';
 export * from './badge/unread-dot';
+export * from './bell/bell';
 export * from './banner/banner';
 export * from './brand-lockup/brand-lockup';
 export * from './brand-lockup/seal';

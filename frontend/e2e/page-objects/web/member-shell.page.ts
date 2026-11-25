@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 /**
  * The member app's shell around every member route (mock `app-header` in `docs/mocks/pages/home/`):
- * the header with the lockup, the profile avatar and the Sign out button. Owns the selectors of that
+ * the header with the lockup, the bell, the profile avatar and the Sign out button. Owns the selectors of that
  * shell.
  */
 export class WebMemberShell {
@@ -12,6 +12,10 @@ export class WebMemberShell {
   readonly lockup: Locator;
   /** The `profile-button`: the member's initials, a link to Profile. */
   readonly profileButton: Locator;
+  /** The `bell`: a link to Notifications named with the unread count (ADR 0068). */
+  readonly bell: Locator;
+  /** The bell's `bell__count` pill; absent with nothing unread. */
+  readonly bellCount: Locator;
   readonly signOutButton: Locator;
 
   constructor(private readonly page: Page) {
@@ -19,12 +23,26 @@ export class WebMemberShell {
     this.header = page.locator('.app-header');
     this.lockup = this.header.locator('.lockup');
     this.profileButton = this.header.getByRole('link', { name: 'Your profile' });
+    this.bell = this.header.locator('.bell');
+    this.bellCount = this.bell.locator('.bell__count');
     this.signOutButton = this.header.getByRole('button', { name: 'Sign out' });
   }
 
   /** Presses one key, such as Tab or Enter, wherever focus is. */
   async press(key: string): Promise<void> {
     await this.page.keyboard.press(key);
+  }
+
+  /** Opens Notifications from the bell. */
+  async openNotifications(): Promise<void> {
+    await this.bell.click();
+  }
+
+  /** The bell's box, in CSS pixels. */
+  async bellBox(): Promise<{ width: number; height: number }> {
+    const box = await this.bell.boundingBox();
+    if (box === null) throw new Error('The bell is not rendered.');
+    return { width: box.width, height: box.height };
   }
 
   async openProfile(): Promise<void> {

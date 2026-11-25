@@ -17,6 +17,7 @@ export * from './errors/api-error';
 export * from './events/events';
 export * from './events/public-events';
 export * from './home/home';
+export * from './notifications/notifications';
 export * from './profile/profile';
 export * from './reports/reports';
 export * from './services/professional-applications';

@@ -2,6 +2,9 @@
 <cf-top-bar
   homeHref="/home"
   profileHref="/profile"
+  notificationsHref="/notifications"
+  [notificationsUnread]="notifications.unread()"
+  [notificationsCurrent]="onNotifications()"
   [profileInitials]="initials()"
   [destinations]="destinations"
   [current]="current()"

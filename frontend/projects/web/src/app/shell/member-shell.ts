@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { CONVERSATIONS, SESSION_SERVICE } from '@cf/api';
+import { CONVERSATIONS, NOTIFICATIONS_SERVICE, SESSION_SERVICE } from '@cf/api';
 import {
   Banner,
   type MemberDestination,
@@ -13,7 +13,9 @@ import {
 import { initialsOf, NetworkStatus } from '@cf/domain';
 import { filter } from 'rxjs';
 import { HttpConversationsService } from '../services/http-conversations.service';
+import { HttpNotificationsService } from '../services/http-notifications.service';
 import { MemberInbox } from '../services/member-inbox';
+import { MemberNotifications } from '../services/member-notifications';
 
 /**
  * The places of the member app so far (ADR 0027, 0042, 0045, 0000).
@@ -33,7 +35,8 @@ const DESTINATIONS: readonly MemberDestination[] = [
  * design system's skip link, the top bar's app header above the route and the mobile tab bar below
  * MD (L2-008 AC1–AC3; ADR 0019, 0045). `MemberInbox` refreshes the member's conversations on entry
  * and on route changes so the navigation unread badge, Home's Messages aside and Messages share one
- * request. Sign out ends the session on the server and returns the member to the start, a session
+ * request. `MemberNotifications` loads the member's notifications once on entry for the bell, which
+ * the Notifications screen shares (ADR 0068, ADR 0083). Sign out ends the session on the server and returns the member to the start, a session
  * that had already ended included (L2-004 AC5); any other failure keeps them where they are with
  * Sign out enabled.
  */
@@ -41,7 +44,12 @@ const DESTINATIONS: readonly MemberDestination[] = [
   selector: 'cf-member-shell',
   host: { '[attr.data-offline-ready]': 'offlineReady() ? "" : null' },
   imports: [Banner, RouterOutlet, SkipLink, TabBar, TopBar],
-  providers: [{ provide: CONVERSATIONS, useClass: HttpConversationsService }, MemberInbox],
+  providers: [
+    { provide: CONVERSATIONS, useClass: HttpConversationsService },
+    MemberInbox,
+    { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
+    MemberNotifications,
+  ],
   templateUrl: './member-shell.html',
   styleUrl: './member-shell.scss',
 })
@@ -50,6 +58,7 @@ export default class MemberShell {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly inbox = inject(MemberInbox);
+  protected readonly notifications = inject(MemberNotifications);
   protected readonly network = inject(NetworkStatus);
 
   protected readonly signingOut = signal(false);
@@ -59,10 +68,13 @@ export default class MemberShell {
   protected readonly destinations = DESTINATIONS;
   /** The place showing, read from the address; none on any other. */
   protected readonly current = signal<MemberDestinationKey | null>(placeOf(this.urlNow()));
+  /** True on the Notifications screen, where the bell is current. */
+  protected readonly onNotifications = signal(isNotifications(this.urlNow()));
 
   constructor() {
     let lastUrl = this.urlNow();
     this.inbox.refresh();
+    this.notifications.load();
     if (this.network.online()) {
       void import('../pages/offline/offline-page').then(() => this.offlineReady.set(true));
     }
@@ -73,6 +85,7 @@ export default class MemberShell {
       )
       .subscribe(() => {
         this.current.set(placeOf(this.router.url));
+        this.onNotifications.set(isNotifications(this.router.url));
         if (this.router.url !== lastUrl) {
           lastUrl = this.router.url;
           this.inbox.refresh();
@@ -111,6 +124,11 @@ export default class MemberShell {
       ? this.router.serializeUrl(navigation.finalUrl ?? navigation.extractedUrl)
       : this.router.url;
   }
+}
+
+/** Whether an address is the Notifications screen. */
+function isNotifications(url: string): boolean {
+  return url.split(/[?#]/, 1)[0] === '/notifications';
 }
 
 /** The place of the member app an address is in: Events covers an event under it too. */
