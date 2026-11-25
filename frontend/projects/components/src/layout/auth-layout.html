@@ -6,6 +6,7 @@
   <div class="auth__alert"><ng-content select="[slot=alert]" /></div>
   <div class="auth__fields"><ng-content select="[slot=fields]" /></div>
   <div class="auth__submit"><ng-content select="[slot=submit]" /></div>
+  <ng-content select="[slot=terms]" />
   @if (altLink()) {
     <p class="auth__alt">
       {{ altText() ? altText() + ' ' : '' }}

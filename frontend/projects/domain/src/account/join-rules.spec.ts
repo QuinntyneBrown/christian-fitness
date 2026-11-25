@@ -14,7 +14,7 @@ const PASSWORD = 'abundantlife';
 const EMAIL_254 = `${'g'.repeat(64)}@${'d'.repeat(185)}.org`;
 
 function form(fullName: string, email: string, password: string, homeChurch = ''): JoinForm {
-  return { fullName, email, password, homeChurch, interests: [] };
+  return { ageConfirmed: true, fullName, email, password, homeChurch, interests: [] };
 }
 
 // L2-003 AC3 and AC6: the Join rules, one case per row. The API's CreateAccountValidator

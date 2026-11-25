@@ -130,7 +130,24 @@ public sealed class JoinTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Empty((await FindAsync("grace.nointerests@example.org")).Interests);
     }
 
-    internal sealed record JoinBody(string FullName, string Email, string Password, string? HomeChurch, string[] Interests);
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Given_no_age_confirmation_When_joining_Then_the_API_refuses_the_request(bool omit)
+    {
+        using var client = CreateClient();
+        var body = new Dictionary<string, object> {
+            ["fullName"] = "Visitor", ["email"] = $"age-{omit}@example.org", ["password"] = Password
+        };
+        if (!omit) body["ageConfirmed"] = false;
+        using var response = await client.PostAsJsonAsync(new Uri("/api/account/join", UriKind.Relative), body, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal("age_not_confirmed", problem.GetProperty("code").GetString());
+        Assert.Null(Browser.SessionSetCookie(response));
+    }
+
+    internal sealed record JoinBody(string FullName, string Email, string Password, string? HomeChurch, string[] Interests, bool AgeConfirmed = true);
 
     internal static JoinBody Details(string email) =>
         new("Grace Thompson", email, Password, "Grace Fellowship, Scarborough", ["running", "strength"]);

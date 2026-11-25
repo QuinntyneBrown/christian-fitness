@@ -31,6 +31,8 @@ export class Checkbox {
   readonly checked = input(false, { transform: booleanAttribute });
   readonly indeterminate = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
+  readonly required = input(false, { transform: booleanAttribute });
+  readonly describedBy = input<string>();
   readonly invalid = input(false, { transform: booleanAttribute });
 
   readonly checkedChange = output<boolean>();

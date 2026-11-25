@@ -46,6 +46,11 @@ internal sealed class CreateAccountHandler(
 
     private async Task<Member> CreateAsync(CreateAccountCommand request, CancellationToken cancellationToken)
     {
+        if (!request.AgeConfirmed)
+        {
+            throw new RefusalException(RefusalCodes.AgeNotConfirmed, RefusalKind.BadRequest);
+        }
+
         var normalizedEmail = Member.NormalizeEmail(request.Email);
         if (await IsTakenAsync(normalizedEmail, cancellationToken).ConfigureAwait(false))
         {

@@ -2,7 +2,7 @@ import { EMAIL_INVALID, EMAIL_MAX, EMAIL_PATTERN as EMAIL } from './email-rule';
 import type { JoinForm } from './join';
 
 /** The Join form's fields a rule can name, in the order the form shows them. */
-export type JoinField = 'fullName' | 'email' | 'password' | 'homeChurch';
+export type JoinField = 'fullName' | 'email' | 'password' | 'homeChurch' | 'ageConfirmed';
 
 /** One message per invalid field; a valid field has no key. */
 export type JoinFieldErrors = Partial<Record<JoinField, string>>;
@@ -13,6 +13,7 @@ export const JOIN_FIELDS: readonly { key: JoinField; fieldId: string }[] = [
   { key: 'email', fieldId: 'f-email' },
   { key: 'password', fieldId: 'f-password' },
   { key: 'homeChurch', fieldId: 'f-church' },
+  { key: 'ageConfirmed', fieldId: 'f-age' },
 ];
 
 /** One line of the error summary: the message and the id of the field it moves focus to. */
@@ -21,6 +22,7 @@ export interface ErrorSummaryItem {
   target: string;
 }
 
+export const AGE_ERROR = "Confirm you're 16 or older to create a profile";
 const NAME_MAX = 100;
 const HOME_CHURCH_MAX = 120;
 const PASSWORD_MIN = 8;
@@ -48,6 +50,7 @@ export function validateJoin(form: JoinForm): JoinFieldErrors {
   if (form.homeChurch.trim().length > HOME_CHURCH_MAX) {
     errors.homeChurch = `Use ${HOME_CHURCH_MAX} characters or fewer`;
   }
+  if (!form.ageConfirmed) errors.ageConfirmed = AGE_ERROR;
   return errors;
 }
 

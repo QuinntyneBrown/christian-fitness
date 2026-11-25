@@ -43,6 +43,8 @@ public static class RefusalCodes
     public const string StatusConflict = "status_conflict";
 
     /// <summary>An account already has this email (L2-003 AC2).</summary>
+    public const string AgeNotConfirmed = "age_not_confirmed";
+
     public const string EmailTaken = "email_taken";
 
     /// <summary>

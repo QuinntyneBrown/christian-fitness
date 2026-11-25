@@ -10,8 +10,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { HttpAccountService } from '../../services/http-account.service';
 import { ACCOUNT_SERVICE, INTERESTS, type InterestKey } from '@cf/api';
-import { Alert, AuthLayout, Button, Interest, InterestList, TextField } from '@cf/components';
 import {
+  Alert,
+  AuthLayout,
+  Button,
+  Interest,
+  InterestList,
+  Checkbox,
+  Link,
+  TextField,
+} from '@cf/components';
+import {
+  AGE_ERROR,
   clearFieldError,
   errorSummaryOf,
   joinRefusalOf,
@@ -35,7 +45,7 @@ import {
  */
 @Component({
   selector: 'cf-join-page',
-  imports: [Alert, AuthLayout, Button, Interest, InterestList, TextField],
+  imports: [Alert, AuthLayout, Button, Interest, InterestList, Checkbox, Link, TextField],
   templateUrl: './join-page.html',
   styleUrl: './join-page.scss',
   providers: [{ provide: ACCOUNT_SERVICE, useClass: HttpAccountService }],
@@ -51,6 +61,11 @@ export default class JoinPage {
   protected readonly password = signal('');
   protected readonly homeChurch = signal('');
   protected readonly interests = signal<readonly InterestKey[]>([]);
+  protected readonly ageConfirmed = signal(false);
+  protected confirmAge(value: boolean) {
+    this.ageConfirmed.set(value);
+    this.fieldErrors.update((errors) => clearFieldError(errors, 'ageConfirmed'));
+  }
   protected readonly submitting = signal(false);
   protected readonly fieldErrors = signal<JoinFieldErrors>({});
   protected readonly summary = computed(() => errorSummaryOf(this.fieldErrors()));
@@ -58,13 +73,13 @@ export default class JoinPage {
   protected readonly refusal = signal<JoinRefusal | null>(null);
 
   /** Keeps what the visitor typed in `field` and clears that field's error. */
-  protected edit(field: JoinField, value: string): void {
+  protected edit(field: Exclude<JoinField, 'ageConfirmed'>, value: string): void {
     this.fields[field].set(value);
     this.fieldErrors.update((errors) => clearFieldError(errors, field));
     if (field === 'email' && this.refusal() === 'email-taken') this.refusal.set(null);
   }
 
-  private readonly fields: Record<JoinField, WritableSignal<string>> = {
+  private readonly fields: Record<Exclude<JoinField, 'ageConfirmed'>, WritableSignal<string>> = {
     fullName: this.fullName,
     email: this.email,
     password: this.password,
@@ -83,6 +98,7 @@ export default class JoinPage {
       password: this.password(),
       homeChurch: this.homeChurch(),
       interests: this.interests(),
+      ageConfirmed: this.ageConfirmed(),
     };
     const errors = validateJoin(form);
     this.fieldErrors.set(errors);
@@ -98,7 +114,11 @@ export default class JoinPage {
         // The form comes back as it was, so the visitor can try again.
         error: (error: unknown) => {
           this.submitting.set(false);
-          this.refusal.set(joinRefusalOf(error));
+          const refusal = joinRefusalOf(error);
+          if (refusal === 'age-unconfirmed') {
+            this.ageConfirmed.set(false);
+            this.fieldErrors.set({ ageConfirmed: AGE_ERROR });
+          } else this.refusal.set(refusal);
         },
       });
   }
