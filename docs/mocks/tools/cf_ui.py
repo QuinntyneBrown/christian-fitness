@@ -199,8 +199,10 @@ def seal(size: str, *, light: bool = False, uid: str = "cf-seal", decorative: bo
     return f'<svg class="{cls}" viewBox="0 0 200 200" {a11y}>{inner}</svg>'
 
 
-def lockup(to: str, *, light: bool = False) -> str:
-    return (f'<a class="lockup{" lockup--light" if light else ""}" href="{to}">'
+def lockup(to: str, *, light: bool = False, compact: bool = False) -> str:
+    """compact: the member top bar's lockup, the seal alone below 28rem (ADR 0084)."""
+    mods = (" lockup--light" if light else "") + (" lockup--compact" if compact else "")
+    return (f'<a class="lockup{mods}" href="{to}">'
             f'{seal("lockup", light=light, decorative=True)}<span class="lockup__name">Christian Fitness</span></a>')
 
 
@@ -293,7 +295,7 @@ def member_shell(active: str, content: str, *, unread: int = 4, fill: bool = Fal
     shell = f"""<div class="app{' app--fill' if fill else ''}">
   <header class="app-header">
     <div class="app-header__inner">
-      {lockup(href("home"))}
+      {lockup(href("home"), compact=True)}
       <nav class="app-nav" aria-label="Primary">
         {''.join(links)}
       </nav>

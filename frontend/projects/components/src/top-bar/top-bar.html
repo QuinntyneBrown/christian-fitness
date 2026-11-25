@@ -11,7 +11,7 @@
 } @else {
   <header class="app-header">
     <div class="app-header__inner">
-      <cf-brand-lockup [href]="homeHref()" />
+      <cf-brand-lockup [href]="homeHref()" compact />
       @if (links().length) {
         <nav class="app-nav" aria-label="Primary">
           @for (link of links(); track link.key) {

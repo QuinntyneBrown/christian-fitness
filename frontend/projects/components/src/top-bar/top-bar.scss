@@ -19,10 +19,11 @@
   height: var(--layout-topbar-height);
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-3);
   padding-inline: var(--space-4);
 
   @media (min-width: 40rem) {
+    gap: var(--space-6);
     padding-inline: var(--space-6);
   }
 }
