@@ -2,6 +2,7 @@ using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Sessions;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.Legal;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,7 @@ internal sealed class CreateAccountHandler(
     IAppDbContext db,
     IPasswordHasherService hasher,
     ISessionSignIn session,
+    LegalDocuments documents,
     TimeProvider time,
     AccountCreationLimiter limiter,
     IClientAddress clientAddress)
@@ -57,13 +59,17 @@ internal sealed class CreateAccountHandler(
             throw new RefusalException(RefusalCodes.EmailTaken, RefusalKind.Conflict);
         }
 
+        var now = time.GetUtcNow();
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
         var member = Member.Join(
             request.FullName,
             request.Email,
             hasher.Hash(request.Password),
-            time.GetUtcNow(),
+            now,
             request.HomeChurch,
             request.Interests);
+        member.AcceptLegal(documents.InForce("terms", today) ?? throw new InvalidOperationException("Missing effective Terms"),
+            documents.InForce("privacy", today) ?? throw new InvalidOperationException("Missing effective Privacy Policy"), now);
         db.Members.Add(member);
         try
         {

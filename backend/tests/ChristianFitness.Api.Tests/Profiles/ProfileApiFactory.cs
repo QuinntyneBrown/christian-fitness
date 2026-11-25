@@ -24,6 +24,7 @@ public sealed class ProfileApiFactory : ApiFactory
 
     protected override void ConfigureServices(IServiceCollection services)
     {
+        services.AddSingleton(new Domain.Legal.LegalDocuments([new(2026, 1, 1)], [new(2026, 1, 1)]));
         services.RemoveAll<TimeProvider>();
         services.AddSingleton<TimeProvider>(Time);
         services.RemoveAll<IRegistrationReader>();

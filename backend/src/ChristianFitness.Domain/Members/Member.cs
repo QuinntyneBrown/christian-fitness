@@ -19,6 +19,19 @@ public sealed class Member
     {
     }
 
+    public DateOnly? AcceptedTermsVersion { get; private set; }
+
+    public DateOnly? AcceptedPrivacyVersion { get; private set; }
+
+    public DateTimeOffset? AcceptedLegalAt { get; private set; }
+
+    public void AcceptLegal(DateOnly terms, DateOnly privacy, DateTimeOffset now)
+    {
+        AcceptedTermsVersion = terms;
+        AcceptedPrivacyVersion = privacy;
+        AcceptedLegalAt = now;
+    }
+
     public Guid Id { get; private set; }
 
     public string Name { get; private set; } = string.Empty;

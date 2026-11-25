@@ -25,6 +25,7 @@ public static class ApplicationServiceCollectionExtensions
             configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
             configuration.AddOpenBehavior(typeof(AuditBehavior<,>));
         });
+        services.AddSingleton(Domain.Legal.LegalDocuments.Published);
         services.AddScoped<AuditTrail>();
         // The audit behaviour logs each audited action; the host's logging, or none, receives it.
         services.AddLogging();

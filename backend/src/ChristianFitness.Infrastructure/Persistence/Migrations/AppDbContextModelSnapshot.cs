@@ -349,6 +349,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("AcceptedLegalAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly?>("AcceptedPrivacyVersion")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("AcceptedTermsVersion")
+                        .HasColumnType("date");
+
                     b.Property<string>("Bio")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
