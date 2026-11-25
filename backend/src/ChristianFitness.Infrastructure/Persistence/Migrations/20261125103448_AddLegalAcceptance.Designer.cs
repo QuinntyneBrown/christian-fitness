@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261125080819_AddLegalAcceptance")]
+    [Migration("20261125103448_AddLegalAcceptance")]
     partial class AddLegalAcceptance
     {
         /// <inheritdoc />
@@ -23,6 +23,7 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("ChristianFitness.Domain.Audit.AuditEntry", b =>
@@ -56,6 +57,93 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("RecordType", "RecordId", "OccurredAt");
 
                     b.ToTable("AuditEntries", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.DirectoryListing", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.PrimitiveCollection<string[]>("Focus")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("KindOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ListedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("PhotoKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SearchText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid?>("ServiceListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid?>("SuggestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Tagline")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("Status", "KindOrder", "NameKey", "Id");
+
+                    b.ToTable("DirectoryListings", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Events.ChatMessage", b =>
@@ -149,6 +237,11 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("HostListingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(new Guid("0193a9c0-0000-7000-8000-00000000cf01"));
+
                     b.Property<string>("ImageKey")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -188,6 +281,8 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("StartsAt");
 
                     b.HasIndex("Status", "StartsAt");
+
+                    b.HasIndex("HostListingId", "Status", "StartsAt");
 
                     b.ToTable("Events", (string)null);
                 });
@@ -444,6 +539,47 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("TwoStepFailures", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Href")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId", "CreatedAt");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Services.ProfessionalApplication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -613,6 +749,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("Sessions", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Event", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("HostListingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.PasswordReset", b =>
                 {
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
@@ -650,6 +795,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Members.TwoStepFailure", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
                 {
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithMany()
