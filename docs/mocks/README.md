@@ -204,7 +204,7 @@ navigation, say) must be made in the generator and in those files.
    the mocks skill. Kept for parity; raise to 12 px?
 3. **Admin console shape.** One app with a role-guarded area, or a separate app, needs an ADR
    (`AGENTS.md`); the mocks work either way.
-4. **Home church.** Resolved by [ADR 0061](../adr/0061-public-profiles-and-privacy.md):
+4. **Home church.** Resolved by [ADR 0075](../adr/0075-public-profiles-and-privacy.md):
    a separate Preferences switch defaults off; anonymous visitors never see it.
 5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
    Services professional and a directory listing, with different copy, and the console has both

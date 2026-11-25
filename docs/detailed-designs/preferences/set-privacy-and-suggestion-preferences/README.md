@@ -7,7 +7,7 @@ Christian Fitness is a Christian community for health in body and spirit in the 
 This feature covers the Privacy and Suggestions sections of the Preferences screen (mock `docs/mocks/pages/preferences/`) and, more importantly, how each setting is enforced by the features it governs. The screen, its draft and its save bar are designed in [set email and notification preferences](../set-email-and-notification-preferences/README.md); a privacy or suggestion change uses that save bar (`L2-065` AC8).
 
 - **profile visibility** — who can open a member's profile: Anyone (including visitors who are not signed in), Members (anyone signed in) or Just my groups; Members for a new member
-- **shared group** — event chat both members still belong to, including a past or cancelled event; leaving ends that shared group ([ADR 0061](../../../adr/0061-public-profiles-and-privacy.md)). A series chat joins this once series exist (`L2-052`).
+- **shared group** — event chat both members still belong to, including a past or cancelled event; leaving ends that shared group ([ADR 0075](../../../adr/0075-public-profiles-and-privacy.md)). A series chat joins this once series exist (`L2-052`).
 - **attendee list** — names or pictures of the members going to an event or series, as the event page's `avatar-stack` draws them ("Michael, Danielle and 140 others")
 - **open conversation** — direct conversation in which at least one message has already been sent between the two members
 - **suggestion area** — one of Toronto East, Toronto West, Downtown Toronto, Scarborough, North York, Mississauga, Brampton and Durham
@@ -27,7 +27,7 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 
 - **`GetPublicProfileHandler`** (existing, `Application/Profiles/GetPublicProfileQuery.cs`) shall read the target's `MemberPreferences` and the viewer. It answers the profile when the viewer is the member, or when the visibility is `Anyone`; `Members` when a viewer is signed in; `JustMyGroups` when the viewer shares a group with the member. Otherwise it throws the same `RefusalException(not_found)` an unknown id does. A member whose account is being deleted is not found ([download and delete data](../download-and-delete-data/README.md)).
 - **What is answered** — the authenticated `PublicProfileDto` has name, bio, interests and home church only where `ShowHomeChurch` is set; it never includes email. The anonymous projection has only name, bio and interests, with no church key regardless of the switch (AC3, AC10, `L2-033` AC5).
-- **Anonymous access** — `GET /api/public/members/{id}` is `[AllowAnonymous]`, under `public-reads` (issue #80), and answers only an Anyone profile; all other or unknown ids get the same 404. `/members/:id` removes the member guard and chooses public masthead and "Join to message" without a session, or the current member page with one ([ADR 0061](../../../adr/0061-public-profiles-and-privacy.md)).
+- **Anonymous access** — `GET /api/public/members/{id}` is `[AllowAnonymous]`, under `public-reads` (issue #80), and answers only an Anyone profile; all other or unknown ids get the same 404. `/members/:id` removes the member guard and chooses public masthead and "Join to message" without a session, or the current member page with one ([ADR 0075](../../../adr/0075-public-profiles-and-privacy.md)).
 - **`GroupMembership.ShareAGroupAsync(db, a, b)`** — new helper in `Application/Chat/` beside `ChatMembership`. It checks current membership of both in one event chat, irrespective of past or cancelled event status; leaving ends membership. The profile and messaging rules both call it (AC11).
 - **Staff** — the admin console's member screens (`SearchMembersQuery` and the moderation commands) do not read the visibility, so staff see a member either way (AC2).
 
@@ -62,7 +62,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-065` | `L1-019`, `L1-013` | Profile visibility defaults to Members; restricted profiles return not found. Anyone permits anonymous public fields, never email or home church. "Show my home church" defaults off and applies only to admitted signed-in viewers. A shared event chat counts while both belong, including after the event or cancellation. The anonymous endpoint and unguarded page follow ADR 0061. Attendee, messaging, suggestion, save and telemetry rules remain as stated in AC4–AC9. |
+| `L2-065` | `L1-019`, `L1-013` | Profile visibility defaults to Members; restricted profiles return not found. Anyone permits anonymous public fields, never email or home church. "Show my home church" defaults off and applies only to admitted signed-in viewers. A shared event chat counts while both belong, including after the event or cancellation. The anonymous endpoint and unguarded page follow ADR 0075. Attendee, messaging, suggestion, save and telemetry rules remain as stated in AC4–AC9. |
 | `L2-031` | `L1-013` | 2, 3. Another member's private data shall be refused with 403 or 404 and no data, and guessing ids shall reveal nothing. |
 | `L2-033` | `L1-013` | 2, 5. No log, metric or span shall contain personal data; home church shall never be shown or returned anonymously. |
 

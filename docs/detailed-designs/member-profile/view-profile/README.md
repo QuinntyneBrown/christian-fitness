@@ -95,7 +95,7 @@ The public profile (slice 19.1):
 
 - **`MemberProfilePage`** — `/members/:id` no longer has a member guard. With a session it uses the member shell and `pages/profile/member.html`; without one it uses the public masthead and `pages/profile/public.html`, with "Join to message" linking to Join. Both show name, initials, About and Into; an admitted signed-in viewer can also see a shared home church.
 - **Authenticated read** — `GET /api/members/{id}/profile` enforces visibility, returns name, bio and interests, and adds `homeChurch` only when `Member.ShowHomeChurch` is true. Email is never included.
-- **Anonymous read** — `GET /api/public/members/{id}` is `[AllowAnonymous]`, under `public-reads` (issue #80). It returns only name, bio and interests for Anyone; a malformed, unknown or restricted id gets the same 404 `not_found`. Neither email nor home church is present ([ADR 0061](../../../adr/0061-public-profiles-and-privacy.md)).
+- **Anonymous read** — `GET /api/public/members/{id}` is `[AllowAnonymous]`, under `public-reads` (issue #80). It returns only name, bio and interests for Anyone; a malformed, unknown or restricted id gets the same 404 `not_found`. Neither email nor home church is present ([ADR 0075](../../../adr/0075-public-profiles-and-privacy.md)).
 
 ### Open questions
 

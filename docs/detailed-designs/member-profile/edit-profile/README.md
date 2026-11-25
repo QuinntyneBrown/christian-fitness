@@ -9,7 +9,7 @@ to the member-profile subsystem.
 - **goal** — short statement of what a member is working toward; at most 5 goals of
   at most 80 characters each
 - **home church visibility** — a separate Preferences choice, off by default, for
-  admitted signed-in members; never visible anonymously ([ADR 0061](../../../adr/0061-public-profiles-and-privacy.md))
+  admitted signed-in members; never visible anonymously ([ADR 0075](../../../adr/0075-public-profiles-and-privacy.md))
 
 The dialog opens with the current values. A valid save updates the profile and
 closes the dialog. Over-length or over-count values are refused by the server and
