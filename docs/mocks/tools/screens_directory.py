@@ -525,6 +525,6 @@ def _():
     body = f"""    <div class="container page--detail">
       <a class="back-link" href="{href("directory")}">{icon("arrow-left")} Directory</a>
       <h1 class="visually-hidden">Listing</h1>
-      {error_block("This listing didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", back=("Directory", href("directory")), ref="CF-L3P6")}
+      {error_block("This listing didn't load", "We couldn't load this profile. Check your connection and try again.", retry="default.html", back=("Directory", href("directory")), ref="CF-L3P6")}
     </div>"""
     return member_shell("directory", body)

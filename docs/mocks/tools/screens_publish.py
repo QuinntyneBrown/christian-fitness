@@ -840,7 +840,7 @@ def _():
 @s("replied", "The reply was sent: the note is Replied, the reply box is empty again and a toast confirms it; one fewer note is new.")
 def _():
     return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}), counts={"admin-feedback": 1},
-                       after=toast_region(toast("success", "Reply sent to Michael", "He gets it by email."), admin=True))
+                       after=toast_region(toast("success", "Reply sent.", "Michael Chen gets it by email."), admin=True))
 
 
 @s("resolved", "A resolved note chosen: it can be reopened.")
