@@ -120,42 +120,43 @@ test.describe('Admin app, the Dashboard community activity', () => {
 // L2-020 AC7 to AC10 (slice 28.2; ADR 0060): the work waiting for staff, each item linked to the
 // screen that resolves it, whatever the community activity does.
 test.describe('Admin app, the Dashboard work awaiting staff', () => {
-  test('lists the pending applications then the flagged members, each with its Review link', async ({
-    page,
-    api,
-  }) => {
-    const asked = answerAwaiting(api, SOME_AWAITING);
-    const dashboard = new AdminDashboardPage(page);
+  test(
+    'lists the pending applications then the flagged members, each with its Review link',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const asked = answerAwaiting(api, SOME_AWAITING);
+      const dashboard = new AdminDashboardPage(page);
 
-    await dashboard.open();
+      await dashboard.open();
 
-    await expect(dashboard.attentionHeading).toHaveText('Needs attention 4');
-    await expect(dashboard.attentionItems).toHaveCount(4);
-    expect(await dashboard.attentionTexts()).toEqual([
-      {
-        title: 'Hannah Bergstrom applied to list services',
-        meta: 'Registered massage therapist · Apr 13',
-        href: '/services',
-      },
-      {
-        title: 'Samuel Osei applied to list services',
-        meta: 'Strength coach · Apr 12',
-        href: '/services',
-      },
-      {
-        title: 'Lena Park, RD applied to list services',
-        meta: 'Sports dietitian · Apr 10',
-        href: '/services',
-      },
-      {
-        title: 'Kevin Brooks was flagged',
-        meta: 'Promoting supplements in 3 group chats',
-        href: '/members?status=flagged',
-      },
-    ]);
-    await expect(dashboard.seeAllLinks).toHaveCount(0);
-    expect(asked.asked).toBe(1);
-  });
+      await expect(dashboard.attentionHeading).toHaveText('Needs attention 4');
+      await expect(dashboard.attentionItems).toHaveCount(4);
+      expect(await dashboard.attentionTexts()).toEqual([
+        {
+          title: 'Hannah Bergstrom applied to list services',
+          meta: 'Registered massage therapist · Apr 13',
+          href: '/services',
+        },
+        {
+          title: 'Samuel Osei applied to list services',
+          meta: 'Strength coach · Apr 12',
+          href: '/services',
+        },
+        {
+          title: 'Lena Park, RD applied to list services',
+          meta: 'Sports dietitian · Apr 10',
+          href: '/services',
+        },
+        {
+          title: 'Kevin Brooks was flagged',
+          meta: 'Promoting supplements in 3 group chats',
+          href: '/members?status=flagged',
+        },
+      ]);
+      await expect(dashboard.seeAllLinks).toHaveCount(0);
+      expect(asked.asked).toBe(1);
+    },
+  );
 
   // L2-020 AC11 (ADR 0090), mock admin-dashboard/default: the suggestions are one line, counted each.
   test('names the waiting suggestions in one line ahead of the applications, and Check opens Listings', async ({

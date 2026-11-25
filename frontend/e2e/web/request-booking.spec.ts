@@ -55,45 +55,46 @@ test.describe('Member app, request a booking', () => {
     await expect(dialog.sendButton).toHaveText('Send request');
   });
 
-  test('a request is sent trimmed, success offers Go to messages, which opens the conversation', async ({
-    page,
-    api,
-  }) => {
-    answerService(api, [DANIELLE]);
-    const sent = answerBooking(api);
-    const hub = await FakeChatHub.install(
-      page,
-      api,
-      { code: null, title: 'Danielle Okafor', memberId: SIGNED_IN.memberId },
-      [],
-    );
-    const detail = new WebServiceDetailPage(page);
-    const dialog = new WebRequestBookingDialog(page);
-    const chat = new WebEventChatPage(page);
-    await detail.open(DANIELLE.id);
-    await detail.requestButton.click();
+  test(
+    'a request is sent trimmed, success offers Go to messages, which opens the conversation',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerService(api, [DANIELLE]);
+      const sent = answerBooking(api);
+      const hub = await FakeChatHub.install(
+        page,
+        api,
+        { code: null, title: 'Danielle Okafor', memberId: SIGNED_IN.memberId },
+        [],
+      );
+      const detail = new WebServiceDetailPage(page);
+      const dialog = new WebRequestBookingDialog(page);
+      const chat = new WebEventChatPage(page);
+      await detail.open(DANIELLE.id);
+      await detail.requestButton.click();
 
-    await dialog.kind.selectOption({ label: 'One-on-one session' });
-    await dialog.when.fill(`  ${WHEN}  `);
-    await dialog.message.fill(MESSAGE);
-    await dialog.sendButton.click();
+      await dialog.kind.selectOption({ label: 'One-on-one session' });
+      await dialog.when.fill(`  ${WHEN}  `);
+      await dialog.message.fill(MESSAGE);
+      await dialog.sendButton.click();
 
-    await expect(dialog.title).toHaveText('Request sent');
-    await expect(dialog.subtitle).toHaveText('Danielle Okafor · One-on-one session');
-    await expect(dialog.successText).toHaveText(
-      "Danielle will reply in your messages, usually within a day. We've started the conversation for you.",
-    );
-    expect(sent).toEqual([
-      { listing: DANIELLE.id, body: { kind: 'one-on-one', when: WHEN, message: MESSAGE } },
-    ]);
+      await expect(dialog.title).toHaveText('Request sent');
+      await expect(dialog.subtitle).toHaveText('Danielle Okafor · One-on-one session');
+      await expect(dialog.successText).toHaveText(
+        "Danielle will reply in your messages, usually within a day. We've started the conversation for you.",
+      );
+      expect(sent).toEqual([
+        { listing: DANIELLE.id, body: { kind: 'one-on-one', when: WHEN, message: MESSAGE } },
+      ]);
 
-    await dialog.goToMessagesButton.click();
+      await dialog.goToMessagesButton.click();
 
-    await expect(dialog.dialog).toBeHidden();
-    await expect(page).toHaveURL(`/messages/${professionalMemberOf(DANIELLE)}`);
-    await expect(chat.chatTitle).toHaveText('Danielle Okafor');
-    expect(hub.joined).toEqual([professionalMemberOf(DANIELLE)]);
-  });
+      await expect(dialog.dialog).toBeHidden();
+      await expect(page).toHaveURL(`/messages/${professionalMemberOf(DANIELLE)}`);
+      await expect(chat.chatTitle).toHaveText('Danielle Okafor');
+      expect(hub.joined).toEqual([professionalMemberOf(DANIELLE)]);
+    },
+  );
 
   test('Done closes the dialog and leaves the member on the listing; a blank message is left out', async ({
     page,

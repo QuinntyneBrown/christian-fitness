@@ -21,24 +21,25 @@ function signedInAsModerator(api: ApiHandlers): void {
 test.describe('Admin app, a Moderator', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test('the navigation lists Dashboard, Listings and Members only, and names the role', async ({
-    page,
-    api,
-  }) => {
-    signedInAsModerator(api);
-    const shell = new AdminShell(page);
+  test(
+    'the navigation lists Dashboard, Listings and Members only, and names the role',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      signedInAsModerator(api);
+      const shell = new AdminShell(page);
 
-    await shell.open();
+      await shell.open();
 
-    await expect(shell.heading).toHaveText('Dashboard');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Listings', 'Members']);
-    expect(
-      await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
-    ).toEqual(['/', '/listings', '/members']);
-    await expect(shell.currentItem).toHaveText('Dashboard');
-    await expect(shell.userName).toHaveText('Joel Mensah');
-    await expect(shell.userRole).toHaveText('Moderator');
-  });
+      await expect(shell.heading).toHaveText('Dashboard');
+      await expect(shell.navItems).toHaveText(['Dashboard', 'Listings', 'Members']);
+      expect(
+        await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
+      ).toEqual(['/', '/listings', '/members']);
+      await expect(shell.currentItem).toHaveText('Dashboard');
+      await expect(shell.userName).toHaveText('Joel Mensah');
+      await expect(shell.userRole).toHaveText('Moderator');
+    },
+  );
 
   test('Members opens from the navigation', async ({ page, api }) => {
     signedInAsModerator(api);

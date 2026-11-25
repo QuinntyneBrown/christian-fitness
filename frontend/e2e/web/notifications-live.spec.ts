@@ -35,29 +35,30 @@ function pushed(n: number): Notification {
 // ADR 0083: notifications arrive over the member's one real-time connection, opened by the shell
 // and shared with chat; the client keeps the latest 50, and the connection ends with the session.
 test.describe('Member app, notifications in real time', () => {
-  test('a notification pushed on Home raises the bell at once, and one on the screen goes first', async ({
-    page,
-    api,
-  }) => {
-    const hub = await FakeChatHub.install(page, api, JOINED);
-    FakeNotifications.install(api, MOCK_NOTIFICATIONS);
-    const shell = new WebMemberShell(page);
-    const notes = new WebNotificationsPage(page);
-    await page.goto('/home');
-    await expect(shell.bellCount).toHaveText('2');
-    await expect.poll(() => hub.opened).toBe(1);
+  test(
+    'a notification pushed on Home raises the bell at once, and one on the screen goes first',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const hub = await FakeChatHub.install(page, api, JOINED);
+      FakeNotifications.install(api, MOCK_NOTIFICATIONS);
+      const shell = new WebMemberShell(page);
+      const notes = new WebNotificationsPage(page);
+      await page.goto('/home');
+      await expect(shell.bellCount).toHaveText('2');
+      await expect.poll(() => hub.opened).toBe(1);
 
-    hub.notify(pushed(1));
+      hub.notify(pushed(1));
 
-    await expect(shell.bellCount).toHaveText('3');
-    await shell.openNotifications();
-    await expect(notes.rows).toHaveCount(5);
-    hub.notify(pushed(2));
-    await expect(notes.rows).toHaveCount(6);
-    await expect(notes.row(0).title).toHaveText('Starting soon: Easter Sunrise 5K (2)');
-    await expect(notes.row(0).unread).toBeVisible();
-    await expect(shell.bellCount).toHaveText('3');
-  });
+      await expect(shell.bellCount).toHaveText('3');
+      await shell.openNotifications();
+      await expect(notes.rows).toHaveCount(5);
+      hub.notify(pushed(2));
+      await expect(notes.rows).toHaveCount(6);
+      await expect(notes.row(0).title).toHaveText('Starting soon: Easter Sunrise 5K (2)');
+      await expect(notes.row(0).unread).toBeVisible();
+      await expect(shell.bellCount).toHaveText('3');
+    },
+  );
 
   test('the chat and the bell share one connection, which stays open when the chat closes', async ({
     page,

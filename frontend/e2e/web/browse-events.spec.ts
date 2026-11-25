@@ -12,57 +12,58 @@ const MANY = Array.from({ length: 45 }, (_, i) => generatedEvent(i + 1));
 
 // L2-009 AC1: Events lists the published upcoming events as cards, soonest first (ADR 0027).
 test.describe('Member app, browse events', () => {
-  test('Events shows each event as a card with its date, time, place, going and price', async ({
-    page,
-    api,
-  }) => {
-    answerEvents(api, [SUNRISE_5K, BOOTCAMP, HOOPS_NIGHT]);
-    const events = new WebEventsPage(page);
+  test(
+    'Events shows each event as a card with its date, time, place, going and price',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerEvents(api, [SUNRISE_5K, BOOTCAMP, HOOPS_NIGHT]);
+      const events = new WebEventsPage(page);
 
-    await events.open();
+      await events.open();
 
-    await expect(events.heading).toHaveText('Events');
-    await expect.poll(() => events.title()).toBe('Events · Christian Fitness');
-    await expect(events.cards).toHaveCount(3);
-    expect(await events.rows()).toEqual([
-      {
-        href: `/events/${SUNRISE_5K.id}`,
-        month: 'Apr',
-        day: '18',
-        meta: 'Run · Apr 18, Sat 6:45 AM',
-        title: 'Easter Sunrise 5K',
-        place: 'Martin Goodman Trail, Marilyn Bell Park',
-        going: '142 going',
-        end: 'Free',
-      },
-      {
-        href: `/events/${BOOTCAMP.id}`,
-        month: 'Apr',
-        day: '25',
-        meta: 'Workout · Apr 25, Sat 8:00 AM',
-        title: 'Saturday Park Bootcamp',
-        place: 'Trillium Park, Ontario Place',
-        going: '38 going',
-        end: '$10',
-      },
-      {
-        href: `/events/${HOOPS_NIGHT.id}`,
-        month: 'Apr',
-        day: '30',
-        meta: 'Basketball · Apr 30, Thu 7:00 PM',
-        title: "Women's Hoops & Devotion Night",
-        place: 'St. Lawrence Community Rec Centre',
-        going: '24 going',
-        end: '6 spots left',
-      },
-    ]);
-    // With no picture of its own, a card shows its category's photo from the app itself.
-    expect(await events.images()).toEqual([
-      '/images/events/run.jpg',
-      '/images/events/bootcamp.jpg',
-      '/images/events/hoops.jpg',
-    ]);
-  });
+      await expect(events.heading).toHaveText('Events');
+      await expect.poll(() => events.title()).toBe('Events · Christian Fitness');
+      await expect(events.cards).toHaveCount(3);
+      expect(await events.rows()).toEqual([
+        {
+          href: `/events/${SUNRISE_5K.id}`,
+          month: 'Apr',
+          day: '18',
+          meta: 'Run · Apr 18, Sat 6:45 AM',
+          title: 'Easter Sunrise 5K',
+          place: 'Martin Goodman Trail, Marilyn Bell Park',
+          going: '142 going',
+          end: 'Free',
+        },
+        {
+          href: `/events/${BOOTCAMP.id}`,
+          month: 'Apr',
+          day: '25',
+          meta: 'Workout · Apr 25, Sat 8:00 AM',
+          title: 'Saturday Park Bootcamp',
+          place: 'Trillium Park, Ontario Place',
+          going: '38 going',
+          end: '$10',
+        },
+        {
+          href: `/events/${HOOPS_NIGHT.id}`,
+          month: 'Apr',
+          day: '30',
+          meta: 'Basketball · Apr 30, Thu 7:00 PM',
+          title: "Women's Hoops & Devotion Night",
+          place: 'St. Lawrence Community Rec Centre',
+          going: '24 going',
+          end: '6 spots left',
+        },
+      ]);
+      // With no picture of its own, a card shows its category's photo from the app itself.
+      expect(await events.images()).toEqual([
+        '/images/events/run.jpg',
+        '/images/events/bootcamp.jpg',
+        '/images/events/hoops.jpg',
+      ]);
+    },
+  );
 
   test('The header lists Home, Events, Services and Messages, with Events current', async ({
     page,

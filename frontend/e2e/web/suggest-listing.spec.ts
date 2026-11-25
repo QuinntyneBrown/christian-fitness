@@ -172,62 +172,63 @@ const STORED = { id: '0193b1c0-0000-7000-8000-00000000e001', name: 'Eastside Lad
 // L2-062 AC5 and AC6 (ADR 0086; mock `submitting`, `success`, `error`): a valid suggestion is sent,
 // the button reads "Sending…" meanwhile, and the thanks replaces the form; a failure keeps it all.
 test.describe('Member app, suggest a listing: sending', () => {
-  test('while it is on its way the button reads Sending… and the form holds still, then the thanks replaces it', async ({
-    page,
-    api,
-  }) => {
-    let answer: () => void = () => undefined;
-    const answered = new Promise<void>((resolve) => (answer = resolve));
-    api.on('POST', SUGGESTIONS, async () => {
-      await answered;
-      return { status: 201, json: STORED };
-    });
-    const suggest = new WebSuggestListingPage(page);
-    await suggest.open();
-    await suggest.fillMockSuggestion();
-    await suggest.name.fill('  Eastside Ladies Who Lift ');
+  test(
+    'while it is on its way the button reads Sending… and the form holds still, then the thanks replaces it',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      let answer: () => void = () => undefined;
+      const answered = new Promise<void>((resolve) => (answer = resolve));
+      api.on('POST', SUGGESTIONS, async () => {
+        await answered;
+        return { status: 201, json: STORED };
+      });
+      const suggest = new WebSuggestListingPage(page);
+      await suggest.open();
+      await suggest.fillMockSuggestion();
+      await suggest.name.fill('  Eastside Ladies Who Lift ');
 
-    const request = await suggest.sendAndAwaitRequest();
+      const request = await suggest.sendAndAwaitRequest();
 
-    expect(request.postDataJSON()).toEqual(MOCK_SENT);
-    await expect(suggest.sendButton).toHaveText('Sending…');
-    await expect(suggest.sendButton).toBeDisabled();
-    await expect(suggest.sendButton).toHaveAttribute('aria-busy', 'true');
-    await expect(suggest.name).toHaveJSProperty('readOnly', true);
-    await expect(suggest.reason).toHaveJSProperty('readOnly', true);
-    await expect(suggest.relation('Myself')).toBeDisabled();
-    await expect(suggest.kind('Person')).toBeDisabled();
-    await expect(suggest.tell).toBeDisabled();
+      expect(request.postDataJSON()).toEqual(MOCK_SENT);
+      await expect(suggest.sendButton).toHaveText('Sending…');
+      await expect(suggest.sendButton).toBeDisabled();
+      await expect(suggest.sendButton).toHaveAttribute('aria-busy', 'true');
+      await expect(suggest.name).toHaveJSProperty('readOnly', true);
+      await expect(suggest.reason).toHaveJSProperty('readOnly', true);
+      await expect(suggest.relation('Myself')).toBeDisabled();
+      await expect(suggest.kind('Person')).toBeDisabled();
+      await expect(suggest.tell).toBeDisabled();
 
-    answer();
+      answer();
 
-    await expect(suggest.done).toHaveAttribute('role', 'status');
-    await expect(suggest.done).toBeFocused();
-    await expect(suggest.doneTitle).toHaveText('Thanks, Grace');
-    await expect(suggest.doneText).toHaveText(
-      'We’ve got your suggestion for Eastside Ladies Who Lift. Our team will look into it this week, and we’ll message you here when it’s decided either way.',
-    );
-    await expect(suggest.doneName).toHaveText('Eastside Ladies Who Lift');
-    await expect(suggest.form).toHaveCount(0);
-    await expect(suggest.backToDirectory).toHaveAttribute('href', '/directory');
-    expect(await suggest.stepViews()).toHaveLength(4);
+      await expect(suggest.done).toHaveAttribute('role', 'status');
+      await expect(suggest.done).toBeFocused();
+      await expect(suggest.doneTitle).toHaveText('Thanks, Grace');
+      await expect(suggest.doneText).toHaveText(
+        'We’ve got your suggestion for Eastside Ladies Who Lift. Our team will look into it this week, and we’ll message you here when it’s decided either way.',
+      );
+      await expect(suggest.doneName).toHaveText('Eastside Ladies Who Lift');
+      await expect(suggest.form).toHaveCount(0);
+      await expect(suggest.backToDirectory).toHaveAttribute('href', '/directory');
+      expect(await suggest.stepViews()).toHaveLength(4);
 
-    await suggest.suggestAnother.click();
+      await suggest.suggestAnother.click();
 
-    await expect(suggest.done).toHaveCount(0);
-    expect(await suggest.choices('relations')).toMatchObject({ chosen: 'Someone I know' });
-    expect(await suggest.choices('kinds')).toMatchObject({ chosen: 'Organization' });
-    expect((await suggest.fieldViews()).map((field) => field.value)).toEqual([
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-    ]);
-    await expect(suggest.tell).toBeChecked();
-    await expect(suggest.sendButton).toHaveText('Send suggestion');
-  });
+      await expect(suggest.done).toHaveCount(0);
+      expect(await suggest.choices('relations')).toMatchObject({ chosen: 'Someone I know' });
+      expect(await suggest.choices('kinds')).toMatchObject({ chosen: 'Organization' });
+      expect((await suggest.fieldViews()).map((field) => field.value)).toEqual([
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+      ]);
+      await expect(suggest.tell).toBeChecked();
+      await expect(suggest.sendButton).toHaveText('Send suggestion');
+    },
+  );
 
   test('Myself sends no email and no permission, and the thanks names who was suggested', async ({
     page,

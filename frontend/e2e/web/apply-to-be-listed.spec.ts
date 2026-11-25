@@ -110,34 +110,35 @@ test.describe('Member app, apply to be listed', () => {
     expect(sent.bodies).toEqual([]);
   });
 
-  test('a filled-in application is sent trimmed and the member is told it was sent', async ({
-    page,
-    api,
-  }) => {
-    const sent = answerSends(api, { status: 201, json: CREATED });
-    const services = new WebServicesPage(page);
-    const dialog = new WebApplyToBeListedDialog(page);
+  test(
+    'a filled-in application is sent trimmed and the member is told it was sent',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerSends(api, { status: 201, json: CREATED });
+      const services = new WebServicesPage(page);
+      const dialog = new WebApplyToBeListedDialog(page);
 
-    await services.open();
-    await services.applyButton.click();
-    await dialog.fillValid();
-    await dialog.role.fill('  Personal trainer ');
-    await dialog.sendAndAwaitRequest();
+      await services.open();
+      await services.applyButton.click();
+      await dialog.fillValid();
+      await dialog.role.fill('  Personal trainer ');
+      await dialog.sendAndAwaitRequest();
 
-    await expect(dialog.successTitle).toHaveText('Application sent');
-    await expect(dialog.successText).toHaveText(
-      "Thanks. Our team will review your application and you'll hear from us in your messages.",
-    );
-    await expect(dialog.success).toHaveAttribute('role', 'status');
-    await expect(dialog.role).toHaveCount(0);
-    expect(sent.bodies).toEqual([SENT]);
+      await expect(dialog.successTitle).toHaveText('Application sent');
+      await expect(dialog.successText).toHaveText(
+        "Thanks. Our team will review your application and you'll hear from us in your messages.",
+      );
+      await expect(dialog.success).toHaveAttribute('role', 'status');
+      await expect(dialog.role).toHaveCount(0);
+      expect(sent.bodies).toEqual([SENT]);
 
-    await expect(dialog.sendButton).toHaveText('Done');
-    await dialog.sendButton.click();
-    await expect(dialog.dialog).toHaveCount(0);
-    await expect(services.applyButton).toBeFocused();
-    expect(sent.bodies).toHaveLength(1);
-  });
+      await expect(dialog.sendButton).toHaveText('Done');
+      await dialog.sendButton.click();
+      await expect(dialog.dialog).toHaveCount(0);
+      await expect(services.applyButton).toBeFocused();
+      expect(sent.bodies).toHaveLength(1);
+    },
+  );
 });
 
 // L2-026 (ADR 0048): a blank role or credentials is named in the dialog and nothing is sent

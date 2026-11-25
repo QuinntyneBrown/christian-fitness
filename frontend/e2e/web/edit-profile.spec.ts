@@ -80,62 +80,63 @@ test.describe('Member app, edit my profile', () => {
     await expect(dialog.cancelButton).toHaveText('Cancel');
   });
 
-  test('a valid save sends the changes, closes the dialog and shows the new values', async ({
-    page,
-    api,
-  }) => {
-    answerProfile(api, FULL_PROFILE);
-    const sent = answerSaves(api, SAVED);
-    const profile = new WebProfilePage(page);
-    const dialog = new WebEditProfileDialog(page);
+  test(
+    'a valid save sends the changes, closes the dialog and shows the new values',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerProfile(api, FULL_PROFILE);
+      const sent = answerSaves(api, SAVED);
+      const profile = new WebProfilePage(page);
+      const dialog = new WebEditProfileDialog(page);
 
-    await profile.open();
-    await profile.editButton.click();
-    await dialog.name.fill('  Grace T. Thompson ');
-    await dialog.city.fill('Scarborough, ON');
-    await dialog.showHomeChurch.check();
-    await dialog.bio.fill('Mom of two. Training for my first half marathon.');
-    // A blank line is not a goal; each line is trimmed.
-    await dialog.goals.fill(
-      'Half marathon in the fall\n\n  Sleep before 11 \nRun with the Sunrise 5K Crew',
-    );
-    await dialog.interest('Cycling').click();
-    await dialog.interest('Pickleball').click();
-    await expect(dialog.fieldHint('About')).toHaveText('A sentence or two. 252 characters left.');
-    await dialog.saveAndAwaitAnswer();
+      await profile.open();
+      await profile.editButton.click();
+      await dialog.name.fill('  Grace T. Thompson ');
+      await dialog.city.fill('Scarborough, ON');
+      await dialog.showHomeChurch.check();
+      await dialog.bio.fill('Mom of two. Training for my first half marathon.');
+      // A blank line is not a goal; each line is trimmed.
+      await dialog.goals.fill(
+        'Half marathon in the fall\n\n  Sleep before 11 \nRun with the Sunrise 5K Crew',
+      );
+      await dialog.interest('Cycling').click();
+      await dialog.interest('Pickleball').click();
+      await expect(dialog.fieldHint('About')).toHaveText('A sentence or two. 252 characters left.');
+      await dialog.saveAndAwaitAnswer();
 
-    expect(sent.bodies).toEqual([
-      {
-        name: 'Grace T. Thompson',
-        city: 'Scarborough, ON',
-        homeChurch: 'Grace Fellowship, Scarborough',
-        showHomeChurch: true,
-        bio: 'Mom of two. Training for my first half marathon.',
-        goals: ['Half marathon in the fall', 'Sleep before 11', 'Run with the Sunrise 5K Crew'],
-        interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling', 'pickleball'],
-      },
-    ]);
-    await expect(dialog.dialog).toHaveCount(0);
-    await expect(dialog.scrim).toHaveCount(0);
-    await expect(profile.heading).toHaveText('Grace T. Thompson');
-    await expect(profile.avatar).toHaveText('GT');
-    await expect(profile.facts).toHaveText(['Grace Fellowship, Scarborough', 'Scarborough, ON']);
-    await expect(profile.bio).toHaveText('Mom of two. Training for my first half marathon.');
-    await expect(profile.goals).toHaveText([
-      'Half marathon in the fall',
-      'Sleep before 11',
-      'Run with the Sunrise 5K Crew',
-    ]);
-    await expect(profile.tags).toHaveText([
-      'Running',
-      'Strength',
-      'Basketball',
-      'Nutrition',
-      'Cycling',
-      'Pickleball',
-    ]);
-    await expect(profile.editButton).toBeFocused();
-  });
+      expect(sent.bodies).toEqual([
+        {
+          name: 'Grace T. Thompson',
+          city: 'Scarborough, ON',
+          homeChurch: 'Grace Fellowship, Scarborough',
+          showHomeChurch: true,
+          bio: 'Mom of two. Training for my first half marathon.',
+          goals: ['Half marathon in the fall', 'Sleep before 11', 'Run with the Sunrise 5K Crew'],
+          interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling', 'pickleball'],
+        },
+      ]);
+      await expect(dialog.dialog).toHaveCount(0);
+      await expect(dialog.scrim).toHaveCount(0);
+      await expect(profile.heading).toHaveText('Grace T. Thompson');
+      await expect(profile.avatar).toHaveText('GT');
+      await expect(profile.facts).toHaveText(['Grace Fellowship, Scarborough', 'Scarborough, ON']);
+      await expect(profile.bio).toHaveText('Mom of two. Training for my first half marathon.');
+      await expect(profile.goals).toHaveText([
+        'Half marathon in the fall',
+        'Sleep before 11',
+        'Run with the Sunrise 5K Crew',
+      ]);
+      await expect(profile.tags).toHaveText([
+        'Running',
+        'Strength',
+        'Basketball',
+        'Nutrition',
+        'Cycling',
+        'Pickleball',
+      ]);
+      await expect(profile.editButton).toBeFocused();
+    },
+  );
 
   test('a blank city, church and bio are sent as none', async ({ page, api }) => {
     answerProfile(api, FULL_PROFILE);

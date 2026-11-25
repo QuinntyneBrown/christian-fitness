@@ -75,43 +75,44 @@ test.describe('Admin app, the Members page before moderating', () => {
 
 // L2-029 AC1 (ADR 0028; mock moderate-member/default).
 test.describe('Admin app, flagging a member', () => {
-  test('Moderate opens the dialog on Flag; a note flags the member and the list shows it', async ({
-    page,
-    api,
-  }) => {
-    const sent = answerModeration(api);
-    const members = new AdminMembersPage(page);
-    const dialog = new ModerateMemberDialog(page);
-    await members.open();
+  test(
+    'Moderate opens the dialog on Flag; a note flags the member and the list shows it',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerModeration(api);
+      const members = new AdminMembersPage(page);
+      const dialog = new ModerateMemberDialog(page);
+      await members.open();
 
-    await members.moderateButton('Priya Nair').click();
+      await members.moderateButton('Priya Nair').click();
 
-    await expect(dialog.dialog).toHaveAttribute('aria-modal', 'true');
-    await expect(dialog.dialog).toHaveAccessibleName('Moderate Priya Nair');
-    await expect(dialog.dialog).toHaveAccessibleDescription('priya.nair@gmail.com · Active');
-    await expect(dialog.flagChoice).toBeChecked();
-    await expect.poll(() => dialog.isFocused(dialog.flagChoice)).toBe(true);
-    await expect(dialog.confirmation).toHaveCount(0);
-    await expect(dialog.noteHint).toHaveText(
-      "Staff see this on the member's row. 500 characters left.",
-    );
-    await expect(dialog.submitButton).toHaveText('Flag member');
+      await expect(dialog.dialog).toHaveAttribute('aria-modal', 'true');
+      await expect(dialog.dialog).toHaveAccessibleName('Moderate Priya Nair');
+      await expect(dialog.dialog).toHaveAccessibleDescription('priya.nair@gmail.com · Active');
+      await expect(dialog.flagChoice).toBeChecked();
+      await expect.poll(() => dialog.isFocused(dialog.flagChoice)).toBe(true);
+      await expect(dialog.confirmation).toHaveCount(0);
+      await expect(dialog.noteHint).toHaveText(
+        "Staff see this on the member's row. 500 characters left.",
+      );
+      await expect(dialog.submitButton).toHaveText('Flag member');
 
-    await dialog.note.fill(`  ${NOTE} `);
-    await dialog.submitButton.click();
+      await dialog.note.fill(`  ${NOTE} `);
+      await dialog.submitButton.click();
 
-    await expect(dialog.dialog).toHaveCount(0);
-    expect(sent).toEqual([{ path: `/api/admin/members/${PRIYA.id}/flag`, body: { note: NOTE } }]);
-    await expect(members.toastTitle).toHaveText('Priya Nair flagged');
-    await expect(members.toastText).toHaveText(
-      'They can still use the app. Your note is on their row.',
-    );
-    await expect(members.rows).toHaveCount(7);
-    expect((await members.rowTexts())[2]?.[5]).toBe('Flagged');
-    expect((await members.notes())[2]).toBe(NOTE);
-    // The row that opened the dialog was drawn again: focus goes to the list.
-    await expect(members.tableRegion).toBeFocused();
-  });
+      await expect(dialog.dialog).toHaveCount(0);
+      expect(sent).toEqual([{ path: `/api/admin/members/${PRIYA.id}/flag`, body: { note: NOTE } }]);
+      await expect(members.toastTitle).toHaveText('Priya Nair flagged');
+      await expect(members.toastText).toHaveText(
+        'They can still use the app. Your note is on their row.',
+      );
+      await expect(members.rows).toHaveCount(7);
+      expect((await members.rowTexts())[2]?.[5]).toBe('Flagged');
+      expect((await members.notes())[2]).toBe(NOTE);
+      // The row that opened the dialog was drawn again: focus goes to the list.
+      await expect(members.tableRegion).toBeFocused();
+    },
+  );
 
   test('the whole flag works from the keyboard', async ({ page, api }) => {
     const sent = answerModeration(api);

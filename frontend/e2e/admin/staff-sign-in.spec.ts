@@ -53,50 +53,51 @@ function answerSignIn(api: ApiHandlers): Sent[] {
 // code from their authenticator app, with the antiforgery token, and land on the Dashboard in the
 // admin layout. The cookies themselves are the API's (backend TwoStepTests).
 test.describe('Admin app, staff sign in', () => {
-  test('staff sign in with their password and their code and land on the Dashboard', async ({
-    page,
-    api,
-  }) => {
-    const sent = answerSignIn(api);
-    const signIn = new AdminStaffSignInPage(page);
-    const twoStep = new AdminTwoStepPage(page);
-    const shell = new AdminShell(page);
+  test(
+    'staff sign in with their password and their code and land on the Dashboard',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerSignIn(api);
+      const signIn = new AdminStaffSignInPage(page);
+      const twoStep = new AdminTwoStepPage(page);
+      const shell = new AdminShell(page);
 
-    await signIn.open();
-    await expect.poll(() => signIn.title()).toBe('Staff sign in · Christian Fitness Admin');
-    await signIn.fill(EMAIL, PASSWORD);
-    await signIn.submit();
+      await signIn.open();
+      await expect.poll(() => signIn.title()).toBe('Staff sign in · Christian Fitness Admin');
+      await signIn.fill(EMAIL, PASSWORD);
+      await signIn.submit();
 
-    await expect(twoStep.heading).toHaveText('Enter your code');
-    expect(twoStep.location()).toBe('/sign-in/verify');
-    await expect.poll(() => twoStep.title()).toBe('Enter your code · Christian Fitness Admin');
-    await expect(shell.nav).toHaveCount(0);
-    await twoStep.fill(CODE);
-    await twoStep.submit();
+      await expect(twoStep.heading).toHaveText('Enter your code');
+      expect(twoStep.location()).toBe('/sign-in/verify');
+      await expect.poll(() => twoStep.title()).toBe('Enter your code · Christian Fitness Admin');
+      await expect(shell.nav).toHaveCount(0);
+      await twoStep.fill(CODE);
+      await twoStep.submit();
 
-    await expect(shell.heading).toHaveText('Dashboard');
-    expect(shell.location()).toBe('/');
-    await expect.poll(() => shell.title()).toBe('Dashboard · Christian Fitness Admin');
-    await expect(shell.navItems).toHaveText([
-      'Dashboard',
-      'Events',
-      'Listings',
-      'Services',
-      'Members',
-    ]);
-    await expect(shell.currentItem).toHaveText('Dashboard');
-    await expect(shell.userName).toHaveText('Dana Reyes');
-    await expect(shell.userRole).toHaveText('Admin');
-    await expect(shell.userInitials).toHaveText('DR');
-    expect(sent).toEqual([
-      {
-        path: '/api/admin/session',
-        body: { email: EMAIL, password: PASSWORD },
-        token: XSRF_TOKEN,
-      },
-      { path: '/api/admin/session/two-step', body: { code: CODE }, token: XSRF_TOKEN },
-    ]);
-  });
+      await expect(shell.heading).toHaveText('Dashboard');
+      expect(shell.location()).toBe('/');
+      await expect.poll(() => shell.title()).toBe('Dashboard · Christian Fitness Admin');
+      await expect(shell.navItems).toHaveText([
+        'Dashboard',
+        'Events',
+        'Listings',
+        'Services',
+        'Members',
+      ]);
+      await expect(shell.currentItem).toHaveText('Dashboard');
+      await expect(shell.userName).toHaveText('Dana Reyes');
+      await expect(shell.userRole).toHaveText('Admin');
+      await expect(shell.userInitials).toHaveText('DR');
+      expect(sent).toEqual([
+        {
+          path: '/api/admin/session',
+          body: { email: EMAIL, password: PASSWORD },
+          token: XSRF_TOKEN,
+        },
+        { path: '/api/admin/session/two-step', body: { code: CODE }, token: XSRF_TOKEN },
+      ]);
+    },
+  );
 
   test('shows the form the mock draws', async ({ page }) => {
     const signIn = new AdminStaffSignInPage(page);

@@ -7,6 +7,8 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * Only behaviour specs run by default. Visual, responsive, accessibility and heap sweeps carry the
  * tag @sweep and run only when a person asks: CF_SWEEPS=1 npx playwright test --grep @sweep.
+ * `npm run e2e` runs every behaviour spec; CI runs `npm run e2e:critical`, the one test per
+ * feature tagged @critical.
  */
 const WEB_PORT = Number(process.env['CF_WEB_PORT'] ?? 4310);
 const ADMIN_PORT = Number(process.env['CF_ADMIN_PORT'] ?? 4311);

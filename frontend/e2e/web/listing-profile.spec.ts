@@ -23,42 +23,43 @@ import { WebListingProfilePage } from '../page-objects/web/listing-profile.page'
 // `unverified`, `no-owner`, `message-failed`, `loading`, `error`). Hosted series arrive with
 // journey 11.
 test.describe('Member app, listing profile', () => {
-  test('The profile shows the mark, kind, Verified, name, tagline, About with focus tags and the key facts', async ({
-    page,
-    api,
-  }) => {
-    const asked = answerListingProfile(api, PROFILES);
-    const profile = new WebListingProfilePage(page);
+  test(
+    'The profile shows the mark, kind, Verified, name, tagline, About with focus tags and the key facts',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const asked = answerListingProfile(api, PROFILES);
+      const profile = new WebListingProfilePage(page);
 
-    await profile.open(LAKESHORE.id);
+      await profile.open(LAKESHORE.id);
 
-    expect(await profile.headView()).toEqual({
-      initials: 'LR',
-      shape: 'square',
-      photo: null,
-      kind: 'Organization',
-      verified: 'Verified',
-      name: 'Lakeshore Runners Fellowship',
-      tagline: 'Beginner-friendly running club with a prayer at every finish',
-    });
-    await expect(profile.aboutText).toHaveText(LAKESHORE.description);
-    await expect(profile.focusTags).toHaveText(['Running', 'Beginners', 'Race training']);
-    expect(await profile.factViews()).toEqual([
-      ['Area', 'Etobicoke'],
-      ['Website', 'lakeshorerunners.ca (opens in a new tab)'],
-      ['Followers', '612'],
-      ['On Christian Fitness', 'Since 2025'],
-    ]);
-    expect(await profile.websiteView()).toEqual({
-      text: 'lakeshorerunners.ca (opens in a new tab)',
-      href: 'https://lakeshorerunners.ca/',
-      target: '_blank',
-      rel: 'noopener noreferrer',
-    });
-    await expect(profile.backLink).toHaveAttribute('href', '/directory');
-    expect(await profile.title()).toBe('Listing · Christian Fitness');
-    expect(asked).toEqual([LAKESHORE.id]);
-  });
+      expect(await profile.headView()).toEqual({
+        initials: 'LR',
+        shape: 'square',
+        photo: null,
+        kind: 'Organization',
+        verified: 'Verified',
+        name: 'Lakeshore Runners Fellowship',
+        tagline: 'Beginner-friendly running club with a prayer at every finish',
+      });
+      await expect(profile.aboutText).toHaveText(LAKESHORE.description);
+      await expect(profile.focusTags).toHaveText(['Running', 'Beginners', 'Race training']);
+      expect(await profile.factViews()).toEqual([
+        ['Area', 'Etobicoke'],
+        ['Website', 'lakeshorerunners.ca (opens in a new tab)'],
+        ['Followers', '612'],
+        ['On Christian Fitness', 'Since 2025'],
+      ]);
+      expect(await profile.websiteView()).toEqual({
+        text: 'lakeshorerunners.ca (opens in a new tab)',
+        href: 'https://lakeshorerunners.ca/',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      });
+      await expect(profile.backLink).toHaveAttribute('href', '/directory');
+      expect(await profile.title()).toBe('Listing · Christian Fitness');
+      expect(asked).toEqual([LAKESHORE.id]);
+    },
+  );
 
   test('A person shows a round photo, an unverified listing no Verified, and thousands read with a comma', async ({
     page,

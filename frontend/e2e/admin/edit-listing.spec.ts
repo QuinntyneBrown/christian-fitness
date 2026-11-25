@@ -96,51 +96,52 @@ test.describe('Admin app, live listings and the listing editor', () => {
     expect(listings.saves).toEqual([]);
   });
 
-  test('Save changes sends the fields, closes, says so and shows the change in the list', async ({
-    page,
-    api,
-  }) => {
-    const listings = answerListings(api, CAST_LISTINGS);
-    const services = new ManageServicesPage(page);
-    const editor = new ListingEditorDialog(page);
-    await services.open();
-    await services.editButton('Danielle Okafor').click();
+  test(
+    'Save changes sends the fields, closes, says so and shows the change in the list',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const listings = answerListings(api, CAST_LISTINGS);
+      const services = new ManageServicesPage(page);
+      const editor = new ListingEditorDialog(page);
+      await services.open();
+      await services.editButton('Danielle Okafor').click();
 
-    await editor.fill({
-      name: 'Danielle O. Okafor',
-      role: 'Strength coach',
-      category: 'Coaching',
-      where: 'Virtual · Ontario-wide',
-      rate: 'From $80 / session',
-      credentials: 'NSCA-CPT',
-      about: 'Strength for busy parents.',
-      contactLink: 'https://danielle.example.org/book',
-    });
-    await editor.save();
+      await editor.fill({
+        name: 'Danielle O. Okafor',
+        role: 'Strength coach',
+        category: 'Coaching',
+        where: 'Virtual · Ontario-wide',
+        rate: 'From $80 / session',
+        credentials: 'NSCA-CPT',
+        about: 'Strength for busy parents.',
+        contactLink: 'https://danielle.example.org/book',
+      });
+      await editor.save();
 
-    await expect(editor.dialog).toHaveCount(0);
-    expect(listings.saves).toEqual([
-      {
-        id: DANIELLE.id,
-        body: {
-          name: 'Danielle O. Okafor',
-          role: 'Strength coach',
-          category: 'Coaching',
-          where: 'Virtual · Ontario-wide',
-          price: 'From $80 / session',
-          credentials: 'NSCA-CPT',
-          about: 'Strength for busy parents.',
-          contactUrl: 'https://danielle.example.org/book',
+      await expect(editor.dialog).toHaveCount(0);
+      expect(listings.saves).toEqual([
+        {
+          id: DANIELLE.id,
+          body: {
+            name: 'Danielle O. Okafor',
+            role: 'Strength coach',
+            category: 'Coaching',
+            where: 'Virtual · Ontario-wide',
+            price: 'From $80 / session',
+            credentials: 'NSCA-CPT',
+            about: 'Strength for busy parents.',
+            contactUrl: 'https://danielle.example.org/book',
+          },
         },
-      },
-    ]);
-    await expect(services.toastTitle).toHaveText('Changes saved');
-    await expect(services.toastText).toHaveText('Danielle O. Okafor is updated.');
-    await expect(services.listingRows.first()).toContainText('Strength coach');
-    await expect(services.listingRows.first()).toContainText('Coaching');
-    await expect(services.listingRows.first()).toContainText('From $80 / session');
-    await expect(services.editButton('Danielle O. Okafor')).toBeFocused();
-  });
+      ]);
+      await expect(services.toastTitle).toHaveText('Changes saved');
+      await expect(services.toastText).toHaveText('Danielle O. Okafor is updated.');
+      await expect(services.listingRows.first()).toContainText('Strength coach');
+      await expect(services.listingRows.first()).toContainText('Coaching');
+      await expect(services.listingRows.first()).toContainText('From $80 / session');
+      await expect(services.editButton('Danielle O. Okafor')).toBeFocused();
+    },
+  );
 
   test('emptying the contact link saves it as none', async ({ page, api }) => {
     const listings = answerListings(api, CAST_LISTINGS);

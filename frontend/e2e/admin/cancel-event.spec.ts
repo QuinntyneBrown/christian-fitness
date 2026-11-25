@@ -102,35 +102,36 @@ test.describe('Admin app, cancelling an event', () => {
     expect(calls.cancels).toEqual([]);
   });
 
-  test('confirming cancels the event, closes both dialogs, says so and lists it as Cancelled', async ({
-    page,
-    api,
-  }) => {
-    const calls = answerCancel(api);
-    const events = new AdminEventsPage(page);
-    const editor = new EventEditorDialog(page, 'Edit event');
-    const confirm = new CancelEventDialog(page);
-    await events.open();
-    await events.editEvent(BOOTCAMP.title);
-    await editor.cancelEvent();
+  test(
+    'confirming cancels the event, closes both dialogs, says so and lists it as Cancelled',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const calls = answerCancel(api);
+      const events = new AdminEventsPage(page);
+      const editor = new EventEditorDialog(page, 'Edit event');
+      const confirm = new CancelEventDialog(page);
+      await events.open();
+      await events.editEvent(BOOTCAMP.title);
+      await editor.cancelEvent();
 
-    await confirm.cancelButton.click();
+      await confirm.cancelButton.click();
 
-    await expect(confirm.dialog).toHaveCount(0);
-    await expect(editor.dialog).toHaveCount(0);
-    expect(calls.cancels).toEqual([{ token: XSRF_TOKEN }]);
-    await expect(events.toastTitle).toHaveText('Saturday Park Bootcamp is cancelled');
-    await expect(events.toastText).toHaveText(
-      'Registered members see it as cancelled on their Profile.',
-    );
-    expect((await events.rowTexts())[1]).toEqual([
-      'Saturday Park Bootcamp',
-      'Trillium Park, Ontario Place',
-      'Apr 25 · 8:00 AM',
-      '38 / 50',
-      'Cancelled',
-    ]);
-  });
+      await expect(confirm.dialog).toHaveCount(0);
+      await expect(editor.dialog).toHaveCount(0);
+      expect(calls.cancels).toEqual([{ token: XSRF_TOKEN }]);
+      await expect(events.toastTitle).toHaveText('Saturday Park Bootcamp is cancelled');
+      await expect(events.toastText).toHaveText(
+        'Registered members see it as cancelled on their Profile.',
+      );
+      expect((await events.rowTexts())[1]).toEqual([
+        'Saturday Park Bootcamp',
+        'Trillium Park, Ontario Place',
+        'Apr 25 · 8:00 AM',
+        '38 / 50',
+        'Cancelled',
+      ]);
+    },
+  );
 
   // Mock cancel-event/busy.
   test('while cancelling, the button says "Cancelling…", is busy, and everything else holds still', async ({

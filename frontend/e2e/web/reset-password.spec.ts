@@ -102,32 +102,36 @@ test.describe('Member app, choose a new password', () => {
     await expect(reset.form).not.toHaveAttribute('aria-busy');
   });
 
-  test('a member saves a new password and is told to sign in with it', async ({ page, api }) => {
-    const sent = answerReset(api);
-    const reset = new WebResetPasswordPage(page);
+  test(
+    'a member saves a new password and is told to sign in with it',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerReset(api);
+      const reset = new WebResetPasswordPage(page);
 
-    await reset.open(TOKEN);
-    await reset.fill(PASSWORD, PASSWORD);
-    await reset.submit();
+      await reset.open(TOKEN);
+      await reset.fill(PASSWORD, PASSWORD);
+      await reset.submit();
 
-    await expect(reset.heading).toHaveText('Password saved');
-    await expect(reset.heading).toBeFocused();
-    await expect(reset.lead).toHaveText(
-      "You can sign in with your new password now. We've signed you out on your other devices.",
-    );
-    await expect(reset.actionLink).toHaveText('Sign in');
-    await expect(reset.actionLink).toHaveAttribute('href', '/sign-in');
-    await expect(reset.alt).toHaveCount(0);
-    await expect(reset.inputs).toHaveCount(0);
-    await expect(page.locator('form')).toHaveCount(0);
-    expect(sent.slice(1)).toEqual([
-      {
-        path: '/api/account/password-reset/complete',
-        body: { token: TOKEN, password: PASSWORD },
-        xsrf: XSRF_TOKEN,
-      },
-    ]);
-  });
+      await expect(reset.heading).toHaveText('Password saved');
+      await expect(reset.heading).toBeFocused();
+      await expect(reset.lead).toHaveText(
+        "You can sign in with your new password now. We've signed you out on your other devices.",
+      );
+      await expect(reset.actionLink).toHaveText('Sign in');
+      await expect(reset.actionLink).toHaveAttribute('href', '/sign-in');
+      await expect(reset.alt).toHaveCount(0);
+      await expect(reset.inputs).toHaveCount(0);
+      await expect(page.locator('form')).toHaveCount(0);
+      expect(sent.slice(1)).toEqual([
+        {
+          path: '/api/account/password-reset/complete',
+          body: { token: TOKEN, password: PASSWORD },
+          xsrf: XSRF_TOKEN,
+        },
+      ]);
+    },
+  );
 
   test('the email is named as text', async ({ page, api }) => {
     const email = '<b>grace</b>@example.org';

@@ -2604,3 +2604,27 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Read the initial total after each build" (5): admin's initial is 280.38 kB, 400 B over main's
   279.98 kB, for the Listings route, its area and two tokens. It is past the 280 kB warning; the
   budget was not raised.
+
+## CI: one critical acceptance path per feature
+
+**What slowed it**
+
+- CI ran every behaviour spec (610), so each journey made it slower: the Frontend job reached
+  4m58s against the five-minute timeout, 3m21s of it in specs. AGENTS.md already asked for one
+  critical acceptance path per feature, but only `join-age.spec.ts` carried `@critical`.
+
+**New lessons**
+
+- CI runs `npm run e2e:critical` (`playwright test --grep @critical`): one happy-path test per
+  feature, in each app the feature touches, tagged `{ tag: '@critical' }`. The first set is 40
+  tests (25 member, 15 admin) and runs in about 25 s locally on two workers.
+- Every new journey tags its one critical path in the same change, the single test that proves
+  the feature's main happy path end to end; the rest of its specs run locally with `npm run e2e`
+  before it merges. `npx playwright test --grep @critical --list` shows the set.
+- Adding the tag to a test whose title and callback share a line makes Prettier re-indent its
+  body; that is the house form (`join-age.spec.ts`), so expect a re-indented diff and rebase it.
+
+**How earlier lessons worked**
+
+- "Count a slice's new specs against the CI budget" (24.1) is retired: new specs no longer cost
+  CI time, only the one critical path does.

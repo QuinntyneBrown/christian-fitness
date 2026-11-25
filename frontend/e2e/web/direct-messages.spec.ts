@@ -14,58 +14,59 @@ test.describe('Member app, direct messages', () => {
     await page.clock.setFixedTime(MESSAGES_NOW);
   });
 
-  test("Message on a member's profile opens a private chat that receives and sends live and is read", async ({
-    page,
-    api,
-  }) => {
-    api.on('GET', `/api/members/${MICHAEL}/profile`, () => ({
-      json: { name: 'Michael Chen', bio: null, interests: [] },
-    }));
-    const hub = await FakeChatHub.install(
-      page,
-      api,
-      { code: null, title: 'Michael Chen', memberId: SIGNED_IN.memberId },
-      [
-        {
-          id: 'h1',
-          eventId: MICHAEL,
-          authorId: MICHAEL,
-          author: 'Michael Chen',
-          text: 'See you Saturday?',
-          sentAt: '2026-04-18T12:00:00Z',
-        },
-      ],
-    );
-    const profile = new WebMemberProfilePage(page);
-    const chat = new WebEventChatPage(page);
+  test(
+    "Message on a member's profile opens a private chat that receives and sends live and is read",
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      api.on('GET', `/api/members/${MICHAEL}/profile`, () => ({
+        json: { name: 'Michael Chen', bio: null, interests: [] },
+      }));
+      const hub = await FakeChatHub.install(
+        page,
+        api,
+        { code: null, title: 'Michael Chen', memberId: SIGNED_IN.memberId },
+        [
+          {
+            id: 'h1',
+            eventId: MICHAEL,
+            authorId: MICHAEL,
+            author: 'Michael Chen',
+            text: 'See you Saturday?',
+            sentAt: '2026-04-18T12:00:00Z',
+          },
+        ],
+      );
+      const profile = new WebMemberProfilePage(page);
+      const chat = new WebEventChatPage(page);
 
-    await profile.open(MICHAEL);
-    await profile.messageLink.click();
+      await profile.open(MICHAEL);
+      await profile.messageLink.click();
 
-    await expect(chat.chatTitle).toHaveText('Michael Chen');
-    await expect(chat.subtitle).toHaveText('Direct message');
-    await expect(chat.messagesLink).toHaveAttribute('href', '/messages');
-    await expect(chat.messages).toHaveCount(1);
-    await expect(chat.text(0)).toHaveText('See you Saturday?');
-    expect(hub.joined).toEqual([MICHAEL]);
-    await expect.poll(() => hub.read).toEqual([MICHAEL]);
+      await expect(chat.chatTitle).toHaveText('Michael Chen');
+      await expect(chat.subtitle).toHaveText('Direct message');
+      await expect(chat.messagesLink).toHaveAttribute('href', '/messages');
+      await expect(chat.messages).toHaveCount(1);
+      await expect(chat.text(0)).toHaveText('See you Saturday?');
+      expect(hub.joined).toEqual([MICHAEL]);
+      await expect.poll(() => hub.read).toEqual([MICHAEL]);
 
-    hub.push({
-      eventId: MICHAEL,
-      authorId: MICHAEL,
-      author: 'Michael Chen',
-      text: 'Bring <b>water</b>.',
-      sentAt: '2026-04-18T12:30:00Z',
-    });
-    await expect(chat.messages).toHaveCount(2);
-    await expect(chat.text(1)).toHaveText('Bring <b>water</b>.');
+      hub.push({
+        eventId: MICHAEL,
+        authorId: MICHAEL,
+        author: 'Michael Chen',
+        text: 'Bring <b>water</b>.',
+        sentAt: '2026-04-18T12:30:00Z',
+      });
+      await expect(chat.messages).toHaveCount(2);
+      await expect(chat.text(1)).toHaveText('Bring <b>water</b>.');
 
-    await chat.composerInput.fill('Yes, see you there.');
-    await chat.sendButton.click();
-    await expect(chat.messages).toHaveCount(3);
-    await expect(chat.messages.nth(2)).toHaveClass(/message--mine/);
-    expect(hub.sent).toEqual(['Yes, see you there.']);
-  });
+      await chat.composerInput.fill('Yes, see you there.');
+      await chat.sendButton.click();
+      await expect(chat.messages).toHaveCount(3);
+      await expect(chat.messages.nth(2)).toHaveClass(/message--mine/);
+      expect(hub.sent).toEqual(['Yes, see you there.']);
+    },
+  );
 
   test('a member who cannot be messaged is told so and sees no composer', async ({ page, api }) => {
     const hub = await FakeChatHub.install(page, api, {
