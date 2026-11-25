@@ -1152,6 +1152,8 @@
       "states": [
         "default",
         "correction",
+        "suspended",
+        "failed",
         "replying",
         "replied",
         "resolved",
