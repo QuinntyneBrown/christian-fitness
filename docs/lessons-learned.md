@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 22% (8 of 36 journeys; 21 of 113 days)
+**% complete:** 25% (9 of 36 journeys; 25 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2556,3 +2556,51 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Check `origin/main` and open PRs for the next ADR number right before each commit" (17): 0088
   was free at the first commit, but journey 8's PR (#196) had taken it by the push, so this ADR
   became 0089. Check again just before pushing too, not only before committing.
+
+## Journey 18: Review listing suggestions
+
+**What slowed it**
+
+- Three journeys merged while it ran. Journeys 6 and 8 took ADRs 0087 and 0088 and added three
+  migrations that sorted between this branch's four, and journey 7 took 0089 and built
+  `PickCards` in its button form while this branch built its link form. The rebase renumbered
+  this ADR to 0090 on only the lines the branch added (journey 6's own "ADR 0087" stayed),
+  replaced the four migrations with one generated after main's, added the new DbSets to main's
+  new fake context (`FollowRaceTests`), and merged the two `PickCards` into one component with
+  both forms and one `picked` output.
+- A counts test that made one waiting and one decided suggestion passed with the rule inverted:
+  in a shared store the two counts were equal. It now measures the count before, after a
+  suggestion arrives and after it is decided.
+- The shell's counts first cost `main` 410 B: `adminNavOf` sat in `admin-areas.ts` and the counts
+  call on the staff session service, both already in `main`. Moving each to a file and a
+  service only the lazy shell imports brought it back to 10 B.
+- `queryParamMap` emits synchronously, so Listed never loaded until its reload subscription was
+  made before the address subscription.
+
+**New lessons**
+
+- An honest red needs bad data by construction: when the rule's two outcomes give equal numbers,
+  the test passes with the rule broken. Measure a change (before, after) rather than a total.
+- Read the `main` chunk's inputs (`--stats-json`) after a change to a shell or a guard: a helper
+  added to a file `main` already imports is paid for at start-up, even when only a lazy screen
+  calls it. A new file, or a service the lazy component provides itself, keeps it out.
+- When `main` gains a component this branch also builds, merge them into one in the rebase, with
+  the other side's spec kept and the new form's cases added, rather than keeping either copy.
+- A purge that deletes rows with dependents removes the dependents too, even when the database
+  cascades: InMemory cascades only tracked rows.
+- Angular keeps the whitespace before an `@if` inside text, so a title with an optional tag reads
+  "Name ". Wrap the text in its own span, so only whitespace-only nodes sit between elements and
+  Angular drops them.
+
+**How earlier lessons worked**
+
+- "Check `origin/main` and open PRs for the next ADR number right before each commit and again
+  before pushing" (7): checked at each rebase, and 0087, then 0090, held.
+- "Regenerate a migration that sorts before main's" (8): one `AddSuggestionReview` after main's
+  three, built on main's snapshot, replaced four.
+- "Break each rule alone" (5, 17): the check count, the Waiting filter, the oldest-first order,
+  the page size, the 90-day window and the nav refresh each failed exactly their tests, and
+  each was restored.
+- "Read the initial total after each build" (5): admin's initial is 280.38 kB, 400 B over main's
+  279.98 kB, for the Listings route, its area and two tokens. It is past the 280 kB warning; the
+  budget was not raised.
