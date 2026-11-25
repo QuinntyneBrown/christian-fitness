@@ -23,7 +23,8 @@ it. Admins and Moderators both see it.
 For an Admin, "Needs attention" lists the stories in review first, then one line for the listing
 suggestions waiting, one line for new feedback, then the pending applications and the flagged
 members (`L2-020` AC7, AC11; mock `docs/mocks/pages/admin-dashboard/default.html`). A Moderator's
-queue holds flagged members only (`L2-020` AC8, AC11; mock `moderator.html`).
+queue holds the listing suggestions and new feedback lines and the flagged members, not the stories or
+applications (`L2-020` AC8, AC11; ADR 0061; mock `moderator.html`).
 
 ## Description
 
@@ -93,10 +94,10 @@ questions).
   - counts listing suggestions waiting and names the oldest `Shown`, with id and name;
   - counts new feedback notes, and reads no note's text.
 
-  For a Moderator it reads none of the four, and the answer has none of their keys (`L2-020` AC8,
-  AC11). Each count is a `CountAsync` through `IAppDbContext` with `AsNoTracking`.
-- **`WorkAwaitingStaffDto`** — gains three optional keys, each omitted for a Moderator as
-  `Applications` is:
+  For a Moderator it reads the suggestions and feedback counts but not the stories or applications, and the answer has no key for those two (`L2-020` AC8,
+  AC11; ADR 0061). Each count is a `CountAsync` through `IAppDbContext` with `AsNoTracking`.
+- **`WorkAwaitingStaffDto`** — gains three keys; `stories` is omitted for a Moderator as
+  `Applications` is, while `suggestions` and `feedback` are sent to both roles:
   - `stories: AwaitingListDto<AwaitingStoryDto>` — `{ id, title, writer, submittedAt }`;
   - `suggestions: AwaitingListDto<AwaitingSuggestionDto>` — `{ id, name }`;
   - `feedback: AwaitingCountDto` — `{ total }` only.
@@ -148,7 +149,7 @@ story title, a suggested name, a member's name or a note (`L2-033` AC2).
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-020` | `L1-009` | Given staff on the Dashboard, it shall show total members, new members in the last 7 days, upcoming events, registrations in the last 7 days, pending applications and flagged members, each waiting kind with a link to the screen that resolves it, and a generic error with Try again when the request fails (AC1–AC3). "Community activity" shall show the last eight UTC weeks, the current week first and named "(this week)", with new members, registrations and messages as counts; "No activity yet" when none; "Activity didn't load" with Try again on failure, with no word of the server's (AC4–AC6). For an Admin, "Needs attention" shall show how many wait in all and the oldest three applications (name, role, date) then flagged members (name, staff's note), each with Review, and "All N …" when more wait; a Moderator's shall show flagged members only, the answer carrying no application, count or key; "You're all caught up" when nothing waits; "Work waiting didn't load" with Try again that asks again alone, the activity section loading and failing on its own (AC7–AC10). For an Admin, ahead of the applications and flagged members, it shall list each story in review (title, writer, when submitted, with Review opening the editor), one line for listing suggestions waiting (how many and their names, with Check opening Listings) and one line for new feedback (how many, with Read opening Feedback), the count being of all that wait; a Moderator's shall show none of the three (AC11). |
-| `L2-019` | `L1-008` | Given a Moderator, the staff session, the Dashboard and Members shall answer them, and every Events and Services endpoint, and any admin endpoint in no area yet, shall refuse them with HTTP 403 and code `forbidden_role`; an Admin shall be allowed every admin action (acceptance criteria 1–2). The Dashboard's waiting-work answer applies this by role in the handler (ADR 0060). |
+| `L2-019` | `L1-008` | Given a Moderator, the staff session, the Dashboard, Members, Newsletter, Event series, Community Pick, Listings and Feedback shall answer them, and every Stories, Events and Services endpoint, and any admin endpoint in no area yet, shall refuse them with HTTP 403 and code `forbidden_role`; an Admin shall be allowed every admin action (acceptance criteria 1–2). The Dashboard's waiting-work answer applies this by role in the handler (ADR 0060). |
 
 ## Diagrams
 
@@ -191,6 +192,6 @@ Try again (`L2-020` AC4–AC6).
 ### Behaviour — load the work awaiting staff
 
 The handler reads the caller's role. An Admin's answer carries stories, suggestions, feedback,
-applications and flagged members; a Moderator's carries flagged members only (`L2-020` AC7–AC11).
+applications and flagged members; a Moderator's carries suggestions, feedback and flagged members, and no stories or applications (`L2-020` AC7–AC11).
 
 ![Sequence diagram for loading the work awaiting staff](diagrams/sequence-load-awaiting.png)

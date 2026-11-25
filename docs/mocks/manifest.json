@@ -1054,6 +1054,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "scheduled",
         "test-sent",
         "invalid",
@@ -1075,6 +1076,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "selected",
         "date-cancelled",
         "loading",
@@ -1109,6 +1111,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "pick",
         "creating",
         "facebook",
@@ -1130,6 +1133,7 @@
       "requirements": [],
       "states": [
         "default",
+        "moderator",
         "unchecked",
         "ready",
         "approving",
@@ -1154,6 +1158,7 @@
         "correction",
         "replying",
         "replied",
+        "moderator",
         "resolved",
         "loading",
         "empty",

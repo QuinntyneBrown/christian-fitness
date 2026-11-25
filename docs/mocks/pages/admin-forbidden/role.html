@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-forbidden">
 <meta name="mock:state" content="role">
 <meta name="mock:source" content="Derived from the Sign In frame layout.">
-<meta name="description" content="A Moderator opened Events or Services, or a read was refused forbidden_role (L2-019 AC5; ADR 0020): &quot;Admins only&quot;, the heading takes focus, Go to dashboard; the title is &quot;Admins only · Christian Fitness Admin&quot;.">
+<meta name="description" content="A Moderator opened an Admins-only area (Stories, Events or Services), or a read was refused forbidden_role (L2-019 AC5; ADR 0061): &quot;Admins only&quot;, the heading takes focus, Go to dashboard; the title is &quot;Admins only · Christian Fitness Admin&quot;.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -26,9 +26,9 @@
     </div>
     <form action="../../pages/admin-dashboard/default.html" novalidate>
       <h1 class="display staff__title" tabindex="-1">Admins only</h1>
-      <p class="staff__lead">Events and Services are run by admins. As a moderator, you look after members from the Dashboard and Members.</p>
+      <p class="staff__lead">Only Admins can open this area. As a moderator, you can open the areas in your navigation, starting from the Dashboard.</p>
       <a class="btn btn--primary btn--lg btn--block auth__submit" href="../../pages/admin-dashboard/moderator.html">Go to dashboard</a>
-      <p class="staff__note">Need to manage events or services? Ask a community director to make you an admin.</p>
+      <p class="staff__note">Need to manage this area? Ask a community director to make you an admin.</p>
     </form>
   </div>
 </main>

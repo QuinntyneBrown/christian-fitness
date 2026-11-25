@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="admin-dashboard">
 <meta name="mock:state" content="moderator">
 <meta name="mock:source" content="Magic Patterns · prototype Admin Console · frame Dashboard (r8vPpenwCG88cBh4QH43ce)">
-<meta name="description" content="A Moderator (L2-019 AC5; ADR 0020): the navigation lists Dashboard and Members only; the queue holds member reports, and Upcoming events has no Manage link.">
+<meta name="description" content="A Moderator (L2-019 AC5; ADR 0061): the navigation lists Dashboard, Newsletter, Event series, Community Pick, Listings, Members and Feedback, without group names; the queue holds the listing suggestions, new feedback and member reports, and Upcoming events has no Manage link.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -25,7 +25,7 @@
       </div>
     </div>
     <nav class="admin-nav" aria-label="Admin">
-      <a class="admin-nav__item" href="../../pages/admin-dashboard/default.html" aria-current="page"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a><a class="admin-nav__item" href="../../pages/admin-members/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members<span class="admin-nav__count" aria-label="1 report to review">1</span></a>
+      <a class="admin-nav__item" href="../../pages/admin-dashboard/default.html" aria-current="page"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a><a class="admin-nav__item" href="../../pages/admin-newsletter/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Newsletter</a><a class="admin-nav__item" href="../../pages/admin-series/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Event series</a><a class="admin-nav__item" href="../../pages/admin-community-pick/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Community Pick</a><a class="admin-nav__item" href="../../pages/admin-listings/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><circle cx="12" cy="8" r="2"/></svg>Listings<span class="admin-nav__count" aria-label="3 suggestions to check">3</span></a><a class="admin-nav__item" href="../../pages/admin-members/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members<span class="admin-nav__count" aria-label="1 report to review">1</span></a><a class="admin-nav__item" href="../../pages/admin-feedback/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg>Feedback<span class="admin-nav__count" aria-label="2 new notes">2</span></a>
     </nav>
     <div class="admin__user">
       <span class="admin__user-avatar" aria-hidden="true">JM</span>
@@ -47,8 +47,16 @@
 </div>
         <div class="split split--dashboard">
           <section class="min-w-0" aria-labelledby="attention-title">
-            <h2 class="display section-title" id="attention-title">Needs attention <span class="section-title__count">1</span></h2>
+            <h2 class="display section-title" id="attention-title">Needs attention <span class="section-title__count">3</span></h2>
             <ul class="queue"><li>
+              <span class="queue__icon"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><circle cx="12" cy="8" r="2"/></svg></span>
+              <div class="queue__body"><p class="queue__title">3 listings suggested by members</p><p class="queue__meta">Eastside Ladies Who Lift, Coach Marcus Delaney, Rooted Physio</p></div>
+              <a class="btn btn--secondary btn--xs" href="../../pages/admin-listings/default.html">Check<span class="visually-hidden"> 3 listings suggested by members</span></a>
+            </li><li>
+              <span class="queue__icon"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg></span>
+              <div class="queue__body"><p class="queue__title">2 new pieces of feedback</p><p class="queue__meta">Including a broken “Add to calendar” on iPhone</p></div>
+              <a class="btn btn--secondary btn--xs" href="../../pages/admin-feedback/default.html">Read<span class="visually-hidden"> 2 new pieces of feedback</span></a>
+            </li><li>
               <span class="queue__icon queue__icon--flag"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg></span>
               <div class="queue__body"><p class="queue__title">Kevin Brooks was flagged</p><p class="queue__meta">Promoting supplements in 3 group chats</p></div>
               <a class="btn btn--secondary btn--xs" href="../../pages/admin-members/flagged.html">Review<span class="visually-hidden"> Kevin Brooks was flagged</span></a>

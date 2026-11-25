@@ -319,8 +319,10 @@ ADMIN_NAV = [
 ]
 
 
-# The areas a Moderator opens (L2-019 AC5; ADR 0020); an Admin opens them all.
-MODERATOR_AREAS = ("admin-dashboard", "admin-members")
+# The areas a Moderator opens (L2-019 AC5; ADR 0061); an Admin opens them all. Stories, Events and
+# Services are Admins only.
+MODERATOR_AREAS = ("admin-dashboard", "admin-newsletter", "admin-series", "admin-community-pick", "admin-listings",
+                   "admin-members", "admin-feedback")
 
 
 def admin_nav(active: str, *, counts: dict | None = None, moderator: bool = False) -> str:
