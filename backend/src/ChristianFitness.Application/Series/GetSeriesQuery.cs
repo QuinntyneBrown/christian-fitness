@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Series;
 
 /// <summary>
-/// One series as the member's page shows it (L2-051 AC1; ADR 0094): what it is, who hosts it (as
+/// One series as the member's page shows it (L2-051 AC1; ADR 0096): what it is, who hosts it (as
 /// the event page's "Hosted by" card has it), its cadence as numbers, the next held session's start
 /// (else the last held one's), its first and last held dates, where it meets, and whether the
-/// signed-in member joined it. The app words every number.
+/// signed-in member joined it, and every date in date order. The app words every number.
 /// </summary>
 public sealed record SeriesDetailDto(
     Guid Id,
@@ -26,10 +26,18 @@ public sealed record SeriesDetailDto(
     DateTimeOffset LastStartsAt,
     string Place,
     string Area,
-    bool Joined);
+    bool Joined,
+    IReadOnlyList<SeriesSessionDto> Sessions);
 
 /// <summary>
-/// Opens one series for the signed-in member (L2-051; ADR 0094). A series opens while one of its
+/// One date of a series as its row shows it (L2-051 AC2 to AC5; ADR 0096): its position among all
+/// the dates (cancelled ones included; ADR 0080), its start, topic and ADR 0091's state by the
+/// API's clock, and whether the signed-in member holds a place at it.
+/// </summary>
+public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, string? Topic, string State, bool Held);
+
+/// <summary>
+/// Opens one series for the signed-in member (L2-051; ADR 0096). A series opens while one of its
 /// sessions is published and not cancelled, whatever its date; anything else is 404
 /// <c>series_not_found</c> (L2-051 AC6).
 /// </summary>
@@ -61,6 +69,13 @@ internal sealed class GetSeriesHandler(IAppDbContext db, ICurrentMember current,
         var joined = await db.SeriesEnrolments.AsNoTracking()
             .AnyAsync(e => e.SeriesId == series.Id && e.MemberId == memberId, cancellationToken)
             .ConfigureAwait(false);
+        var sessionIds = sessions.Select(s => s.Id).ToList();
+        var held = await db.Registrations.AsNoTracking()
+            .Where(r => r.MemberId == memberId && sessionIds.Contains(r.EventId))
+            .Select(r => r.EventId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var states = SeriesSchedule.StatesOf([.. sessions.Select(s => s.Times)], now);
 
         // A series that opens has a held date, so it has a time, a first and a last held date.
         return new SeriesDetailDto(
@@ -76,6 +91,7 @@ internal sealed class GetSeriesHandler(IAppDbContext db, ICurrentMember current,
             facts.Last!.Value,
             series.Place,
             series.Area,
-            joined);
+            joined,
+            [.. sessions.Select((s, n) => new SeriesSessionDto(s.Id, n + 1, s.StartsAt, s.Topic, SessionStateNames.Of(states[n]), held.Contains(s.Id)))]);
     }
 }

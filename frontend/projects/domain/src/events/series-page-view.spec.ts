@@ -22,14 +22,32 @@ const COUCH: SeriesDetailDto = {
   place: 'Humber Bay Park East',
   area: 'Etobicoke, Toronto',
   joined: true,
+  sessions: [
+    'done',
+    'done',
+    'live',
+    'upcoming',
+    'upcoming',
+    'cancelled',
+    'upcoming',
+    'upcoming',
+  ].map((state, n) => ({
+    id: `s${n + 1}`,
+    number: n + 1,
+    startsAt: '2026-04-21T22:30:00Z',
+    topic: null,
+    state: state as SeriesDetailDto['sessions'][number]['state'],
+    held: false,
+  })),
 };
 
-// L2-051 AC1 (ADR 0091, ADR 0093, ADR 0094): the page's head, in Toronto time.
+// L2-051 AC1 (ADR 0091, ADR 0093, ADR 0096): the page's head, in Toronto time.
 describe('seriesPageViewOf', () => {
   it('words the mock series: its kind, cadence and time, the date range, place and host', () => {
     const view = seriesPageViewOf(COUCH);
 
-    expect(view.eyebrow).toBe('Run series');
+    expect(view.eyebrow).toBe('Run series · 8 sessions');
+    expect(view.sessions.note).toBe('2 done · 5 to go');
     expect(view.when).toBe('Every Tuesday, 6:30 PM');
     expect(view.range).toBe('Apr 7 – May 26');
     expect(view.place).toBe('Humber Bay Park East');
@@ -50,7 +68,7 @@ describe('seriesPageViewOf', () => {
         firstStartsAt: '2026-01-30T00:00:00Z',
         lastStartsAt: '2026-06-25T23:00:00Z',
       },
-      eyebrow: 'Basketball series',
+      eyebrow: 'Basketball series · 8 sessions',
       when: '6 dates, 7:00 PM',
       range: 'Jan – Jun',
     },
@@ -64,7 +82,7 @@ describe('seriesPageViewOf', () => {
         firstStartsAt: '2026-05-02T14:00:00Z',
         lastStartsAt: '2026-05-02T14:00:00Z',
       },
-      eyebrow: 'Workshop series',
+      eyebrow: 'Workshop series · 8 sessions',
       when: '1 date, 10:00 AM',
       range: 'May',
     },

@@ -23,6 +23,7 @@
               <cf-skeleton shape="text" width="80" />
               <cf-skeleton shape="text" width="80" />
               <cf-skeleton shape="text" width="90" />
+              <cf-session-list loading />
             </div>
             <cf-card class="event-series__aside" variant="pad-sm">
               <div class="event-series__skeletons">
@@ -61,6 +62,13 @@
             <h1 class="detail-title">{{ series.title }}</h1>
             <cf-description-list variant="facts" [items]="facts()" />
             <p class="series-summary">{{ series.summary }}</p>
+            <section class="block-section" aria-labelledby="sessions-title">
+              <div class="section-head">
+                <h2 class="section-title" id="sessions-title">Sessions</h2>
+                <p class="section-head__note">{{ series.sessions.note }}</p>
+              </div>
+              <cf-session-list [sessions]="series.sessions.rows" (navigate)="open($event)" />
+            </section>
           </div>
           <aside class="event-series__aside" aria-label="Sign up">
             <cf-host-card

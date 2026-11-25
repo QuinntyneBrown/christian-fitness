@@ -140,7 +140,7 @@ export function answerSeries(
   return asked;
 }
 
-/** A series as `GET /api/events/series/{id}` answers it (`SeriesDetailDto`, ADR 0094). */
+/** A series as `GET /api/events/series/{id}` answers it (`SeriesDetailDto`, ADR 0096). */
 export interface SeriesDetail {
   id: string;
   title: string;
@@ -156,7 +156,42 @@ export interface SeriesDetail {
   place: string;
   area: string;
   joined: boolean;
+  /** Every date in date order (ADR 0096). */
+  sessions: SeriesSession[];
 }
+
+/** One date of a series (`SeriesSessionDto`, ADR 0096). */
+export interface SeriesSession {
+  id: string;
+  /** Its position among all the dates, cancelled ones included. */
+  number: number;
+  startsAt: string;
+  topic: string | null;
+  state: 'done' | 'live' | 'upcoming' | 'cancelled';
+  /** The member holds a place at it. */
+  held: boolean;
+}
+
+const COUCH_DATES: [string, string][] = [
+  ['2026-04-07', 'Walk, run 60 seconds, repeat. Meet your pace group'],
+  ['2026-04-14', 'Run 90 seconds, walk 2 minutes'],
+  ['2026-04-21', 'Same intervals, six times through'],
+  ['2026-04-28', 'First 5-minute run'],
+  ['2026-05-05', 'Two 8-minute runs'],
+  ['2026-05-12', 'No class: Victoria Day week'],
+  ['2026-05-19', 'Twenty minutes without stopping'],
+  ['2026-05-26', 'Graduation 5K and potluck'],
+];
+
+/** Couch to 5K's eight Tuesdays at 6:30 PM: two done (the member held a place at the first), April 21 next, May 12 cancelled. */
+export const COUCH_SESSIONS: SeriesSession[] = COUCH_DATES.map(([date, topic], n) => ({
+  id: `0190c0de-0000-7000-8000-00000000c50${n + 1}`,
+  number: n + 1,
+  startsAt: `${date}T22:30:00Z`,
+  topic,
+  state: n < 2 ? 'done' : n === 2 ? 'live' : n === 5 ? 'cancelled' : 'upcoming',
+  held: n === 0,
+}));
 
 /**
  * Couch to 5K Run Club as the mock `event-series/default` draws it: eight Tuesdays at 6:30 PM from
@@ -178,11 +213,12 @@ export const COUCH_TO_5K_DETAIL: SeriesDetail = {
   place: 'Humber Bay Park East',
   area: 'Etobicoke, Toronto',
   joined: true,
+  sessions: COUCH_SESSIONS,
 };
 
 /**
  * Answers `GET /api/events/series/{id}` for each of `series`, and 404 `series_not_found` for any
- * other id, as the API does (ADR 0094); `reply` may answer a request, by its zero-based number,
+ * other id, as the API does (ADR 0096); `reply` may answer a request, by its zero-based number,
  * otherwise (a refusal, or a reply held until a promise settles). Returns the ids asked for, in order.
  */
 export function answerSeriesDetail(

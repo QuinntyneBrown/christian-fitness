@@ -65,7 +65,7 @@ const routes: Routes = [
         loadComponent: () => import('./pages/events/events-page'),
       },
       {
-        // One series with its sessions, sign-up panel and host (L2-051; ADR 0094).
+        // One series with its sessions, sign-up panel and host (L2-051; ADR 0096).
         path: 'events/series/:id',
         title: titled('Event series'),
         loadComponent: () => import('./pages/event-series/event-series-page'),

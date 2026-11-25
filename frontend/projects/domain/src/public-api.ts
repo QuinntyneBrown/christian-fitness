@@ -58,6 +58,7 @@ export * from './events/series-cadence';
 export * from './events/series-filter';
 export * from './events/series-row-view';
 export * from './events/series-page-view';
+export * from './events/series-sessions-view';
 export * from './events/events-no-results';
 export * from './events/event-draft';
 export * from './events/event-host-picker';

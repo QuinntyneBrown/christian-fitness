@@ -1,0 +1,121 @@
+// The design system's session list (docs/design-system/assets/components.css, "Event series":
+// list-ruled, session-list, session-row); Details is the library's button (secondary, xs), whose
+// target is 44 × 44 px on coarse pointers.
+:host {
+  display: block;
+}
+
+.list-ruled {
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+
+  > li + li {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.session-list {
+  margin-top: var(--space-4);
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: var(--size-date-badge) 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+}
+
+.session-row__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--radius-md);
+  padding-block: var(--space-1-5);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.session-row__month {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-xs);
+  text-transform: uppercase;
+  color: var(--color-fg-accent);
+}
+
+.session-row__day {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+}
+
+.session-row--next .session-row__date {
+  background: var(--color-accent);
+  box-shadow: none;
+  color: var(--color-fg-on-accent);
+}
+
+.session-row--next .session-row__month {
+  color: inherit;
+}
+
+.session-row--past .session-row__date,
+.session-row--cancelled .session-row__date {
+  background: none;
+  box-shadow: none;
+  color: var(--color-fg-muted);
+}
+
+.session-row--past .session-row__month,
+.session-row--cancelled .session-row__month {
+  color: inherit;
+}
+
+.session-row__body {
+  min-width: 0;
+}
+
+.session-row__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.session-row__meta {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+}
+
+.session-row--next .session-row__meta {
+  color: var(--color-fg-accent);
+}
+
+.session-row__topic {
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.session-row--past .session-row__topic {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+.session-row--cancelled .session-row__topic {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+  text-decoration: line-through;
+}
+
+.session-row__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.session-row__status {
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

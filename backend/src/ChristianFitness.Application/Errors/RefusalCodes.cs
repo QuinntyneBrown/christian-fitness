@@ -27,7 +27,7 @@ public static class RefusalCodes
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
     public const string EventNotFound = "event_not_found";
 
-    /// <summary>The series asked for does not exist or has no held date (L2-051 AC6; ADR 0094).</summary>
+    /// <summary>The series asked for does not exist or has no held date (L2-051 AC6; ADR 0096).</summary>
     public const string SeriesNotFound = "series_not_found";
 
     /// <summary>The listing asked for does not exist (L2-013 AC4; ADR 0000).</summary>

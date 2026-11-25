@@ -6,7 +6,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Api.Tests.Series;
 
 /// <summary>
-/// L2-051 AC1 and AC6 (ADR 0080, ADR 0091, ADR 0094): a member opens one series and reads what its
+/// L2-051 AC1 and AC6 (ADR 0080, ADR 0091, ADR 0096): a member opens one series and reads what its
 /// page shows as data: the head, the host and whether they joined it. A series opens while one of
 /// its dates is held, whatever its date; an unknown id, a series with no dates or with only
 /// cancelled ones is 404 <c>series_not_found</c>.
@@ -30,7 +30,7 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         Assert.Equal(
             [
                 "id", "title", "category", "summary", "imageKey", "host", "cadence", "startsAt", "firstStartsAt", "lastStartsAt",
-                "place", "area", "joined",
+                "place", "area", "joined", "sessions",
             ],
             AdminSeries.Keys(series));
         Assert.Equal(couch.Id.ToString(), series.GetProperty("id").GetString());
@@ -52,6 +52,50 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         Assert.Equal("Humber Bay Park East", series.GetProperty("place").GetString());
         Assert.Equal("Etobicoke, Toronto", series.GetProperty("area").GetString());
         Assert.True(series.GetProperty("joined").GetBoolean());
+    }
+
+    [Fact]
+    public async Task Given_Couch_to_5K_When_a_member_opens_it_Then_every_date_answers_in_date_order_with_its_number_topic_state_and_whether_they_hold_a_place()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "kai.series.view@example.org");
+        var couch = AdminSeries.NewSeries("Couch to 5K Sessions", now);
+        var ids = await factory.AddCouchTo5KAsync(couch);
+        // The member came to the first date and holds a place at the fourth; another member holds the second.
+        var memberId = await MemberSeries.MemberIdAsync(factory, "kai.series.view@example.org");
+        await factory.AddRegistrationsAsync([(ids[0], memberId), (ids[3], memberId), (ids[1], Guid.NewGuid())]);
+
+        var series = await OpenAsync(client, cookie, couch.Id);
+
+        var sessions = series.GetProperty("sessions").EnumerateArray().ToList();
+        Assert.Equal(["id", "number", "startsAt", "topic", "state", "held"], AdminSeries.Keys(sessions[0]));
+        Assert.Equal(ids.Select(id => id.ToString()), sessions.Select(s => s.GetProperty("id").GetString()));
+        Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8], sessions.Select(s => s.GetProperty("number").GetInt32()));
+        Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 7)), sessions[0].GetProperty("startsAt").GetDateTimeOffset());
+        Assert.Equal("No class: Victoria Day week", sessions[5].GetProperty("topic").GetString());
+        // Today is April 15: two done, April 21 next, May 12 cancelled (ADR 0091).
+        Assert.Equal(
+            ["done", "done", "live", "upcoming", "upcoming", "cancelled", "upcoming", "upcoming"],
+            sessions.Select(s => s.GetProperty("state").GetString()));
+        Assert.Equal([true, false, false, true, false, false, false, false], sessions.Select(s => s.GetProperty("held").GetBoolean()));
+    }
+
+    [Fact]
+    public async Task Given_dates_added_out_of_order_When_a_member_opens_the_series_Then_they_are_numbered_by_date_with_cancelled_ones_counted()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "lee.series.view@example.org");
+        var series = AdminSeries.NewSeries("Out of Order", now);
+        await factory.AddSeriesAsync(
+            series,
+            [new(new DateOnly(2026, 5, 5), "Third"), new(new DateOnly(2026, 4, 21), "First", Cancelled: true), new(new DateOnly(2026, 4, 28), "Second")]);
+
+        var answer = await OpenAsync(client, cookie, series.Id);
+
+        var sessions = answer.GetProperty("sessions").EnumerateArray().ToList();
+        Assert.Equal(["First", "Second", "Third"], sessions.Select(s => s.GetProperty("topic").GetString()));
+        Assert.Equal([1, 2, 3], sessions.Select(s => s.GetProperty("number").GetInt32()));
+        Assert.Equal(["cancelled", "live", "upcoming"], sessions.Select(s => s.GetProperty("state").GetString()));
     }
 
     [Fact]

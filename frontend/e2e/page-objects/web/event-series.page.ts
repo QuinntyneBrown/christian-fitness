@@ -15,6 +15,12 @@ export class WebEventSeriesPage extends ErrorScreen {
   /** Each fact: its term (`dt`) and detail (`dd`). */
   readonly facts: Locator;
   readonly summary: Locator;
+  readonly sessionsHeading: Locator;
+  /** "<done> done · <to go> to go" beside the Sessions heading. */
+  readonly sessionsNote: Locator;
+  /** The ordered list of dates. */
+  readonly sessionList: Locator;
+  readonly sessions: Locator;
   /** The column that holds the head and the sessions. */
   readonly content: Locator;
   /** The aside that holds the sign-up panel and the host card. */
@@ -36,6 +42,10 @@ export class WebEventSeriesPage extends ErrorScreen {
     this.seriesTitle = page.getByRole('heading', { level: 1 });
     this.facts = page.locator('.facts__item');
     this.summary = page.locator('.series-summary');
+    this.sessionsHeading = page.getByRole('heading', { level: 2, name: 'Sessions' });
+    this.sessionsNote = page.locator('.section-head__note');
+    this.sessionList = page.locator('ol.session-list');
+    this.sessions = this.sessionList.locator('.session-row');
     this.content = page.locator('.event-series__content');
     this.aside = page.getByRole('complementary', { name: 'Sign up' });
     this.hostCard = this.aside.locator('a.host-card');
@@ -48,6 +58,29 @@ export class WebEventSeriesPage extends ErrorScreen {
     this.allEventsButton = page.locator('.empty-state__actions').getByRole('link', {
       name: 'All events',
     });
+  }
+
+  /** The row of session `n` (1-based, in date order). */
+  session(n: number): Locator {
+    return this.sessions.nth(n - 1);
+  }
+
+  /** What a row says: its meta (with the hidden date), topic and end. */
+  sessionMeta(n: number): Locator {
+    return this.session(n).locator('.session-row__meta');
+  }
+
+  sessionTopic(n: number): Locator {
+    return this.session(n).locator('.session-row__topic');
+  }
+
+  sessionEnd(n: number): Locator {
+    return this.session(n).locator('.session-row__end');
+  }
+
+  /** The "Details" link of session `n`, named "Details of session <n>". */
+  details(n: number): Locator {
+    return this.session(n).getByRole('link', { name: `Details of session ${n}` });
   }
 
   async open(id: string): Promise<void> {

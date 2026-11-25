@@ -13,6 +13,7 @@ import {
   ErrorPage,
   HostCard,
   Link,
+  SessionList,
   Skeleton,
   SkeletonRegion,
 } from '@cf/components';
@@ -21,9 +22,10 @@ import type { Subscription } from 'rxjs';
 import { HttpEventSeriesService } from '../../services/http-event-series.service';
 
 /**
- * Event series at `/events/series/:id` (L2-051; ADR 0094): one series with its wide picture, kind,
- * title, cadence and time over its date range, place over area and summary, and an aside with the
- * "Hosted by" card leading to the host's profile. From LG the aside sits beside the content and
+ * Event series at `/events/series/:id` (L2-051; ADR 0096): one series with its wide picture, kind,
+ * title, cadence and time over its date range, place over area and summary, its dates in order
+ * ("<done> done · <to go> to go", Next up, Cancelled, Details to each session's event page), and
+ * an aside with the "Hosted by" card leading to the host's profile. From LG the aside sits beside the content and
  * stays in view; below LG it follows in one column (a stylesheet rule). `EVENT_SERIES_SERVICE` is
  * bound here, so the client lives only while the screen does. While it loads it shows skeletons;
  * a series that does not open (404) shows the not-found screen; any other failure shows "This
@@ -40,6 +42,7 @@ import { HttpEventSeriesService } from '../../services/http-event-series.service
     ErrorPage,
     HostCard,
     Link,
+    SessionList,
     Skeleton,
     SkeletonRegion,
   ],
@@ -80,7 +83,7 @@ export default class EventSeriesPage {
     this.load();
   }
 
-  /** Opens an address of the app (the host's profile) in the app. */
+  /** Opens an address of the app (the host's profile, a session's event page) in the app. */
   protected open(href: string): void {
     void this.router.navigateByUrl(href);
   }

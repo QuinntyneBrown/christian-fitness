@@ -53,7 +53,7 @@ export interface SeriesSelection {
 }
 
 /**
- * One series as its page shows it (`SeriesDetailDto`, L2-051; ADR 0094). Times are ISO instants in
+ * One series as its page shows it (`SeriesDetailDto`, L2-051; ADR 0096). Times are ISO instants in
  * UTC, which the app words in Toronto.
  */
 export interface SeriesDetailDto {
@@ -75,6 +75,21 @@ export interface SeriesDetailDto {
   area: string;
   /** The signed-in member has joined it. */
   joined: boolean;
+  /** Every date in date order. */
+  sessions: SeriesSessionDto[];
+}
+
+/** One date of a series (`SeriesSessionDto`, L2-051 AC2 to AC5; ADR 0096). */
+export interface SeriesSessionDto {
+  id: string;
+  /** Its position among all the dates in date order, cancelled ones included (ADR 0080). */
+  number: number;
+  startsAt: string;
+  topic: string | null;
+  /** By the API's clock (ADR 0091); `live` is the next one. */
+  state: AdminSessionState;
+  /** The signed-in member holds a place at it. */
+  held: boolean;
 }
 
 /** The event series a member browses (L2-050; ADR 0093). */
@@ -92,7 +107,7 @@ export interface EventSeriesApi {
   count(): Observable<SeriesCountDto>;
 
   /**
-   * One series (L2-051; ADR 0094). A 5xx opens the server-error screen; any failure errors with
+   * One series (L2-051; ADR 0096). A 5xx opens the server-error screen; any failure errors with
    * the `HttpErrorResponse` (404 `series_not_found` for one that does not open), so the page shows
    * its own not-found or failed state.
    */

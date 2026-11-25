@@ -33,7 +33,7 @@ The feature is a vertical slice from the Event series screen to the database.
 
 The page binds its service on its own providers, so the request and the series are released when the member leaves (`L2-037`).
 
-### Decisions taken in journey 11 (ADR 0094)
+### Decisions taken in journey 11 (ADR 0096)
 
 - A series opens when one of its sessions is published and not cancelled, whatever its date; anything else is 404 `series_not_found`. A finished series keeps its page.
 - `GET /api/events/series/{id}` answers the series with `spotsLeft`, `sessionsLeft`, `joined` and each session as `{ id, number, startsAt, topic, state, held }`; `state` is ADR 0091's `done`, `live`, `upcoming` or `cancelled`, and `live` is "Next up".

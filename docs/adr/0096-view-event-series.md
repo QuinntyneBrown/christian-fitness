@@ -1,4 +1,4 @@
-# 0094. View an event series: the series page, its read-only sign-up panel, the session's series card and series under Hosting
+# 0096. View an event series: the series page, its read-only sign-up panel, the session's series card and series under Hosting
 
 ## Status
 

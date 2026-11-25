@@ -1,0 +1,53 @@
+@if (loading()) {
+  <ol class="list-ruled session-list">
+    @for (n of skeletons; track n) {
+      <li class="session-row">
+        <cf-skeleton shape="date" />
+        <div class="session-row__body session-row__lines">
+          <cf-skeleton shape="text-sm" width="30" />
+          <cf-skeleton shape="text" width="80" />
+        </div>
+      </li>
+    }
+  </ol>
+} @else {
+  <ol class="list-ruled session-list">
+    @for (session of sessions(); track session.id) {
+      <li [attr.class]="classOf(session.state)">
+        <div class="session-row__date" aria-hidden="true">
+          <span class="session-row__month">{{ session.month }}</span><span
+            class="session-row__day"
+            >{{ session.day }}</span
+          >
+        </div>
+        <div class="session-row__body">
+          <p class="session-row__meta">
+            {{ session.meta }}<span class="visually-hidden">{{ session.date }}</span
+            >{{ session.state === 'next' ? ' · Next up' : '' }}
+          </p>
+          @if (session.topic) {
+            <p class="session-row__topic">{{ session.topic }}</p>
+          }
+        </div>
+        <div class="session-row__end">
+          @if (session.end; as end) {
+            @if (end.kind === 'details') {
+              <cf-button
+                variant="secondary"
+                size="xs"
+                [href]="end.href"
+                (click)="follow($event, end.href)"
+                >Details<span class="visually-hidden"> of session {{ end.number }}</span>
+                <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" /></svg
+              ></cf-button>
+            } @else {
+              <span class="session-row__status">{{ end.text }}</span>
+            }
+          }
+        </div>
+      </li>
+    }
+  </ol>
+}

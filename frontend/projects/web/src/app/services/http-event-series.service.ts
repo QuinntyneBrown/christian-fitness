@@ -11,9 +11,9 @@ import type { Observable } from 'rxjs';
 
 /**
  * {@link EventSeriesApi} over HTTP: `GET /api/events/series?category=&q=&joined=true`,
- * `GET /api/events/series/count` (ADR 0093) and `GET /api/events/series/{id}` (ADR 0094); the
- * member is the session's, never named in the request. A 5xx opens the server-error screen through the interceptor; every failure passes on to
- * the screen. It holds no state, and is provided on the Events and Event series screens, so it
+ * `GET /api/events/series/count` (ADR 0093) and `GET /api/events/series/{id}` (ADR 0096); the
+ * member is the session's, never named in the request. A 5xx opens the server-error screen
+ * through the interceptor; every failure passes on to the screen. It holds no state, and is provided on the Events and Event series screens, so it
  * lives only while a screen does.
  */
 @Injectable()

@@ -1,10 +1,12 @@
 import { expect, test } from '../fixtures/test';
+import { answerEvent, BOOTCAMP_DETAIL } from '../fixtures/events';
 import { answerListingProfile, LAKESHORE, PROFILES } from '../fixtures/listing-profile';
-import { answerSeriesDetail, COUCH_TO_5K_DETAIL } from '../fixtures/series';
+import { answerSeriesDetail, COUCH_SESSIONS, COUCH_TO_5K_DETAIL } from '../fixtures/series';
+import { WebEventDetailPage } from '../page-objects/web/event-detail.page';
 import { WebEventSeriesPage } from '../page-objects/web/event-series.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-051 AC1, AC6 to AC8 (ADR 0094): a member opens a series at /events/series/<id>.
+// L2-051 AC1, AC6 to AC8 (ADR 0096): a member opens a series at /events/series/<id>.
 test.describe('Member app, view an event series: the page', () => {
   test('A series shows its banner, kind, title, cadence and time, dates, place and summary, and who hosts it', async ({
     page,
@@ -20,7 +22,7 @@ test.describe('Member app, view an event series: the page', () => {
     expect(await series.title()).toBe('Event series · Christian Fitness');
     await expect(series.backLink).toHaveAttribute('href', '/events?view=series');
     await expect(series.banner).toHaveAttribute('alt', '');
-    await expect(series.eyebrow).toContainText('Run series');
+    await expect(series.eyebrow).toHaveText('Run series · 8 sessions');
     await expect(series.facts).toHaveText([
       'Every Tuesday, 6:30 PMApr 7 – May 26',
       'Humber Bay Park EastEtobicoke, Toronto',
@@ -117,5 +119,77 @@ test.describe('Member app, view an event series: the page', () => {
       aside: await series.aside.boundingBox(),
     };
     expect(narrow.aside!.y).toBeGreaterThanOrEqual(narrow.content!.y + narrow.content!.height);
+  });
+});
+
+// L2-051 AC2, AC4, AC5 (ADR 0080, ADR 0096): the sessions are an ordered list in date order.
+test.describe('Member app, view an event series: the sessions', () => {
+  test(
+    'The dates show in order with their number, weekday and topic, done and to go, Next up, Cancelled in words and Details',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);
+      const series = new WebEventSeriesPage(page);
+
+      await series.open(COUCH_TO_5K_DETAIL.id);
+
+      await expect(series.sessionsHeading).toBeVisible();
+      // Two done; April 21, 28, May 5, 19 and 26 to go; May 12 counts in neither.
+      await expect(series.sessionsNote).toHaveText('2 done · 5 to go');
+      await expect(series.sessions).toHaveCount(8);
+      await expect(series.sessionMeta(1)).toHaveText('Session 1 · Tue, Apr 07');
+      await expect(series.sessionMeta(3)).toHaveText('Session 3 · Tue, Apr 21 · Next up');
+      await expect(series.sessionMeta(6)).toHaveText('Session 6 · Tue, May 12');
+      await expect(series.sessionTopic(1)).toHaveText(
+        'Walk, run 60 seconds, repeat. Meet your pace group',
+      );
+      await expect(series.sessionTopic(8)).toHaveText('Graduation 5K and potluck');
+      // The member held a place at the first date and no attendance is recorded; not at the second.
+      await expect(series.sessionEnd(1)).toHaveText('Not recorded');
+      await expect(series.sessionEnd(2)).toHaveText('Done');
+      await expect(series.sessionEnd(6)).toHaveText('Cancelled');
+      await expect(series.session(6)).toHaveClass(/session-row--cancelled/);
+      await expect(series.session(3)).toHaveClass(/session-row--next/);
+      await expect(series.session(1)).toHaveClass(/session-row--past/);
+      for (const n of [3, 4, 5, 7, 8]) {
+        await expect(series.details(n)).toHaveAttribute(
+          'href',
+          `/events/${COUCH_SESSIONS[n - 1]!.id}`,
+        );
+      }
+      await expect(series.sessionList.getByRole('link')).toHaveCount(5);
+    },
+  );
+
+  test("Details opens that session's event page in the app", async ({ page, api }) => {
+    answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);
+    const third = { ...BOOTCAMP_DETAIL, id: COUCH_SESSIONS[2]!.id, title: 'Couch to 5K: Week 3' };
+    answerEvent(api, [third]);
+    const series = new WebEventSeriesPage(page);
+    const detail = new WebEventDetailPage(page);
+    await series.open(COUCH_TO_5K_DETAIL.id);
+
+    await series.details(3).click();
+
+    await expect(page).toHaveURL(`/events/${third.id}`);
+    await expect(detail.eventTitle).toHaveText('Couch to 5K: Week 3');
+  });
+
+  test('A finished series has no Next up and nothing to go', async ({ page, api }) => {
+    const finished = {
+      ...COUCH_TO_5K_DETAIL,
+      sessions: COUCH_SESSIONS.map((session) => ({
+        ...session,
+        state: session.state === 'cancelled' ? ('cancelled' as const) : ('done' as const),
+      })),
+    };
+    answerSeriesDetail(api, [finished]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(finished.id);
+
+    await expect(series.sessionsNote).toHaveText('7 done · 0 to go');
+    await expect(series.sessionList).not.toContainText('Next up');
+    await expect(series.sessionList.getByRole('link')).toHaveCount(0);
   });
 });

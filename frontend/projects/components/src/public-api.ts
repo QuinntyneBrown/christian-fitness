@@ -84,6 +84,7 @@ export * from './pick-list/pick-cards';
 export * from './review-card/series-summary-card';
 export * from './session-list/admin-sessions';
 export * from './session-list/session-meter';
+export * from './session-list/session-list';
 export * from './series-card/series-row';
 export * from './radio-group/radio-group';
 export * from './select/select';
