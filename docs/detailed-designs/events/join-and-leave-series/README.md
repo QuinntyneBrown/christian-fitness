@@ -37,7 +37,7 @@ Telemetry records the route templates only; no member id, name or price enters a
 
 ### Open questions
 
-- Keying the group chat by `SeriesId` changes `ChatMessage.EventId`, `ChatReadMarker`, `ChatMembership` and `IChatChannel` from an event id to a chat id. This needs an ADR before the slice.
+- Keying the group chat by `SeriesId` changes `ChatMessage.EventId`, `ChatReadMarker`, `ChatMembership` and `IChatChannel` from an event id to a chat id. ADR 0080 decides it: a conversation scope (event or series) replaces the event id, and existing rows are migrated.
 - Resolved (#89): a joined paid series reads "Pay the host at your first session, by cash or e-transfer. You won't be charged online." (mock `event-series/joined`).
 - The "spots left" rule (smallest places left among remaining sessions, or capacity minus enrolments) needs an ADR; see `view-event-series`.
 - `L2-052` AC9 keeps attended sessions in the history, which needs the attendance record that is `<TO SUPPLY>` (see `view-event-series`). "Came to <attended> of <past>" depends on it too.
