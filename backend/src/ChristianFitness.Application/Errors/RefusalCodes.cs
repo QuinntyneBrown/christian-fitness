@@ -72,6 +72,9 @@ public static class RefusalCodes
     /// <summary>The member's status does not allow the change, such as flagging a Flagged member (L2-029 AC6).</summary>
     public const string StatusConflict = "status_conflict";
 
+    /// <summary>A story was saved by someone else since it was read (L2-069 AC12; ADR 0097).</summary>
+    public const string StoryChanged = "story_changed";
+
     /// <summary>An account already has this email (L2-003 AC2).</summary>
     public const string AgeNotConfirmed = "age_not_confirmed";
 

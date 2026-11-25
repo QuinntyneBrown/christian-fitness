@@ -38,6 +38,16 @@ export function currentAdminArea(url: string): AdminAreaKey | null {
   return area?.key ?? null;
 }
 
+/**
+ * Whether the screen at `url` fills the admin page edge to edge, with no page padding: the story
+ * editor, at `/stories/new` and `/stories/<id>`, has a sticky bar of its own (mock
+ * `admin-story-editor/*`, `admin__page--flush`; ADR 0097). Bylines, under Stories, does not.
+ */
+export function adminPageIsFlush(url: string): boolean {
+  const path = pathOf(url).replace(/\/+$/, '');
+  return /^\/stories\/[^/]+$/.test(path) && path !== '/stories/bylines';
+}
+
 /** The areas a Moderator opens (L2-019 AC1; ADR 0020, ADR 0064, ADR 0091): they moderate members, review listings and run event series. */
 const MODERATOR_AREAS: readonly AdminAreaKey[] = ['dashboard', 'series', 'listings', 'members'];
 

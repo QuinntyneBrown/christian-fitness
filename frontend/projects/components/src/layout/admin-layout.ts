@@ -28,6 +28,8 @@ export class AdminLayout {
   readonly userRole = input('');
   readonly userInitials = input('');
   readonly signingOut = input(false, { transform: booleanAttribute });
+  /** The screen fills the page edge to edge, with no page padding: the story editor (ADR 0097). */
+  readonly flush = input(false, { transform: booleanAttribute });
 
   readonly navigate = output<string>();
   readonly signOut = output();

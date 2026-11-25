@@ -2,6 +2,7 @@ import type { StaffRoleName } from '@cf/api';
 import {
   ADMIN_AREAS,
   areasFor,
+  adminPageIsFlush,
   canManage,
   currentAdminArea,
   type AdminAreaKey,
@@ -19,6 +20,22 @@ describe('ADMIN_AREAS', () => {
       ['Services', '/services'],
       ['Members', '/members'],
     ]);
+  });
+});
+
+// ADR 0097: the story editor fills the page edge to edge; every other screen keeps its padding.
+describe('adminPageIsFlush', () => {
+  it.each<[string, boolean]>([
+    ['/stories/new', true],
+    ['/stories/0193b000-0000-7000-8000-000000005701', true],
+    ['/stories/0193b000-0000-7000-8000-000000005701?from=list', true],
+    ['/stories', false],
+    ['/stories?status=draft', false],
+    ['/stories/bylines', false],
+    ['/stories/0193b000/preview', false],
+    ['/events/0193b000', false],
+  ])('%s is %s', (url, flush) => {
+    expect(adminPageIsFlush(url)).toBe(flush);
   });
 });
 

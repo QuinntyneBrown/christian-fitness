@@ -8,19 +8,35 @@
   [errorHref]="errorHref()"
 >
   <ng-content select="[slot=label-action]" ngProjectAs="[slot=label-action]" />
-  <input
-    [attr.class]="code() ? 'input input--code' : 'input'"
-    [id]="fieldId()"
-    [name]="name()"
-    [type]="type()"
-    [attr.autocomplete]="autocomplete() ?? null"
-    [attr.inputmode]="inputmode() ?? null"
-    [attr.min]="min() ?? null"
-    [attr.aria-describedby]="describedBy()"
-    [attr.aria-invalid]="error() ? 'true' : null"
-    [value]="value()"
-    [readOnly]="readonly()"
-    [disabled]="disabled()"
-    (input)="onInput($event)"
-  />
+  <ng-template #control let-css>
+    <input
+      [attr.class]="css"
+      [id]="fieldId()"
+      [name]="name()"
+      [type]="type()"
+      [attr.autocomplete]="autocomplete() ?? null"
+      [attr.inputmode]="inputmode() ?? null"
+      [attr.min]="min() ?? null"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="error() ? 'true' : null"
+      [value]="value()"
+      [readOnly]="readonly()"
+      [disabled]="disabled()"
+      (input)="onInput($event)"
+    />
+  </ng-template>
+  @if (prefix(); as fixed) {
+    <div class="input-group" [attr.aria-invalid]="error() ? 'true' : null">
+      <span class="input-group__prefix" [id]="prefixId()">{{ fixed }}</span>
+      <ng-container
+        [ngTemplateOutlet]="control"
+        [ngTemplateOutletContext]="{ $implicit: 'input-group__input' }"
+      />
+    </div>
+  } @else {
+    <ng-container
+      [ngTemplateOutlet]="control"
+      [ngTemplateOutletContext]="{ $implicit: code() ? 'input input--code' : 'input' }"
+    />
+  }
 </cf-form-field>

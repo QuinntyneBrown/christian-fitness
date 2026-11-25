@@ -35,6 +35,7 @@ export * from './description-list/description-list';
 export * from './dialog/dialog';
 export * from './divider/divider';
 export * from './drawer/drawer';
+export * from './editor/editor';
 export * from './empty-state/empty-state';
 export * from './error-page/error-page';
 export * from './event-card/event-card';

@@ -21,6 +21,18 @@ const routes: Routes = [
     title: titled('Bylines'),
     loadComponent: () => import('./bylines/bylines-page'),
   },
+  {
+    // An empty Draft, kept on its first save (journey 22; L2-068 AC4, L2-069; ADR 0097).
+    path: 'new',
+    title: titled('New story'),
+    loadComponent: () => import('./story-editor/story-editor-page'),
+  },
+  {
+    // One story in the editor, after the named routes (journey 22; L2-069; ADR 0097).
+    path: ':id',
+    title: titled('Edit story'),
+    loadComponent: () => import('./story-editor/story-editor-page'),
+  },
 ];
 
 export default routes;

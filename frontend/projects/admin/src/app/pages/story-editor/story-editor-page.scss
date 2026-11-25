@@ -1,0 +1,51 @@
+// The story editor page (docs/design-system/assets/components.css: "Admin: stories and the story
+// editor", the Publishing panel's `panel__*`, and `section-title`); the editor, cards, fields and
+// states are the library's.
+:host {
+  display: block;
+}
+
+// The error state keeps the admin page's padding, as mock admin-story-editor/error draws it.
+.story-editor__state {
+  max-width: var(--layout-admin-max);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-8);
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: var(--space-10);
+  }
+}
+
+.section-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.panel__group {
+  margin-top: var(--space-4);
+}
+
+.panel__group--ruled {
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  padding-top: var(--space-4);
+}
+
+.panel__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// The conflict's two choices, under its sentence.
+.story-editor__choices {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

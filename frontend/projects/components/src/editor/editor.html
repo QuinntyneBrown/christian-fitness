@@ -1,0 +1,79 @@
+@if (loading()) {
+  <cf-skeleton-region label="Loading story" [heading]="true">
+    <div class="editor">
+      <div class="editor__bar">
+        <cf-link variant="back" [href]="backHref()" (click)="back($event)">{{
+          backLabel()
+        }}</cf-link>
+      </div>
+      <div class="editor__grid">
+        <div class="editor__writing editor__skeletons">
+          <cf-skeleton shape="image-16x9" />
+          <cf-skeleton shape="title-lg" />
+          <cf-skeleton width="90" />
+          <cf-skeleton width="80" />
+        </div>
+        <div class="editor__side">
+          <cf-skeleton shape="tile" />
+          <cf-skeleton shape="tile" />
+        </div>
+      </div>
+    </div>
+  </cf-skeleton-region>
+} @else {
+  <form class="editor" novalidate (submit)="$event.preventDefault()">
+    <div class="editor__bar">
+      <cf-link variant="back" [href]="backHref()" (click)="back($event)">{{ backLabel() }}</cf-link>
+      <ng-content select="[slot=status]" />
+      <span class="editor__saved" aria-live="polite">{{ saved() }}</span>
+      <div class="editor__actions"><ng-content select="[slot=actions]" /></div>
+    </div>
+    <div class="editor__grid">
+      <div class="editor__writing">
+        <h1 class="visually-hidden">{{ heading() }}</h1>
+        <div class="editor__alert"><ng-content select="[slot=alert]" /></div>
+        <ng-content select="[slot=image]" />
+        <div class="editor__text">
+          <label class="visually-hidden" for="f-headline">Headline</label>
+          <textarea
+            class="editor__headline"
+            id="f-headline"
+            name="headline"
+            rows="2"
+            placeholder="Headline"
+            [value]="headline()"
+            [readOnly]="readonly()"
+            [attr.aria-invalid]="headlineInvalid() ? 'true' : null"
+            (input)="headlineChange.emit(valueOf($event))"
+          ></textarea>
+          <label class="visually-hidden" for="f-summary">Summary</label>
+          <textarea
+            class="editor__summary"
+            id="f-summary"
+            name="summary"
+            rows="2"
+            placeholder="One or two sentences that make people want to read it"
+            [value]="summary()"
+            [readOnly]="readonly()"
+            (input)="summaryChange.emit(valueOf($event))"
+          ></textarea>
+          <label class="visually-hidden" for="f-story">Story</label>
+          <textarea
+            class="editor__story"
+            id="f-story"
+            name="story"
+            rows="16"
+            placeholder="Start writing. Begin a paragraph with > to make it a pull quote."
+            [value]="text()"
+            [readOnly]="readonly()"
+            [attr.aria-invalid]="textInvalid() ? 'true' : null"
+            (input)="textChange.emit(valueOf($event))"
+          ></textarea>
+        </div>
+      </div>
+      <aside class="editor__side" aria-label="Publishing">
+        <ng-content select="[slot=side]" />
+      </aside>
+    </div>
+  </form>
+}

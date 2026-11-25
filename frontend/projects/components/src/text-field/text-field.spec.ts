@@ -43,6 +43,16 @@ describe('TextField', () => {
 
     expect(input[property]).toBe(true);
   });
+
+  // The design system's input-group: the story editor's link, /stories/ + slug.
+  it('puts fixed text before the typed part, read with the field', () => {
+    const { fixture, input } = renderField({ prefix: '/stories/', hint: 'Made from the headline' });
+    const prefix = (fixture.nativeElement as HTMLElement).querySelector('.input-group__prefix')!;
+
+    expect([prefix.textContent, prefix.id]).toEqual(['/stories/', 'f-email-prefix']);
+    expect(input.className).toBe('input-group__input');
+    expect(input.getAttribute('aria-describedby')).toBe('f-email-prefix f-email-hint');
+  });
 });
 
 describe('SearchField', () => {

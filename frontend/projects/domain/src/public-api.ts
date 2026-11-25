@@ -96,3 +96,4 @@ export * from './directory/listed-listings';
 export * from './news/bylines';
 export * from './directory/own-listing';
 export * from './news/story-list';
+export * from './news/story-editor';

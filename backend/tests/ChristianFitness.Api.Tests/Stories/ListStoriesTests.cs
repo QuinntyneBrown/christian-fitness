@@ -119,6 +119,7 @@ public sealed class ListStoriesTests(StoriesFactory factory) : IClassFixture<Sto
 
     [Theory]
     [InlineData("")]
+    [InlineData("/options")]
     public async Task Given_a_Moderator_When_they_ask_for_Stories_Then_it_is_refused_with_forbidden_role(string path)
     {
         using var client = Browser.CreateClient(factory);

@@ -6,6 +6,7 @@ import {
   storyReadsText,
   storyReviewLabel,
   storyTabs,
+  storySavedText,
   storyWhen,
 } from './story-list';
 
@@ -82,6 +83,24 @@ describe('storyWhen', () => {
   ])('words a %s story at %s as "%s"', (status, when, words) => {
     expect(storyWhen(status, when, NOW)).toBe(words);
   });
+});
+
+describe('storySavedText', () => {
+  it.each<[StoryStatusName, string | null, string | null, string]>([
+    ['draft', null, null, 'Not saved yet'],
+    ['draft', '2026-04-15T12:44:40Z', null, 'Saved just now'],
+    ['review', '2026-04-15T12:43:00Z', null, 'Saved 2 min ago'],
+    ['draft', '2026-04-14T18:00:00Z', null, 'Saved yesterday'],
+    ['draft', '2026-04-08T15:00:00Z', null, 'Saved on Apr 8'],
+    ['published', '2026-04-15T12:00:00Z', '2026-04-15T11:12:00Z', 'Published today, 7:12 AM'],
+    ['published', '2026-04-15T12:00:00Z', '2026-04-14T20:00:00Z', 'Published yesterday'],
+    ['draft', 'not a time', null, ''],
+  ])(
+    'words a %s story saved at %s, published at %s, as "%s"',
+    (status, saved, published, words) => {
+      expect(storySavedText(status, saved, published, NOW)).toBe(words);
+    },
+  );
 });
 
 describe('storyReviewLabel', () => {

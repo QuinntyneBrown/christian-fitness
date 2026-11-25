@@ -174,6 +174,26 @@ export function storyWhen(status: StoryStatusName, when: string, now: Date): str
   }
 }
 
+/**
+ * What the editor's bar says of the last save (L2-069 AC1, AC11; mocks `admin-story-editor/*`):
+ * "Saved 2 min ago" or "Saved yesterday", "Published today, 7:12 AM" for a Published story, and
+ * "Not saved yet" for a story never saved. Empty for a value that is not an instant.
+ */
+export function storySavedText(
+  status: StoryStatusName,
+  savedAt: string | null,
+  publishedAt: string | null,
+  now: Date,
+): string {
+  if (status === 'published' && publishedAt) {
+    const when = storyWhen('published', publishedAt, now);
+    return when ? `Published ${when.charAt(0).toLowerCase()}${when.slice(1)}` : '';
+  }
+  if (!savedAt) return 'Not saved yet';
+  const instant = new Date(savedAt);
+  return Number.isNaN(instant.getTime()) ? '' : `Saved ${ago(instant, now)}`;
+}
+
 /** A review call-out's label (L2-068 AC2): "Waiting for your review · Submitted 1 hour ago". */
 export function storyReviewLabel(submittedAt: string, now: Date): string {
   return `Waiting for your review · ${storyWhen('review', submittedAt, now)}`;

@@ -1,0 +1,151 @@
+// The design system's story editor (docs/design-system/assets/components.css: "Admin: stories and
+// the story editor", `editor`). It fills the admin page edge to edge, so the shell drops the page's
+// padding for it (AdminLayout `flush`).
+:host {
+  display: block;
+}
+
+.editor__bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-canvas);
+  padding: var(--space-3) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-8);
+  }
+}
+
+.editor__saved {
+  display: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  @media (min-width: 40rem) {
+    display: inline;
+  }
+}
+
+.editor__actions {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.editor__grid {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-10);
+  padding: var(--space-8) var(--space-4);
+
+  > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-8);
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    padding-block: var(--space-10);
+  }
+}
+
+// Holds the alert above the story; with no alert it takes no room.
+.editor__alert {
+  margin-bottom: var(--space-6);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.editor__text {
+  max-width: var(--layout-measure);
+  margin: var(--space-8) auto 0;
+}
+
+.editor__headline,
+.editor__summary,
+.editor__story {
+  display: block;
+  width: 100%;
+  resize: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+
+  &::placeholder {
+    color: var(--color-fg-subtle);
+  }
+
+  &:read-only {
+    cursor: default;
+  }
+}
+
+.editor__headline {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-4xl);
+  }
+
+  // An empty headline after Publish: a 2px danger ring; the alert above says what is missing.
+  &[aria-invalid='true'] {
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-danger-fg);
+  }
+}
+
+.editor__summary {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+}
+
+.editor__story {
+  margin-top: var(--space-4);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: 0;
+  padding-top: var(--space-6);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+
+  &[aria-invalid='true'] {
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-danger-fg);
+  }
+}
+
+.editor__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+
+  @media (min-width: 64rem) {
+    position: sticky;
+    top: var(--space-20);
+    align-self: start;
+  }
+}
+
+// Mock admin-story-editor/loading: the skeletons of the image, headline and text, stacked.
+.editor__skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

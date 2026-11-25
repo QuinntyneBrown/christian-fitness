@@ -168,3 +168,97 @@ export const STORY_OPTIONS = {
     { id: '0193a000-0000-7000-8000-00000000a002', name: 'Lakeshore Runners Fellowship' },
   ],
 };
+
+/** One story as the editor reads it (`GET /api/admin/stories/{id}`; ADR 0097). */
+export interface StoryFixture {
+  id: string;
+  status: 'draft' | 'review' | 'scheduled' | 'published';
+  version: number;
+  headline: string;
+  summary: string;
+  text: string;
+  section: string | null;
+  bylineId: string | null;
+  placement: 'lead' | 'top' | 'latest';
+  includeInWeekly: boolean;
+  pointsTo: { kind: 'event' | 'listing'; id: string } | null;
+  nextStepText: string | null;
+  nextStepLink: string | null;
+  slug: string | null;
+  image: { key: string; crop: { x: number; y: number; width: number; height: number } } | null;
+  savedAt: string;
+  publishedAt: string | null;
+}
+
+/** Mock `admin-story-editor/default`: the story in review, saved 2 minutes ago. */
+export const REVIEW_STORY: StoryFixture = {
+  id: STORY_ROWS[0].id,
+  status: 'review',
+  version: 7,
+  headline: 'Fasting and training: what a dietitian wants you to know before Lent ends',
+  summary:
+    'Lena Park, RD, on how to keep a fast and keep moving, and the signs it’s time to ease off.',
+  text: 'For many members, Lent means giving something up.\n\n> “Fasting and training can live together. The mistake is pretending the fast isn’t happening.”\n\nHydration matters more than food on a fasting day.',
+  section: 'nutrition',
+  bylineId: PRIYA_RAMAN.id,
+  placement: 'top',
+  includeInWeekly: true,
+  pointsTo: { kind: 'listing', id: STORY_OPTIONS.listings[0].id },
+  nextStepText: 'Book a session with Lena',
+  nextStepLink: `/directory/${STORY_OPTIONS.listings[0].id}`,
+  slug: 'fasting-and-training',
+  image: null,
+  savedAt: '2026-04-15T12:43:00Z',
+  publishedAt: null,
+};
+
+/** Mock `admin-story-editor/draft`: a Draft saved yesterday. */
+export const DRAFT_STORY: StoryFixture = {
+  ...REVIEW_STORY,
+  id: STORY_ROWS[1].id,
+  status: 'draft',
+  version: 3,
+  headline: STORY_ROWS[1].headline,
+  summary: '',
+  text: 'On Wednesday nights the gym at Scarborough Community Church has a waiting list for its four courts.',
+  section: 'community',
+  bylineId: NAOMI_CLARKE.id,
+  placement: 'latest',
+  includeInWeekly: false,
+  pointsTo: null,
+  nextStepText: null,
+  nextStepLink: null,
+  slug: null,
+  savedAt: '2026-04-14T18:00:00Z',
+};
+
+/** Mock `admin-story-editor/published`: published today at 7:12 AM. */
+export const PUBLISHED_STORY: StoryFixture = {
+  ...REVIEW_STORY,
+  id: STORY_ROWS[3].id,
+  status: 'published',
+  version: 12,
+  headline: STORY_ROWS[3].headline,
+  section: 'community',
+  bylineId: NAOMI_CLARKE.id,
+  pointsTo: null,
+  slug: 'west-end-church-basement-gym',
+  savedAt: '2026-04-15T11:12:00Z',
+  publishedAt: '2026-04-15T11:12:00Z',
+};
+
+/** What `POST /api/admin/stories` answers for New story: an empty Draft, unless told otherwise. */
+export function newStory(fields: Partial<StoryFixture> = {}): StoryFixture {
+  return {
+    ...DRAFT_STORY,
+    id: '0193b000-0000-7000-8000-0000000057ff',
+    version: 1,
+    headline: '',
+    summary: '',
+    text: '',
+    section: null,
+    bylineId: null,
+    savedAt: STORIES_NOW.toISOString(),
+    ...fields,
+  };
+}
