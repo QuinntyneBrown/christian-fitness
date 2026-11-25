@@ -3,7 +3,9 @@ using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Chat;
 using ChristianFitness.Application.Email;
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Application.Services;
 using ChristianFitness.Domain.Directory;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +21,24 @@ public sealed record SuggestionDecisionDto(string Status, Guid? ListingId, strin
 public sealed record ApproveSuggestionCommand(Guid SuggestionId) : IRequest<SuggestionDecisionDto>, IAuditableCommand
 {
     string IAuditableCommand.AuditAction => "suggestion.approved";
+}
+
+/// <summary>
+/// Staff decline the suggestion <see cref="SuggestionId"/> with an optional <see cref="Reason"/> of at
+/// most 500 characters kept for staff (L2-073 AC8). Audited <c>suggestion.declined</c>.
+/// </summary>
+public sealed record DeclineSuggestionCommand(Guid SuggestionId, string? Reason) : IRequest<SuggestionDecisionDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "suggestion.declined";
+}
+
+/// <summary>A reason over 500 characters is <c>reason_too_long</c>, named in <c>fieldCodes</c>; the sentence never repeats it.</summary>
+internal sealed class DeclineSuggestionValidator : AbstractValidator<DeclineSuggestionCommand>
+{
+    public DeclineSuggestionValidator() =>
+        RuleFor(c => c.Reason)
+            .Must(reason => reason is null || reason.Trim().Length <= ListingSuggestion.DeclineReasonMaxLength)
+            .WithErrorCode(DecideApplicationRules.ReasonTooLong).WithMessage("Use 500 characters or fewer");
 }
 
 /// <summary>The texts the Christian Fitness account and the claim email send (ADR 0065, ADR 0087).</summary>
@@ -118,5 +138,29 @@ internal sealed class ApproveSuggestionHandler(
         }
 
         return new SuggestionDecisionDto("approved", listing.Id, claim);
+    }
+}
+
+/// <summary>
+/// Declines a waiting suggestion and tells the sender (L2-073 AC8); the suggested party is not
+/// contacted. A decided suggestion is 409 <c>suggestion_decided</c>. Logs nothing (L2-073 AC12).
+/// </summary>
+internal sealed class DeclineSuggestionHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit, SystemMessages messages, TimeProvider time)
+    : IRequestHandler<DeclineSuggestionCommand, SuggestionDecisionDto>
+{
+    public async Task<SuggestionDecisionDto> Handle(DeclineSuggestionCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var suggestion = await SuggestionReview.FindAsync(db, request.SuggestionId, cancellationToken).ConfigureAwait(false);
+        if (!suggestion.TryDecline(current.Id, time.GetUtcNow(), request.Reason))
+        {
+            throw SuggestionReview.Decided();
+        }
+
+        await messages.AddAsync(suggestion.SuggestedById, SuggestionOutcome.Declined(suggestion.Name), cancellationToken).ConfigureAwait(false);
+        audit.Record(current.Id, SuggestionReview.RecordType, suggestion.Id);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await messages.PushAsync(cancellationToken).ConfigureAwait(false);
+        return new SuggestionDecisionDto("declined", null, null);
     }
 }

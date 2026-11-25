@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -102,6 +102,9 @@ export default class ManageListingsPage {
   private readonly directory = inject(ADMIN_DIRECTORY_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  /** The decline dialog is open or on its way, so a second press does nothing. */
+  private dialogOpen = false;
   protected readonly toasts = inject(TOASTS_SERVICE);
   private readonly reload = new Subject<void>();
   /** The suggestion to show, each time the list or the address may have changed it. */
@@ -204,6 +207,8 @@ export default class ManageListingsPage {
         switchMap(() => {
           this.state.set({ kind: 'loading' });
           this.decisions.set({});
+          // The suggestion showing is read again with the list, even when it stays the same one.
+          this.shown.next(null);
           return this.directory.suggestions().pipe(
             map((list) => ({ kind: 'ready', list, now: new Date() }) satisfies ListState),
             catchError(() => of({ kind: 'failed' } satisfies ListState)),
@@ -293,6 +298,32 @@ export default class ManageListingsPage {
           this.decide(id, { status: 'approved', claim: answer.claim });
         },
         error: (error: unknown) => this.refused(error, APPROVE_FAILED),
+      });
+  }
+
+  /**
+   * Opens the decline dialog for the suggestion showing (L2-073 AC8; mock `decline-suggestion`),
+   * imported on the first Decline. A decline marks it Declined; one found already decided shows
+   * the list as it is now.
+   */
+  protected async decline(): Promise<void> {
+    const state = this.detailState();
+    if (state.kind !== 'ready' || this.approving() || this.dialogOpen) return;
+    const { id, name } = state.detail;
+    this.dialogOpen = true;
+    const { openDeclineSuggestion } =
+      await import('../../dialogs/decline-suggestion/decline-suggestion-dialog');
+    if (this.destroyRef.destroyed) return;
+    openDeclineSuggestion(this.injector, {
+      id,
+      name,
+      kindAndArea: suggestionKindAndArea(state.detail),
+    })
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        this.dialogOpen = false;
+        if (result === 'declined') this.decide(id, { status: 'declined', claim: null });
+        if (result === 'stale') this.reload.next();
       });
   }
 

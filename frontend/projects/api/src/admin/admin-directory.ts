@@ -92,6 +92,13 @@ export interface AdminDirectoryApi {
    * `checks_incomplete` (409), `suggestion_decided` (409), `suggestion_not_found` (404).
    */
   approve(id: string): Observable<SuggestionDecisionDto>;
+
+  /**
+   * Declines the suggestion `id`, with an optional `reason` kept for staff (L2-073 AC8). Refusals:
+   * `validation_failed` with `fieldCodes.reason` `reason_too_long` (400), `suggestion_decided`
+   * (409), `suggestion_not_found` (404).
+   */
+  decline(id: string, reason: string | null): Observable<SuggestionDecisionDto>;
 }
 
 /** Binds {@link AdminDirectoryApi}; the Listings page provides it on its routed component. */

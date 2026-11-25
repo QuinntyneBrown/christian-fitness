@@ -33,10 +33,21 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     [HttpPost("suggestions/{id:guid}/approve")]
     public async Task<ActionResult<SuggestionDecisionDto>> Approve(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new ApproveSuggestionCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Declines a suggestion, with an optional reason kept for staff.</summary>
+    [HttpPost("suggestions/{id:guid}/decline")]
+    public async Task<ActionResult<SuggestionDecisionDto>> Decline(Guid id, [FromBody] DeclineSuggestionBody? body, CancellationToken cancellationToken) =>
+        await sender.Send(new DeclineSuggestionCommand(id, body?.Reason), cancellationToken).ConfigureAwait(false);
 }
 
 /// <summary>What a tick sends.</summary>
 public sealed class SetCheckBody
 {
     public bool Passed { get; init; }
+}
+
+/// <summary>What a decline sends: an optional reason kept for staff.</summary>
+public sealed class DeclineSuggestionBody
+{
+    public string? Reason { get; init; }
 }

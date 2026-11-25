@@ -77,10 +77,11 @@ yet (journeys 8, 9, 30 and ADR 0069).
   is published until they say yes. A suspended sender is approved for but sent no message.
 - **Stand-ins for states the mocks do not show.** A staff-managed approval reads "Approved. It's in
   the directory now, managed by our team."; a suggestion decided before this visit reads
-  "Approved." or the decline text. An approval or decline that does not go through raises a danger
-  toast ("We couldn't approve the suggestion" or "We couldn't decline the suggestion", "Nothing
-  changed. Try again in a moment.") in the style of `admin-listings/tick-failed`; one already
-  decided elsewhere toasts "This suggestion was already decided" and reads the list again.
+  "Approved." or the decline text. An approval that does not go through raises a danger toast ("We
+  couldn't approve the suggestion", "Nothing changed. Try again in a moment.") in the style of
+  `admin-listings/tick-failed`; one already decided elsewhere toasts "This suggestion was already
+  decided" and reads the list again. A decline's failures are the dialog's own (mocks
+  `decline-suggestion/failed` and `refused`).
 - **Decline.** A dialog (mock `decline-suggestion`) asks for an optional reason of at most 500
   characters, kept as `DeclineReason` for staff; the sender gets "Thanks for suggesting {Listing}.
   We won't be adding it this time."; the suggested party is not contacted. Audited

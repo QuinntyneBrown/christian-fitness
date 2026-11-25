@@ -1,0 +1,39 @@
+<cf-dialog
+  [heading]="heading"
+  [subtitle]="subtitle"
+  [titleId]="headingId"
+  [descriptionId]="descriptionId"
+  (closed)="close()"
+>
+  @for (attempt of attempts(); track attempt) {
+    @if (summaryItems().length > 0) {
+      <cf-alert [heading]="summaryHeading" [items]="summaryItems()" />
+    }
+  }
+  @if (failureMessage(); as message) {
+    <cf-alert [heading]="message.heading">{{ message.text }}</cf-alert>
+  }
+  <cf-textarea
+    [fieldId]="reasonId"
+    label="Reason"
+    name="reason"
+    optional
+    [hint]="reasonHint"
+    [rows]="3"
+    [maxLength]="reasonMax"
+    [value]="reason()"
+    [readonly]="saving()"
+    [error]="reasonError()"
+    (valueChange)="setReason($event)"
+  />
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button slot="foot" grow [busy]="saving()" [disabled]="saving()" (click)="submit()">
+    @if (saving()) {
+      Declining…
+    } @else {
+      Decline suggestion
+    }
+  </cf-button>
+</cf-dialog>

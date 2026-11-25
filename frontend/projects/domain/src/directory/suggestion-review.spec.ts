@@ -10,6 +10,8 @@ import {
   suggestionFromLine,
   suggestionKindAndArea,
   type SuggestionClaim,
+  suggestionDeclineFailure,
+  suggestionDeclineProblem,
   reviewRefusalOf,
   websiteLabel,
 } from './suggestion-review';
@@ -119,6 +121,34 @@ describe('a decided suggestion', () => {
     ['declined', 'Declined'],
   ] as const)('a %s card is tagged %s', (status, tag) => {
     expect(decisionTag(status)).toBe(tag);
+  });
+});
+
+// L2-073 AC8 (ADR 0087; mocks decline-suggestion/invalid, failed and refused).
+describe('declining a suggestion', () => {
+  it.each<{ why: string; reason: string; expected: string | null }>([
+    { why: 'none', reason: '', expected: null },
+    { why: 'only spaces', reason: '   ', expected: null },
+    { why: '500 characters', reason: 'a'.repeat(500), expected: null },
+    { why: '500 characters and spaces', reason: ` ${'a'.repeat(500)} `, expected: null },
+    { why: '501 characters', reason: 'a'.repeat(501), expected: 'Use 500 characters or fewer' },
+  ])('a reason of $why is $expected', ({ reason, expected }) => {
+    expect(suggestionDeclineProblem(reason)).toBe(expected);
+  });
+
+  it.each([
+    [
+      'decided' as const,
+      'This suggestion was already decided',
+      'Someone else approved or declined it. Close this to see it as it is now.',
+    ],
+    [
+      'failed' as const,
+      "Couldn't decline the suggestion",
+      "The server didn't respond. Nothing was lost; try again.",
+    ],
+  ])('a %s decline reads "%s"', (refusal, heading, text) => {
+    expect(suggestionDeclineFailure(refusal)).toEqual({ heading, text });
   });
 });
 

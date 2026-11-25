@@ -9,6 +9,7 @@ import {
 import type { ApiHandlers } from '../fixtures/api-handlers';
 import { expect, MODERATOR_SIGNED_IN, test } from '../fixtures/test';
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
+import { DeclineSuggestionDialog } from '../page-objects/admin/decline-suggestion.dialog';
 import { ManageListingsPage } from '../page-objects/admin/manage-listings.page';
 
 const LIST = '/api/admin/directory/suggestions';
@@ -384,6 +385,168 @@ test.describe('Admin app, approving a suggestion', () => {
     await expect(listings.check('Credentials')).toBeDisabled();
     await expect(listings.approveButton).toHaveCount(0);
     await expect(listings.declineButton).toHaveCount(0);
+  });
+});
+
+const DECLINE = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/decline$/;
+const REASON = 'We couldn’t confirm his certification with the issuing body.';
+
+// L2-073 AC8 (ADR 0087): declining a suggestion, with an optional reason.
+test.describe('Admin app, declining a suggestion', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // Mocks decline-suggestion/default and busy, admin-listings/declined.
+  test('Decline asks for an optional reason, reads Declining…, then says the sender was told', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const marcus = CAST_SUGGESTIONS[1];
+    answer(api, CAST_SUGGESTIONS);
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const sent: { path: string; body: unknown }[] = [];
+    api.on('POST', DECLINE, async (request) => {
+      sent.push({ path: new URL(request.url()).pathname, body: request.postDataJSON() });
+      await held;
+      return { json: { status: 'declined', listingId: null, claim: null } };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open(`?selected=${marcus.id}`);
+
+    await listings.declineButton.click();
+    const dialog = new DeclineSuggestionDialog(page);
+
+    await expect(dialog.title).toHaveText('Decline Coach Marcus Delaney');
+    await expect(dialog.subtitle).toHaveText('Instructor · Mississauga');
+    await expect(dialog.reasonLabel).toHaveText('Reason (optional)');
+    await expect(dialog.reasonHint).toHaveText(
+      'Staff keep this on file. The person who suggested it is not sent it. 500 characters left.',
+    );
+    await expect(dialog.reason).toBeFocused();
+    await dialog.reason.fill(REASON);
+    await expect(dialog.reasonHint).toContainText('440 characters left.');
+    await expect(dialog.submitButton).toHaveText('Decline suggestion');
+    await dialog.submitButton.click();
+
+    await expect(dialog.submitButton).toHaveText('Declining…');
+    await expect(dialog.submitButton).toBeDisabled();
+    await expect(dialog.cancelButton).toBeDisabled();
+    await expect(dialog.reason).toHaveAttribute('readonly', '');
+    release();
+    await expect(dialog.dialog).toHaveCount(0);
+    await expect(listings.result).toHaveText(
+      'Declined. The person who suggested it has been told.',
+    );
+    await expect(listings.cardTag('Coach Marcus Delaney')).toHaveText('Declined');
+    await expect(listings.tab('Suggestions')).toHaveText('Suggestions 2');
+    await expect(listings.check('Credentials')).toBeDisabled();
+    expect(sent).toEqual([
+      {
+        path: `/api/admin/directory/suggestions/${marcus.id}/decline`,
+        body: { reason: REASON },
+      },
+    ]);
+  });
+
+  test('a decline with no reason sends none, and Cancel sends nothing', async ({ page, api }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, [CAST_SUGGESTIONS[1]]);
+    const sent: unknown[] = [];
+    api.on('POST', DECLINE, (request) => {
+      sent.push(request.postDataJSON());
+      return { json: { status: 'declined', listingId: null, claim: null } };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+    const dialog = new DeclineSuggestionDialog(page);
+
+    await listings.declineButton.click();
+    await dialog.cancelButton.click();
+    await expect(dialog.dialog).toHaveCount(0);
+    await expect(listings.declineButton).toBeFocused();
+    expect(sent).toEqual([]);
+
+    await listings.declineButton.click();
+    await dialog.reason.fill('   ');
+    await dialog.submitButton.click();
+
+    await expect(listings.result).toHaveText(
+      'Declined. The person who suggested it has been told.',
+    );
+    expect(sent).toEqual([{ reason: null }]);
+  });
+
+  // Mock decline-suggestion/invalid.
+  test('a reason over 500 characters is named in a summary and beside the field, and nothing is sent', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, [CAST_SUGGESTIONS[1]]);
+    const sent: unknown[] = [];
+    api.on('POST', DECLINE, (request) => {
+      sent.push(request.postDataJSON());
+      return { json: { status: 'declined', listingId: null, claim: null } };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+    await listings.declineButton.click();
+    const dialog = new DeclineSuggestionDialog(page);
+
+    await dialog.reason.fill('a'.repeat(501));
+    await dialog.submitButton.click();
+
+    await expect(dialog.alertTitle).toHaveText('1 thing to fix');
+    await expect(dialog.alertLinks).toHaveText(['Use 500 characters or fewer']);
+    await expect(dialog.reasonError).toHaveText('Use 500 characters or fewer');
+    await expect(dialog.reason).toHaveAttribute('aria-invalid', 'true');
+    expect(sent).toEqual([]);
+  });
+
+  // Mocks decline-suggestion/failed and refused.
+  test('a decline that fails keeps the reason; one decided elsewhere first says so and Close shows it as it is', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const marcus = CAST_SUGGESTIONS[1];
+    let list = [marcus];
+    api.on('GET', LIST, () => ({ json: suggestionList(list, { listed: 12 }) }));
+    api.on('GET', ONE, () => ({ json: list[0] }));
+    let refusal: 'abort' | 'decided' = 'abort';
+    api.on('POST', DECLINE, () =>
+      refusal === 'abort'
+        ? { abort: true }
+        : { status: 409, json: { status: 409, code: 'suggestion_decided' } },
+    );
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+    await listings.declineButton.click();
+    const dialog = new DeclineSuggestionDialog(page);
+
+    await dialog.reason.fill(REASON);
+    await dialog.submitButton.click();
+
+    await expect(dialog.alertTitle).toHaveText("Couldn't decline the suggestion");
+    await expect(dialog.alertText).toHaveText(
+      "The server didn't respond. Nothing was lost; try again.",
+    );
+    await expect(dialog.reason).toHaveValue(REASON);
+    await expect(dialog.submitButton).toHaveText('Decline suggestion');
+
+    refusal = 'decided';
+    list = [{ ...marcus, status: 'approved' }];
+    await dialog.submitButton.click();
+
+    await expect(dialog.alertTitle).toHaveText('This suggestion was already decided');
+    await expect(dialog.alertText).toHaveText(
+      'Someone else approved or declined it. Close this to see it as it is now.',
+    );
+    await dialog.cancelButton.click();
+    await expect(dialog.dialog).toHaveCount(0);
+    await expect(listings.cardTag('Coach Marcus Delaney')).toHaveText('Approved');
+    await expect(listings.result).toHaveText('Approved.');
   });
 });
 

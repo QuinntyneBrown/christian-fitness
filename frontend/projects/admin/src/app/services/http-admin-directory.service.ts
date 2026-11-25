@@ -44,6 +44,14 @@ export class HttpAdminDirectoryService implements AdminDirectoryApi {
       .pipe(catchError(asApiError));
   }
 
+  decline(id: string, reason: string | null): Observable<SuggestionDecisionDto> {
+    return this.http
+      .post<SuggestionDecisionDto>(`${BASE}/suggestions/${encodeURIComponent(id)}/decline`, {
+        reason,
+      })
+      .pipe(catchError(asApiError));
+  }
+
   approve(id: string): Observable<SuggestionDecisionDto> {
     return this.http
       .post<SuggestionDecisionDto>(`${BASE}/suggestions/${encodeURIComponent(id)}/approve`, null)

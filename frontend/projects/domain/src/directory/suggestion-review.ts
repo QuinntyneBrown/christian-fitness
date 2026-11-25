@@ -125,6 +125,36 @@ export function reviewRefusalOf(error: unknown): 'decided' | 'failed' {
   return 'failed';
 }
 
+/** The longest decline reason staff may keep (L2-073 AC8; ADR 0087). */
+export const SUGGESTION_DECLINE_REASON_MAX = 500;
+
+/** The decline reason's hint (mock `decline-suggestion/default`); the field adds the characters left. */
+export const SUGGESTION_DECLINE_HINT =
+  'Staff keep this on file. The person who suggested it is not sent it.';
+
+/** What the decline dialog says of the optional reason, or null when it is fine. */
+export function suggestionDeclineProblem(reason: string): string | null {
+  return reason.trim().length > SUGGESTION_DECLINE_REASON_MAX
+    ? 'Use 500 characters or fewer'
+    : null;
+}
+
+/** The decline dialog's alert when a decline did not go through (mocks `failed`, `refused`). */
+export function suggestionDeclineFailure(refusal: 'decided' | 'failed'): {
+  heading: string;
+  text: string;
+} {
+  return refusal === 'decided'
+    ? {
+        heading: 'This suggestion was already decided',
+        text: 'Someone else approved or declined it. Close this to see it as it is now.',
+      }
+    : {
+        heading: "Couldn't decline the suggestion",
+        text: "The server didn't respond. Nothing was lost; try again.",
+      };
+}
+
 /** A decided suggestion's tag on its card: "Approved" or "Declined"; none while it waits. */
 export function decisionTag(status: 'waiting' | 'approved' | 'declined'): string | undefined {
   if (status === 'approved') return 'Approved';
