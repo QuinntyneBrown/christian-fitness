@@ -19,10 +19,11 @@ SCREENS: dict[str, dict] = {}
 
 def screen(sid: str, kind: str, title: str, *, route: str | None = None, opens_from: str | None = None,
            source: str | None = None, group: str = "Member app", not_applicable: dict | None = None,
-           description: str = ""):
+           description: str = "", requirements: list[str] | None = None):
     entry = SCREENS.setdefault(sid, {
         "id": sid, "kind": kind, "title": title, "route": route, "opens_from": opens_from, "source": source,
-        "group": group, "not_applicable": not_applicable or {}, "description": description, "states": {},
+        "group": group, "not_applicable": not_applicable or {}, "description": description,
+        "requirements": requirements, "states": {},
     })
 
     def state(name: str, desc: str):
@@ -59,6 +60,7 @@ def document(sid: str, state: str, body: str) -> str:
     st = s["states"][state]
     desc = st["description"]
     source = f'\n<meta name="mock:source" content="{escape(s["source"])}">' if s.get("source") else ""
+    requirements = f'\n<meta name="mock:requirements" content="{escape(", ".join(s["requirements"]))}">' if s.get("requirements") else ""
     links = "\n".join(
         f'    <li><a href="{name}.html"{CUR if name == state else ""}>{name}</a></li>'
         for name in s["states"]
@@ -71,7 +73,7 @@ def document(sid: str, state: str, body: str) -> str:
 <title>{escape(s["title"])} · {state} — {PROJECT} mocks</title>
 <meta name="mock:kind" content="{s["kind"]}">
 <meta name="mock:screen" content="{sid}">
-<meta name="mock:state" content="{state}">{source}
+<meta name="mock:state" content="{state}">{source}{requirements}
 <meta name="description" content="{escape(desc)}">
 <link rel="stylesheet" href="{ASSETS}/tokens.css">
 <link rel="stylesheet" href="{ASSETS}/ui.css">
@@ -248,7 +250,7 @@ def google_button(label: str = "Continue with Google", *, loading: bool = False,
 
 
 def or_divider(label: str = "or with email") -> str:
-    return f'<p class="or-divider">{label}</p>'
+    return f'<p class="divider--label">{label}</p>'
 
 
 # ---------------------------------------------------------------------------
@@ -325,7 +327,7 @@ ADMIN_NAV = [
                 ("admin-community-pick", "Community Pick", "megaphone", 0, "")]),
     ("Community", [("admin-listings", "Listings", "book-user", 3, "suggestion to check|suggestions to check"),
                    ("admin-services", "Services", "heart-handshake", 3, "application waiting|applications waiting"),
-                   ("admin-members", "Members", "users", 1, "report to review|reports to review"),
+                   ("admin-members", "Members", "users", 1, "member to review|members to review"),
                    ("admin-feedback", "Feedback", "message-square-text", 2, "new note|new notes")]),
 ]
 
@@ -343,14 +345,18 @@ def admin_nav(active: str, *, counts: dict | None = None, moderator: bool = Fals
         entries = [e for e in entries if not moderator or e[0] in MODERATOR_AREAS]
         if not entries:
             continue
-        if group and not moderator:
-            out.append(f'<p class="admin-nav__group">{group}</p>')
+        items = []
         for key, label, ic, n, what in entries:
             n = counts.get(key, n)
             cur = ' aria-current="page"' if key == active else ""
             one, _, many = what.partition("|")
             badge = f'<span class="admin-nav__count" aria-label="{n} {one if n == 1 else many}">{n}</span>' if n else ""
-            out.append(f'<a class="admin-nav__item" href="{href(key)}"{cur}>{icon(ic, "icon--md")}{label}{badge}</a>')
+            items.append(f'<li><a class="admin-nav__item" href="{href(key)}"{cur}>{icon(ic, "icon--md")}{label}{badge}</a></li>')
+        if group and not moderator:
+            gid = "admin-nav-" + group.lower()
+            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2><ul class="admin-nav__list" aria-labelledby="{gid}">{"".join(items)}</ul>')
+        else:
+            out.append(f'<ul class="admin-nav__list" aria-label="{"Areas" if group or moderator else "Overview"}">{"".join(items)}</ul>')
     return f"""<nav class="admin-nav" aria-label="Admin">
       {''.join(out)}
     </nav>"""

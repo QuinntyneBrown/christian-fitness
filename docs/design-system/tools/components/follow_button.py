@@ -6,7 +6,7 @@ CHECK = icon("check")
 def follow(name, on=False, lg=False, a=""):
     cls = "follow follow--lg" if lg else "follow"
     return (f'<button class="{cls}" type="button" aria-pressed="{"true" if on else "false"}"{a}>'
-            f'{CHECK if on else ""}{"Following" if on else "Follow"}<span class="visually-hidden"> {name}</span></button>')
+            f'{CHECK if on else ""}Follow<span class="visually-hidden"> {name}</span></button>')
 
 
 ROW = f'<div class="cluster">{follow("Christian Fitness")}{follow("Lakeshore Runners Fellowship", True)}</div>'
@@ -25,7 +25,7 @@ SPEC = {
     "meta": ["Status: new", "<code>&lt;button aria-pressed&gt;</code>", "Member app: Directory"],
     "overview": f"""<p>Use the follow button wherever a listing (an organization, person, instructor or church ministry) can be followed: on each <a href="listing-row.html">listing row</a> in the Directory and in the head of a listing's profile. It acts at once in both directions, with no confirmation; if the request fails, the button goes back and a <a href="toast.html">toast</a> says so.</p>
 <ul>
-<li><b>Row</b> (<code>.follow</code>): a fixed-width outlined pill at the end of a directory row; \"Follow\", or tinted \"Following\" with a check.</li>
+<li><b>Row</b> (<code>.follow</code>): a fixed-width outlined pill at the end of a directory row; \"Follow\" always, tinted with a check when pressed.</li>
 <li><b>Large</b> (<code>.follow--lg</code>): the profile's main action, beside Message. Not followed, it is the bordeaux primary; followed, it turns tinted like the row button.</li>
 </ul>
 <p>It is a toggle, not a <a href="button.html">button</a> variant and not a <a href="chip.html">chip</a>: one listing, on or off, saved immediately.</p>""",
@@ -34,8 +34,8 @@ SPEC = {
         "callouts": [(43, 22), (53, 22), (62, 70)],
         "parts": [
             ("Check (followed only)", "16px <code>check</code> icon, <code>aria-hidden</code>; the shape, not just the tint, says it is on."),
-            ("Label", "\"Follow\" or \"Following\", 14px semibold, plus the listing's name in visually hidden text."),
-            ("Container", "A 108px (6.75rem) pill, 36px tall (<code>--control-height-sm</code>), so Follow and Following take the same space and the row does not jump."),
+            ("Label", "\"Follow\" in every state, 14px semibold, plus the listing's name in visually hidden text."),
+            ("Container", "A 108px (6.75rem) pill, 36px tall (<code>--control-height-sm</code>), so the pressed and unpressed buttons take the same space and the row does not jump."),
         ],
     },
     "variants": "<h3>Row</h3>"
@@ -70,13 +70,13 @@ SPEC = {
 </ul>""",
     "theming": """<p>Off, the row button is transparent with a <code>--color-border-default</code> outline (<code>--color-border-strong</code> on hover) and default text. On, both sizes take <code>--color-accent-subtle</code> and <code>--color-fg-accent</code> (large hover <code>--color-accent-subtle-hover</code>). The large button off is <code>--color-accent</code> with <code>--color-fg-on-accent</code> (hover <code>--color-accent-hover</code>). All switch with the theme.</p>""",
     "accessibility": {
-        "pattern": '<p>A toggle button: native <code>&lt;button&gt;</code> with <code>aria-pressed</code> (<a href="https://www.w3.org/WAI/ARIA/apg/patterns/button/">APG Button</a>). The mocks also change the visible label (Follow → Following). The APG warns that a toggle\'s label should not change with its state, or screen readers hear \"Following, pressed\", which says it twice and reads oddly. Proposed: keep <code>aria-pressed</code> and keep the accessible name \"Follow &lt;listing&gt;\", with \"Following\" as visible text only; or drop <code>aria-pressed</code> and let the label alone carry the state.</p>',
+        "pattern": '<p>A toggle button: native <code>&lt;button&gt;</code> with <code>aria-pressed</code> (<a href="https://www.w3.org/WAI/ARIA/apg/patterns/button/">APG Button</a>). The label is fixed (\"Follow\") and never changes while toggling, as the APG asks of a toggle button: <code>aria-pressed</code> carries the state to assistive technology, and the fill plus a check icon carry it visually.</p>',
         "keys": [
             (kbd("Tab"), "Moves to the button (after the row's link)."),
             (kbd("Enter") + ", " + kbd("Space"), "Follows or unfollows."),
         ],
         "focus": "<p>The shared ring: 2px <code>--color-focus-ring</code> at 2px offset, following the pill. Focus stays on the button after it flips and after a failure.</p>",
-        "labelling": "<p>Every button names its listing in visually hidden text (\"Follow Christian Fitness\"), since a page has many. The pressed state is announced from <code>aria-pressed</code>; the check icon and the label change make it visible without relying on the tint.</p>",
+        "labelling": "<p>Every button names its listing in visually hidden text (\"Follow Christian Fitness\"), since a page has many. The pressed state is announced from <code>aria-pressed</code>; the check icon makes it visible without relying on the tint, and the label never changes.</p>",
         "pairs": [
             ("Row label, off", "--color-fg-default", "--color-bg-surface", 4.5),
             ("Label, on", "--color-fg-accent", "--color-accent-subtle", 4.5),
@@ -90,13 +90,13 @@ SPEC = {
         "touch": "<p>The large button is 44px tall. The row button is 36px tall and 108px wide; its coarse-pointer extension uses <code>--target-min</code> (24px) instead of <code>--target-comfortable</code> (44px), so it falls short of the 44px rule. Proposed: extend to <code>--target-comfortable</code> as small buttons and chips do.</p>",
     },
     "content": """<ul>
-<li>\"Follow\" and \"Following\", nothing else: no \"Unfollow\" on hover, no \"Subscribe\".</li>
+<li>\"Follow\", nothing else, in both states: no \"Unfollow\" on hover, no \"Subscribe\".</li>
 <li>Always add the listing's name in visually hidden text, so a screen reader hears \"Follow Lakeshore Runners Fellowship\".</li>
 <li>The failure toast names the listing and the fix: \"We couldn't follow Faith &amp; Footwork\" / \"Try again in a moment.\"</li>
 </ul>""",
     "dodont": [
         ("do", follow("Lakeshore Runners Fellowship", True), "The check and the tint both mark it on; width stays the same."),
-        ("dont", '<button class="follow" type="button" aria-pressed="true">Following</button>', "No check and no listing name: on is shown by tint alone, and a screen reader hears \"Following\" twenty times down the Directory."),
+        ("dont", '<button class="follow" type="button" aria-pressed="true">Follow</button>', "No check and no listing name: on is shown by tint alone, and a screen reader hears the same name twenty times down the Directory."),
         ("do", HEAD_OFF, "One primary in the profile head: Follow, with Message beside it as secondary."),
         ("dont", '<div class="listing-head__actions"><button class="btn btn--primary btn--md" type="button">Follow</button><a class="btn btn--primary btn--md" href="#">Message</a></div>',
          "A plain button has no pressed state, and two primaries compete."),
@@ -120,7 +120,7 @@ SPEC = {
 </button>
 
 <button class="follow follow--lg" type="button" aria-pressed="true">
-  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">…</svg>Following<span class="visually-hidden"> Lakeshore Runners Fellowship</span>
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">…</svg>Follow<span class="visually-hidden"> Lakeshore Runners Fellowship</span>
 </button>''',
         "classes": [
             ("<code>.follow</code>", "Fixed-width outlined toggle for directory rows."),
@@ -137,6 +137,6 @@ SPEC = {
             mock("pages/listing-profile/one-off", "large, not followed"),
             mock("pages/listing-profile/person", "large, following a person"),
         ],
-        "drift": "New with the Directory. Follow is instant both ways as the frame draws it; a failure puts the button back with a toast (mocks README: Follow). Open: the label changes with <code>aria-pressed</code>, against the APG toggle guidance; and <code>.follow--lg[data-state=\"hover\"]</code> overrides the pressed fill, so a forced hover on a followed large button shows the wrong colour (live <code>:hover</code> is right). Fixed: the coarse-pointer extension used <code>--target-min</code>; it now uses <code>--target-comfortable</code>.",
+        "drift": "New with the Directory. Follow is instant both ways as the frame draws it; a failure puts the button back with a toast (mocks README: Follow). Closed: the label no longer changes with <code>aria-pressed</code> (fixed \"Follow\", fill and check icon show the state). Open: <code>.follow--lg[data-state=\"hover\"]</code> overrides the pressed fill, so a forced hover on a followed large button shows the wrong colour (live <code>:hover</code> is right). Fixed: the coarse-pointer extension used <code>--target-min</code>; it now uses <code>--target-comfortable</code>.",
     },
 }

@@ -217,14 +217,12 @@ def edit_profile(*, invalid=False, limits=False, refused=False, busy=False, fail
     chips = "".join(f'<button class="interest" type="button" aria-pressed="{"true" if i in ME["interests"] else "false"}"{" disabled" if busy else ""}>{i}</button>' for i in INTERESTS)
     left = BIO_MAX - len(bio)
     bio_hint = f"A sentence or two. {left} characters left." if left >= 0 else ""
-    show = f'<label class="check check--ui"><input class="check__box" type="checkbox" id="f-show-church" name="showChurch"{" disabled" if busy else ""}> Show my home church to other members</label>'
     body = f"""    {alert}
     {field("Full name", "name", "" if invalid else ME["name"], autocomplete="name", error="Enter your name so people know who you are" if invalid else "", readonly=busy)}
     <div class="field-grid">
       {field("Home church", "church", ME["church"], optional=True, hint="Hidden from other members unless you show it", readonly=busy)}
       {field("City", "city", ME["city"], autocomplete="address-level2", optional=True, readonly=busy)}
     </div>
-    {show}
     {textarea("About", "bio", bio, rows=3, hint=bio_hint, error="Keep your bio to 300 characters" if limits else "", readonly=busy)}
     {textarea("Goals this year", "goals", chr(10).join(goals), rows=3, hint="One per line, up to 5", error="Choose up to 5 goals" if limits else "", readonly=busy)}
     <fieldset><legend class="field__legend">Into</legend><div class="interest-list">{chips}</div></fieldset>"""
@@ -596,6 +594,13 @@ def _():
 def _():
     b = banner("brand", "wrench", "<strong>Scheduled maintenance Sunday, April 19, 1–3 AM.</strong> Messages and registration pause for those two hours.")
     return member_shell("home", M.home(), banner=b) + note("Persistent: shown on every signed-in page until dismissed; dismissal is remembered.", "top: 8rem; right: 1rem;")
+
+
+@s("legal-change", "A change to the Privacy Policy and Terms is 30 days out: a dismissible banner names the date and links to what is changing; using the app after that date means accepting it (L2-067).")
+def _():
+    b = banner("info", "info", "<strong>We're updating our Privacy Policy and Terms on May 20, 2026.</strong> "
+               f'<a class="link" href="{href("privacy", "updating", "whats-changing")}">Read what\'s changing.</a> Using Christian Fitness after that date means you accept them.')
+    return member_shell("home", M.home(), banner=b) + note("Dismissible. Dismissal is remembered; the banner goes when the update takes effect.", "top: 8rem; right: 1rem;")
 
 
 # ===========================================================================

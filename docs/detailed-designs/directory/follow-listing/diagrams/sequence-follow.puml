@@ -24,7 +24,7 @@ end box
 actor -> page : Press Follow
 page -> store : toggle(id, name)
 store --> page : following = true, followers + 1 at once (L2-056 AC1, AC3)
-page --> actor : "Following", aria-pressed="true", check mark
+page --> actor : "Follow" (fixed label), aria-pressed="true", fill and check mark
 store -> client : follow(id)
 client -> ctrl : PUT /api/directory/{id}/follow
 ctrl -> h : Send FollowListingCommand
@@ -49,7 +49,7 @@ alt failure or refusal
 else success
   store --> page : Server count shown
 end
-actor -> page : Press Following
+actor -> page : Press Follow (pressed)
 page -> store : toggle(id, name)
 store --> page : following = false, followers - 1 at once, no confirmation (L2-056 AC2)
 store -> client : unfollow(id)

@@ -8,8 +8,8 @@ to the member-profile subsystem.
 
 - **goal** — short statement of what a member is working toward; at most 5 goals of
   at most 80 characters each
-- **home church visibility** — member's choice whether other members see their home
-  church; hidden by default
+- **home church visibility** — a separate Preferences choice, off by default, for
+  admitted signed-in members; never visible anonymously ([ADR 0075](../../../adr/0075-public-profiles-and-privacy.md))
 
 The dialog opens with the current values. A valid save updates the profile and
 closes the dialog. Over-length or over-count values are refused by the server and
@@ -31,7 +31,7 @@ Profile screen of slice 18.1 ([view profile](../view-profile/README.md)).
 - **`EditProfileDialog`** — dialog component in `projects/web/src/app/dialogs/edit-profile/`,
   a CDK Dialog composed only from `@cf/components`: the `cf-dialog` shell (scrim, panel,
   title, Close, footer), `cf-form-layout` (Home church and City in a `field-grid`),
-  `cf-text-field`, `cf-checkbox`, `cf-textarea`, `cf-interest-list` with `cf-interest`,
+  `cf-text-field`, `cf-textarea`, `cf-interest-list` with `cf-interest`,
   `cf-alert` and `cf-button`, inside one `<form>`. The CDK container is the
   `role="dialog"`, `aria-modal` element named by the title; it hides the page from
   assistive technology, traps focus, starts it in Full name and returns it to the opener.
@@ -42,16 +42,15 @@ Profile screen of slice 18.1 ([view profile](../view-profile/README.md)).
   your changes weren't accepted" (mock `refused`); no answer or a 5xx shows "We couldn't
   save your changes" (mock `failed`); both keep every value (AC7). On success it closes
   with the saved profile.
-- **Home church visibility** — the checkbox "Show my home church to other members",
-  unchecked for every member until they check it (AC4); the church field's hint reads
-  "Hidden from other members unless you show it". The public profile (slice 19.1) reads it.
+- **Home church visibility** — "Show my home church" is controlled and saved in
+  Preferences, not this dialog (AC4). The church field remains optional.
 - **`validateProfile`, `profileRequestOf`, `profileRefusalOf`** — pure helpers in
   `@cf/domain` with unit tests. Goals are one per line; blank lines are dropped and each
   goal trimmed before counting. The rule table is the API validator's, row for row.
 - **`ProfileApi.update`** — `HttpProfileService` sends `PUT /api/members/{memberId}/profile`
-  with `UpdateProfileDto` (`name`, `city`, `homeChurch`, `showHomeChurch`, `bio`, `goals`,
-  `interests`) and answers the saved `OwnProfileDto`, which now carries `memberId` and
-  `showHomeChurch`. A failure errors with an `ApiError`.
+  with `UpdateProfileDto` (`name`, `city`, `homeChurch`, `bio`, `goals`,
+  `interests`) and answers the saved `OwnProfileDto`. It does not update `ShowHomeChurch`.
+  A failure errors with an `ApiError`.
 - **`ProfileController.Update`** — sends one `UpdateProfileCommand` with the route's
   member id.
 - **`UpdateProfileValidator`** — name required and at most 100 characters, city at most
@@ -64,8 +63,8 @@ Profile screen of slice 18.1 ([view profile](../view-profile/README.md)).
   (AC5, L2-031 AC3). Otherwise it loads the caller's `Member`, calls `EditProfile` and
   saves once, then answers the saved profile.
 - **`Member.EditProfile`** — trims each value, stores a blank city, home church or bio as
-  none, drops blank goals and repeated interests, and sets `ShowHomeChurch` (migration
-  `AddHomeChurchVisibility`, false for every member).
+  none and drops blank goals and repeated interests. The existing `ShowHomeChurch` value
+  is preserved by edits and changed only through Preferences.
 - **Telemetry** — no span or log carries the name, bio, goals or home church; the span
   records the route template `api/members/{memberId}/profile`, never the id.
 
@@ -76,7 +75,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-006` | `L1-003` | Editing opens a dialog or a screen; there are no inline forms. 1. The dialog opens with the current values. 2. A valid save shows the new values and closes the dialog. 3. A bio over 300 characters, more than 5 goals or a goal over 80 characters is refused with `field_too_long` or `too_many_goals` and nothing changes. 4. Home church visibility defaults to hidden. 5. A change to another member's profile is refused with HTTP 403. 6. A cleared name, an over-long bio or too many goals is named in the dialog and nothing is sent. 7. A refused or unanswered save keeps the dialog open with a generic message and every value. |
+| `L2-006` | `L1-003` | Editing opens a dialog or a screen with current values; valid saves close it, invalid or refused saves preserve the draft, and another member's profile cannot be changed. Home church visibility is changed in Preferences, not Edit profile (AC1–AC7). |
 | `L2-031` | `L1-013` | 2, 3. Another member's data is refused and guessing ids reveals nothing. |
 | `L2-033` | `L1-013` | 2. No log, metric or span carries a name, home church or body. |
 

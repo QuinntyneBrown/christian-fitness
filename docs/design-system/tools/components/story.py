@@ -37,7 +37,7 @@ def river(items, title="The latest"):
 
 
 RANKED = '<ol class="ranked">' + "".join(
-    f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title">{t}</p></li>' for i, t in enumerate(MOST_READ, 1)) + "</ol>"
+    f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title"><a href="#">{t}</a></p></li>' for i, t in enumerate(MOST_READ, 1)) + "</ol>"
 RAIL = f'<aside class="rail" aria-label="Most read, example"><section><p class="display rule-title">Most read</p>{RANKED}</section></aside>'
 
 TOP = f'<section class="top-stories" aria-label="Top stories, example">{lead()}{headlines(STORIES[1:5])}</section>'
@@ -81,7 +81,7 @@ ARTICLE = (f'<article class="story"><header class="story__head"><a class="back-l
            f'<p class="story__dek">{BG["dek"]}</p>{byline()}</header>'
            f'<figure class="story__figure">{image(BG["image"], "story__image")}</figure>'
            f'<div class="story__body">{paras(STORY_BODY["basement-gym"][:3])}{nxt()}'
-           f'<p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="inline-link" href="#top">Send a correction</a></p></div></article>')
+           f'<p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="link" href="#top">Send a correction</a></p></div></article>')
 
 SMALL_ROW = f'<ul class="river__list">{row(STORIES[6])}</ul>'
 
@@ -101,7 +101,7 @@ SIZES = """<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th sco
 <tr><td>Headline <code>.headline__title</code></td><td><code>--font-size-lg</code>, bold</td><td>5rem square</td><td><code>h2</code> on the front page, <code>h3</code> in an issue</td></tr>
 <tr><td>Story card <code>.story-card__title</code></td><td><code>--font-size-lg</code>, bold</td><td>16:10, card width</td><td>none: the card is a link</td></tr>
 <tr><td>Story next <code>.story-next__title</code></td><td><code>--font-size-lg</code>, bold</td><td>none</td><td>none: the card is a link</td></tr>
-<tr><td>Ranked <code>.ranked__title</code></td><td><code>--font-size-md</code>, semibold; numeral <code>--font-size-3xl</code></td><td>none</td><td>none</td></tr>
+<tr><td>Ranked <code>.ranked__title</code></td><td><code>--font-size-md</code>, semibold; numeral <code>--font-size-3xl</code></td><td>accent, underlined</td><td>none</td></tr>
 </tbody></table></div>"""
 
 SPEC = {
@@ -113,7 +113,7 @@ SPEC = {
 <li><b>Headline list</b> (<code>.headline-list</code>, <code>.headline</code>): the next four stories beside the lead under a 2px ink rule; small thumbnails. <code>--plain</code> drops the rule where a <a href="section-heading.html">rule title</a> already heads the list (the newsletter's "Worth your time").</li>
 <li><b>Top stories</b> (<code>.top-stories</code>): the lead and the headline list together, two columns from 1024px.</li>
 <li><b>River</b> (<code>.river</code>, <code>.story-row</code>): the newest stories in order, each a row with section and age, headline, dek and author, and a 4:3 photo on the right. Used for "The latest" and for a section's page.</li>
-<li><b>Ranked list</b> (<code>.ranked</code>): "Most read", numbered in italic display numerals, text only. Rail only.</li>
+<li><b>Ranked list</b> (<code>.ranked</code>): "Most read", numbered in italic display numerals, each title a link to its story. Rail only.</li>
 <li><b>News layout</b> (<code>.news</code>, <code>.rail</code>): the river and the rail (Join card, upcoming events, newsletter box, most read) side by side from 1024px. <code>--flush</code> drops the top border when there are no top stories above it (section pages, empty and error states).</li>
 <li><b>Story page</b> (<code>.story</code>): one story to read: head (back link, section, title, dek, byline with Copy link), figure, body with pull quotes.</li>
 <li><b>Story next</b> (<code>.story-next</code>): the one next step a story points to: an event to register for or a listing to visit. Only when the story has one.</li>
@@ -286,6 +286,6 @@ SPEC = {
             mock("pages/story/loading", "story skeleton"),
             mock("pages/newsletter/default", "headline-list--plain"),
         ],
-        "drift": "Photos use square corners, as in the prototype's print style, rather than the app's <code>--radius-xl</code>. Most read titles (<code>.ranked__title</code>) are plain text in the mocks, not links: a reader cannot open a most-read story from the rail; they should be <code>.story-link</code>s (open). <code>.story-link</code> and <code>.story-card</code> have no <code>data-state=\"hover\"</code> hook, unlike <code>.story-next</code> (open).",
+        "drift": "Photos use square corners, as in the prototype's print style, rather than the app's <code>--radius-xl</code>. Closed: Most read titles (<code>.ranked__title</code>) are now links, so a reader can open a most-read story from the rail. <code>.story-link</code> and <code>.story-card</code> have no <code>data-state=\"hover\"</code> hook, unlike <code>.story-next</code> (open).",
     },
 }

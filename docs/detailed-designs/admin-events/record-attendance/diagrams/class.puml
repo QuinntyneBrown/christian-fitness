@@ -1,0 +1,72 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Record event attendance
+
+class EventAttendancePage {
+  -rows: Signal<AttendanceRowDto[]>
+  -state: Signal<'loading' | 'loaded' | 'not-started' | 'error'>
+}
+class AttendanceTracker {
+  +tick(memberId: string, came: boolean): Promise<void>
+  +came: Signal<number>
+}
+interface AdminEventsApi {
+  +attendance(id: string): Promise<AttendancePageDto>
+  +setAttendance(id: string, memberId: string, came: boolean): Promise<void>
+}
+class GetEventAttendanceQuery {
+  +Guid EventId
+}
+class SetAttendanceCommand {
+  +Guid EventId
+  +Guid MemberId
+  +bool Came
+}
+class GetEventAttendanceHandler
+class SetAttendanceHandler
+class AttendanceRules {
+  +HasStarted(event, now): bool
+}
+class AttendancePageDto {
+  +bool Started
+  +int Registered
+  +int Came
+  +AttendanceRowDto[] Items
+}
+class AttendanceRowDto {
+  +Guid MemberId
+  +string MemberName
+  +bool Came
+}
+class Attendance {
+  +Guid EventId
+  +Guid MemberId
+  +bool Came
+  +Guid RecordedBy
+  +DateTimeOffset RecordedAt
+}
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+}
+
+EventAttendancePage ..> AttendanceTracker
+AttendanceTracker ..> AdminEventsApi : ADMIN_EVENTS_SERVICE
+GetEventAttendanceHandler ..> GetEventAttendanceQuery : handles
+SetAttendanceHandler ..> SetAttendanceCommand : handles
+SetAttendanceHandler ..> AttendanceRules
+GetEventAttendanceHandler ..> AttendancePageDto : returns
+AttendancePageDto *-- AttendanceRowDto
+Attendance --> Registration : for a registered member
+SetAttendanceHandler ..> Attendance
+GetEventAttendanceHandler ..> Attendance
+@enduml

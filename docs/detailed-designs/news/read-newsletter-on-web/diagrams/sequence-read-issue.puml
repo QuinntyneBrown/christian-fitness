@@ -35,7 +35,7 @@ par issue
     client --> page : ApiError not_found
     page --> actor : Not-found view, address kept (L2-059 AC4)
   else sent issue
-    h --> ctrl : IssueDto from the content captured at sending
+    h --> ctrl : IssueDto from captured content, excluding unpublished stories (L2-059 AC7)
     ctrl --> client : 200 JSON
     client --> page : IssueDto
   end

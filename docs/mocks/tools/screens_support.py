@@ -8,7 +8,7 @@ from cf_ui import (busy_label, empty_block, error_block, error_summary, field, f
                    loading_region, lockup, member_shell, screen, textarea, toast, toast_region, verified_badge)
 from overlays import autofocus_first, dialog, over_member
 from screens_directory import profile_page
-from screens_member import SRC
+from screens_member import DELETION_DATE as DELETION_ERASED, SRC
 
 
 def choice_cards(legend: str, name: str, options: list, picked: str, *, cols: int, disabled: bool = False) -> str:
@@ -150,13 +150,13 @@ def _():
 # ===========================================================================
 # Send feedback
 # ===========================================================================
-KINDS = [("idea", "An idea", "", "lightbulb"), ("broken", "Something’s off", "", "bug"), ("content", "A correction", "", "pen-line"),
-         ("praise", "Thanks", "", "heart")]
+KINDS = [("idea", "Idea", "", "lightbulb"), ("problem", "Something’s off", "", "bug"), ("correction", "Correction", "", "pen-line"),
+         ("thanks", "Thanks", "", "heart")]
 PROMPTS = {
     "idea": ("What would make this better?", "For example: show which week of the plan each session is"),
-    "broken": ("What happened?", "What you tapped, what you expected, and what you saw instead"),
-    "content": ("What should it say?", "The detail that’s wrong, and the right one if you know it"),
-    "praise": ("What’s been good?", "A coach, an event, a moment. We pass these on."),
+    "problem": ("What happened?", "What you tapped, what you expected, and what you saw instead"),
+    "correction": ("What should it say?", "The detail that’s wrong, and the right one if you know it"),
+    "thanks": ("What’s been good?", "A coach, an event, a moment. We pass these on."),
 }
 SHIPPED = [
     ("I never know if an event got moved.", "Change alerts for every event you’re going to", "March 2026"),
@@ -177,7 +177,7 @@ def feedback_form(*, kind: str = "idea", context: str = "Event series › Couch 
           </div>""" if context else "")
     screenshot = ('<div class="form-section form-section--tight">' + file_field(
         "Screenshot", "screenshot", optional=True, filename=shot, choose="Add a screenshot", empty="None added",
-        hint="JPEG, PNG or WebP, up to 5 MB", readonly=busy) + "</div>" if kind == "broken" else "")
+        hint="JPEG, PNG or WebP, up to 5 MB", readonly=busy) + "</div>" if kind == "problem" else "")
     submit = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>'
               if busy else '<button class="btn btn--primary btn--md" type="submit">Send feedback</button>')
     return f"""<form class="form-page__main" action="success.html" novalidate>
@@ -209,7 +209,7 @@ def feedback_page(main: str) -> str:
     </div>"""
 
 
-s = screen("feedback", "page", "Send feedback", route="/feedback", source=SRC + "Feedback (2w1Xg2bpM7GARSTBwsgZWR)",
+s = screen("feedback", "page", "Send feedback", route="/feedback", source=SRC + "Feedback (2w1Xg2bpM7GARSTBwsgZWR)", requirements=["L2-063"],
            not_applicable={"loading": "A form; nothing loads before it renders.", "empty": "A form, not a collection."})
 
 
@@ -221,13 +221,13 @@ def _():
 @s("broken", "\"Something's off\" chosen: the question changes to \"What happened?\" and a screenshot can be added.")
 def _():
     return member_shell("", feedback_page(feedback_form(
-        kind="broken", context="Events › Easter Sunrise 5K", shot="add-to-calendar.png",
+        kind="problem", context="Events › Easter Sunrise 5K", shot="add-to-calendar.png",
         text="The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.")))
 
 
-@s("correction", "Opened from a story's \"Send a correction\": \"A correction\" is chosen and the story is the page it is about.")
+@s("correction", "Opened from a story's \"Send a correction\": \"Correction\" is chosen and the story is the page it is about.")
 def _():
-    return member_shell("", feedback_page(feedback_form(kind="content", context="Story › A West End church turned its basement into a free gym")))
+    return member_shell("", feedback_page(feedback_form(kind="correction", context="Story › A West End church turned its basement into a free gym")))
 
 
 @s("invalid", "Sent with nothing written: the note is marked and says what to add; nothing is sent.")
@@ -312,6 +312,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 <legend class="pref__legend">Who can see your profile</legend>
                 <div class="choice-group">{radios}</div>
               </fieldset>
+              {switch("privacy-church", "Show my home church", "Only signed-in members who can see your profile can see it. Never shown to visitors.", False, busy)}
               {switch("privacy-attendee", "Show me on attendee lists", "Others going to an event can see you’re going", True, busy)}
               {switch("privacy-dms", "Let anyone message me", "When off, only people in your groups can start a chat", False, busy)}"""
     areas = "".join(f'<option{" selected" if a == "Scarborough" else ""}>{a}</option>' for a in PREF_AREAS)
@@ -332,10 +333,10 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 {dl}
               </div>
               <div class="pref__row pref__row--split">
-                <div><p class="pref__legend">Delete your account</p><p class="pref__desc">Removes your profile and messages within 30 days</p></div>
+                <div><p class="pref__legend">Delete your account</p><p class="pref__desc">Erases your profile and sent message text after 30 days</p></div>
                 <button class="btn btn--secondary btn--sm pref__delete" type="button" data-mock-href="{href("delete-account")}">Delete account</button>
               </div>
-              <p class="pref__note">Read how we handle your information in our <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
+              <p class="pref__note">Read how we handle your information in our <a class="link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
     nav = "".join(f'<li><a class="side-nav__link" href="#{i}">{l}</a></li>' for i, l in PREF_SECTIONS)
     return f"""    <div class="container page">
       <a class="back-link" href="{href("profile")}">{icon("arrow-left")} Profile</a>
@@ -419,11 +420,13 @@ def _():
 
 
 # --- Delete your account (dialog) ----------------------------------------------
-def delete_account(*, busy: bool = False, failed: bool = False, invalid: bool = False) -> str:
+def delete_account(*, busy: bool = False, failed: bool = False, invalid: bool = False, staff: bool = False) -> str:
     alert = ('<div class="dialog__alert">' + form_alert("We couldn't delete your account", "Nothing was changed. Try again in a moment.") + "</div>"
-             if failed else "")
-    body = f"""{alert}<p class="prose">Your profile, registrations, follows and the messages you sent are removed within 30 days, and you are signed out now. Places you hold at events go back to other members. This can’t be undone after the 30 days.</p>
-    <div class="dialog__field">{field('Type "delete" to confirm', "confirm", "delet" if invalid else ("delete" if busy or failed else ""), error="Type the word delete to confirm." if invalid else "", autocomplete="off", readonly=busy)}</div>"""
+             if failed else
+             '<div class="dialog__alert">' + form_alert("We can't delete this account", "Staff accounts can't be deleted here. Ask an Admin.") + "</div>"
+             if staff else "")
+    body = f"""{alert}<p class="prose">If you delete your account, you'll be signed out immediately and your event places will go back to other members. Your profile, registrations and follows are removed after 30 days. Messages you sent will show as removed. Messages others sent you aren't affected. You can restore your account during the 30 days; after that, deletion can't be undone.</p>
+    <div class="dialog__field">{field('Type "delete" to confirm', "confirm", "delet" if invalid else ("delete" if busy or failed or staff else ""), error="Type the word delete to confirm." if invalid else "", autocomplete="off", readonly=busy)}</div>"""
     keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("preferences")}"{" disabled" if busy else ""}>Keep my account</button>'
     go = (f'<button class="btn btn--danger btn--grow" type="submit" disabled aria-busy="true">{busy_label("Deleting…")}</button>' if busy
           else f'<button class="btn btn--danger btn--grow" type="submit" data-mock-href="{href("landing")}">Delete my account</button>')
@@ -454,10 +457,144 @@ def _():
     return delete_account(failed=True)
 
 
+@s("staff-account", "The account holds a staff role (L2-066 AC9, 403 staff_account): a message in the dialog that staff accounts can't be deleted here and to ask an Admin; nothing was changed.")
+def _():
+    return delete_account(staff=True)
+
+
+# --- Download page (the emailed link) ------------------------------------------
+DOWNLOAD_EXPIRES = "April 22, 2026"  # 7 days after the archive was ready on Apr 15 (L2-066 AC2)
+NA_DOWNLOAD = {"empty": "One archive, not a collection."}
+
+
+def download_page(inner: str) -> str:
+    return member_shell("profile", f"""    <div class="container page">
+      <a class="back-link" href="{href("preferences")}">{icon("arrow-left")} Preferences</a>
+{inner}
+    </div>""")
+
+
+s = screen("download", "page", "Download your data", route="/preferences/download/:id", group="Member app",
+           source="Derived: the emailed link of L2-066 (AC1, AC2); the prototype draws no download page.", not_applicable=NA_DOWNLOAD)
+
+
+@s("default", "The emailed link, opened signed in as its member and within 7 days: \"Your download is ready\", the browser starts the .zip, and a link downloads it again.")
+def _():
+    return download_page(f"""      <section class="done" role="status" tabindex="-1" autofocus>
+        <span class="done__icon">{icon("check", "icon--lg")}</span>
+        <h1 class="display page-title done__title">Your download is ready</h1>
+        <p class="done__text">Your data is on its way to your device. If it doesn't start, download it again. The link works for 7 days, until {DOWNLOAD_EXPIRES}, and only while you're signed in.</p>
+        <div class="done__actions"><a class="btn btn--primary" href="default.html">{icon("download")}Download again</a><a class="btn btn--secondary" href="{href("preferences")}">Back to preferences</a></div>
+      </section>""")
+
+
+@s("loading", "The link opened: the heading is there while the archive is checked.")
+def _():
+    return download_page(f"""      <h1 class="display page-title page-title--after-back">Your download</h1>
+      {loading_region("Checking your download", '<div class="skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div>')}""")
+
+
+@s("expired", "The link is past its 7 days, or is another member's, or is unknown (L2-066 AC2, 404 not_found, all the same): \"This download has expired. Request a new one.\"")
+def _():
+    return download_page(f"""      <section class="done" role="status" tabindex="-1" autofocus>
+        <span class="done__icon">{icon("alert-circle", "icon--lg")}</span>
+        <h1 class="display page-title done__title">This download has expired</h1>
+        <p class="done__text">This download has expired. Request a new one.</p>
+        <div class="done__actions"><a class="btn btn--primary" href="{href("preferences")}">Request a new download</a></div>
+      </section>""")
+
+
+@s("error", "The archive could not be fetched: retry, or go back to preferences. Nothing is shown as downloaded.")
+def _():
+    return download_page(f"""      <h1 class="display page-title page-title--after-back">Your download</h1>
+      {error_block("Your download didn't start", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", back=("Back to preferences", href("preferences")), ref="CF-D4L2")}""")
+
+
+# --- Emails about the account and its data -----------------------------------
+NA_EMAIL = {"loading": "An email is sent whole.", "empty": "An email is sent whole.", "error": "A failed send is the sender's log, not a screen."}
+
+
+def email(subject: str, paras: list, *, action: tuple[str, str] | None = None, note: str = "") -> str:
+    """An email as a mail app shows it: sender, address and subject above a card that carries the message."""
+    body = "".join(f"<p>{p}</p>" for p in paras)
+    button = f'<p class="email__action"><a class="btn btn--primary" href="{action[1]}">{action[0]}</a></p>' if action else ""
+    foot = f'<p class="email__note">{note}</p>' if note else ""
+    return f"""<main id="main" class="email">
+  <header class="email__head">
+    <p class="email__meta"><span class="email__label">From</span> Christian Fitness &lt;hello@christianfitness.ca&gt;</p>
+    <p class="email__meta"><span class="email__label">To</span> {ME["name"]} &lt;{ME["email"]}&gt;</p>
+    <h1 class="email__subject">{subject}</h1>
+  </header>
+  <article class="email__card" aria-label="Message">
+    <p class="email__brand">{lockup(href("landing"))}</p>
+    <p>Hi {ME["first"]},</p>
+    {body}
+    {button}
+    <p>Christian Fitness</p>
+    {foot}
+  </article>
+</main>"""
+
+
+s = screen("email-deletion-requested", "page", "Email: account set to be deleted", group="Emails",
+           source="Derived: sent when a member deletes their account (L2-066 AC6, AC8).", not_applicable=NA_EMAIL)
+
+
+@s("default", "Sent to the account's address when the deletion is asked for: what happens now, the date it is erased and how to restore.")
+def _():
+    return email("Your Christian Fitness account is set to be deleted", [
+        f"You asked us to delete your account. Your profile is hidden from everyone now, and you're signed out everywhere. On {DELETION_ERASED} we'll erase your profile, preferences, follows, registrations, suggestions, feedback and the text of your messages.",
+        "Places you held at events have gone back to other members, and they aren't restored.",
+        f"Changed your mind? Sign in before {DELETION_ERASED} and choose Restore my account."],
+        action=("Restore my account", href("sign-in", "deleting")),
+        note="If you didn't ask for this, restore your account and change your password, or write to privacy@christianfitness.ca.")
+
+
+s = screen("email-deletion-done", "page", "Email: account deleted", group="Emails",
+           source="Derived: sent when the 30 days have passed and the account is erased (L2-066 AC7, AC8).", not_applicable=NA_EMAIL)
+
+
+@s("default", "Sent when the account is erased: what was erased, that the email is free to join again, and who to write to.")
+def _():
+    return email("Your Christian Fitness account has been deleted", [
+        "Your account is deleted. We've erased your profile, preferences, follows, registrations, suggestions, feedback and the text of your messages.",
+        "You're welcome back any time. You can join again with this email address as a new member.",
+        "This is the last email we'll send to this address about your account."],
+        note="Questions? Write to privacy@christianfitness.ca.")
+
+
+s = screen("email-download-ready", "page", "Email: your download is ready", group="Emails",
+           source="Derived: sent within 24 hours of Request download (L2-066 AC1, AC2).", not_applicable=NA_EMAIL)
+
+
+@s("default", "Sent within 24 hours of Request download: a button to the download page, the 7 days it works and that it opens only when signed in as this member.")
+def _():
+    return email("Your Christian Fitness data is ready", [
+        "You asked for a copy of your data. It's a .zip of your profile, preferences, registrations, follows, suggestions, feedback and the messages you sent.",
+        f"The link works for 7 days, until {DOWNLOAD_EXPIRES}, and only when you're signed in as you. After that you can request a new one in Preferences."],
+        action=("Download your data", href("download")),
+        note="If you didn't ask for this, you can ignore this email. Nobody can open the link without signing in as you.")
+
+
+# --- Leave without saving (dialog) ---------------------------------------------
+s = screen("leave-unsaved", "dialog", "Leave without saving", opens_from="preferences",
+           source="Derived: L2-064 AC5, leaving Preferences with unsaved changes asks first; the prototype draws no such question.",
+           not_applicable={"busy": "Nothing is sent: Leave closes the page at once and Keep editing closes the dialog.",
+                           "invalid": "There is no input to check; the two actions are always valid."})
+
+
+@s("default", "Leaving Preferences with a change not yet saved (a link, the back button or a tab): a dialog asks \"Leave without saving?\" with Keep editing, the safe choice, focused first, and Leave.")
+def _():
+    body = '<p class="prose">You changed a setting that isn\'t saved yet. If you leave now, it goes back to what it was.</p>'
+    foot = (f'<button class="btn btn--secondary btn--grow" type="button" autofocus data-mock-href="{href("preferences", "unsaved")}">Keep editing</button>'
+            f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("profile")}">Leave</button>')
+    return over_member("profile", preferences(plan=True, bar="unsaved"), dialog("Leave without saving?", body, foot, did="leave"))
+
+
 # ===========================================================================
 # Privacy Policy and Terms of Service
 # ===========================================================================
-def legal(title: str, summary: list, sections: list, other: tuple) -> str:
+def legal(title: str, summary: list, sections: list, other: tuple, *, banner: str = "", changing: str = "") -> str:
     toc = "".join(f'<li><a class="side-nav__link side-nav__link--numbered" href="#{sid}"><span class="side-nav__n">{i}.</span>{t}</a></li>'
                   for i, (sid, t, _) in enumerate(sections, 1))
     points = "".join(f"<li>{x}</li>" for x in summary)
@@ -470,16 +607,18 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
       <a class="btn btn--ghost masthead__back masthead__back--ink" href="{href(other[1])}">{other[0]}</a>
     </div>
   </header>
+  {banner}
   <main id="main" class="container page legal">
     <a class="back-link" href="{href("landing")}">{icon("arrow-left")} Christian Fitness</a>
     <h1 class="display detail-title legal__title">{title}</h1>
-    <p class="subtitle legal__effective">Effective April 1, 2026</p>
+    <p class="subtitle legal__effective">Effective April 1, 2026{" · an update takes effect May 20, 2026" if changing else ""}</p>
     <div class="legal__grid">
       <nav class="side-nav" aria-label="Contents">
         <p class="side-nav__title">Contents</p>
         <ol class="side-nav__list">{toc}</ol>
       </nav>
       <div class="legal__body">
+        {changing}
         <section class="legal__summary" aria-labelledby="short-title">
           <h2 class="display legal__summary-title" id="short-title">The short version</h2>
           <ul class="legal__points">{points}</ul>
@@ -488,7 +627,7 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
         {body}
         <div class="legal__questions">
           <p class="legal__questions-title">Questions?</p>
-          <p>Email privacy@christian.fitness, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.</p>
+          <p>Email privacy@christian.fitness, or <a class="link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.</p>
         </div>
       </div>
     </div>
@@ -524,9 +663,11 @@ PRIVACY_SECTIONS = [
         "Your church affiliation and health goals can reveal sensitive things about you. We treat them as sensitive information: they are never used for advertising and never shared with other members unless you put them on your public profile."]),
     ("choices", "Your choices", [
         "In Preferences you can control who sees your profile, whether you appear on attendee lists, who can message you, and every email and notification we send.",
-        "You can request a download of your data or delete your account from Preferences. Deletion is completed within 30 days."]),
+        "You can request a download of your data or delete your account from Preferences. You can restore your account during the 30-day grace period."]),
     ("retention", "How long we keep it", [
-        "We keep your information while your account is open. After deletion we remove it within 30 days, except records we must keep by law."]),
+        "We keep your account information while your account is open. After you request deletion, your account is hidden immediately; after 30 days we erase it and your data. Messages you sent then show as “Message removed” from “Deleted member”. Messages others sent you stay with them.",
+        "Download archives are deleted seven days after they are ready, or when you request account deletion. Decided listing suggestions and their contact emails are kept for 12 months after the decision. Decided message reports are kept for 12 months after the decision. Declined professional applications and associated declined listings are kept for 12 months after decline. Data belonging only to you is erased sooner if your account is erased.",
+        "Audit entries are kept for two years after the action, with identifying references to you removed when your account is erased. Only Admins can read them. Newsletter subscriptions that are never confirmed are deleted 30 days after the latest request; unsubscribed addresses are deleted within 30 days unless they subscribe again."]),
     ("security", "Security", [
         "Your data is encrypted in transit and at rest and stored on servers in Canada. Our email delivery provider may process email addresses outside Canada, only to send you the email you ask for. Staff access is limited to the team members who need it."]),
     ("children", "Young people", [
@@ -571,6 +712,25 @@ TERMS_SECTIONS = [
 LEGAL_NA = {"loading": "A static page shipped with the app; nothing loads.", "empty": "A document, not a collection.",
             "error": "A static page shipped with the app; nothing can fail to load."}
 
+LEGAL_BANNER = ("We\u2019re updating our Privacy Policy and Terms on May 20, 2026. "
+                f'<a class="link" href="{href("privacy", "updating", "whats-changing")}">Read what\u2019s changing.</a> Using Christian Fitness after that date means you accept them.')
+
+
+def whats_changing(doc: str) -> str:
+    return f"""<section class="legal__summary" id="whats-changing" aria-labelledby="changing-title">
+          <h2 class="display legal__summary-title" id="changing-title">What\u2019s changing on May 20, 2026</h2>
+          <ul class="legal__points">
+            <li>Notifications for event reminders, messages, listings you follow and changes to your events now appear in the app, under the bell. The switches in Preferences decide which ones you get.</li>
+            <li>You can read these changes now. The {doc} that applies until May 20 is the one below, effective April 1, 2026.</li>
+            <li>If you keep using Christian Fitness after May 20, 2026, you accept the updated Privacy Policy and Terms. If you don\u2019t, you can delete your account from Preferences.</li>
+          </ul>
+        </section>"""
+
+
+def legal_banner() -> str:
+    return (f'<div class="banner banner--info" role="status"><div class="banner__inner">{icon("info")}<p class="banner__text">{LEGAL_BANNER}</p>'
+            f'<button class="icon-button icon-button--sm banner__close" type="button" aria-label="Dismiss">{icon("x")}</button></div></div>')
+
 s = screen("privacy", "page", "Privacy Policy", route="/privacy", source=SRC + "Privacy Policy (8tSZJ8o6AYCxUdTfkrsYBf)", group="Public",
            not_applicable=LEGAL_NA)
 
@@ -580,6 +740,12 @@ def _():
     return legal("Privacy Policy", PRIVACY_SUMMARY, PRIVACY_SECTIONS, ("Terms of Service", "terms"))
 
 
+@s("updating", "Derived: 30 days before a change takes effect the pages show a dismissible banner (\"We're updating our Privacy Policy and Terms on May 20, 2026. Read what's changing.\") and a \"What's changing\" section above the summary; continued use means acceptance.")
+def _():
+    return legal("Privacy Policy", PRIVACY_SUMMARY, PRIVACY_SECTIONS, ("Terms of Service", "terms"), banner=legal_banner(),
+                 changing=whats_changing("Privacy Policy"))
+
+
 s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Terms of Service (9Qs4AXZcWasYdN16XUCs5s)", group="Public",
            not_applicable=LEGAL_NA)
 
@@ -587,6 +753,12 @@ s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Te
 @s("default", "The Terms of Service, in the same layout: a plain-language summary, nine numbered sections with contents, and who to ask.")
 def _():
     return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"))
+
+
+@s("updating", "Derived: the same banner and \"What's changing\" section on the Terms of Service while an update is pending.")
+def _():
+    return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"), banner=legal_banner(),
+                 changing=whats_changing("Terms of Service"))
 
 
 # ===========================================================================

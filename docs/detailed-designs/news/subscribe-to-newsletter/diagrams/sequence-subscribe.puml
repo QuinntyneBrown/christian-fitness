@@ -24,14 +24,14 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "QueuedEmailSender" as mail
 end box
 actor -> page : Press "Subscribe free"
-page -> form : submit(email, extras)
+page -> form : submit(email)
 alt email empty or malformed
   form --> page : invalid
   page --> actor : aria-invalid="true" and "That email doesn't look right..." ; nothing sent (L2-057 AC3)
 else email looks valid
   form --> page : submitting
   page --> actor : "Subscribing…", button disabled, fields read-only (L2-057 AC4)
-  page -> client : subscribe({ email, extras })
+  page -> client : subscribe({ email })
   client -> ctrl : POST /api/public/newsletter/subscriptions
   ctrl -> h : Send SubscribeCommand
   h -> h : SubscribeValidator: email_invalid as a server check (L2-032 AC1)
@@ -41,19 +41,23 @@ else email looks valid
     h --> ctrl : RefusalException too_many_attempts
     ctrl --> client : 429 ProblemDetails (L2-057 AC7)
     client --> page : ApiError too_many_attempts
-    page --> actor : Alert "Too many sign-ups" above the form; email and extras kept
+    page --> actor : Alert "Too many sign-ups" above the form; email kept
   else lease taken
     h -> db : Subscription by normalized email
     alt none, or Unsubscribed
-      h -> sub : Request(email, extras, now): Pending
+      h -> sub : Request(email, now): Pending
       h -> db : Save subscription and new SubscriptionConfirmation (token hash, 7 days)
       h -> mail : Confirmation email with one link (L2-058 AC1)
     else Pending
       h -> db : New SubscriptionConfirmation; earlier ones stay until expiry
       h -> mail : Confirmation email again (L2-057 AC5)
     else Subscribed
-      h -> sub : UpdateExtras(extras)
-      h -> db : Save
+      h -> sub : Keep omitted extras unchanged
+      opt extras explicitly submitted and changed
+        h -> sub : UpdateExtras(extras)
+        h -> db : Save change and scoped undo token
+        h -> mail : Settings changed email with undo link
+      end
     end
     h --> ctrl : SubscribeAnswerDto(email), the same for every case
     ctrl --> client : 202 JSON
@@ -63,6 +67,6 @@ else email looks valid
 end
 opt server fails or does not answer
   client --> page : ApiError, status 5xx or none
-  page --> actor : Alert "We couldn't subscribe you" above the form; email and extras kept (L2-057 AC6)
+  page --> actor : Alert "We couldn't subscribe you" above the form; email kept (L2-057 AC6)
 end
 @enduml

@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="landing">
 <meta name="mock:state" content="loading">
 <meta name="mock:source" content="Magic Patterns · prototype Christian Fitness · frame Landing (m6TmegBz1WUe34iTU1vouC)">
-<meta name="description" content="Landing while stories and events load: the masthead and Join card are static; stories and event rows show skeletons.">
+<meta name="description" content="Landing while stories and events load: the masthead and Join card are static; stories, event rows and Most read show skeletons; Most read loads with the stories, from the same request.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -55,7 +55,8 @@
         </section>
         <section aria-labelledby="rail-most-read">
           <h2 class="display rule-title" id="rail-most-read">Most read</h2>
-          <ol class="ranked"><li><span class="ranked__n" aria-hidden="true">1</span><p class="ranked__title">Why your rest day might be the most spiritual part of your training plan</p></li><li><span class="ranked__n" aria-hidden="true">2</span><p class="ranked__title">A beginner’s guide to your first outdoor bootcamp</p></li><li><span class="ranked__n" aria-hidden="true">3</span><p class="ranked__title">Twelve GTA churches will run the Toronto Half as one team this fall</p></li><li><span class="ranked__n" aria-hidden="true">4</span><p class="ranked__title">Fasting and training: what a dietitian wants you to know before Lent</p></li><li><span class="ranked__n" aria-hidden="true">5</span><p class="ranked__title">The Tuesday walking group that got 40 seniors into the park</p></li></ol>
+          <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading most read</p>
+          <ol class="ranked"><li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li><li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li><li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li><li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li><li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li></ol></div>
         </section>
       </aside>
     </div>
@@ -91,6 +92,12 @@
     <li><a href="empty.html">empty</a></li>
     <li><a href="error.html">error</a></li>
     <li><a href="events-error.html">events-error</a></li>
+    <li><a href="most-read-empty.html">most-read-empty</a></li>
+    <li><a href="most-read-failed.html">most-read-failed</a></li>
+    <li><a href="more-stories.html">more-stories</a></li>
+    <li><a href="more-stories-loading.html">more-stories-loading</a></li>
+    <li><a href="more-stories-failed.html">more-stories-failed</a></li>
+    <li><a href="river-capped.html">river-capped</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

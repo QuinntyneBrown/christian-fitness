@@ -7,8 +7,8 @@
 <meta name="mock:kind" content="dialog">
 <meta name="mock:screen" content="series-editor">
 <meta name="mock:state" content="selected">
-<meta name="mock:source" content="Derived: host selection in the New series and Edit details drawers (ADR 0067).">
-<meta name="description" content="A matching Listed host has been selected.">
+<meta name="mock:source" content="Derived: the Manage Event Series frame&#x27;s &quot;New series&quot; and &quot;Edit details&quot; buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms. The Host picker follows ADR 0067.">
+<meta name="description" content="A matching Listed host has been chosen.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -26,7 +26,7 @@
       </div>
     </div>
     <nav class="admin-nav" aria-label="Admin">
-      <a class="admin-nav__item" href="../../pages/admin-dashboard/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a><p class="admin-nav__group">Publish</p><a class="admin-nav__item" href="../../pages/admin-stories/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>Stories<span class="admin-nav__count" aria-label="1 story to review">1</span></a><a class="admin-nav__item" href="../../pages/admin-newsletter/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Newsletter</a><p class="admin-nav__group">Gather</p><a class="admin-nav__item" href="../../pages/admin-events/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a><a class="admin-nav__item" href="../../pages/admin-series/default.html" aria-current="page"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Event series</a><a class="admin-nav__item" href="../../pages/admin-community-pick/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Community Pick</a><p class="admin-nav__group">Community</p><a class="admin-nav__item" href="../../pages/admin-listings/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><circle cx="12" cy="8" r="2"/></svg>Listings<span class="admin-nav__count" aria-label="3 suggestions to check">3</span></a><a class="admin-nav__item" href="../../pages/admin-services/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a><a class="admin-nav__item" href="../../pages/admin-members/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members<span class="admin-nav__count" aria-label="1 report to review">1</span></a><a class="admin-nav__item" href="../../pages/admin-feedback/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg>Feedback<span class="admin-nav__count" aria-label="2 new notes">2</span></a>
+      <ul class="admin-nav__list" aria-label="Overview"><li><a class="admin-nav__item" href="../../pages/admin-dashboard/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a></li></ul><h2 class="admin-nav__group" id="admin-nav-publish">Publish</h2><ul class="admin-nav__list" aria-labelledby="admin-nav-publish"><li><a class="admin-nav__item" href="../../pages/admin-stories/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>Stories<span class="admin-nav__count" aria-label="1 story to review">1</span></a></li><li><a class="admin-nav__item" href="../../pages/admin-newsletter/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Newsletter</a></li></ul><h2 class="admin-nav__group" id="admin-nav-gather">Gather</h2><ul class="admin-nav__list" aria-labelledby="admin-nav-gather"><li><a class="admin-nav__item" href="../../pages/admin-events/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a></li><li><a class="admin-nav__item" href="../../pages/admin-series/default.html" aria-current="page"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Event series</a></li><li><a class="admin-nav__item" href="../../pages/admin-community-pick/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Community Pick</a></li></ul><h2 class="admin-nav__group" id="admin-nav-community">Community</h2><ul class="admin-nav__list" aria-labelledby="admin-nav-community"><li><a class="admin-nav__item" href="../../pages/admin-listings/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><circle cx="12" cy="8" r="2"/></svg>Listings<span class="admin-nav__count" aria-label="3 suggestions to check">3</span></a></li><li><a class="admin-nav__item" href="../../pages/admin-services/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a></li><li><a class="admin-nav__item" href="../../pages/admin-members/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members<span class="admin-nav__count" aria-label="1 member to review">1</span></a></li><li><a class="admin-nav__item" href="../../pages/admin-feedback/default.html"><svg class="icon icon--md" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></svg>Feedback<span class="admin-nav__count" aria-label="2 new notes">2</span></a></li></ul>
     </nav>
     <div class="admin__user">
       <span class="admin__user-avatar" aria-hidden="true">DR</span>
@@ -62,7 +62,7 @@
               <p class="muted">Hosted by Lakeshore Runners Fellowship</p>
               <p class="series-summary-card__facts"><span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Every Tuesday, 6:30 PM · Apr 7 – May 26</span><span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Humber Bay Park East</span></p>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/series-editor/edit.html">Edit details</button>
+            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../dialogs/series-editor/edit.html">Edit details<span class="visually-hidden">: Couch to 5K Run Club</span></button>
             <dl class="series-summary-card__stats">
               <div><dt>Joined</dt><dd>31 of 40</dd>
                 <dd><meter class="fill__meter" min="0" max="40" value="31">78% full</meter></dd></div>
@@ -72,7 +72,7 @@
           </div>
           <div class="section-head mt-section">
             <h3 class="display section-title">Sessions</h3>
-            <button class="btn btn--link" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a date</button>
+            <button class="btn btn--link" type="button" data-mock-href="../../dialogs/add-session/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a date</button>
           </div>
           <ol class="card card--list admin-sessions"><li class="admin-session admin-session--past"><span class="admin-session__n" aria-hidden="true">1</span>
                 <span class="admin-session__date">Tue Apr 07</span>
@@ -99,29 +99,45 @@
 </div>
 </div>
 <div class="scrim" aria-hidden="true"></div>
-<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drw-title" data-dismiss-on-escape>
-  <div class="drawer__head">
-    <h2 class="display drawer__title" id="drw-title">New series</h2>
-    <button class="icon-button" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc" data-dismiss-on-escape>
+  <div class="dialog__head">
+    <div><h2 class="display dialog__title" id="dlg-title">New series</h2><p class="dialog__sub" id="dlg-desc">Dates are added from the series itself, once it exists.</p></div>
+    <button class="icon-button dialog__close" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
-  <form class="drawer__body" novalidate>
-<div class="field"><label class="field__label" for="f-host">Host (required)</label><input class="input" id="f-host" name="host" type="text" value="Lakeshore Runners Fellowship" aria-describedby="f-host-hint" required><span class="field__hint" id="f-host-hint">Choose a Listed directory listing.</span></div><a href="searching.html">Search hosts</a><p class="field__hint">Other series fields are not yet specified.</p>
-  </form>
-  <div class="drawer__foot">
-<button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-series/default.html">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>
+  <div class="dialog__body">
+
+    <div class="field"><label class="field__label" for="f-title">Title</label><input class="input" id="f-title" name="title" type="text" value="Sunday Stretch &amp; Prayer"></div>
+    <div class="field"><label class="field__label" for="f-host">Host</label><input class="input" id="f-host" name="host" type="text" value="Lakeshore Runners Fellowship" aria-describedby="f-host-hint" required><span class="field__hint" id="f-host-hint">Search Listed directory listings</span></div><a href="searching.html">Search hosts</a>
+    <div class="field"><label class="field__label" for="f-description">Description</label><textarea class="textarea" id="f-description" name="description" rows="3" aria-describedby="f-description-hint">Forty minutes of gentle stretching and mobility, then a short time of prayer. All levels, no equipment.</textarea><span class="field__hint" id="f-description-hint">Up to 1,000 characters</span></div>
+    <div class="field file-field"><span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-labelledby="f-image-label" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
+    <div class="field-grid">
+      <div class="field"><label class="field__label" for="f-series-price">Series price</label><input class="input" id="f-series-price" name="series-price" type="text" value="Free" aria-describedby="f-series-price-hint"><span class="field__hint" id="f-series-price-hint">Leave blank for free</span></div>
+      <div class="field"><label class="field__label" for="f-drop-in-price">Drop-in price</label><input class="input" id="f-drop-in-price" name="drop-in-price" type="text" value="Free" aria-describedby="f-drop-in-price-hint"><span class="field__hint" id="f-drop-in-price-hint">Leave blank if there is no drop-in</span></div>
+    </div>
+    <div class="field"><label class="field__label" for="f-capacity">Capacity</label><input class="input" id="f-capacity" name="capacity" type="number" value="25" min="1" inputmode="numeric"></div>
+    <div class="field"><label class="field__label" for="f-place">Location</label><input class="input" id="f-place" name="place" type="text" value="St. Lawrence Community Rec Centre"></div>
+    <div class="field"><label class="field__label" for="f-area">Suggestion area</label><input class="input" id="f-area" name="area" type="text" value="Downtown" aria-describedby="f-area-hint"><span class="field__hint" id="f-area-hint">Where members are told about it: neighbourhood and city</span></div>
   </div>
-</aside>
+  <div class="dialog__foot">
+<button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-series/default.html">Cancel</button><button class="btn btn--primary btn--grow" type="submit" data-mock-href="../../pages/admin-series/series-created.html">Create series</button>
+  </div>
+</div>
 <nav class="mock-bar" aria-label="Mock navigation">
   <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
   <span class="mock-bar__screen">Series editor</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
-    <li><a href="edit.html">edit</a></li>
-    <li><a href="edit-bootcamp.html">edit-bootcamp</a></li>
     <li><a href="searching.html">searching</a></li>
     <li><a href="selected.html" aria-current="page">selected</a></li>
     <li><a href="no-results.html">no-results</a></li>
     <li><a href="invalid.html">invalid</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="edit.html">edit</a></li>
+    <li><a href="edit-bootcamp.html">edit-bootcamp</a></li>
+    <li><a href="edit-invalid.html">edit-invalid</a></li>
+    <li><a href="edit-busy.html">edit-busy</a></li>
+    <li><a href="edit-failed.html">edit-failed</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

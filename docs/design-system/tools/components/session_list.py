@@ -94,7 +94,7 @@ SPEC = {
             ("Date tile", "<code>.session-row__date</code>, 56px column (<code>--size-date-badge</code>): month over a display day; filled accent for the next date, outlined for upcoming, bare and muted for past and cancelled. <code>aria-hidden</code>."),
             ("Meta", "\"Session 3 · Tue\" with the date in visually hidden text, and \"· Next up\" on the next one; accent then, muted otherwise."),
             ("Topic", "What the session is about; semibold, regular and muted once past, struck through when cancelled."),
-            ("End", "<code>.session-row__end</code>: Details (next), \"You came\" (accent, with a check), Done or Missed, Cancelled, or a Drop in tick box."),
+            ("End", "<code>.session-row__end</code>: Details (next), \"You came\" (accent, with a check), Done, Missed or Not recorded, Cancelled, or a Drop in tick box."),
         ],
     },
     "variants": "<h3>Member: joined series</h3>"
@@ -160,7 +160,7 @@ SPEC = {
     "content": """<ul>
 <li>Meta: \"Session 3 · Tue\"; add \"· Next up\" to the next one only.</li>
 <li>Topics say what happens that day, in sentence case: \"First 5-minute run\", \"No class: Victoria Day week\".</li>
-<li>End words: \"You came\" for the member's own attendance; \"Done\" when they had not joined; \"Missed\" when they joined and did not come; \"Cancelled\".</li>
+<li>End words: \"You came\" for the member's own attendance; \"Done\" when they had not joined; \"Missed\" when staff recorded that they joined and did not come; \"Not recorded\" when no attendance is recorded; \"Cancelled\".</li>
 <li>Admin dates read \"Tue Apr 21\"; actions are \"Cancel date\" and \"Restore\".</li>
 </ul>""",
     "dodont": [

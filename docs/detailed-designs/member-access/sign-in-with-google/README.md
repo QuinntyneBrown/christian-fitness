@@ -53,7 +53,7 @@ choices below marked `<TO SUPPLY>` are its open points.
   shows the spinner icon, and is `disabled` and `aria-busy="true"` (mock states `redirecting`). It
   follows Google's sign-in branding: Google's wording, a neutral border and fill, at least 44 px tall
   (`L2-049` AC10). Output `chosen`.
-- **`Divider`** — the existing components-library divider in its labelled form (block `or-divider`),
+- **`Divider`** — the existing components-library divider in its labelled form (block `divider--label`),
   reading "or with email" between the Google button and the email form.
 - **Start** — each screen calls its session contract's `startGoogle(...)`: `SessionApi.startGoogle({
   intent, returnUrl })` in the member app, `StaffSessionApi.startGoogle()` in the admin app (see the
@@ -188,14 +188,12 @@ HTTP 400 without it (`L2-003` AC12; [create a member account](../create-account/
   [ADR 0062](../../../adr/0062-first-google-sign-in-slice.md) (`L2-049` AC11 and AC12):
   `google_email_unverified`, `no_account`, `account_suspended`, `account_deleting` and
   `google_unavailable`; `__Host-cf-google` lasts 10 minutes.
-- **Unverified email on screen.** `L2-049` AC3 refuses an unverified Google email, but no mock state
-  shows it. The screens show the "didn't finish" message (`L2-004` AC11, `L2-003` AC11, `L2-018` AC8)
-  until a mock says otherwise.
-- **Too many attempts on screen.** No mock state shows a 429 from a Google start in any of the three
-  screens. A mock state, or a stand-in recorded in an ADR, is needed before that slice.
-- **Not configured on screen.** `L2-018` AC10 says the admin app refuses to start sign-in while a
-  setting is missing; no mock state shows what Staff sign in then says, and the spec is silent on the
-  member app.
+- **Unverified email on screen.** Mock states `google-unverified` on Join and Sign in say "Your Google
+  account's email isn't verified. Verify it with Google, or join with email." (`L2-049` AC3).
+- **Too many attempts on screen.** Mock states `google-limited` (Join, Sign in) and `limited` (Staff
+  sign in) say "Too many attempts. Try again in a few minutes." (`L2-049` AC7).
+- **Not configured on screen.** Staff sign in's mock state `not-configured` says "Sign-in isn't set up
+  yet. Ask the person who runs Christian Fitness." (`L2-018` AC10); the spec is silent on the member app.
 - **The Google picture.** Settled by ADR 0062 (`L2-049` AC14): the server copies it into
   `IImageStore` once at join if the member keeps it; the browser never loads it from Google.
 - **Account chooser.** Settled by ADR 0062 (`L2-049` AC13): `prompt=select_account` only for "Use

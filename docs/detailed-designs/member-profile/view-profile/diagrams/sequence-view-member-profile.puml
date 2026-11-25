@@ -35,7 +35,7 @@ ctrl -> h : Send GetPublicProfileQuery
 h -> db : Load Member by id
 db --> h : Member
 h -> h : Project name, initials, bio, interests; never email (L2-005 AC3)
-opt ShowHomeChurch is true (L2-006 AC4)
+opt Signed-in viewer and ShowHomeChurch is true (L2-065 AC10)
   h -> h : Add homeChurch
 end
 h --> ctrl : PublicProfileDto

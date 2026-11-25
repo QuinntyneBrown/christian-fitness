@@ -5,7 +5,7 @@ title Components — Sign in and sign out
 
 Container_Boundary(web, "Member web app") {
   Component(page, "SignInPage", "Angular routed component", "signin card: Continue with Google, email form, notices")
-  Component(ui, "GoogleButton, SsoNotice, Divider", "components library", "google-button, sso-notice, or-divider blocks")
+  Component(ui, "GoogleButton, SsoNotice, Divider", "components library", "google-button, sso-notice, divider--label, sso-notice blocks")
   Component(guard, "memberAuthGuard", "CanActivateFn", "Protects member routes")
   Component(svc, "HttpSessionService", "SESSION_SERVICE", "Session signal and HTTP client")
 }

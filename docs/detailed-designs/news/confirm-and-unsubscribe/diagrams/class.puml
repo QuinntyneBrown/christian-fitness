@@ -52,10 +52,10 @@ class UnsubscribedDto {
   +string Email
 }
 interface INewsletterTokens {
-  +UnsubscribeToken(subscriptionId): string
-  +TryReadUnsubscribeToken(token, out subscriptionId): bool
+  +IssueUnsubscribeToken(subscriptionId): string
+  +FindSubscription(token): Guid?
 }
-class DataProtectionNewsletterTokens
+class HashedNewsletterTokens
 class NewsletterEmails {
   +Confirmation(subscription, token): EmailMessage
   +Footer(subscription): string
@@ -79,7 +79,7 @@ UnsubscribeHandler ..> UnsubscribeCommand : handles
 UnsubscribeHandler ..> INewsletterTokens
 UnsubscribeHandler ..> NewsletterSubscription : unsubscribes
 UnsubscribeHandler ..> UnsubscribedDto
-INewsletterTokens <|.. DataProtectionNewsletterTokens
+INewsletterTokens <|.. HashedNewsletterTokens
 NewsletterEmails ..> INewsletterTokens
 NewsletterEmails ..> EmailMessage : builds
 PublishingClock ..> NewsletterUpkeep : runs daily

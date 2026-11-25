@@ -84,11 +84,23 @@ def rail_events(events=None) -> str:
     return f'<ul class="list-divided">{rows}</ul>'
 
 
-def landing(top: str, stories: str, *, section: str = "Latest", events: str | None = None) -> str:
+def landing(top: str, stories: str, *, section: str = "Latest", events: str | None = None, most_read: str = "shown") -> str:
     tabs = "".join(f'<a class="section-nav__link" href="{SECTION_STATE.get(s_, "section")}.html"{CUR if s_ == section else ""}>{s_}</a>'
                    for s_ in SECTIONS)
-    ranked = "".join(f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title">{t}</p></li>'
+    ranked = "".join(f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title"><a href="{href("story", "default")}">{t}</a></p></li>'
                      for i, t in enumerate(MOST_READ, 1))
+    most_read_html = {
+        "shown": f"""<section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <ol class="ranked">{ranked}</ol>
+        </section>""",
+        "loading": """<section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading most read</p>
+          <ol class="ranked">""" + """<li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li>""" * 5 + """</ol></div>
+        </section>""",
+        "hidden": "",
+    }[most_read]
     return f"""<div class="site">
   <header class="masthead">
     <div class="masthead__bar">
@@ -127,10 +139,7 @@ def landing(top: str, stories: str, *, section: str = "Latest", events: str | No
           </form>
           <a class="text-link text-link--quiet newsletter-box__rss" href="{href("subscribe", "default", "rss")}">{icon("rss")} Or follow by RSS</a>
         </section>
-        <section aria-labelledby="rail-most-read">
-          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
-          <ol class="ranked">{ranked}</ol>
-        </section>
+        {most_read_html}
       </aside>
     </div>
     <section class="verse" aria-label="Scripture">
@@ -175,7 +184,7 @@ def _():
                    section="Training")
 
 
-@s("loading", "Landing while stories and events load: the masthead and Join card are static; stories and event rows show skeletons.")
+@s("loading", "Landing while stories and events load: the masthead and Join card are static; stories, event rows and Most read show skeletons; Most read loads with the stories, from the same request.")
 def _():
     lead = ('<div class="top-stories"><div class="story-lead skeleton-stack"><span class="skeleton skeleton--block skeleton--image-16x9"></span>'
             '<span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--title-lg"></span>'
@@ -190,7 +199,7 @@ def _():
           '<span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li>')
     return landing('<h1 class="visually-hidden">Christian Fitness news</h1>' + loading_region("Loading top stories", lead),
                    loading_region("Loading stories", f'<h2 class="display river__title">The latest</h2><ul class="river__list">{rows * 3}</ul>'),
-                   events=loading_region("Loading upcoming events", f'<ul class="list-divided">{ev * 4}</ul>'))
+                   events=loading_region("Loading upcoming events", f'<ul class="list-divided">{ev * 4}</ul>'), most_read="loading")
 
 
 @s("empty", "Nothing published yet: no stories and no events. Each list says so and the page still invites joining and subscribing.")
@@ -218,6 +227,46 @@ def _():
             <button type="button" data-mock-href="default.html">Try again</button></div>
           </div>"""
     return landing(top_stories(), river(STORIES[5:], "The latest"), events=err)
+
+
+@s("most-read-empty", "Derived: nothing has been read enough to rank yet, so the Most read section is hidden, heading and all; the rest of the rail stays.")
+def _():
+    return landing(top_stories(), river(STORIES[5:], "The latest"), most_read="hidden") + note(
+        "Most read comes back in the stories response. Empty: the section is hidden, not shown blank.", "top: 5rem; left: 1rem;")
+
+
+@s("most-read-failed", "Derived: Most read could not load with the stories: the section is hidden and nothing else on the page breaks, with no error shown for it.")
+def _():
+    return landing(top_stories(), river(STORIES[5:], "The latest"), most_read="hidden") + note(
+        "Failed: the section is hidden and the stories, events and newsletter box work as usual; nothing is announced.", "top: 5rem; left: 1rem;")
+
+
+@s("more-stories", "The river shows its first 12 stories; \"More stories\" loads the next 12 (L2-037).")
+def _():
+    more = '<div class="feed-end"><button class="btn btn--secondary" type="button" data-mock-href="more-stories-loading.html">More stories</button></div>'
+    return landing(top_stories(), river(STORIES[5:], "The latest") + more) + note(
+        "12 stories in the river, then More stories: 12 more each time.", "top: 5rem; left: 1rem;")
+
+
+@s("more-stories-loading", "More stories pressed: the next 12 are on their way, a spinner under the stories; the button is gone until they arrive.")
+def _():
+    more = ('<div class="feed-end"><span class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span>'
+            '<span>Loading more stories…</span></span></div>')
+    return landing(top_stories(), river(STORIES[5:], "The latest") + more)
+
+
+@s("more-stories-failed", "The next 12 did not load: the stories stay, with Try again under them.")
+def _():
+    more = ('<div class="feed-end"><div class="inline-error" role="alert">' + icon("alert-circle") +
+            '<div class="inline-error__body"><p class="inline-error__title">More stories didn\'t load.</p>'
+            '<p>The ones above are still here.</p><button class="inline-error__retry" type="button">Try again</button></div></div></div>')
+    return landing(top_stories(), river(STORIES[5:], "The latest") + more)
+
+
+@s("river-capped", "60 stories shown: the river stops with a note and a way to the sections, since more would slow the page (L2-037).")
+def _():
+    end = '<div class="feed-end"><p>That\'s the latest 60 stories. Choose a section above to see older ones.</p></div>'
+    return landing(top_stories(), river(STORIES[5:], "The latest") + end)
 
 
 # ===========================================================================
@@ -300,7 +349,7 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
         {age}
       </div>
       {submit}
-      <p class="auth__terms">By creating a profile you agree to our <a class="inline-link" href="{href("terms")}">Terms of Service</a> and <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>
+      <p class="auth__terms">By creating a profile you agree to our <a class="link" href="{href("terms")}">Terms of Service</a> and <a class="link" href="{href("privacy")}">Privacy Policy</a>.</p>
       <p class="auth__alt">Already a member? <a href="{href("sign-in")}">Sign in</a></p>
     </form>"""
 
@@ -343,9 +392,21 @@ def _():
         "Google sign-up didn't finish", "Nothing was created. Try again, or create your profile with your email below.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
 
 
+@s("google-limited", "More than 20 Google sign-ins started from one network in 15 minutes (L2-049 AC7, 429 too_many_attempts): a focused message above the form; the email form still works.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Too many attempts", "Too many attempts. Try again in a few minutes.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+
+
+@s("google-unverified", "Back from Google with an email Google has not verified (L2-049 AC3): nothing is created or signed in; a focused message says to verify it with Google or join with email.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Your Google email isn't verified", "Your Google account's email isn't verified. Verify it with Google, or join with email.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+
+
 @s("invalid", "The email already has an account: inline error under Email with a way to sign in.")
 def _():
-    return auth(join_form(email_error=f'An account with this email already exists. <a class="inline-link" href="{href("sign-in")}">Sign in instead?</a>'))
+    return auth(join_form(email_error=f'An account with this email already exists. <a class="link" href="{href("sign-in")}">Sign in instead?</a>'))
 
 
 JOIN_FIELD_ERRORS = {"name": "Enter your name.", "email": "Enter an email address like name@example.com",
@@ -395,10 +456,19 @@ def _():
 
 
 # --- Sign in -----------------------------------------------------------------
+DELETION_DATE = "May 10, 2026"  # 30 days after the deletion was asked for on Apr 10 (L2-066 AC7)
+
+
 def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False,
                 suspended: bool = False, redirecting: bool = False, no_account: bool = False, google_failed: bool = False,
-                google_suspended: bool = False) -> str:
+                google_suspended: bool = False, google_limited: bool = False, google_unverified: bool = False,
+                deleting: bool = False) -> str:
     alert = ""
+    if google_limited:
+        alert = '<div class="auth__alert">' + form_alert("Too many attempts", "Too many attempts. Try again in a few minutes.") + "</div>"
+    if google_unverified:
+        alert = '<div class="auth__alert">' + form_alert(
+            "Your Google email isn't verified", "Your Google account's email isn't verified. Verify it with Google, or join with email.") + "</div>"
     if invalid:
         # L2-004 AC2: one generic message that names neither field, so no field is marked invalid. The prototype's
         # "That password doesn't match" would reveal that the email has an account; the Google hint is kept instead.
@@ -414,7 +484,7 @@ def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
         # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
-            f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
+            f'Too many attempts, so we paused sign-in to keep your account safe. <a class="link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
     if suspended or google_suspended:
         # L2-004 AC4: shown only once the right password was given, or Google vouched for the account (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
@@ -433,16 +503,20 @@ def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
     submit = (f'<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
               if busy else '<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit">Sign in</button>')
     ro = " readonly" if busy else ""
-    return f"""<div class="signin">
-  <header class="signin__header">
-    {lockup(href("landing"))}
-  </header>
-  <main id="main" class="signin__main">
-    <div class="signin__card">
-      <h1 class="display auth__title">Welcome back</h1>
-      <p class="auth__lead">Sign in to see your events, groups and messages.</p>
-      {alert}
-      <div class="auth__sso">
+    if deleting:
+        # L2-066 AC8: the right credentials (or Google) for an account being deleted give no session; the screen offers Restore,
+        # which re-proves them from what was just sent, or leaving the deletion to run.
+        body = f"""<div class="sso-notice" role="alert" tabindex="-1" autofocus>
+        <p class="sso-notice__title">{icon("alert-circle")}Your account is set to be deleted on {DELETION_DATE}.</p>
+        <p class="sso-notice__account">{ME["email"]}</p>
+        <p class="sso-notice__text">Restore it to sign in again. Places you held at events went back to other members and aren't restored.</p>
+        <div class="sso-notice__actions">
+          <a class="btn btn--primary btn--sm" href="{href("home")}">Restore my account</a>
+          <a class="btn btn--ghost btn--sm" href="{href("landing")}">Keep it deleted</a>
+        </div>
+      </div>"""
+    else:
+        body = f"""<div class="auth__sso">
         {sso}
         {or_divider()}
       </div>
@@ -456,7 +530,17 @@ def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
           <input class="input" id="f-password" name="password" type="password" value="abundantlife" autocomplete="current-password"{ro}>
         </div>
         {submit}
-      </form>
+      </form>"""
+    return f"""<div class="signin">
+  <header class="signin__header">
+    {lockup(href("landing"))}
+  </header>
+  <main id="main" class="signin__main">
+    <div class="signin__card">
+      <h1 class="display auth__title">Welcome back</h1>
+      <p class="auth__lead">Sign in to see your events, groups and messages.</p>
+      {alert}
+      {body}
       <p class="auth__alt">New to Christian Fitness? <a href="{href("join")}">Create a profile</a></p>
     </div>
   </main>
@@ -505,6 +589,21 @@ def _():
 @s("error", "Too many attempts (L2-004 AC3): sign-in paused for 15 minutes, a message above the form (focused) with a reset link to get back in now.")
 def _():
     return focused(signin_card(locked=True))
+
+
+@s("google-limited", "More than 20 Google sign-ins started from one network in 15 minutes (L2-049 AC7, 429 too_many_attempts): a focused message above the form; the email form still works.")
+def _():
+    return focused(signin_card(google_limited=True))
+
+
+@s("google-unverified", "Back from Google with an email Google has not verified (L2-049 AC3): nobody is signed in and nothing is created; a focused message says to verify it with Google or join with email.")
+def _():
+    return focused(signin_card(google_unverified=True))
+
+
+@s("deleting", "Right credentials, or the Google account, for an account being deleted (L2-066 AC8, 409 account_deleting, no session): a focused notice with the erasure date, Restore my account and Keep it deleted.")
+def _():
+    return signin_card(deleting=True)
 
 
 @s("suspended", "A suspended member gave the right password or chose their Google account (L2-004 AC4): a message above the form (focused) to contact the team.")
@@ -854,11 +953,16 @@ def session_line(e: dict) -> str:
     return f'Session {e["session"]} of {len(sr["sessions"])} · {sr["cadence"]}'
 
 
+def part_of_line(e: dict) -> str:
+    """"Part of Couch to 5K Run Club": the Events list shows only a series' next session (ADR 0080)."""
+    return f'Part of {SR[e["series"]]["title"]}'
+
+
 def event_card(e: dict) -> str:
     left = e["capacity"] - e["going"]
     left_html = f'<span class="event-card__left"> · {left} spots left</span>' if left <= 10 else ""
     going = '<span class="going-pill">Going</span>' if e["registered"] else ""
-    series = (f'<p class="event-card__series">{icon("repeat", "icon--xs")}<span>{session_line(e)}</span></p>'
+    series = (f'<p class="event-card__series">{icon("repeat", "icon--xs")}<span>{part_of_line(e)} · {session_line(e)}</span></p>'
               if e.get("series") else "")
     return f"""<li><a class="event-card" href="{ev_link(e)}">
             <div class="event-card__media">
@@ -884,7 +988,7 @@ def session_meter(sr: dict, *, mine: bool = False) -> str:
             return " session-meter__bar--cancelled"
         if x["status"] == "next":
             return " session-meter__bar--next"
-        done = x["attended"] if mine else x["status"] == "past"
+        done = x["attended"] is True if mine else x["status"] == "past"
         return " session-meter__bar--done" if done else ""
     return ('<span class="session-meter" aria-hidden="true">'
             + "".join(f'<span class="session-meter__bar{mod(x)}"></span>' for x in sr["sessions"]) + '</span>')
@@ -1088,9 +1192,12 @@ def series_card(e: dict) -> str:
     if not e.get("series"):
         return ""
     sr = SR[e["series"]]
-    later = [x for x in sr["sessions"] if x["status"] == "upcoming"][:3]
-    tiles = "".join(f'<li class="series-card__date"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]}</p>'
-                    f'<p class="series-card__topic">{x["topic"]}</p></li>' for x in later)
+    later = [x for x in sr["sessions"] if x["n"] > e["session"] and x["status"] in ("upcoming", "cancelled")][:3]
+    tiles = "".join(
+        (f'<li class="series-card__date series-card__date--cancelled"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]} · Cancelled</p>'
+         if x["status"] == "cancelled" else
+         f'<li class="series-card__date"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]}</p>')
+        + f'<p class="series-card__topic">{x["topic"]}</p></li>' for x in later)
     return f"""<section class="series-card" aria-labelledby="series-card-title">
             <div class="series-card__head">
               <div>

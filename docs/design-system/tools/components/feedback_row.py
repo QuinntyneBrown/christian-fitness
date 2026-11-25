@@ -2,10 +2,10 @@ from dslib import avatar, ex, icon, kbd, mock, themes
 
 SPIN = icon("loader", "icon--spin")
 CUR = ' aria-current="page"'
-FB = [("bug", "Michael Chen", "35 min ago", "The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.", "Something’s broken", "New"),
-      ("pen-line", "Adaeze Kalu", "2 hours ago", "Small correction: RCCG Jesus House is one of the twelve churches but isn’t in the list in the story. Pastor Femi confirmed last week.", "Content", "New"),
+FB = [("bug", "Michael Chen", "35 min ago", "The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.", "Something’s off", "New"),
+      ("pen-line", "Adaeze Kalu", "2 hours ago", "Small correction: RCCG Jesus House is one of the twelve churches but isn’t in the list in the story. Pastor Femi confirmed last week.", "Correction", "New"),
       ("lightbulb", "Grace Thompson", "Yesterday", "Could the series page show which week of the plan each session is? I missed week 3 and wasn’t sure where to pick back up.", "Idea", "Replied"),
-      ("heart", "Priya Nair", "2 days ago", "The verse at the end of the newsletter has become my Saturday long-run mantra. Thank you for that.", "Praise", "Resolved")]
+      ("heart", "Priya Nair", "2 days ago", "The verse at the end of the newsletter has become my Saturday long-run mantra. Thank you for that.", "Thanks", "Resolved")]
 STATUS = {"New": "new", "Replied": "replied", "Resolved": "draft"}
 
 
@@ -31,12 +31,12 @@ def detail(i=0, uid="fd", reply="", busy=False, status=None):
     st = status or st
     email = ["mchen.runs@outlook.com", "adaeze.k@yahoo.ca", "grace.thompson@gmail.com", "priya.nair@gmail.com"][i]
     page = ["Events › Easter Sunrise 5K", "Story › Twelve GTA churches will run the Toronto Half", "Event series › Couch to 5K", "Newsletter"][i]
-    device = ["iPhone · Safari 18", "Android · Chrome 124", "Mac · Chrome 124", "iPhone · Mail"][i]
+    device = ["iOS · Safari 18", "Android · Chrome 124", "macOS · Chrome 124", "iOS · Safari 18"][i]
     hint = ["Let them know we can reproduce it and when to expect a fix", "Thank them and say when the correction is live",
             "Thank them, and tell them honestly whether it’s on the list", "Say thanks, and let them know who you passed it on to"][i]
     initials = "".join(p[0] for p in who.split())
     story = (f'<p class="feedback__link"><a class="btn btn--secondary btn--sm" href="#">{icon("pen-line")}Open the story to correct it</a></p>'
-             if kind == "Content" else "")
+             if kind == "Correction" else "")
     first = who.split()[0]
     send = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{SPIN}Sending…</button>' if busy
             else f'<button class="btn btn--primary btn--md" type="submit">{icon("send")}Send reply</button>')
@@ -126,13 +126,13 @@ SPEC = {
 </ul>""",
     "theming": "<p>Rows sit in a list <a href=\"card.html\">card</a>; hover fills <code>--color-bg-canvas</code>, open fills <code>--color-accent-subtle</code> with the icon in <code>--color-fg-accent</code>. The kind tag is a <code>--color-bg-canvas</code> pill with an accent icon. Facts sit between <code>--color-border-default</code> rules. The said list uses muted italic quotes.</p>",
     "accessibility": {
-        "pattern": "<p>The list is a <code>&lt;nav aria-label=\"Feedback\"&gt;</code> of links with <code>aria-current=\"page\"</code> on the open one (not a listbox: each row is its own URL). The detail is a <code>&lt;form&gt;</code> with a visually hidden <code>&lt;h2&gt;</code> (\"Something’s broken from Michael Chen\"); the facts are a <code>&lt;dl&gt;</code>. The reply has a visible label (\"Reply to Michael\") and a hint joined with <code>aria-describedby</code>.</p>",
+        "pattern": "<p>The list is a <code>&lt;nav aria-label=\"Feedback\"&gt;</code> of links with <code>aria-current=\"page\"</code> on the open one (not a listbox: each row is its own URL). The detail is a <code>&lt;form&gt;</code> with a visually hidden <code>&lt;h2&gt;</code> (\"Something’s off from Michael Chen\"); the facts are a <code>&lt;dl&gt;</code>. The reply has a visible label (\"Reply to Michael\") and a hint joined with <code>aria-describedby</code>.</p>",
         "keys": [
             (kbd("Tab"), "Row to row, then into the detail: story link, reply, Send reply, Mark resolved."),
             (kbd("Enter"), "Opens a note; sends the reply from the button."),
         ],
         "focus": "<p>The shared ring around the row.</p>",
-        "labelling": "<p>A row reads: name, time, the note, then \"Something’s broken, New\" from hidden text, so kind and status are not carried by the icon or weight alone. Icons are decorative.</p>",
+        "labelling": "<p>A row reads: name, time, the note, then \"Something’s off, New\" from hidden text, so kind and status are not carried by the icon or weight alone. Icons are decorative.</p>",
         "pairs": [
             ("Name and note", "--color-fg-default", "--color-bg-surface", 4.5),
             ("Row text and time", "--color-fg-muted", "--color-bg-surface", 4.5),
@@ -145,7 +145,7 @@ SPEC = {
         "touch": "<p>Rows are full width and at least 72px tall.</p>",
     },
     "content": """<ul>
-<li>Kinds: Idea, Something’s broken, Content (a correction), Praise. On the member form: \"An idea\", \"Something’s off\", \"A correction\", \"Thanks\".</li>
+<li>Kinds in the form and inbox: Idea, Something’s off, Correction, Thanks.</li>
 <li>Times are relative: \"35 min ago\", \"Yesterday\", \"2 days ago\".</li>
 <li>Reply hints tell staff what a good answer says: \"Let them know we can reproduce it and when to expect a fix\".</li>
 <li>Said: the member's words in quotes, what changed, and the month.</li>
@@ -175,12 +175,12 @@ SPEC = {
     <span class="feedback-row__body">
       <span class="feedback-row__top"><span class="feedback-row__from feedback-row__from--new">Michael Chen</span><span class="feedback-row__when">35 min ago</span></span>
       <span class="feedback-row__text">The “Add to calendar” button opens a blank page on my phone. …</span>
-      <span class="visually-hidden">Something’s broken, New</span>
+      <span class="visually-hidden">Something’s off, New</span>
     </span></a></li>
 </ul></nav>
 <form class="card card--pad feedback-detail" novalidate>
-  <div class="feedback-detail__head"><span class="kind-tag">…Something’s broken</span><span class="status status--new">New</span><span class="feedback-detail__when">35 min ago</span></div>
-  <h2 class="visually-hidden">Something’s broken from Michael Chen</h2>
+  <div class="feedback-detail__head"><span class="kind-tag">…Something’s off</span><span class="status status--new">New</span><span class="feedback-detail__when">35 min ago</span></div>
+  <h2 class="visually-hidden">Something’s off from Michael Chen</h2>
   <p class="feedback-detail__text">…</p>
   <dl class="feedback-detail__facts">…</dl>
   <div class="feedback-detail__reply">…Reply to Michael…</div>

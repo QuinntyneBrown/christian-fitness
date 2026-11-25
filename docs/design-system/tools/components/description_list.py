@@ -7,11 +7,11 @@ FACTS = ('<dl class="facts">'
 SPECS = ('<dl class="spec-list">'
          '<div><dt>Credentials</dt><dd>Registered Dietitian, College of Dietitians of Ontario</dd></div>'
          '<div><dt>Rate</dt><dd>$95 first consult</dd></div></dl>')
-KEY_FACTS = ('<dl class="key-facts">'
-             f'<div class="key-facts__row"><dt>{icon("map-pin")}Area</dt><dd>Etobicoke</dd></div>'
-             f'<div class="key-facts__row"><dt>{icon("globe")}Website</dt><dd><a class="inline-link" href="https://lakeshorerunners.ca" target="_blank" rel="noopener noreferrer">lakeshorerunners.ca<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
-             '<div class="key-facts__row"><dt>Followers</dt><dd>612</dd></div>'
-             '<div class="key-facts__row"><dt>On Christian Fitness</dt><dd>Since 2025</dd></div></dl>')
+KEY_FACTS = ('<dl class="spec-list">'
+             f'<div><dt>{icon("map-pin")}Area</dt><dd>Etobicoke</dd></div>'
+             f'<div><dt>{icon("globe")}Website</dt><dd><a class="link" href="https://lakeshorerunners.ca" target="_blank" rel="noopener noreferrer">lakeshorerunners.ca<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
+             '<div><dt>Followers</dt><dd>612</dd></div>'
+             '<div><dt>On Christian Fitness</dt><dd>Since 2025</dd></div></dl>')
 STATS = ('<dl class="stat-grid"><div class="stat"><dt>Registrations, April</dt><dd>221</dd></div>'
          '<div class="stat"><dt>Live listings</dt><dd>5</dd></div></dl>')
 
@@ -22,7 +22,7 @@ SPEC = {
 <ul>
 <li><b>Facts</b> (<code>.facts</code>): icon, a bold term and a muted detail. Event detail's date and place.</li>
 <li><b>Spec list</b> (<code>.spec-list</code>): muted term on the left, bold value on the right, hairlines between. A professional's credentials and rate.</li>
-<li><b>Key facts</b> (<code>.key-facts</code>): one-line rows, muted term (with an optional icon) left, semibold value right, tabular figures, ruled above, between and below. A <a href="listing-row.html">listing</a> profile's area, website, followers and since. Its home is here, beside the spec list it resembles.</li>
+<li><b>Key facts</b>: the spec list, used on a <a href="listing-row.html">listing</a> profile for area, website, followers and since. Rows are one line with an optional term icon, and the value takes tabular figures.</li>
 <li><b>Stat grid</b> (<code>.stat-grid</code>): label and big number tiles; documented on <a href="stat.html">Stat</a>.</li>
 </ul>""",
     "anatomy": {
@@ -74,9 +74,9 @@ SPEC = {
         ("dont", '<p class="muted">Credentials: Registered Dietitian. Rate: $95 first consult.</p>', "A run-on sentence of facts; hard to scan and the pairs are lost to screen readers."),
         ("do", '<dl class="spec-list"><div><dt>Home church</dt><dd class="muted">Not shared</dd></div></dl>', "Optional faith details say \"Not shared\" kindly."),
         ("dont", '<dl class="spec-list"><div><dt>Home church</dt><dd>N/A</dd></div></dl>', "\"N/A\" reads as a judgement and as jargon."),
-        ("do", '<dl class="key-facts"><div class="key-facts__row"><dt>Website</dt><dd><a class="inline-link" href="https://lakeshorerunners.ca" target="_blank" rel="noopener noreferrer">lakeshorerunners.ca<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div></dl>',
+        ("do", '<dl class="spec-list"><div><dt>Website</dt><dd><a class="link" href="https://lakeshorerunners.ca" target="_blank" rel="noopener noreferrer">lakeshorerunners.ca<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div></dl>',
          "A website value says it opens a new tab (listing-profile)."),
-        ("dont", '<dl class="key-facts"><div class="key-facts__row"><dt>Website</dt><dd><a class="inline-link" href="https://lakeshorerunners.ca" target="_blank" rel="noopener noreferrer">https://lakeshorerunners.ca</a></dd></div></dl>',
+        ("dont", '<dl class="spec-list"><div><dt>Website</dt><dd><a class="link" href="https://lakeshorerunners.ca" target="_blank" rel="noopener noreferrer">https://lakeshorerunners.ca</a></dd></div></dl>',
          "A full URL with no warning: long, truncated, and a surprise new tab."),
     ],
     "tokens": [
@@ -95,7 +95,6 @@ SPEC = {
         "classes": [
             ("<code>.facts</code> <code>.facts__item</code> <code>.facts__icon</code>", "Icon facts."),
             ("<code>.spec-list</code>", "Ruled key–value pairs."),
-            ("<code>.key-facts</code> <code>.key-facts__row</code>", "One-line ruled facts with optional icons; value right-aligned, tabular."),
             ("<code>.stat-grid</code> <code>.stat</code>", "Number tiles (see Stat)."),
         ],
     },
@@ -107,6 +106,6 @@ SPEC = {
             mock("pages/listing-profile/default", "key facts"),
             mock("pages/listing-profile/person", "key facts, instructor"),
         ],
-        "drift": "<code>.key-facts</code> and <code>.spec-list</code> are two near-identical ruled name–value lists (key facts adds icons, one line and tabular figures). Proposed: merge into one block with a <code>--compact</code> modifier the next time the CSS changes.",
+        "drift": "Closed: the key-facts block was merged into <code>.spec-list</code>, which now carries the optional term icon, one-line rows and tabular figures.",
     },
 }
