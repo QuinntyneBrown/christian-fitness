@@ -58,6 +58,7 @@ import dslib  # noqa: E402
 PRODUCT = "Christian Fitness"
 SITE = f"{PRODUCT} design system"
 EXTRACTED = "2026-11-22"
+UPDATED = "2026-11-25"
 VERIFICATION = """Run on 2026-11-22:
 
 - `check_contrast.py`: 170 pairs passed in light and dark, 0 failed.
@@ -88,6 +89,8 @@ COMPONENTS = [
     ("button", "Button", "Actions", "Primary, secondary, ghost, danger, link and brand-panel buttons; icon buttons."),
     ("link", "Link", "Actions", "Inline, text and back links; external links."),
     ("menu", "Menu", "Actions", "A menu button that opens a list of actions."),
+    ("google-button", "Google button", "Actions", "Continue with Google: Google's mark and wording on a neutral surface."),
+    ("follow-button", "Follow button", "Actions", "A toggle that follows or unfollows a directory listing."),
     # Inputs
     ("text-field", "Text field", "Inputs", "Text, e-mail, password, search and one-time code inputs."),
     ("textarea", "Textarea", "Inputs", "Multi-line text with optional counter."),
@@ -96,12 +99,20 @@ COMPONENTS = [
     ("checkbox", "Checkbox", "Inputs", "Single and grouped checkboxes."),
     ("radio-group", "Radio group", "Inputs", "One choice from a short list; list or card style."),
     ("switch", "Switch", "Inputs", "An on/off setting that applies immediately."),
+    ("segmented-control", "Segmented control", "Inputs", "Two or three views of one list, switched in place."),
+    ("choice-card", "Choice card", "Inputs", "Radio choices drawn as cards or chips, in a grid."),
+    ("plan-option", "Plan option", "Inputs", "How to take part in a series: the whole program or single dates."),
+    ("dropzone", "Dropzone", "Inputs", "A drop target and button for adding one image."),
+    ("preference-row", "Preference row", "Inputs", "A setting with its explanation and a switch, in grouped lists."),
     ("form-field", "Form field", "Inputs", "Label, control, hint and error: the wrapper every input uses."),
     ("form-layout", "Form layout", "Inputs", "Field stacks, two-column rows, error summary and submit states."),
     # Navigation
     ("top-bar", "Top bar", "Navigation", "Member app header, public site header and their mobile forms."),
     ("tab-bar", "Tab bar", "Navigation", "Bottom navigation for the member app on phones."),
     ("sidebar-navigation", "Sidebar navigation", "Navigation", "The admin console sidebar with counts."),
+    ("masthead", "Masthead", "Navigation", "The news front page's nameplate, date line and section navigation."),
+    ("side-navigation", "Side navigation", "Navigation", "In-page section links for Preferences and the legal pages."),
+    ("steps", "Steps", "Navigation", "What happens next, as a short numbered list after a form is sent."),
     ("tabs", "Tabs", "Navigation", "Underline tabs with counts for filtered views."),
     ("breadcrumb", "Breadcrumb", "Navigation", "Where a page sits; collapses to the parent on phones."),
     ("pagination", "Pagination", "Navigation", "Numbered and previous/next paging for long lists."),
@@ -111,6 +122,11 @@ COMPONENTS = [
     ("card", "Card", "Containers and overlays", "Surfaces for grouped content; event, list and stat cards."),
     ("dialog", "Dialog", "Containers and overlays", "Modal dialogs that become bottom sheets on phones."),
     ("drawer", "Drawer", "Containers and overlays", "Side panels for editing without leaving the list."),
+    ("save-bar", "Save bar", "Containers and overlays", "A sticky bar that holds unsaved changes and their Save action."),
+    ("section-heading", "Section heading", "Containers and overlays", "Page heads, ruled section titles and eyebrows."),
+    ("newsletter-box", "Newsletter box", "Containers and overlays", "Subscribe and join call-outs on the front page, stories and Subscribe."),
+    ("review-card", "Review card", "Containers and overlays", "Admin side panels: review, send, summary and settings cards."),
+    ("prose", "Prose", "Containers and overlays", "Long-form legal text with a plain-language summary."),
     ("tooltip", "Tooltip", "Containers and overlays", "Short labels for icon-only controls."),
     ("accordion", "Accordion", "Containers and overlays", "Show and hide sections with details and summary."),
     ("divider", "Divider", "Containers and overlays", "Hairline rules between content."),
@@ -126,11 +142,24 @@ COMPONENTS = [
     ("event-card", "Event card", "Data display", "The event summary card with image, date badge and seats."),
     ("message", "Message", "Data display", "Chat bubbles, day separators and the composer."),
     ("date-badge", "Date badge", "Data display", "Month and day tiles used across event surfaces."),
+    ("story", "Story", "Data display", "Lead story, headlines, river rows, ranked lists and story cards."),
+    ("issue", "Newsletter issue", "Data display", "An issue of the newsletter on the web and its preview."),
+    ("feed-list", "Feed list", "Data display", "RSS feeds with their addresses and a copy action."),
+    ("series-card", "Series card", "Data display", "Event series rows, the series summary, its panel and progress."),
+    ("session-list", "Session list", "Data display", "The dated sessions of a series with their state and seat meter."),
+    ("host-card", "Host card", "Data display", "Who hosts an event, and what a listing is hosting."),
+    ("listing-row", "Listing row", "Data display", "Directory listings: mark, name, kind, verified mark and profile head."),
+    ("editor", "Story editor", "Data display", "The admin writing surface with its notes and side panels."),
+    ("pick-list", "Pick list", "Data display", "Choose stories, events and sessions for an issue or a post."),
+    ("pick-art", "Pick art", "Data display", "Community Pick artwork in each size, captions and the Slack preview."),
+    ("suggestion", "Suggestion", "Data display", "A suggested listing with the four checks staff record."),
+    ("feedback-row", "Feedback row", "Data display", "Feedback inbox rows, kinds, the detail and what was said."),
     # Feedback
     ("toast", "Toast", "Feedback", "Short-lived notices with optional action."),
     ("alert", "Alert", "Feedback", "Inline alerts and error summaries inside forms and pages."),
     ("banner", "Banner", "Feedback", "Page-level notices under the header."),
     ("inline-message", "Inline message", "Feedback", "Field hints, field errors and inline retry messages."),
+    ("sso-notice", "Sign-in notice", "Feedback", "Which account is signing in, and notes about Google sign-in."),
     ("progress-bar", "Progress bar", "Feedback", "Determinate and indeterminate progress, and meters."),
     ("spinner", "Spinner", "Feedback", "Busy indicators inside buttons and regions."),
     ("skeleton", "Skeleton", "Feedback", "Placeholders that mirror the layout while loading."),
