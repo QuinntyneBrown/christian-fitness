@@ -866,6 +866,7 @@
         "default",
         "link-copied",
         "plain",
+        "vetting",
         "loading",
         "error"
       ],
@@ -902,6 +903,7 @@
       "requirements": [],
       "states": [
         "default",
+        "vetting-unavailable",
         "self",
         "invalid",
         "submitting",
