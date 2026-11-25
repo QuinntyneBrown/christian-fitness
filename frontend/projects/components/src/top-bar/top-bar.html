@@ -29,6 +29,14 @@
         </nav>
       }
       <div class="app-header__end">
+        @if (notificationsHref(); as href) {
+          <cf-bell
+            [href]="href"
+            [count]="notificationsUnread()"
+            [current]="notificationsCurrent()"
+            (navigate)="navigate.emit($event)"
+          />
+        }
         @if (profileHref(); as href) {
           <a
             class="profile-button"

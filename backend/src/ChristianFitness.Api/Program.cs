@@ -4,6 +4,7 @@ using ChristianFitness.Api.Security;
 using ChristianFitness.Api.Telemetry;
 using ChristianFitness.Application;
 using ChristianFitness.Application.Chat;
+using ChristianFitness.Application.Notifications;
 using ChristianFitness.Infrastructure;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Health;
@@ -41,6 +42,7 @@ builder.Services.AddProblemDetails(options =>
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IChatChannel, HubChatChannel>();
+builder.Services.AddSingleton<INotificationChannel, HubNotificationChannel>();
 
 var app = builder.Build();
 

@@ -1,0 +1,72 @@
+// The page head, the list's width, its foot and the loading rows (docs/design-system/assets/
+// components.css: "page-title", "display", "Bell and notification row"; mocks
+// docs/mocks/pages/notifications/*); the list card, the rows, the empty state and the toasts are
+// the library's.
+:host {
+  display: block;
+}
+
+.notifications-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.notes-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.notes-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.notes {
+  max-width: 48rem;
+}
+
+.notes-foot {
+  max-width: 48rem;
+  margin-top: var(--space-4);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.notes__skeleton {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.notes__skeleton-lines {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  gap: var(--space-2);
+}

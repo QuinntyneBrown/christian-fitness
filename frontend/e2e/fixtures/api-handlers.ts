@@ -2,6 +2,7 @@ import type { Request, Route } from '@playwright/test';
 import { NOTHING_AWAITING, QUIET_WEEKS } from './admin-dashboard';
 import { NO_APPLICATIONS } from './admin-applications';
 import { NO_LISTINGS } from './admin-listings';
+import { NO_NOTIFICATIONS } from './notifications';
 import { NO_SERVICES } from './services';
 
 /**
@@ -26,6 +27,14 @@ interface Registration {
 
 /** The antiforgery token the fixture hands out, as the API's `__Host-cf-xsrf` cookie (ADR 0009). */
 export const XSRF_TOKEN = 'e2e-xsrf-token';
+
+/** The hub's answer to SignalR's negotiate request (ADR 0039): WebSockets, no real server behind. */
+export const NEGOTIATED = {
+  negotiateVersion: 1,
+  connectionId: 'e2e-connection',
+  connectionToken: 'e2e-token',
+  availableTransports: [{ transport: 'WebSockets', transferFormats: ['Text', 'Binary'] }],
+};
 
 /** The signed-in member the fixture answers `GET /api/session` with unless a spec says otherwise. */
 export const SIGNED_IN = {
@@ -74,7 +83,8 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/admin/services/applications` answers an empty queue (ADR 0049), and
  * `GET /api/services` answers nobody listed, so Services opens empty (ADR 0051), and
  * `GET /api/services/{id}` answers 404 `service_not_found` (ADR 0052), and
- * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044).
+ * `GET /api/home` answers no next event and no suggestions, so Home opens empty (ADR 0044), and
+ * `GET /api/notifications` answers nothing yet, so the member shell's bell has no badge (ADR 0083).
  */
 export class ApiHandlers {
   private readonly registrations: Registration[] = [
@@ -128,6 +138,9 @@ export class ApiHandlers {
       path: '/api/conversations',
       handler: () => ({ json: { conversations: [] } }),
     },
+    { method: 'GET', path: '/api/notifications', handler: () => ({ json: NO_NOTIFICATIONS }) },
+    // The member shell's one real-time connection (ADR 0083); the socket is the fixture's quiet hub.
+    { method: 'POST', path: '/api/chat/negotiate', handler: () => ({ json: NEGOTIATED }) },
   ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */

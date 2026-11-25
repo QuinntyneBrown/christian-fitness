@@ -1377,6 +1377,7 @@
       "states": [
         "default",
         "many",
+        "mark-failed",
         "loading",
         "empty",
         "error"

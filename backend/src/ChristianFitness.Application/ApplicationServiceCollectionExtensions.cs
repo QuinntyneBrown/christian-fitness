@@ -2,6 +2,7 @@ using ChristianFitness.Application.Members;
 using ChristianFitness.Application.Account;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Behaviors;
+using ChristianFitness.Application.Notifications;
 using ChristianFitness.Application.Sessions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddLogging();
         services.AddScoped<MemberCredentials>();
         services.AddScoped<ModerationTarget>();
+        services.AddScoped<INotifier, Notifier>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();

@@ -1,0 +1,44 @@
+// The design system's bell (docs/design-system/assets/components.css: "Bell and notification row").
+:host {
+  display: contents;
+}
+
+.bell {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--target-comfortable);
+  height: var(--target-comfortable);
+  border-radius: var(--radius-full);
+  color: var(--color-fg-muted);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-default);
+  }
+
+  &[aria-current='page'] {
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+}
+
+.bell__count {
+  position: absolute;
+  top: var(--space-0-5);
+  right: var(--space-0-5);
+  min-width: 1.125rem;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+  padding-inline: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.125rem;
+  text-align: center;
+}

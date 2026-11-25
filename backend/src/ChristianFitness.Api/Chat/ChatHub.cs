@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Globalization;
 using ChristianFitness.Application.Chat;
+using ChristianFitness.Application.Notifications;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 
@@ -105,4 +106,14 @@ internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
 
     public Task SendAsync(ChatMessageDto message, CancellationToken cancellationToken) =>
         hub.Clients.Group(GroupOf(message.EventId)).SendAsync("MessageReceived", message, cancellationToken);
+}
+
+/// <summary>
+/// Delivers a notification to every connection of one member through <see cref="ChatHub"/>, the one
+/// real-time connection of a member session (ADR 0083).
+/// </summary>
+internal sealed class HubNotificationChannel(IHubContext<ChatHub> hub) : INotificationChannel
+{
+    public Task SendAsync(Guid memberId, NotificationDto notification, CancellationToken cancellationToken) =>
+        hub.Clients.User(memberId.ToString()).SendAsync("NotificationReceived", notification, cancellationToken);
 }

@@ -2339,3 +2339,55 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   after clearing each turned the intended test red; restored.
 - "Read the initial total after each new API" (30.1): the library `checkbox` and `search-field` and
   the new domain helpers cost `main` nothing; 279.67 kB before and after.
+
+## Journey 14: Get notifications in the app
+
+**What slowed it**
+
+- The real-time client lived on the chat screen's `providers` and stopped when the member left it,
+  so nothing could change the bell live. ADR 0083 moved it to the member shell before any code was
+  written. That meant every member spec now opens a hub socket, and the shared fixture had to
+  answer it.
+- The Messages row and the event page's chat link load the chat as a full page, not through the
+  router. The first "one connection" spec counted two negotiations because of the reload, not
+  because of a second client. It now opens the chat by its address and leaves through the bell.
+- A pushed notification sent right after `negotiate` was answered could arrive before the
+  handshake and be lost. The hub fake now counts the handshakes it answered (`opened`), and specs
+  wait on that count.
+- The shared scratchpad is shared with other agents: another session overwrote a dev-server log,
+  and a Python heredoc with `\/` lost its escapes. Edit scripts now go in `scratchpad/j164/` as
+  files with raw strings.
+- A busy machine (several agents running suites at once) failed four specs by timeout in one full
+  run. Run alone and with `--repeat-each 3`, they all passed.
+
+**New lessons**
+
+- To make one real-time client serve two contracts, provide the class once and bind both tokens
+  with `useExisting`. Bind it where its lifetime belongs (the shell), and a screen that only
+  subscribes releases its own subscriptions with `takeUntilDestroyed`, never the connection.
+- A connection owned by the shell can be destroyed while it is still starting, for example when a
+  5xx sends the member to the server-error screen. Calling `stop()` then makes SignalR log "Failed
+  to start the HttpConnection before stop() was called", and the fixture counts that as a page
+  error. Stop the connection only once it is up; until then `start` stops it after it connects.
+- Give every page a default hub socket with `context.routeWebSocket`. A spec's own
+  `page.routeWebSocket` (`FakeChatHub`) takes precedence, so existing chat specs needed no change.
+  Answer pings in the default too, or a long spec can hit the client's server timeout.
+- `[class.x]` on one element pulled about 4.3 kB of `@angular/core` debug code into `main` (web
+  279.76 kB became 284.10 kB). `[attr.class]` with a ternary cost nothing. Diff the `--stats-json`
+  inputs of `main` before and after a template binding the app has not used yet.
+- A component in the library may import only `@cf/api`, so a presentation helper (`bellBadge`,
+  `bellLabel`) lives beside its component, not in `@cf/domain`.
+- Retention with no scheduler (ADR 0069): filter on read and delete the member's expired rows on
+  each write, so the table never grows without a reader seeing the rule.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each new API" (30.1, 4): it caught the `[class.x]` cost at once.
+  The web initial total ended at 279.74 kB, from 279.67 kB, after the route entry and the shell's
+  providers.
+- "Prove a rule red by breaking it alone" (1.4 on): removing `connection.stop()` turned the
+  sign-out spec red (closed 0), the 50-row cap turned its unit rows red, and the screen and live
+  specs failed for the missing bell, route and connection before the code existed. Each was
+  restored.
+- "The worktree-isolation guard refuses long shell commands" (4): plain commands and script files
+  kept the rebase and the edits moving.

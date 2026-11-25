@@ -1,5 +1,6 @@
 import { test as base, expect, type ConsoleMessage } from '@playwright/test';
 import { ApiHandlers } from './api-handlers';
+import { quietHub } from './chat';
 
 export { expect };
 export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
@@ -88,6 +89,8 @@ export const test = base.extend<Fixtures>({
       problems.push(`console error: ${message.text()}`);
     });
 
+    // A spec's own hub (`FakeChatHub`, routed on the page) takes precedence over this one.
+    await context.routeWebSocket(/\/api\/chat\?/, quietHub);
     await context.route('**/*', async (route) => {
       const request = route.request();
       const url = new URL(request.url());

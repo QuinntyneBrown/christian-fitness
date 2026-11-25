@@ -1019,6 +1019,13 @@ def _():
         f'<ul class="card card--list notes">{"".join(note_row(n) for n in rows)}</ul>', foot=NOTES_FOOT), notes=12)
 
 
+@s("mark-failed", "Mark all as read failed: a toast says so and every row stays as it was, unread ones still marked; the bell keeps its count.")
+def _():
+    t = toast("danger", "We couldn't mark them as read", "Check your connection and try again.")
+    return member_shell("notifications", notifications_page(
+        f'<ul class="card card--list notes">{"".join(note_row(n) for n in NOTES)}</ul>', foot=NOTES_FOOT), notes=2, after=toast_region(t))
+
+
 @s("loading", "Inbox loading: five row skeletons under the heading; the bell keeps the count it already had.")
 def _():
     row = ('<li class="note"><div class="note__link"><span class="skeleton skeleton--avatar"></span>'

@@ -111,6 +111,7 @@ COMPONENTS = [
     # Navigation
     ("top-bar", "Top bar", "Navigation", "Member app header, public site header and their mobile forms."),
     ("tab-bar", "Tab bar", "Navigation", "Bottom navigation for the member app on phones."),
+    ("bell", "Bell", "Navigation", "The member top bar's link to Notifications with the unread count."),
     ("sidebar-navigation", "Sidebar navigation", "Navigation", "The admin console sidebar with counts."),
     ("masthead", "Masthead", "Navigation", "The news front page's nameplate, date line and section navigation."),
     ("side-navigation", "Side navigation", "Navigation", "In-page section links for Preferences and the legal pages."),
@@ -156,6 +157,7 @@ COMPONENTS = [
     ("pick-art", "Pick art", "Data display", "Community Pick artwork in each size, captions and the Slack preview."),
     ("suggestion", "Suggestion", "Data display", "A suggested listing with the four checks staff record."),
     ("feedback-row", "Feedback row", "Data display", "Feedback inbox rows, kinds, the detail and what was said."),
+    ("notification-row", "Notification row", "Data display", "One notification in the inbox: kind, title, text, time and unread."),
     # Feedback
     ("toast", "Toast", "Feedback", "Short-lived notices with optional action."),
     ("alert", "Alert", "Feedback", "Inline alerts and error summaries inside forms and pages."),

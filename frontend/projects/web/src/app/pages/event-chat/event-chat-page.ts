@@ -17,7 +17,6 @@ import { chatTime, withChatMessage, withEarlierMessages } from '@cf/domain';
 import type { Observable } from 'rxjs';
 import { HttpChatHistoryService } from '../../services/http-chat-history.service';
 import { HttpReportsService } from '../../services/http-reports.service';
-import { SignalRChatConnection } from '../../services/signalr-chat-connection';
 
 /** The most messages that failed to send the screen keeps for the member to try again. */
 const MAX_UNSENT = 20;
@@ -30,8 +29,9 @@ interface Unsent {
 
 /**
  * An event's group chat at `/events/:id/chat` (L2-016; slice 12.1; ADR 0039): the thread and the
- * composer of the design system's messages screen, for one event. `CHAT_CONNECTION` is bound here,
- * so the one connection to the hub lives only while the screen does and stops when it is destroyed.
+ * composer of the design system's messages screen, for one event. `CHAT_CONNECTION` is the member
+ * shell's one connection (ADR 0083), which stays open when the screen closes; the screen's own
+ * subscriptions end with it.
  * The page keeps at most 200 messages. Opening says "Opening chat" while it joins and loads the
  * latest 50 stored messages (slice 12.2; ADR 0040); a member who is not registered
  * (`not_a_participant`) is told so, and any other failure shows "This chat didn't open" with Try
@@ -49,7 +49,6 @@ interface Unsent {
   selector: 'cf-event-chat-page',
   imports: [Alert, Button, Composer, EmptyState, Link, Skeleton, SkeletonRegion, Thread],
   providers: [
-    { provide: CHAT_CONNECTION, useClass: SignalRChatConnection },
     { provide: CHAT_HISTORY, useClass: HttpChatHistoryService },
     { provide: REPORTS_SERVICE, useClass: HttpReportsService },
   ],

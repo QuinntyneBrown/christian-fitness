@@ -50,7 +50,7 @@ export interface ChatConnection {
   send(eventId: string, text: string, direct?: boolean): Promise<ChatAnswerDto>;
 }
 
-/** Binds {@link ChatConnection}; the chat screen's providers provide it. */
+/** Binds {@link ChatConnection}; the member shell provides it, so chat shares its connection (ADR 0083). */
 export const CHAT_CONNECTION = new InjectionToken<ChatConnection>('CHAT_CONNECTION');
 
 /** One page of an event chat's stored messages (ADR 0040), oldest first, and whether earlier ones remain. */
