@@ -24,6 +24,11 @@ export interface ListingRowView {
 const firstLetter = (word: string): string => Array.from(word)[0] ?? '';
 const isWord = (word: string): boolean => /\p{L}/u.test(firstLetter(word));
 
+/** A listing's profile address (ADR 0085). */
+export function directoryListingHref(id: string): string {
+  return `/directory/${encodeURIComponent(id)}`;
+}
+
 /**
  * The initials a listing's mark shows (mock `directory/default`): for a group, the first letters
  * of its first two words ("Lakeshore Runners Fellowship" is "LR", "Faith & Footwork" "FF"); for a
@@ -44,7 +49,7 @@ export function listingInitials(kind: ListingKind, name: string): string {
 export function listingRowViewOf(row: DirectoryListingRowDto): ListingRowView {
   return {
     id: row.id,
-    href: `/directory/${encodeURIComponent(row.id)}`,
+    href: directoryListingHref(row.id),
     name: row.name,
     tagline: row.tagline,
     area: row.area,

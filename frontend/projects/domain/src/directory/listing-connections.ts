@@ -1,6 +1,6 @@
 import type { ListingConnectionDto } from '@cf/api';
 import { listingKindInfo } from './listing-kinds';
-import { listingInitials } from './listing-row-view';
+import { directoryListingHref, listingInitials } from './listing-row-view';
 
 /** What one Connected row shows (L2-055 AC4): the screen passes these to the component as they are. */
 export interface ConnectionRowView {
@@ -20,7 +20,7 @@ export function connectionRowViewOf(connection: ListingConnectionDto): Connectio
   const kind = listingKindInfo(connection.kind);
   return {
     id: connection.id,
-    href: `/directory/${encodeURIComponent(connection.id)}`,
+    href: directoryListingHref(connection.id),
     name: connection.name,
     text: `${connection.relation} · ${kind.singular}`,
     person: kind.person,

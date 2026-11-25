@@ -27,6 +27,7 @@ export class WebServiceDetailPage extends ErrorScreen {
   readonly messageButton: Locator;
   readonly contactButton: Locator;
   readonly problem: Locator;
+  readonly alsoInDirectory: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -39,6 +40,7 @@ export class WebServiceDetailPage extends ErrorScreen {
     this.messageButton = this.main.getByRole('button', { name: 'Message' });
     this.contactButton = this.main.getByRole('button', { name: 'Contact' });
     this.problem = this.main.getByRole('alert');
+    this.alsoInDirectory = this.card.getByRole('link', { name: 'Also in the directory' });
   }
 
   async open(id: string, query = ''): Promise<void> {

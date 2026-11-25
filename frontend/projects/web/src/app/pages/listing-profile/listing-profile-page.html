@@ -96,6 +96,13 @@
             </div>
             <aside class="listing-profile-page__aside" aria-label="About this listing">
               <cf-description-list variant="spec" [items]="facts()" />
+              @if (shown.servicesHref; as services) {
+                <p>
+                  <cf-link variant="text" [href]="services" (click)="follow($event, services)"
+                    >Also offers services</cf-link
+                  >
+                </p>
+              }
               @if (connections().length > 0) {
                 <section aria-labelledby="connected-title">
                   <h2 class="display section-title section-title--sm" id="connected-title">

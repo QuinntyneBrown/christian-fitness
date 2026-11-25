@@ -21,6 +21,7 @@ import {
   Split,
 } from '@cf/components';
 import {
+  directoryListingHref,
   listingHref,
   noCategoryServicesText,
   selectedListing,
@@ -108,6 +109,11 @@ export default class ServicesPage {
   });
   /** The listing whose card shows, and the row that is current. */
   protected readonly selected = computed(() => selectedListing(this.listings(), this.selectedId()));
+  /** Where the selected professional's "Also in the directory" leads, or nowhere. */
+  protected readonly directoryHref = computed(() => {
+    const id = this.selected()?.directoryListingId ?? null;
+    return id === null ? '' : directoryListingHref(id);
+  });
   protected readonly rows = computed(() =>
     this.listings().map((listing) => serviceRowViewOf(listing, this.category())),
   );

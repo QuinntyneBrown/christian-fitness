@@ -4,6 +4,8 @@ import { Avatar } from '../avatar/avatar';
 import { Button } from '../button/button';
 import { Card } from '../card/card';
 import { DescriptionList, type DescriptionItem } from '../description-list/description-list';
+import { Link } from '../link/link';
+import { isPlainClick } from '../link/plain-click';
 import { Skeleton } from '../skeleton/skeleton';
 
 /**
@@ -12,11 +14,12 @@ import { Skeleton } from '../skeleton/skeleton';
  * they work, the about text, a `spec-list` of credentials and rate, the verified line and the
  * contact actions: Request a booking and Message, or Contact alone when the listing publishes a
  * contact link (`hasContactLink`; L2-014; ADR 0000). It emits `requestBooking`, `startMessage` or `openContact` and holds no contact detail; while `busy` the action
- * ignores presses, and a `problem` shows as an alert above it. Sticky from LG. With `loading` it is the same card of `cf-skeleton`s. Every text is rendered as text.
+ * ignores presses, and a `problem` shows as an alert above it. With a `directoryHref` it shows "Also
+ * in the directory" (ADR 0061, ADR 0085), whose plain click is passed on as `navigate`. Sticky from LG. With `loading` it is the same card of `cf-skeleton`s. Every text is rendered as text.
  */
 @Component({
   selector: 'cf-service-detail',
-  imports: [Alert, Avatar, Button, Card, DescriptionList, Skeleton],
+  imports: [Alert, Avatar, Button, Card, DescriptionList, Link, Skeleton],
   templateUrl: './service-detail.html',
   styleUrl: './service-detail.scss',
 })
@@ -36,9 +39,18 @@ export class ServiceDetail {
   readonly busy = input(false, { transform: booleanAttribute });
   /** What went wrong with the contact action, in a sentence; empty when nothing did. */
   readonly problem = input('');
+  /** The professional's directory listing, for "Also in the directory"; empty when there is none. */
+  readonly directoryHref = input('');
   readonly requestBooking = output();
   readonly startMessage = output();
   readonly openContact = output();
+  readonly navigate = output<string>();
+
+  protected follow(event: MouseEvent): void {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    this.navigate.emit(this.directoryHref());
+  }
 
   protected facts(): readonly DescriptionItem[] {
     return [

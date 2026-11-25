@@ -51,6 +51,7 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly head: Locator;
   readonly messageButton: Locator;
   readonly messageAlert: Locator;
+  readonly alsoOffersServices: Locator;
   readonly name: Locator;
   readonly hosting: Locator;
   readonly hostingHeading: Locator;
@@ -76,6 +77,7 @@ export class WebListingProfilePage extends ErrorScreen {
     this.head = this.main.locator('.listing-head');
     this.messageButton = this.head.getByRole('button', { name: 'Message' });
     this.messageAlert = this.main.getByRole('alert');
+    this.alsoOffersServices = this.main.getByRole('link', { name: 'Also offers services' });
     this.name = this.head.getByRole('heading', { level: 1 });
     this.hosting = this.main.getByRole('region', { name: /^Hosting/ });
     this.hostingHeading = this.hosting.getByRole('heading', { level: 2 });

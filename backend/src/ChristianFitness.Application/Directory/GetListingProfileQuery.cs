@@ -24,7 +24,8 @@ public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, str
 /// A published listing's profile (L2-055 AC1 to AC5; ADR 0085): what it publishes, its follower count and
 /// the year it was listed, in Toronto. The website is served as stored; the app shows only an
 /// https address (L2-055 AC5). <c>HasOwner</c> says whether Message can reach anyone (L2-055 AC6);
-/// it carries no member id, contact detail or owner's name.
+/// <c>ServiceListingId</c> names the Services listing of the same owner, or that staff linked, for
+/// "Also offers services" (ADR 0061). It carries no member id, contact detail or owner's name.
 /// </summary>
 public sealed record ListingProfileDto(
     Guid Id,
@@ -42,7 +43,8 @@ public sealed record ListingProfileDto(
     bool HasOwner,
     int HostingCount,
     IReadOnlyList<HostedEventDto> Hosting,
-    IReadOnlyList<ListingConnectionDto> Connections);
+    IReadOnlyList<ListingConnectionDto> Connections,
+    Guid? ServiceListingId);
 
 /// <summary>Opens one listing's profile; anything but a published listing is 404 <c>listing_not_found</c> (L2-055 AC7).</summary>
 public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>
@@ -88,6 +90,19 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
             .Select(c => new ListingConnectionDto(c.Id, ListingKinds.SlugOf(c.Kind), c.Name, c.PhotoKey, c.Relation))
             .ToList();
 
+        // The Services listing of the same member, or the one staff linked, while it exists (ADR 0061, ADR 0085).
+        var ownerId = listing.MemberId;
+        var linkedId = listing.ServiceListingId;
+        var serviceListingId = ownerId is null && linkedId is null
+            ? null
+            : await db.ServiceListings.AsNoTracking()
+                .Where(s => (ownerId != null && s.MemberId == ownerId) || (linkedId != null && s.Id == linkedId))
+                .OrderBy(s => s.PublishedAt)
+                .ThenBy(s => s.Id)
+                .Select(s => (Guid?)s.Id)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+
         // Following arrives with journey 8; until then nobody follows a listing (ADR 0085).
         const int followers = 0;
         return new ListingProfileDto(
@@ -106,6 +121,7 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
             listing.MemberId is not null,
             hostingCount,
             hosting,
-            connections);
+            connections,
+            serviceListingId);
     }
 }

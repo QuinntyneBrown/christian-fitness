@@ -12,6 +12,7 @@ import {
   EmptyState,
   ErrorPage,
   Hosting,
+  isPlainClick,
   Link,
   List,
   ListingHead,
@@ -114,6 +115,13 @@ export default class ListingProfilePage {
   /** Follows a link inside the app through the router. */
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);
+  }
+
+  /** Routes a plain click on a link; any other click is the browser's. */
+  protected follow(event: MouseEvent, href: string): void {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    this.navigate(href);
   }
 
   /**

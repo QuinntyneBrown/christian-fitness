@@ -38,6 +38,7 @@ export class WebServicesPage {
   readonly messageButton: Locator;
   readonly contactButton: Locator;
   readonly problem: Locator;
+  readonly alsoInDirectory: Locator;
   /** The skeleton rows while the list loads. */
   readonly loading: Locator;
   readonly loadingLabel: Locator;
@@ -68,6 +69,7 @@ export class WebServicesPage {
     this.messageButton = this.detail.getByRole('button', { name: 'Message' });
     this.contactButton = this.detail.getByRole('button', { name: 'Contact' });
     this.problem = this.detail.getByRole('alert');
+    this.alsoInDirectory = this.detail.getByRole('link', { name: 'Also in the directory' });
     this.loading = this.main.locator('[aria-busy="true"]');
     this.loadingLabel = this.main.getByText('Loading professionals', { exact: true });
     this.skeletonRows = this.main.locator('.service-row .skeleton');

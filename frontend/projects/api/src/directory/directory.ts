@@ -98,6 +98,8 @@ export interface ListingProfileDto {
   hosting: HostedEventDto[];
   /** The published listings it is connected to, in kind then name order. */
   connections: ListingConnectionDto[];
+  /** The Services listing of the same owner, or that staff linked, for "Also offers services" (ADR 0061). */
+  serviceListingId: string | null;
 }
 
 /** Who receives a listing's messages: the member whose direct conversation Message opens. */

@@ -22,6 +22,11 @@ export interface ServiceListingDto {
    * ADR 0053). The link itself is served only by `getContactLink`.
    */
   hasContactLink: boolean;
+  /**
+   * The published directory listing of the same professional, or that staff linked, for "Also in
+   * the directory" (ADR 0061, ADR 0085); the oldest when several match.
+   */
+  directoryListingId: string | null;
 }
 
 /** The listings, in name order, at most 50, and how many match in all (ADR 0051). */

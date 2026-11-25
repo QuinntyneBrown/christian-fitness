@@ -57,6 +57,8 @@
             (requestBooking)="contact.requestBooking(listing)"
             (startMessage)="contact.message(listing.id)"
             (openContact)="contact.contact(listing.id)"
+            [directoryHref]="directoryHref()"
+            (navigate)="navigate($event)"
           />
         }
       </cf-split>

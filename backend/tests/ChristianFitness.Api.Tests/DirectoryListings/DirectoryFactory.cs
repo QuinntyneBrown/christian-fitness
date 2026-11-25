@@ -1,5 +1,6 @@
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
+using ChristianFitness.Domain.Services;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,7 @@ public sealed class DirectoryFactory : ApiFactory
         services.AddSingleton<TimeProvider>(Time);
     }
 
-    /// <summary>Empties the directory and the events, so each test starts from what it puts in.</summary>
+    /// <summary>Empties the directory, the events and Services, so each test starts from what it puts in.</summary>
     public async Task ClearAsync()
     {
         using var scope = Services.CreateScope();
@@ -33,6 +34,34 @@ public sealed class DirectoryFactory : ApiFactory
         db.ListingConnections.RemoveRange(db.ListingConnections);
         db.DirectoryListings.RemoveRange(db.DirectoryListings);
         db.Events.RemoveRange(db.Events);
+        db.ServiceListings.RemoveRange(db.ServiceListings);
+        db.ProfessionalApplications.RemoveRange(db.ProfessionalApplications);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>Lists <paramref name="member"/> in Services under <paramref name="name"/>, as staff's approval does.</summary>
+    public async Task<Guid> AddServiceListingAsync(Guid member, string name)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var application = ProfessionalApplication.Submit(member, "Personal trainer", ServiceCategory.Training, "CSCS", "East York", "$70", "About.", Now);
+        Assert.True(application.TryApprove(name, Now, out var listing));
+        db.ProfessionalApplications.Add(application);
+        db.ServiceListings.Add(listing!);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return listing!.Id;
+    }
+
+    /// <summary>
+    /// Links the directory listing to a Services listing, as staff will in the listing editor (ADR 0061);
+    /// no product path sets it yet, so the store's value is set directly.
+    /// </summary>
+    public async Task LinkServiceAsync(Guid listing, Guid service)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var row = await db.DirectoryListings.SingleAsync(l => l.Id == listing, TestContext.Current.CancellationToken);
+        db.Entry(row).Property(l => l.ServiceListingId).CurrentValue = service;
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
@@ -52,7 +81,7 @@ public sealed class DirectoryFactory : ApiFactory
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var listing = DirectoryListing.CreateDraft(Guid.CreateVersion7(), kind, name, tagline, area, focus ?? [], Now, description, website, verified);
+        var listing = DirectoryListing.CreateDraft(Guid.CreateVersion7(), kind, name, tagline, area, focus ?? [], listedAt ?? Now, description, website, verified);
         listing.ShowPhoto(photoKey);
         switch (status)
         {
@@ -63,7 +92,7 @@ public sealed class DirectoryFactory : ApiFactory
                 listing.Decline();
                 break;
             case ListingStatus.Removed:
-                listing.Publish(Now);
+                listing.Publish(listedAt ?? Now);
                 listing.Remove();
                 break;
             case ListingStatus.Draft:

@@ -13,6 +13,7 @@ function listing(id: string): ServiceListingDto {
     about: 'About',
     publishedAt: '2026-03-12T15:00:00Z',
     hasContactLink: false,
+    directoryListingId: null,
   };
 }
 

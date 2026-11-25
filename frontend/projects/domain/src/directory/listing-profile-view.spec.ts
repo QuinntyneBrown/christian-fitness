@@ -14,9 +14,11 @@ const profile = (over: Partial<ListingProfileDto> = {}): ListingProfileDto => ({
   photoKey: null,
   followers: 612,
   listedYear: 2025,
+  hasOwner: false,
   hostingCount: 0,
   hosting: [],
   connections: [],
+  serviceListingId: null,
   ...over,
 });
 
@@ -65,6 +67,7 @@ describe('listingProfileViewOf', () => {
       website: { href: 'https://lakeshorerunners.ca/', text: 'lakeshorerunners.ca' },
       followers: '612',
       since: 'Since 2025',
+      servicesHref: null,
     });
   });
 
@@ -78,6 +81,7 @@ describe('listingProfileViewOf', () => {
           websiteUrl: 'http://grace.example.org',
           followers: 12_345,
           listedYear: 2024,
+          serviceListingId: 's-1',
         }),
       ),
     ).toEqual({
@@ -88,6 +92,7 @@ describe('listingProfileViewOf', () => {
       website: null,
       followers: '12,345',
       since: 'Since 2024',
+      servicesHref: '/services/s-1',
     });
     expect(listingProfileViewOf(profile({ kind: 'instructor', name: 'Danielle Okafor' }))).toEqual(
       expect.objectContaining({ kind: 'Instructor', person: true, initials: 'DO' }),

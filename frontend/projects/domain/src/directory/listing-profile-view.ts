@@ -1,4 +1,5 @@
 import type { ListingProfileDto } from '@cf/api';
+import { listingHref } from '../services/service-category-filter';
 import { listingKindInfo } from './listing-kinds';
 import { listingInitials } from './listing-row-view';
 
@@ -22,6 +23,8 @@ export interface ListingProfileView {
   followers: string;
   /** "Since 2025". */
   since: string;
+  /** Where "Also offers services" leads, or none (ADR 0061). */
+  servicesHref: string | null;
 }
 
 /**
@@ -64,5 +67,7 @@ export function listingProfileViewOf(profile: ListingProfileDto): ListingProfile
     website: websiteLinkOf(profile.websiteUrl),
     followers: (thousands ??= new Intl.NumberFormat('en-US')).format(profile.followers),
     since: `Since ${profile.listedYear}`,
+    servicesHref:
+      profile.serviceListingId === null ? null : listingHref(profile.serviceListingId, null),
   };
 }
