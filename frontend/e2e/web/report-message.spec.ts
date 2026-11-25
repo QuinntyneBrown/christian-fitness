@@ -37,42 +37,43 @@ test.describe('Member app, report a message', () => {
     await page.clock.setFixedTime(MESSAGES_NOW);
   });
 
-  test('a group message from another member is reported with a reason and confirmed; mine has no Report', async ({
-    page,
-    api,
-  }) => {
-    await FakeChatHub.install(
-      page,
-      api,
-      { code: null, title: 'Sunrise 5K Crew', memberId: SIGNED_IN.memberId },
-      HISTORY,
-    );
-    const sent = answerReports(api);
-    const chat = new WebEventChatPage(page);
-    const dialog = new WebReportMessageDialog(page);
-    await chat.open(EVENT);
-    await expect(chat.messages).toHaveCount(2);
-    await expect(chat.reportButtons).toHaveCount(1);
-    await expect(chat.reportButton(1)).toHaveCount(0);
+  test(
+    'a group message from another member is reported with a reason and confirmed; mine has no Report',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      await FakeChatHub.install(
+        page,
+        api,
+        { code: null, title: 'Sunrise 5K Crew', memberId: SIGNED_IN.memberId },
+        HISTORY,
+      );
+      const sent = answerReports(api);
+      const chat = new WebEventChatPage(page);
+      const dialog = new WebReportMessageDialog(page);
+      await chat.open(EVENT);
+      await expect(chat.messages).toHaveCount(2);
+      await expect(chat.reportButtons).toHaveCount(1);
+      await expect(chat.reportButton(1)).toHaveCount(0);
 
-    await chat.reportButton(0).click();
+      await chat.reportButton(0).click();
 
-    await expect(dialog.byRole()).toBeVisible();
-    await expect(dialog.title).toHaveText('Report this message?');
-    await expect(dialog.subtitle).toContainText('Michael Chen');
-    await expect(dialog.reason).toBeFocused();
-    await dialog.reason.fill('  Pressuring newcomers for money  ');
-    await dialog.reportButton.click();
+      await expect(dialog.byRole()).toBeVisible();
+      await expect(dialog.title).toHaveText('Report this message?');
+      await expect(dialog.subtitle).toContainText('Michael Chen');
+      await expect(dialog.reason).toBeFocused();
+      await dialog.reason.fill('  Pressuring newcomers for money  ');
+      await dialog.reportButton.click();
 
-    await expect(dialog.title).toHaveText('Message reported');
-    await expect(dialog.success).toBeVisible();
-    expect(sent).toEqual([
-      { messageId: THEIRS, body: { reason: 'Pressuring newcomers for money' } },
-    ]);
-    await dialog.doneButton.click();
-    await expect(dialog.dialog).toHaveCount(0);
-    await expect(chat.reportButton(0)).toBeFocused();
-  });
+      await expect(dialog.title).toHaveText('Message reported');
+      await expect(dialog.success).toBeVisible();
+      expect(sent).toEqual([
+        { messageId: THEIRS, body: { reason: 'Pressuring newcomers for money' } },
+      ]);
+      await dialog.doneButton.click();
+      await expect(dialog.dialog).toHaveCount(0);
+      await expect(chat.reportButton(0)).toBeFocused();
+    },
+  );
 
   test('a direct message is reported without a reason', async ({ page, api }) => {
     await FakeChatHub.install(

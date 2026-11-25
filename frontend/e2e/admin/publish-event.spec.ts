@@ -87,34 +87,35 @@ test.describe('Admin app, publishing an event', () => {
     await expect(editor.footButtons).toHaveText(['Save draft', 'Publish']);
   });
 
-  test('Publish saves the new event, publishes it, closes the drawer and says it is live', async ({
-    page,
-    api,
-  }) => {
-    const calls = answerPublish(api);
-    const events = new AdminEventsPage(page);
-    const editor = new EventEditorDialog(page);
-    await events.open();
-    await events.openNewEvent();
-    await editor.fill(RETREAT);
+  test(
+    'Publish saves the new event, publishes it, closes the drawer and says it is live',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const calls = answerPublish(api);
+      const events = new AdminEventsPage(page);
+      const editor = new EventEditorDialog(page);
+      await events.open();
+      await events.openNewEvent();
+      await editor.fill(RETREAT);
 
-    await editor.publish();
+      await editor.publish();
 
-    await expect(editor.dialog).toHaveCount(0);
-    expect(calls).toMatchObject({ creates: 1, updates: 0 });
-    expect(calls.publishes).toEqual([{ token: XSRF_TOKEN }]);
-    await expect(events.toastTitle).toHaveText('Whole Life Retreat is live');
-    await expect(events.toastText).toHaveText(
-      'Members can register now. A group chat opens with the first registration.',
-    );
-    expect((await events.rowTexts())[4]).toEqual([
-      'Whole Life Retreat',
-      'Muskoka Woods, Rosseau',
-      'May 22 · 4:00 PM',
-      '0 / 60',
-      'Published',
-    ]);
-  });
+      await expect(editor.dialog).toHaveCount(0);
+      expect(calls).toMatchObject({ creates: 1, updates: 0 });
+      expect(calls.publishes).toEqual([{ token: XSRF_TOKEN }]);
+      await expect(events.toastTitle).toHaveText('Whole Life Retreat is live');
+      await expect(events.toastText).toHaveText(
+        'Members can register now. A group chat opens with the first registration.',
+      );
+      expect((await events.rowTexts())[4]).toEqual([
+        'Whole Life Retreat',
+        'Muskoka Woods, Rosseau',
+        'May 22 · 4:00 PM',
+        '0 / 60',
+        'Published',
+      ]);
+    },
+  );
 
   // Mock event-editor/busy.
   test('while publishing, Publish says "Publishing…", is busy, Save draft is disabled and the fields are read-only', async ({

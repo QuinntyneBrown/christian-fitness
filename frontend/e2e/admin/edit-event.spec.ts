@@ -118,32 +118,33 @@ test.describe('Admin app, editing an event', () => {
     await expect.poll(() => editor.titleIsFocused()).toBe(true);
   });
 
-  test('Save changes sends every field, closes the drawer, says "Changes saved" and lists the change', async ({
-    page,
-    api,
-  }) => {
-    const state = answerEdit(api);
-    const events = new AdminEventsPage(page);
-    const editor = new EventEditorDialog(page, 'Edit event');
-    await openBootcamp(events, editor);
-    await editor.title.fill('Saturday Park Bootcamp, Spring');
-    await editor.capacity.fill('55');
+  test(
+    'Save changes sends every field, closes the drawer, says "Changes saved" and lists the change',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const state = answerEdit(api);
+      const events = new AdminEventsPage(page);
+      const editor = new EventEditorDialog(page, 'Edit event');
+      await openBootcamp(events, editor);
+      await editor.title.fill('Saturday Park Bootcamp, Spring');
+      await editor.capacity.fill('55');
 
-    await editor.saveChanges();
+      await editor.saveChanges();
 
-    await expect(editor.dialog).toHaveCount(0);
-    expect(state.puts).toEqual([
-      {
-        body: { ...SAVED_REQUEST, title: 'Saturday Park Bootcamp, Spring', capacity: 55 },
-        token: XSRF_TOKEN,
-      },
-    ]);
-    await expect(events.toastTitle).toHaveText('Changes saved');
-    await expect(events.toastText).toHaveText('Saturday Park Bootcamp, Spring is updated.');
-    expect((await events.rowTexts())[1][0]).toBe('Saturday Park Bootcamp, Spring');
-    expect(state.lists).toBe(2);
-    await expect.poll(() => events.isFocused(events.editButton(BOOTCAMP.title))).toBe(true);
-  });
+      await expect(editor.dialog).toHaveCount(0);
+      expect(state.puts).toEqual([
+        {
+          body: { ...SAVED_REQUEST, title: 'Saturday Park Bootcamp, Spring', capacity: 55 },
+          token: XSRF_TOKEN,
+        },
+      ]);
+      await expect(events.toastTitle).toHaveText('Changes saved');
+      await expect(events.toastText).toHaveText('Saturday Park Bootcamp, Spring is updated.');
+      expect((await events.rowTexts())[1][0]).toBe('Saturday Park Bootcamp, Spring');
+      expect(state.lists).toBe(2);
+      await expect.poll(() => events.isFocused(events.editButton(BOOTCAMP.title))).toBe(true);
+    },
+  );
 
   // Mock event-editor/edit-saving.
   test('while saving, Save changes says "Saving…", is busy and every field is read-only', async ({

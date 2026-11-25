@@ -122,36 +122,37 @@ test.describe('Admin app, creating a draft event', () => {
     await expect.poll(() => editor.drawerBox()).toEqual({ x: 1440 - 512, width: 512, height: 900 });
   });
 
-  test('Save draft sends the fields, closes the drawer, shows "Draft saved" and lists the draft', async ({
-    page,
-    api,
-  }) => {
-    const state = answerCreate(api);
-    const events = new AdminEventsPage(page);
-    const editor = new EventEditorDialog(page);
-    await events.open();
-    await expect(events.tabLinks).toHaveText(['All 4', 'Published 4', 'Draft 0']);
-    await events.openNewEvent();
-    await editor.fill(RETREAT);
+  test(
+    'Save draft sends the fields, closes the drawer, shows "Draft saved" and lists the draft',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const state = answerCreate(api);
+      const events = new AdminEventsPage(page);
+      const editor = new EventEditorDialog(page);
+      await events.open();
+      await expect(events.tabLinks).toHaveText(['All 4', 'Published 4', 'Draft 0']);
+      await events.openNewEvent();
+      await editor.fill(RETREAT);
 
-    await editor.saveDraft();
+      await editor.saveDraft();
 
-    await expect(editor.dialog).toHaveCount(0);
-    expect(state.sent).toEqual([{ body: RETREAT_REQUEST, token: XSRF_TOKEN }]);
-    await expect(events.toastTitle).toHaveText('Draft saved');
-    await expect(events.toastText).toHaveText("Whole Life Retreat isn't visible to members yet.");
-    await expect(events.tabLinks).toHaveText(['All 5', 'Published 4', 'Draft 1']);
-    await expect(events.rows).toHaveCount(5);
-    expect((await events.rowTexts())[4]).toEqual([
-      'Whole Life Retreat',
-      'Muskoka Woods, Rosseau',
-      'May 22 · 4:00 PM',
-      '0 / 60',
-      'Draft',
-    ]);
-    expect(state.lists).toBe(2);
-    await expect.poll(() => events.isFocused(events.newEventButton)).toBe(true);
-  });
+      await expect(editor.dialog).toHaveCount(0);
+      expect(state.sent).toEqual([{ body: RETREAT_REQUEST, token: XSRF_TOKEN }]);
+      await expect(events.toastTitle).toHaveText('Draft saved');
+      await expect(events.toastText).toHaveText("Whole Life Retreat isn't visible to members yet.");
+      await expect(events.tabLinks).toHaveText(['All 5', 'Published 4', 'Draft 1']);
+      await expect(events.rows).toHaveCount(5);
+      expect((await events.rowTexts())[4]).toEqual([
+        'Whole Life Retreat',
+        'Muskoka Woods, Rosseau',
+        'May 22 · 4:00 PM',
+        '0 / 60',
+        'Draft',
+      ]);
+      expect(state.lists).toBe(2);
+      await expect.poll(() => events.isFocused(events.newEventButton)).toBe(true);
+    },
+  );
 
   // Mock event-editor/saving: a gate holds the answer, so no clock is needed.
   test('while saving, Save draft says "Saving…", is busy, every field is read-only and the drawer stays', async ({

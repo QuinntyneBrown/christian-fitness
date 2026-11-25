@@ -44,33 +44,34 @@ test.describe('Member app, message or contact a professional', () => {
     await page.clock.setFixedTime(MESSAGES_NOW);
   });
 
-  test('Message on a listing opens the direct conversation with the professional and offers no Contact', async ({
-    page,
-    api,
-  }) => {
-    answerService(api, [MARCUS]);
-    const asked = answerConversation(api);
-    const professional = professionalMemberOf(MARCUS);
-    const hub = await FakeChatHub.install(
-      page,
-      api,
-      { code: null, title: 'Marcus Lee, RD', memberId: SIGNED_IN.memberId },
-      [],
-    );
-    const detail = new WebServiceDetailPage(page);
-    const chat = new WebEventChatPage(page);
-    await detail.open(MARCUS.id);
-    await expect(detail.contactButton).toBeHidden();
-    expect(asked).toEqual([]);
+  test(
+    'Message on a listing opens the direct conversation with the professional and offers no Contact',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerService(api, [MARCUS]);
+      const asked = answerConversation(api);
+      const professional = professionalMemberOf(MARCUS);
+      const hub = await FakeChatHub.install(
+        page,
+        api,
+        { code: null, title: 'Marcus Lee, RD', memberId: SIGNED_IN.memberId },
+        [],
+      );
+      const detail = new WebServiceDetailPage(page);
+      const chat = new WebEventChatPage(page);
+      await detail.open(MARCUS.id);
+      await expect(detail.contactButton).toBeHidden();
+      expect(asked).toEqual([]);
 
-    await detail.messageButton.click();
+      await detail.messageButton.click();
 
-    await expect(page).toHaveURL(`/messages/${professional}`);
-    await expect(chat.chatTitle).toHaveText('Marcus Lee, RD');
-    await expect(chat.subtitle).toHaveText('Direct message');
-    expect(asked).toEqual([MARCUS.id]);
-    expect(hub.joined).toEqual([professional]);
-  });
+      await expect(page).toHaveURL(`/messages/${professional}`);
+      await expect(chat.chatTitle).toHaveText('Marcus Lee, RD');
+      await expect(chat.subtitle).toHaveText('Direct message');
+      expect(asked).toEqual([MARCUS.id]);
+      expect(hub.joined).toEqual([professional]);
+    },
+  );
 
   test("Message on the card beside the list opens the professional's conversation", async ({
     page,

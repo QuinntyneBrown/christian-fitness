@@ -20,49 +20,50 @@ function asVisitor(api: ApiHandlers): void {
 
 // L2-001 and L2-002: the public landing page.
 test.describe('Member app, landing page', () => {
-  test('a visitor sees the headline, Join free, Sign in and the next three events in date order', async ({
-    page,
-    api,
-  }) => {
-    asVisitor(api);
-    const seen = answerLanding(api, NEXT_THREE);
-    const landing = new WebLandingPage(page);
+  test(
+    'a visitor sees the headline, Join free, Sign in and the next three events in date order',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      asVisitor(api);
+      const seen = answerLanding(api, NEXT_THREE);
+      const landing = new WebLandingPage(page);
 
-    await landing.open();
+      await landing.open();
 
-    await expect(landing.heading).toHaveText('Life to the full.');
-    await expect(landing.joinFree).toHaveAttribute('href', '/join');
-    await expect(landing.signIn).toHaveAttribute('href', '/sign-in');
-    await expect(landing.rows).toHaveCount(3);
-    expect(await landing.events()).toEqual([
-      {
-        href: '/join',
-        month: 'Apr',
-        day: '18',
-        title: 'Easter Sunrise 5K',
-        meta: 'Sat 6:45 AM · Martin Goodman Trail, Marilyn Bell Park',
-      },
-      {
-        href: '/join',
-        month: 'Apr',
-        day: '25',
-        title: 'Saturday Park Bootcamp',
-        meta: 'Sat 8:00 AM · Trillium Park, Ontario Place',
-      },
-      {
-        href: '/join',
-        month: 'Apr',
-        day: '30',
-        title: "Women's Hoops & Devotion Night",
-        meta: 'Thu 7:00 PM · St. Lawrence Community Rec Centre',
-      },
-    ]);
-    await expect(landing.verse).toHaveText(
-      '“I came that they may have life and have it abundantly.”',
-    );
-    expect(seen.asked).toEqual(['?take=3']);
-    await expect.poll(() => landing.title()).toBe('Christian Fitness');
-  });
+      await expect(landing.heading).toHaveText('Life to the full.');
+      await expect(landing.joinFree).toHaveAttribute('href', '/join');
+      await expect(landing.signIn).toHaveAttribute('href', '/sign-in');
+      await expect(landing.rows).toHaveCount(3);
+      expect(await landing.events()).toEqual([
+        {
+          href: '/join',
+          month: 'Apr',
+          day: '18',
+          title: 'Easter Sunrise 5K',
+          meta: 'Sat 6:45 AM · Martin Goodman Trail, Marilyn Bell Park',
+        },
+        {
+          href: '/join',
+          month: 'Apr',
+          day: '25',
+          title: 'Saturday Park Bootcamp',
+          meta: 'Sat 8:00 AM · Trillium Park, Ontario Place',
+        },
+        {
+          href: '/join',
+          month: 'Apr',
+          day: '30',
+          title: "Women's Hoops & Devotion Night",
+          meta: 'Thu 7:00 PM · St. Lawrence Community Rec Centre',
+        },
+      ]);
+      await expect(landing.verse).toHaveText(
+        '“I came that they may have life and have it abundantly.”',
+      );
+      expect(seen.asked).toEqual(['?take=3']);
+      await expect.poll(() => landing.title()).toBe('Christian Fitness');
+    },
+  );
 
   test('fewer than three events show only those, with no empty rows', async ({ page, api }) => {
     asVisitor(api);

@@ -5,47 +5,48 @@ import { WebServicesPage } from '../page-objects/web/services.page';
 // L2-013 AC1 to AC3 (ADR 0000): browse the professionals the team has listed, filter by category,
 // and read the selected one's card beside the list (mock `services/default`, `selected`, `filtered`).
 test.describe('Member app, browse professionals', () => {
-  test('Services lists each professional with name, role, where and price, the first selected with its card', async ({
-    page,
-    api,
-  }) => {
-    answerServices(api, CAST);
-    const services = new WebServicesPage(page);
+  test(
+    'Services lists each professional with name, role, where and price, the first selected with its card',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerServices(api, CAST);
+      const services = new WebServicesPage(page);
 
-    await services.open();
+      await services.open();
 
-    await expect(services.heading).toHaveText('Services');
-    await expect(services.rows).toHaveCount(5);
-    expect(await services.rowViews()).toEqual([
-      {
-        href: `/services?selected=${CAST[0].id}`,
+      await expect(services.heading).toHaveText('Services');
+      await expect(services.rows).toHaveCount(5);
+      expect(await services.rowViews()).toEqual([
+        {
+          href: `/services?selected=${CAST[0].id}`,
+          name: 'Danielle Okafor',
+          text: 'Personal trainer · In person · East York',
+          price: 'From $70 / session',
+          current: true,
+        },
+        expect.objectContaining({
+          name: 'Marcus Lee, RD',
+          text: 'Registered dietitian · Virtual · Ontario-wide',
+          price: '$95 first consult',
+          current: false,
+        }),
+        expect.objectContaining({ name: 'Rev. James Whitfield', current: false }),
+        expect.objectContaining({ name: 'Ruth Abernathy', current: false }),
+        expect.objectContaining({ name: 'Tasha Grant', current: false }),
+      ]);
+      await expect(services.currentRow).toHaveCount(1);
+      expect(await services.detailView()).toEqual({
         name: 'Danielle Okafor',
-        text: 'Personal trainer · In person · East York',
-        price: 'From $70 / session',
-        current: true,
-      },
-      expect.objectContaining({
-        name: 'Marcus Lee, RD',
-        text: 'Registered dietitian · Virtual · Ontario-wide',
-        price: '$95 first consult',
-        current: false,
-      }),
-      expect.objectContaining({ name: 'Rev. James Whitfield', current: false }),
-      expect.objectContaining({ name: 'Ruth Abernathy', current: false }),
-      expect.objectContaining({ name: 'Tasha Grant', current: false }),
-    ]);
-    await expect(services.currentRow).toHaveCount(1);
-    expect(await services.detailView()).toEqual({
-      name: 'Danielle Okafor',
-      role: 'Personal trainer',
-      where: 'In person · East York',
-      about: 'Strength training for busy parents.',
-      facts: { Credentials: 'NSCA-CPT, 8 years coaching', Rate: 'From $70 / session' },
-      verified: 'Verified by Christian Fitness, February 2026',
-    });
-    await expect(services.filter('All')).toHaveAttribute('aria-current', 'page');
-    await expect(services.applyButton).toBeVisible();
-  });
+        role: 'Personal trainer',
+        where: 'In person · East York',
+        about: 'Strength training for busy parents.',
+        facts: { Credentials: 'NSCA-CPT, 8 years coaching', Rate: 'From $70 / session' },
+        verified: 'Verified by Christian Fitness, February 2026',
+      });
+      await expect(services.filter('All')).toHaveAttribute('aria-current', 'page');
+      await expect(services.applyButton).toBeVisible();
+    },
+  );
 
   test('Choosing a professional shows their card and marks the row, without reloading', async ({
     page,

@@ -71,28 +71,29 @@ test.describe('Member app, server error', () => {
 
 // L2-043 AC4 and AC5, through serverErrorInterceptor: the first screens that call the API.
 test.describe('Member app, server error from the API', () => {
-  test('a 5xx while loading shows the server-error screen and keeps the URL', async ({
-    page,
-    api,
-  }) => {
-    api.on('GET', '/api/session', () => ({
-      status: 500,
-      json: { status: 500, code: 'server_error', reference: 'CF-4BF92F35' },
-    }));
-    const home = new WebHomePage(page);
-    const serverError = new WebServerErrorPage(page);
+  test(
+    'a 5xx while loading shows the server-error screen and keeps the URL',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      api.on('GET', '/api/session', () => ({
+        status: 500,
+        json: { status: 500, code: 'server_error', reference: 'CF-4BF92F35' },
+      }));
+      const home = new WebHomePage(page);
+      const serverError = new WebServerErrorPage(page);
 
-    await home.open();
+      await home.open();
 
-    await expect(serverError.heading).toHaveText('Something went wrong');
-    await expect(serverError.text).toHaveText(
-      `${OWNED} If it keeps happening, quote reference CF-4BF92F35.`,
-    );
-    await expect.poll(() => serverError.title()).toBe('Something went wrong · Christian Fitness');
-    expect(serverError.location()).toBe('/home');
-    await expect(serverError.action('Try again')).toHaveAttribute('href', '/home');
-    await expect(home.greeting).toHaveCount(0);
-  });
+      await expect(serverError.heading).toHaveText('Something went wrong');
+      await expect(serverError.text).toHaveText(
+        `${OWNED} If it keeps happening, quote reference CF-4BF92F35.`,
+      );
+      await expect.poll(() => serverError.title()).toBe('Something went wrong · Christian Fitness');
+      expect(serverError.location()).toBe('/home');
+      await expect(serverError.action('Try again')).toHaveAttribute('href', '/home');
+      await expect(home.greeting).toHaveCount(0);
+    },
+  );
 
   test('a 4xx while loading leaves the app to handle it: a 401 goes to sign in', async ({
     page,

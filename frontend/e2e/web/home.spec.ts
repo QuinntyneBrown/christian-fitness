@@ -12,41 +12,45 @@ test.describe('Member app, home events', () => {
     await page.clock.setFixedTime(TODAY);
   });
 
-  test('Home shows the next event and the suggested events', async ({ page, api }) => {
-    answerHome(api, { nextEvent: SUNRISE_5K, suggested: [BOOTCAMP, HOOPS_NIGHT] });
-    const home = new WebHomePage(page);
+  test(
+    'Home shows the next event and the suggested events',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerHome(api, { nextEvent: SUNRISE_5K, suggested: [BOOTCAMP, HOOPS_NIGHT] });
+      const home = new WebHomePage(page);
 
-    await home.open();
+      await home.open();
 
-    await expect(home.greeting).toHaveText('Welcome, Grace');
-    await expect(home.nextTitle).toHaveText('Easter Sunrise 5K');
-    await expect(home.nextPill).toHaveText("You're going · in 3 days");
-    await expect(home.nextWhen).toHaveText('Sat, Apr 18 · 6:45 AM');
-    await expect(home.nextPlace).toHaveText('Martin Goodman Trail, Marilyn Bell Park');
-    await expect(home.detailsLink).toHaveAttribute('href', `/events/${SUNRISE_5K.id}`);
-    await expect(home.groupChatLink).toHaveAttribute('href', `/events/${SUNRISE_5K.id}/chat`);
-    await expect(home.invitation).toHaveCount(0);
-    await expect(home.suggestedHeading).toBeVisible();
-    await expect(home.allEventsLink).toHaveAttribute('href', '/events');
-    expect(await home.rows()).toEqual([
-      {
-        href: `/events/${BOOTCAMP.id}`,
-        month: 'Apr',
-        day: '25',
-        title: 'Saturday Park Bootcamp',
-        meta: 'Sat 8:00 AM · Waterfront',
-        end: '$10',
-      },
-      {
-        href: `/events/${HOOPS_NIGHT.id}`,
-        month: 'Apr',
-        day: '30',
-        title: "Women's Hoops & Devotion Night",
-        meta: 'Thu 7:00 PM · Downtown',
-        end: 'Free',
-      },
-    ]);
-  });
+      await expect(home.greeting).toHaveText('Welcome, Grace');
+      await expect(home.nextTitle).toHaveText('Easter Sunrise 5K');
+      await expect(home.nextPill).toHaveText("You're going · in 3 days");
+      await expect(home.nextWhen).toHaveText('Sat, Apr 18 · 6:45 AM');
+      await expect(home.nextPlace).toHaveText('Martin Goodman Trail, Marilyn Bell Park');
+      await expect(home.detailsLink).toHaveAttribute('href', `/events/${SUNRISE_5K.id}`);
+      await expect(home.groupChatLink).toHaveAttribute('href', `/events/${SUNRISE_5K.id}/chat`);
+      await expect(home.invitation).toHaveCount(0);
+      await expect(home.suggestedHeading).toBeVisible();
+      await expect(home.allEventsLink).toHaveAttribute('href', '/events');
+      expect(await home.rows()).toEqual([
+        {
+          href: `/events/${BOOTCAMP.id}`,
+          month: 'Apr',
+          day: '25',
+          title: 'Saturday Park Bootcamp',
+          meta: 'Sat 8:00 AM · Waterfront',
+          end: '$10',
+        },
+        {
+          href: `/events/${HOOPS_NIGHT.id}`,
+          month: 'Apr',
+          day: '30',
+          title: "Women's Hoops & Devotion Night",
+          meta: 'Thu 7:00 PM · Downtown',
+          end: 'Free',
+        },
+      ]);
+    },
+  );
 
   test('With no registered event Home invites the member to browse Events', async ({
     page,

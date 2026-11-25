@@ -20,57 +20,58 @@ function answerList(api: ApiHandlers, events = CAST_EVENTS): (string | null)[] {
 // L2-022 AC5 (ADR 0021): the Events page lists every event soonest first, with the date and time in
 // Toronto, going / capacity and the status, under All, Published and Draft with their counts.
 test.describe('Admin app, the Events page', () => {
-  test('lists every event soonest first under All, as the default mock draws it', async ({
-    page,
-    api,
-  }) => {
-    const asked = answerList(api);
-    const events = new AdminEventsPage(page);
+  test(
+    'lists every event soonest first under All, as the default mock draws it',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const asked = answerList(api);
+      const events = new AdminEventsPage(page);
 
-    await events.open();
+      await events.open();
 
-    await expect(events.heading).toHaveText('Events');
-    await expect.poll(() => events.title()).toBe('Events · Christian Fitness Admin');
-    await expect(events.subtitle).toHaveText(
-      'Published events appear in the member app right away.',
-    );
-    await expect(events.newEventButton).toBeVisible();
-    await expect(events.tabLinks).toHaveText(['All 5', 'Published 4', 'Draft 1']);
-    await expect(events.currentTab).toHaveText('All 5');
-    await expect(events.rows).toHaveCount(5);
-    expect(await events.rowTexts()).toEqual([
-      [
-        'Easter Sunrise 5K',
-        'Martin Goodman Trail, Marilyn Bell Park',
-        'Apr 18 · 6:45 AM',
-        '142 / 200',
-        'Published',
-      ],
-      [
-        'Saturday Park Bootcamp',
-        'Trillium Park, Ontario Place',
-        'Apr 25 · 8:00 AM',
-        '38 / 50',
-        'Published',
-      ],
-      [
-        "Women's Hoops & Devotion Night",
-        'St. Lawrence Community Rec Centre',
-        'Apr 30 · 7:00 PM',
-        '24 / 30',
-        'Published',
-      ],
-      [
-        'Stretch & Pray: Mobility Morning',
-        'Grace Fellowship Hall',
-        'May 06 · 9:30 AM',
-        '17 / 25',
-        'Published',
-      ],
-      ['Whole Life Retreat', 'Muskoka Woods, Rosseau', 'May 22 · 4:00 PM', '0 / 60', 'Draft'],
-    ]);
-    expect(asked).toEqual(['all']);
-  });
+      await expect(events.heading).toHaveText('Events');
+      await expect.poll(() => events.title()).toBe('Events · Christian Fitness Admin');
+      await expect(events.subtitle).toHaveText(
+        'Published events appear in the member app right away.',
+      );
+      await expect(events.newEventButton).toBeVisible();
+      await expect(events.tabLinks).toHaveText(['All 5', 'Published 4', 'Draft 1']);
+      await expect(events.currentTab).toHaveText('All 5');
+      await expect(events.rows).toHaveCount(5);
+      expect(await events.rowTexts()).toEqual([
+        [
+          'Easter Sunrise 5K',
+          'Martin Goodman Trail, Marilyn Bell Park',
+          'Apr 18 · 6:45 AM',
+          '142 / 200',
+          'Published',
+        ],
+        [
+          'Saturday Park Bootcamp',
+          'Trillium Park, Ontario Place',
+          'Apr 25 · 8:00 AM',
+          '38 / 50',
+          'Published',
+        ],
+        [
+          "Women's Hoops & Devotion Night",
+          'St. Lawrence Community Rec Centre',
+          'Apr 30 · 7:00 PM',
+          '24 / 30',
+          'Published',
+        ],
+        [
+          'Stretch & Pray: Mobility Morning',
+          'Grace Fellowship Hall',
+          'May 06 · 9:30 AM',
+          '17 / 25',
+          'Published',
+        ],
+        ['Whole Life Retreat', 'Muskoka Woods, Rosseau', 'May 22 · 4:00 PM', '0 / 60', 'Draft'],
+      ]);
+      expect(asked).toEqual(['all']);
+    },
+  );
 
   test('the Draft tab asks for drafts only and marks itself current, without reloading', async ({
     page,

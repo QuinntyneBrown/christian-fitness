@@ -24,35 +24,39 @@ function answerJoin(api: ApiHandlers): unknown[] {
 
 // L2-003 AC1 and AC4, L2-033 AC1: a visitor joins with valid details and lands on Home signed in.
 test.describe('Member app, join with valid details', () => {
-  test('a visitor creates an account and lands on Home signed in', async ({ page, api }) => {
-    const sent = answerJoin(api);
-    const join = new WebJoinPage(page);
-    const home = new WebHomePage(page);
+  test(
+    'a visitor creates an account and lands on Home signed in',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerJoin(api);
+      const join = new WebJoinPage(page);
+      const home = new WebHomePage(page);
 
-    await join.open();
-    await expect.poll(() => join.title()).toBe('Join · Christian Fitness');
-    await expect(join.heading).toHaveText('Create your profile');
-    await join.fill(GRACE);
-    await join.choose('Running', 'Strength', 'Pickleball');
-    await expect(join.interest('Running')).toHaveAttribute('aria-pressed', 'true');
-    await expect(join.interest('Basketball')).toHaveAttribute('aria-pressed', 'false');
-    await join.submit();
+      await join.open();
+      await expect.poll(() => join.title()).toBe('Join · Christian Fitness');
+      await expect(join.heading).toHaveText('Create your profile');
+      await join.fill(GRACE);
+      await join.choose('Running', 'Strength', 'Pickleball');
+      await expect(join.interest('Running')).toHaveAttribute('aria-pressed', 'true');
+      await expect(join.interest('Basketball')).toHaveAttribute('aria-pressed', 'false');
+      await join.submit();
 
-    await expect(home.greeting).toHaveText('Welcome, Grace');
-    await expect.poll(() => home.title()).toBe('Home · Christian Fitness');
-    expect(home.location()).toBe('/home');
-    await expect(home.main).toHaveCount(1);
-    expect(sent).toEqual([
-      {
-        fullName: 'Grace Thompson',
-        email: 'grace.thompson@gmail.com',
-        password: 'abundantlife',
-        homeChurch: 'Grace Fellowship, Scarborough',
-        ageConfirmed: true,
-        interests: ['running', 'strength', 'pickleball'],
-      },
-    ]);
-  });
+      await expect(home.greeting).toHaveText('Welcome, Grace');
+      await expect.poll(() => home.title()).toBe('Home · Christian Fitness');
+      expect(home.location()).toBe('/home');
+      await expect(home.main).toHaveCount(1);
+      expect(sent).toEqual([
+        {
+          fullName: 'Grace Thompson',
+          email: 'grace.thompson@gmail.com',
+          password: 'abundantlife',
+          homeChurch: 'Grace Fellowship, Scarborough',
+          ageConfirmed: true,
+          interests: ['running', 'strength', 'pickleball'],
+        },
+      ]);
+    },
+  );
 
   test('shows the form the mock draws, with every interest unpressed', async ({ page }) => {
     const join = new WebJoinPage(page);

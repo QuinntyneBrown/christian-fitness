@@ -24,23 +24,24 @@ function answerSignIn(api: ApiHandlers): SentSignIn[] {
 // L2-004 AC1, L2-030 AC3: a registered member signs in, with the antiforgery token, and lands on
 // Home. The cookie itself is the API's (backend SignInTests); the screen sees only the answer.
 test.describe('Member app, sign in', () => {
-  test('a member signs in with their email and password and lands on Home', async ({
-    page,
-    api,
-  }) => {
-    const sent = answerSignIn(api);
-    const signIn = new WebSignInPage(page);
-    const home = new WebHomePage(page);
+  test(
+    'a member signs in with their email and password and lands on Home',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerSignIn(api);
+      const signIn = new WebSignInPage(page);
+      const home = new WebHomePage(page);
 
-    await signIn.open();
-    await expect.poll(() => signIn.title()).toBe('Sign in · Christian Fitness');
-    await signIn.fill(EMAIL, PASSWORD);
-    await signIn.submit();
+      await signIn.open();
+      await expect.poll(() => signIn.title()).toBe('Sign in · Christian Fitness');
+      await signIn.fill(EMAIL, PASSWORD);
+      await signIn.submit();
 
-    await expect(home.greeting).toHaveText('Welcome, Grace');
-    expect(home.location()).toBe('/home');
-    expect(sent).toEqual([{ body: { email: EMAIL, password: PASSWORD }, token: XSRF_TOKEN }]);
-  });
+      await expect(home.greeting).toHaveText('Welcome, Grace');
+      expect(home.location()).toBe('/home');
+      expect(sent).toEqual([{ body: { email: EMAIL, password: PASSWORD }, token: XSRF_TOKEN }]);
+    },
+  );
 
   test('shows the form the mock draws', async ({ page }) => {
     const signIn = new WebSignInPage(page);

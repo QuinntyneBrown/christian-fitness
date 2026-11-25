@@ -39,32 +39,33 @@ test.describe('Admin app, approving and declining applications', () => {
     }
   });
 
-  test('approving says it is now listed, takes the buttons away and lowers the count', async ({
-    page,
-    api,
-  }) => {
-    const approvals: string[] = [];
-    api.on('POST', decisionPath(LENA.id, 'approve'), () => {
-      approvals.push(LENA.id);
-      return approved(LENA.id);
-    });
-    const services = new ManageServicesPage(page);
-    await services.open();
+  test(
+    'approving says it is now listed, takes the buttons away and lowers the count',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const approvals: string[] = [];
+      api.on('POST', decisionPath(LENA.id, 'approve'), () => {
+        approvals.push(LENA.id);
+        return approved(LENA.id);
+      });
+      const services = new ManageServicesPage(page);
+      await services.open();
 
-    await services.approveButton(LENA.name).click();
+      await services.approveButton(LENA.name).click();
 
-    await expect(services.decision(LENA.name)).toHaveText('Approved, now listed');
-    await expect(services.decision(LENA.name)).toHaveAttribute('role', 'status');
-    await expect(services.approveButton(LENA.name)).toHaveCount(0);
-    await expect(services.declineButton(LENA.name)).toHaveCount(0);
-    await expect(services.applicationsCount).toHaveText('2');
-    // The two others still wait for a decision.
-    await expect(services.approveButton(SAMUEL.name)).toBeVisible();
-    await expect(services.approveButton(HANNAH.name)).toBeVisible();
-    expect(approvals).toEqual([LENA.id]);
-    // The button went away, so focus moves to what replaced it.
-    await expect.poll(() => services.isFocused(services.decision(LENA.name))).toBe(true);
-  });
+      await expect(services.decision(LENA.name)).toHaveText('Approved, now listed');
+      await expect(services.decision(LENA.name)).toHaveAttribute('role', 'status');
+      await expect(services.approveButton(LENA.name)).toHaveCount(0);
+      await expect(services.declineButton(LENA.name)).toHaveCount(0);
+      await expect(services.applicationsCount).toHaveText('2');
+      // The two others still wait for a decision.
+      await expect(services.approveButton(SAMUEL.name)).toBeVisible();
+      await expect(services.approveButton(HANNAH.name)).toBeVisible();
+      expect(approvals).toEqual([LENA.id]);
+      // The button went away, so focus moves to what replaced it.
+      await expect.poll(() => services.isFocused(services.decision(LENA.name))).toBe(true);
+    },
+  );
 
   test('while an approval is on its way the card cannot be decided again', async ({
     page,

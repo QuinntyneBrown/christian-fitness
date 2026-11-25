@@ -153,24 +153,25 @@ test.describe('Member app, event detail', () => {
   });
 
   // L2-011 AC1, AC4, AC5, AC6 and L2-010 AC1, AC3: registering takes a place and the screen says so (ADR 0032).
-  test("Register takes a place, says you're going and counts one more going", async ({
-    page,
-    api,
-  }) => {
-    answerEvent(api, [SUNRISE_DETAIL]);
-    const asked = answerRegistration(api, SUNRISE_DETAIL);
-    const detail = new WebEventDetailPage(page);
+  test(
+    "Register takes a place, says you're going and counts one more going",
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerEvent(api, [SUNRISE_DETAIL]);
+      const asked = answerRegistration(api, SUNRISE_DETAIL);
+      const detail = new WebEventDetailPage(page);
 
-    await detail.open(SUNRISE_DETAIL.id);
-    await expect(detail.going).toHaveText('142 going');
-    await detail.registerButton.click();
+      await detail.open(SUNRISE_DETAIL.id);
+      await expect(detail.going).toHaveText('142 going');
+      await detail.registerButton.click();
 
-    await expect(detail.confirmed).toHaveText("You're going");
-    await expect(detail.going).toHaveText('143 going');
-    await expect(detail.spots).toHaveText('57 of 200 spots left');
-    await expect(detail.registerButton).toHaveCount(0);
-    expect(asked).toEqual([SUNRISE_DETAIL.id]);
-  });
+      await expect(detail.confirmed).toHaveText("You're going");
+      await expect(detail.going).toHaveText('143 going');
+      await expect(detail.spots).toHaveText('57 of 200 spots left');
+      await expect(detail.registerButton).toHaveCount(0);
+      expect(asked).toEqual([SUNRISE_DETAIL.id]);
+    },
+  );
 
   test('a paid event is reserved and the page says how to pay', async ({ page, api }) => {
     answerEvent(api, [BOOTCAMP_DETAIL]);

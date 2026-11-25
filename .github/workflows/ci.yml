@@ -1,7 +1,8 @@
 # Continuous integration (L2-042; docs/detailed-designs/operations/deploy-and-migrate).
 # Every push to main and every pull request against it runs the frontend's lint, format check,
-# build of both apps and Playwright behaviour specs, and the backend's build and tests. The whole
-# run stays under five minutes and nothing is retried (AGENTS.md, "E2E (Playwright) and CI").
+# build of both apps and one critical Playwright path per feature, and the backend's build and
+# tests. The whole run stays under five minutes and nothing is retried (AGENTS.md, "E2E
+# (Playwright) and CI").
 name: CI
 
 on:
@@ -68,13 +69,16 @@ jobs:
         if: steps.browser.outputs.cache-hit != 'true'
         run: npx playwright install --only-shell chromium
 
-      # The specs serve the build above instead of compiling both apps again with ng serve, and
-      # the playwright config runs four workers on the runner's four cores.
-      - name: Behaviour specs
+      # Only the specs tagged @critical run here: one happy-path acceptance test per feature, so
+      # the job stays under five minutes as journeys add specs. Every new journey tags its one
+      # critical path with { tag: '@critical' }; the rest of the behaviour specs run locally
+      # (npm run e2e). The specs serve the build above instead of compiling both apps again with
+      # ng serve, and the playwright config runs four workers on the runner's four cores.
+      - name: Critical behaviour specs
         id: specs
         env:
           CF_SERVE_BUILT: '1'
-        run: npm run e2e
+        run: npm run e2e:critical
 
       - name: Keep the Playwright traces
         if: failure() && steps.specs.outcome == 'failure'

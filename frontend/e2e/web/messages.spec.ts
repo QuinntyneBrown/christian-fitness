@@ -44,26 +44,27 @@ test.describe('Member app, Messages list', () => {
     await expect(messages.row(2).time).toHaveText('Apr 9');
   });
 
-  test("a row opens that event's chat, which tells the server it was read", async ({
-    page,
-    api,
-  }) => {
-    answerConversations(api, THREE_CONVERSATIONS);
-    const hub = await FakeChatHub.install(page, api, {
-      code: null,
-      title: 'Easter Sunrise 5K',
-      memberId: SIGNED_IN.memberId,
-    });
-    const messages = new WebMessagesPage(page);
-    const chat = new WebEventChatPage(page);
+  test(
+    "a row opens that event's chat, which tells the server it was read",
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerConversations(api, THREE_CONVERSATIONS);
+      const hub = await FakeChatHub.install(page, api, {
+        code: null,
+        title: 'Easter Sunrise 5K',
+        memberId: SIGNED_IN.memberId,
+      });
+      const messages = new WebMessagesPage(page);
+      const chat = new WebEventChatPage(page);
 
-    await messages.open();
-    await expect(messages.row(0).link).toHaveAttribute('href', `/events/${SUNRISE_ID}/chat`);
-    await messages.row(0).link.click();
+      await messages.open();
+      await expect(messages.row(0).link).toHaveAttribute('href', `/events/${SUNRISE_ID}/chat`);
+      await messages.row(0).link.click();
 
-    await expect(chat.chatTitle).toHaveText('Easter Sunrise 5K');
-    await expect.poll(() => hub.read).toEqual([SUNRISE_ID]);
-  });
+      await expect(chat.chatTitle).toHaveText('Easter Sunrise 5K');
+      await expect.poll(() => hub.read).toEqual([SUNRISE_ID]);
+    },
+  );
 
   test('a message that arrives while the chat is open is marked read as it arrives', async ({
     page,

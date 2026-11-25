@@ -96,38 +96,39 @@ test.describe('Admin app, an event host', () => {
   });
 
   // L2-022 AC11 (ADR 0089): the Admin searches Listed listings and chooses one; none says so.
-  test('searching offers the matching Listed hosts, and choosing one makes it the host', async ({
-    page,
-    api,
-  }) => {
-    const sent = answerSaves(api);
-    const asked = answerHostSearch(api, [LAKESHORE_HOST, DANIELLE_HOST, TEAM_HOST]);
-    const events = new AdminEventsPage(page);
-    const editor = new EventEditorDialog(page);
-    await events.open();
-    await events.openNewEvent();
-    await expect(editor.host).toHaveValue('Christian Fitness');
-    await editor.fill(RETREAT);
+  test(
+    'searching offers the matching Listed hosts, and choosing one makes it the host',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const sent = answerSaves(api);
+      const asked = answerHostSearch(api, [LAKESHORE_HOST, DANIELLE_HOST, TEAM_HOST]);
+      const events = new AdminEventsPage(page);
+      const editor = new EventEditorDialog(page);
+      await events.open();
+      await events.openNewEvent();
+      await expect(editor.host).toHaveValue('Christian Fitness');
+      await editor.fill(RETREAT);
 
-    await editor.searchHost('Lake');
+      await editor.searchHost('Lake');
 
-    await expect(editor.hostChoices).toHaveCount(1);
-    await expect(editor.hostChoices.locator('.pick-card__title')).toHaveText([
-      'Lakeshore Runners Fellowship',
-    ]);
-    await expect(editor.hostChoices.locator('.pick-card__meta')).toHaveText([
-      'Organization · Listed',
-    ]);
-    expect(asked).toEqual(['Lake']);
-    await editor.chooseHost('Lakeshore Runners Fellowship');
+      await expect(editor.hostChoices).toHaveCount(1);
+      await expect(editor.hostChoices.locator('.pick-card__title')).toHaveText([
+        'Lakeshore Runners Fellowship',
+      ]);
+      await expect(editor.hostChoices.locator('.pick-card__meta')).toHaveText([
+        'Organization · Listed',
+      ]);
+      expect(asked).toEqual(['Lake']);
+      await editor.chooseHost('Lakeshore Runners Fellowship');
 
-    await expect(editor.host).toHaveValue('Lakeshore Runners Fellowship');
-    await expect(editor.hostChoices).toHaveCount(0);
-    await expect.poll(() => editor.hostIsFocused()).toBe(true);
-    await editor.saveDraft();
-    await expect(editor.dialog).toHaveCount(0);
-    expect(sent.created).toEqual([expect.objectContaining({ hostListingId: LAKESHORE_HOST.id })]);
-  });
+      await expect(editor.host).toHaveValue('Lakeshore Runners Fellowship');
+      await expect(editor.hostChoices).toHaveCount(0);
+      await expect.poll(() => editor.hostIsFocused()).toBe(true);
+      await editor.saveDraft();
+      await expect(editor.dialog).toHaveCount(0);
+      expect(sent.created).toEqual([expect.objectContaining({ hostListingId: LAKESHORE_HOST.id })]);
+    },
+  );
 
   test('a search with no Listed match says so', async ({ page, api }) => {
     answerSaves(api);

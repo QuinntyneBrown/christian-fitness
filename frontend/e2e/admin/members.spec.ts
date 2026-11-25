@@ -6,53 +6,57 @@ import { AdminMembersPage } from '../page-objects/admin/members.page';
 // L2-028 AC1 (ADR 0022): the Members page lists the members with name, initials, email, church,
 // joined date in Toronto, events attended and status, and says how many members there are.
 test.describe('Admin app, the Members page', () => {
-  test('lists the members as the default mock draws them', async ({ page, api }) => {
-    const asked = answerMembers(api, CAST_MEMBERS, 2431);
-    const members = new AdminMembersPage(page);
+  test(
+    'lists the members as the default mock draws them',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const asked = answerMembers(api, CAST_MEMBERS, 2431);
+      const members = new AdminMembersPage(page);
 
-    await members.open();
+      await members.open();
 
-    await expect(members.heading).toHaveText('Members');
-    await expect.poll(() => members.title()).toBe('Members · Christian Fitness Admin');
-    await expect(members.subtitle).toHaveText('2,431 members');
-    await expect(members.search).toHaveAttribute('placeholder', 'Search name or email');
-    await expect(members.search).toHaveValue('');
-    await expect(members.rows).toHaveCount(7);
-    expect(await members.rowTexts()).toEqual([
-      [
-        'Grace Thompson',
-        'grace.thompson@gmail.com',
-        'Grace Fellowship, Scarborough',
-        'Jan 12, 2026',
-        '9',
-        'Active',
-      ],
-      [
-        'Michael Chen',
-        'mchen.runs@outlook.com',
-        'Toronto Chinese Baptist',
-        'Nov 3, 2025',
-        '14',
-        'Active',
-      ],
-      [
-        'Priya Nair',
-        'priya.nair@gmail.com',
-        'Hope Church Mississauga',
-        'Feb 20, 2026',
-        '5',
-        'Active',
-      ],
-      ['Kevin Brooks', 'kbrooks.fit@gmail.com', 'Not given', 'Apr 2, 2026', '0', 'Flagged'],
-      ['Adaeze Kalu', 'adaeze.k@yahoo.ca', 'RCCG Jesus House', 'Dec 8, 2025', '11', 'Active'],
-      ['Jordan Reid', 'jreid@rogers.com', 'The Meeting House', 'Mar 15, 2026', '2', 'Active'],
-      ['Tyler Simmons', 'tsimmons22@gmail.com', 'Not given', 'Mar 30, 2026', '0', 'Suspended'],
-    ]);
-    await expect(members.avatars()).toHaveText(['GT', 'MC', 'PN', 'KB', 'AK', 'JR', 'TS']);
-    // One page of members needs no pages under the table.
-    await expect(members.pagination).toHaveCount(0);
-    expect(asked).toEqual([{ status: 'all', q: null, page: null }]);
-  });
+      await expect(members.heading).toHaveText('Members');
+      await expect.poll(() => members.title()).toBe('Members · Christian Fitness Admin');
+      await expect(members.subtitle).toHaveText('2,431 members');
+      await expect(members.search).toHaveAttribute('placeholder', 'Search name or email');
+      await expect(members.search).toHaveValue('');
+      await expect(members.rows).toHaveCount(7);
+      expect(await members.rowTexts()).toEqual([
+        [
+          'Grace Thompson',
+          'grace.thompson@gmail.com',
+          'Grace Fellowship, Scarborough',
+          'Jan 12, 2026',
+          '9',
+          'Active',
+        ],
+        [
+          'Michael Chen',
+          'mchen.runs@outlook.com',
+          'Toronto Chinese Baptist',
+          'Nov 3, 2025',
+          '14',
+          'Active',
+        ],
+        [
+          'Priya Nair',
+          'priya.nair@gmail.com',
+          'Hope Church Mississauga',
+          'Feb 20, 2026',
+          '5',
+          'Active',
+        ],
+        ['Kevin Brooks', 'kbrooks.fit@gmail.com', 'Not given', 'Apr 2, 2026', '0', 'Flagged'],
+        ['Adaeze Kalu', 'adaeze.k@yahoo.ca', 'RCCG Jesus House', 'Dec 8, 2025', '11', 'Active'],
+        ['Jordan Reid', 'jreid@rogers.com', 'The Meeting House', 'Mar 15, 2026', '2', 'Active'],
+        ['Tyler Simmons', 'tsimmons22@gmail.com', 'Not given', 'Mar 30, 2026', '0', 'Suspended'],
+      ]);
+      await expect(members.avatars()).toHaveText(['GT', 'MC', 'PN', 'KB', 'AK', 'JR', 'TS']);
+      // One page of members needs no pages under the table.
+      await expect(members.pagination).toHaveCount(0);
+      expect(asked).toEqual([{ status: 'all', q: null, page: null }]);
+    },
+  );
 
   test('a status is a word in a badge, so colour is not its only carrier', async ({
     page,

@@ -31,32 +31,33 @@ test.describe('Admin app, event registrations', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   // Mock event-editor/edit-published, then admin-event-registrations/default.
-  test('View registrations in the editor opens the names, dates and capacity used', async ({
-    page,
-    api,
-  }) => {
-    answer(api);
-    const events = new AdminEventsPage(page);
-    const editor = new EventEditorDialog(page, 'Edit event');
-    const registrations = new EventRegistrationsPage(page);
-    await events.open();
-    await events.editEvent(BOOTCAMP.title);
-    await expect(editor.viewRegistrationsButton).toBeVisible();
+  test(
+    'View registrations in the editor opens the names, dates and capacity used',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answer(api);
+      const events = new AdminEventsPage(page);
+      const editor = new EventEditorDialog(page, 'Edit event');
+      const registrations = new EventRegistrationsPage(page);
+      await events.open();
+      await events.editEvent(BOOTCAMP.title);
+      await expect(editor.viewRegistrationsButton).toBeVisible();
 
-    await editor.viewRegistrations();
+      await editor.viewRegistrations();
 
-    await expect(registrations.heading).toHaveText('Registrations');
-    await expect(registrations.subtitle).toHaveText('Saturday Park Bootcamp');
-    expect(registrations.location()).toBe(`/events/${BOOTCAMP.id}/registrations`);
-    expect(await registrations.title()).toBe('Registrations · Christian Fitness Admin');
-    await expect(registrations.capacityLabel).toHaveText('Capacity used: 3 of 50 going');
-    await expect(registrations.capacity).toHaveAttribute('aria-valuenow', '6');
-    expect(await registrations.rowTexts()).toEqual([
-      ['Grace Thompson', 'Apr 14 · 9:05 AM'],
-      ['Marcus Bell', 'Apr 14 · 6:30 PM'],
-      ['<b>Priya</b> Nair', 'Apr 15 · 8:40 AM'],
-    ]);
-  });
+      await expect(registrations.heading).toHaveText('Registrations');
+      await expect(registrations.subtitle).toHaveText('Saturday Park Bootcamp');
+      expect(registrations.location()).toBe(`/events/${BOOTCAMP.id}/registrations`);
+      expect(await registrations.title()).toBe('Registrations · Christian Fitness Admin');
+      await expect(registrations.capacityLabel).toHaveText('Capacity used: 3 of 50 going');
+      await expect(registrations.capacity).toHaveAttribute('aria-valuenow', '6');
+      expect(await registrations.rowTexts()).toEqual([
+        ['Grace Thompson', 'Apr 14 · 9:05 AM'],
+        ['Marcus Bell', 'Apr 14 · 6:30 PM'],
+        ['<b>Priya</b> Nair', 'Apr 15 · 8:40 AM'],
+      ]);
+    },
+  );
 
   // Mock admin-event-registrations/empty.
   test('an event nobody registered for says so', async ({ page, api }) => {

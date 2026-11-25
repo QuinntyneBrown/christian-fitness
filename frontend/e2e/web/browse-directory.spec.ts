@@ -6,53 +6,54 @@ import { WebDirectoryPage } from '../page-objects/web/directory.page';
 // the navigation and see the published listings grouped by kind, each row with its mark, name,
 // Verified mark, tagline, area and hosting count (mock `directory/default`, `loading`, `empty`, `error`).
 test.describe('Member app, browse the directory', () => {
-  test('Directory groups the listings by kind, each in name order under its plural name and blurb', async ({
-    page,
-    api,
-  }) => {
-    answerDirectory(api, CAST);
-    const directory = new WebDirectoryPage(page);
+  test(
+    'Directory groups the listings by kind, each in name order under its plural name and blurb',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerDirectory(api, CAST);
+      const directory = new WebDirectoryPage(page);
 
-    await directory.open();
+      await directory.open();
 
-    await expect(directory.heading).toHaveText('Directory');
-    await expect(directory.subtitle).toHaveText(
-      'The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.',
-    );
-    await expect(directory.rows).toHaveCount(12);
-    expect(await directory.groupViews()).toEqual([
-      {
-        heading: 'Organizations',
-        blurb: 'Clubs and groups that run events',
-        names: ['Christian Fitness', 'Faith & Footwork', 'Lakeshore Runners Fellowship'],
-      },
-      {
-        heading: 'People',
-        blurb: 'Speakers, pastors and community voices',
-        names: ['Rev. James Whitfield'],
-      },
-      {
-        heading: 'Instructors',
-        blurb: 'Certified coaches who lead sessions',
-        names: ['Danielle Okafor', 'Tasha Grant'],
-      },
-      {
-        heading: 'Ambassadors',
-        blurb: 'Members who welcome newcomers',
-        names: ['Michael Chen', 'Priya Nair'],
-      },
-      {
-        heading: 'Companies',
-        blurb: 'Sponsors and local businesses',
-        names: ['Kingdom Fuel Nutrition', 'Northline Athletic'],
-      },
-      {
-        heading: 'Church Ministries',
-        blurb: 'Fitness and health ministries of local churches',
-        names: ['Grace Fellowship Move Ministry', 'St. Paul’s Sports Ministry'],
-      },
-    ]);
-  });
+      await expect(directory.heading).toHaveText('Directory');
+      await expect(directory.subtitle).toHaveText(
+        'The churches, clubs, coaches and companies behind every event. Follow one to see their new dates first.',
+      );
+      await expect(directory.rows).toHaveCount(12);
+      expect(await directory.groupViews()).toEqual([
+        {
+          heading: 'Organizations',
+          blurb: 'Clubs and groups that run events',
+          names: ['Christian Fitness', 'Faith & Footwork', 'Lakeshore Runners Fellowship'],
+        },
+        {
+          heading: 'People',
+          blurb: 'Speakers, pastors and community voices',
+          names: ['Rev. James Whitfield'],
+        },
+        {
+          heading: 'Instructors',
+          blurb: 'Certified coaches who lead sessions',
+          names: ['Danielle Okafor', 'Tasha Grant'],
+        },
+        {
+          heading: 'Ambassadors',
+          blurb: 'Members who welcome newcomers',
+          names: ['Michael Chen', 'Priya Nair'],
+        },
+        {
+          heading: 'Companies',
+          blurb: 'Sponsors and local businesses',
+          names: ['Kingdom Fuel Nutrition', 'Northline Athletic'],
+        },
+        {
+          heading: 'Church Ministries',
+          blurb: 'Fitness and health ministries of local churches',
+          names: ['Grace Fellowship Move Ministry', 'St. Paul’s Sports Ministry'],
+        },
+      ]);
+    },
+  );
 
   test('Each row shows its mark, name, Verified mark, tagline, area and what it hosts, and a Follow button', async ({
     page,
