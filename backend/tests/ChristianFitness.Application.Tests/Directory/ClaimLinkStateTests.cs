@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Application.Tests.Directory;
 
 /// <summary>
-/// L2-078 AC1 and AC8 (ADR 0091): a claim link is open for 14 days from issue, expired from then on
+/// L2-078 AC1 and AC8 (ADR 0092): a claim link is open for 14 days from issue, expired from then on
 /// or once a new link voids it, and used once spent, whatever the time. One row per case.
 /// </summary>
 public sealed class ClaimLinkStateTests

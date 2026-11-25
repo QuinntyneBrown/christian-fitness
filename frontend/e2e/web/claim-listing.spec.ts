@@ -14,7 +14,7 @@ import { WebSignInPage } from '../page-objects/web/sign-in.page';
 
 const RETURN = `returnUrl=${encodeURIComponent(`/claim/${CLAIM_TOKEN}`)}`;
 
-// L2-078 AC4 (ADR 0091; mock `claim-listing/signed-out`): a visitor who opens a valid link sees the
+// L2-078 AC4 (ADR 0092; mock `claim-listing/signed-out`): a visitor who opens a valid link sees the
 // listing's name and Sign in and Join, both returning to the link, and nothing else of the listing.
 test.describe('Member app, claim a listing: signed out', () => {
   test('names the listing and offers Sign in and Join, both returning to the link', async ({
@@ -59,7 +59,7 @@ test.describe('Member app, claim a listing: signed out', () => {
   });
 });
 
-// L2-078 AC5 and AC10 (ADR 0091; mocks `claim-listing/default`, `loading`): a signed-in member sees
+// L2-078 AC5 and AC10 (ADR 0092; mocks `claim-listing/default`, `loading`): a signed-in member sees
 // the listing as it will appear, both answers, that the link works once and when it expires; while
 // the link is checked, skeletons show.
 test.describe('Member app, claim a listing: signed in', () => {
@@ -156,7 +156,7 @@ test.describe('Member app, claim a listing: signed in', () => {
 
 const LISTING_ID = '0193a9c0-0000-7000-8000-0000000e1a51';
 
-// L2-078 AC6 and AC10 (ADR 0091; mocks `claim-listing/busy`, `published`, `error`): Publish my
+// L2-078 AC6 and AC10 (ADR 0092; mocks `claim-listing/busy`, `published`, `error`): Publish my
 // listing reads "Publishing…" with both answers disabled; on success "Your listing is live" offers
 // the listing and the directory; a failure says nothing was published and both answers stay.
 test.describe('Member app, claim a listing: publish', () => {
@@ -223,7 +223,7 @@ test.describe('Member app, claim a listing: publish', () => {
   });
 });
 
-// L2-078 AC7 (ADR 0091; mock `claim-listing/declined`): "This isn't me" disables both answers while
+// L2-078 AC7 (ADR 0092; mock `claim-listing/declined`): "This isn't me" disables both answers while
 // it waits, then thanks the member, says nothing is published and the team is told; a failure says
 // nothing changed and keeps both answers.
 test.describe('Member app, claim a listing: this isn’t me', () => {
@@ -278,7 +278,7 @@ test.describe('Member app, claim a listing: this isn’t me', () => {
   });
 });
 
-// L2-078 AC8 (ADR 0091; mocks `claim-listing/expired`, `claimed`, `signed-out-expired`,
+// L2-078 AC8 (ADR 0092; mocks `claim-listing/expired`, `claimed`, `signed-out-expired`,
 // `signed-out-claimed`): an expired link says so and offers to ask for a new one; a used one says it
 // works once; either answered after the link was opened ends the same way. An unknown link is the
 // app's 404, and a check that fails offers Try again.

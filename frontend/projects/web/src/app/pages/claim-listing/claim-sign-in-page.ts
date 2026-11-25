@@ -10,7 +10,7 @@ import { HttpListingClaimsService } from '../../services/http-listing-claims.ser
 type Phase = 'checking' | 'ready' | Exclude<ClaimOutcome, 'failed'>;
 
 /**
- * The claim link opened signed out (L2-078 AC4; ADR 0091; mocks `claim-listing/signed-out`,
+ * The claim link opened signed out (L2-078 AC4; ADR 0092; mocks `claim-listing/signed-out`,
  * `signed-out-expired`, `signed-out-claimed`). Matched only for a visitor (`signedOutGuard`); it
  * names the listing and offers Sign in and Join, both with `returnUrl` back to the link, and shows
  * nothing else of the listing. An expired or used link says so; an unknown one is the app's 404.

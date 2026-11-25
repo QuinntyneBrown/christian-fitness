@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// Approved suggestions for the claim tests of journey 19 (ADR 0091): a suggestion sent, its four
+/// Approved suggestions for the claim tests of journey 19 (ADR 0092): a suggestion sent, its four
 /// checks passed and approved by a staff member, with the claim link that went out.
 /// </summary>
 internal sealed class ApprovedSuggestions(RegisterForEventFactory factory)

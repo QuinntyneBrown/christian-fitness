@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-078 AC1 and AC8 (journey 19; ADR 0091): a claim link works for 14 days. One tick before then
+/// L2-078 AC1 and AC8 (journey 19; ADR 0092): a claim link works for 14 days. One tick before then
 /// it is read and published; from then on it is refused 410 <c>claim_link_expired</c>, to a visitor
 /// and to a member, and its listing stays a draft. The class moves its own clock, so members sign in after it moves.
 /// </summary>

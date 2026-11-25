@@ -13,7 +13,7 @@ const EASTSIDE: ClaimPreviewDto = {
   photoKey: null,
 };
 
-// L2-078 AC8, AC9 (ADR 0091): each refusal's code names its outcome; anything else is a failure.
+// L2-078 AC8, AC9 (ADR 0092): each refusal's code names its outcome; anything else is a failure.
 describe('claimOutcomeOf', () => {
   it.each([
     { error: { status: 409, code: 'claim_link_used' }, outcome: 'claimed' },
@@ -28,7 +28,7 @@ describe('claimOutcomeOf', () => {
   });
 });
 
-// ADR 0091: the expiry is the day in Toronto, which is a day earlier than UTC late in the evening.
+// ADR 0092: the expiry is the day in Toronto, which is a day earlier than UTC late in the evening.
 describe('claimExpiryText', () => {
   it.each([
     { expiresAt: '2026-12-09T17:00:00Z', text: 'December 9' },

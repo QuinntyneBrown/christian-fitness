@@ -22,7 +22,7 @@ export interface SuggestionDetailFixture {
   submittedAt: string;
   status: 'waiting' | 'approved' | 'declined';
   checks: { check: string; passed: boolean }[];
-  /** Where an approved suggestion's claim link stands (ADR 0091); none before approval. */
+  /** Where an approved suggestion's claim link stands (ADR 0092); none before approval. */
   claim: 'sent' | 'expired' | 'claimed' | 'declined' | 'staff-managed' | null;
 }
 

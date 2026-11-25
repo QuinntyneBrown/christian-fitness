@@ -23,7 +23,7 @@ import {
 export class Done {
   readonly heading = input.required<string>();
   /**
-   * A way that ended, not a success (the claim link's "This link has expired"; ADR 0091): a clock
+   * A way that ended, not a success (the claim link's "This link has expired"; ADR 0092): a clock
    * in place of the check, and `role="alert"`.
    */
   readonly alert = input(false, { transform: booleanAttribute });

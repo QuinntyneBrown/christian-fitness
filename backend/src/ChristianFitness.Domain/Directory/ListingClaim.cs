@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChristianFitness.Domain.Directory;
 
-/// <summary>Whether a claim link can still be answered (ADR 0091).</summary>
+/// <summary>Whether a claim link can still be answered (ADR 0092).</summary>
 public enum ClaimLinkState
 {
     Open,
@@ -41,7 +41,7 @@ public sealed class ListingClaim
     /// <summary>When the link was spent; none while unused (journey 19).</summary>
     public DateTimeOffset? UsedAt { get; private set; }
 
-    /// <summary>When staff sent a new link in its place (ADR 0091); none while it stands.</summary>
+    /// <summary>When staff sent a new link in its place (ADR 0092); none while it stands.</summary>
     public DateTimeOffset? VoidedAt { get; private set; }
 
     /// <summary>A new claim of <paramref name="listingId"/> and its token: 32 random bytes in base64url.</summary>
@@ -68,7 +68,7 @@ public sealed class ListingClaim
         : VoidedAt is not null || now >= ExpiresAt ? ClaimLinkState.Expired
         : ClaimLinkState.Open;
 
-    /// <summary>Stops an unused link working because a new one was sent (ADR 0091). A spent or voided link is left as it is.</summary>
+    /// <summary>Stops an unused link working because a new one was sent (ADR 0092). A spent or voided link is left as it is.</summary>
     public void Void(DateTimeOffset at)
     {
         if (UsedAt is null && VoidedAt is null)
@@ -77,7 +77,7 @@ public sealed class ListingClaim
         }
     }
 
-    /// <summary>Uses the link once (L2-078 AC6, AC7; ADR 0091): a used link cannot be used again.</summary>
+    /// <summary>Uses the link once (L2-078 AC6, AC7; ADR 0092): a used link cannot be used again.</summary>
     public void Spend(DateTimeOffset at)
     {
         if (UsedAt is not null)

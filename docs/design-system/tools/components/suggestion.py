@@ -86,7 +86,7 @@ SPEC = {
     + "<h3>Decided</h3>" + ex(view("v3", passed=4, decided="approved") + view("v4", decided="declined"),
                               "The decision replaces the buttons with a status line; the checks lock (approved, declined). "
                               "While a claim link is open or expired, Send a new link follows the line and reads “Sending…”, "
-                              "disabled and <code>aria-busy</code>, while it waits (ADR 0091; resending).", mod="stack")
+                              "disabled and <code>aria-busy</code>, while it waits (ADR 0092; resending).", mod="stack")
     + "<h3>Listed cell</h3>" + ex(LISTED, "Mark, name and verified mark in the Listed table.", True),
     "sizes": "<p>One size. The card has 24px padding, 32px from 640px. Check rows are 12px block padding with a 28px (<code>--space-7</code>) checkbox. The listed cell's mark is <code>--size-avatar-md</code>.</p>",
     "states": {

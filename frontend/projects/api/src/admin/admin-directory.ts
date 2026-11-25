@@ -44,7 +44,7 @@ export interface SuggestionCheckDto {
 
 /** The chosen suggestion as the panel shows it (L2-073 AC3; ADR 0090). */
 /**
- * Where an approved suggestion's claim link stands (ADR 0091): a link is open (`sent`) or none is
+ * Where an approved suggestion's claim link stands (ADR 0092): a link is open (`sent`) or none is
  * (`expired`), the listed party published it (`claimed`) or said it isn't them (`declined`), or it
  * was published with nobody to send a link to (`staff-managed`).
  */
@@ -62,7 +62,7 @@ export interface SuggestionDetailDto {
   submittedAt: string;
   status: SuggestionStatus;
   checks: SuggestionCheckDto[];
-  /** Where the claim link stands once approved; null before (ADR 0091). */
+  /** Where the claim link stands once approved; null before (ADR 0092). */
   claim: SuggestionClaimState | null;
 }
 
@@ -111,7 +111,7 @@ export interface AdminDirectoryApi {
 
   /**
    * `POST suggestions/{id}/claim-link`: sends a new claim link for the approved suggestion `id`; the
-   * old one stops working (L2-078 AC8; ADR 0091). Refusals: `claim_closed` (409),
+   * old one stops working (L2-078 AC8; ADR 0092). Refusals: `claim_closed` (409),
    * `suggestion_not_found` (404).
    */
   resendClaimLink(id: string): Observable<void>;

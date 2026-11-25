@@ -36,7 +36,7 @@ import {
 
 /**
  * The Join screen (mock docs/mocks/pages/join/): a visitor creates an account and lands on Home,
- * signed in (L2-003 AC1), or on the `returnUrl` inside the app it was opened with (ADR 0091). One signal per field; while the request is on its way the button reads
+ * signed in (L2-003 AC1), or on the `returnUrl` inside the app it was opened with (ADR 0092). One signal per field; while the request is on its way the button reads
  * "Creating your profile…" and is disabled, and the fields hold still (L2-003 AC5). Before
  * sending, `validateJoin` names each invalid field and nothing is sent (L2-003 AC3, mock
  * `invalid-fields`); editing a field clears its error. A refusal gives the form back as it was
@@ -55,7 +55,7 @@ export default class JoinPage {
   private readonly account = inject(ACCOUNT_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  /** Where to land once joined: a `returnUrl` inside the app, such as a claim link, else Home (ADR 0091). */
+  /** Where to land once joined: a `returnUrl` inside the app, such as a claim link, else Home (ADR 0092). */
   private readonly returnPath = signInReturnPathOf(
     inject(ActivatedRoute).snapshot.queryParamMap.get('returnUrl'),
   );

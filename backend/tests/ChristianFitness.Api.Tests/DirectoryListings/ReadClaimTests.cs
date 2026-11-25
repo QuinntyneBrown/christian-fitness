@@ -4,7 +4,7 @@ using ChristianFitness.Api.Tests.Events;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-078 AC4, AC5 and AC9 (journey 19; ADR 0091): anyone may read a claim link. A visitor learns the
+/// L2-078 AC4, AC5 and AC9 (journey 19; ADR 0092): anyone may read a claim link. A visitor learns the
 /// listing's name and when the link expires and nothing else; a signed-in member also gets the
 /// listing as it will appear. An unknown token is 404 <c>claim_not_found</c>, which says nothing of
 /// whether a listing exists.

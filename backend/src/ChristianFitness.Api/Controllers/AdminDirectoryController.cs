@@ -41,7 +41,7 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     public async Task<ActionResult<SuggestionDecisionDto>> Decline(Guid id, [FromBody] DeclineSuggestionBody? body, CancellationToken cancellationToken) =>
         await sender.Send(new DeclineSuggestionCommand(id, body?.Reason), cancellationToken).ConfigureAwait(false);
 
-    /// <summary>Sends a new claim link for an approved suggestion; the old one stops working (ADR 0091).</summary>
+    /// <summary>Sends a new claim link for an approved suggestion; the old one stops working (ADR 0092).</summary>
     [HttpPost("suggestions/{id:guid}/claim-link")]
     public async Task<IActionResult> ResendClaimLink(Guid id, CancellationToken cancellationToken)
     {

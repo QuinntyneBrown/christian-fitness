@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-078 AC11 and L2-033 (journey 19; ADR 0091): reading, publishing or declining a claim link
+/// L2-078 AC11 and L2-033 (journey 19; ADR 0092): reading, publishing or declining a claim link
 /// records the route template, the method and the status only. No span or log carries the link's
 /// token, the listing's name or the claimer's email.
 /// </summary>

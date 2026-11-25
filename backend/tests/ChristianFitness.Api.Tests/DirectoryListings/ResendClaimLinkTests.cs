@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-078 AC8 and AC9 (journey 19; ADR 0091): on an approved suggestion whose listing is still a
+/// L2-078 AC8 and AC9 (journey 19; ADR 0092): on an approved suggestion whose listing is still a
 /// draft, an Admin or a Moderator sends a new claim link. Every open link of the listing stops
 /// working, a new one goes out by the channel approval used, and the resend is audited
 /// <c>listing.claim_link_resent</c>. The panel's <c>claim</c> tells staff where the link stands:

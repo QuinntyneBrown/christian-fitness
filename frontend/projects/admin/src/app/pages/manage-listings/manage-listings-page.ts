@@ -392,7 +392,7 @@ export default class ManageListingsPage {
   }
 
   /**
-   * Sends a new claim link for the approved suggestion showing (L2-078 AC8; ADR 0091): the button
+   * Sends a new claim link for the approved suggestion showing (L2-078 AC8; ADR 0092): the button
    * reads "Sending…" while it waits, then a toast says the old link no longer works, or that
    * nothing changed.
    */

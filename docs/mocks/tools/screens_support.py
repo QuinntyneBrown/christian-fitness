@@ -865,13 +865,13 @@ def _():
     return claim_signed_out(alt=f"This link works once and expires on {CLAIM_EXPIRY}.")
 
 
-@s("signed-out-expired", "An expired link opened signed out (ADR 0091): the same sentence as signed in, in the sign-in card, and nothing of the listing.")
+@s("signed-out-expired", "An expired link opened signed out (ADR 0092): the same sentence as signed in, in the sign-in card, and nothing of the listing.")
 def _():
     return claim_signed_out("This link has expired", "This link has expired. Ask us for a new one.",
                             f'<a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>')
 
 
-@s("signed-out-claimed", "A used link opened signed out (ADR 0091): the same sentence as signed in, in the sign-in card, and nothing of the listing.")
+@s("signed-out-claimed", "A used link opened signed out (ADR 0092): the same sentence as signed in, in the sign-in card, and nothing of the listing.")
 def _():
     return claim_signed_out("This listing has already been claimed", "A link works once. If that was you, sign in, find your listing in the directory and use Edit listing.",
                             f'<a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>')

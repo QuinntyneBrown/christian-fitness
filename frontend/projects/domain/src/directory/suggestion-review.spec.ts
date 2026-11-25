@@ -115,7 +115,7 @@ describe('a decided suggestion', () => {
     expect(decisionResult(status, claim)).toBe(expected);
   });
 
-  // L2-078 AC8 (ADR 0091): Send a new link while a link is out, open or expired.
+  // L2-078 AC8 (ADR 0092): Send a new link while a link is out, open or expired.
   it.each<{ claim: SuggestionClaim | null; expected: boolean }>([
     { claim: 'email', expected: true },
     { claim: 'message', expected: true },

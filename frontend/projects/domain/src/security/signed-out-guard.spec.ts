@@ -21,7 +21,7 @@ function failure(status: number): Observable<never> {
   return throwError(() => new HttpErrorResponse({ status, url: '/api/session' }));
 }
 
-// ADR 0091: the signed-out claim route matches only a visitor; one row per answer.
+// ADR 0092: the signed-out claim route matches only a visitor; one row per answer.
 describe('signedOutGuard', () => {
   it('a session does not match, so the member route of the same address opens', async () => {
     expect(await matches(of({ memberId: 'm-1', name: 'Grace Thompson' }))).toBe(false);

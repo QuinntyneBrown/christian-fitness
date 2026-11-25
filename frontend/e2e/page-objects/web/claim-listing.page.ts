@@ -8,7 +8,7 @@ export interface ClaimFactView {
 
 /**
  * The member app's Claim a listing screen at `/claim/{token}` (mock
- * `docs/mocks/pages/claim-listing/`), in both its routes (ADR 0091): signed out, the auth layout's
+ * `docs/mocks/pages/claim-listing/`), in both its routes (ADR 0092): signed out, the auth layout's
  * card that names the listing with Sign in and Join; signed in, the form page with the listing as
  * it will appear, its two answers, the alert above it, the `done` outcome that replaces it, and
  * the app's 404 for an unknown link. Owns the selectors of that screen.

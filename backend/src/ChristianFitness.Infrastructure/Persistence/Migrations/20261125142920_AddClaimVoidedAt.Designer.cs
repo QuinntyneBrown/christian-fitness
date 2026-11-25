@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261125141623_AddClaimVoidedAt")]
+    [Migration("20261125142920_AddClaimVoidedAt")]
     partial class AddClaimVoidedAt
     {
         /// <inheritdoc />
@@ -436,6 +436,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("HostListingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
@@ -457,6 +460,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("SeriesId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("StartsAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -475,15 +481,77 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
+                    b.Property<string>("Topic")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("StartsAt");
+
+                    b.HasIndex("SeriesId", "StartsAt");
 
                     b.HasIndex("Status", "StartsAt");
 
                     b.HasIndex("HostListingId", "Status", "StartsAt");
 
                     b.ToTable("Events", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.EventSeries", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DropInPriceCents")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("HostListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ImageKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Place")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("PriceCents")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HostListingId");
+
+                    b.ToTable("EventSeries", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Events.MessageReport", b =>
@@ -544,6 +612,33 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId", "CreatedAt");
 
                     b.ToTable("Registrations", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.SeriesEnrolment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SeriesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeriesId", "MemberId")
+                        .IsUnique();
+
+                    b.ToTable("SeriesEnrolments", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Members.Member", b =>
@@ -1023,6 +1118,29 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("HostListingId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Events.EventSeries", null)
+                        .WithMany()
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.EventSeries", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("HostListingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.SeriesEnrolment", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.EventSeries", null)
+                        .WithMany()
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

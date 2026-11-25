@@ -28,7 +28,7 @@ export class ListingHead {
   readonly photoSrc = input<string | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });
   /**
-   * The listing as it will appear, under a page's own `h1` (the claim screen; ADR 0091): the name is
+   * The listing as it will appear, under a page's own `h1` (the claim screen; ADR 0092): the name is
    * a paragraph, an empty tagline is left out, and the head has no rule or actions.
    */
   readonly preview = input(false, { transform: booleanAttribute });

@@ -13,7 +13,7 @@ namespace ChristianFitness.Application.Directory.Claims;
 
 /// <summary>
 /// Staff send a new claim link for the approved suggestion <see cref="SuggestionId"/> (L2-078 AC8;
-/// ADR 0091). Audited <c>listing.claim_link_resent</c> against the listing.
+/// ADR 0092). Audited <c>listing.claim_link_resent</c> against the listing.
 /// </summary>
 public sealed record ResendClaimLinkCommand(Guid SuggestionId) : IRequest, IAuditableCommand
 {

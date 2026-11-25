@@ -98,7 +98,7 @@ export function passedCount(checks: readonly SuggestionCheckDto[]): number {
 
 /**
  * How an approval's claim went on this visit (`email`, `message`, ADR 0090), or where it stands when
- * read (ADR 0091).
+ * read (ADR 0092).
  */
 export type SuggestionClaim = 'email' | 'message' | SuggestionClaimState;
 
@@ -120,7 +120,7 @@ export function decisionResult(
   return 'Approved.';
 }
 
-/** Whether staff may send a new claim link: one went out and is open or expired (ADR 0091). */
+/** Whether staff may send a new claim link: one went out and is open or expired (ADR 0092). */
 export function claimResendable(claim: SuggestionClaim | null): boolean {
   return claim === 'email' || claim === 'message' || claim === 'sent' || claim === 'expired';
 }

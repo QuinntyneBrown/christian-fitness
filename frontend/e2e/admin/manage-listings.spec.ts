@@ -451,7 +451,7 @@ test.describe('Admin app, approving a suggestion', () => {
 
 const RESEND = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/claim-link$/;
 
-// L2-078 AC7 and AC8 (journey 19; ADR 0091; mocks admin-listings/approved, resending, link-resent,
+// L2-078 AC7 and AC8 (journey 19; ADR 0092; mocks admin-listings/approved, resending, link-resent,
 // resend-failed and claim-declined): an approved suggestion says where its claim link stands, and
 // while the link is open or expired staff can send a new one.
 test.describe('Admin app, the claim link of an approved suggestion', () => {

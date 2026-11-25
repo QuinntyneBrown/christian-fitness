@@ -4,7 +4,7 @@ import { websiteLinkOf } from './listing-profile-view';
 import { listingInitials } from './listing-row-view';
 
 /**
- * Where a claim link ends when it cannot be answered (L2-078 AC8, AC9; ADR 0091): already used,
+ * Where a claim link ends when it cannot be answered (L2-078 AC8, AC9; ADR 0092): already used,
  * expired or voided, unknown, or anything else, which is a failure the screen offers to retry.
  */
 export type ClaimOutcome = 'claimed' | 'expired' | 'not-found' | 'failed';
@@ -30,7 +30,7 @@ export function claimExpiryText(expiresAt: string): string {
   })).format(new Date(expiresAt));
 }
 
-/** The line under the preview (ADR 0091): who is signed in, what publishing does, and the link's life. */
+/** The line under the preview (ADR 0092): who is signed in, what publishing does, and the link's life. */
 export function claimHintOf(member: string, expiresAt: string): string {
   return `Signed in as ${member}. Publishing makes you the owner, so you can edit it later. This link works once and expires on ${claimExpiryText(expiresAt)}.`;
 }

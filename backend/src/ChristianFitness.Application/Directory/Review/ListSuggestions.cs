@@ -60,7 +60,7 @@ internal sealed class ListListingSuggestionsHandler(IAppDbContext db, TimeProvid
 }
 
 /// <summary>
-/// Answers the panel's fields, the four checks and where an approved suggestion's claim stands (ADR 0091);
+/// Answers the panel's fields, the four checks and where an approved suggestion's claim stands (ADR 0092);
 /// an unknown id is 404 <c>suggestion_not_found</c>.
 /// </summary>
 internal sealed class GetListingSuggestionHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetListingSuggestionQuery, SuggestionDetailDto>

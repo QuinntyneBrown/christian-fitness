@@ -39,7 +39,7 @@ const routes: Routes = [
     loadComponent: () => import('./pages/reset-password/reset-password-page'),
   },
   {
-    // A claim link opened signed out: the listing's name, Sign in and Join (L2-078 AC4; ADR 0091).
+    // A claim link opened signed out: the listing's name, Sign in and Join (L2-078 AC4; ADR 0092).
     // With a session it does not match, and the shell's child of the same address opens.
     path: 'claim/:token',
     title: titled('Claim a listing'),
@@ -83,7 +83,7 @@ const routes: Routes = [
         loadComponent: () => import('./pages/suggest-listing/suggest-listing-page'),
       },
       {
-        // A claim link opened with a session: the listing as it will appear, Publish or This isn't me (L2-078; ADR 0091).
+        // A claim link opened with a session: the listing as it will appear, Publish or This isn't me (L2-078; ADR 0092).
         path: 'claim/:token',
         title: titled('Claim a listing'),
         loadComponent: () => import('./pages/claim-listing/claim-listing-page'),

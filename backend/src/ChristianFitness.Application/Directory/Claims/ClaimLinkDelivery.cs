@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Directory.Claims;
 
 /// <summary>
-/// How a claim link reaches the listed party (ADR 0090, ADR 0091), shared by approval and by Send a
+/// How a claim link reaches the listed party (ADR 0090, ADR 0092), shared by approval and by Send a
 /// new link: by email to the suggestion's contact address, else by direct message to a sender who
 /// suggested themselves, else not at all (the listing is staff-managed).
 /// </summary>
@@ -50,7 +50,7 @@ internal static class ClaimLinkDelivery
     }
 
     /// <summary>
-    /// Where the claim of an approved suggestion stands for staff (ADR 0091): <c>staff-managed</c> with
+    /// Where the claim of an approved suggestion stands for staff (ADR 0092): <c>staff-managed</c> with
     /// no link, <c>claimed</c> or <c>declined</c> once answered, else <c>sent</c> while a link is open and
     /// <c>expired</c> when none is. None before approval.
     /// </summary>

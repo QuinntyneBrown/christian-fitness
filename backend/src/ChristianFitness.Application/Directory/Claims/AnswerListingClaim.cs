@@ -4,7 +4,7 @@ using MediatR;
 
 namespace ChristianFitness.Application.Directory.Claims;
 
-/// <summary>What publishing or declining a claim answers: the listing the link was for (ADR 0091).</summary>
+/// <summary>What publishing or declining a claim answers: the listing the link was for (ADR 0092).</summary>
 public sealed record ClaimAnswerDto(Guid ListingId);
 
 /// <summary>
@@ -47,7 +47,7 @@ public sealed record DeclineListingClaimCommand(string Token) : IRequest<ClaimAn
 
 /// <summary>
 /// In one unit of work the draft becomes Declined, the link is spent and the entry is audited;
-/// nothing is published and no one is contacted. Staff read it on the approved suggestion (ADR 0091).
+/// nothing is published and no one is contacted. Staff read it on the approved suggestion (ADR 0092).
 /// Refusals are <see cref="ListingClaims.OpenAsync"/>'s. Logs nothing (L2-078 AC11).
 /// </summary>
 internal sealed class DeclineListingClaimHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit, TimeProvider time)

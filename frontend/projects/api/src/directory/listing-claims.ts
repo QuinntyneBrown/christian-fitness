@@ -3,7 +3,7 @@ import type { Observable } from 'rxjs';
 import type { ListingKind } from './directory';
 
 /**
- * The listing as it will appear once published (`ClaimPreviewDto`, ADR 0091). A draft made from a
+ * The listing as it will appear once published (`ClaimPreviewDto`, ADR 0092). A draft made from a
  * suggestion may have no tagline, about or focus tags yet. Words are plain text.
  */
 export interface ClaimPreviewDto {
@@ -21,7 +21,7 @@ export interface ClaimPreviewDto {
 }
 
 /**
- * What a claim link answers (`ListingClaimDto`, ADR 0091): the listing's name and the link's expiry
+ * What a claim link answers (`ListingClaimDto`, ADR 0092): the listing's name and the link's expiry
  * (an ISO instant in UTC) to anyone, and the preview only to a signed-in member (L2-078 AC4, AC5).
  */
 export interface ListingClaimDto {
@@ -35,7 +35,7 @@ export interface ClaimAnswerDto {
   listingId: string;
 }
 
-/** Claiming a listing through its link (L2-078; ADR 0091). */
+/** Claiming a listing through its link (L2-078; ADR 0092). */
 export interface ListingClaimsApi {
   /**
    * Reads the link. A refusal errors with an `ApiError`: 404 `claim_not_found`, 409

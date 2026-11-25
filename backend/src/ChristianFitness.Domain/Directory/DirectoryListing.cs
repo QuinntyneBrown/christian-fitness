@@ -139,7 +139,7 @@ public sealed class DirectoryListing
     }
 
     /// <summary>
-    /// The listed party said yes through the claim link (L2-078 AC6; ADR 0091): the draft is in the
+    /// The listed party said yes through the claim link (L2-078 AC6; ADR 0092): the draft is in the
     /// directory from <paramref name="at"/>, owned by <paramref name="memberId"/>.
     /// </summary>
     public void Claim(Guid memberId, DateTimeOffset at)
@@ -154,7 +154,7 @@ public sealed class DirectoryListing
         ListedAt = at;
     }
 
-    /// <summary>Staff declined a listing still waiting for their check, or the listed party said it isn't them (ADR 0091).</summary>
+    /// <summary>Staff declined a listing still waiting for their check, or the listed party said it isn't them (ADR 0092).</summary>
     public void Decline()
     {
         if (Status != ListingStatus.Draft)

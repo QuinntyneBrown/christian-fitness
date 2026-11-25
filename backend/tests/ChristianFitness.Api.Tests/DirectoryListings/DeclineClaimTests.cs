@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-078 AC7 and AC11 (journey 19; ADR 0091): a signed-in member says the listing behind a valid
+/// L2-078 AC7 and AC11 (journey 19; ADR 0092): a signed-in member says the listing behind a valid
 /// link isn't them. It becomes <c>Declined</c>, nothing is published, the link is spent, an audit
 /// entry records who and which listing, and nobody is emailed or messaged. A visitor cannot decline.
 /// </summary>

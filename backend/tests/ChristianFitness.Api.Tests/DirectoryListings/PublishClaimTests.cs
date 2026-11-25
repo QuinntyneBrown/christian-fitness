@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-078 AC6 and AC11 (journey 19; ADR 0091): a signed-in member publishes the listing behind a
+/// L2-078 AC6 and AC11 (journey 19; ADR 0092): a signed-in member publishes the listing behind a
 /// valid link. It becomes Published ("Listed") and owned by them, the link is spent, and an audit
 /// entry records who and which listing. A self-submitter who claims their own listing owns it. A
 /// visitor cannot publish, and a spent link is refused <c>claim_link_used</c>.

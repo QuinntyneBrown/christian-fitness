@@ -6,7 +6,7 @@ import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
  * {@link ListingClaimsApi} over HTTP: `GET /api/claims/{token}` and its `publish` and `decline`
- * (ADR 0091). A refusal errors with an `ApiError`. It holds no state, and each claim page provides
+ * (ADR 0092). A refusal errors with an `ApiError`. It holds no state, and each claim page provides
  * it, so it lives only while the page does.
  */
 @Injectable()

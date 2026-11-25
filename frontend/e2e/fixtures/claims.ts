@@ -3,7 +3,7 @@ import type { ApiHandlers, ApiReply } from './api-handlers';
 /** The token of the claim link the specs open (`/claim/{token}`). */
 export const CLAIM_TOKEN = 'k3Xq9vTz-claim-token_Ab12';
 
-/** Where the claim screen reads its link (ADR 0091). */
+/** Where the claim screen reads its link (ADR 0092). */
 export const CLAIM_PATH = `/api/claims/${CLAIM_TOKEN}`;
 
 /** 9 December 2026 at noon in Toronto: the link's expiry, 14 days after approval. */

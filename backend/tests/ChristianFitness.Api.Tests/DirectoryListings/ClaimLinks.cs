@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// What the claim tests share (journey 19; ADR 0091): a draft listing with an open claim, issued as
+/// What the claim tests share (journey 19; ADR 0092): a draft listing with an open claim, issued as
 /// approval issues one (ADR 0090), members who open its link, and the claim endpoints, on
 /// <see cref="RegisterForEventFactory"/>'s clock.
 /// </summary>

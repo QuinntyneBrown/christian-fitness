@@ -34,7 +34,7 @@ type Phase =
   | 'not-found';
 
 /**
- * The claim screen in the member shell (L2-078 AC5, AC6, AC10; ADR 0091; mock
+ * The claim screen in the member shell (L2-078 AC5, AC6, AC10; ADR 0092; mock
  * `docs/mocks/pages/claim-listing/`): skeletons while the link is checked, then the listing as it
  * will appear (`listing-head` in its preview form, about, focus tags and key facts, leaving out what
  * a draft has not got), the line that says who is signed in and when the link expires, and "Publish

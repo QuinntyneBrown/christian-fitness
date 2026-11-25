@@ -1,4 +1,4 @@
-# 0091. Claiming a listing: one anonymous read, publish and decline, the codes, resend from Suggestions, and the signed-out route
+# 0092. Claiming a listing: one anonymous read, publish and decline, the codes, resend from Suggestions, and the signed-out route
 
 ## Status
 

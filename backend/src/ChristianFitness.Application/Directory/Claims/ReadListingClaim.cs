@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Directory.Claims;
 
 /// <summary>
-/// The listing as it will appear once published (L2-078 AC5; ADR 0091): what a draft from a
+/// The listing as it will appear once published (L2-078 AC5; ADR 0092): what a draft from a
 /// suggestion has, which may be no tagline, about or focus tags yet. Words are plain text.
 /// </summary>
 public sealed record ClaimPreviewDto(
@@ -22,7 +22,7 @@ public sealed record ClaimPreviewDto(
     string? PhotoKey);
 
 /// <summary>
-/// What a claim link answers (ADR 0091): the listing's name and when the link expires to anyone, and
+/// What a claim link answers (ADR 0092): the listing's name and when the link expires to anyone, and
 /// <see cref="Listing"/> only to a signed-in caller (L2-078 AC4, AC5).
 /// </summary>
 public sealed record ListingClaimDto(string Name, DateTimeOffset ExpiresAt, ClaimPreviewDto? Listing);
@@ -53,7 +53,7 @@ internal sealed class GetListingClaimHandler(IAppDbContext db, ICurrentMember cu
     }
 }
 
-/// <summary>How the claim handlers find a link that can still be answered (ADR 0091).</summary>
+/// <summary>How the claim handlers find a link that can still be answered (ADR 0092).</summary>
 internal static class ListingClaims
 {
     /// <summary>The audit record type of what a claim changes: the listing.</summary>
@@ -62,7 +62,7 @@ internal static class ListingClaims
     /// <summary>
     /// The open claim with <paramref name="token"/> and its listing. Unknown is 404 <c>claim_not_found</c>;
     /// a used link, or one whose listing is no longer a draft, 409 <c>claim_link_used</c>; an expired one
-    /// 410 <c>claim_link_expired</c>. They are checked in that order (ADR 0091).
+    /// 410 <c>claim_link_expired</c>. They are checked in that order (ADR 0092).
     /// </summary>
     public static async Task<(ListingClaim Claim, DirectoryListing Listing)> OpenAsync(
         IAppDbContext db, string token, DateTimeOffset now, bool tracked, CancellationToken cancellationToken)
