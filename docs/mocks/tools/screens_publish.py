@@ -813,7 +813,8 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
     label = ' <span class="status status--suspended">Suspended</span>' if variant == "suspended" else ""
     thread = f'<section aria-labelledby="thread-title"><h3 id="thread-title">Reply sent</h3><p>{sent_reply}</p></section>' if sent_reply else ""
     refusal = '<div class="form-alert" role="alert"><div><p class="form-alert__title">We couldn’t send your reply</p><p>Nothing was changed. Your reply is still here.</p></div></div>' if variant == "failed" else ""
-    return f"""{admin_header("Feedback", "Ideas, bugs, corrections and thanks from members. Everyone hears back.")}
+    header = admin_header("Feedback", "Ideas, bugs, corrections and thanks from members. Everyone hears back.").replace("\n  \n", "\n\n")
+    return f"""{header}
       {tabs("Filter feedback", counts, tab)}
       <div class="split split--inbox">
         <nav aria-label="Feedback"><ul class="card card--list feedback-list">{rows}</ul></nav>
@@ -826,7 +827,7 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
             <div><dt>Sent from</dt><dd class="feedback-detail__strong">{f["page"]}</dd></div>
             <div><dt>Device</dt><dd class="feedback-detail__strong feedback-detail__device">{icon("monitor")}{f["device"]}</dd></div>
           </dl>
-          {story}{thread}{refusal}
+{story}{thread}{refusal}
           <div class="feedback-detail__reply">{textarea(f"Reply to {first}", "reply", reply, hint="" if reply else f["hint"], readonly=busy)}</div>
           <div class="cluster">{send}{other}</div>
         </form>
