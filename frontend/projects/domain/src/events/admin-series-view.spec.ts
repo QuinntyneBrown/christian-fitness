@@ -1,10 +1,6 @@
 import type { AdminSeriesDto, AdminSeriesRowDto, SeriesCadenceDto } from '@cf/api';
-import {
-  adminSeriesViewOf,
-  seriesCadenceText,
-  seriesPickCardOf,
-  seriesRowOf,
-} from './admin-series-view';
+import { adminSeriesViewOf, seriesPickCardOf, seriesRowOf } from './admin-series-view';
+import { seriesCadenceText } from './series-cadence';
 
 // ADR 0091: a cadence is numbers; the admin app words it, one row per case.
 describe('seriesCadenceText', () => {

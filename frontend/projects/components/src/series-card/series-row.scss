@@ -1,0 +1,118 @@
+// The design system's series row (docs/design-system/assets/components.css, "Event series: list
+// rows, meter, card on a date").
+:host {
+  display: block;
+}
+
+.series-row {
+  display: grid;
+  width: 100%;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  // Photo, body and end in a row from 640 px.
+  @media (min-width: 40rem) {
+    grid-template-columns: 12rem 1fr auto;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-5);
+  }
+}
+
+a.series-row:hover {
+  background: var(--color-bg-canvas);
+
+  .series-row__title {
+    color: var(--color-fg-accent);
+  }
+}
+
+.series-row__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+.series-row__body {
+  min-width: 0;
+}
+
+.series-row__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.series-row__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.series-row__title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-none);
+  overflow-wrap: anywhere;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.series-row__sub {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.series-row__meter {
+  margin-top: var(--space-3);
+  max-width: var(--layout-conversations-width);
+}
+
+.series-row__end {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--font-size-sm);
+
+  @media (min-width: 40rem) {
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+  }
+}
+
+.series-row__price {
+  font-weight: var(--font-weight-semibold);
+}
+
+.series-row__next {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+  color: var(--color-fg-muted);
+}
+
+.icon--xs {
+  width: var(--size-icon-xs);
+  height: var(--size-icon-xs);
+}

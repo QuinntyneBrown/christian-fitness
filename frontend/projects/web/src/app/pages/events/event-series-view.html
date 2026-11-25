@@ -1,0 +1,56 @@
+<cf-chip-bar label="Filter series" divided>
+  @for (chip of chips(); track chip.href) {
+    <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate.emit($event)">{{
+      chip.label
+    }}</cf-chip>
+  }
+  <cf-checkbox
+    slot="after"
+    variant="compact"
+    label="Only series I've joined"
+    [checked]="selection().joined"
+    (checkedChange)="onJoined($event)"
+  />
+</cf-chip-bar>
+@if (state() === 'loading') {
+  <cf-skeleton-region class="series-list" label="Loading series">
+    <cf-list variant="card" [items]="skeletons" [template]="skeletonRow" />
+  </cf-skeleton-region>
+} @else if (state() === 'failed') {
+  <cf-empty-state
+    variant="error"
+    heading="Series didn't load"
+    text="We couldn't reach Christian Fitness. Check your connection and try again."
+  >
+    <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+  </cf-empty-state>
+} @else if (rows().length === 0) {
+  <cf-empty-state
+    heading="No series here yet"
+    text="Series are weekly or monthly programs you can join once and come to every time."
+  >
+    @if (filtered()) {
+      <cf-button slot="actions" size="sm" (click)="cleared.emit()">Show all series</cf-button>
+    }
+  </cf-empty-state>
+} @else {
+  <cf-list class="series-list" variant="card" [items]="rows()" [template]="seriesRow" />
+}
+<ng-template #seriesRow let-row>
+  <cf-series-row
+    [href]="row.href"
+    [imageSrc]="row.imageSrc"
+    [meta]="row.meta"
+    [heading]="row.title"
+    [sub]="row.sub"
+    [bars]="row.bars"
+    [done]="row.done"
+    [joined]="row.joined"
+    [price]="row.price"
+    [next]="row.next"
+    (navigate)="navigate.emit($event)"
+  />
+</ng-template>
+<ng-template #skeletonRow>
+  <cf-series-row loading />
+</ng-template>

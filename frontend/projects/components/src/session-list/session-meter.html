@@ -1,0 +1,6 @@
+<span class="session-meter" aria-hidden="true">
+  @for (bar of bars(); track $index) {
+    <span [attr.class]="classOf(bar)"></span>
+  }
+</span>
+<p class="visually-hidden">{{ label() }}</p>

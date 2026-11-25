@@ -1,0 +1,28 @@
+// The design system's session meter (docs/design-system/assets/components.css, "Event series").
+:host {
+  display: block;
+}
+
+.session-meter {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.session-meter__bar {
+  height: var(--space-1-5);
+  flex: 1 1 0%;
+  border-radius: var(--radius-full);
+  background: var(--color-border-default);
+}
+
+.session-meter__bar--done {
+  background: var(--color-accent);
+}
+
+.session-meter__bar--next {
+  background: var(--color-highlight);
+}
+
+.session-meter__bar--cancelled {
+  opacity: var(--opacity-disabled);
+}

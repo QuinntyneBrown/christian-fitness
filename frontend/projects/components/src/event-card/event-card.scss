@@ -131,3 +131,26 @@
     transition: none;
   }
 }
+
+// A session's series line (docs/design-system/assets/components.css, "Event series").
+.event-card__series {
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.icon--xs {
+  width: var(--size-icon-xs);
+  height: var(--size-icon-xs);
+}

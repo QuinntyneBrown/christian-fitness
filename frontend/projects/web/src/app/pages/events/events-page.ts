@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EVENTS_SERVICE } from '@cf/api';
+import { EVENT_SERIES_SERVICE, EVENTS_SERVICE } from '@cf/api';
 import {
   Button,
   Checkbox,
@@ -13,6 +13,7 @@ import {
   EventGrid,
   InlineMessage,
   SearchField,
+  SegmentedControl,
   Skeleton,
   SkeletonRegion,
   Spinner,
@@ -29,11 +30,18 @@ import {
   eventListQueryOf,
   eventSearchOf,
   eventsNoResults,
+  type EventsView,
+  eventsViewOf,
+  eventsViewOptions,
   EVENT_SEARCH_DELAY_MS,
   hasMore,
+  seriesListHref,
+  seriesQueryOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import { HttpEventSeriesService } from '../../services/http-event-series.service';
 import { HttpEventsService } from '../../services/http-events.service';
+import { EventSeriesView } from './event-series-view';
 import { InView } from './in-view';
 
 /** How many skeleton cards stand in while the first page loads (mock `events/loading`). */
@@ -63,20 +71,27 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
     EmptyState,
     EventCard,
     EventGrid,
+    EventSeriesView,
     InlineMessage,
     InView,
     SearchField,
+    SegmentedControl,
     Skeleton,
     SkeletonRegion,
     Spinner,
   ],
-  providers: [{ provide: EVENTS_SERVICE, useClass: HttpEventsService }],
+  providers: [
+    { provide: EVENTS_SERVICE, useClass: HttpEventsService },
+    { provide: EVENT_SERIES_SERVICE, useClass: HttpEventSeriesService },
+  ],
   templateUrl: './events-page.html',
   styleUrl: './events-page.scss',
 })
 export default class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
+  private readonly series = inject(EVENT_SERIES_SERVICE);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
   /** The selection the address holds: category, search and going (ADR 0081). */
   protected readonly query = signal<EventListQuery>({ category: null, q: '', going: false });
@@ -90,6 +105,13 @@ export default class EventsPage {
    * and on destroy: `debounceTime` would add to the initial bundle (lesson 26.1).
    */
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
+  /** By date or Series, as the address says (L2-050 AC7; ADR 0093). */
+  protected readonly view = signal<EventsView>('date');
+  /** How many series the Series view lists with no filter; none until it answers or if it failed. */
+  private readonly seriesCount = signal<number | null>(null);
+  protected readonly viewOptions = computed(() =>
+    eventsViewOptions(this.view(), this.seriesCount()),
+  );
   protected readonly chips = computed(() => eventCategoryChips(this.query()));
   /** What an empty answer says for this selection; none with nothing chosen (ADR 0081). */
   protected readonly noResults = computed(() => eventsNoResults(this.query()));
@@ -112,13 +134,27 @@ export default class EventsPage {
   protected readonly capped = computed(() => this.feed().capped);
 
   constructor() {
-    inject(ActivatedRoute)
-      .queryParamMap.pipe(takeUntilDestroyed())
-      .subscribe((params) => {
-        const query = eventListQueryOf(params);
-        this.query.set(query);
-        if (eventSearchOf(this.term()) !== query.q) this.term.set(query.q);
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const view = eventsViewOf(params);
+      this.view.set(view);
+      const query = eventListQueryOf(params);
+      this.query.set(query);
+      if (eventSearchOf(this.term()) !== query.q) this.term.set(query.q);
+      if (view === 'date') {
         this.loadFirst();
+      } else {
+        // The Series view asks for its own list; the date feed is dropped while it shows.
+        this.request?.unsubscribe();
+        this.feed.set(EMPTY_FEED);
+      }
+    });
+    // Asked once on arrival, not on each filter (ADR 0093); a failure leaves "Series".
+    this.series
+      .count()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (answer) => this.seriesCount.set(answer.count),
+        error: () => this.seriesCount.set(null),
       });
     this.destroyRef.onDestroy(() => clearTimeout(this.searchTimer));
   }
@@ -133,6 +169,13 @@ export default class EventsPage {
     this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
   }
 
+  /** "Show all series": the unfiltered Series view, the field emptied through the address and focused. */
+  protected clearSeries(): void {
+    clearTimeout(this.searchTimer);
+    this.navigate('/events?view=series');
+    this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
+  }
+
   /** "Only events I'm going to" was ticked or cleared: a new place in history, as a chip is. */
   protected onGoing(going: boolean): void {
     this.navigate(eventListHref({ ...this.query(), going }));
@@ -143,8 +186,13 @@ export default class EventsPage {
     this.term.set(text);
     clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => {
-      // The address is replaced: a search is one place in history, not one a letter.
-      const href = eventListHref({ ...this.query(), q: eventSearchOf(text) });
+      // The address is replaced: a search is one place in history, not one a letter. It keeps the
+      // view and that view's filters (ADR 0093).
+      const q = eventSearchOf(text);
+      const href =
+        this.view() === 'series'
+          ? seriesListHref({ ...seriesQueryOf(this.route.snapshot.queryParamMap), q })
+          : eventListHref({ ...this.query(), q });
       void this.router.navigateByUrl(href, { replaceUrl: true });
     }, EVENT_SEARCH_DELAY_MS);
   }

@@ -1,0 +1,67 @@
+// The design system's segmented control (docs/design-system/assets/components.css, "Segmented view
+// switch").
+:host {
+  display: block;
+}
+
+.segmented {
+  margin-top: var(--space-6);
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  padding: var(--space-1);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.segmented--flush {
+  margin-top: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.segmented__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+
+  // The current view: filled, announced by aria-current.
+  &[aria-current='page'] {
+    background: var(--color-accent);
+    color: var(--color-fg-on-accent);
+  }
+}
+
+.segmented__option--ink[aria-current='page'] {
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+}
+
+// Touch: a 44 × 44 px target without changing the look (L2-038 AC4).
+@media (pointer: coarse) {
+  .segmented__option {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
+}

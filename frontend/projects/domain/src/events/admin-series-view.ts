@@ -1,10 +1,6 @@
-import type {
-  AdminSeriesDto,
-  AdminSeriesRowDto,
-  AdminSessionState,
-  SeriesCadenceDto,
-} from '@cf/api';
+import type { AdminSeriesDto, AdminSeriesRowDto, AdminSessionState } from '@cf/api';
 import { capacityUsed } from './capacity-used';
+import { seriesCadenceText } from './series-cadence';
 import { eventImageSrc, priceOf } from './event-card-view';
 import { EVENT_TIME_ZONE } from './event-when';
 
@@ -56,23 +52,13 @@ export interface AdminSeriesView {
   sessions: AdminSessionView[];
 }
 
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
 // Made once on first use, not at import: formatters are costly to create.
 let timeFormat: Intl.DateTimeFormat | undefined;
 let rangeFormat: Intl.DateTimeFormat | undefined;
 let sessionFormat: Intl.DateTimeFormat | undefined;
 
-/** How often a series meets, in words (ADR 0091): "Every Tuesday", "6 dates", "No dates yet". */
-export function seriesCadenceText(cadence: SeriesCadenceDto): string {
-  const day = cadence.weekday === null ? undefined : WEEKDAYS[cadence.weekday];
-  if (day) return `Every ${day}`;
-  if (cadence.dates === 0) return 'No dates yet';
-  return cadence.dates === 1 ? '1 date' : `${cadence.dates} dates`;
-}
-
 /** "6:30 PM" in Toronto; ICU's narrow no-break space before AM and PM becomes a plain space. */
-function timeOf(instant: string): string {
+export function seriesTimeOf(instant: string): string {
   timeFormat ??= new Intl.DateTimeFormat('en-US', {
     timeZone: EVENT_TIME_ZONE,
     hour: 'numeric',
@@ -82,7 +68,7 @@ function timeOf(instant: string): string {
 }
 
 /** "Apr 7" in Toronto. */
-function dayOf(instant: string): string {
+export function seriesDayOf(instant: string): string {
   rangeFormat ??= new Intl.DateTimeFormat('en-US', {
     timeZone: EVENT_TIME_ZONE,
     month: 'short',
@@ -111,7 +97,7 @@ export function seriesPickCardOf(row: AdminSeriesRowDto): SeriesPickCardView {
   return {
     id: row.id,
     title: row.title,
-    meta: row.startsAt ? `${cadence} · ${timeOf(row.startsAt)}` : cadence,
+    meta: row.startsAt ? `${cadence} · ${seriesTimeOf(row.startsAt)}` : cadence,
     count: `${row.joined} / ${row.capacity} joined`,
     href: `/series?id=${encodeURIComponent(row.id)}`,
   };
@@ -128,10 +114,10 @@ export function adminSeriesViewOf(series: AdminSeriesDto): AdminSeriesView {
   const { startsAt, firstStartsAt, lastStartsAt } = series;
   let when: string | null = null;
   if (startsAt && firstStartsAt && lastStartsAt) {
-    const first = dayOf(firstStartsAt);
-    const last = dayOf(lastStartsAt);
+    const first = seriesDayOf(firstStartsAt);
+    const last = seriesDayOf(lastStartsAt);
     const range = first === last ? first : `${first} – ${last}`;
-    when = `${seriesCadenceText(series.cadence)}, ${timeOf(startsAt)} · ${range}`;
+    when = `${seriesCadenceText(series.cadence)}, ${seriesTimeOf(startsAt)} · ${range}`;
   }
   const price = priceOf(series.priceCents);
   return {

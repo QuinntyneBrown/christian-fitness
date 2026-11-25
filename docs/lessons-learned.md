@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 31% (11 of 36 journeys; 33 of 113 days)
+**% complete:** 33% (12 of 36 journeys; 36 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2721,3 +2721,47 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   their tests and were restored.
 - "Read the initial total after each build": web stayed 278.21 kB through every slice; admin's
   280.52 kB is main's after journey 9, and admin `main` contains none of the resend code.
+
+## Journey 10: Browse event series
+
+**What slowed it**
+
+- Journey 19 merged ADR 0092 while this journey held it. The series ADR became 0093 before its
+  first commit, and the ADR index conflicted at the rebase; both rows were kept.
+- Slice 2 made every slice 1 spec fail on an unanswered `GET /api/events/series`: an
+  unanswered request answers 501, and the interceptor turns a 5xx into the server-error screen.
+  The shared fixture now answers the count and the list empty by default.
+- The worktree guard refused `cd` followed by git in one command, and Python on Windows wrote CRLF,
+  so a later replace missed. Files are read and written with `newline=''`, and prettier runs after
+  each scripted edit.
+- `seriesCadenceText` lived in the admin series view; the member card needed it too. It moved to
+  its own `series-cadence.ts`, so the member app imports no admin code.
+
+**New lessons**
+
+- A list that keeps "only the first session of each series" belongs before the cursor, over the
+  already filtered set. Then "Only events I'm going to" shows the session the member holds, not
+  the series' next one. The test proves this with a place at a later date.
+- A session's number counts cancelled dates, because it is its place among all the dates. The
+  first break, counting only sessions that were not cancelled, still passed. The test registered
+  for a session before the cancelled date. Moving the test to a session after it made the break
+  fail.
+- When the switch clears filters, the search needs no special handling: it is one more query
+  parameter. But `onSearch` must build the address for the view it is in, or typing in the Series
+  view jumps back to By date.
+
+**How earlier lessons worked**
+
+- "Check origin/main and open PRs for the ADR number": it caught 0092 before the first commit.
+- "Answer common endpoints in the shared fixture by default": it fixed slice 1's specs at once
+  after slice 2. Every new default is listed in the fixture's doc comment.
+- "Read the initial total after each build": web stayed 278.21 kB and admin 280.52 kB through all
+  four slices. The Series view, the segmented control and the series row load only with the
+  Events route.
+- "Break each rule alone": these breaks each failed their own tests and were restored:
+  - the count's published and to-come filters
+  - the list's member filter, cap and order
+  - `joined` matched case-insensitively
+  - the search address for the series view
+  - Show all series keeping a filter
+  - the session number

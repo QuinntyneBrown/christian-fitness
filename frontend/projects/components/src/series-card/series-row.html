@@ -1,0 +1,47 @@
+@if (loading()) {
+  <div class="series-row">
+    <cf-skeleton shape="image-16x9" />
+    <div class="series-row__body series-row__lines">
+      <cf-skeleton shape="text-sm" width="40" />
+      <cf-skeleton shape="title" />
+      <cf-skeleton shape="text-sm" width="80" />
+    </div>
+  </div>
+} @else {
+  <a class="series-row" [href]="href()" (click)="follow($event)">
+    <img
+      class="series-row__image"
+      [src]="imageSrc()"
+      alt=""
+      width="1376"
+      height="768"
+      loading="lazy"
+    />
+    <div class="series-row__body">
+      <p class="series-row__meta">
+        <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m17 2 4 4-4 4" />
+          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+          <path d="m7 22-4-4 4-4" />
+          <path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg
+        ><span>{{ meta() }}</span>
+      </p>
+      <h2 class="display series-row__title">{{ heading() }}</h2>
+      <p class="series-row__sub">{{ sub() }}</p>
+      <cf-session-meter class="series-row__meter" [bars]="bars()" [label]="done()" />
+    </div>
+    <div class="series-row__end">
+      @if (joined()) {
+        <cf-tag small>Joined</cf-tag>
+      } @else {
+        <span class="series-row__price">{{ price() }}</span>
+      }
+      <span class="series-row__next"
+        >{{ next() }}
+        <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" /></svg
+      ></span>
+    </div>
+  </a>
+}

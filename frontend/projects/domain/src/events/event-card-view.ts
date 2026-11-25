@@ -1,4 +1,5 @@
 import type { EventCategory, EventSummaryDto } from '@cf/api';
+import { seriesCadenceText } from './series-cadence';
 import { EVENT_TIME_ZONE } from './event-when';
 
 /** What an event card shows of an event, worded for the member (ADR 0027; mock `events/default`). */
@@ -23,6 +24,8 @@ export interface EventCardView {
   price: string;
   /** Spots left, only when few remain (10 or fewer). */
   spotsLeft?: number;
+  /** "Part of Couch to 5K Run Club · Session 3 of 8 · Every Tuesday", only for a session. */
+  series?: string;
 }
 
 /** Spots left at or under this many are said in words on the card. */
@@ -85,7 +88,13 @@ export function eventCardViewOf(event: EventSummaryDto): EventCardView {
     going: event.going,
     price: priceOf(event.priceCents),
     ...(left <= FEW_SPOTS_LEFT ? { spotsLeft: Math.max(left, 0) } : {}),
+    ...(event.series ? { series: eventSeriesLine(event.series) } : {}),
   };
+}
+
+/** A session's series line (L2-009 AC1; ADR 0080, ADR 0093). */
+export function eventSeriesLine(series: NonNullable<EventSummaryDto['series']>): string {
+  return `Part of ${series.title} · Session ${series.number} of ${series.total} · ${seriesCadenceText(series.cadence)}`;
 }
 
 export function priceOf(cents: number): string {

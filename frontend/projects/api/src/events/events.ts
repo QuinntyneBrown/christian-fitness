@@ -1,7 +1,20 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { EventCategory } from '../admin/admin-events';
+import type { SeriesCadenceDto } from '../admin/admin-series';
 import type { ListingKind } from '../directory/directory';
+
+/**
+ * The series a session belongs to (`EventSeriesTagDto`, L2-009 AC1; ADR 0080, ADR 0093): its
+ * number and the total among all the series' dates, cancelled ones included, and the cadence.
+ */
+export interface EventSeriesTagDto {
+  id: string;
+  title: string;
+  number: number;
+  total: number;
+  cadence: SeriesCadenceDto;
+}
 
 /**
  * An event as a member's list shows it (`EventSummaryDto`, ADR 0027): the start as an ISO instant
@@ -20,6 +33,8 @@ export interface EventSummaryDto {
   going: number;
   /** The key of its picture (`GET /api/events/images/{key}`), or none. */
   imageKey: string | null;
+  /** A session's series (By date, ADR 0093); null or absent for a standalone event and elsewhere. */
+  series?: EventSeriesTagDto | null;
 }
 
 /** One page of the member list and the cursor that asks for the next, or none on the last. */

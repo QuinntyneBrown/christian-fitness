@@ -1,0 +1,10 @@
+// The Series view's list (docs/design-system/assets/components.css, "series-list"); the rows, the
+// list card and the states are the library's.
+:host {
+  display: block;
+}
+
+.series-list {
+  display: block;
+  margin-top: var(--space-8);
+}
