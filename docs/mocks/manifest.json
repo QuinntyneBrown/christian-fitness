@@ -36,7 +36,13 @@
         "loading",
         "empty",
         "error",
-        "events-error"
+        "events-error",
+        "most-read-empty",
+        "most-read-failed",
+        "more-stories",
+        "more-stories-loading",
+        "more-stories-failed",
+        "river-capped"
       ]
     },
     {
@@ -622,7 +628,8 @@
         "success",
         "warning",
         "danger",
-        "persistent"
+        "persistent",
+        "legal-change"
       ]
     },
     {
@@ -970,6 +977,22 @@
       ]
     },
     {
+      "id": "leave-unsaved",
+      "kind": "dialog",
+      "title": "Leave without saving",
+      "group": "Member app",
+      "opens_from": "preferences",
+      "source": "Derived: L2-064 AC5, leaving Preferences with unsaved changes asks first; the prototype draws no such question.",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "busy": "Nothing is sent: Leave closes the page at once and Keep editing closes the dialog.",
+        "invalid": "There is no input to check; the two actions are always valid."
+      }
+    },
+    {
       "id": "privacy",
       "kind": "page",
       "title": "Privacy Policy",
@@ -978,7 +1001,8 @@
       "source": "Magic Patterns · prototype Christian Fitness · frame Privacy Policy (8tSZJ8o6AYCxUdTfkrsYBf)",
       "requirements": [],
       "states": [
-        "default"
+        "default",
+        "updating"
       ],
       "not_applicable": {
         "loading": "A static page shipped with the app; nothing loads.",
@@ -995,13 +1019,31 @@
       "source": "Magic Patterns · prototype Christian Fitness · frame Terms of Service (9Qs4AXZcWasYdN16XUCs5s)",
       "requirements": [],
       "states": [
-        "default"
+        "default",
+        "updating"
       ],
       "not_applicable": {
         "loading": "A static page shipped with the app; nothing loads.",
         "empty": "A document, not a collection.",
         "error": "A static page shipped with the app; nothing can fail to load."
       }
+    },
+    {
+      "id": "notifications",
+      "kind": "page",
+      "title": "Notifications",
+      "group": "Member app",
+      "route": "/notifications",
+      "source": "Derived: the notification channel decision (an in-app inbox opened from a bell in the header); the prototype draws neither.",
+      "requirements": [],
+      "states": [
+        "default",
+        "bell",
+        "all-read",
+        "loading",
+        "empty",
+        "error"
+      ]
     },
     {
       "id": "admin-stories",
@@ -1037,6 +1079,7 @@
         "saving",
         "invalid",
         "failed",
+        "preview",
         "loading",
         "error"
       ],
@@ -1056,6 +1099,9 @@
         "default",
         "scheduled",
         "test-sent",
+        "autosaving",
+        "missed",
+        "missed-invalid",
         "invalid",
         "submitting",
         "loading",
@@ -1151,6 +1197,8 @@
       "requirements": [],
       "states": [
         "default",
+        "screenshot",
+        "screenshot-open",
         "correction",
         "replying",
         "replied",

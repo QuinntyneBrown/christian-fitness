@@ -117,11 +117,11 @@ share of opens and clicks.
   sending limits are `<TO SUPPLY>`. This needs an ADR.
 - **Saving a draft issue.** The mock has no Save button and no saved indicator, and `L2-070` says
   nothing of keeping a draft between visits. The design saves fields with `SaveIssueCommand` after
-  a pause, as the story editor does; that behaviour, and its interval, need confirming and a mock
-  state.
+  a pause, as the story editor does; that behaviour, and its interval, need confirming the mocks
+  draw the "Saved {time}" indicator and the "Saving…" state on `admin-newsletter`.
 - **Rescheduling a missed issue.** `L2-070` AC8 lets a missed issue be scheduled for a later time
-  the same day, but the send card has no time field. A mock state and the rule for the time (any
-  later time that day, Toronto) are `<TO SUPPLY>`.
+  the same day, but the send card has no time field. The mock states `admin-newsletter/missed` and `missed-invalid` add a time picker
+  (any later time the same day, Toronto).
 - **Events this week and On the calendar.** The builder toggles events; the web version shows "the
   next four published events at the time of sending" (`L2-059` AC1). See
   `news/read-newsletter-on-web`.

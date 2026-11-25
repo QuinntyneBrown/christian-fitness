@@ -44,7 +44,7 @@ The feature is a vertical slice from the Preferences screen to the database. No 
 ### Open questions
 
 - **Notification channel.** No notification is sent today; the code has no push, in-app inbox or reminder sender (mocks README open question 1). The switches are stored and `Allows` is the single rule each future sender shall read. Which channel "on your phone and in the app" means needs an ADR before any reminder, message or follow notification is built.
-- **Leaving with unsaved changes.** AC5 asks first, but no mock draws the question. A CDK Dialog in the design system's `dialog` component is the house pattern; the browser's own prompt is the only option on closing the tab. A mock state is `<TO SUPPLY>`.
+- **Leaving with unsaved changes.** AC5 asks first. A CDK Dialog in the design system's `dialog` component is the house pattern; the browser's own prompt is the only option on closing the tab. The mock `dialogs/leave-unsaved` draws it: "Leave without saving?" with "Keep editing" and "Leave".
 - **Subscription without confirmation.** AC8 subscribes the account's address without a confirmation email. The newsletter design for `L2-058` AC2 records the time of consent; the consent source ("Preferences, signed in") should be recorded there too. Confirming this with the newsletter design is `<TO SUPPLY>`.
 - **Email extras senders.** Event alerts, the training plan and the devotion have no sender or schedule (mocks README open question 14), so AC8 can only be enforced for The Abundant Weekly until those senders exist.
 - **Receipts and security notices.** AC3's text says receipts and security notices still arrive. Whether the legal-change notice of `L2-067` AC6 counts as such a notice is `<TO SUPPLY>`.

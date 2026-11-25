@@ -5,10 +5,11 @@ from __future__ import annotations
 
 from cf_data import (ADMIN_STORIES, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
                      PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
-from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, field, form_alert, href, icon,
+from cf_ui import (CUR, admin_header, admin_shell, avatar, banner, busy_label, empty_block, error_block, field, form_alert, href, icon,
                    image, listing_mark, loading_region, screen, select, textarea, toast, toast_region, verified_badge)
 from overlays import dialog, over_admin
 from screens_admin import G, SRC, table_skeleton
+from screens_news import story_page, story_shell
 
 N = NEWSLETTER
 STATUS_CLASS = {"In review": "review", "New": "new", "Scheduled": "scheduled", "Replied": "replied", "Published": "published",
@@ -173,7 +174,7 @@ def editor(d: dict, status: str, *, schedule: bool = False, invalid: bool = Fals
         {pill(status)}
         <span class="editor__saved">{saved}</span>
         <div class="editor__actions">
-          <button class="btn btn--secondary btn--sm" type="button"{" disabled" if ro else ""}>{icon("eye")}Preview</button>
+          <button class="btn btn--secondary btn--sm" type="button"{" disabled" if ro else ""}{' data-mock-href="preview.html"' if not ro else ""}>{icon("eye")}Preview</button>
           {editor_actions(status, busy=busy, schedule=schedule)}
         </div>
       </div>
@@ -269,6 +270,16 @@ def _():
     return editor_page(LENT, "In review", failed=True, saved="Not saved")
 
 
+@s("preview", "Preview pressed: the story as readers will see it, with the headline, image, text and next step as written so far, under a bar that says nothing is published and returns to the editor.")
+def _():
+    st = {"id": "lent-fasting", "section": LENT["section"], "title": LENT["title"], "dek": LENT["dek"], "author": LENT["author"],
+          "ago": "Preview · not published", "image": LENT["image"], "read": "4 min read"}
+    bar = (f'<div class="banner banner--brand" role="status"><div class="banner__inner">{icon("eye")}<p class="banner__text">'
+           '<strong>Preview.</strong> Only staff can see this. It is not published, and nothing here goes to readers until you publish it.</p>'
+           f'<a class="banner__action" href="default.html">Back to editing</a></div></div>')
+    return story_shell(bar + story_page(st))
+
+
 @s("loading", "The story is loading: the bar is there; the image, text and panels show as skeletons.")
 def _():
     sk = f"""<div class="editor"><div class="editor__bar"><a class="back-link" href="{href("admin-stories")}">{icon("arrow-left")} Stories</a></div>
@@ -289,7 +300,9 @@ def _():
 # ===========================================================================
 # Newsletter
 # ===========================================================================
-def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False) -> str:
+def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False, missed: bool = False,
+                    time_error: bool = False, saved: str = "Saved 8:42 AM") -> str:
+    scheduled = scheduled or missed
     d = " disabled" if scheduled or busy else ""
     ro = scheduled or busy
     picked = ("sabbath-rest", "meal-prep-ministry", "walking-seniors")
@@ -303,17 +316,23 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
     evs = "".join(f'<button class="interest" type="button" aria-pressed="{"true" if i < 3 else "false"}"{d}>{icon("check", "icon--xs") if i < 3 else ""}{e["title"]}</button>'
                   for i, e in enumerate(MEMBER_EVENTS))
     opts = "".join(f'<option value="{x["id"]}"{" selected" if x["id"] == lead else ""}>{x["title"]}</option>' for x in STORIES)
-    send = (f'<button class="btn btn--on-brand btn--md btn--block" type="button" data-mock-href="default.html">Unschedule to edit</button>' if scheduled
+    send = (f'<button class="btn btn--inverse btn--md btn--block" type="submit" data-mock-href="scheduled.html">{icon("send")}Reschedule</button>' if missed
+            else f'<button class="btn btn--on-brand btn--md btn--block" type="button" data-mock-href="default.html">Unschedule to edit</button>' if scheduled
             else f'<button class="btn btn--inverse btn--md btn--block" type="submit" disabled aria-busy="true">{busy_label("Scheduling…")}</button>' if busy
             else f'<button class="btn btn--inverse btn--md btn--block" type="submit" data-mock-href="scheduled.html">{icon("send")}Schedule issue</button>')
     test = (f'<button class="btn btn--secondary btn--sm btn--grow" type="button">{icon("check")}Test sent</button>' if tested
             else '<button class="btn btn--secondary btn--sm btn--grow" type="button" data-mock-href="test-sent.html">Send me a test</button>')
     past = "".join(f"""<tr><td class="table__nowrap"><span class="table__strong">#{n}</span> <span class="muted">· {date}</span></td><td>{subject}</td>
                 <td class="table__end table__strong">{opens}</td><td class="table__end muted">{clicks}</td></tr>""" for n, date, subject, opens, clicks in PAST_ISSUES)
+    missed_alert = form_alert("This issue missed its send time", "Issue #%d was due at 7:00 AM and has not gone out. Choose a later time today and reschedule it." % (N["issue"] + 1))
+    when_missed = (f"""<div class="field send-card__reschedule"><label class="field__label" for="f-resend">Send later today at</label>
+              <input class="input input--sm" id="f-resend" name="resend" type="time" value="{"08:00" if time_error else "11:00"}"{' aria-invalid="true" aria-describedby="f-resend-error"' if time_error else ' aria-describedby="f-resend-hint"'}>
+              {'<span class="field__error" id="f-resend-error">Choose a time later than now (9:15 AM) and before midnight.</span>' if time_error else '<span class="field__hint" id="f-resend-hint">Today, Eastern time. It cannot be moved to another day.</span>'}</div>""" if missed else "")
     return f"""{admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}')}
       <form class="split split--builder" novalidate>
         <section class="card card--pad" aria-labelledby="issue-title">
-          <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}</div>
+          <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}<span class="editor__saved" role="status">{saved}</span></div>
+          {missed_alert if missed else ""}
           <div class="builder__fields stack-5">
             {field("Subject line", "subject", "" if invalid else "Shame is a terrible coach (and other things we learned this week)", error="Add a subject line before scheduling." if invalid else "", readonly=ro)}
             {textarea("Editor’s note", "note", "Morning, friends. This week Danielle Okafor tells us why shame is a terrible coach, and Pastor Ruth makes the case for doing nothing on purpose. See you at the 5K.", rows=3, readonly=ro)}
@@ -329,9 +348,10 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         </section>
         <aside class="aside-stack aside-stack--snug sticky-aside" aria-label="Send">
           <section class="send-card">
-            <p class="send-card__label">{'Scheduled for' if scheduled else 'Goes out'}</p>
+            <p class="send-card__label">{'Was due' if missed else 'Scheduled for' if scheduled else 'Goes out'}</p>
             <p class="send-card__date">Sat Apr 18</p>
             <p class="send-card__meta">7:00 AM Eastern · {N["readers"]} people</p>
+            {when_missed}
             {send}
           </section>
           <div class="btn-row"><a class="btn btn--secondary btn--sm btn--grow" href="{href("newsletter")}">{icon("eye")}Preview</a>{test}</div>
@@ -365,6 +385,21 @@ def _():
 @s("test-sent", "Send me a test pressed: the button reads \"Test sent\" and a status message names the address.")
 def _():
     return admin_shell("admin-newsletter", newsletter_page(tested=True))
+
+
+@s("autosaving", "The draft is saving as the editor types: the indicator beside the issue reads \"Saving…\"; once it lands it reads \"Saved\" and the time.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(saved="Saving…"))
+
+
+@s("missed", "A scheduled issue whose send time passed without it going out: a message says so, the fields are locked, and the card offers a time picker to send it later the same day, with Reschedule.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(missed=True))
+
+
+@s("missed-invalid", "Reschedule pressed with a time already past: the picker is marked and says to choose a later time today; nothing changes.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(missed=True, time_error=True))
 
 
 @s("invalid", "Schedule pressed with no subject line: the field is marked and says what to add; nothing is scheduled.")
@@ -782,7 +817,8 @@ def _():
 FB_STATE = {"f1": "default", "f2": "correction", "f3": "default", "f4": "resolved"}
 
 
-def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False) -> str:
+def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False,
+                   shot: bool = False) -> str:
     st = {x["id"]: x["status"] for x in FEEDBACK} | (status or {})
     f = next(x for x in FEEDBACK if x["id"] == sel)
     shown = [x for x in FEEDBACK if tab == "All" or st[x["id"]] == tab]
@@ -795,6 +831,8 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
     story = (f'<p class="feedback__link"><a class="btn btn--secondary btn--sm" href="{href("admin-story-editor", "published")}">{icon("pen-line")}Open the story to correct it</a></p>'
              if f["kind"] == "Content" else "")
     first = f["from"].split()[0]
+    shot_html = (f'''<figure class="feedback-detail__shot"><a class="feedback-detail__thumb-link" href="screenshot-open.html" aria-label="Open the screenshot full size">{image("run", "feedback-detail__thumb", "Screenshot from Michael Chen's iPhone")}</a>
+            <figcaption>Screenshot from Michael · 1170 × 2532 · 412 KB · Open to see it full size</figcaption></figure>''')
     send = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
             else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>')
     other = ('<button class="btn btn--secondary btn--md" type="button" data-mock-href="default.html">Reopen</button>' if st[sel] == "Resolved"
@@ -807,6 +845,7 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
           <div class="feedback-detail__head"><span class="kind-tag">{icon(FEEDBACK_KIND_ICON[f["kind"]])}{f["kind"]}</span>{pill(st[sel])}<span class="feedback-detail__when">{f["when"]}</span></div>
           <h2 class="visually-hidden">{f["kind"]} from {f["from"]}</h2>
           <p class="feedback-detail__text">{f["text"]}</p>
+          {shot_html if shot else ""}
           <dl class="feedback-detail__facts">
             <div class="feedback-detail__from">{avatar(f["initials"], size="sm")}<div><dt class="visually-hidden">From</dt><dd class="feedback-detail__strong">{f["from"]}</dd><dd class="feedback-detail__sub">{f["email"]}</dd></div></div>
             <div><dt>Sent from</dt><dd class="feedback-detail__strong">{f["page"]}</dd></div>
@@ -825,6 +864,18 @@ s = screen("admin-feedback", "page", "Feedback inbox", route="/admin/feedback", 
 @s("default", "Every note from members, newest first, with its kind and status; the chosen one (a bug report) shows in full with who sent it, the page it was sent from, their device, a reply box and Mark resolved.")
 def _():
     return admin_shell("admin-feedback", feedback_inbox())
+
+
+@s("screenshot", "A note with a screenshot: a thumbnail of what the member saw sits under their words and opens full size; staff see it before they reply.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox(shot=True))
+
+
+@s("screenshot-open", "The screenshot opened full size in a dialog over the inbox: Close returns to the note. It is shown as an image only, never as HTML.")
+def _():
+    body = f'<figure>{image("run", "feedback-detail__full", "Screenshot from Michael Chen\'s iPhone")}<figcaption class="visually-hidden">Sent with the note from Michael Chen</figcaption></figure>'
+    foot = '<button class="btn btn--secondary btn--grow" type="button" data-mock-href="screenshot.html">Close</button>'
+    return over_admin("admin-feedback", feedback_inbox(shot=True), dialog("Screenshot from Michael Chen", body, foot, sub="1170 × 2532 · 412 KB", did="shot"))
 
 
 @s("correction", "A correction to a story chosen: a button opens that story in the editor.")

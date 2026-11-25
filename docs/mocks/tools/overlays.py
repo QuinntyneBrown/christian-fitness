@@ -553,6 +553,13 @@ def _():
     return member_shell("home", M.home(), banner=b) + note("Persistent: shown on every signed-in page until dismissed; dismissal is remembered.", "top: 8rem; right: 1rem;")
 
 
+@s("legal-change", "A change to the Privacy Policy and Terms is 30 days out: a dismissible banner names the date and links to what is changing; using the app after that date means accepting it (L2-067).")
+def _():
+    b = banner("info", "info", "<strong>We're updating our Privacy Policy and Terms on May 20, 2026.</strong> "
+               f'<a class="inline-link" href="{href("privacy", "updating", "whats-changing")}">Read what\'s changing.</a> Using Christian Fitness after that date means you accept them.')
+    return member_shell("home", M.home(), banner=b) + note("Dismissible. Dismissal is remembered; the banner goes when the update takes effect.", "top: 8rem; right: 1rem;")
+
+
 # ===========================================================================
 # Moderate a member (admin · Members)
 # ===========================================================================

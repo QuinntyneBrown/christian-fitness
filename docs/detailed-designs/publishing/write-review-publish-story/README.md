@@ -144,7 +144,7 @@ allows.
 - **Card wording and listings.** The next step card's words have no field in the editor, and
   directory listings do not exist in the code yet (see `news/read-story`).
 - **Preview target.** The mock's Preview has nothing behind it (`docs/mocks/README.md`, open
-  question 10); `StoryPreviewPage` in the admin app is this design's answer and needs a mock state.
+  question 10); `StoryPreviewPage` in the admin app is this design's answer and the mock state `admin-story-editor/preview` draws it.
 
 ## Requirements
 

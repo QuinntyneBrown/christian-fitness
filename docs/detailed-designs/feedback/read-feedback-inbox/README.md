@@ -44,7 +44,7 @@ This feature covers the staff side: the Feedback screen of the admin console (mo
 - **Email reply.** The From and Reply-To of a reply email (the relay sends as `no-reply@christian.fitness`, ADR 0047) and whether the member can answer it are `<TO SUPPLY>`.
 - **Toast wording.** The `replied` mock's toast reads "He gets it by email."; the system records no gender, so the copy should name the member or the channel only ("Michael gets it by email.").
 - **Kind names.** The inbox mock's Something's broken, Content and Praise differ from the member form's names (see [send feedback](../send-feedback/README.md)).
-- **Screenshot.** No state of the mock shows a screenshot; a mock state is `<TO SUPPLY>`.
+- **Screenshot.** `admin-feedback/screenshot` shows a thumbnail in the detail pane and `screenshot-open` the full size.
 - **Deleted members.** A note's sender may be deleting or erased ([download and delete data](../../preferences/download-and-delete-data/README.md)); the list shows "A former member" until erasure removes the note, and a reply to a deleting member is refused (code `<TO SUPPLY>`).
 - **Dashboard.** The amended `L2-020` and the Dashboard mock add a feedback line to the work awaiting staff; that belongs to [view the dashboard](../../admin-dashboard/view-dashboard/README.md) and reads the same New count.
 

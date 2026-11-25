@@ -4,7 +4,7 @@ Manage Preferences, Privacy Policy and Terms of Service."""
 from __future__ import annotations
 
 from cf_data import ADD_ONS, LISTING_KINDS, ME, NEWSLETTER, PREF_AREAS, PREF_INTERESTS
-from cf_ui import (busy_label, error_block, field, file_field, form_alert, href, icon, loading_region, lockup, member_shell,
+from cf_ui import (busy_label, empty_block, error_block, field, file_field, form_alert, href, icon, loading_region, lockup, member_shell,
                    screen, textarea)
 from overlays import dialog, over_member
 from screens_member import SRC
@@ -338,7 +338,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
         <nav class="side-nav" aria-label="Preference sections"><ul class="side-nav__list">{nav}</ul></nav>
         <div class="prefs__sections">
           {pref_section("email", "Email", email_sub, email_rows + off)}
-          {pref_section("notifications", "Notifications", "On your phone and in the app.", push_rows)}
+          {pref_section("notifications", "Notifications", "Shown in the app under the bell, with a count of what is new.", push_rows)}
           {pref_section("privacy", "Privacy", "Who can see you on Christian Fitness.", privacy)}
           {pref_section("suggestions", "Suggestions", "What we use to pick events and stories for you.", suggestions)}
           {pref_section("account", "Your data", "It’s yours. Take it with you or take it down.", account)}
@@ -447,10 +447,25 @@ def _():
     return delete_account(failed=True)
 
 
+# --- Leave without saving (dialog) ---------------------------------------------
+s = screen("leave-unsaved", "dialog", "Leave without saving", opens_from="preferences",
+           source="Derived: L2-064 AC5, leaving Preferences with unsaved changes asks first; the prototype draws no such question.",
+           not_applicable={"busy": "Nothing is sent: Leave closes the page at once and Keep editing closes the dialog.",
+                           "invalid": "There is no input to check; the two actions are always valid."})
+
+
+@s("default", "Leaving Preferences with a change not yet saved (a link, the back button or a tab): a dialog asks \"Leave without saving?\" with Keep editing, the safe choice, focused first, and Leave.")
+def _():
+    body = '<p class="prose">You changed a setting that isn\'t saved yet. If you leave now, it goes back to what it was.</p>'
+    foot = (f'<button class="btn btn--secondary btn--grow" type="button" autofocus data-mock-href="{href("preferences", "unsaved")}">Keep editing</button>'
+            f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("profile")}">Leave</button>')
+    return over_member("profile", preferences(plan=True, bar="unsaved"), dialog("Leave without saving?", body, foot, did="leave"))
+
+
 # ===========================================================================
 # Privacy Policy and Terms of Service
 # ===========================================================================
-def legal(title: str, summary: list, sections: list, other: tuple) -> str:
+def legal(title: str, summary: list, sections: list, other: tuple, *, banner: str = "", changing: str = "") -> str:
     toc = "".join(f'<li><a class="side-nav__link side-nav__link--numbered" href="#{sid}"><span class="side-nav__n">{i}.</span>{t}</a></li>'
                   for i, (sid, t, _) in enumerate(sections, 1))
     points = "".join(f"<li>{x}</li>" for x in summary)
@@ -463,16 +478,18 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
       <a class="btn btn--ghost masthead__back masthead__back--ink" href="{href(other[1])}">{other[0]}</a>
     </div>
   </header>
+  {banner}
   <main id="main" class="container page legal">
     <a class="back-link" href="{href("landing")}">{icon("arrow-left")} Christian Fitness</a>
     <h1 class="display detail-title legal__title">{title}</h1>
-    <p class="subtitle legal__effective">Effective April 1, 2026</p>
+    <p class="subtitle legal__effective">Effective April 1, 2026{" · an update takes effect May 20, 2026" if changing else ""}</p>
     <div class="legal__grid">
       <nav class="side-nav" aria-label="Contents">
         <p class="side-nav__title">Contents</p>
         <ol class="side-nav__list">{toc}</ol>
       </nav>
       <div class="legal__body">
+        {changing}
         <section class="legal__summary" aria-labelledby="short-title">
           <h2 class="display legal__summary-title" id="short-title">The short version</h2>
           <ul class="legal__points">{points}</ul>
@@ -563,6 +580,25 @@ TERMS_SECTIONS = [
 LEGAL_NA = {"loading": "A static page shipped with the app; nothing loads.", "empty": "A document, not a collection.",
             "error": "A static page shipped with the app; nothing can fail to load."}
 
+LEGAL_BANNER = ("We\u2019re updating our Privacy Policy and Terms on May 20, 2026. "
+                f'<a class="inline-link" href="{href("privacy", "updating", "whats-changing")}">Read what\u2019s changing.</a> Using Christian Fitness after that date means you accept them.')
+
+
+def whats_changing(doc: str) -> str:
+    return f"""<section class="legal__summary" id="whats-changing" aria-labelledby="changing-title">
+          <h2 class="display legal__summary-title" id="changing-title">What\u2019s changing on May 20, 2026</h2>
+          <ul class="legal__points">
+            <li>Notifications for event reminders, messages, listings you follow and changes to your events now appear in the app, under the bell. The switches in Preferences decide which ones you get.</li>
+            <li>You can read these changes now. The {doc} that applies until May 20 is the one below, effective April 1, 2026.</li>
+            <li>If you keep using Christian Fitness after May 20, 2026, you accept the updated Privacy Policy and Terms. If you don\u2019t, you can delete your account from Preferences.</li>
+          </ul>
+        </section>"""
+
+
+def legal_banner() -> str:
+    return (f'<div class="banner banner--info" role="status"><div class="banner__inner">{icon("info")}<p class="banner__text">{LEGAL_BANNER}</p>'
+            f'<button class="icon-button icon-button--sm banner__close" type="button" aria-label="Dismiss">{icon("x")}</button></div></div>')
+
 s = screen("privacy", "page", "Privacy Policy", route="/privacy", source=SRC + "Privacy Policy (8tSZJ8o6AYCxUdTfkrsYBf)", group="Public",
            not_applicable=LEGAL_NA)
 
@@ -572,6 +608,12 @@ def _():
     return legal("Privacy Policy", PRIVACY_SUMMARY, PRIVACY_SECTIONS, ("Terms of Service", "terms"))
 
 
+@s("updating", "Derived: 30 days before a change takes effect the pages show a dismissible banner (\"We're updating our Privacy Policy and Terms on May 20, 2026. Read what's changing.\") and a \"What's changing\" section above the summary; continued use means acceptance.")
+def _():
+    return legal("Privacy Policy", PRIVACY_SUMMARY, PRIVACY_SECTIONS, ("Terms of Service", "terms"), banner=legal_banner(),
+                 changing=whats_changing("Privacy Policy"))
+
+
 s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Terms of Service (9Qs4AXZcWasYdN16XUCs5s)", group="Public",
            not_applicable=LEGAL_NA)
 
@@ -579,3 +621,101 @@ s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Te
 @s("default", "The Terms of Service, in the same layout: a plain-language summary, nine numbered sections with contents, and who to ask.")
 def _():
     return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"))
+
+
+@s("updating", "Derived: the same banner and \"What's changing\" section on the Terms of Service while an update is pending.")
+def _():
+    return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"), banner=legal_banner(),
+                 changing=whats_changing("Terms of Service"))
+
+
+# ===========================================================================
+# Notifications: the bell, the inbox and the switches in Preferences (in-app inbox)
+# ===========================================================================
+NOTIFICATIONS = [
+    {"id": "n1", "kind": "Event reminder", "icon": "clock", "new": True, "when": "8:00 AM",
+     "text": "Easter Sunrise 5K is in 3 days: Sat Apr 18, 6:45 AM at Martin Goodman Trail.", "to": ("event-detail", "default")},
+    {"id": "n2", "kind": "Message", "icon": "message-circle", "new": True, "when": "7:52 AM",
+     "text": "Michael Chen wrote in Sunrise 5K Crew: “I'll be pacing the 6:30 group.”", "to": ("messages", "default")},
+    {"id": "n3", "kind": "Change to your event", "icon": "calendar-days", "new": True, "when": "Yesterday",
+     "text": "Stretch & Pray: Mobility Morning, Wed May 6, now starts at 9:30 AM in Grace Fellowship Hall.", "to": ("event-detail", "default")},
+    {"id": "n4", "kind": "New date from a listing you follow", "icon": "heart", "new": True, "when": "Yesterday",
+     "text": "Lakeshore Runners Fellowship posted a new event: Couch to 5K: Week 3.", "to": ("event-series", "default")},
+    {"id": "n5", "kind": "Event reminder", "icon": "clock", "new": False, "when": "Apr 12",
+     "text": "Couch to 5K: Week 2 is tomorrow at 6:30 PM at Humber Bay Park East.", "to": ("event-series", "default")},
+    {"id": "n6", "kind": "Message", "icon": "message-circle", "new": False, "when": "Apr 10",
+     "text": "Danielle Okafor wrote: “Happy to do a first session on a Saturday morning.”", "to": ("messages", "default")},
+]
+
+
+def notification_rows(items: list) -> str:
+    rows = "".join(f"""<li><a class="feedback-row" href="{href(*x["to"])}">
+              {icon(x["icon"], "feedback-row__icon")}
+              <span class="feedback-row__body"><span class="feedback-row__top"><span class="feedback-row__from{' feedback-row__from--new' if x["new"] else ''}">{x["kind"]}</span><span class="feedback-row__when">{x["when"]}</span></span>
+              <span class="feedback-row__text">{x["text"]}</span>{'<span class="visually-hidden">New</span>' if x["new"] else ""}</span></a></li>""" for x in items)
+    return f'<ul class="card card--list feedback-list">{rows}</ul>'
+
+
+def notifications_page(body: str, *, mark_all: bool = True) -> str:
+    action = ('<button class="btn btn--link" type="button" data-mock-href="all-read.html">Mark all as read</button>' if mark_all else "")
+    return f"""    <div class="container page">
+      <div class="section-head">
+        <h1 class="display page-title">Notifications</h1>
+        {action}
+      </div>
+      <p class="subtitle">Event reminders, messages, new dates from listings you follow and changes to your events. <a class="inline-link" href="{href("preferences", "default", "notifications")}">Choose which ones you get</a>.</p>
+      {body}
+    </div>"""
+
+
+def over_bell(page: str) -> str:
+    """The bell open over the page: no scrim, since a menu is not modal."""
+    return member_shell("", page, bell=4, bell_menu=bell_menu(NOTIFICATIONS[:5]))
+
+
+def bell_menu(items: list) -> str:
+    rows = "".join(f'<a class="menu__item" role="menuitem" href="{href(*x["to"])}">{icon(x["icon"])}<span>{x["text"]}</span></a>' for x in items)
+    return f"""<div class="menu" role="menu" aria-label="Latest notifications">
+      <div class="menu__section"><p class="menu__heading">Notifications</p>{rows}</div>
+      <div class="menu__section"><a class="menu__item" role="menuitem" href="{href("notifications")}">See all notifications</a></div>
+    </div>"""
+
+
+s = screen("notifications", "page", "Notifications", route="/notifications", group="Member app",
+           source="Derived: the notification channel decision (an in-app inbox opened from a bell in the header); the prototype draws neither.")
+
+
+@s("default", "The inbox: newest first, each notification with its kind, when it came and what happened; the new ones are bold and read \"New\" to a screen reader; the bell's count is the number of new ones. Each opens the thing it is about.")
+def _():
+    return member_shell("", notifications_page(notification_rows(NOTIFICATIONS)), bell=4)
+
+
+@s("bell", "The bell pressed: a menu under it lists the latest five notifications and \"See all notifications\"; the count on the bell is the new ones.")
+def _():
+    return over_bell(notifications_page(notification_rows(NOTIFICATIONS)))
+
+
+@s("all-read", "Mark all as read pressed: the bold goes, the bell has no count, and a status message says so.")
+def _():
+    items = [dict(x, new=False) for x in NOTIFICATIONS]
+    return member_shell("", notifications_page(notification_rows(items) + '<p class="visually-hidden" role="status">All notifications marked as read.</p>', mark_all=False), bell=0)
+
+
+@s("loading", "Notifications loading: the heading is there; rows show as skeletons.")
+def _():
+    row = ('<li class="feedback-row"><span class="skeleton skeleton--text w-30"></span><span class="skeleton skeleton--text w-90"></span></li>')
+    return member_shell("", notifications_page(loading_region("Loading notifications", f'<ul class="card card--list feedback-list">{row * 5}</ul>'), mark_all=False), bell=0)
+
+
+@s("empty", "No notifications yet: says what will show here and links to Preferences to choose which.")
+def _():
+    return member_shell("", notifications_page(empty_block(
+        "Nothing new yet", "Reminders for events you're going to, replies to your messages and changes to your events will show here.",
+        f'<a class="btn btn--secondary btn--sm" href="{href("preferences", "default", "notifications")}">Notification settings</a>'), mark_all=False), bell=0)
+
+
+@s("error", "Notifications failed to load: retry in place; the bell shows no count it cannot know.")
+def _():
+    return member_shell("", notifications_page(error_block(
+        "Notifications didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html",
+        back=("Back to home", href("home")), ref="CF-N8B3"), mark_all=False), bell=0)

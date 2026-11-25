@@ -128,7 +128,7 @@ The slice runs from the landing route to the stories and events tables. The mock
 - **`ListFrontPageStoriesQuery` / `ListFrontPageStoriesHandler`** — reads Published stories only,
   newest `PublishedAt` first, then `Id`. Without a section it answers the newest as the lead, the
   next four as headlines and the following ones as the river; with a section it answers only that
-  section's stories as the river. The river is bounded at `<TO SUPPLY>` stories (`L2-037`). An
+  section's stories as the river. The river is bounded at 60 stories, 12 at a time (`L2-037`). An
   unknown section is refused by `ListFrontPageStoriesValidator` with 400 `validation_failed`; the
   page never sends one, since `newsSectionOf` maps it to Latest. Drafts, stories in review,
   scheduled and unpublished stories never appear.
@@ -163,10 +163,12 @@ The slice runs from the landing route to the stories and events tables. The mock
   count out because no data backs it; `L2-001` AC5 does not name it. It stays out until a
   requirement states it.
 - **Most read states.** The mock shows "Most read" filled in every state, `loading` and `error`
-  included; `L2-001` states no loading, empty or failed state for it, and whether it loads with
-  the stories or on its own is open.
-- **River length.** `L2-001` AC2 says "the rest follow"; no count or paging is stated. A bound is
-  needed (`L2-037`).
+  included; `L2-001` states no loading, empty or failed state for it, and the mocks now draw
+  `loading` (skeleton), `most-read-empty` and `most-read-failed` (the section is hidden, nothing
+  else breaks). It loads with the stories request, not separately.
+- **River length.** `L2-001` AC2 says "the rest follow"; no count or paging is stated. The mocks show 12 stories, then
+  "More stories" loads 12 at a time, capped at 60 (`L2-037`): `more-stories`,
+  `more-stories-loading`, `more-stories-failed` and `river-capped`.
 - **Story links in the mock.** The mocks README records that stories do not open from the
   landing mock; `L2-001` AC2 makes every title lead to its page (`L2-061`), which this design
   follows.
