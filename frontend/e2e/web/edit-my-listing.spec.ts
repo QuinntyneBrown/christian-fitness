@@ -9,7 +9,7 @@ import {
 import { OwnerListingEditorDialog } from '../page-objects/web/owner-listing-editor.dialog';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-079 (journey 20; ADR 0093): the member who owns a listing edits it from its profile
+// L2-079 (journey 20; ADR 0094): the member who owns a listing edits it from its profile
 // (mocks `listing-profile/owner` and `owner-listing-editor/`).
 test.describe('Member app, edit my listing', () => {
   test('The owner sees Edit listing in place of Follow and Message, and it opens the editor on the listing as it stands', async ({
@@ -207,6 +207,52 @@ test.describe('Member app, edit my listing', () => {
 
     await expect(editor.dialog).toHaveCount(0);
     expect(sent.map((body) => body.photoKey)).toEqual([key]);
+  });
+
+  test('A new name waits for staff: the editor says so and stays open, closing it shows the toast, and the editor reopens on the waiting name', async ({
+    page,
+    api,
+  }) => {
+    answerListingProfile(api, [EASTSIDE_OWNED]);
+    const waiting = {
+      ...EASTSIDE_OWNED,
+      owner: {
+        ...EASTSIDE_OWNED.owner!,
+        pendingName: 'Eastside Women’s Strength',
+        pendingKind: 'organization',
+      },
+    };
+    const sent = answerOwnListingSave(api, () => ({ listing: waiting, nameChangePending: true }));
+    const profile = new WebListingProfilePage(page);
+    const editor = new OwnerListingEditorDialog(page);
+    await profile.open(EASTSIDE_OWNED.id);
+    await profile.editListingButton.click();
+
+    await editor.name.fill('Eastside Women’s Strength');
+    await editor.saveButton.click();
+
+    await expect(editor.alertTitle).toHaveText('Staff will check the new name');
+    await expect(editor.alertText).toHaveText(
+      'A new name or kind goes back to our team before it shows. Until then the directory keeps the old one; your other changes are live.',
+    );
+    await expect(editor.alert).toHaveAttribute('role', 'status');
+    await expect(editor.alert).toBeFocused();
+    await expect(editor.saveButton).toHaveText('Save changes');
+    expect(sent.map((body) => body.name)).toEqual(['Eastside Women’s Strength']);
+    await expect(profile.successToasts).toHaveCount(0);
+
+    await page.keyboard.press('Escape');
+
+    await expect(editor.dialog).toHaveCount(0);
+    await expect(profile.name).toHaveText('Eastside Ladies Who Lift');
+    await expect
+      .poll(() => profile.successToastViews())
+      .toEqual([['Your listing is updated', 'Your changes are live in the directory.']]);
+    await expect(profile.editListingButton).toBeFocused();
+
+    await profile.editListingButton.click();
+
+    await expect(editor.name).toHaveValue('Eastside Women’s Strength');
   });
 
   for (const [why, reply] of [

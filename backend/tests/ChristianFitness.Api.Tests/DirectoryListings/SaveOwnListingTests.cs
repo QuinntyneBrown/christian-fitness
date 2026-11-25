@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-079 AC1, AC3 and AC4 (journey 20; ADR 0093): <c>PUT /api/directory/{id}</c> saves the owner's
+/// L2-079 AC1, AC3 and AC4 (journey 20; ADR 0094): <c>PUT /api/directory/{id}</c> saves the owner's
 /// about, website, photo, focus tags and contact at once and audits it <c>listing.edited</c>; anyone
 /// else is refused <c>not_listing_owner</c>, and a field that breaks a rule is refused
 /// <c>validation_failed</c> with its code.
@@ -95,6 +95,33 @@ public sealed class SaveOwnListingTests(DirectoryFactory factory)
         var entry = await InDbAsync(db => db.AuditEntries.SingleAsync(e => e.RecordId == listing && e.Action == "listing.edited", TestContext.Current.CancellationToken));
         Assert.Equal(owner, entry.ActorMemberId);
         Assert.Equal("DirectoryListing", entry.RecordType);
+    }
+
+    [Fact]
+    public async Task Given_the_owner_When_they_save_a_new_name_and_kind_Then_both_wait_for_staff_the_directory_keeps_the_live_ones_and_the_rest_is_live()
+    {
+        await factory.ClearAsync();
+        var (cookie, _, listing) = await OwnedAsync("eastside.rename@example.org");
+
+        var (status, body) = await SaveAsync(factory, listing, cookie, Body(("name", " Eastside Strength Club "), ("kind", "church-ministry")));
+
+        Assert.Equal(HttpStatusCode.OK, status);
+        Assert.True(body.GetProperty("nameChangePending").GetBoolean());
+        var saved = body.GetProperty("listing");
+        Assert.Equal(("Eastside Ladies Who Lift", "organization"), (saved.GetProperty("name").GetString(), saved.GetProperty("kind").GetString()));
+        var own = saved.GetProperty("owner");
+        Assert.Equal(("Eastside Strength Club", "church-ministry"), (own.GetProperty("pendingName").GetString(), own.GetProperty("pendingKind").GetString()));
+        Assert.Equal("About 25 women, coached by a CSEP trainer.", saved.GetProperty("description").GetString());
+        var directory = await BrowseDirectoryTests.ReadAsync(factory);
+        Assert.Equal(["Eastside Ladies Who Lift"], BrowseDirectoryTests.NamesOf(directory));
+        var (_, visitorView) = await ListingProfileTests.ReadAsync(factory, listing);
+        Assert.Equal("Eastside Ladies Who Lift", visitorView.GetProperty("name").GetString());
+        Assert.Equal(JsonValueKind.Null, visitorView.GetProperty("owner").ValueKind);
+
+        var (_, withdrawn) = await SaveAsync(factory, listing, cookie, Body());
+
+        Assert.False(withdrawn.GetProperty("nameChangePending").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, withdrawn.GetProperty("listing").GetProperty("owner").GetProperty("pendingName").ValueKind);
     }
 
     [Fact]

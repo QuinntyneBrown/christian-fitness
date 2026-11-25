@@ -41,11 +41,13 @@ export interface OwnerListingEditorResult {
 
 /**
  * The owner's listing editor, "Edit your listing" (mock docs/mocks/dialogs/owner-listing-editor/;
- * L2-079; ADR 0093): a CDK Dialog rendering the library's dialog with the listing's name, about,
+ * L2-079; ADR 0094): a CDK Dialog rendering the library's dialog with the listing's name, about,
  * website, photo, focus tags (one comma field) and contact email. Focus starts on Name. A chosen
  * photo is uploaded at once and saved with the listing by its key. While a
  * save is on its way the button reads "Saving…", the fields hold still and the dialog stays open;
- * a save that goes through closes it with the listing as saved. A refusal that names fields shows
+ * a save that goes through closes it with the listing as saved, unless a new name waits for staff:
+ * then it stays open on an alert saying so, and closing it in any way gives the listing as saved
+ * (L2-079 AC5). A refusal that names fields shows
  * each on its field with an error summary that takes focus; any other failure shows one alert
  * above the fields (L2-079 AC3, AC6); both keep what was typed. Every word the listing gives is
  * rendered as text.
@@ -70,6 +72,8 @@ export class OwnerListingEditorDialog {
   protected readonly values = signal<OwnListingEditorValues>(ownListingValuesOf(this.listing));
   protected readonly saving = signal(false);
   protected readonly uploading = signal(false);
+  /** The listing as saved while the review alert shows, which closing the dialog hands back. */
+  protected readonly reviewed = signal<ListingProfileDto | null>(null);
   protected readonly failed = signal(false);
   protected readonly errors = signal<OwnListingFieldErrors>({});
   protected readonly errorItems = computed(() => ownListingErrorItems(this.errors()));
@@ -111,9 +115,19 @@ export class OwnerListingEditorDialog {
     this.clearError('photo');
   }
 
+  constructor() {
+    // While the review alert shows, Escape closes with the saved listing rather than nothing.
+    this.ref.keydownEvents.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event.key !== 'Escape' || this.reviewed() === null || this.saving()) return;
+      event.preventDefault();
+      this.close();
+    });
+  }
+
   protected close(): void {
     if (this.saving()) return;
-    this.ref.close();
+    const saved = this.reviewed();
+    this.ref.close(saved === null ? undefined : { saved });
   }
 
   protected save(): void {
@@ -122,13 +136,21 @@ export class OwnerListingEditorDialog {
     // Escape, Close and the scrim wait for the answer, so it is never lost.
     this.ref.disableClose = true;
     this.failed.set(false);
+    this.reviewed.set(null);
     // Cleared first, so a refusal again draws a new summary, which takes focus.
     this.errors.set({});
     this.directory
       .updateOwn(this.listing.id, ownListingUpdateOf(this.values()))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ listing }) => this.ref.close({ saved: listing }),
+        next: ({ listing, nameChangePending }) => {
+          if (!nameChangePending) {
+            this.ref.close({ saved: listing });
+            return;
+          }
+          this.reviewed.set(listing);
+          this.saving.set(false);
+        },
         error: (error: unknown) => {
           const fields = ownListingErrorsOf(error);
           if (fields) this.errors.set(fields);

@@ -7,6 +7,11 @@
 >
   @if (errorItems().length > 0) {
     <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+  } @else if (reviewed() !== null) {
+    <cf-alert tone="info" heading="Staff will check the new name">
+      A new name or kind goes back to our team before it shows. Until then the directory keeps the
+      old one; your other changes are live.
+    </cf-alert>
   } @else if (failed()) {
     <cf-alert heading="We couldn't save your listing">
       Something went wrong on our side. Your changes are still here, so try again in a moment.
