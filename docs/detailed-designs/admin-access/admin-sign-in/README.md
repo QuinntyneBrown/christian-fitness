@@ -33,7 +33,7 @@ idle expiry and the forbidden screen are those of
 [ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md) and
 [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md);
 [ADR 0013](../../../adr/0013-staff-two-step-verification.md) (two-step verification) is superseded
-by [ADR 0062](../../../adr/0062-retire-staff-password-and-two-step.md).
+by [ADR 0074](../../../adr/0074-retire-staff-password-and-two-step.md).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`): the brand, the heading "Staff sign
@@ -140,7 +140,7 @@ for the team's domain in Google Workspace (`L2-046` AC2).
   password form of `SignInPage`. `docs/operations/settings.md` and `docs/operations/deployment.md`
   still describe `cf two-step` and the seeded staff password (`seed-staff-password`). The next
   slices remove each of them, with a later migration that drops the two-step tables, so that
-  `/sign-in/verify` is the admin not-found page (`L2-046` AC1). ADR 0062 records the decision
+  `/sign-in/verify` is the admin not-found page (`L2-046` AC1). ADR 0074 records the decision
   and the deployment ordering needed to keep the running revision working.
 - **The first staff account.** With Google, `cf seed` reads the required `Seed:AdminEmail` setting
   for the first Admin's `@christian.fitness` account. It refuses with a clear error if the setting
