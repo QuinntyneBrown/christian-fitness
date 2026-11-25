@@ -34,7 +34,7 @@ public sealed class LegalAnnouncementTests(ApiFactory factory) : IClassFixture<A
             Assert.Contains("2026-06-01", message.Text, StringComparison.Ordinal);
             Assert.Contains("https://example.org/privacy#whats-changing", message.Text, StringComparison.Ordinal);
         });
-        clock.Advance(TimeSpan.FromDays(1));
+        clock.Advance(TimeSpan.FromSeconds(1));
         await Assert.ThrowsAsync<InvalidOperationException>(() => announce.SendAsync("privacy", version, token));
         Assert.Equal(2, mail.Sent().Count);
     }
