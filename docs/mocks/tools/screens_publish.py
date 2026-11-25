@@ -1208,7 +1208,7 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
         ok = n == 4
         approve = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Approving…")}</button>' if busy
                    else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="approved.html"{"" if ok else " disabled aria-describedby=" + chr(34) + "approve-hint" + chr(34)}>Approve listing</button>')
-        foot = (approve + f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="declined.html"{" disabled" if busy else ""}>Decline</button>'
+        foot = (approve + f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="{href("decline-suggestion")}"{" disabled" if busy else ""}>Decline</button>'
                 + ("" if ok else '<p class="suggestion__hint" id="approve-hint">Approve unlocks when all four checks pass.</p>'))
     site = (f' · <a class="link link--ink" href="https://{sg["website"]}" target="_blank" rel="noopener noreferrer">{sg["website"]} {icon("external-link", "icon--xs")}<span class="visually-hidden"> (opens in a new tab)</span></a>'
             if sg["website"] else "")
@@ -1371,6 +1371,66 @@ def _():
 @s("failed", "Saving failed: a message in the dialog; the listing is unchanged and the edits stay.")
 def _():
     return directory_listing_editor(failed=True)
+
+
+def decline_suggestion(*, invalid: bool = False, busy: bool = False, failed: bool = False, decided: bool = False) -> str:
+    """Decline a suggestion (L2-073 AC8; ADR 0087): an optional reason of at most 500 characters,
+    kept for staff and never sent to the member who suggested it or to the suggested party."""
+    sg = next(x for x in SUGGESTIONS if x["id"] == "s2")
+    typed = ""
+    reason_err = ""
+    alert = ""
+    if invalid:
+        typed = "Could not confirm the clinic schedule with Hope Church. " * 9
+        reason_err = "Use 500 characters or fewer"
+        alert = error_summary("1 thing to fix", [(reason_err, "f-reason")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    elif busy or failed or decided:
+        typed = "We couldn’t confirm his certification with the issuing body."
+    if failed:
+        alert = form_alert("Couldn't decline the suggestion", "The server didn't respond. Nothing was lost; try again.")
+    if decided:
+        alert = form_alert("This suggestion was already decided", "Someone else approved or declined it. Close this to see it as it is now.")
+    left = 500 - len(typed)
+    body = f"""    {alert}
+    {textarea("Reason", "reason", typed, rows=3, error=reason_err, optional=True,
+              hint=f"Staff keep this on file. The person who suggested it is not sent it. {left:,} characters left." if left >= 0 else "", readonly=busy)}"""
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Declining…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-listings", "declined")}">Decline suggestion</button>')
+    d = " disabled" if busy else ""
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-listings")}">Cancel</button>\n    {go}'
+    html = dialog(f"Decline {sg['name']}", body, foot, sub=f"{sg['kind']} · {sg['area']}")
+    if not (invalid or failed or decided or busy):
+        html = autofocus_first(html, 'id="f-reason"')
+    return over_admin("admin-listings", listings_page(suggestion_view()), html)
+
+
+s = screen("decline-suggestion", "dialog", "Decline a suggestion", group=G, opens_from="admin-listings",
+           source="Derived: Listings' Decline button, which has no screen in the prototype; the decline-application dialog with an optional reason (L2-073 AC8; ADR 0087).")
+
+
+@s("default", "Decline Coach Marcus Delaney: an optional reason; focus on the field.")
+def _():
+    return decline_suggestion()
+
+
+@s("invalid", "Decline pressed with a reason over 500 characters: summary focused, the field named.")
+def _():
+    return decline_suggestion(invalid=True)
+
+
+@s("busy", "Decline suggestion pressed: busy, the field holds still, Cancel disabled.")
+def _():
+    return decline_suggestion(busy=True)
+
+
+@s("failed", "Declining failed: message at the top, the reason kept.")
+def _():
+    return decline_suggestion(failed=True)
+
+
+@s("refused", "Someone already decided it (code suggestion_decided): the dialog says so.")
+def _():
+    return decline_suggestion(decided=True)
 
 
 # ===========================================================================

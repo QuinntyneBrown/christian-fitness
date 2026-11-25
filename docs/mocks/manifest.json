@@ -1453,6 +1453,22 @@
       ]
     },
     {
+      "id": "decline-suggestion",
+      "kind": "dialog",
+      "title": "Decline a suggestion",
+      "group": "Admin console",
+      "opens_from": "admin-listings",
+      "source": "Derived: Listings' Decline button, which has no screen in the prototype; the decline-application dialog with an optional reason (L2-073 AC8; ADR 0087).",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "refused"
+      ]
+    },
+    {
       "id": "download",
       "kind": "page",
       "title": "Download your data",
