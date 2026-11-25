@@ -7,7 +7,7 @@ import { claimExpiryText, claimOutcomeOf, type ClaimOutcome } from '@cf/domain';
 import { HttpListingClaimsService } from '../../services/http-listing-claims.service';
 
 /** Where the signed-out claim page is: checking the link, naming its listing, or an outcome. */
-type Phase = 'checking' | 'ready' | ClaimOutcome;
+type Phase = 'checking' | 'ready' | Exclude<ClaimOutcome, 'failed'>;
 
 /**
  * The claim link opened signed out (L2-078 AC4; ADR 0091; mocks `claim-listing/signed-out`,
@@ -39,7 +39,7 @@ export default class ClaimSignInPage {
     this.check();
   }
 
-  protected check(): void {
+  private check(): void {
     this.phase.set('checking');
     this.claims
       .get(this.token)
@@ -50,7 +50,11 @@ export default class ClaimSignInPage {
           this.note.set(`This link works once and expires on ${claimExpiryText(claim.expiresAt)}.`);
           this.phase.set('ready');
         },
-        error: (error: unknown) => this.phase.set(claimOutcomeOf(error)),
+        // A 5xx has already opened the app's server-error screen, so "Checking" stays.
+        error: (error: unknown) => {
+          const outcome = claimOutcomeOf(error);
+          if (outcome !== 'failed') this.phase.set(outcome);
+        },
       });
   }
 }

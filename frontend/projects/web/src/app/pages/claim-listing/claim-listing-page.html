@@ -12,18 +12,6 @@
         </cf-container>
       </cf-skeleton-region>
     }
-    @case ('unchecked') {
-      <cf-container page="default">
-        <h1 class="visually-hidden">Claim a listing</h1>
-        <cf-empty-state
-          variant="error"
-          heading="We couldn't check your link"
-          text="Something went wrong on our side. Try again in a minute."
-        >
-          <cf-button slot="actions" size="sm" (click)="check()">Try again</cf-button>
-        </cf-empty-state>
-      </cf-container>
-    }
     @case ('published') {
       <cf-container page="default">
         <cf-done heading="Your listing is live"

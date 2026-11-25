@@ -9,6 +9,7 @@ import {
 } from '../fixtures/claims';
 import { WebClaimListingPage } from '../page-objects/web/claim-listing.page';
 import { WebJoinPage } from '../page-objects/web/join.page';
+import { WebServerErrorPage } from '../page-objects/web/server-error.page';
 import { WebSignInPage } from '../page-objects/web/sign-in.page';
 
 const RETURN = `returnUrl=${encodeURIComponent(`/claim/${CLAIM_TOKEN}`)}`;
@@ -274,5 +275,148 @@ test.describe('Member app, claim a listing: this isn’t me', () => {
     await expect(claim.name).toHaveText('Eastside Ladies Who Lift');
     await expect(claim.publishButton).toBeEnabled();
     await expect(claim.notMeButton).toBeEnabled();
+  });
+});
+
+// L2-078 AC8 (ADR 0091; mocks `claim-listing/expired`, `claimed`, `signed-out-expired`,
+// `signed-out-claimed`): an expired link says so and offers to ask for a new one; a used one says it
+// works once; either answered after the link was opened ends the same way. An unknown link is the
+// app's 404, and a check that fails offers Try again.
+test.describe('Member app, claim a listing: a link that no longer works', () => {
+  test('an expired link says so and offers to ask for a new one', async ({ page, api }) => {
+    api.on('GET', CLAIM_PATH, () => refusal(410, 'claim_link_expired'));
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+
+    await expect(claim.doneTitle).toHaveText('This link has expired');
+    await expect(claim.done).toHaveAttribute('role', 'alert');
+    await expect(claim.doneText).toHaveText('This link has expired. Ask us for a new one.');
+    expect(await claim.doneLinks()).toEqual([
+      { name: 'Ask us for a new one', href: '/feedback' },
+      { name: 'Back to the directory', href: '/directory' },
+    ]);
+    await expect(claim.preview).toHaveCount(0);
+  });
+
+  test('a used link says it works once', async ({ page, api }) => {
+    api.on('GET', CLAIM_PATH, () => refusal(409, 'claim_link_used'));
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+
+    await expect(claim.doneTitle).toHaveText('This listing has already been claimed');
+    await expect(claim.done).toHaveAttribute('role', 'status');
+    await expect(claim.doneText).toHaveText(
+      'A link works once. If that was you, find your listing in the directory and use Edit listing.',
+    );
+    expect(await claim.doneLinks()).toEqual([
+      { name: 'Back to the directory', href: '/directory' },
+    ]);
+  });
+
+  for (const [status, code, title] of [
+    [410, 'claim_link_expired', 'This link has expired'],
+    [409, 'claim_link_used', 'This listing has already been claimed'],
+  ] as const) {
+    test(`an answer refused ${code} ends on that outcome`, async ({ page, api }) => {
+      api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_IN }));
+      api.on('POST', `${CLAIM_PATH}/publish`, () => refusal(status, code));
+      const claim = new WebClaimListingPage(page);
+
+      await claim.open(CLAIM_TOKEN);
+      await claim.publish();
+
+      await expect(claim.doneTitle).toHaveText(title);
+      await expect(claim.alert).toHaveCount(0);
+    });
+  }
+
+  test('an unknown link is the app’s 404', async ({ page, api }) => {
+    api.on('GET', CLAIM_PATH, () => refusal(404, 'claim_not_found'));
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+
+    await expect(claim.notFoundHeading).toHaveText('Page not found');
+    await expect(claim.preview).toHaveCount(0);
+  });
+
+  test('a check that fails is the app’s server error, whose Try again shows the listing', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', CLAIM_PATH, () => refusal(500, 'error'));
+    const claim = new WebClaimListingPage(page);
+    const failed = new WebServerErrorPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+
+    await expect(failed.heading).toHaveText('Something went wrong');
+    await expect(failed.action('Try again')).toHaveAttribute('href', `/claim/${CLAIM_TOKEN}`);
+    api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_IN }));
+    await failed.action('Try again').click();
+    await expect(claim.name).toHaveText('Eastside Ladies Who Lift');
+  });
+});
+
+test.describe('Member app, claim a listing: a link that no longer works, signed out', () => {
+  for (const [status, code, title, lead] of [
+    [
+      410,
+      'claim_link_expired',
+      'This link has expired',
+      'This link has expired. Ask us for a new one.',
+    ],
+    [
+      409,
+      'claim_link_used',
+      'This listing has already been claimed',
+      'A link works once. If that was you, sign in, find your listing in the directory and use Edit listing.',
+    ],
+  ] as const) {
+    test(`a visitor with a link refused ${code} is told so and offered Sign in`, async ({
+      page,
+      api,
+    }) => {
+      answerAsVisitor(api, SIGNED_IN);
+      api.on('GET', CLAIM_PATH, () => refusal(status, code));
+      const claim = new WebClaimListingPage(page);
+
+      await claim.open(CLAIM_TOKEN);
+
+      await expect(claim.cardHeading).toHaveText(title);
+      await expect(claim.cardLead).toHaveText(lead);
+      await expect(claim.signInLink).toHaveAttribute('href', `/sign-in?${RETURN}`);
+      await expect(claim.joinLink).toHaveCount(0);
+    });
+  }
+
+  test('a visitor with an unknown link sees the app’s 404', async ({ page, api }) => {
+    answerAsVisitor(api, SIGNED_IN);
+    api.on('GET', CLAIM_PATH, () => refusal(404, 'claim_not_found'));
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+
+    await expect(claim.notFoundHeading).toHaveText('Page not found');
+    await expect(claim.card).toHaveCount(0);
+  });
+
+  test('a visitor whose check fails sees the app’s server error and can try again', async ({
+    page,
+    api,
+  }) => {
+    answerAsVisitor(api, SIGNED_IN);
+    api.on('GET', CLAIM_PATH, () => refusal(500, 'error'));
+    const claim = new WebClaimListingPage(page);
+    const failed = new WebServerErrorPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+
+    await expect(failed.heading).toHaveText('Something went wrong');
+    api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_OUT }));
+    await failed.action('Try again').click();
+    await expect(claim.cardHeading).toHaveText('Claim Eastside Ladies Who Lift');
   });
 });

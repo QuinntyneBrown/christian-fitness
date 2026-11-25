@@ -61,7 +61,8 @@ internal static class ListingClaims
 
     /// <summary>
     /// The open claim with <paramref name="token"/> and its listing. Unknown is 404 <c>claim_not_found</c>;
-    /// a used link, or one whose listing is no longer a draft, 409 <c>claim_link_used</c>.
+    /// a used link, or one whose listing is no longer a draft, 409 <c>claim_link_used</c>; an expired one
+    /// 410 <c>claim_link_expired</c>. They are checked in that order (ADR 0091).
     /// </summary>
     public static async Task<(ListingClaim Claim, DirectoryListing Listing)> OpenAsync(
         IAppDbContext db, string token, DateTimeOffset now, bool tracked, CancellationToken cancellationToken)
@@ -78,12 +79,17 @@ internal static class ListingClaims
             throw new RefusalException(RefusalCodes.ClaimNotFound, RefusalKind.NotFound);
         }
 
-        if (claim.UsedAt is not null || listing.Status != ListingStatus.Draft)
+        var state = claim.StateAt(now);
+        if (state == ClaimLinkState.Used || listing.Status != ListingStatus.Draft)
         {
             throw new RefusalException(RefusalCodes.ClaimLinkUsed, RefusalKind.Conflict);
         }
 
-        _ = now;
+        if (state == ClaimLinkState.Expired)
+        {
+            throw new RefusalException(RefusalCodes.ClaimLinkExpired, RefusalKind.Gone);
+        }
+
         return (claim, listing);
     }
 }

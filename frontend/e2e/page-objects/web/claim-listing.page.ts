@@ -43,6 +43,7 @@ export class WebClaimListingPage {
   readonly doneText: Locator;
   readonly doneActions: Locator;
   readonly notFound: Locator;
+  readonly notFoundHeading: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -72,7 +73,8 @@ export class WebClaimListingPage {
     this.doneTitle = this.done.getByRole('heading', { level: 1 });
     this.doneText = this.done.locator('.done__text');
     this.doneActions = this.done.locator('.done__actions a');
-    this.notFound = this.main.locator('.system');
+    this.notFound = this.main.locator('.empty-state--system');
+    this.notFoundHeading = this.notFound.getByRole('heading', { level: 1 });
   }
 
   async open(token: string): Promise<void> {

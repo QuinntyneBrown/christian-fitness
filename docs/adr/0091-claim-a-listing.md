@@ -80,8 +80,8 @@ address at all.
   {date}." A draft made from a suggestion has no tagline, about or focus tags yet; the preview
   leaves out what is empty.
 - **Components.** The screen is built from `form-page` (now with an optional aside, the mock's
-  `form-page--flush`), `listing-head` (with `nameLevel` so the name is a paragraph under the page's
-  `h1`), `done` (with `alert` for the expired outcome's `role="alert"`), `alert`, `tag-list`,
+  `form-page--flush`), `listing-head` (with `preview`, which makes the name a paragraph under the page's
+  `h1` and drops the head's own margin, border and padding), `done` (with `alert` for the expired outcome's `role="alert"`), `alert`, `tag-list`,
   `description-list`, `button`, `skeleton`, `error-page` and `auth-layout` (whose note line may now
   stand without a link). The issue named `section-heading` to build first; the classes it defines
   that this screen uses (`page-title`, `eyebrow`, `subtitle`, `detail-title`) are drawn inside

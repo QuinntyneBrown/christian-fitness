@@ -8,7 +8,6 @@ import {
   Container,
   DescriptionList,
   Done,
-  EmptyState,
   ErrorPage,
   FormPage,
   ListingHead,
@@ -21,12 +20,10 @@ import { HttpListingClaimsService } from '../../services/http-listing-claims.ser
 
 /**
  * Where the claim screen is: checking the link, showing the listing (`ready`), waiting for an
- * answer to be stored (`publishing`), or an outcome. `unchecked` is a read that failed for no
- * reason the screen knows.
+ * answer to be stored (`publishing`, `declining`), or an outcome.
  */
 type Phase =
   | 'checking'
-  | 'unchecked'
   | 'ready'
   | 'publishing'
   | 'declining'
@@ -44,8 +41,8 @@ type Phase =
  * my listing" and "This isn't me". Publishing reads "Publishing…" with both answers disabled; it
  * ends in "Your listing is live", or an alert above the listing that nothing was published, with
  * both answers back. "This isn't me" is busy the same way and ends in "Thanks for letting us know"
- * (L2-078 AC7), or an alert that nothing changed. A used or expired link says so, an unknown one is the app's 404. Words are
- * rendered as text.
+ * (L2-078 AC7), or an alert that nothing changed. A used or expired link says so, an unknown one is
+ * the app's 404, and a check that fails the app's server error. Words are rendered as text.
  */
 @Component({
   selector: 'cf-claim-listing-page',
@@ -55,7 +52,6 @@ type Phase =
     Container,
     DescriptionList,
     Done,
-    EmptyState,
     ErrorPage,
     FormPage,
     ListingHead,
@@ -103,7 +99,7 @@ export default class ClaimListingPage {
     this.check();
   }
 
-  protected check(): void {
+  private check(): void {
     this.phase.set('checking');
     this.claims
       .get(this.token)
@@ -113,9 +109,10 @@ export default class ClaimListingPage {
           this.claim.set(claim);
           this.phase.set('ready');
         },
+        // A 5xx has already opened the app's server-error screen, so the skeletons stay.
         error: (error: unknown) => {
           const outcome = claimOutcomeOf(error);
-          this.phase.set(outcome === 'failed' ? 'unchecked' : outcome);
+          if (outcome !== 'failed') this.phase.set(outcome);
         },
       });
   }

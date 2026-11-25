@@ -4,6 +4,14 @@ using System.Text;
 
 namespace ChristianFitness.Domain.Directory;
 
+/// <summary>Whether a claim link can still be answered (ADR 0091).</summary>
+public enum ClaimLinkState
+{
+    Open,
+    Used,
+    Expired,
+}
+
 /// <summary>
 /// A link to claim and publish an approved listing (L2-078 AC1; ADR 0090). Only the SHA-256 hash
 /// of its token is stored; the token exists only in the email or message that carries the link.
@@ -47,6 +55,15 @@ public sealed class ListingClaim
         };
         return (claim, token);
     }
+
+    /// <summary>
+    /// The link's state at <paramref name="now"/> (L2-078 AC1, AC8): used once spent, expired from
+    /// <see cref="ExpiresAt"/> on, else open. A used link reads as used even after it expires.
+    /// </summary>
+    public ClaimLinkState StateAt(DateTimeOffset now) =>
+        UsedAt is not null ? ClaimLinkState.Used
+        : now >= ExpiresAt ? ClaimLinkState.Expired
+        : ClaimLinkState.Open;
 
     /// <summary>Uses the link once (L2-078 AC6, AC7; ADR 0091): a used link cannot be used again.</summary>
     public void Spend(DateTimeOffset at)

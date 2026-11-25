@@ -39,15 +39,6 @@
       <cf-button slot="submit" [href]="signInHref" size="lg" block>Sign in</cf-button>
     </cf-auth-layout>
   }
-  @case ('failed') {
-    <cf-auth-layout
-      notice
-      heading="We couldn't check your link"
-      lead="Something went wrong on our side. Try again in a minute."
-    >
-      <cf-button slot="submit" size="lg" block (click)="check()">Try again</cf-button>
-    </cf-auth-layout>
-  }
   @default {
     <main id="main" class="claim-sign-in-page">
       <cf-container page="default">
