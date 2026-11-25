@@ -21,7 +21,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 - **Contents list** — the design-system `side-navigation` component, numbered, shown only at LG and wider and sticky there; below LG it is hidden (AC2). Each entry is a `routerLink` to the page's own route with a `fragment`, since a bare `href="#id"` resolves against the base URL; the router's `anchorScrolling` moves to the section. Each section heading carries `scroll-margin-top` from the layout token for the header's height, so it is not hidden under the header (AC2).
 - **`LegalVersions`** — pure constants in the `domain` library (`domain/src/legal/legal-versions.ts`) with unit tests: each document's versions with their effective dates, `inForce(document, now)` and `upcoming(document, now)`. The pages, the banner and Join read them.
 - **Links** — the landing page's `site-footer` (`L2-001` AC9) and the member app's footer (`L2-008` AC5) link to both documents; Preferences links to the Privacy Policy ([download and delete data](../../preferences/download-and-delete-data/README.md)); Join states that creating a profile accepts the Terms of Service and the Privacy Policy, with both linked ([create an account](../../member-access/create-account/README.md)) (AC4, AC5). Google's consent screen links to both through the OAuth client's settings in Google Cloud, which shall be documented with the deployment (`L2-041`, `L2-049`) (AC4).
-- **Change banner** — the member shell shows the library's `banner` while `LegalVersions.upcoming` names a version taking effect within the next 30 days or more, with a link to it (AC6). The banner's text and its dismissal are `<TO SUPPLY>`: no mock draws it. Continued use after the effective date is acceptance: no blocking screen and no per-member acceptance record (ADR 0063).
+- **Change banner** — the member shell shows the library's `banner` while `LegalVersions.upcoming` names a version taking effect within the next 30 days or more, with a link to it (AC6). The banner reads "We're updating our Privacy Policy and Terms on {date}. Read what's changing.", can be dismissed, and continued use after the effective date is acceptance, with no blocking screen and no per-member acceptance record (ADR 0063); the mocks draw it as `notifications/banner/legal-change` and the target as `pages/privacy/updating` and `pages/terms/updating`.
 
 ### Christian Fitness API
 
@@ -48,7 +48,6 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 ### Open questions
 
 - **Contact.** The legal contact is `privacy@christian.fitness`, at 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.
-- **Banner copy.** The change banner's wording and mock are `<TO SUPPLY>`.
 - **Statements to build.** Rows marked "once built" are true when their slices ship (age confirmation, deletion, the notice command); the text shall not be published before them (AC8).
 - **Who writes the text.** The documents live in the app's source, so a change ships as a release; no console screen edits them.
 

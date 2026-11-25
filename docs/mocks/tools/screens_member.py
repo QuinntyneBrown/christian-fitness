@@ -84,11 +84,23 @@ def rail_events(events=None) -> str:
     return f'<ul class="list-divided">{rows}</ul>'
 
 
-def landing(top: str, stories: str, *, section: str = "Latest", events: str | None = None) -> str:
+def landing(top: str, stories: str, *, section: str = "Latest", events: str | None = None, most_read: str = "shown") -> str:
     tabs = "".join(f'<a class="section-nav__link" href="{SECTION_STATE.get(s_, "section")}.html"{CUR if s_ == section else ""}>{s_}</a>'
                    for s_ in SECTIONS)
     ranked = "".join(f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title">{t}</p></li>'
                      for i, t in enumerate(MOST_READ, 1))
+    most_read_html = {
+        "shown": f"""<section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <ol class="ranked">{ranked}</ol>
+        </section>""",
+        "loading": """<section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading most read</p>
+          <ol class="ranked">""" + """<li><span class="skeleton skeleton--text-sm w-10"></span><span class="skeleton skeleton--text w-90"></span></li>""" * 5 + """</ol></div>
+        </section>""",
+        "hidden": "",
+    }[most_read]
     return f"""<div class="site">
   <header class="masthead">
     <div class="masthead__bar">
@@ -127,10 +139,7 @@ def landing(top: str, stories: str, *, section: str = "Latest", events: str | No
           </form>
           <a class="text-link text-link--quiet newsletter-box__rss" href="{href("subscribe", "default", "rss")}">{icon("rss")} Or follow by RSS</a>
         </section>
-        <section aria-labelledby="rail-most-read">
-          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
-          <ol class="ranked">{ranked}</ol>
-        </section>
+        {most_read_html}
       </aside>
     </div>
     <section class="verse" aria-label="Scripture">
@@ -175,7 +184,7 @@ def _():
                    section="Training")
 
 
-@s("loading", "Landing while stories and events load: the masthead and Join card are static; stories and event rows show skeletons.")
+@s("loading", "Landing while stories and events load: the masthead and Join card are static; stories, event rows and Most read show skeletons; Most read loads with the stories, from the same request.")
 def _():
     lead = ('<div class="top-stories"><div class="story-lead skeleton-stack"><span class="skeleton skeleton--block skeleton--image-16x9"></span>'
             '<span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--title-lg"></span>'
@@ -190,7 +199,7 @@ def _():
           '<span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li>')
     return landing('<h1 class="visually-hidden">Christian Fitness news</h1>' + loading_region("Loading top stories", lead),
                    loading_region("Loading stories", f'<h2 class="display river__title">The latest</h2><ul class="river__list">{rows * 3}</ul>'),
-                   events=loading_region("Loading upcoming events", f'<ul class="list-divided">{ev * 4}</ul>'))
+                   events=loading_region("Loading upcoming events", f'<ul class="list-divided">{ev * 4}</ul>'), most_read="loading")
 
 
 @s("empty", "Nothing published yet: no stories and no events. Each list says so and the page still invites joining and subscribing.")
@@ -218,6 +227,46 @@ def _():
             <button type="button" data-mock-href="default.html">Try again</button></div>
           </div>"""
     return landing(top_stories(), river(STORIES[5:], "The latest"), events=err)
+
+
+@s("most-read-empty", "Derived: nothing has been read enough to rank yet, so the Most read section is hidden, heading and all; the rest of the rail stays.")
+def _():
+    return landing(top_stories(), river(STORIES[5:], "The latest"), most_read="hidden") + note(
+        "Most read comes back in the stories response. Empty: the section is hidden, not shown blank.", "top: 5rem; left: 1rem;")
+
+
+@s("most-read-failed", "Derived: Most read could not load with the stories: the section is hidden and nothing else on the page breaks, with no error shown for it.")
+def _():
+    return landing(top_stories(), river(STORIES[5:], "The latest"), most_read="hidden") + note(
+        "Failed: the section is hidden and the stories, events and newsletter box work as usual; nothing is announced.", "top: 5rem; left: 1rem;")
+
+
+@s("more-stories", "The river shows its first 12 stories; \"More stories\" loads the next 12 (L2-037).")
+def _():
+    more = '<div class="feed-end"><button class="btn btn--secondary" type="button" data-mock-href="more-stories-loading.html">More stories</button></div>'
+    return landing(top_stories(), river(STORIES[5:], "The latest") + more) + note(
+        "12 stories in the river, then More stories: 12 more each time.", "top: 5rem; left: 1rem;")
+
+
+@s("more-stories-loading", "More stories pressed: the next 12 are on their way, a spinner under the stories; the button is gone until they arrive.")
+def _():
+    more = ('<div class="feed-end"><span class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span>'
+            '<span>Loading more stories…</span></span></div>')
+    return landing(top_stories(), river(STORIES[5:], "The latest") + more)
+
+
+@s("more-stories-failed", "The next 12 did not load: the stories stay, with Try again under them.")
+def _():
+    more = ('<div class="feed-end"><div class="inline-error" role="alert">' + icon("alert-circle") +
+            '<div class="inline-error__body"><p class="inline-error__title">More stories didn\'t load.</p>'
+            '<p>The ones above are still here.</p><button class="inline-error__retry" type="button">Try again</button></div></div></div>')
+    return landing(top_stories(), river(STORIES[5:], "The latest") + more)
+
+
+@s("river-capped", "60 stories shown: the river stops with a note and a way to the sections, since more would slow the page (L2-037).")
+def _():
+    end = '<div class="feed-end"><p>That\'s the latest 60 stories. Choose a section above to see older ones.</p></div>'
+    return landing(top_stories(), river(STORIES[5:], "The latest") + end)
 
 
 # ===========================================================================

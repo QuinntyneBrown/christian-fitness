@@ -43,7 +43,7 @@ This feature covers the staff side: the Feedback screen of the admin console (mo
 - **Email reply.** The From and Reply-To of a reply email (the relay sends as `no-reply@christian.fitness`, ADR 0047) and whether the member can answer it are decided in [ADR 0070](../../../adr/0070-html-email-headers-and-bulk-sending.md): From `no-reply@christian.fitness`, Reply-To only when `Email:ReplyTo` is set.
 - **Toast wording.** For an email reply, the toast says "Reply sent. {Name} gets it by email.", rendering the member's name as text; for a direct message it confirms the reply without claiming an email was sent.
 - **Suspended-member delivery.** A suspended member can send feedback (L2-063 AC12), but ordinary direct messages to a suspended recipient are refused (ADR 0043) and suspended members cannot sign in to read them. How a reply reaches a suspended member who did not allow email is `<TO SUPPLY>`; the appeal access mechanism in the send-feedback design must also account for delivery.
-- **Screenshot.** No state of the mock shows a screenshot; a mock state is `<TO SUPPLY>`.
+- **Screenshot.** `admin-feedback/screenshot` shows a thumbnail in the detail pane and `screenshot-open` the full size.
 - **Deleting members.** A note's sender may be deleting ([download and delete data](../../preferences/download-and-delete-data/README.md)); the list shows "A former member" until erasure removes the note and its replies. A reply is refused with `member_deleting` (AC12).
 - **Dashboard.** The amended `L2-020` and the Dashboard mock add a feedback line to the work awaiting staff; that belongs to [view the dashboard](../../admin-dashboard/view-dashboard/README.md) and reads the same New count.
 

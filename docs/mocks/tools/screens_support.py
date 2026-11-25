@@ -576,10 +576,25 @@ def _():
         note="If you didn't ask for this, you can ignore this email. Nobody can open the link without signing in as you.")
 
 
+# --- Leave without saving (dialog) ---------------------------------------------
+s = screen("leave-unsaved", "dialog", "Leave without saving", opens_from="preferences",
+           source="Derived: L2-064 AC5, leaving Preferences with unsaved changes asks first; the prototype draws no such question.",
+           not_applicable={"busy": "Nothing is sent: Leave closes the page at once and Keep editing closes the dialog.",
+                           "invalid": "There is no input to check; the two actions are always valid."})
+
+
+@s("default", "Leaving Preferences with a change not yet saved (a link, the back button or a tab): a dialog asks \"Leave without saving?\" with Keep editing, the safe choice, focused first, and Leave.")
+def _():
+    body = '<p class="prose">You changed a setting that isn\'t saved yet. If you leave now, it goes back to what it was.</p>'
+    foot = (f'<button class="btn btn--secondary btn--grow" type="button" autofocus data-mock-href="{href("preferences", "unsaved")}">Keep editing</button>'
+            f'<button class="btn btn--primary btn--grow" type="button" data-mock-href="{href("profile")}">Leave</button>')
+    return over_member("profile", preferences(plan=True, bar="unsaved"), dialog("Leave without saving?", body, foot, did="leave"))
+
+
 # ===========================================================================
 # Privacy Policy and Terms of Service
 # ===========================================================================
-def legal(title: str, summary: list, sections: list, other: tuple) -> str:
+def legal(title: str, summary: list, sections: list, other: tuple, *, banner: str = "", changing: str = "") -> str:
     toc = "".join(f'<li><a class="side-nav__link side-nav__link--numbered" href="#{sid}"><span class="side-nav__n">{i}.</span>{t}</a></li>'
                   for i, (sid, t, _) in enumerate(sections, 1))
     points = "".join(f"<li>{x}</li>" for x in summary)
@@ -592,16 +607,18 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
       <a class="btn btn--ghost masthead__back masthead__back--ink" href="{href(other[1])}">{other[0]}</a>
     </div>
   </header>
+  {banner}
   <main id="main" class="container page legal">
     <a class="back-link" href="{href("landing")}">{icon("arrow-left")} Christian Fitness</a>
     <h1 class="display detail-title legal__title">{title}</h1>
-    <p class="subtitle legal__effective">Effective April 1, 2026</p>
+    <p class="subtitle legal__effective">Effective April 1, 2026{" · an update takes effect May 20, 2026" if changing else ""}</p>
     <div class="legal__grid">
       <nav class="side-nav" aria-label="Contents">
         <p class="side-nav__title">Contents</p>
         <ol class="side-nav__list">{toc}</ol>
       </nav>
       <div class="legal__body">
+        {changing}
         <section class="legal__summary" aria-labelledby="short-title">
           <h2 class="display legal__summary-title" id="short-title">The short version</h2>
           <ul class="legal__points">{points}</ul>
@@ -695,6 +712,25 @@ TERMS_SECTIONS = [
 LEGAL_NA = {"loading": "A static page shipped with the app; nothing loads.", "empty": "A document, not a collection.",
             "error": "A static page shipped with the app; nothing can fail to load."}
 
+LEGAL_BANNER = ("We\u2019re updating our Privacy Policy and Terms on May 20, 2026. "
+                f'<a class="inline-link" href="{href("privacy", "updating", "whats-changing")}">Read what\u2019s changing.</a> Using Christian Fitness after that date means you accept them.')
+
+
+def whats_changing(doc: str) -> str:
+    return f"""<section class="legal__summary" id="whats-changing" aria-labelledby="changing-title">
+          <h2 class="display legal__summary-title" id="changing-title">What\u2019s changing on May 20, 2026</h2>
+          <ul class="legal__points">
+            <li>Notifications for event reminders, messages, listings you follow and changes to your events now appear in the app, under the bell. The switches in Preferences decide which ones you get.</li>
+            <li>You can read these changes now. The {doc} that applies until May 20 is the one below, effective April 1, 2026.</li>
+            <li>If you keep using Christian Fitness after May 20, 2026, you accept the updated Privacy Policy and Terms. If you don\u2019t, you can delete your account from Preferences.</li>
+          </ul>
+        </section>"""
+
+
+def legal_banner() -> str:
+    return (f'<div class="banner banner--info" role="status"><div class="banner__inner">{icon("info")}<p class="banner__text">{LEGAL_BANNER}</p>'
+            f'<button class="icon-button icon-button--sm banner__close" type="button" aria-label="Dismiss">{icon("x")}</button></div></div>')
+
 s = screen("privacy", "page", "Privacy Policy", route="/privacy", source=SRC + "Privacy Policy (8tSZJ8o6AYCxUdTfkrsYBf)", group="Public",
            not_applicable=LEGAL_NA)
 
@@ -704,6 +740,12 @@ def _():
     return legal("Privacy Policy", PRIVACY_SUMMARY, PRIVACY_SECTIONS, ("Terms of Service", "terms"))
 
 
+@s("updating", "Derived: 30 days before a change takes effect the pages show a dismissible banner (\"We're updating our Privacy Policy and Terms on May 20, 2026. Read what's changing.\") and a \"What's changing\" section above the summary; continued use means acceptance.")
+def _():
+    return legal("Privacy Policy", PRIVACY_SUMMARY, PRIVACY_SECTIONS, ("Terms of Service", "terms"), banner=legal_banner(),
+                 changing=whats_changing("Privacy Policy"))
+
+
 s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Terms of Service (9Qs4AXZcWasYdN16XUCs5s)", group="Public",
            not_applicable=LEGAL_NA)
 
@@ -711,6 +753,12 @@ s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Te
 @s("default", "The Terms of Service, in the same layout: a plain-language summary, nine numbered sections with contents, and who to ask.")
 def _():
     return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"))
+
+
+@s("updating", "Derived: the same banner and \"What's changing\" section on the Terms of Service while an update is pending.")
+def _():
+    return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"), banner=legal_banner(),
+                 changing=whats_changing("Terms of Service"))
 
 
 # ===========================================================================

@@ -41,3 +41,13 @@ a.note__link:hover { background: var(--color-bg-subtle); }
 .email__card p { margin: 0; }
 .email__action { display: flex; }
 .email__note { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+
+/* A screenshot attached to a feedback note: a thumbnail that opens full size. */
+.feedback-detail__shot { margin: var(--space-4) 0; }
+.feedback-detail__thumb-link { display: inline-block; border-radius: var(--radius-lg); overflow: hidden; box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default); }
+.feedback-detail__thumb { display: block; width: 12rem; height: auto; }
+.feedback-detail__shot figcaption { margin-top: var(--space-2); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+.feedback-detail__full { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
+
+/* Rescheduling a missed newsletter issue to later the same day. */
+.send-card__reschedule { margin: var(--space-3) 0; }
