@@ -24,7 +24,7 @@ For an Admin, "Needs attention" lists the stories in review first, then one line
 suggestions waiting, one line for new feedback, then the pending applications and the flagged
 members (`L2-020` AC7, AC11; mock `docs/mocks/pages/admin-dashboard/default.html`). A Moderator's
 queue holds the listing suggestions and new feedback lines and the flagged members, not the stories or
-applications (`L2-020` AC8, AC11; ADR 0062; mock `moderator.html`).
+applications (`L2-020` AC8, AC11; ADR 0064; mock `moderator.html`).
 
 ## Description
 
@@ -95,7 +95,7 @@ questions).
   - counts new feedback notes, and reads no note's text.
 
   For a Moderator it reads the suggestions and feedback counts but not the stories or applications, and the answer has no key for those two (`L2-020` AC8,
-  AC11; ADR 0062). Each count is a `CountAsync` through `IAppDbContext` with `AsNoTracking`.
+  AC11; ADR 0064). Each count is a `CountAsync` through `IAppDbContext` with `AsNoTracking`.
 - **`WorkAwaitingStaffDto`** — gains three keys; `stories` is omitted for a Moderator as
   `Applications` is, while `suggestions` and `feedback` are sent to both roles:
   - `stories: AwaitingListDto<AwaitingStoryDto>` — `{ id, title, writer, submittedAt }`;

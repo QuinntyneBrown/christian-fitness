@@ -24,7 +24,7 @@ actor -> route : Open /e/{id}
 route -> route : redirectTo /events/{id}
 route -> guard : Activate member shell
 alt visitor
-  guard --> actor : Join or sign-in with returnUrl=/events/{id}; back after signing in (L2-004 AC6, L2-072 AC9)
+  guard --> actor : Join with returnUrl=/events/{id}, which its Sign in link keeps; back after joining or signing in (L2-072 AC9, an exception to L2-004 AC6)
 else signed-in member
   guard -> page : Load
   page -> ctrl : GET /api/events/{id}

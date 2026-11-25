@@ -27,7 +27,7 @@ page -> client : events()
 client -> ctrl : GET /api/admin/community-pick/events
 ctrl -> h : Send ListPickableEventsQuery (Staff:CommunityPick; open to Admin and Moderator)
 h -> db : Published, StartsAt > now, soonest first, with going
-db --> h : Rows
+db --> h : Rows, each with its latest pick (Last picked)
 h --> ctrl : PickableEventDto[]
 ctrl --> client : 200 JSON
 client --> page : Events
@@ -47,6 +47,10 @@ alt drawing or export fails
 else made
   render --> page : Five PickImage
   page -> page : Revoke the previous object URLs; keep these with the input they were made from
+  page -> client : record(eventId, note)
+  client -> ctrl : POST /api/admin/community-pick/picks
+  ctrl -> h : Send RecordPickCommand, handled by RecordPickHandler (event, note, who, when from TimeProvider)
+  h -> db : Insert CommunityPick
   page --> actor : Instagram post 1080 x 1080 and story 1080 x 1920 with PNG, caption with Copy (L2-072 AC4, AC6)
 end
 actor -> page : Choose Facebook, WhatsApp or Slack
