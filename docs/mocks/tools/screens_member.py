@@ -2,15 +2,18 @@
 Layout and copy follow the Magic Patterns prototype "Christian Fitness" frame for frame."""
 from __future__ import annotations
 
-from cf_data import (CONVERSATIONS, CV, EV, EVENT_CATEGORIES, EVENTS, INTERESTS, ME, MICHAEL, SCHEDULE,
-                     SERVICE_CATEGORIES, SERVICES, SV)
-from cf_ui import (CUR, avatar, busy_label, document, empty_block, error_block, error_summary, field, form_alert, href,
-                   icon, image, loading_region, lockup, member_shell, note, screen, seal, service_avatar, banner)
+from cf_data import (CONVERSATIONS, CV, EV, EVENT_CATEGORIES, EVENTS, INTERESTS, LS, ME, MEMBER_EVENTS, MICHAEL, MOST_READ,
+                     NEWSLETTER, SCHEDULE, SECTIONS, SERIES, SERVICE_CATEGORIES, SERVICES, SR, STORIES, SV)
+from cf_ui import (CUR, avatar, busy_label, document, empty_block, error_block, error_summary, field, form_alert,
+                   google_button, google_g, href, icon, image, listing_mark, loading_region, lockup, member_shell, note,
+                   or_divider, screen, seal, service_avatar, banner, verified_badge)
 
 SRC = "Magic Patterns · prototype Christian Fitness · frame "
 
 
 def ev_link(e: dict) -> str:
+    if e["id"] == "c25k-week-3":
+        return href("event-detail", "session")
     return href("event-detail", "default" if e["registered"] else "unregistered")
 
 
@@ -23,60 +26,113 @@ def svc_link(s: dict) -> str:
 
 
 # ===========================================================================
-# Landing
+# Landing: the news front page
 # ===========================================================================
-def landing(coming: str) -> str:
-    first = EVENTS[0]
+SECTION_STATE = {"Latest": "default", "Events": "section", "Training": "section-empty"}
+
+
+def story_link(st: dict) -> str:
+    return href("story", {"sabbath-rest": "plain"}.get(st["id"], "default"))
+
+
+def story_meta(st: dict) -> str:
+    return f'<p class="story__meta">{st["author"]} · {st["ago"]}</p>'
+
+
+def top_stories() -> str:
+    lead, stack = STORIES[0], STORIES[1:5]
+    heads = "".join(f"""<li class="headline">
+            <div class="headline__body">
+              <p class="story__section">{st["section"]}</p>
+              <h2 class="headline__title"><a class="story-link" href="{story_link(st)}">{st["title"]}</a></h2>
+              {story_meta(st)}
+            </div>
+            {image(st["image"], "headline__image")}
+          </li>""" for st in stack)
+    return f"""<section class="top-stories" aria-label="Top stories">
+        <article class="story-lead">
+          {image(lead["image"], "story-lead__image")}
+          <p class="story__section story-lead__section">{lead["section"]}</p>
+          <h1 class="story-lead__title"><a class="story-link" href="{story_link(lead)}">{lead["title"]}</a></h1>
+          <p class="story-lead__dek">{lead["dek"]}</p>
+          <p class="story__meta story-lead__meta"><strong>{lead["author"]}</strong> · {lead["ago"]}</p>
+        </article>
+        <ul class="headline-list">{heads}</ul>
+      </section>"""
+
+
+def river(stories, title: str, *, tag: str = "h2") -> str:
+    rows = "".join(f"""<li class="story-row">
+              <div class="story-row__body">
+                <p class="story__section">{st["section"]} <span class="story__ago">· {st["ago"]}</span></p>
+                <h3 class="story-row__title"><a class="story-link" href="{story_link(st)}">{st["title"]}</a></h3>
+                {f'<p class="story-row__dek">{st["dek"]}</p>' if st.get("dek") else ""}
+                <p class="story__meta">{st["author"]}</p>
+              </div>
+              {image(st["image"], "story-row__image")}
+            </li>""" for st in stories)
+    return f"""<{tag} class="display river__title">{title}</{tag}>
+          <ul class="river__list">{rows}</ul>"""
+
+
+def rail_events(events=None) -> str:
+    events = MEMBER_EVENTS[:4] if events is None else events
+    rows = "".join(f"""<li><a class="event-row" href="{href("join")}">
+                <div class="event-row__date"><p class="event-row__month">{e["month"]}</p><p class="event-row__day">{e["day"]}</p></div>
+                <div class="event-row__body"><p class="event-row__title">{e["title"]}</p><p class="event-row__meta">{e["weekday"]} {e["time"]} · {e["area"]}</p></div>
+              </a></li>""" for e in events)
+    return f'<ul class="list-divided">{rows}</ul>'
+
+
+def landing(top: str, stories: str, *, section: str = "Latest", events: str | None = None) -> str:
+    tabs = "".join(f'<a class="section-nav__link" href="{SECTION_STATE.get(s_, "section")}.html"{CUR if s_ == section else ""}>{s_}</a>'
+                   for s_ in SECTIONS)
+    ranked = "".join(f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title">{t}</p></li>'
+                     for i, t in enumerate(MOST_READ, 1))
     return f"""<div class="site">
-  <header class="site-header">
-    {lockup(href("landing"))}
-    <div class="site-header__actions">
-      <a class="btn btn--ghost site-header__signin" href="{href("sign-in")}">Sign in</a>
-      <a class="btn btn--primary" href="{href("join")}">Join free</a>
+  <header class="masthead">
+    <div class="masthead__bar">
+      {lockup(href("landing"))}
+      <div class="site-header__actions">
+        <a class="btn btn--ghost site-header__signin" href="{href("sign-in")}">Sign in</a>
+        <a class="btn btn--primary" href="{href("join")}">Join free</a>
+      </div>
     </div>
+    <nav class="section-nav" aria-label="Sections">{tabs}</nav>
   </header>
   <main id="main">
-    <section class="hero" aria-labelledby="hero-title">
-      <div>
-        <h1 class="display hero__title" id="hero-title">Life to the full.</h1>
-        <p class="hero__lead">A Christian community for health in body and spirit. Find events, train with friends, and meet professionals who share your faith.</p>
-        <div class="hero__actions">
-          <a class="btn btn--primary btn--lg" href="{href("join")}">Join the community {icon("arrow-right")}</a>
-          <p class="hero__proof"><strong>2,400+</strong> members across the GTA</p>
+    {top}
+    <div class="news{'' if top.strip() else ' news--flush'}">
+      <section class="river" aria-label="Stories">
+          {stories}
+      </section>
+      <aside class="rail" aria-label="Join, events and newsletter">
+        <div class="join-card">
+          <p class="display join-card__title">Life to the full.</p>
+          <p class="join-card__text">A Christian community for health in body and spirit. Find events, train with friends, and meet professionals who share your faith.</p>
+          <a class="btn btn--inverse" href="{href("join")}">Join the community {icon("arrow-right")}</a>
+          <p class="join-card__proof">2,400+ members across the GTA</p>
         </div>
-      </div>
-      <div class="hero__media">
-        {image("run", "hero__image", "A group running together along the Toronto waterfront at sunrise")}
-        <div class="hero__float">
-          <div class="date-tile" aria-hidden="true"><span class="date-tile__month">{first["month"]}</span><span class="date-tile__day">{first["day"]}</span></div>
-          <div>
-            <p class="hero__float-title">{first["title"]}</p>
-            <p class="hero__float-meta"><span class="visually-hidden">{first["weekday"]}, {first["month"]} {first["day"]} · </span>{first["going"]} going · {first["price"]}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="band" aria-labelledby="coming-title">
-      <div class="band__inner">
-        <div>
-          <h2 class="display band__title" id="coming-title">Coming up</h2>
-          <p class="subtitle">Runs, workouts and gatherings posted by our team every week.</p>
-          {coming}
-        </div>
-        <div class="band__aside">
-          <div>
-            <h3 class="display band__point-title">Train together</h3>
-            <p class="band__point-text">Build a profile, find people at your pace, and keep each other going in group chats for every event.</p>
-          </div>
-          <div>
-            <h3 class="display band__point-title">Trusted professionals</h3>
-            <p class="band__point-text">Trainers, dietitians, physios and counsellors, each one vetted and listed by our team.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
+        <section aria-labelledby="rail-events">
+          <h2 class="display rule-title" id="rail-events">Upcoming events</h2>
+          {events if events is not None else rail_events()}
+        </section>
+        <section class="newsletter-box" aria-labelledby="rail-newsletter">
+          <h2 class="display newsletter-box__title" id="rail-newsletter">{NEWSLETTER["name"]}</h2>
+          <p class="newsletter-box__text">The week’s stories and events in one email. {NEWSLETTER["cadence"]}.</p>
+          <form class="newsletter-box__form" action="{href("subscribe")}">
+            <label class="visually-hidden" for="rail-email">Email address</label>
+            <input class="input input--pill" id="rail-email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
+            <button class="btn btn--primary" type="submit">Subscribe free</button>
+          </form>
+          <a class="text-link text-link--quiet newsletter-box__rss" href="{href("subscribe", "default", "rss")}">{icon("rss")} Or follow by RSS</a>
+        </section>
+        <section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <ol class="ranked">{ranked}</ol>
+        </section>
+      </aside>
+    </div>
     <section class="verse" aria-label="Scripture">
       <div class="verse__inner">
         {seal("verse", light=True, uid="landing-seal")}
@@ -89,51 +145,79 @@ def landing(coming: str) -> str:
   </main>
   <footer class="site-footer">
     <p>© 2026 Christian Fitness · Toronto</p>
-    <p>Health · Energy · Abundant life</p>
+    <p class="site-footer__links">
+      <a href="{href("newsletter")}">Newsletter</a>
+      <a href="{href("subscribe", "default", "rss")}">{icon("rss", "icon--xs")} RSS</a>
+      <a href="{href("feedback")}">Send feedback</a>
+      <a href="{href("privacy")}">Privacy</a>
+      <a href="{href("terms")}">Terms</a>
+    </p>
   </footer>
 </div>"""
-
-
-def landing_rows() -> str:
-    rows = "".join(f"""<li><a class="event-row event-row--lg" href="{href("join")}">
-            <div class="event-row__date"><p class="event-row__month">{e["month"]}</p><p class="event-row__day">{e["day"]}</p></div>
-            <div class="event-row__body"><p class="event-row__title">{e["title"]}</p><p class="event-row__meta">{e["weekday"]} {e["time"]} · {e["place"]}</p></div>
-            {icon("arrow-right", "event-row__arrow")}
-          </a></li>""" for e in EVENTS[:3])
-    return f'<ul class="list-ruled mt-8-list">{rows}</ul>'
 
 
 s = screen("landing", "page", "Landing", route="/", source=SRC + "Landing (m6TmegBz1WUe34iTU1vouC)", group="Public")
 
 
-@s("default", "Public landing page: hero, the next three events, what members get, and John 10:10.")
+@s("default", "The news front page, Latest: one lead story and four headlines, the latest stories, and a rail with Join, upcoming events, the newsletter and most read.")
 def _():
-    return landing(landing_rows().replace("mt-8-list", "landing-list"))
+    return landing(top_stories(), river(STORIES[5:], "The latest"))
 
 
-@s("loading", "Landing while upcoming events load: the hero is static; the event list shows three skeleton rows.")
+@s("section", "The Events section chosen: only that section's stories, newest first, under its name; the rail stays.")
 def _():
-    row = ('<li class="event-row event-row--lg"><span class="skeleton skeleton--date"></span>'
-           '<div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span>'
-           '<span class="skeleton skeleton--text-sm w-80"></span></div></li>')
-    return landing(loading_region("Loading upcoming events", f'<ul class="list-ruled landing-list">{row * 3}</ul>'))
+    return landing("", river([x for x in STORIES if x["section"] == "Events"], "Events", tag="h1"), section="Events")
 
 
-@s("empty", "Landing when no events are posted yet: the list explains and points to joining.")
+@s("section-empty", "Derived: a section with no stories this week says so; the rail stays.")
 def _():
-    return landing(f"""<div class="empty-inline landing-list">
-            <p class="empty-inline__text">No events posted yet. Check back soon.</p>
-            <p class="empty-inline__action"><a class="text-link" href="{href("join")}">Join to hear first {icon("arrow-right")}</a></p>
-          </div>""")
+    return landing("", '<h1 class="display river__title">Training</h1><p class="river__empty">No stories in Training yet this week.</p>',
+                   section="Training")
 
 
-@s("error", "Landing when upcoming events fail to load: the rest of the page works; the list offers a retry.")
+@s("loading", "Landing while stories and events load: the masthead and Join card are static; stories and event rows show skeletons.")
 def _():
-    return landing(f"""<div class="inline-error landing-list" role="alert">
+    lead = ('<div class="top-stories"><div class="story-lead skeleton-stack"><span class="skeleton skeleton--block skeleton--image-16x9"></span>'
+            '<span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--title-lg"></span>'
+            '<span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text-sm w-30"></span></div>'
+            '<ul class="headline-list">' + ('<li class="headline"><div class="headline__body skeleton-stack">'
+            '<span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--text w-90"></span>'
+            '<span class="skeleton skeleton--text-sm w-40"></span></div><span class="skeleton skeleton--tile"></span></li>' * 4) + '</ul></div>')
+    rows = ('<li class="story-row"><div class="story-row__body skeleton-stack"><span class="skeleton skeleton--text-sm w-30"></span>'
+            '<span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text w-80"></span></div>'
+            '<span class="skeleton skeleton--tile"></span></li>')
+    ev = ('<li class="event-row"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack">'
+          '<span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li>')
+    return landing('<h1 class="visually-hidden">Christian Fitness news</h1>' + loading_region("Loading top stories", lead),
+                   loading_region("Loading stories", f'<h2 class="display river__title">The latest</h2><ul class="river__list">{rows * 3}</ul>'),
+                   events=loading_region("Loading upcoming events", f'<ul class="list-divided">{ev * 4}</ul>'))
+
+
+@s("empty", "Nothing published yet: no stories and no events. Each list says so and the page still invites joining and subscribing.")
+def _():
+    return landing("", '<h1 class="display river__title">The latest</h1><p class="river__empty">No stories yet. Check back soon.</p>',
+                   events='<p class="rail__empty">No events posted yet. Check back soon.</p>')
+
+
+@s("error", "Stories failed to load: the story area offers a retry; upcoming events, the newsletter box and the rest of the page work.")
+def _():
+    err = f"""<h1 class="display river__title">The latest</h1>
+          <div class="inline-error" role="alert">
+            {icon("alert-circle")}
+            <div class="inline-error__body"><p class="inline-error__title">Stories didn't load.</p><p>Check your connection, then try again.</p>
+            <button type="button" data-mock-href="default.html">Try again</button></div>
+          </div>"""
+    return landing("", err)
+
+
+@s("events-error", "Upcoming events failed to load while stories worked: the rail's list offers a retry in place.")
+def _():
+    err = f"""<div class="inline-error" role="alert">
             {icon("alert-circle")}
             <div class="inline-error__body"><p class="inline-error__title">Upcoming events didn't load.</p><p>Check your connection, then try again.</p>
             <button type="button" data-mock-href="default.html">Try again</button></div>
-          </div>""")
+          </div>"""
+    return landing(top_stories(), river(STORIES[5:], "The latest"), events=err)
 
 
 # ===========================================================================
@@ -165,25 +249,47 @@ def interests(picked=("Running", "Strength"), disabled: bool = False) -> str:
 
 
 def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", errors: dict | None = None,
-              values: dict | None = None) -> str:
+              values: dict | None = None, google: bool = False, redirecting: bool = False) -> str:
     ro = busy
     errors = errors or {}
     v = {"name": ME["name"], "email": ME["email"], "password": "abundantlife", "church": ME["church"], **(values or {})}
     email_err = email_error or errors.get("email", "")
     submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Creating your profile…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Create profile</button>')
-    return f"""    <form class="auth__form" action="{href("home")}" novalidate>
-      <h1 class="display auth__title">Create your profile</h1>
-      <p class="auth__lead">Free for everyone. Takes about a minute.</p>
-      {alert}
-      <div class="auth__fields">
-        {field("Full name", "name", v["name"], autocomplete="name", error=errors.get("name", ""), readonly=ro)}
+    if google:
+        # Came back from Google: the account is the identity, so there is no email or password to type.
+        sso = f"""<div class="sso-account">
+        <span class="avatar" aria-hidden="true">{v["name"][0]}</span>
+        <div class="sso-account__body">
+          <p class="sso-account__email">{v["email"]}</p>
+          <p class="sso-account__via">{google_g("sm")} Signing in with Google</p>
+        </div>
+        <a class="sso-account__change" href="{href("join")}">Change<span class="visually-hidden"> how you sign in</span></a>
+      </div>"""
+        fields = f"""{field("Display name", "name", v["name"], autocomplete="name", hint="From your Google account — change it if you like", error=errors.get("name", ""), readonly=ro)}
+        {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}"""
+        title, lead = "Finish your profile", "Google filled in the basics. Tell us a little more."
+    else:
+        sso = f"""<div class="auth__sso">
+        {google_button("Sign up with Google", loading=redirecting, to=href("google-account-chooser", "join"), disabled=busy)}
+        {or_divider()}
+      </div>"""
+        fields = f"""{field("Full name", "name", v["name"], autocomplete="name", error=errors.get("name", ""), readonly=ro)}
         {field("Email", "email", v["email"], type_="email", autocomplete="email", error=email_err, readonly=ro)}
         {field("Password", "password", v["password"], type_="password", autocomplete="new-password", hint="At least 8 characters", error=errors.get("password", ""), readonly=ro)}
-        {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}
+        {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}"""
+        title, lead = "Create your profile", "Free for everyone. Takes about a minute."
+    return f"""    <form class="auth__form" action="{href("home")}" novalidate>
+      <h1 class="display auth__title">{title}</h1>
+      <p class="auth__lead">{lead}</p>
+      {alert}
+      {sso}
+      <div class="auth__fields{' auth__fields--after-sso' if not google else ''}">
+        {fields}
         {interests(disabled=busy)}
       </div>
       {submit}
+      <p class="auth__terms">By creating a profile you agree to our <a class="inline-link" href="{href("terms")}">Terms of Service</a> and <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>
       <p class="auth__alt">Already a member? <a href="{href("sign-in")}">Sign in</a></p>
     </form>"""
 
@@ -193,9 +299,30 @@ s = screen("join", "page", "Join", route="/join", source=SRC + "Join (owKTeNTEtw
                            "empty": "A form, not a collection."})
 
 
-@s("default", "Create a profile: name, email, password, optional home church and interests.")
+@s("default", "Create a profile: Sign up with Google, or name, email, password, optional home church and interests.")
 def _():
     return auth(join_form())
+
+
+@s("redirecting", "Sign up with Google pressed: the button reads \"Opening Google…\" and is disabled until Google's page opens.")
+def _():
+    return auth(join_form(redirecting=True))
+
+
+@s("google", "Back from Google with an account that has no profile: \"Finish your profile\" with the Google account shown, the name from Google, home church and interests; no email or password.")
+def _():
+    return auth(join_form(google=True))
+
+
+@s("google-submitting", "Create profile pressed on the Google form: button busy, fields read-only.")
+def _():
+    return auth(join_form(google=True, busy=True))
+
+
+@s("google-failed", "Derived: Google did not finish (an error on Google's side, or its answer could not be checked): a message above the form; the email form still works.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Google sign-up didn't finish", "Nothing was created. Try again, or create your profile with your email below.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
 
 
 @s("invalid", "The email already has an account: inline error under Email with a way to sign in.")
@@ -240,75 +367,126 @@ def _():
 
 
 # --- Sign in -----------------------------------------------------------------
-def signin_form(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False, suspended: bool = False) -> str:
+def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False,
+                suspended: bool = False, redirecting: bool = False, no_account: bool = False, google_failed: bool = False,
+                google_suspended: bool = False) -> str:
     alert = ""
     if invalid:
-        # L2-004 AC2: one generic message that names neither field, so no field is marked invalid.
+        # L2-004 AC2: one generic message that names neither field, so no field is marked invalid. The prototype's
+        # "That password doesn't match" would reveal that the email has an account; the Google hint is kept instead.
         alert = '<div class="auth__alert">' + form_alert(
-            "Email or password is incorrect", "Check both and try again.") + "</div>"
+            "Email or password is incorrect", "Check both and try again. If you joined with Google, use Continue with Google.") + "</div>"
     if failed:
         alert = '<div class="auth__alert">' + form_alert(
             "We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
+    if google_failed:
+        alert = '<div class="auth__alert">' + form_alert(
+            "Google sign-in didn't finish", "You're not signed in. Try again, or sign in with your email below.") + "</div>"
     if locked:
         # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
             f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
-    if suspended:
-        # L2-004 AC4: shown only once the right password was given (ADR 0012).
+    if suspended or google_suspended:
+        # L2-004 AC4: shown only once the right password was given, or Google vouched for the account (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
             "Your account is suspended", "Contact the Christian Fitness team to talk it through.") + "</div>"
-    submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
-              if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign in</button>')
-    return f"""    <form class="auth__form" action="{href("home")}" novalidate>
-      <h1 class="display auth__title">Welcome back</h1>
-      <p class="auth__lead">Sign in to see your events and messages.</p>
-      {alert}
-      <div class="auth__fields">
-        {field("Email", "email", ME["email"], type_="email", autocomplete="email", readonly=busy)}
-        <div>
-          {field("Password", "password", "abundantlife", type_="password", autocomplete="current-password", readonly=busy)}
-          <p class="field__hint"><a class="text-link" href="{href("forgot-password")}">Forgot your password?</a></p>
+    if no_account:
+        sso = f"""<div class="sso-notice" role="alert" tabindex="-1" autofocus>
+        <p class="sso-notice__account">{google_g("sm")}<span>grace@gracefellowship.ca</span></p>
+        <p class="sso-notice__text">There's no Christian Fitness profile on this Google account yet. Create one now — we'll bring over your name and photo.</p>
+        <div class="sso-notice__actions">
+          <a class="btn btn--primary btn--sm" href="{href("join", "google")}">Create my profile</a>
+          <button class="btn btn--ghost btn--sm sso-notice__other" type="button" data-mock-href="{href("google-account-chooser")}">Use another account</button>
         </div>
+      </div>"""
+    else:
+        sso = google_button(loading=redirecting, to=href("google-account-chooser"), disabled=busy)
+    submit = (f'<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
+              if busy else '<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit">Sign in</button>')
+    ro = " readonly" if busy else ""
+    return f"""<div class="signin">
+  <header class="signin__header">
+    {lockup(href("landing"))}
+  </header>
+  <main id="main" class="signin__main">
+    <div class="signin__card">
+      <h1 class="display auth__title">Welcome back</h1>
+      <p class="auth__lead">Sign in to see your events, groups and messages.</p>
+      {alert}
+      <div class="auth__sso">
+        {sso}
+        {or_divider()}
       </div>
-      {submit}
-      <p class="auth__alt">New here? <a href="{href("join")}">Create a profile</a></p>
-    </form>"""
+      <form class="auth__fields auth__fields--after-sso" action="{href("home")}" novalidate>
+        {field("Email", "email", ME["email"], type_="email", autocomplete="email", readonly=busy)}
+        <div class="field">
+          <div class="field__label-row">
+            <label class="field__label" for="f-password">Password</label>
+            <a class="text-link" href="{href("forgot-password")}">Forgot password?</a>
+          </div>
+          <input class="input" id="f-password" name="password" type="password" value="abundantlife" autocomplete="current-password"{ro}>
+        </div>
+        {submit}
+      </form>
+      <p class="auth__alt">New to Christian Fitness? <a href="{href("join")}">Create a profile</a></p>
+    </div>
+  </main>
+</div>"""
+
+
+def focused(html: str) -> str:
+    return html.replace('tabindex="-1"', 'tabindex="-1" autofocus', 1)
 
 
 s = screen("sign-in", "page", "Sign in", route="/sign-in", group="Public",
-           source="Derived: the prototype's Sign in links go straight to Home; this screen uses the Join layout.",
+           source=SRC + "Member Sign In (8qsq1jzZFMHmGmLigTMojM)",
            not_applicable={"loading": "Static form.", "empty": "A form, not a collection."})
 
 
-@s("default", "Member sign in with email and password, a reset link and a way to join.")
+@s("default", "Member sign in: Continue with Google, or email and password, with a reset link and a way to join.")
 def _():
-    return auth(signin_form())
+    return signin_card()
 
 
-@s("invalid", "Wrong email or password: one generic message above the form (focused) that names neither field.")
+@s("redirecting", "Continue with Google pressed: the button reads \"Opening Google…\" and is disabled until Google's page opens.")
 def _():
-    return auth(signin_form(invalid=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+    return signin_card(redirecting=True)
+
+
+@s("google-no-account", "Back from Google with an account that has no profile: the account is named, with \"Create my profile\" and \"Use another account\"; the email form still works.")
+def _():
+    return signin_card(no_account=True)
+
+
+@s("google-failed", "Derived: Google did not finish (an error on Google's side, or its answer could not be checked): a message above the form (focused).")
+def _():
+    return focused(signin_card(google_failed=True))
+
+
+@s("invalid", "Wrong email or password: one generic message above the form (focused) that names neither field and points Google members to Continue with Google.")
+def _():
+    return focused(signin_card(invalid=True))
 
 
 @s("submitting", "Sign in pressed: button busy, fields read-only.")
 def _():
-    return auth(signin_form(busy=True))
+    return signin_card(busy=True)
 
 
 @s("error", "Too many attempts (L2-004 AC3): sign-in paused for 15 minutes, a message above the form (focused) with a reset link to get back in now.")
 def _():
-    return auth(signin_form(locked=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+    return focused(signin_card(locked=True))
 
 
-@s("suspended", "A suspended member gave the right password (L2-004 AC4): a message above the form (focused) to contact the team.")
+@s("suspended", "A suspended member gave the right password or chose their Google account (L2-004 AC4): a message above the form (focused) to contact the team.")
 def _():
-    return auth(signin_form(suspended=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+    return focused(signin_card(suspended=True))
 
 
 @s("failed", "The server failed or did not answer: a message above the form; what was typed stays.")
 def _():
-    return auth(signin_form(failed=True).replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+    return focused(signin_card(failed=True))
 
 
 # --- Forgot password -----------------------------------------------------------
@@ -517,7 +695,7 @@ def next_event_card() -> str:
 
 def home(*, greeting: str = "Good morning, Grace", next_card: str | None = None, rows: str | None = None,
          messages: str | None = None, pros: str | None = None) -> str:
-    rest = [e for e in EVENTS if e["id"] != "sunrise-5k"]
+    rest = [e for e in MEMBER_EVENTS if e["id"] != "sunrise-5k"]
     return f"""    <div class="container page">
       <h1 class="display page-title--greeting">{greeting}</h1>
       <div class="split split--home">
@@ -619,28 +797,41 @@ def _():
 # ===========================================================================
 # Events
 # ===========================================================================
-def chip_bar(active: str, going: bool, links: dict | None = None) -> str:
+def chip_bar(active: str, going: bool, links: dict | None = None, *, series: bool = False) -> str:
     links = links or {}
     chips = "".join(
         f'<a class="chip" href="{links.get(c, "#")}"{CUR if c == active else ""}>{c}</a>'
         if links else f'<button class="chip" type="button" aria-pressed="{"true" if c == active else "false"}">{c}</button>'
         for c in EVENT_CATEGORIES)
-    return f"""<div class="chip-bar" role="group" aria-label="Filter events">
+    only = "Only series I've joined" if series else "Only events I'm going to"
+    return f"""<div class="chip-bar chip-bar--tight" role="group" aria-label="Filter {'series' if series else 'events'}">
           {chips}
           <span class="chip-bar__divider" aria-hidden="true"></span>
-          <label class="check"><input class="check__box" type="checkbox"{" checked" if going else ""}> Only events I'm going to</label>
+          <label class="check"><input class="check__box" type="checkbox"{" checked" if going else ""}> {only}</label>
         </div>"""
 
 
 CAT_LINKS = {"All": href("events"), "Run": href("events", "filtered"), "Workshop": href("events", "no-results"),
              "Workout": href("events", "filtered"), "Basketball": href("events", "filtered"), "Mobility": href("events", "filtered"),
              "Retreat": href("events", "no-results")}
+SERIES_CAT_LINKS = {"All": href("events", "series"), "Mobility": href("events", "series-empty"),
+                    "Workshop": href("events", "series-empty"), "Retreat": href("events", "series-empty")}
+
+
+def session_line(e: dict) -> str:
+    """"Session 3 of 8 · Every Tuesday" for a date that belongs to a series; nothing for a one-off."""
+    if not e.get("series"):
+        return ""
+    sr = SR[e["series"]]
+    return f'Session {e["session"]} of {len(sr["sessions"])} · {sr["cadence"]}'
 
 
 def event_card(e: dict) -> str:
     left = e["capacity"] - e["going"]
     left_html = f'<span class="event-card__left"> · {left} spots left</span>' if left <= 10 else ""
     going = '<span class="going-pill">Going</span>' if e["registered"] else ""
+    series = (f'<p class="event-card__series">{icon("repeat", "icon--xs")}<span>{session_line(e)}</span></p>'
+              if e.get("series") else "")
     return f"""<li><a class="event-card" href="{ev_link(e)}">
             <div class="event-card__media">
               {image(e["image"], "event-card__image")}
@@ -649,6 +840,7 @@ def event_card(e: dict) -> str:
             </div>
             <div class="event-card__body">
               <p class="event-card__meta">{e["category"]} · <span class="visually-hidden">{e["month"]} {e["day"]}, </span>{e["weekday"]} {e["time"]}</p>
+              {series}
               <h2 class="display event-card__title">{e["title"]}</h2>
               <p class="place place--sm">{icon("map-pin")}<span>{e["place"]}</span></p>
               <div class="event-card__spacer"></div>
@@ -657,13 +849,52 @@ def event_card(e: dict) -> str:
           </a></li>"""
 
 
-def events_page(body: str, *, active: str = "All", going: bool = False, search: str = "") -> str:
+def session_meter(sr: dict, *, mine: bool = False) -> str:
+    """One bar per session. The text beside or above it carries the numbers; the bars are decoration."""
+    def mod(x):
+        if x["status"] == "cancelled":
+            return " session-meter__bar--cancelled"
+        if x["status"] == "next":
+            return " session-meter__bar--next"
+        done = x["attended"] if mine else x["status"] == "past"
+        return " session-meter__bar--done" if done else ""
+    return ('<span class="session-meter" aria-hidden="true">'
+            + "".join(f'<span class="session-meter__bar{mod(x)}"></span>' for x in sr["sessions"]) + '</span>')
+
+
+def series_link(sr: dict) -> str:
+    return href("event-series", {"couch-to-5k": "default", "park-bootcamp": "not-joined"}.get(sr["id"], "not-joined"))
+
+
+def series_row(sr: dict) -> str:
+    nxt = next((x for x in sr["sessions"] if x["status"] == "next"), None)
+    live = [x for x in sr["sessions"] if x["status"] != "cancelled"]
+    done = sum(1 for x in sr["sessions"] if x["status"] == "past")
+    end = '<span class="tag tag--sm">Joined</span>' if sr["joined"] else f'<span class="series-row__price">{sr["series_price"]}</span>'
+    nxt_html = f'<span class="series-row__next">Next {nxt["month"]} {nxt["day"]} {icon("arrow-right", "icon--xs")}</span>' if nxt else ""
+    return f"""<li><a class="series-row" href="{series_link(sr)}">
+            {image(sr["image"], "series-row__image")}
+            <div class="series-row__body">
+              <p class="series-row__meta">{icon("repeat", "icon--xs")}{sr["cadence"]} · {sr["time"]}</p>
+              <h2 class="display series-row__title">{sr["title"]}</h2>
+              <p class="series-row__sub">{LS[sr["host"]]["name"]} · {sr["area"]} · {sr["range"]}</p>
+              {session_meter(sr)}
+              <p class="visually-hidden">{done} of {len(live)} sessions done</p>
+            </div>
+            <div class="series-row__end">{end}{nxt_html}</div>
+          </a></li>"""
+
+
+def events_page(body: str, *, active: str = "All", going: bool = False, search: str = "", view: str = "dates") -> str:
     value = f' value="{search}"' if search else ""
+    series = view == "series"
+    views = (f'<a class="segmented__option" href="{href("events")}"{"" if series else CUR}>By date</a>'
+             f'<a class="segmented__option" href="{href("events", "series")}"{CUR if series else ""}>{icon("repeat")}Series ({len(SERIES)})</a>')
     return f"""    <div class="container page">
       <div class="page-head">
         <div>
           <h1 class="display page-title">Events</h1>
-          <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
+          <p class="subtitle">From the churches, clubs and coaches in our directory. Free unless marked.</p>
         </div>
         <form class="search" role="search">
           <label class="visually-hidden" for="event-search">Search events</label>
@@ -671,7 +902,8 @@ def events_page(body: str, *, active: str = "All", going: bool = False, search: 
           <input class="search__input" id="event-search" type="search" placeholder="Search events"{value}>
         </form>
       </div>
-      {chip_bar(active, going, {k: v for k, v in CAT_LINKS.items()})}
+      <nav class="segmented" aria-label="View">{views}</nav>
+      {chip_bar(active, going, dict(SERIES_CAT_LINKS if series else CAT_LINKS), series=series)}
 {body}
     </div>"""
 
@@ -680,12 +912,49 @@ def grid(evts) -> str:
     return f'<ul class="event-grid">{"".join(event_card(e) for e in evts)}</ul>'
 
 
+def series_list(items) -> str:
+    return f'<ul class="card card--list series-list">{"".join(series_row(x) for x in items)}</ul>'
+
+
 s = screen("events", "page", "Events", route="/events", source=SRC + "Events (uawpB3NVofSGDh6DhtRnY1)")
 
 
-@s("default", "All upcoming events as cards with date, category, place, how many are going and price.")
+@s("default", "By date: all upcoming events as cards with date, category, place, how many are going and price; a date that belongs to a series says which session it is.")
 def _():
-    return member_shell("events", events_page(grid(EVENTS)))
+    return member_shell("events", events_page(grid(MEMBER_EVENTS)))
+
+
+@s("series", "Series view: the three series as rows with cadence, host, dates, progress through the sessions, Joined or the price, and the next date.")
+def _():
+    return member_shell("events", events_page(series_list(SERIES), view="series"))
+
+
+@s("series-joined", "Series view with \"Only series I've joined\" ticked: Couch to 5K Run Club.")
+def _():
+    return member_shell("events", events_page(series_list([x for x in SERIES if x["joined"]]), view="series", going=True))
+
+
+@s("series-empty", "Series view, Mobility filter with no series: \"No series here yet\" and a way back to all series.")
+def _():
+    return member_shell("events", events_page(empty_block(
+        "No series here yet", "Series are weekly or monthly programs you can join once and come to every time.",
+        f'<a class="btn btn--primary btn--sm" href="{href("events", "series")}">Show all series</a>', tag="p"),
+        active="Mobility", view="series"))
+
+
+@s("series-loading", "Series view loading: three row skeletons.")
+def _():
+    row = ('<li class="series-row"><span class="skeleton skeleton--block skeleton--image-16x9"></span><div class="series-row__body skeleton-stack">'
+           '<span class="skeleton skeleton--text-sm w-40"></span><span class="skeleton skeleton--title"></span>'
+           '<span class="skeleton skeleton--text-sm w-80"></span></div></li>')
+    return member_shell("events", events_page(loading_region("Loading series", f'<ul class="card card--list series-list">{row * 3}</ul>'), view="series"))
+
+
+@s("series-error", "Series failed to load: the view switch and filters stay; retry in place.")
+def _():
+    return member_shell("events", events_page(error_block(
+        "Series didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="series.html", ref="CF-S2R8"),
+        view="series"))
 
 
 @s("loading", "Events loading: four card skeletons in the same grid.")
@@ -699,7 +968,7 @@ def _():
 @s("empty", "No events posted at all yet: explains the weekly rhythm and points home.")
 def _():
     return member_shell("events", events_page(empty_block(
-        "No events yet", "The team posts runs, workouts and gatherings every week. They'll show up here as soon as they're live.",
+        "No events yet", "The churches, clubs and coaches in our directory post runs, workouts and gatherings every week. They'll show up here as soon as they're live.",
         f'<a class="btn btn--primary btn--sm" href="{href("home")}">Back to home</a>')))
 
 
@@ -713,7 +982,7 @@ def _():
 def _():
     more = ('<div class="feed-end"><span class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span>'
             '<span>Loading more events…</span></span></div>')
-    return member_shell("events", events_page(grid(EVENTS) + more))
+    return member_shell("events", events_page(grid(MEMBER_EVENTS) + more))
 
 
 @s("more-error", "The next 20 did not load: the cards stay, with Try again under them.")
@@ -721,56 +990,103 @@ def _():
     more = ('<div class="feed-end"><div class="inline-error" role="alert">' + icon("alert-circle") +
             '<div class="inline-error__body"><p class="inline-error__title">More events didn\'t load.</p>'
             '<p>The ones above are still here.</p><button class="inline-error__retry" type="button">Try again</button></div></div></div>')
-    return member_shell("events", events_page(grid(EVENTS) + more))
+    return member_shell("events", events_page(grid(MEMBER_EVENTS) + more))
 
 
 @s("capped", "200 events shown: the list stops with a note, since more would slow the page.")
 def _():
     note = '<div class="feed-end"><p>Showing the next 200 events. Choose a category to see others.</p></div>'
-    return member_shell("events", events_page(grid(EVENTS) + note))
+    return member_shell("events", events_page(grid(MEMBER_EVENTS) + note))
 
 
 @s("no-results", "Workshop filter with nothing posted: the prototype's \"Nothing here yet\" state, filters still visible.")
 def _():
     return member_shell("events", events_page(empty_block(
         "Nothing here yet", "No workshop events right now. New ones are posted every week.",
-        '<a class="btn btn--primary btn--sm" href="default.html">Clear filter</a>', tag="p"), active="Workshop"))
+        '<a class="btn btn--primary btn--sm" href="default.html">Show all events</a>', tag="p"), active="Workshop"))
 
 
-@s("filtered", "Run filter: only the Easter Sunrise 5K.")
+@s("filtered", "Run filter: the Easter Sunrise 5K and Couch to 5K: Week 3.")
 def _():
-    return member_shell("events", events_page(grid([e for e in EVENTS if e["category"] == "Run"]), active="Run"))
+    return member_shell("events", events_page(grid([e for e in MEMBER_EVENTS if e["category"] == "Run"]), active="Run"))
 
 
-@s("going", "\"Only events I'm going to\" ticked: Grace's two registrations.")
+@s("going", "\"Only events I'm going to\" ticked: Grace's three registrations.")
 def _():
-    return member_shell("events", events_page(grid([e for e in EVENTS if e["registered"]]), going=True))
+    return member_shell("events", events_page(grid([e for e in MEMBER_EVENTS if e["registered"]]), going=True))
 
 
 # ===========================================================================
 # Event detail
 # ===========================================================================
+def host_card(host_id: str, *, kind: bool = True) -> str:
+    h = LS[host_id]
+    link = href("listing-profile", {"lakeshore-runners": "default", "okafor": "person", "cf-team": "one-off",
+                                    "northline": "unverified"}.get(host_id, "default"))
+    return f"""<a class="host-card" href="{link}">
+              {listing_mark(h)}
+              <span class="host-card__body">
+                <span class="host-card__label">Hosted by{f' · {h["kind"]}' if kind else ''}</span>
+                <span class="host-card__name"><span>{h["name"]}</span>{verified_badge() if h["verified"] else ''}</span>
+              </span>
+              {icon("arrow-right", "host-card__arrow")}
+            </a>"""
+
+
+def series_card(e: dict) -> str:
+    """On a date that belongs to a series: which session it is, the series, and the next dates after it."""
+    if not e.get("series"):
+        return ""
+    sr = SR[e["series"]]
+    later = [x for x in sr["sessions"] if x["status"] == "upcoming"][:3]
+    tiles = "".join(f'<li class="series-card__date"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]}</p>'
+                    f'<p class="series-card__topic">{x["topic"]}</p></li>' for x in later)
+    return f"""<section class="series-card" aria-labelledby="series-card-title">
+            <div class="series-card__head">
+              <div>
+                <p class="series-card__meta">{icon("repeat")}{session_line(e)}</p>
+                <h2 class="display series-card__title" id="series-card-title">{sr["title"]}</h2>
+              </div>
+              <a class="btn btn--secondary btn--sm series-card__action" href="{series_link(sr)}">{'View series' if sr["joined"] else 'Join the series'} {icon("arrow-right")}</a>
+            </div>
+            {f'<ul class="series-card__dates">{tiles}</ul>' if tiles else ''}
+          </section>"""
+
+
 def register_panel(e: dict, mode: str) -> str:
-    """mode: registered | open | full | registering"""
+    """mode: registered | reserved | open | failed | full | registering"""
     full = mode == "full"
-    spots = "Waitlist open" if full else f'{e["capacity"] - e["going"]} of {e["capacity"]} spots left'
-    if mode == "registered":
-        action = f"""<div class="register__state">
-                <p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're registered</p>
-                <div class="btn-grid mt-3">
+    spots = f'{e["capacity"] - e["going"]} of {e["capacity"]} spots left'
+    after = f"""<div class="btn-grid mt-3">
                   <button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("toast", "info")}">{icon("calendar-plus")}Calendar</button>
                   <a class="btn btn--secondary btn--sm" href="{href("messages")}">{icon("message-circle")}Group chat</a>
                 </div>
-                <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("toast", "with-action")}">Can't make it</button>
+                <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("cancel-registration")}">Can't make it</button>"""
+    if mode == "registered":
+        action = f"""<div class="register__state">
+                <p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're registered</p>
+                {after}
+              </div>"""
+    elif mode == "reserved":
+        # A paid event: there is no online payment yet, so the spot is held and paid for in person.
+        action = f"""<div class="register__state">
+                <p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're going</p>
+                <p class="register__note">Your spot is reserved. Pay the host at the event; online payment is not available yet.</p>
+                {after}
+              </div>"""
+    elif full:
+        # No waitlist (L2-011 AC3): the button is replaced, not disabled.
+        action = """<div class="register__state">
+                <p class="register__full" role="status">This event is full</p>
               </div>"""
     else:
-        label = {"open": "Register", "full": "Join the waitlist", "registering": busy_label("Registering…")}[mode]
+        label = busy_label("Registering…") if mode == "registering" else "Register"
         busy = ' disabled aria-busy="true"' if mode == "registering" else ""
-        target = href("toast", "success") if mode == "open" else href("event-detail", "full")
-        note_text = ("We'll message you if a spot opens up." if full else "You'll be added to the event's group chat.")
+        error = ('<p class="register__error" role="alert">We couldn\'t register you. Try again in a moment.</p>'
+                 if mode == "failed" else "")
         action = f"""<div class="register__state">
-                <button class="btn btn--primary btn--lg btn--block" type="button"{busy} data-mock-href="{target}">{label}</button>
-                <p class="register__note">{note_text}</p>
+                {error}<button class="btn btn--primary btn--lg btn--block" type="button"{busy} data-mock-href="{href("toast", "success")}">{label}</button>
+                <p class="register__note">You'll be added to the event's group chat.</p>
               </div>"""
     going = e["going"]
     stack = "".join(avatar(i, size="sm") for i in ["MC", "DO", "PN", "AK", "JR"])
@@ -783,7 +1099,7 @@ def register_panel(e: dict, mode: str) -> str:
                 <div class="avatar-stack">{stack}<span class="avatar-stack__label">Michael, Danielle and {going - 2} others</span></div>
               </div>
             </div>
-            <p class="posted-by">Posted by the Christian Fitness team</p>
+            {host_card(e["host"])}
           </aside>"""
 
 
@@ -806,6 +1122,7 @@ def detail(e: dict, mode: str) -> str:
             <div class="facts__item">{icon("clock", "facts__icon")}<div><dt>{e["weekday"]}, {e["month"]} {e["day"]}</dt><dd>{e["time"]} · about 90 minutes</dd></div></div>
             <div class="facts__item">{icon("map-pin", "facts__icon")}<div><dt>{e["place"]}</dt><dd>{e["area"]}, Toronto</dd></div></div>
           </dl>
+          {series_card(e)}
           <section class="block-section" aria-labelledby="about-title">
             <h2 class="display section-title" id="about-title">About</h2>
             <p class="prose lead">{e["summary"]}</p>
@@ -822,12 +1139,17 @@ s = screen("event-detail", "page", "Event detail", route="/events/:id", source=S
            not_applicable={"empty": "One event, not a collection; a missing event is the not-found page."})
 
 
-@s("default", "Easter Sunrise 5K, which Grace is registered for: confirmation, calendar, group chat and \"Can't make it\".")
+@s("default", "Easter Sunrise 5K, a one-off Grace is registered for: confirmation, calendar, group chat, \"Can't make it\", and who hosts it.")
 def _():
     return member_shell("events", detail(EV["sunrise-5k"], "registered"))
 
 
-@s("unregistered", "Saturday Park Bootcamp, not registered yet: one primary Register button.")
+@s("session", "Couch to 5K: Week 3, one date of a series Grace has joined: the series card names the session, links to the series and shows the next three dates.")
+def _():
+    return member_shell("events", detail(EV["c25k-week-3"], "registered"))
+
+
+@s("unregistered", "Saturday Park Bootcamp, not registered yet: one primary Register button; the series card offers \"Join the series\".")
 def _():
     return member_shell("events", detail(EV["park-bootcamp"], "open"))
 
@@ -839,7 +1161,17 @@ def _():
         "top: 30rem; right: 1rem;"))
 
 
-@s("full", "Saturday Park Bootcamp at capacity (50 of 50): waitlist open, Join the waitlist.")
+@s("reserved", "A paid event, registered: the spot is reserved and the panel says how to pay.")
+def _():
+    return member_shell("events", detail(dict(EV["park-bootcamp"], going=39, registered=True), "reserved"))
+
+
+@s("failed", "Register pressed but the request failed: a generic message above the Register button, which stays usable.")
+def _():
+    return member_shell("events", detail(EV["park-bootcamp"], "failed"))
+
+
+@s("full", "Saturday Park Bootcamp at capacity (50 of 50): \"This event is full\" in place of the Register button; no waitlist.")
 def _():
     return member_shell("events", detail(dict(EV["park-bootcamp"], going=50), "full"))
 

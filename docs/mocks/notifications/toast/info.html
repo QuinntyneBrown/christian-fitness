@@ -20,7 +20,7 @@
     <div class="app-header__inner">
       <a class="lockup" href="../../pages/home/default.html"><svg class="seal seal--lockup" viewBox="0 0 200 200" aria-hidden="true"><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7"/><rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2"/><rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2"/></svg><span class="lockup__name">Christian Fitness</span></a>
       <nav class="app-nav" aria-label="Primary">
-        <a class="app-nav__link" href="../../pages/home/default.html">Home</a><a class="app-nav__link" href="../../pages/events/default.html" aria-current="page">Events</a><a class="app-nav__link" href="../../pages/services/default.html">Services</a><a class="app-nav__link" href="../../pages/messages/default.html">Messages <span class="count-badge" aria-label="4 unread">4</span></a>
+        <a class="app-nav__link" href="../../pages/home/default.html">Home</a><a class="app-nav__link" href="../../pages/events/default.html" aria-current="page">Events</a><a class="app-nav__link" href="../../pages/directory/default.html">Directory</a><a class="app-nav__link" href="../../pages/services/default.html">Services</a><a class="app-nav__link" href="../../pages/messages/default.html">Messages <span class="count-badge" aria-label="4 unread">4</span></a>
       </nav>
       <a class="profile-button" href="../../pages/profile/default.html" aria-label="Your profile">GT</a>
       <button class="btn btn--ghost app-header__signout" type="button">Sign out</button>
@@ -39,6 +39,7 @@
             <div class="facts__item"><svg class="icon facts__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div><dt>Sat, Apr 18</dt><dd>6:45 AM · about 90 minutes</dd></div></div>
             <div class="facts__item"><svg class="icon facts__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><div><dt>Martin Goodman Trail, Marilyn Bell Park</dt><dd>Waterfront, Toronto</dd></div></div>
           </dl>
+          
           <section class="block-section" aria-labelledby="about-title">
             <h2 class="display section-title" id="about-title">About</h2>
             <p class="prose lead">An easy-paced run along the lake to watch the sun come up, with a short devotion at the turnaround and coffee at the finish.</p>
@@ -58,20 +59,28 @@
                   <button class="btn btn--secondary btn--sm" type="button" data-mock-href="../../notifications/toast/info.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M3 10h18"/><path d="M16 19h6"/><path d="M19 16v6"/></svg>Calendar</button>
                   <a class="btn btn--secondary btn--sm" href="../../pages/messages/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Group chat</a>
                 </div>
-                <button class="btn btn--quiet mt-3" type="button" data-mock-href="../../notifications/toast/with-action.html">Can't make it</button>
+                <button class="btn btn--quiet mt-3" type="button" data-mock-href="../../dialogs/cancel-registration/default.html">Can't make it</button>
               </div>
               <div class="register__going">
                 <p class="register__count">142 going</p>
                 <div class="avatar-stack"><span class="avatar avatar--sm" aria-hidden="true">MC</span><span class="avatar avatar--sm" aria-hidden="true">DO</span><span class="avatar avatar--sm" aria-hidden="true">PN</span><span class="avatar avatar--sm" aria-hidden="true">AK</span><span class="avatar avatar--sm" aria-hidden="true">JR</span><span class="avatar-stack__label">Michael, Danielle and 140 others</span></div>
               </div>
             </div>
-            <p class="posted-by">Posted by the Christian Fitness team</p>
+            <a class="host-card" href="../../pages/listing-profile/one-off.html">
+              <span class="listing-mark" aria-hidden="true">CF</span>
+              <span class="host-card__body">
+                <span class="host-card__label">Hosted by · Organization</span>
+                <span class="host-card__name"><span>Christian Fitness</span><span class="verified-mark" role="img" aria-label="Verified"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span></span>
+              </span>
+              <svg class="icon host-card__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
           </aside>
       </div>
     </div>
   </main>
+  <footer class="app-footer"><div class="app-footer__inner"><p>© 2026 Christian Fitness · Toronto</p><p class="app-footer__links"><a href="../../pages/feedback/default.html">Send feedback</a><a href="../../pages/preferences/default.html">Preferences</a><a href="../../pages/privacy/default.html">Privacy</a><a href="../../pages/terms/default.html">Terms</a></p></div></footer>
   <nav class="tab-bar" aria-label="Primary, mobile">
-    <a class="tab-bar__item" href="../../pages/home/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a><a class="tab-bar__item" href="../../pages/events/default.html" aria-current="page"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a><a class="tab-bar__item" href="../../pages/services/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services</a><a class="tab-bar__item" href="../../pages/messages/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Messages<span class="tab-bar__dot" aria-hidden="true"></span><span class="visually-hidden">, 4 unread</span></a><a class="tab-bar__item" href="../../pages/profile/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a class="tab-bar__item" href="../../pages/home/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a><a class="tab-bar__item" href="../../pages/events/default.html" aria-current="page"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a><a class="tab-bar__item" href="../../pages/directory/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 13a3 3 0 1 0-6 0"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><circle cx="12" cy="8" r="2"/></svg>Directory</a><a class="tab-bar__item" href="../../pages/services/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/></svg>Services</a><a class="tab-bar__item" href="../../pages/messages/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Messages<span class="tab-bar__dot" aria-hidden="true"></span><span class="visually-hidden">, 4 unread</span></a><a class="tab-bar__item" href="../../pages/profile/default.html"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
   </nav>
 </div>
 <section class="toast-region" aria-label="Notifications"><div role="status" aria-live="polite"><div class="toast toast--info">

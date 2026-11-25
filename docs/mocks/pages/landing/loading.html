@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="landing">
 <meta name="mock:state" content="loading">
 <meta name="mock:source" content="Magic Patterns · prototype Christian Fitness · frame Landing (m6TmegBz1WUe34iTU1vouC)">
-<meta name="description" content="Landing while upcoming events load: the hero is static; the event list shows three skeleton rows.">
+<meta name="description" content="Landing while stories and events load: the masthead and Join card are static; stories and event rows show skeletons.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -16,63 +16,49 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="site">
-  <header class="site-header">
-    <a class="lockup" href="../../pages/landing/default.html"><svg class="seal seal--lockup" viewBox="0 0 200 200" aria-hidden="true"><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7"/><rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2"/><rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2"/></svg><span class="lockup__name">Christian Fitness</span></a>
-    <div class="site-header__actions">
-      <a class="btn btn--ghost site-header__signin" href="../../pages/sign-in/default.html">Sign in</a>
-      <a class="btn btn--primary" href="../../pages/join/default.html">Join free</a>
+  <header class="masthead">
+    <div class="masthead__bar">
+      <a class="lockup" href="../../pages/landing/default.html"><svg class="seal seal--lockup" viewBox="0 0 200 200" aria-hidden="true"><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="7"/><rect class="seal__cross" x="88" y="38" width="24" height="128" rx="2"/><rect class="seal__cross" x="56" y="70" width="88" height="22" rx="2"/></svg><span class="lockup__name">Christian Fitness</span></a>
+      <div class="site-header__actions">
+        <a class="btn btn--ghost site-header__signin" href="../../pages/sign-in/default.html">Sign in</a>
+        <a class="btn btn--primary" href="../../pages/join/default.html">Join free</a>
+      </div>
     </div>
+    <nav class="section-nav" aria-label="Sections"><a class="section-nav__link" href="default.html" aria-current="page">Latest</a><a class="section-nav__link" href="section.html">Events</a><a class="section-nav__link" href="section-empty.html">Training</a><a class="section-nav__link" href="section.html">Nutrition</a><a class="section-nav__link" href="section.html">Faith & Body</a><a class="section-nav__link" href="section.html">Community</a><a class="section-nav__link" href="section.html">Pros</a></nav>
   </header>
   <main id="main">
-    <section class="hero" aria-labelledby="hero-title">
-      <div>
-        <h1 class="display hero__title" id="hero-title">Life to the full.</h1>
-        <p class="hero__lead">A Christian community for health in body and spirit. Find events, train with friends, and meet professionals who share your faith.</p>
-        <div class="hero__actions">
-          <a class="btn btn--primary btn--lg" href="../../pages/join/default.html">Join the community <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
-          <p class="hero__proof"><strong>2,400+</strong> members across the GTA</p>
+    <h1 class="visually-hidden">Christian Fitness news</h1><div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading top stories</p><div class="top-stories"><div class="story-lead skeleton-stack"><span class="skeleton skeleton--block skeleton--image-16x9"></span><span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--title-lg"></span><span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text-sm w-30"></span></div><ul class="headline-list"><li class="headline"><div class="headline__body skeleton-stack"><span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text-sm w-40"></span></div><span class="skeleton skeleton--tile"></span></li><li class="headline"><div class="headline__body skeleton-stack"><span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text-sm w-40"></span></div><span class="skeleton skeleton--tile"></span></li><li class="headline"><div class="headline__body skeleton-stack"><span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text-sm w-40"></span></div><span class="skeleton skeleton--tile"></span></li><li class="headline"><div class="headline__body skeleton-stack"><span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text-sm w-40"></span></div><span class="skeleton skeleton--tile"></span></li></ul></div></div>
+    <div class="news">
+      <section class="river" aria-label="Stories">
+          <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading stories</p><h2 class="display river__title">The latest</h2><ul class="river__list"><li class="story-row"><div class="story-row__body skeleton-stack"><span class="skeleton skeleton--text-sm w-30"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text w-80"></span></div><span class="skeleton skeleton--tile"></span></li><li class="story-row"><div class="story-row__body skeleton-stack"><span class="skeleton skeleton--text-sm w-30"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text w-80"></span></div><span class="skeleton skeleton--tile"></span></li><li class="story-row"><div class="story-row__body skeleton-stack"><span class="skeleton skeleton--text-sm w-30"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text w-80"></span></div><span class="skeleton skeleton--tile"></span></li></ul></div>
+      </section>
+      <aside class="rail" aria-label="Join, events and newsletter">
+        <div class="join-card">
+          <p class="display join-card__title">Life to the full.</p>
+          <p class="join-card__text">A Christian community for health in body and spirit. Find events, train with friends, and meet professionals who share your faith.</p>
+          <a class="btn btn--inverse" href="../../pages/join/default.html">Join the community <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          <p class="join-card__proof">2,400+ members across the GTA</p>
         </div>
-      </div>
-      <div class="hero__media">
-        <img class="hero__image" src="../../assets/images/run.jpg" alt="A group running together along the Toronto waterfront at sunrise" width="1376" height="768">
-        <div class="hero__float">
-          <div class="date-tile" aria-hidden="true"><span class="date-tile__month">Apr</span><span class="date-tile__day">18</span></div>
-          <div>
-            <p class="hero__float-title">Easter Sunrise 5K</p>
-            <p class="hero__float-meta"><span class="visually-hidden">Sat, Apr 18 · </span>142 going · Free</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="band" aria-labelledby="coming-title">
-      <div class="band__inner">
-        <div>
-          <h2 class="display band__title" id="coming-title">Coming up</h2>
-          <p class="subtitle">Runs, workouts and gatherings posted by our team every week.</p>
-          <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading upcoming events</p><ul class="list-ruled landing-list"><li class="event-row event-row--lg"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li><li class="event-row event-row--lg"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li><li class="event-row event-row--lg"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li></ul></div>
-        </div>
-        <div class="band__aside">
-          <div>
-            <h3 class="display band__point-title">Train together</h3>
-            <p class="band__point-text">Build a profile, find people at your pace, and keep each other going in group chats for every event.</p>
-          </div>
-          <div>
-            <h3 class="display band__point-title">Trusted professionals</h3>
-            <p class="band__point-text">Trainers, dietitians, physios and counsellors, each one vetted and listed by our team.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="band" aria-labelledby="pros-title">
-      <div class="band__inner"><div>
-        <h2 class="display band__title" id="pros-title">Meet our professionals</h2>
-        <p class="subtitle">Trainers, dietitians, physios and counsellors, vetted by our team.</p>
-        <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading professionals</p><ul class="card card--list landing-pros"><li class="service-row"><span class="skeleton skeleton--avatar-xl"></span><div class="service-row__body skeleton-stack"><span class="skeleton skeleton--text" style="width:55%"></span><span class="skeleton skeleton--text-sm" style="width:80%"></span></div></li><li class="service-row"><span class="skeleton skeleton--avatar-xl"></span><div class="service-row__body skeleton-stack"><span class="skeleton skeleton--text" style="width:55%"></span><span class="skeleton skeleton--text-sm" style="width:80%"></span></div></li><li class="service-row"><span class="skeleton skeleton--avatar-xl"></span><div class="service-row__body skeleton-stack"><span class="skeleton skeleton--text" style="width:55%"></span><span class="skeleton skeleton--text-sm" style="width:80%"></span></div></li></ul></div>
-      </div></div>
-    </section>
-
+        <section aria-labelledby="rail-events">
+          <h2 class="display rule-title" id="rail-events">Upcoming events</h2>
+          <div aria-busy="true" aria-live="polite"><p class="visually-hidden">Loading upcoming events</p><ul class="list-divided"><li class="event-row"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li><li class="event-row"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li><li class="event-row"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li><li class="event-row"><span class="skeleton skeleton--date"></span><div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li></ul></div>
+        </section>
+        <section class="newsletter-box" aria-labelledby="rail-newsletter">
+          <h2 class="display newsletter-box__title" id="rail-newsletter">The Abundant Weekly</h2>
+          <p class="newsletter-box__text">The week’s stories and events in one email. Every Saturday, 7 AM.</p>
+          <form class="newsletter-box__form" action="../../pages/subscribe/default.html">
+            <label class="visually-hidden" for="rail-email">Email address</label>
+            <input class="input input--pill" id="rail-email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
+            <button class="btn btn--primary" type="submit">Subscribe free</button>
+          </form>
+          <a class="text-link text-link--quiet newsletter-box__rss" href="../../pages/subscribe/default.html#rss"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg> Or follow by RSS</a>
+        </section>
+        <section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <ol class="ranked"><li><span class="ranked__n" aria-hidden="true">1</span><p class="ranked__title">Why your rest day might be the most spiritual part of your training plan</p></li><li><span class="ranked__n" aria-hidden="true">2</span><p class="ranked__title">A beginner’s guide to your first outdoor bootcamp</p></li><li><span class="ranked__n" aria-hidden="true">3</span><p class="ranked__title">Twelve GTA churches will run the Toronto Half as one team this fall</p></li><li><span class="ranked__n" aria-hidden="true">4</span><p class="ranked__title">Fasting and training: what a dietitian wants you to know before Lent</p></li><li><span class="ranked__n" aria-hidden="true">5</span><p class="ranked__title">The Tuesday walking group that got 40 seniors into the park</p></li></ol>
+        </section>
+      </aside>
+    </div>
     <section class="verse" aria-label="Scripture">
       <div class="verse__inner">
         <svg class="seal seal--verse seal--light" viewBox="0 0 200 200" role="img" aria-label="Christian Fitness"><defs><path id="landing-seal" d="M100,100 m-76.5,0 a76.5,76.5 0 1,1 153,0 a76.5,76.5 0 1,1 -153,0"/></defs><circle class="seal__ring" cx="100" cy="100" r="96" stroke-width="3"/><circle class="seal__ring" cx="100" cy="100" r="66" stroke-width="1.5"/><text class="seal__text"><textPath href="#landing-seal" startOffset="0" textLength="478" lengthAdjust="spacing">CHRISTIAN FITNESS · HEALTH · ENERGY · ABUNDANT LIFE · </textPath></text><rect class="seal__cross" x="92" y="54" width="16" height="96" rx="1.5"/><rect class="seal__cross" x="68" y="78" width="64" height="15" rx="1.5"/></svg>
@@ -85,7 +71,13 @@
   </main>
   <footer class="site-footer">
     <p>© 2026 Christian Fitness · Toronto</p>
-    <p>Health · Energy · Abundant life</p>
+    <p class="site-footer__links">
+      <a href="../../pages/newsletter/default.html">Newsletter</a>
+      <a href="../../pages/subscribe/default.html#rss"><svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg> RSS</a>
+      <a href="../../pages/feedback/default.html">Send feedback</a>
+      <a href="../../pages/privacy/default.html">Privacy</a>
+      <a href="../../pages/terms/default.html">Terms</a>
+    </p>
   </footer>
 </div>
 <nav class="mock-bar" aria-label="Mock navigation">
@@ -93,9 +85,12 @@
   <span class="mock-bar__screen">Landing</span>
   <ul class="mock-bar__states">
     <li><a href="default.html">default</a></li>
+    <li><a href="section.html">section</a></li>
+    <li><a href="section-empty.html">section-empty</a></li>
     <li><a href="loading.html" aria-current="page">loading</a></li>
     <li><a href="empty.html">empty</a></li>
     <li><a href="error.html">error</a></li>
+    <li><a href="events-error.html">events-error</a></li>
   </ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>

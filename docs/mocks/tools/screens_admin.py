@@ -1,10 +1,10 @@
-"""Admin console: staff sign in, two-step, dashboard, events, services, members, forbidden.
+"""Admin console: staff sign in, dashboard, events, services, members, forbidden.
 Layout and copy follow the Magic Patterns prototype "Admin Console" frame for frame."""
 from __future__ import annotations
 
-from cf_data import ADMIN, APPLICATIONS, DRAFT_EVENT, EVENTS, MEMBERS, MODERATOR, SERVICES
+from cf_data import ADMIN, APPLICATIONS, DRAFT_EVENT, EVENTS, MEMBERS, MODERATOR, SERVICES, STAFF_DOMAIN
 from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field,
-                   form_alert, href, icon, loading_region, screen, seal, service_avatar)
+                   form_alert, google_button, google_g, href, icon, loading_region, screen, seal, service_avatar)
 
 SRC = "Magic Patterns · prototype Admin Console · frame "
 G = "Admin console"
@@ -28,139 +28,70 @@ def staff(inner: str) -> str:
 </main>"""
 
 
-def signin(*, invalid: bool = False, busy: bool = False, locked: bool = False, not_staff: bool = False, failed: bool = False,
-           step: str = "") -> str:
+def signin(mode: str = "") -> str:
+    """mode: "" | redirecting | wrong-domain | no-access | failed | session-expired"""
     alert = ""
-    # The second step's endings and refusals (L2-046 AC4 to AC6; ADR 0013).
-    step_alerts = {
-        "expired": ("Sign in again", "Your sign-in timed out before a code was entered. Sign in again to get a new code."),
-        "locked": ("Too many codes tried", "For your security, wait 15 minutes, then sign in again."),
-        "not-set-up": ("Two-step verification isn't set up", "Ask an Admin to set it up for your account, then sign in again."),
-        # L2-018 AC5: the staff session ended after 30 idle minutes (ADR 0016).
-        "session-expired": ("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on."),
+    notices = {
+        # The account Google returned is named, so the person can see which one they picked (L2-018 AC2, AC3).
+        "wrong-domain": ("That's not a staff account", "dana.reyes@gmail.com",
+                         f"Only @{STAFF_DOMAIN} accounts can open the console. Pick your work account instead."),
+        "no-access": ("No admin access yet", "events@christianfitness.ca",
+                      "Your Workspace account is fine, but it hasn’t been given a console role. Ask an Admin to add you to the team."),
     }
-    if step:
-        alert = '<div class="auth__alert">' + form_alert(*step_alerts[step]) + "</div>"
-    elif locked:
-        # L2-018 AC3 with L2-004 AC3: the member sign-in's pause, counted per email in both apps (ADR 0016).
-        alert = '<div class="auth__alert">' + form_alert("Sign-in paused for 15 minutes", "Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try again.") + "</div>"
-    elif invalid:
-        # L2-018 AC3: one generic message that names neither field (ADR 0011).
-        alert = '<div class="auth__alert">' + form_alert("Email or password is incorrect", "Check both and try again.") + "</div>"
-    elif not_staff:
-        alert = '<div class="auth__alert">' + form_alert("This account isn't on the team", "The admin console is for the Christian Fitness team. On the team? Ask a community director to give you staff access.") + "</div>"
-    elif failed:
-        alert = '<div class="auth__alert">' + form_alert("We couldn't sign you in", "Something went wrong on our side. Try again in a moment.") + "</div>"
-    err = ""
-    submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
-              if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Sign in</button>')
-    return staff(f"""    <form action="{href("admin-two-step")}" novalidate>
-      <h1 class="display staff__title">Staff sign in</h1>
-      <p class="staff__lead">For the Christian Fitness team only.</p>
-      {alert}
-      <div class="auth__fields">
-        {field("Work email", "email", ADMIN["email"], type_="email", autocomplete="username", readonly=busy)}
-        {field("Password", "password", "••••••••••", type_="password", autocomplete="current-password", error=err, readonly=busy)}
-      </div>
-      {submit}
-      <p class="staff__note">{icon("lock", "icon--xs")} Two-step verification required</p>
-    </form>""")
+    if mode in notices:
+        title, email, text = notices[mode]
+        alert = f"""<div class="sso-notice sso-notice--spaced" role="alert" tabindex="-1" autofocus>
+        <p class="sso-notice__title">{icon("alert-circle")}{title}</p>
+        <p class="sso-notice__account">{google_g("sm")}<span>{email}</span></p>
+        <p class="sso-notice__text">{text}</p>
+      </div>"""
+    elif mode == "failed":
+        alert = '<div class="auth__alert">' + form_alert("Google sign-in didn't finish", "You're not signed in. Try again in a moment.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
+    elif mode == "session-expired":
+        # L2-018 AC6: the staff session ended after 30 idle minutes (ADR 0016).
+        alert = '<div class="auth__alert">' + form_alert("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on.") + "</div>"
+    label = "Try another Google account" if mode in notices else "Sign in with Google"
+    return staff(f"""    <h1 class="display staff__title">Staff sign in</h1>
+    <p class="staff__lead">Use your <strong>@{STAFF_DOMAIN}</strong> Google Workspace account.</p>
+    {alert}
+    <div class="staff__sso">
+      {google_button(label, loading=mode == "redirecting", to=href("google-account-chooser", "staff"))}
+    </div>
+    <p class="staff__note staff__note--start">{icon("shield-check")}<span>Passwords and two-step verification are managed by Google Workspace. Leaving the team ends console access the same day.</span></p>""")
 
 
 s = screen("admin-sign-in", "page", "Staff sign in", route="/admin/sign-in", group=G, source=SRC + "Sign In (x7rTtnFLo7JruWBh3LepjD)",
-           not_applicable={"loading": "Static form.", "empty": "A form, not a collection."})
+           not_applicable={"loading": "A static page with one button.", "empty": "Not a collection."})
 
 
-@s("default", "Staff sign in on the ink background: work email, password, two-step notice.")
+@s("default", "Staff sign in on the ink background: one button, Sign in with Google, for the team's Google Workspace accounts; no password is typed here.")
 def _():
     return signin()
 
 
-@s("invalid", "Wrong email or password: one generic alert that names neither field (L2-018 AC3).")
+@s("redirecting", "Sign in with Google pressed: the button reads \"Opening Google…\" and is disabled until Google's page opens.")
 def _():
-    return signin(invalid=True)
+    return signin("redirecting")
 
 
-@s("submitting", "Sign in pressed: \"Signing in…\", button disabled.")
+@s("wrong-domain", "Back from Google with an account outside the team's domain: the account is named, why it was refused, and \"Try another Google account\".")
 def _():
-    return signin(busy=True)
+    return signin("wrong-domain")
 
 
-@s("error", "5 failed sign-ins for the email in 15 minutes (L2-018 AC3, L2-004 AC3): sign-in paused for 15 minutes; what was typed stays and Sign in stays enabled.")
+@s("no-access", "Back from Google with a team account that has no console role: the account is named and who can add it.")
 def _():
-    return signin(locked=True)
+    return signin("no-access")
 
 
-@s("not-staff", "A member account without a staff role: refused with not_staff (L2-018 AC2); who can give access.")
+@s("error", "Derived: Google did not finish (an error on Google's side, or its answer could not be checked): a message above the button (focused); nobody is signed in.")
 def _():
-    return signin(not_staff=True)
+    return signin("failed")
 
 
-@s("failed", "The server failed or did not answer: what was typed stays; try again.")
+@s("session-expired", "The staff session ended after 30 minutes without a request: sign in again (L2-018 AC6).")
 def _():
-    return signin(failed=True)
-
-
-@s("two-step-expired", "Back from the code screen after 5 minutes: sign in again for a new code (L2-046 AC5).")
-def _():
-    return signin(step="expired")
-
-
-@s("two-step-locked", "Back from the code screen after 5 wrong codes in 15 minutes: wait, then sign in again (L2-046 AC4).")
-def _():
-    return signin(step="locked")
-
-
-@s("two-step-not-set-up", "Staff whose two-step verification is not set up: who can set it up (L2-046 AC6).")
-def _():
-    return signin(step="not-set-up")
-
-
-@s("session-expired", "The staff session ended after 30 minutes without a request: sign in again (L2-018 AC5).")
-def _():
-    return signin(step="session-expired")
-
-
-def two_step(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
-    err = ("That code doesn't match. Codes change every 30 seconds, so enter the newest one." if invalid
-           else "We couldn't check your code. Try again in a moment." if failed else "")
-    value = "481 920" if not invalid else "481 902"
-    submit = (f'<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Verifying…")}</button>'
-              if busy else '<button class="btn btn--primary btn--lg btn--block auth__submit" type="submit">Verify</button>')
-    return staff(f"""    <form action="{href("admin-dashboard")}" novalidate>
-      <h1 class="display staff__title">Enter your code</h1>
-      <p class="staff__lead">Open the authenticator app on your phone and enter the 6-digit code for Christian Fitness.</p>
-      <div class="auth__fields">
-        {field("Verification code", "code", value, autocomplete="one-time-code", extra='inputmode="numeric"', cls="input input--code", error=err, readonly=busy)}
-      </div>
-      {submit}
-      <p class="staff__note">{icon("smartphone", "icon--xs")} Lost your phone? Ask an Admin to set up two-step verification again.</p>
-    </form>""")
-
-
-s = screen("admin-two-step", "page", "Two-step verification", route="/admin/sign-in/verify", group=G,
-           source="Derived from the Sign In frame (its \"Two-step verification required\" notice).",
-           not_applicable={"loading": "Static form.", "empty": "A form, not a collection.", "error": "Server failures show as the invalid state's message pattern (state failed); an expired or locked sign-in goes back to sign in."})
-
-
-@s("default", "Second step: a 6-digit authenticator code; every sign-in asks for one (ADR 0013).")
-def _():
-    return two_step()
-
-
-@s("invalid", "Wrong code: inline error that explains codes rotate.")
-def _():
-    return two_step(invalid=True)
-
-
-@s("submitting", "Verify pressed: busy button.")
-def _():
-    return two_step(busy=True)
-
-
-@s("failed", "The server failed or did not answer: the field says so and keeps the code (L2-046 AC7).")
-def _():
-    return two_step(failed=True)
+    return signin("session-expired")
 
 
 def forbidden(*, busy: bool = False, role: bool = False) -> str:
@@ -395,7 +326,7 @@ def ev_table(rows) -> str:
                 <td class="table__nowrap">{r["month"]} {r["day"]} · {r["time"]}</td>
                 <td class="table__nowrap"><span class="table__strong">{r["going"]}</span><span class="muted"> / {r["capacity"]}</span></td>
                 <td><span class="status status--{r["status"].lower()}">{r["status"]}</span></td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="{href("event-editor", "edit")}">Edit<span class="visually-hidden"> {r["title"]}</span></button></td>
+                <td class="table__end"><span class="row-actions">{f'<a class="row-link row-link--quiet" href="{href("admin-community-pick", "pick")}">Make it a pick<span class="visually-hidden">: {r["title"]}</span></a>' if r["status"] == "Published" else ""}<button class="row-link" type="button" data-mock-href="{href("event-editor", "edit")}">Edit<span class="visually-hidden"> {r["title"]}</span></button></span></td>
               </tr>""" for r in rows)
     return f"""<div class="table-wrap">
           <table class="table">
