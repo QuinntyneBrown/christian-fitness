@@ -18,7 +18,7 @@ export default class PrivacyPage {
     timeZone: 'UTC',
   }).format(new Date(new LegalVersions().inForce('privacy')!));
   protected readonly points = [
-    'We collect what you give us to run your account, your events and your messages. Nothing more.',
+    'We use account details, registrations and messages to run the community.',
     'We never sell your information, and we don’t run ads.',
     'Your church, faith details and health goals are optional. Information you put on your public profile can be seen by other members.',
     'You can contact us about access to your information, corrections and deletion.',
@@ -30,9 +30,9 @@ export default class PrivacyPage {
       id: 'collect',
       title: 'What we collect',
       paragraphs: [
-        'Account details: your name, email, sign-in details, and the area you train in.',
+        'Account details include your name, email and sign-in information.',
         'Profile details you choose to add: your church, a short bio, goals and interests. These are optional.',
-        'Activity: events and series you join, listings you follow, messages you send, and feedback you share.',
+        'Activity includes events you register for and messages you send.',
         'Basic technical information: your network address is used to limit repeated requests.',
       ],
     },
@@ -40,9 +40,9 @@ export default class PrivacyPage {
       id: 'use',
       title: 'How we use it',
       paragraphs: [
-        'To run your account, register you for events, remind you about them and let the Christian Fitness team know who’s coming.',
-        'To suggest events, stories and listings that fit your area and interests. ',
-        'To send the emails you’ve turned on, such as The Abundant Weekly. Security and service notices reach all members.',
+        'To run your account, register you for events and let the Christian Fitness team know who’s coming.',
+        'To suggest events on your home page.',
+        'To send password reset emails you request and service notices about changes to these documents.',
         'To keep the community safe, including reviewing reports and removing spam.',
       ],
     },
@@ -81,21 +81,21 @@ export default class PrivacyPage {
       id: 'security',
       title: 'Security',
       paragraphs: [
-        'Your data is encrypted in transit and at rest and stored on servers in Canada. Our email delivery provider may process email addresses outside Canada, only to send you the email you ask for. Staff access is limited to the team members who need it.',
+        'Your data is encrypted in transit and at rest and stored on servers in Canada. Our email delivery provider may process email addresses outside Canada, to deliver account and service emails. Staff access is limited to the team members who need it.',
       ],
     },
     {
       id: 'children',
       title: 'Young people',
       paragraphs: [
-        'You must be 16 or older to create an account. When you join we ask you to confirm that you are 16 or older. We do not ask for or keep your date of birth. Youth under 16 can attend events with a parent or guardian who registers for them.',
+        'You must be 16 or older to create an account. When you join we ask you to confirm that you are 16 or older. We do not ask for or keep your date of birth.',
       ],
     },
     {
       id: 'changes',
       title: 'Changes to this policy',
       paragraphs: [
-        'If we make a meaningful change we will email you and show a notice in the app at least 30 days before it takes effect. That email is a service notice, so you get it even if you have turned off all other email. If you keep using Christian Fitness after the effective date, you accept the new version; we do not ask you to accept it again. Earlier versions stay readable at dated addresses such as /privacy/2026-11-01.',
+        'If we make a meaningful change we will email you and show a notice in the app at least 30 days before it takes effect. That email is a service notice, so you get it even if you have turned off all other email. If you keep using Christian Fitness after the effective date, you accept the new version; we do not ask you to accept it again. Earlier versions stay readable at dated addresses identified by their effective dates.',
       ],
     },
   ];

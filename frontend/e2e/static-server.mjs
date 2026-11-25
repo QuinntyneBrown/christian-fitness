@@ -25,6 +25,13 @@ createServer((request, response) => {
     response.writeHead(403).end();
     return;
   }
+  if (app === 'web' && /^\/(privacy|terms)\/\d{4}-\d{2}-\d{2}$/.test(path)) {
+    file = join(root, 'legal', path + '.html');
+    if (!existsSync(file)) {
+      response.writeHead(404).end();
+      return;
+    }
+  }
   if (!existsSync(file) || !statSync(file).isFile()) file = join(root, 'index.html');
   response.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' });
   createReadStream(file).pipe(response);
