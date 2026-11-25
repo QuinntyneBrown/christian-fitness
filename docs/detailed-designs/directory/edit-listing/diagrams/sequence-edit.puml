@@ -10,7 +10,7 @@ box "Frontend — Member web app" #E0F2FE
   participant "OwnerListingEditorDialog" as dlg
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "DirectoryListingsController" as ctrl
+  participant "DirectoryController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "UpdateOwnListingHandler" as h
@@ -19,20 +19,22 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 owner -> dlg : Edit listing, change fields, Save changes
-dlg -> ctrl : PUT /api/directory/listings/{id}
+dlg -> ctrl : PUT /api/directory/{id}
 ctrl -> h : UpdateOwnListingCommand
 h -> db : Load listing
-alt not the owner
+alt not published
+  h --> dlg : 404 listing_not_found
+else not the owner
   h --> dlg : 403 not_listing_owner
 else invalid
   h --> dlg : 400 validation_failed
 else valid
   h -> db : Apply about, website, photo, focus, contact now
   opt name or kind changed
-    h -> db : Add pending change for staff
+    h -> db : Keep the new name or kind waiting for staff
   end
   h -> db : Save and audit in one unit of work
-  h --> dlg : 200 (nameChangePending)
+  h --> dlg : 200 { nameChangePending, listing }
   dlg --> owner : Toast: Your listing is updated
 end
 @enduml

@@ -3,7 +3,7 @@ Layout and copy follow the Magic Patterns prototype "Admin Console" frames Manag
 Newsletter, Manage Event Series, Community Pick, Manage Listings and Feedback Inbox."""
 from __future__ import annotations
 
-from cf_data import (ADMIN_STORIES, MODERATOR, LISTING_KINDS, AUTHORS, BYLINES, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS,
+from cf_data import (ADMIN_STORIES, EASTSIDE, MODERATOR, LISTING_KINDS, AUTHORS, BYLINES, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS,
                      MEMBER_EVENTS, NEWSLETTER, PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
 from cf_ui import (CUR, banner, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field, file_field,
                    form_alert, href, icon, image, listing_mark, loading_region, screen, select, textarea, toast, toast_region,
@@ -1239,10 +1239,26 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
       </div>"""
 
 
-def listed_table() -> str:
-    trs = "".join(f"""<tr><td><span class="listed-cell">{listing_mark(l, "sm")}<span class="table__strong">{l["name"]}</span>{verified_badge() if l["verified"] else ''}</span></td>
+def listed_change(l: dict, new_name: str) -> str:
+    """The waiting name under a Listed row's name, with Approve and Decline (ADR 0093)."""
+    return (f'<span class="listed-cell__change"><span>New name waiting: <span class="listed-cell__new">{new_name}</span></span>'
+            f'<button class="row-link" type="button" data-mock-href="{href("admin-listings", "change-approved")}">Approve<span class="visually-hidden"> the new name of {l["name"]}</span></button>'
+            f'<button class="row-link" type="button" data-mock-href="{href("admin-listings", "listed")}">Decline<span class="visually-hidden"> the new name of {l["name"]}</span></button></span>')
+
+
+def listed_table(waiting: bool = False, renamed: bool = False) -> str:
+    rows = list(LISTINGS)
+    if waiting or renamed:
+        rows.insert(5, dict(EASTSIDE, name="Eastside Women’s Strength") if renamed else EASTSIDE)
+
+    def cell(l: dict) -> str:
+        wait = waiting and l["id"] == EASTSIDE["id"]
+        cls = "listed-cell listed-cell--change" if wait else "listed-cell"
+        return (f'<span class="{cls}">{listing_mark(l, "sm")}<span class="table__strong">{l["name"]}</span>{verified_badge() if l["verified"] else ''}'
+                f'{listed_change(l, "Eastside Women’s Strength") if wait else ""}</span>')
+    trs = "".join(f"""<tr><td>{cell(l)}</td>
                 <td class="table__nowrap">{l["kind"]}</td><td class="table__nowrap muted">{l["area"]}</td><td class="table__end">{l["followers"]:,}</td>
-                <td class="table__end"><button class="row-link" type="button" data-mock-href="{href("directory-listing-editor")}">Edit<span class="visually-hidden"> {l["name"]}</span></button></td></tr>""" for l in LISTINGS)
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="{href("directory-listing-editor")}">Edit<span class="visually-hidden"> {l["name"]}</span></button></td></tr>""" for l in rows)
     return f"""<div class="table-wrap"><table class="table">
           <caption class="visually-hidden">Listed</caption>
           <thead><tr><th scope="col">Listing</th><th scope="col">Kind</th><th scope="col">Area</th><th scope="col" class="table__end">Followers</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
@@ -1325,6 +1341,17 @@ def _():
     return admin_shell("admin-listings", listings_page(listed_table(), "Listed"))
 
 
+@s("change-waiting", "An owner asked for a new name (L2-079 AC5; ADR 0093): the row keeps the live name and shows the new one waiting, with Approve and Decline.")
+def _():
+    return admin_shell("admin-listings", listings_page(listed_table(waiting=True), "Listed"))
+
+
+@s("change-approved", "Approve pressed: the row shows the new name, the waiting line is gone and a toast says the directory shows it now.")
+def _():
+    return admin_shell("admin-listings", listings_page(listed_table(renamed=True), "Listed"),
+                       after=toast_region(toast("success", "Eastside Women’s Strength is the new name", "The directory shows it now."), admin=True))
+
+
 @s("listing-saved", "Edit saved: Listed shows the listing as changed and a toast says it is live in the directory.")
 def _():
     return admin_shell("admin-listings", listings_page(listed_table(), "Listed"),
@@ -1355,7 +1382,8 @@ def _():
 
 def directory_listing_editor(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
     lk = LS["lakeshore-runners"]
-    v = dict(name=lk["name"], kind=lk["kind"], area=lk["area"], tagline=lk["tagline"], about=lk["about"], website=lk["website"])
+    v = dict(name=lk["name"], kind=lk["kind"], area=lk["area"], tagline=lk["tagline"], about=lk["about"], website=lk["website"],
+             focus=", ".join(lk["focus"]), contact="hello@lakeshorerunners.ca")
     name_err = web_err = ""
     alert = ""
     if invalid:
@@ -1374,6 +1402,8 @@ def directory_listing_editor(*, invalid: bool = False, busy: bool = False, faile
     {textarea("About", "about", v["about"], rows=4, hint="Up to 1,000 characters", readonly=ro)}
     {field("Website", "website", v["website"], error=web_err, optional=True, readonly=ro)}
     {file_field("Logo or photo", "image", hint="JPEG, PNG or WebP, up to 5 MB", optional=True, readonly=ro)}
+    {field("Focus", "focus", v["focus"], hint="Up to 6, separated by commas", readonly=ro)}
+    {field("Contact email", "contact", v["contact"], type_="email", optional=True, hint="Shown to members who message the listing", readonly=ro)}
     <p class="field__hint">The Verified mark comes from the four checks and cannot be changed here.</p>"""
     go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
           else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-listings", "listing-saved")}">Save changes</button>')
@@ -1388,7 +1418,7 @@ s = screen("directory-listing-editor", "dialog", "Directory listing editor", gro
            source="Derived: Listed's \"Edit\" button, which has no screen in the prototype; the same editor a listing's owner gets after claiming it, opened by staff from Listed.")
 
 
-@s("default", "Edit a listed directory listing: name, kind, area, tagline, about, website and image; the Verified mark is not editable here.")
+@s("default", "Edit a listed directory listing: name, kind, area, tagline, about, website, image, focus and contact (L2-079 AC8); a new name or kind applies at once; the Verified mark is not editable here.")
 def _():
     return directory_listing_editor()
 

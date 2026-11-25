@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="directory-listing-editor">
 <meta name="mock:state" content="default">
 <meta name="mock:source" content="Derived: Listed&#x27;s &quot;Edit&quot; button, which has no screen in the prototype; the same editor a listing&#x27;s owner gets after claiming it, opened by staff from Listed.">
-<meta name="description" content="Edit a listed directory listing: name, kind, area, tagline, about, website and image; the Verified mark is not editable here.">
+<meta name="description" content="Edit a listed directory listing: name, kind, area, tagline, about, website, image, focus and contact (L2-079 AC8); a new name or kind applies at once; the Verified mark is not editable here.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -94,6 +94,8 @@
     <div class="field"><label class="field__label" for="f-about">About</label><textarea class="textarea" id="f-about" name="about" rows="4" aria-describedby="f-about-hint">A west-end run club started by three neighbours in 2019. Our Couch to 5K program has graduated over 400 runners, most of whom swore they could never run.</textarea><span class="field__hint" id="f-about-hint">Up to 1,000 characters</span></div>
     <div class="field"><label class="field__label" for="f-website">Website <span class="field__optional">(optional)</span></label><input class="input" id="f-website" name="website" type="text" value="lakeshorerunners.ca"></div>
     <div class="field file-field"><span class="field__label" id="f-image-label">Logo or photo <span class="field__optional">(optional)</span></span><div class="file-field__row"><button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button><input class="file-field__input" id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-labelledby="f-image-label" hidden><span class="file-field__name file-field__name--empty">No image chosen</span></div><span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span></div>
+    <div class="field"><label class="field__label" for="f-focus">Focus</label><input class="input" id="f-focus" name="focus" type="text" value="Running, Beginners, Race training" aria-describedby="f-focus-hint"><span class="field__hint" id="f-focus-hint">Up to 6, separated by commas</span></div>
+    <div class="field"><label class="field__label" for="f-contact">Contact email <span class="field__optional">(optional)</span></label><input class="input" id="f-contact" name="contact" type="email" value="hello@lakeshorerunners.ca" aria-describedby="f-contact-hint"><span class="field__hint" id="f-contact-hint">Shown to members who message the listing</span></div>
     <p class="field__hint">The Verified mark comes from the four checks and cannot be changed here.</p>
   </div>
   <div class="dialog__foot">

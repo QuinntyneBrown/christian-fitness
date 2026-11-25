@@ -1217,6 +1217,8 @@
         "declined",
         "tick-failed",
         "listed",
+        "change-waiting",
+        "change-approved",
         "listing-saved",
         "loading",
         "empty",
