@@ -25,4 +25,12 @@ public sealed class SeriesController(ISender sender) : ControllerBase
     [HttpGet("count")]
     public async Task<ActionResult<SeriesCountDto>> Count(CancellationToken cancellationToken) =>
         await sender.Send(new CountSeriesQuery(), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// One series as its page shows it (L2-051; ADR 0096); one with no held date, or an unknown id,
+    /// is 404 <c>series_not_found</c>.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<SeriesDetailDto>> Get(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new GetSeriesQuery(id), cancellationToken).ConfigureAwait(false);
 }

@@ -96,6 +96,19 @@ public sealed class AdminSeriesFactory : AdminEventsFactory
         return ids;
     }
 
+    /// <summary>Gives each member a place at each session, as Register or Join would (free, so confirmed).</summary>
+    internal async Task AddRegistrationsAsync(IReadOnlyList<(Guid SessionId, Guid MemberId)> places)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        foreach (var (sessionId, memberId) in places)
+        {
+            db.Registrations.Add(Registration.Of(sessionId, memberId, 0, Time.GetUtcNow()));
+        }
+
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     /// <summary>Couch to 5K Run Club as the mocks draw it: eight Tuesdays from April 7, the sixth cancelled, 31 of 40 joined.</summary>
     internal Task<IReadOnlyList<Guid>> AddCouchTo5KAsync(EventSeries series) =>
         AddSeriesAsync(

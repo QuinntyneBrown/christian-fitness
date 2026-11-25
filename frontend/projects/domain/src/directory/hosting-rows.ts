@@ -1,6 +1,7 @@
-import type { HostedEventDto } from '@cf/api';
+import type { HostedEventDto, HostedSeriesDto } from '@cf/api';
 import { CATEGORY_LABELS, eventImageSrc } from '../events/event-card-view';
 import { EVENT_TIME_ZONE } from '../events/event-when';
+import { seriesCadenceText } from '../events/series-cadence';
 
 /** What one `hosting-row` shows (L2-055 AC2): the screen passes these to the component as they are. */
 export interface HostingRowView {
@@ -12,6 +13,8 @@ export interface HostingRowView {
   title: string;
   /** "6:45 AM · Martin Goodman Trail, Marilyn Bell Park". */
   sub: string;
+  /** A series row, which shows the repeat icon. */
+  series?: boolean;
 }
 
 // Made once on first use, not at import: the formatter is costly to create.
@@ -37,6 +40,35 @@ export function hostingRowViewOf(event: HostedEventDto): HostingRowView {
     meta: `${CATEGORY_LABELS[event.category]} · ${at['weekday']} ${at['month']} ${at['day']}`,
     title: event.title,
     sub: `${at['hour']}:${at['minute']} ${at['dayPeriod']} · ${event.place}`,
+  };
+}
+
+/**
+ * A series the listing hosts (ADR 0096): "Series · Every Tuesday", its title and "Next: Tue Apr 21,
+ * 6:30 PM · 5 sessions left", in Toronto, leading to the series page.
+ */
+export function hostingSeriesRowViewOf(series: HostedSeriesDto): HostingRowView {
+  parts ??= new Intl.DateTimeFormat('en-US', {
+    timeZone: EVENT_TIME_ZONE,
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  const at = Object.fromEntries(
+    parts.formatToParts(new Date(series.startsAt)).map((part) => [part.type, part.value]),
+  );
+  const left =
+    series.sessionsLeft === 1 ? '1 session left' : `${series.sessionsLeft} sessions left`;
+  return {
+    id: series.id,
+    href: `/events/series/${encodeURIComponent(series.id)}`,
+    imageSrc: eventImageSrc(series),
+    meta: `Series · ${seriesCadenceText(series.cadence)}`,
+    title: series.title,
+    sub: `Next: ${at['weekday']} ${at['month']} ${at['day']}, ${at['hour']}:${at['minute']} ${at['dayPeriod']} · ${left}`,
+    series: true,
   };
 }
 

@@ -151,9 +151,30 @@ export function hostCardOf(profile: ListingProfileFixture): EventHostCard {
   return { id, kind, name, isVerified, photoKey };
 }
 
+/** One of the next dates on a session's series card (ADR 0096). */
+export interface EventSeriesDate {
+  id: string;
+  startsAt: string;
+  topic: string | null;
+  cancelled: boolean;
+}
+
+/** A session's series card on its event page (L2-010 AC5; ADR 0096). */
+export interface EventSeriesCard {
+  id: string;
+  title: string;
+  number: number;
+  total: number;
+  cadence: { weekday: number | null; dates: number };
+  joined: boolean;
+  next: EventSeriesDate[];
+}
+
 /** An event as `GET /api/events/{id}` answers it (ADR 0031): the summary's fields and its summary text. */
-export interface EventDetail extends EventSummary {
+export interface EventDetail extends Omit<EventSummary, 'series'> {
   summary: string;
+  /** A session's series card (ADR 0096); null for a standalone event. */
+  series: EventSeriesCard | null;
   /** The caller's own registration: `confirmed` (free), `reserved` (paid) or none (ADR 0032). */
   registration: 'confirmed' | 'reserved' | null;
   /** Its host (ADR 0089): every event has one. */
@@ -165,6 +186,7 @@ export const BOOTCAMP_DETAIL: EventDetail = {
   ...BOOTCAMP,
   summary: 'Forty-five minutes of full-body circuits for every level. Bring a mat and water.',
   registration: null,
+  series: null,
   host: hostCardOf(TEAM),
 };
 
@@ -173,6 +195,7 @@ export const SUNRISE_DETAIL: EventDetail = {
   ...SUNRISE_5K,
   summary: 'Run the waterfront together at sunrise.',
   registration: null,
+  series: null,
   host: hostCardOf(TEAM),
 };
 

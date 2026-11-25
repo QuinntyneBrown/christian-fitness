@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 39% (14 of 36 journeys; 40 of 113 days)
+**% complete:** 42% (15 of 36 journeys; 43 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2860,3 +2860,57 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   editor, the dialog and the Listed change line all load with their lazy routes.
 - "`ng serve` misses library changes on Windows": touching each `public-api.ts` after a contract
   change kept the dev servers current.
+
+## Journey 11: View an event series
+
+**What slowed it**
+
+- The ADR number collided twice. It began as 0094, and the coordinator then assigned 0096. The
+  renumber touched about 15 files. At the rebase, the index row conflicted in two commits: in the
+  first, both rows were kept; in the second, the old 0094 row was dropped for the 0096 row.
+- Journey 20 merged mid-journey and moved the profile read into a static `ListingProfile.OfAsync`
+  that the owner's save shares. The Hosting helper became static and takes the context. Main's new
+  owner fixtures also needed `series: []`, and only the build after the rebase showed it.
+- `EventDetailDto` extends `EventSummaryDto`, which already had a `series?` tag for the By date
+  list (journey 10). The detail's `series` is a different shape (the card), so the detail extends
+  `Omit<EventSummaryDto, 'series'>`. The e2e fixture's `EventDetail` does the same.
+- A `npm test` result read through `grep` printed nothing when the build failed, and a fixture
+  missing `series` slipped past one regression run. The exit status showed it.
+- The hosted-series row needed `category` for its fallback picture, which the ADR had left out.
+  The ADR was corrected in the same slice.
+- The worktree guard refused heredocs mixed with `cd` and git. Edit scripts went to the
+  scratchpad, and a `breaks.py` applied each break, waited for `ng serve` to rebuild, ran the spec
+  and restored the file.
+
+**New lessons**
+
+- When a detail DTO extends a list DTO, check whether the field you add already exists on the
+  base with another shape. If it does, `Omit` it, and say so in both contracts.
+- Read every regression check by its exit status, written to a log in the scratchpad, never
+  through a pipe. That rule is already in AGENTS.md; this journey broke it once and paid for it.
+- A button on a tinted card (`series-card__action`, `--btn-bg: surface`) cannot reach the button's
+  own token, because `.btn` sets `--btn-bg` itself. A wrapper span that paints the surface keeps the
+  look without changing the shared button. Admin, already over its warning, gains nothing.
+- To measure a bundle against main without a second worktree, check out main's
+  `frontend/projects` over the tree, build that one app, then check out `HEAD` again. Commit
+  first, so nothing of yours is lost.
+
+**How earlier lessons worked**
+
+- "Ask the coordinator for the ADR number": it ended the race, though only after the first
+  number had spread through the code.
+- "Prove in-app routing with a component test": `session-list` and `series-card` each have a
+  plain-click and a modified-click case. The e2e sets a `window` flag before the click to prove
+  the page was not reloaded.
+- "Break each rule alone": each of these breaks failed its own test and was restored:
+  - the route, the 404, the sticky aside, retry and host routing
+  - "Not recorded", counting cancelled dates as to go, and Details only on the next date
+  - the joined panel and "Series full"; `SeriesPlaces` ignoring cancelled or past sessions, or
+    going below 0
+  - the card never shown, the card's link reloading, and Cancelled unmarked
+  - series after one-offs under Hosting, and series rows leading to the event page
+- One break passed at first: ignoring `joined` on the card. The joined test only clicked the link
+  and never read its words. It now asserts "View series", and the break fails it.
+- "Read the initial total after each build": web stayed at 278.21 kB through every slice. Admin
+  read 280.52 kB before the rebase and 280.66 kB after. A build of main's own sources gave
+  280.66 kB, so the growth is main's, not this journey's.

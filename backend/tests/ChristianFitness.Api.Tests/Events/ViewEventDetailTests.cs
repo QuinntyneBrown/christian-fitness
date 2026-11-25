@@ -37,8 +37,10 @@ public sealed class ViewEventDetailTests(BrowseEventsFactory factory) : IClassFi
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal(
-            ["area", "capacity", "category", "going", "host", "id", "imageKey", "place", "priceCents", "registration", "startsAt", "summary", "title"],
+            ["area", "capacity", "category", "going", "host", "id", "imageKey", "place", "priceCents", "registration", "series", "startsAt", "summary", "title"],
             body.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        // A standalone event belongs to no series, so no series card shows (L2-010 AC6; ADR 0096).
+        Assert.Equal(JsonValueKind.Null, body.GetProperty("series").ValueKind);
         Assert.Equal(
             (id.ToString(), "Detail Run", "workout", "Martin Goodman Trail", "Waterfront, Toronto", 1000, 50, 38, "Come run with us.", "0123456789abcdef0123456789abcdef.jpg"),
             (

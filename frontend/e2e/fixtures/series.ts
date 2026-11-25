@@ -1,4 +1,6 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
+import { type EventDetail, type EventHostCard, hostCardOf } from './events';
+import { LAKESHORE, OKAFOR } from './listing-profile';
 
 /**
  * Answers `GET /api/events/series/count` with `count` (ADR 0093), or refuses it with `fail`.
@@ -134,6 +136,185 @@ export function answerSeries(
         ),
       },
     };
+  });
+  return asked;
+}
+
+/** A series as `GET /api/events/series/{id}` answers it (`SeriesDetailDto`, ADR 0096). */
+export interface SeriesDetail {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  imageKey: string | null;
+  host: EventHostCard;
+  cadence: { weekday: number | null; dates: number };
+  /** The next held session's start, else the last held one's. */
+  startsAt: string;
+  firstStartsAt: string;
+  lastStartsAt: string;
+  place: string;
+  area: string;
+  priceCents: number;
+  dropInPriceCents: number | null;
+  capacity: number;
+  /** The fewest places left among the sessions to come, or none when none is to come. */
+  spotsLeft: number | null;
+  sessionsLeft: number;
+  joined: boolean;
+  /** Every date in date order (ADR 0096). */
+  sessions: SeriesSession[];
+}
+
+/** One date of a series (`SeriesSessionDto`, ADR 0096). */
+export interface SeriesSession {
+  id: string;
+  /** Its position among all the dates, cancelled ones included. */
+  number: number;
+  startsAt: string;
+  topic: string | null;
+  state: 'done' | 'live' | 'upcoming' | 'cancelled';
+  /** The member holds a place at it. */
+  held: boolean;
+}
+
+const COUCH_DATES: [string, string][] = [
+  ['2026-04-07', 'Walk, run 60 seconds, repeat. Meet your pace group'],
+  ['2026-04-14', 'Run 90 seconds, walk 2 minutes'],
+  ['2026-04-21', 'Same intervals, six times through'],
+  ['2026-04-28', 'First 5-minute run'],
+  ['2026-05-05', 'Two 8-minute runs'],
+  ['2026-05-12', 'No class: Victoria Day week'],
+  ['2026-05-19', 'Twenty minutes without stopping'],
+  ['2026-05-26', 'Graduation 5K and potluck'],
+];
+
+/** Couch to 5K's eight Tuesdays at 6:30 PM: two done (the member held a place at the first), April 21 next, May 12 cancelled. */
+export const COUCH_SESSIONS: SeriesSession[] = COUCH_DATES.map(([date, topic], n) => ({
+  id: `0190c0de-0000-7000-8000-00000000c50${n + 1}`,
+  number: n + 1,
+  startsAt: `${date}T22:30:00Z`,
+  topic,
+  state: n < 2 ? 'done' : n === 2 ? 'live' : n === 5 ? 'cancelled' : 'upcoming',
+  held: n === 0,
+}));
+
+/**
+ * Couch to 5K Run Club as the mock `event-series/default` draws it: eight Tuesdays at 6:30 PM from
+ * April 7 at Humber Bay Park East, hosted by Lakeshore Runners Fellowship (verified), next April 21,
+ * joined.
+ */
+export const COUCH_TO_5K_DETAIL: SeriesDetail = {
+  id: COUCH_TO_5K.id,
+  title: 'Couch to 5K Run Club',
+  category: 'run',
+  summary:
+    'Eight weeks from walking to running a full 5K, together. Each week builds on the last, so the group stays together from week one to race day.',
+  imageKey: null,
+  host: hostCardOf(LAKESHORE),
+  cadence: { weekday: 2, dates: 7 },
+  startsAt: '2026-04-21T22:30:00Z',
+  firstStartsAt: '2026-04-07T22:30:00Z',
+  lastStartsAt: '2026-05-26T22:30:00Z',
+  place: 'Humber Bay Park East',
+  area: 'Etobicoke, Toronto',
+  priceCents: 0,
+  dropInPriceCents: 0,
+  capacity: 40,
+  spotsLeft: 9,
+  sessionsLeft: 5,
+  joined: true,
+  sessions: COUCH_SESSIONS,
+};
+
+/**
+ * Couch to 5K's third date (April 21, 6:30 PM) as its event page answers it, with its series card as
+ * the mock `event-detail/session` draws it: "Session 3 of 8 · Every Tuesday" and the next three
+ * dates, May 12 cancelled; not joined (L2-010 AC5; ADR 0096).
+ */
+export const COUCH_SESSION_3: EventDetail = {
+  id: COUCH_SESSIONS[2]!.id,
+  title: 'Couch to 5K Run Club',
+  category: 'run',
+  startsAt: COUCH_SESSIONS[2]!.startsAt,
+  place: 'Humber Bay Park East',
+  area: 'Etobicoke, Toronto',
+  priceCents: 0,
+  capacity: 40,
+  going: 31,
+  imageKey: null,
+  summary: 'Run 90 seconds, walk two minutes, six times through.',
+  registration: null,
+  host: hostCardOf(LAKESHORE),
+  series: {
+    id: COUCH_TO_5K.id,
+    title: 'Couch to 5K Run Club',
+    number: 3,
+    total: 8,
+    cadence: { weekday: 2, dates: 7 },
+    joined: false,
+    next: COUCH_SESSIONS.slice(3, 6).map((session) => ({
+      id: session.id,
+      startsAt: session.startsAt,
+      topic: session.topic,
+      cancelled: session.state === 'cancelled',
+    })),
+  },
+};
+
+/**
+ * Saturday Park Bootcamp as the mock `event-series/not-joined` draws it: eight Saturdays at
+ * 8:00 AM from April 4, three done, next April 25, $64 for all or $10 a date, 12 of 50 spots left,
+ * hosted by Danielle Okafor, not joined.
+ */
+export const PARK_BOOTCAMP_DETAIL: SeriesDetail = {
+  id: PARK_BOOTCAMP.id,
+  title: 'Saturday Park Bootcamp',
+  category: 'workout',
+  summary: 'Forty-five minutes of full-body circuits in the park, every Saturday morning.',
+  imageKey: null,
+  host: hostCardOf(OKAFOR),
+  cadence: { weekday: 6, dates: 8 },
+  startsAt: '2026-04-25T12:00:00Z',
+  firstStartsAt: '2026-04-04T12:00:00Z',
+  lastStartsAt: '2026-05-23T12:00:00Z',
+  place: 'Trillium Park, Ontario Place',
+  area: 'Waterfront',
+  priceCents: 6400,
+  dropInPriceCents: 1000,
+  capacity: 50,
+  spotsLeft: 12,
+  sessionsLeft: 5,
+  joined: false,
+  sessions: ['04', '11', '18', '25', '02', '09', '16', '23'].map((day, n) => ({
+    id: `0190c0de-0000-7000-8000-00000000c60${n + 1}`,
+    number: n + 1,
+    startsAt: `2026-0${n < 4 ? 4 : 5}-${day}T12:00:00Z`,
+    topic: null,
+    state: n < 3 ? 'done' : n === 3 ? 'live' : 'upcoming',
+    held: false,
+  })),
+};
+
+/**
+ * Answers `GET /api/events/series/{id}` for each of `series`, and 404 `series_not_found` for any
+ * other id, as the API does (ADR 0096); `reply` may answer a request, by its zero-based number,
+ * otherwise (a refusal, or a reply held until a promise settles). Returns the ids asked for, in order.
+ */
+export function answerSeriesDetail(
+  api: ApiHandlers,
+  series: SeriesDetail[],
+  reply: (requestNumber: number) => ApiReply | Promise<ApiReply> | null = () => null,
+): string[] {
+  const asked: string[] = [];
+  api.on('GET', /^\/api\/events\/series\/[0-9a-f-]{36}$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/').pop() ?? '';
+    const number = asked.length;
+    asked.push(id);
+    const own = await reply(number);
+    if (own) return own;
+    const found = series.find((row) => row.id === id);
+    return found ? { json: found } : { status: 404, json: { code: 'series_not_found' } };
   });
   return asked;
 }

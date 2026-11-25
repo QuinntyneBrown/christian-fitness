@@ -33,6 +33,15 @@ The feature is a vertical slice from the Event series screen to the database.
 
 The page binds its service on its own providers, so the request and the series are released when the member leaves (`L2-037`).
 
+### Decisions taken in journey 11 (ADR 0096)
+
+- A series opens when one of its sessions is published and not cancelled, whatever its date; anything else is 404 `series_not_found`. A finished series keeps its page.
+- `GET /api/events/series/{id}` answers the series with `spotsLeft`, `sessionsLeft`, `joined` and each session as `{ id, number, startsAt, topic, state, held }`; `state` is ADR 0091's `done`, `live`, `upcoming` or `cancelled`, and `live` is "Next up".
+- Every session still to come shows "Details". A past session reads "Done" where the member held no place and "Not recorded" where they held one; "You came" and "Missed" come with attendance (journey 16).
+- The sign-up panel is read-only until journey 12: spots left and the two ways to come as a list, or "You're in for every session" for a member who joined.
+- `SessionList` chooses a row's end from data (`details` or `status`) rather than projection; `SeriesPanel` and `SeriesCard` live in `components/src/series-card/`.
+- A session's event page carries `series` with up to three later dates; a listing profile carries `series` for Hosting, counted with its one-off events.
+
 ### Open questions
 
 - Attendance is recorded by staff in the console (`L2-080`, design `admin-events/record-attendance`). `SessionDto.Attended` is `true`, `false` or `null` (not recorded); `null` reads "Not recorded" in the row, never "Missed" (`L2-051` AC3). Self check-in is deferred.

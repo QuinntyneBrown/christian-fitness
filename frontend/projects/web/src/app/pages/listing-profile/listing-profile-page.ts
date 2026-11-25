@@ -37,6 +37,7 @@ import {
   followerCountText,
   hostingEmptyText,
   hostingRowViewOf,
+  hostingSeriesRowViewOf,
   ListingFollowStore,
   listingProfileViewOf,
   ToastStore,
@@ -53,7 +54,8 @@ const LISTING_UPDATED = 'Your listing is updated';
 
 /**
  * A listing's profile at `/directory/:id` (L2-055; ADR 0087; mock `listing-profile/`): the back
- * link to the directory, the listing head, Hosting (its one-off events still to come, each leading
+ * link to the directory, the listing head, Hosting (its listed series first, each leading to the
+ * series page, ADR 0096; then its one-off events still to come, each leading
  * to the event, or a sentence when there are none), About with its focus tags, and beside it from LG the key
  * facts (area, an https website, followers and the year listed) and Connected (each published
  * listing it is linked to, with the relation and kind, leading to that profile).
@@ -134,7 +136,13 @@ export default class ListingProfilePage {
       text,
     })),
   );
-  protected readonly hosting = computed(() => this.profile()?.hosting.map(hostingRowViewOf) ?? []);
+  /** Its series first, then its one-off events (ADR 0096). */
+  protected readonly hosting = computed(() => {
+    const profile = this.profile();
+    return profile
+      ? [...profile.series.map(hostingSeriesRowViewOf), ...profile.hosting.map(hostingRowViewOf)]
+      : [];
+  });
   protected readonly hostingEmpty = computed(() => hostingEmptyText(this.profile()?.name ?? ''));
   protected readonly connections = computed(
     () => this.profile()?.connections.map(connectionRowViewOf) ?? [],

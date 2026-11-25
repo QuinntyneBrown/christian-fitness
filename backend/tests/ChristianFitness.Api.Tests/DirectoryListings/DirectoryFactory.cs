@@ -35,6 +35,8 @@ public sealed class DirectoryFactory : ApiFactory
         db.ListingConnections.RemoveRange(db.ListingConnections);
         db.DirectoryListings.RemoveRange(db.DirectoryListings);
         db.Events.RemoveRange(db.Events);
+        db.SeriesEnrolments.RemoveRange(db.SeriesEnrolments);
+        db.EventSeries.RemoveRange(db.EventSeries);
         db.ServiceListings.RemoveRange(db.ServiceListings);
         db.ProfessionalApplications.RemoveRange(db.ProfessionalApplications);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -157,5 +159,30 @@ public sealed class DirectoryFactory : ApiFactory
         db.Events.Add(e);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return e.Id;
+    }
+
+    /// <summary>
+    /// Puts a series <paramref name="host"/> runs in the store with one hour-long published session
+    /// at each of <paramref name="sessions"/> (cancelled where marked); answers the series' id.
+    /// </summary>
+    public async Task<Guid> AddSeriesAsync(Guid host, string title, params (DateTimeOffset StartsAt, bool Cancelled)[] sessions)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var series = EventSeries.Create(title, EventCategory.Run, "Run together.", null, host, 0, 0, 40, "Humber Bay Park East", "Etobicoke, Toronto", Now);
+        db.EventSeries.Add(series);
+        foreach (var (startsAt, cancelled) in sessions)
+        {
+            var session = Event.CreateSession(series, startsAt, startsAt.AddHours(1), null, Now);
+            if (cancelled)
+            {
+                session.Cancel();
+            }
+
+            db.Events.Add(session);
+        }
+
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return series.Id;
     }
 }

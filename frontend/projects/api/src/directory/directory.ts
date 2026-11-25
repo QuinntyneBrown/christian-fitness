@@ -1,6 +1,7 @@
 import { InjectionToken, type Signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { EventCategory } from '../admin/admin-events';
+import type { SeriesCadenceDto } from '../admin/admin-series';
 
 /**
  * A listing's kind as the API and the address name it (ADR 0071, ADR 0082), in the directory's
@@ -49,6 +50,20 @@ export interface DirectoryQuery {
 }
 
 /**
+ * A listed series a listing hosts (`HostedSeriesDto`, ADR 0096): its cadence as numbers, its next
+ * session's start as an ISO instant and how many sessions are to come; the screen words them.
+ */
+export interface HostedSeriesDto {
+  id: string;
+  title: string;
+  category: EventCategory;
+  imageKey: string | null;
+  cadence: SeriesCadenceDto;
+  startsAt: string;
+  sessionsLeft: number;
+}
+
+/**
  * One event a listing hosts that is still to come (`HostedEventDto`, ADR 0087): the start as an
  * ISO instant in UTC, which the screen words in Toronto.
  */
@@ -94,9 +109,11 @@ export interface ListingProfileDto {
   listedYear: number;
   /** Whether a member owns it, so Message can reach someone (L2-055 AC6). */
   hasOwner: boolean;
-  /** How many published one-off events it hosts that have not started. */
+  /** How many listed series and published one-off events still to come it hosts (ADR 0096). */
   hostingCount: number;
-  /** The first 20 of them, in start order. */
+  /** The first 20 listed series it hosts, by next session; shown first under Hosting. */
+  series: HostedSeriesDto[];
+  /** The first 20 one-off events, in start order; a series' sessions show as their series. */
   hosting: HostedEventDto[];
   /** The published listings it is connected to, in kind then name order. */
   connections: ListingConnectionDto[];

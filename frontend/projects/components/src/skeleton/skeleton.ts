@@ -20,7 +20,9 @@ export type SkeletonShape =
   | 'block'
   | 'image-16x8'
   | 'image-16x9'
-  | 'image-banner';
+  | 'image-banner'
+  /** The series page's wide banner: 16:9, then 21:7 from 640 px (`skeleton--image-banner-wide`). */
+  | 'image-banner-wide';
 
 /** Line widths, so lines vary (`.w-40` … `.w-90`). */
 export type SkeletonWidth = '10' | '20' | '30' | '40' | '50' | '55' | '80' | '90';
@@ -44,6 +46,11 @@ export class Skeleton {
 
   protected classes(): string {
     const width = this.width();
-    return `skeleton skeleton--${this.shape()}${this.square() ? ' skeleton--square' : ''}${width ? ` w-${width}` : ''}`;
+    const shape = this.shape();
+    const shapes =
+      shape === 'image-banner-wide'
+        ? 'skeleton--image-banner skeleton--image-banner-wide'
+        : `skeleton--${shape}`;
+    return `skeleton ${shapes}${this.square() ? ' skeleton--square' : ''}${width ? ` w-${width}` : ''}`;
   }
 }

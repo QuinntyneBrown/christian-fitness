@@ -1,0 +1,38 @@
+<section class="series-card" [attr.aria-labelledby]="titleId">
+  <div class="series-card__head">
+    <div>
+      <p class="series-card__meta">
+        <svg class="series-card__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m17 2 4 4-4 4" />
+          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+          <path d="m7 22-4-4 4-4" />
+          <path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg
+        >{{ meta() }}
+      </p>
+      <h2 class="series-card__title" [id]="titleId">{{ heading() }}</h2>
+    </div>
+    <span class="series-card__action"
+      ><cf-button variant="secondary" size="sm" [href]="href()" (click)="follow($event)"
+        >{{ action() }}
+        <svg class="series-card__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" /></svg></cf-button
+    ></span>
+  </div>
+  @if (dates().length > 0) {
+    <ul class="series-card__dates">
+      @for (date of dates(); track date.id) {
+        <li
+          [attr.class]="
+            date.cancelled ? 'series-card__date series-card__date--cancelled' : 'series-card__date'
+          "
+        >
+          <p class="series-card__when">{{ date.when }}</p>
+          @if (date.topic) {
+            <p class="series-card__topic">{{ date.topic }}</p>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

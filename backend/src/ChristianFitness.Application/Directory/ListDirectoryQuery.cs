@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Series;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using FluentValidation;
@@ -190,17 +191,27 @@ internal sealed class ListDirectoryHandler(IAppDbContext db, ICurrentMember curr
     }
 
     /// <summary>
-    /// The hosting count of each listing (L2-054 AC2; ADR 0082): the published events it hosts that
-    /// have not started. Event series join the count when they exist.
+    /// The hosting count of each listing (L2-054 AC2; ADR 0082, ADR 0096): the listed series it hosts
+    /// (ADR 0093's rule), each once, and the published one-off events it hosts that have not started.
     /// </summary>
     private async Task<Dictionary<Guid, int>> HostingAsync(IReadOnlyCollection<Guid> listingIds, CancellationToken cancellationToken)
     {
         var now = time.GetUtcNow();
-        return await db.Events.AsNoTracking()
-            .Where(e => listingIds.Contains(e.HostListingId) && e.Status == EventStatus.Published && e.StartsAt > now)
+        var events = await db.Events.AsNoTracking()
+            .Where(e => listingIds.Contains(e.HostListingId) && e.SeriesId == null && e.Status == EventStatus.Published && e.StartsAt > now)
             .GroupBy(e => e.HostListingId)
             .Select(g => new { Host = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(g => g.Host, g => g.Count, cancellationToken)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+        var listed = ListedSeries.IdsAt(db, now);
+        var series = await db.EventSeries.AsNoTracking()
+            .Where(s => listingIds.Contains(s.HostListingId) && listed.Contains(s.Id))
+            .GroupBy(s => s.HostListingId)
+            .Select(g => new { Host = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return events.Concat(series)
+            .GroupBy(g => g.Host)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
     }
 }

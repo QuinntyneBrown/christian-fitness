@@ -188,6 +188,12 @@
   }
 }
 
+@media (min-width: 40rem) {
+  .skeleton--image-banner-wide {
+    aspect-ratio: 21 / 7;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;

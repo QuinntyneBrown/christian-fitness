@@ -1,0 +1,27 @@
+<div class="series-panel">
+  @if (joined()) {
+    <p class="register__confirmed" role="status">
+      <svg class="register__check" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 6 9 17l-5-5" /></svg
+      >You're in for every session
+    </p>
+  } @else {
+    <div class="register__head">
+      <h2 class="series-panel__title">Sign up</h2>
+      <p class="register__spots">{{ spots() }}</p>
+    </div>
+    @if (plans().length > 0) {
+      <ul class="plan-list" aria-label="Ways to come">
+        @for (plan of plans(); track plan.title) {
+          <li class="plan-option">
+            <span class="plan-option__body"
+              ><span class="plan-option__title">{{ plan.title }}</span
+              ><span class="plan-option__note">{{ plan.note }}</span></span
+            ><span class="plan-option__price">{{ plan.price }}</span>
+          </li>
+        }
+      </ul>
+    }
+    <p class="register__note">{{ note() }}</p>
+  }
+</div>

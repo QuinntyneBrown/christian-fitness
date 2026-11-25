@@ -39,6 +39,12 @@ export class WebEventDetailPage extends ErrorScreen {
   readonly hostVerified: Locator;
   /** The aside that holds the registration card and the host card. */
   readonly aside: Locator;
+  /** A session's series card (ADR 0096): meta, title, the next dates and one link to the series. */
+  readonly seriesCard: Locator;
+  readonly seriesMeta: Locator;
+  readonly seriesTitle: Locator;
+  readonly seriesDates: Locator;
+  readonly seriesLink: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -73,6 +79,11 @@ export class WebEventDetailPage extends ErrorScreen {
     this.hostName = this.hostCard.locator('.host-card__name');
     this.hostMark = this.hostCard.locator('.listing-mark');
     this.hostVerified = this.hostCard.getByRole('img', { name: 'Verified' });
+    this.seriesCard = page.locator('section.series-card');
+    this.seriesMeta = this.seriesCard.locator('.series-card__meta');
+    this.seriesTitle = this.seriesCard.getByRole('heading', { level: 2 });
+    this.seriesDates = this.seriesCard.locator('.series-card__date');
+    this.seriesLink = this.seriesCard.getByRole('link');
   }
 
   async open(id: string): Promise<void> {

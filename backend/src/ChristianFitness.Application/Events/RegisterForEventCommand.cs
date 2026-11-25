@@ -35,6 +35,7 @@ internal sealed class RegisterForEventHandler(IAppDbContext db, ICurrentMember c
         var host = await db.DirectoryListings.AsNoTracking()
             .SingleAsync(l => l.Id == e.HostListingId, cancellationToken)
             .ConfigureAwait(false);
+        var series = await EventSeriesCards.OfAsync(db, e, memberId, cancellationToken).ConfigureAwait(false);
         while (true)
         {
             var mine = await db.Registrations
@@ -43,7 +44,7 @@ internal sealed class RegisterForEventHandler(IAppDbContext db, ICurrentMember c
             var going = await db.Registrations.CountAsync(r => r.EventId == e.Id, cancellationToken).ConfigureAwait(false);
             if (mine is not null)
             {
-                return EventDetailDto.Of(e, going, mine.Status, host);
+                return EventDetailDto.Of(e, going, mine.Status, host, series);
             }
 
             if (going >= e.Capacity)
@@ -57,7 +58,7 @@ internal sealed class RegisterForEventHandler(IAppDbContext db, ICurrentMember c
             try
             {
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                return EventDetailDto.Of(e, going + 1, mine.Status, host);
+                return EventDetailDto.Of(e, going + 1, mine.Status, host, series);
             }
             catch (DbUpdateConcurrencyException)
             {

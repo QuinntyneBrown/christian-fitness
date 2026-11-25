@@ -65,6 +65,12 @@ const routes: Routes = [
         loadComponent: () => import('./pages/events/events-page'),
       },
       {
+        // One series with its sessions, sign-up panel and host (L2-051; ADR 0096).
+        path: 'events/series/:id',
+        title: titled('Event series'),
+        loadComponent: () => import('./pages/event-series/event-series-page'),
+      },
+      {
         // One published event in full (L2-010; ADR 0031).
         path: 'events/:id',
         title: titled('Event'),

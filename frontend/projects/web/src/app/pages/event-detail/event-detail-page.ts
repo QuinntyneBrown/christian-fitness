@@ -14,6 +14,7 @@ import {
   ErrorPage,
   HostCard,
   Link,
+  SeriesCard,
   Skeleton,
   SkeletonRegion,
 } from '@cf/components';
@@ -23,6 +24,8 @@ import {
   type HostCardView,
   hostCardViewOf,
   isEventFull,
+  type SeriesCardView,
+  seriesCardViewOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import type {
@@ -44,7 +47,9 @@ import { HttpEventsService } from '../../services/http-events.service';
  * whose code and the CDK Dialog load on first use; confirming frees the place and the page shows
  * Register again. A registered member also sees a Group chat link to the event's chat (L2-010 AC3; ADR 0039).
  * Under the registration card, "Hosted by" names the event's host and leads to its profile
- * (L2-010 AC4; ADR 0089).
+ * (L2-010 AC4; ADR 0089). A session shows its series card under the facts: its number, the next
+ * three dates and one link to the series page, View series or Join the series (L2-010 AC5, AC6;
+ * ADR 0096).
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -57,6 +62,7 @@ import { HttpEventsService } from '../../services/http-events.service';
     ErrorPage,
     HostCard,
     Link,
+    SeriesCard,
     Skeleton,
     SkeletonRegion,
   ],
@@ -81,6 +87,8 @@ export default class EventDetailPage {
   protected readonly event = signal<EventDetailView | null>(null);
   /** Who hosts it, under the registration card (L2-010 AC4; ADR 0089). */
   protected readonly host = signal<HostCardView | null>(null);
+  /** A session's series card under the facts; none for a standalone event (L2-010 AC5, AC6; ADR 0096). */
+  protected readonly series = signal<SeriesCardView | null>(null);
   protected readonly chatHref = signal('');
   protected readonly registering = signal(false);
   protected readonly registerFailed = signal(false);
@@ -161,10 +169,11 @@ export default class EventDetailPage {
     this.current = event;
     this.event.set(eventDetailViewOf(event));
     this.host.set(hostCardViewOf(event.host));
+    this.series.set(event.series ? seriesCardViewOf(event.series) : null);
   }
 
-  /** Opens the host's profile in the app. */
-  protected openHost(href: string): void {
+  /** Opens the host's profile or the session's series page in the app. */
+  protected open(href: string): void {
     void this.router.navigateByUrl(href);
   }
 
