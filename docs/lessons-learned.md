@@ -1,11 +1,11 @@
 # Lessons learned
 
-One entry per slice of [journeys.detailed.md](journeys.detailed.md), added before the slice
-merges. Read this file before starting a slice and apply what fits.
+One entry per slice of the first release, and one per journey of [journeys.md](journeys.md) since,
+added before it merges. Read this file before starting a journey and apply what fits.
 
-Each entry records what slowed the slice, the new lessons it taught and how earlier lessons
+Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 100% (57 of 57 slices; 91 of 91 days)
+**% complete:** 2% (1 of 36 journeys; 2 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2295,3 +2295,47 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 - "Section rendered with library parts costs no initial bundle" (28.1) and "Initial bundle: diff `--stats-json`" (AGENTS.md): the stats diff found the savings; the lazily bound service follows "scope state to its use".
 - "The other timeouts reported under load are machine load" (offline follow-up): confirmed for `edit-listing` by the trace; not for `report-message`, which was a real race.
+
+## Journey 4: Search events and see mine
+
+**What slowed it**
+
+- The 36-journey `journeys.md` the issue cites was not on `main` when the work started (it came
+  with #187 mid-journey, which also removed `journeys.detailed.md`); the slices were numbered 4.1 to
+  4.3 under the new journey and the table was ticked after the rebase.
+- L2-075 and L2-076 left the parameter names, the wait, the history and the no-results precedence
+  open, and the design still called both "future work". ADR 0081 settled them before any code.
+- The worktree-isolation guard refused long shell commands that mixed heredocs, pipes and git;
+  edit scripts went into the scratchpad and ran as one plain `python` call each. A refused command
+  that also held a `git checkout -- file` would have thrown away the uncommitted slice; breaks are
+  now reverted from a copy, never from git.
+- The first blank-search API test assumed events from other tests in the class's store and failed
+  when it ran first; it now adds its own.
+
+**New lessons**
+
+- `debounceTime` from `rxjs` lands in `main` (the barrel is already there), about 0.44 kB. A plain
+  `setTimeout` cleared on each key and on destroy kept the web initial total at 279.67 kB.
+- When several filters share one no-results state, put the wording and its precedence in one pure
+  helper with a row per combination (`eventsNoResults`); the page shows what it returns.
+- A filter that must use the session's member is proven by sending another member's id under the
+  names a client might try (`memberId`, `member`) and asserting the caller's own list.
+- A "Try again" that re-asks must re-ask the same selection; a spec that fails the search request
+  and counts what Try again sent catches a reset selection.
+- A controller passes the raw `going` text on; the query object reads "exactly `true`", so the
+  rule has one case table in each stack (`ListEventsGoingTests`, `eventGoingOf`).
+
+**How earlier lessons worked**
+
+- "Keep the field's text apart from the URL's term" (26.1): the field keeps "  SUNRISE " while the
+  address holds `q=SUNRISE`, and a chip does not rewrite it; the spec asserts both.
+- "Read a URL through one pure function" (26.1, 4.2): `eventListQueryOf` turns an unknown category,
+  blank text and any `going` but `true` into unset, so the screen never asks a question the API
+  narrows differently.
+- "A rule computed in both stacks shares one inline case table" (2.2, 4.2): the search trim and the
+  `going` reading each have the same rows in xUnit and Vitest.
+- "Prove a rule red by breaking it alone" (1.4 on): breaks to the handler's lower-casing, the
+  per-key timer reset, the service's `going`, the wording order, Try again's query and the focus
+  after clearing each turned the intended test red; restored.
+- "Read the initial total after each new API" (30.1): the library `checkbox` and `search-field` and
+  the new domain helpers cost `main` nothing; 279.67 kB before and after.
