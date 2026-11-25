@@ -26,7 +26,13 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "projects/web/public"
+                "input": "projects/web/public",
+                "ignore": ["legal/**"]
+              },
+              {
+                "glob": "**/*.html",
+                "input": "projects/web/public/legal",
+                "output": "/"
               }
             ],
             "styles": ["projects/web/src/styles.scss"]

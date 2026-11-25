@@ -26,7 +26,7 @@ createServer((request, response) => {
     return;
   }
   if (app === 'web' && /^\/(privacy|terms)\/\d{4}-\d{2}-\d{2}$/.test(path)) {
-    file = join(root, 'legal', path + '.html');
+    file = join(root, path + '.html');
     if (!existsSync(file)) {
       response.writeHead(404).end();
       return;
