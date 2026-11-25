@@ -60,7 +60,8 @@ internal static class ListingClaims
     public const string RecordType = "DirectoryListing";
 
     /// <summary>
-    /// The open claim with <paramref name="token"/> and its listing. Unknown is 404 <c>claim_not_found</c>.
+    /// The open claim with <paramref name="token"/> and its listing. Unknown is 404 <c>claim_not_found</c>;
+    /// a used link, or one whose listing is no longer a draft, 409 <c>claim_link_used</c>.
     /// </summary>
     public static async Task<(ListingClaim Claim, DirectoryListing Listing)> OpenAsync(
         IAppDbContext db, string token, DateTimeOffset now, bool tracked, CancellationToken cancellationToken)
@@ -75,6 +76,11 @@ internal static class ListingClaims
         if (claim is null || listing is null)
         {
             throw new RefusalException(RefusalCodes.ClaimNotFound, RefusalKind.NotFound);
+        }
+
+        if (claim.UsedAt is not null || listing.Status != ListingStatus.Draft)
+        {
+            throw new RefusalException(RefusalCodes.ClaimLinkUsed, RefusalKind.Conflict);
         }
 
         _ = now;

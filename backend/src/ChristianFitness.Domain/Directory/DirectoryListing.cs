@@ -138,7 +138,23 @@ public sealed class DirectoryListing
         ListedAt = at;
     }
 
-    /// <summary>Staff declined a listing still waiting for their check.</summary>
+    /// <summary>
+    /// The listed party said yes through the claim link (L2-078 AC6; ADR 0091): the draft is in the
+    /// directory from <paramref name="at"/>, owned by <paramref name="memberId"/>.
+    /// </summary>
+    public void Claim(Guid memberId, DateTimeOffset at)
+    {
+        if (Status != ListingStatus.Draft)
+        {
+            throw new InvalidOperationException("Only a draft listing can be claimed.");
+        }
+
+        Status = ListingStatus.Published;
+        MemberId = memberId;
+        ListedAt = at;
+    }
+
+    /// <summary>Staff declined a listing still waiting for their check, or the listed party said it isn't them (ADR 0091).</summary>
     public void Decline()
     {
         if (Status != ListingStatus.Draft)

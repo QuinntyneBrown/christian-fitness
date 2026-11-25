@@ -5,6 +5,7 @@ import {
   CLAIM_SIGNED_IN,
   CLAIM_SIGNED_OUT,
   CLAIM_TOKEN,
+  refusal,
 } from '../fixtures/claims';
 import { WebClaimListingPage } from '../page-objects/web/claim-listing.page';
 import { WebJoinPage } from '../page-objects/web/join.page';
@@ -149,5 +150,74 @@ test.describe('Member app, claim a listing: signed in', () => {
     await expect(claim.heading).toHaveText('Publish your listing');
     await expect(claim.name).toHaveText('Eastside Ladies Who Lift');
     expect(claim.location()).toBe(`/claim/${CLAIM_TOKEN}`);
+  });
+});
+
+const LISTING_ID = '0193a9c0-0000-7000-8000-0000000e1a51';
+
+// L2-078 AC6 and AC10 (ADR 0091; mocks `claim-listing/busy`, `published`, `error`): Publish my
+// listing reads "Publishing…" with both answers disabled; on success "Your listing is live" offers
+// the listing and the directory; a failure says nothing was published and both answers stay.
+test.describe('Member app, claim a listing: publish', () => {
+  test(
+    'publishing makes the listing live and offers it and the directory',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_IN }));
+      let answer: () => void = () => undefined;
+      const answered = new Promise<void>((resolve) => (answer = resolve));
+      let sent = 0;
+      api.on('POST', `${CLAIM_PATH}/publish`, async () => {
+        sent += 1;
+        await answered;
+        return { json: { listingId: LISTING_ID } };
+      });
+      const claim = new WebClaimListingPage(page);
+
+      await claim.open(CLAIM_TOKEN);
+      await claim.publish();
+
+      await expect(claim.publishButton).toHaveText('Publishing…');
+      await expect(claim.publishButton).toBeDisabled();
+      await expect(claim.notMeButton).toBeDisabled();
+      answer();
+      await expect(claim.doneTitle).toHaveText('Your listing is live');
+      await expect(claim.done).toHaveAttribute('role', 'status');
+      await expect(claim.done).toBeFocused();
+      await expect(claim.doneText).toHaveText(
+        'Eastside Ladies Who Lift is in the directory and you own it. You can edit it any time from its page.',
+      );
+      expect(await claim.doneLinks()).toEqual([
+        { name: 'See your listing', href: `/directory/${LISTING_ID}` },
+        { name: 'Back to the directory', href: '/directory' },
+      ]);
+      expect(sent).toBe(1);
+    },
+  );
+
+  test('a failed publish says nothing was published and keeps both answers', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_IN }));
+    api.on('POST', `${CLAIM_PATH}/publish`, () => refusal(500, 'error'));
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+    await claim.publish();
+
+    await expect(claim.alertTitle).toHaveText("We couldn't publish your listing");
+    await expect(claim.alertText).toHaveText(
+      'Something went wrong on our side. Nothing was published, so try again in a moment.',
+    );
+    await expect(claim.alert).toBeFocused();
+    await expect(claim.name).toHaveText('Eastside Ladies Who Lift');
+    await expect(claim.publishButton).toHaveText('Publish my listing');
+    await expect(claim.publishButton).toBeEnabled();
+    await expect(claim.notMeButton).toBeEnabled();
+
+    api.on('POST', `${CLAIM_PATH}/publish`, () => ({ json: { listingId: LISTING_ID } }));
+    await claim.publish();
+    await expect(claim.doneTitle).toHaveText('Your listing is live');
   });
 });

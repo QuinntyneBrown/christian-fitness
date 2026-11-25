@@ -23,4 +23,9 @@ public sealed class ListingClaimsController(ISender sender) : ControllerBase
     [EnableRateLimiting(PublicReads.Policy)]
     public async Task<ActionResult<ListingClaimDto>> Get(string token, CancellationToken cancellationToken) =>
         await sender.Send(new GetListingClaimQuery(token), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Publishes the listing as the signed-in member's.</summary>
+    [HttpPost("publish")]
+    public async Task<ActionResult<ClaimAnswerDto>> Publish(string token, CancellationToken cancellationToken) =>
+        await sender.Send(new PublishListingClaimCommand(token), cancellationToken).ConfigureAwait(false);
 }

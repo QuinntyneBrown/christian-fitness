@@ -12,12 +12,77 @@
         </cf-container>
       </cf-skeleton-region>
     }
-    @case ('ready') {
+    @case ('unchecked') {
+      <cf-container page="default">
+        <h1 class="visually-hidden">Claim a listing</h1>
+        <cf-empty-state
+          variant="error"
+          heading="We couldn't check your link"
+          text="Something went wrong on our side. Try again in a minute."
+        >
+          <cf-button slot="actions" size="sm" (click)="check()">Try again</cf-button>
+        </cf-empty-state>
+      </cf-container>
+    }
+    @case ('published') {
+      <cf-container page="default">
+        <cf-done heading="Your listing is live"
+          ><strong>{{ claim()?.name }}</strong> is in the directory and you own it. You can edit it
+          any time from its page.
+          <cf-button slot="actions" size="md" [href]="listingHref()">See your listing</cf-button>
+          <cf-button slot="actions" size="md" variant="secondary" href="/directory"
+            >Back to the directory</cf-button
+          >
+        </cf-done>
+      </cf-container>
+    }
+    @case ('expired') {
+      <cf-container page="default">
+        <cf-done heading="This link has expired" alert
+          >This link has expired. Ask us for a new one.
+          <cf-button slot="actions" size="md" href="/feedback">Ask us for a new one</cf-button>
+          <cf-button slot="actions" size="md" variant="secondary" href="/directory"
+            >Back to the directory</cf-button
+          >
+        </cf-done>
+      </cf-container>
+    }
+    @case ('claimed') {
+      <cf-container page="default">
+        <cf-done heading="This listing has already been claimed"
+          >A link works once. If that was you, find your listing in the directory and use Edit
+          listing.
+          <cf-button slot="actions" size="md" href="/directory">Back to the directory</cf-button>
+        </cf-done>
+      </cf-container>
+    }
+    @case ('not-found') {
+      <cf-container page="default">
+        <cf-error-page
+          code="404"
+          heading="Page not found"
+          text="That link may be old, or the page has moved. Everything else is right where you left it."
+        >
+          <cf-button slot="actions" href="/home" size="sm">Go to home</cf-button>
+          <cf-button slot="actions" href="/directory" variant="secondary" size="sm"
+            >Directory</cf-button
+          >
+        </cf-error-page>
+      </cf-container>
+    }
+    @default {
       <cf-container page="default">
         <cf-form-page
           heading="Publish your listing"
           lead="Our team has checked it. It goes into the directory only when you say it is yours. Here is how it will look."
+          (send)="publish()"
         >
+          @if (failed()) {
+            <cf-alert slot="alert" heading="We couldn't publish your listing"
+              >Something went wrong on our side. Nothing was published, so try again in a
+              moment.</cf-alert
+            >
+          }
           @if (listing(); as shown) {
             @if (view(); as head) {
               <section class="claim-listing-page__preview" aria-labelledby="preview-title">
@@ -47,23 +112,13 @@
             }
           }
           <p class="claim-listing-page__hint">{{ hint() }}</p>
-          <cf-button slot="actions" type="submit" size="md">Publish my listing</cf-button>
-          <cf-button slot="actions" variant="secondary" size="md">This isn’t me</cf-button>
-        </cf-form-page>
-      </cf-container>
-    }
-    @default {
-      <cf-container page="default">
-        <cf-error-page
-          code="404"
-          heading="Page not found"
-          text="That link may be old, or the page has moved. Everything else is right where you left it."
-        >
-          <cf-button slot="actions" href="/home" size="sm">Go to home</cf-button>
-          <cf-button slot="actions" href="/directory" variant="secondary" size="sm"
-            >Directory</cf-button
+          <cf-button slot="actions" type="submit" size="md" [disabled]="busy()" [busy]="busy()">{{
+            busy() ? 'Publishing…' : 'Publish my listing'
+          }}</cf-button>
+          <cf-button slot="actions" variant="secondary" size="md" [disabled]="busy()"
+            >This isn’t me</cf-button
           >
-        </cf-error-page>
+        </cf-form-page>
       </cf-container>
     }
   }

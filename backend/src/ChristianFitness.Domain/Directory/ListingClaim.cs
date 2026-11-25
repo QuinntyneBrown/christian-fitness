@@ -48,6 +48,17 @@ public sealed class ListingClaim
         return (claim, token);
     }
 
+    /// <summary>Uses the link once (L2-078 AC6, AC7; ADR 0091): a used link cannot be used again.</summary>
+    public void Spend(DateTimeOffset at)
+    {
+        if (UsedAt is not null)
+        {
+            throw new InvalidOperationException("The claim link was already used.");
+        }
+
+        UsedAt = at;
+    }
+
     /// <summary>The SHA-256 hash of <paramref name="token"/> in lower-case hex: how a claim is found.</summary>
     public static string HashOf(string token)
     {
