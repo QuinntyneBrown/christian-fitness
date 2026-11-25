@@ -108,7 +108,7 @@ SPEC = {
   <li class="feed feed--all">
     <div class="feed__body">
       <p class="feed__name">All stories <span class="feed__count">~20 a week</span></p>
-      <p class="feed__url">https://christianfitness.ca/feed</p>
+      <p class="feed__url">https://www.christian.fitness/feed</p>
     </div>
     <div class="feed__actions">
       <button class="btn btn--secondary btn--sm feed__copy" type="button"><svg class="icon" aria-hidden="true">…</svg>Copy URL<span class="visually-hidden"> of the All stories feed</span></button>
