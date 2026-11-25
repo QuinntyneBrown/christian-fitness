@@ -826,7 +826,8 @@
         "unverified",
         "owner",
         "loading",
-        "error"
+        "error",
+        "no-owner"
       ],
       "not_applicable": {
         "empty": "One listing, not a collection; a listing that hosts nothing is the unverified state, and a missing listing is the not-found page."

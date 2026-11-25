@@ -24,13 +24,13 @@ actor -> page : Choose Message
 page -> client : startConversation(id)
 client -> ctrl : POST /api/directory/{id}/conversation
 ctrl -> h : Send StartListingConversationCommand
-h -> db : Published listing's MemberId
-db --> h : MemberId or none
+h -> db : Published listing's owner
+db --> h : Owner memberId or none
 alt listing unknown or unpublished
   h --> ctrl : 404 listing_not_found
-else no member answers for the listing
-  h --> ctrl : Refusal, code <TO SUPPLY>
-else member found
+else no owner
+  h --> ctrl : Refusal, code listing_unreachable
+else owner found
   h -> chat : OtherNameAsync(caller, memberId)
   alt suspended or the caller's own listing
     chat --> h : null
@@ -43,7 +43,12 @@ end
 ctrl --> client : 200 JSON or ProblemDetails
 client --> page : Result
 alt success
-  page --> actor : Navigate to /messages/<memberId> (L2-055 AC6, L2-014 AC1)
+  page --> actor : Navigate to /messages/<memberId> with listing context (L2-055 AC6)
+  note over page, h
+    The first send carries listing context; the server verifies
+    the published listing and current owner before applying
+    the messaging-preference exception (ADR 0061).
+  end note
 else refused
   page --> actor : Generic message; branch on code only
 end
