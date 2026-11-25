@@ -1,7 +1,6 @@
 import { LegalChange } from '../../legal/legal-change';
 import { LegalNotice } from '../../legal/legal-notice';
-import { Router } from '@angular/router';
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Container, SideNavigation, Prose, SkipLink, TopBar } from '@cf/components';
 import { LegalVersions } from '@cf/domain';
 @Component({
@@ -12,7 +11,6 @@ import { LegalVersions } from '@cf/domain';
   styleUrl: './terms-page.scss',
 })
 export default class TermsPage {
-  protected readonly router = inject(Router);
   protected readonly effective = new Intl.DateTimeFormat('en-CA', {
     dateStyle: 'long',
     timeZone: 'UTC',
@@ -46,7 +44,7 @@ export default class TermsPage {
       title: 'Events',
       paragraphs: [
         'The team publishes event details and capacity. Any fee for an event is paid to the host directly, under the host’s own terms; Christian Fitness takes no payment and gives no refunds.',
-        'You can cancel your registration up to 24 hours before an event starts.',
+        'You can cancel your registration before the event starts.',
       ],
     },
     {

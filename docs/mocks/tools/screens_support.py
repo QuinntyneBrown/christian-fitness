@@ -702,7 +702,7 @@ TERMS_SECTIONS = [('account',
   'Events',
   ['The team publishes event details and capacity. Any fee for an event is paid to the host directly, under the host’s own terms; '
    'Christian Fitness takes no payment and gives no refunds.',
-   'You can cancel your registration up to 24 hours before an event starts.']),
+   'You can cancel your registration before the event starts.']),
  ('health',
   'Health and safety',
   ['Physical activity carries a risk of injury. You take part in events at your own risk and should only do what is safe for you.',

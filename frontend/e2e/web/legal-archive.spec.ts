@@ -3,7 +3,10 @@ import { LegalPage } from '../page-objects/web/legal.page';
 
 // L2-067 AC6. A dated link remains readable independently of the application.
 test.use({ javaScriptEnabled: false });
-for (const [document, title] of [['privacy', 'Privacy Policy'], ['terms', 'Terms of Service']]) {
+for (const [document, title] of [
+  ['privacy', 'Privacy Policy'],
+  ['terms', 'Terms of Service'],
+]) {
   test('Read the dated ' + title + ' without JavaScript', async ({ page }) => {
     const legal = new LegalPage(page);
     await legal.open('/' + document + '/2026-04-01');

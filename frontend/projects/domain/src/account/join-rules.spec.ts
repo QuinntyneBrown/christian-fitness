@@ -111,6 +111,7 @@ describe('validateJoin', () => {
       'email',
       'password',
       'homeChurch',
+      'ageConfirmed',
     ]);
   });
 });

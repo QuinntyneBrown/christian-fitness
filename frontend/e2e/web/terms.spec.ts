@@ -15,6 +15,7 @@ for (const signedIn of [false, true]) {
       await expect(legal.heading).toHaveText('Terms of Service');
       await expect(page).toHaveTitle('Terms of Service · Christian Fitness');
       await expect(legal.effective).toHaveText('Effective April 1, 2026');
+      await expect(legal.eventTerms).toContainText('cancel your registration before the event starts');
       await expect(legal.summary).toBeVisible();
       await expect(legal.note).toContainText('The full text below is what applies');
       await expect(legal.sections).toHaveCount(9);
