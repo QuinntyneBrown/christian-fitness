@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
@@ -16,6 +17,9 @@ namespace ChristianFitness.Infrastructure.Security;
 /// </summary>
 public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvider time) : ITicketStore
 {
+    private const string StaffSignedInAt = "cf.staff.signed-in-at";
+    private static readonly TimeSpan StaffMaximumAge = TimeSpan.FromHours(12);
+
     public Task<string> StoreAsync(AuthenticationTicket ticket) => StoreAsync(ticket, CancellationToken.None);
 
     public async Task<string> StoreAsync(AuthenticationTicket ticket, CancellationToken cancellationToken)
@@ -23,6 +27,11 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
         ArgumentNullException.ThrowIfNull(ticket);
         var memberId = MemberIdOf(ticket);
         var now = time.GetUtcNow();
+        if (ticket.AuthenticationScheme == SessionSchemes.Staff)
+        {
+            ticket.Properties.Items[StaffSignedInAt] = now.UtcTicks.ToString(CultureInfo.InvariantCulture);
+        }
+
         using var scope = scopes.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var expired = await db.Sessions
@@ -101,14 +110,21 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
             return (null, false);
         }
 
-        if (record.ExpiresAt is { } expiresAt && expiresAt <= time.GetUtcNow())
+        var now = time.GetUtcNow();
+        var ticket = TicketSerializer.Default.Deserialize(record.Ticket);
+        var staffExpired = ticket?.AuthenticationScheme == SessionSchemes.Staff
+            && (!ticket.Properties.Items.TryGetValue(StaffSignedInAt, out var value)
+                || !long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var signedInAt)
+                || signedInAt > now.UtcTicks
+                || signedInAt <= now.UtcTicks - StaffMaximumAge.Ticks);
+        if ((record.ExpiresAt is { } expiresAt && expiresAt <= now) || staffExpired)
         {
             db.Sessions.Remove(record);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return (null, true);
         }
 
-        return (TicketSerializer.Default.Deserialize(record.Ticket), false);
+        return (ticket, false);
     }
 
     public Task RemoveAsync(string key) => RemoveAsync(key, CancellationToken.None);
