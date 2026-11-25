@@ -7,8 +7,7 @@ export type InterestKey =
   | 'mobility'
   | 'nutrition'
   | 'cycling'
-  | 'retreats'
-  | 'pickleball';
+  | 'retreats';
 
 /** One interest: the key the API takes and the label a member reads. */
 export interface InterestOption {
@@ -18,8 +17,7 @@ export interface InterestOption {
 
 /**
  * Every interest, in the order the Join mock shows them. The API lists the same keys in
- * `Interests.All`. This list is the single source: the mocks' interest lists are generated from it
- * (ADR 0061).
+ * `Interests.All`.
  */
 export const INTERESTS: readonly InterestOption[] = [
   { key: 'running', label: 'Running' },
@@ -30,5 +28,4 @@ export const INTERESTS: readonly InterestOption[] = [
   { key: 'nutrition', label: 'Nutrition' },
   { key: 'cycling', label: 'Cycling' },
   { key: 'retreats', label: 'Retreats' },
-  { key: 'pickleball', label: 'Pickleball' },
 ];
