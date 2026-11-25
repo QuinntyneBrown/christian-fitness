@@ -54,7 +54,9 @@ and uses `Organisation:PostalAddress`.
 
 `cf migrate` applies the pending EF Core migrations; `cf seed` inserts the seed data that is
 missing and changes nothing on a second run. The API never migrates on startup: run `migrate`,
-then `seed`, then start the API.
+then `seed`, then start the API. The five starting bylines are added only while there are no
+bylines and no Admin has ever added, edited or removed one, so a byline an Admin removed is not brought back
+(ADR 0093).
 
 `cf two-step <email>` sets up two-step verification for a staff account (L2-046 AC6, ADR 0013):
 it stores a new authenticator secret and prints its `otpauth://` link once, for the staff member
