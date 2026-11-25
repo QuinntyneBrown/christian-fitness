@@ -57,6 +57,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<ListingClaim> ListingClaims => Set<ListingClaim>();
 
+    public DbSet<EventSeries> EventSeries => Set<EventSeries>();
+
+    public DbSet<SeriesEnrolment> SeriesEnrolments => Set<SeriesEnrolment>();
+
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
 

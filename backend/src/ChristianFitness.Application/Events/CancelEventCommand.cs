@@ -54,6 +54,7 @@ internal sealed class CancelEventHandler(IAppDbContext db, IRegistrationReader r
 
         await chat.NotifyCancelledAsync(stored.Id, cancellationToken).ConfigureAwait(false);
         var going = await registrations.GoingAsync(stored.Id, cancellationToken).ConfigureAwait(false);
-        return AdminEventDto.Of(stored, going);
+        var series = await AdminEventSeriesDto.OfAsync(db, [stored], cancellationToken).ConfigureAwait(false);
+        return AdminEventDto.Of(stored, going, series);
     }
 }

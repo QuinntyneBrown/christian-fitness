@@ -14,6 +14,8 @@ export class AdminShell {
   readonly brandName: Locator;
   readonly nav: Locator;
   readonly navItems: Locator;
+  /** The group headings (Publish, Gather, Community), an Admin's only (ADR 0079). */
+  readonly navGroups: Locator;
   /** The link marked `aria-current="page"`. */
   readonly currentItem: Locator;
   readonly userInitials: Locator;
@@ -30,6 +32,7 @@ export class AdminShell {
     this.brandName = this.sidebar.locator('.admin__brand-name');
     this.nav = page.getByRole('navigation', { name: 'Admin' });
     this.navItems = this.nav.locator('.admin-nav__item');
+    this.navGroups = this.nav.locator('.admin-nav__group');
     this.currentItem = this.nav.locator('.admin-nav__item[aria-current="page"]');
     this.userInitials = this.sidebar.locator('.admin__user-avatar');
     this.userName = this.sidebar.locator('.admin__user-name');
@@ -60,6 +63,34 @@ export class AdminShell {
   /** The count of work waiting beside the area named `label`, absent when nothing waits. */
   navCount(label: string): Locator {
     return this.navItems.filter({ hasText: label }).locator('.admin-nav__count');
+  }
+
+  /** The links of the list a group heading names, such as "Gather". */
+  navGroupLinks(group: string): Locator {
+    return this.nav.getByRole('list', { name: group }).locator('.admin-nav__item');
+  }
+
+  /** Each link list's name, in order: the group heading that labels it, or null when none does. */
+  async navListNames(): Promise<(string | null)[]> {
+    return this.nav.locator('.admin-nav__list').evaluateAll((lists) =>
+      lists.map((list) => {
+        const by = list.getAttribute('aria-labelledby');
+        return by === null ? null : (document.getElementById(by)?.textContent?.trim() ?? '');
+      }),
+    );
+  }
+
+  /** Whether the navigation's links scroll inside it: taller than its box, and scrollable. */
+  async navScrollsWithin(): Promise<boolean> {
+    return this.nav.evaluate((nav) => {
+      const overflow = getComputedStyle(nav).overflowY;
+      return nav.scrollHeight > nav.clientHeight && (overflow === 'auto' || overflow === 'scroll');
+    });
+  }
+
+  /** How far the page itself has scrolled down, in CSS pixels. */
+  async pageScrollY(): Promise<number> {
+    return this.page.evaluate(() => window.scrollY);
   }
 
   /**

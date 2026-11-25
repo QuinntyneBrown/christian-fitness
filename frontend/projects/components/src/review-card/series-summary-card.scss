@@ -1,0 +1,113 @@
+// The design system's series summary card (docs/design-system/assets/components.css, "Admin:
+// pickers": series-summary-card). Sizes the design system names as tokens the admin app does not
+// carry (size-thumb-series-w and -h) are written here, as pick-cards does with size-card-pick.
+:host {
+  display: block;
+}
+
+.series-summary-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.series-summary-card__image {
+  width: 8rem;
+  height: 6rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+.series-summary-card__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.series-summary-card__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  overflow-wrap: anywhere;
+}
+
+.series-summary-card__host {
+  color: var(--color-fg-muted);
+}
+
+.series-summary-card__facts {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--font-size-ui);
+
+  > span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+  }
+
+  .icon {
+    color: var(--color-fg-accent);
+  }
+}
+
+.series-summary-card__stats {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  padding-top: var(--space-4);
+  font-size: var(--font-size-ui);
+
+  dt {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  dd {
+    margin-top: var(--space-0-5);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.series-summary-card__stats .series-summary-card__sub {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+// The joined meter: the bar of the design system's fill meter (stat.html, "Fill meter").
+.series-summary-card__meter {
+  margin-top: var(--space-1-5);
+  display: block;
+  width: 100%;
+  height: var(--size-meter);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--color-border-default);
+  appearance: none;
+  border: 0;
+
+  &::-webkit-meter-bar {
+    background: var(--color-border-default);
+    border: 0;
+    border-radius: var(--radius-full);
+    height: var(--size-meter);
+  }
+
+  &::-webkit-meter-optimum-value,
+  &::-webkit-meter-suboptimum-value,
+  &::-webkit-meter-even-less-good-value {
+    background: var(--color-accent);
+    border-radius: var(--radius-full);
+  }
+
+  &::-moz-meter-bar {
+    background: var(--color-accent);
+    border-radius: var(--radius-full);
+  }
+}

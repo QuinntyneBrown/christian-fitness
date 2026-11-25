@@ -26,6 +26,8 @@ export interface AdminEventDto {
   capacity: number;
   going: number;
   status: EventStatus;
+  /** The series a session belongs to, which Events tags it with (L2-071 AC6; ADR 0091); none for any other event. */
+  series?: { id: string; title: string } | null;
 }
 
 /** How many events each tab holds. */

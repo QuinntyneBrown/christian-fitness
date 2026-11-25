@@ -57,9 +57,10 @@ internal sealed class ListAdminEventsHandler(IAppDbContext db, IRegistrationRead
             .ConfigureAwait(false);
 
         var going = await registrations.GoingForAsync([.. page.Select(e => e.Id)], cancellationToken).ConfigureAwait(false);
+        var series = await AdminEventSeriesDto.OfAsync(db, page, cancellationToken).ConfigureAwait(false);
 
         return new AdminEventListDto(
             new AdminEventCountsDto(counts.Sum(c => c.Count), CountOf(EventStatus.Published), CountOf(EventStatus.Draft)),
-            [.. page.Select(e => AdminEventDto.Of(e, going.GetValueOrDefault(e.Id)))]);
+            [.. page.Select(e => AdminEventDto.Of(e, going.GetValueOrDefault(e.Id), series))]);
     }
 }

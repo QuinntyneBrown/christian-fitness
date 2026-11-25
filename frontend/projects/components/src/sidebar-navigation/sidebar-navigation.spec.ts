@@ -59,6 +59,39 @@ describe('SidebarNavigation', () => {
     ).toEqual([expect.stringContaining('Services')]);
   });
 
+  // L2-021 AC1 (ADR 0079): Dashboard in an unlabelled list, then each group as an h2 naming the
+  // list of its areas.
+  it('with showGroups, heads each group with an h2 that labels its list', async () => {
+    const { fixture, el } = await render({ showGroups: true });
+    fixture.componentRef.setInput('items', [
+      { key: 'dashboard', label: 'Dashboard', href: '/' },
+      { key: 'events', label: 'Events', href: '/events', group: 'Gather' },
+      { key: 'series', label: 'Event series', href: '/series', group: 'Gather' },
+      { key: 'members', label: 'Members', href: '/members', group: 'Community' },
+    ]);
+    await fixture.whenStable();
+
+    const lists = [...el.querySelectorAll('nav ul.admin-nav__list')];
+    expect(
+      lists.map((list) => [...list.querySelectorAll('li > a')].map((a) => a.textContent?.trim())),
+    ).toEqual([['Dashboard'], ['Events', 'Event series'], ['Members']]);
+    const headings = [...el.querySelectorAll('nav h2.admin-nav__group')];
+    expect(headings.map((h) => h.textContent?.trim())).toEqual(['Gather', 'Community']);
+    expect(lists[0].getAttribute('aria-labelledby')).toBeNull();
+    expect(lists.slice(1).map((list) => list.getAttribute('aria-labelledby'))).toEqual(
+      headings.map((h) => h.id),
+    );
+    expect(headings.every((h) => h.id !== '')).toBe(true);
+  });
+
+  it('without showGroups, puts every area in one unlabelled list with no headings', async () => {
+    const { el } = await render();
+
+    expect(el.querySelectorAll('nav ul.admin-nav__list').length).toBe(1);
+    expect(el.querySelectorAll('nav h2').length).toBe(0);
+    expect(el.querySelector('nav ul')?.getAttribute('aria-labelledby')).toBeNull();
+  });
+
   it('marks no link current outside the areas', async () => {
     const { el } = await render({ current: null });
 

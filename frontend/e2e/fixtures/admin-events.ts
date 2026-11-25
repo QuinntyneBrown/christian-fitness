@@ -12,6 +12,8 @@ export interface AdminEventFixture {
   capacity: number;
   going: number;
   status: 'draft' | 'published' | 'cancelled';
+  /** The series a session belongs to (ADR 0091); none for any other event. */
+  series?: { id: string; title: string } | null;
 }
 
 /** The four published events of the mocks' cast (docs/mocks/README.md), soonest first, in UTC. */

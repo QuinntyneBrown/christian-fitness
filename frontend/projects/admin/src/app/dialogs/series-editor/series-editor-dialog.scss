@@ -1,0 +1,16 @@
+// The series editor composes the library's dialog, form layout, fields and pick cards; its own look
+// is the Host search's status line (mock `series-editor/no-results`).
+:host {
+  display: contents;
+}
+
+.series-editor__host-status {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  &:empty {
+    // Out of the flow while empty, but still in the page, so a new line is announced.
+    position: absolute;
+  }
+}

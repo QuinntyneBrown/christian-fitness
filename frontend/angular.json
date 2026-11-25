@@ -105,6 +105,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/admin/public"
+              },
+              {
+                "glob": "*.jpg",
+                "input": "projects/web/public/images/events",
+                "output": "images/events"
               }
             ],
             "styles": ["projects/admin/src/styles.scss"]

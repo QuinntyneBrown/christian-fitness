@@ -32,6 +32,9 @@ public static class EventFieldCodes
     public const string CategoryInvalid = "category_invalid";
     public const string HostRequired = "host_required";
     public const string HostNotListed = "host_not_listed";
+    public const string EndTimeRequired = "end_time_required";
+    public const string EndNotAfterStart = "end_not_after_start";
+    public const string TopicTooLong = "topic_too_long";
 
     /// <summary>Every code a field of an event can fail with.</summary>
     public static readonly IReadOnlySet<string> All = new HashSet<string>(StringComparer.Ordinal)
@@ -39,6 +42,7 @@ public static class EventFieldCodes
         TitleRequired, TitleTooLong, CategoryRequired, DateRequired, StartTimeRequired, StartInPast, PlaceRequired,
         PlaceTooLong, AreaRequired, AreaTooLong, PriceInvalid, CapacityRequired, CapacityOutOfRange,
         SummaryRequired, SummaryTooLong, ImageInvalid, CursorInvalid, CategoryInvalid, HostRequired, HostNotListed,
+        EndTimeRequired, EndNotAfterStart, TopicTooLong,
     };
 }
 

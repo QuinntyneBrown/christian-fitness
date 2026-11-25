@@ -7,7 +7,7 @@ STORIES = [("Why your rest day might be the most spiritual part of your training
            ("Twelve GTA churches will run the Toronto Half as one team this fall", "Events · Yesterday", False)]
 SERIES = [("Couch to 5K Run Club", "Every Tuesday · 6:30 PM", "31 / 40 joined"),
           ("Saturday Park Bootcamp", "Every Saturday · 8:00 AM", "38 / 50 joined"),
-          ("Women’s Hoops &amp; Devotion", "Last Thursday of the month · 7:00 PM", "24 / 30 joined")]
+          ("Women’s Hoops &amp; Devotion", "6 dates · 7:00 PM", "24 / 30 joined")]
 SUGG = [("Eastside Ladies Who Lift", "Organization · Danforth &amp; Pape", "From Adaeze Kalu · 4 hours ago"),
         ("Coach Marcus Delaney", "Instructor · Mississauga", "Self-submitted · Yesterday"),
         ("Rooted Physio", "Company · Leslieville", "From Jordan Reid · 3 days ago")]

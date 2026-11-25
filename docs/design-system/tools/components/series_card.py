@@ -28,7 +28,7 @@ def row(img="run", when="Every Tuesday · 6:30 PM", title="Couch to 5K Run Club"
 JOINED = row()
 OPEN = row("bootcamp", "Every Saturday · 8:00 AM", "Saturday Park Bootcamp", "Danielle Okafor · Waterfront · Apr 4 – May 23",
            "dddnuuuu", "3 of 8 sessions done", '<span class="series-row__price">$64 for all 8</span>', "Next Apr 25")
-FREE = row("hoops", "Last Thursday of the month · 7:00 PM", "Women’s Hoops &amp; Devotion", "Faith &amp; Footwork · Downtown · Jan – Jun",
+FREE = row("hoops", "6 dates · 7:00 PM", "Women’s Hoops &amp; Devotion", "Faith &amp; Footwork · Downtown · Jan – Jun",
            "dddnuu", "3 of 6 sessions done", '<span class="series-row__price">Free</span>', "Next Apr 30")
 LIST = f'<ul class="card card--list series-list"><li>{JOINED}</li><li>{OPEN}</li><li>{FREE}</li></ul>'
 LOADING = ('<ul class="card card--list series-list" aria-busy="true" aria-label="Loading series"><li class="series-row">'
@@ -191,7 +191,7 @@ SPEC = {
         "touch": "<p>Rows are full-width targets well over 44px tall. View series is a small button whose target extends to 44 × 44px on coarse pointers; plan options are 72px tall labels.</p>",
     },
     "content": """<ul>
-<li>Cadence names the rhythm and time: \"Every Tuesday · 6:30 PM\", \"Last Thursday of the month · 7:00 PM\".</li>
+<li>Cadence names the rhythm and time: \"Every Tuesday · 6:30 PM\", \"6 dates · 7:00 PM\".</li>
 <li>Sub: host · area · range: \"Lakeshore Runners Fellowship · Etobicoke · Apr 7 – May 26\".</li>
 <li>Price says what it covers: \"$64 for all 8\", \"$10 each\", \"Free\".</li>
 <li>Series card meta: \"Session 3 of 8 · Every Tuesday\"; dates as \"Tue Apr 28\" with the session's topic.</li>

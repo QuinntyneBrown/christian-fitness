@@ -1,8 +1,16 @@
 // The design system's admin-nav block (docs/design-system/assets/components.css: "Admin shell").
-// Below LG the links sit in one row that scrolls sideways within itself; from LG, one column.
+// Below LG the lists run on in one row that scrolls sideways within itself, the group headings
+// hidden; from LG, one column whose links scroll within it when it outgrows the window (L2-021
+// AC4), each group's heading above its list.
 :host {
   display: block;
   min-width: 0;
+
+  @media (min-width: 64rem) {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
 }
 
 .admin-nav {
@@ -15,9 +23,37 @@
 
   @media (min-width: 64rem) {
     margin-top: var(--space-4);
+    min-height: 0;
+    flex: 1 1 auto;
     flex-direction: column;
-    overflow: visible;
-    padding-bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: var(--space-4);
+  }
+}
+
+.admin-nav__list {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-1);
+
+  @media (min-width: 64rem) {
+    flex-direction: column;
+  }
+}
+
+// A group's name, in small caps over its list; an Admin's only, and only from LG.
+.admin-nav__group {
+  display: none;
+  padding: var(--space-5) var(--space-3-5) var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  color: var(--color-fg-on-chrome-subtle);
+
+  @media (min-width: 64rem) {
+    display: block;
   }
 }
 

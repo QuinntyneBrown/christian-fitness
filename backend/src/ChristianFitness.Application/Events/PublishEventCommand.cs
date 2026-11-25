@@ -41,6 +41,7 @@ internal sealed class PublishEventHandler(IAppDbContext db, TimeProvider time, I
         stored.Publish();
         audit.Record(current.Id, nameof(Event), stored.Id);
         var going = await registrations.GoingAsync(stored.Id, cancellationToken).ConfigureAwait(false);
-        return AdminEventDto.Of(stored, going);
+        var series = await AdminEventSeriesDto.OfAsync(db, [stored], cancellationToken).ConfigureAwait(false);
+        return AdminEventDto.Of(stored, going, series);
     }
 }

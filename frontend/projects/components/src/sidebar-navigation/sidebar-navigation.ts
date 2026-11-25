@@ -23,6 +23,8 @@ export class SidebarNavigation {
   readonly items = input.required<readonly AdminNavItem[]>();
   /** The key of the area showing; none outside the areas. */
   readonly current = input<string | null>(null);
+  /** Heads each group of links with its name (an Admin's navigation, ADR 0079). */
+  readonly showGroups = input(false, { transform: booleanAttribute });
   readonly userName = input('');
   readonly userRole = input('');
   readonly userInitials = input('');

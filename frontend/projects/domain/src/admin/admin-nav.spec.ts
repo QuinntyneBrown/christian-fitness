@@ -1,17 +1,32 @@
-import { adminNavOf } from './admin-nav';
+import type { StaffRoleName } from '@cf/api';
+import { adminNavOf, showsAreaGroups } from './admin-nav';
 
 describe('adminNavOf', () => {
   it("lists the role's areas, with the suggestions waiting counted beside Listings", () => {
     expect(adminNavOf('Moderator', { suggestions: 3 })).toEqual([
-      { key: 'dashboard', label: 'Dashboard', href: '/' },
+      { key: 'dashboard', label: 'Dashboard', href: '/', group: null },
+      { key: 'series', label: 'Event series', href: '/series', group: 'Gather' },
       {
         key: 'listings',
         label: 'Listings',
         href: '/listings',
+        group: 'Community',
         count: 3,
         countLabel: '3 suggestions to check',
       },
-      { key: 'members', label: 'Members', href: '/members' },
+      { key: 'members', label: 'Members', href: '/members', group: 'Community' },
+    ]);
+  });
+
+  // L2-021 AC1 (ADR 0079, ADR 0091): Dashboard alone, then each area in its group.
+  it('gives an Admin Dashboard alone, then the Gather and Community areas', () => {
+    expect(adminNavOf('Admin', null).map((area) => [area.label, area.group, area.href])).toEqual([
+      ['Dashboard', null, '/'],
+      ['Events', 'Gather', '/events'],
+      ['Event series', 'Gather', '/series'],
+      ['Listings', 'Community', '/listings'],
+      ['Services', 'Community', '/services'],
+      ['Members', 'Community', '/members'],
     ]);
   });
 
@@ -25,5 +40,14 @@ describe('adminNavOf', () => {
     for (const counts of [{ suggestions: 0 }, null]) {
       expect(adminNavOf('Admin', counts).some((a) => 'count' in a)).toBe(false);
     }
+  });
+});
+
+describe('showsAreaGroups', () => {
+  it.each<{ role: StaffRoleName; shown: boolean }>([
+    { role: 'Admin', shown: true },
+    { role: 'Moderator', shown: false },
+  ])('$role: $shown', ({ role, shown }) => {
+    expect(showsAreaGroups(role)).toBe(shown);
   });
 });

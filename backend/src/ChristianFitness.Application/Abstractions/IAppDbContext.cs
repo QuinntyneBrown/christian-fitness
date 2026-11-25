@@ -84,6 +84,12 @@ public interface IAppDbContext
     /// <summary>The links to claim an approved listing (L2-078; ADR 0090).</summary>
     DbSet<ListingClaim> ListingClaims { get; }
 
+    /// <summary>The series staff run, each a program of dated session events (L2-071; ADR 0080, ADR 0091).</summary>
+    DbSet<EventSeries> EventSeries { get; }
+
+    /// <summary>The members who joined each series (ADR 0091; joining comes with journey 12).</summary>
+    DbSet<SeriesEnrolment> SeriesEnrolments { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

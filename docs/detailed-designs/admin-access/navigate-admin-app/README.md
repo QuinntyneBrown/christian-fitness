@@ -120,9 +120,10 @@ on desktop").
 - **Moderators and the new areas.** Settled by ADR 0064 (amending ADR 0020) and `L2-019` AC1: a
   Moderator opens Newsletter, Event series, Community Pick, Listings and Feedback, and not
   Stories. `canManage`, the API's `StaffAccess` table and `L2-019` carry the same table.
-- **Code behind the requirement.** `ADMIN_AREAS` lists four areas with no groups, `AdminNav`
-  renders no group headings and has no icons for the new keys, the shell fills no counts, and the
-  sidebar does not yet scroll its links alone. The admin app also still routes `sign-in/verify`
+- **Code behind the requirement.** Journey 9 (ADR 0091) gave `ADMIN_AREAS` its groups and the
+  Event series area, `AdminNav` its group headings and the sidebar its scrolling link column; an
+  area joins the list with its own screen, and a group shows only when it holds one. The shell
+  fills no counts yet: `GET /api/admin/counts` and the admin hub are still to be built. The admin app also still routes `sign-in/verify`
   to the two-step screen of the withdrawn `L2-046`; its retirement is decided in
   [ADR 0074](../../../adr/0074-retire-staff-password-and-two-step.md). Each is work for the next
   slices.

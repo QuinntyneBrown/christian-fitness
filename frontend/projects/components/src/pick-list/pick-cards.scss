@@ -103,6 +103,19 @@ button.pick-card {
   color: var(--color-fg-muted);
 }
 
+// A count under the meta, such as a series' "31 / 40 joined" (ADR 0091).
+.pick-card__count {
+  margin-top: var(--space-2);
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.pick-card[aria-current='page']:not(.pick-card--light) .pick-card__count {
+  color: var(--color-fg-inverse);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pick-card {
     transition: none;

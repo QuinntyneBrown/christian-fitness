@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 25% (9 of 36 journeys; 25 of 113 days)
+**% complete:** 28% (10 of 36 journeys; 30 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -21,7 +21,7 @@ audit), so those are not listed on their own.
 | 6   | ✅ View a listing's profile            | Member | See what a listing hosts and is connected to, and message its owner.                                           | 3             |
 | 7   | ✅ See who hosts an event              | Both   | Every event has a required host listing, chosen in the event editor and shown on the event.                    | 3             |
 | 8   | ✅ Follow a listing                    | Member | Follow or unfollow a listing from the directory or its profile.                                                | 2             |
-| 9   | Manage event series                    | Admin  | Staff create a series, edit its details and add dated sessions under the regrouped console navigation.         | 5             |
+| 9   | ✅ Manage event series                 | Admin  | Staff create a series, edit its details and add dated sessions under the regrouped console navigation.         | 5             |
 | 10  | Browse event series                    | Member | A Series view on Events lists programs by next session, with progress and filters.                             | 3             |
 | 11  | View an event series                   | Member | A series page with its sessions, host and sign-up panel; session events show their series.                     | 3             |
 | 12  | Join and leave a series                | Member | Hold a place at every remaining session and join the series' one group chat, or leave it.                      | 4             |

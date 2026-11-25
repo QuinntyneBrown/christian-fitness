@@ -70,7 +70,8 @@ internal sealed class UpdateEventHandler(IAppDbContext db, TimeProvider time, IR
         stored.HostedBy(request.HostListingId ?? throw new InvalidOperationException("The validator lets no missing host through."));
 
         audit.Record(current.Id, nameof(Event), stored.Id);
-        return AdminEventDto.Of(stored, going);
+        var series = await AdminEventSeriesDto.OfAsync(db, [stored], cancellationToken).ConfigureAwait(false);
+        return AdminEventDto.Of(stored, going, series);
     }
 
     private static ValidationException Refused(string property, string code, string message) =>

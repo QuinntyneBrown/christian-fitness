@@ -1,0 +1,22 @@
+<ol class="admin-sessions">
+  @for (session of sessions(); track session.id) {
+    <li [attr.class]="classOf(session.state)">
+      <span class="admin-session__n" aria-hidden="true">{{ session.number }}</span>
+      <span class="admin-session__date">{{ session.date }}</span>
+      <span class="admin-session__topic">{{ session.topic }}</span>
+      <span class="admin-session__end">
+        @switch (session.state) {
+          @case ('done') {
+            <span class="admin-session__done">Done</span>
+          }
+          @case ('live') {
+            <cf-status variant="published">Live</cf-status>
+          }
+          @case ('cancelled') {
+            <cf-status variant="cancelled">Cancelled</cf-status>
+          }
+        }
+      </span>
+    </li>
+  }
+</ol>

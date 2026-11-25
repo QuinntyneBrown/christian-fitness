@@ -26,7 +26,7 @@ public sealed class CreateEventTests(AdminEventsFactory factory) : IClassFixture
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal(
-            ["area", "capacity", "category", "going", "id", "place", "priceCents", "startsAt", "status", "title"],
+            ["area", "capacity", "category", "going", "id", "place", "priceCents", "series", "startsAt", "status", "title"],
             created.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.True(Guid.TryParse(created.GetProperty("id").GetString(), out _));
         Assert.Equal("Whole Life Retreat", created.GetProperty("title").GetString());
@@ -39,6 +39,8 @@ public sealed class CreateEventTests(AdminEventsFactory factory) : IClassFixture
         Assert.Equal(60, created.GetProperty("capacity").GetInt32());
         Assert.Equal(0, created.GetProperty("going").GetInt32());
         Assert.Equal("draft", created.GetProperty("status").GetString());
+        // A standalone event belongs to no series (ADR 0091).
+        Assert.Equal(JsonValueKind.Null, created.GetProperty("series").ValueKind);
     }
 
     [Fact]

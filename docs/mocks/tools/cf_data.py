@@ -215,7 +215,7 @@ SERIES = [
     },
     {
         "id": "womens-hoops", "title": "Women’s Hoops & Devotion", "category": "Basketball", "host": "faith-footwork",
-        "cadence": "Last Thursday of the month", "time": "7:00 PM", "range": "Jan – Jun",
+        "cadence": "6 dates", "time": "7:00 PM", "range": "Jan – Jun",
         "place": "St. Lawrence Community Rec Centre", "area": "Downtown", "image": "hoops", "series_price": "Free",
         "drop_in": "Free", "enrolled": 24, "capacity": 30, "joined": False,
         "summary": "Pickup games for all skill levels, then a short devotion. One night a month, January to June.",

@@ -10,7 +10,13 @@ import {
   type StaffSessionDto,
 } from '@cf/api';
 import { AdminLayout, type AdminNavItem, Banner } from '@cf/components';
-import { adminNavOf, currentAdminArea, initialsOf, NetworkStatus } from '@cf/domain';
+import {
+  adminNavOf,
+  currentAdminArea,
+  initialsOf,
+  NetworkStatus,
+  showsAreaGroups,
+} from '@cf/domain';
 import { filter, type Subscription } from 'rxjs';
 import { HttpAdminCountsService } from '../services/http-admin-counts.service';
 
@@ -52,6 +58,8 @@ export default class AdminShell implements AdminCountsRefresh {
   protected readonly current = signal(currentAdminArea(this.urlNow()));
   protected readonly staff = signal<StaffSessionDto | null>(null);
   protected readonly initials = signal('');
+  /** An Admin's navigation names its groups; a Moderator's one list does not (L2-021 AC1). */
+  protected readonly showGroups = signal(false);
   protected readonly signingOut = signal(false);
   /** True once the offline screen's lazy chunk is loaded, so it can open with no network. */
   protected readonly offlineReady = signal(false);
@@ -73,6 +81,7 @@ export default class AdminShell implements AdminCountsRefresh {
         next: (staff) => {
           this.staff.set(staff);
           this.initials.set(initialsOf(staff.name));
+          this.showGroups.set(showsAreaGroups(staff.role));
         },
         // The guard has just read the session; a failure now leaves the name out, nothing more.
         error: () => undefined,

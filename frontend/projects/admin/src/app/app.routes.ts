@@ -51,6 +51,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/event-registrations/event-registrations-page'),
       },
       {
+        // Every series by its next session, the chosen one's summary and dates (journey 9; ADR 0091).
+        path: 'series',
+        title: titled('Event series'),
+        loadComponent: () => import('./pages/series/series-page'),
+      },
+      {
         // Listing suggestions and what is listed (journey 18; ADR 0090), for Admins and Moderators.
         path: 'listings',
         title: titled('Listings'),

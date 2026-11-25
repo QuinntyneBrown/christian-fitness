@@ -1,0 +1,74 @@
+// The design system's admin sessions (docs/design-system/assets/components.css, "Admin: pickers":
+// admin-sessions, admin-session), on the list card's surface (card.html, card--list). Sizes the
+// design system names as tokens the admin app does not carry (size-column-session-date,
+// size-basis-topic) are written here.
+:host {
+  display: block;
+}
+
+.admin-sessions {
+  margin-top: var(--space-3);
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+
+  > li + li {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.admin-session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.admin-session--past {
+  color: var(--color-fg-muted);
+}
+
+.admin-session__n {
+  width: var(--space-6);
+  flex-shrink: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+}
+
+.admin-session__date {
+  width: 5rem;
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.admin-session__topic {
+  min-width: 0;
+  flex: 1 1 12rem;
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.admin-session--past .admin-session__topic {
+  font-weight: var(--font-weight-regular);
+}
+
+.admin-session--cancelled .admin-session__topic {
+  font-weight: var(--font-weight-regular);
+  text-decoration: line-through;
+}
+
+.admin-session__end {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-session__done {
+  font-size: var(--font-size-sm);
+}
