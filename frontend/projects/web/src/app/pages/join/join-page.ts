@@ -7,7 +7,7 @@ import {
   type WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpAccountService } from '../../services/http-account.service';
 import { ACCOUNT_SERVICE, INTERESTS, type InterestKey } from '@cf/api';
 import {
@@ -26,6 +26,7 @@ import {
   errorSummaryOf,
   joinRefusalOf,
   joinRequestOf,
+  signInReturnPathOf,
   toggleInterest,
   validateJoin,
   type JoinField,
@@ -35,7 +36,7 @@ import {
 
 /**
  * The Join screen (mock docs/mocks/pages/join/): a visitor creates an account and lands on Home,
- * signed in (L2-003 AC1). One signal per field; while the request is on its way the button reads
+ * signed in (L2-003 AC1), or on the `returnUrl` inside the app it was opened with (ADR 0091). One signal per field; while the request is on its way the button reads
  * "Creating your profile…" and is disabled, and the fields hold still (L2-003 AC5). Before
  * sending, `validateJoin` names each invalid field and nothing is sent (L2-003 AC3, mock
  * `invalid-fields`); editing a field clears its error. A refusal gives the form back as it was
@@ -54,6 +55,10 @@ export default class JoinPage {
   private readonly account = inject(ACCOUNT_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  /** Where to land once joined: a `returnUrl` inside the app, such as a claim link, else Home (ADR 0091). */
+  private readonly returnPath = signInReturnPathOf(
+    inject(ActivatedRoute).snapshot.queryParamMap.get('returnUrl'),
+  );
 
   protected readonly options = INTERESTS;
   protected readonly fullName = signal('');
@@ -110,7 +115,7 @@ export default class JoinPage {
       .join(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => void this.router.navigateByUrl('/home'),
+        next: () => void this.router.navigateByUrl(this.returnPath),
         // The form comes back as it was, so the visitor can try again.
         error: (error: unknown) => {
           this.submitting.set(false);

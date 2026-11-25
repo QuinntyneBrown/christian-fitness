@@ -34,7 +34,7 @@ address at all.
   for a signed-in caller and `null` for anyone else, so a visitor learns the name and the expiry
   and nothing else (AC4). One read replaces the design's two.
 
-- **Codes.** An unknown token, or one longer than 128 characters, is 404 `claim_not_found`. A link
+- **Codes.** An unknown token is 404 `claim_not_found`. A link
   past its 14 days, or voided by a resend, is 410 `claim_link_expired`: a voided link has not been
   claimed, so "already claimed" would be untrue, and its holder should ask for the new one. A spent
   link, or one whose listing is no longer a draft, is 409 `claim_link_used`. The read, publish and

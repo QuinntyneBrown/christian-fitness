@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
+import { memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -37,6 +37,14 @@ const routes: Routes = [
     path: 'reset-password',
     title: titled('Reset password'),
     loadComponent: () => import('./pages/reset-password/reset-password-page'),
+  },
+  {
+    // A claim link opened signed out: the listing's name, Sign in and Join (L2-078 AC4; ADR 0091).
+    // With a session it does not match, and the shell's child of the same address opens.
+    path: 'claim/:token',
+    title: titled('Claim a listing'),
+    canMatch: [signedOutGuard],
+    loadComponent: () => import('./pages/claim-listing/claim-sign-in-page'),
   },
   {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).
