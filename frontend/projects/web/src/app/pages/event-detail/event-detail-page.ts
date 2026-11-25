@@ -44,7 +44,7 @@ import { HttpEventsService } from '../../services/http-events.service';
  * whose code and the CDK Dialog load on first use; confirming frees the place and the page shows
  * Register again. A registered member also sees a Group chat link to the event's chat (L2-010 AC3; ADR 0039).
  * Under the registration card, "Hosted by" names the event's host and leads to its profile
- * (L2-010 AC4; ADR 0088).
+ * (L2-010 AC4; ADR 0089).
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -79,7 +79,7 @@ export default class EventDetailPage {
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly event = signal<EventDetailView | null>(null);
-  /** Who hosts it, under the registration card (L2-010 AC4; ADR 0088). */
+  /** Who hosts it, under the registration card (L2-010 AC4; ADR 0089). */
   protected readonly host = signal<HostCardView | null>(null);
   protected readonly chatHref = signal('');
   protected readonly registering = signal(false);

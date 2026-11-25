@@ -31,7 +31,7 @@ export class WebEventDetailPage extends ErrorScreen {
   readonly loading: Locator;
   readonly errorHeading: Locator;
   readonly retryButton: Locator;
-  /** The "Hosted by" card under the registration card, one link to the host's profile (ADR 0088). */
+  /** The "Hosted by" card under the registration card, one link to the host's profile (ADR 0089). */
   readonly hostCard: Locator;
   readonly hostLabel: Locator;
   readonly hostName: Locator;

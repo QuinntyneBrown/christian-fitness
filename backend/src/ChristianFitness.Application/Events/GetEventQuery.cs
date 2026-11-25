@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Events;
 
 /// <summary>
-/// The listing that hosts an event, as the "Hosted by" card shows it (L2-010 AC4; ADR 0088): the
+/// The listing that hosts an event, as the "Hosted by" card shows it (L2-010 AC4; ADR 0089): the
 /// field names are the directory's, and the app works out the initials.
 /// </summary>
 public sealed record EventHostCardDto(Guid Id, string Kind, string Name, bool IsVerified, string? PhotoKey)
@@ -21,7 +21,7 @@ public sealed record EventHostCardDto(Guid Id, string Kind, string Name, bool Is
     }
 }
 
-/// <summary>An event as a member's detail screen shows it (L2-010 AC1, AC4; ADR 0031, ADR 0088); the app words the date and the price.</summary>
+/// <summary>An event as a member's detail screen shows it (L2-010 AC1, AC4; ADR 0031, ADR 0089); the app words the date and the price.</summary>
 public sealed record EventDetailDto(
     Guid Id,
     string Title,
@@ -71,7 +71,7 @@ internal sealed class GetEventHandler(IAppDbContext db, IRegistrationReader regi
             .Select(r => (RegistrationStatus?)r.Status)
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
-        // The foreign key guarantees the host; it is shown whatever the listing's status (ADR 0088).
+        // The foreign key guarantees the host; it is shown whatever the listing's status (ADR 0089).
         var host = await db.DirectoryListings.AsNoTracking()
             .SingleAsync(l => l.Id == e.HostListingId, cancellationToken)
             .ConfigureAwait(false);

@@ -1,6 +1,6 @@
 import { hostCardViewOf } from './host-card-view';
 
-// L2-010 AC4 (ADR 0088): an event's host as the "Hosted by" card reads.
+// L2-010 AC4 (ADR 0089): an event's host as the "Hosted by" card reads.
 describe('hostCardViewOf', () => {
   it('words a verified organization with initials and its profile address', () => {
     expect(

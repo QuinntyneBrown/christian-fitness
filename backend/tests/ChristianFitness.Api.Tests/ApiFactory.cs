@@ -74,7 +74,7 @@ public class ApiFactory : WebApplicationFactory<Program>
 
     /// <summary>
     /// Starts the host with the Listed Christian Fitness team listing in its store, as the
-    /// migration guarantees in a real database before any event exists (ADR 0067, ADR 0088): every
+    /// migration guarantees in a real database before any event exists (ADR 0067, ADR 0089): every
     /// event is hosted by it unless an Admin chooses another.
     /// </summary>
     protected override IHost CreateHost(IHostBuilder builder)

@@ -1,6 +1,6 @@
 import { hostChoiceViewOf, hostNoMatchesText, hostSearchTermOf } from './event-host-picker';
 
-// ADR 0088: what the Host field's text searches for, with the API's limits (2 to 100 characters).
+// ADR 0089: what the Host field's text searches for, with the API's limits (2 to 100 characters).
 describe('hostSearchTermOf', () => {
   it.each([
     { why: 'blank asks nothing', text: '', expected: null },

@@ -30,7 +30,7 @@ export interface EventPageDto {
 
 /** One event in full (`EventDetailDto`, ADR 0031): the summary's fields and its summary text. */
 /**
- * The directory listing that hosts an event (`EventHostCardDto`, ADR 0088), as the "Hosted by"
+ * The directory listing that hosts an event (`EventHostCardDto`, ADR 0089), as the "Hosted by"
  * card shows it; the app works out the initials.
  */
 export interface EventHostCardDto {

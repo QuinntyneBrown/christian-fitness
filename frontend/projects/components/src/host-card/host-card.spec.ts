@@ -19,7 +19,7 @@ function click(link: HTMLAnchorElement, init: MouseEventInit = {}): boolean {
   return event.defaultPrevented;
 }
 
-// L2-010 AC4 (ADR 0088): the host card names the host and its kind and leads to its listing.
+// L2-010 AC4 (ADR 0089): the host card names the host and its kind and leads to its listing.
 describe('HostCard', () => {
   it('reads "Hosted by · <kind>", the name as text and the Verified mark when verified', async () => {
     const { root, link } = await render({ kind: 'Instructor', initials: 'DO', verified: true });

@@ -1,7 +1,7 @@
 import type { EventHostDto } from '@cf/api';
 import { listingKindInfo } from '../directory/listing-kinds';
 
-/** The shortest search the Host picker sends, in characters (code points) after trimming (ADR 0088). */
+/** The shortest search the Host picker sends, in characters (code points) after trimming (ADR 0089). */
 export const HOST_SEARCH_MIN = 2;
 
 /** The longest search the API takes, as the directory's (ADR 0082). */
@@ -38,6 +38,6 @@ export function hostNoMatchesText(term: string): string {
   return `No Listed hosts match “${term}”. Try another search.`;
 }
 
-/** The status line when a search got no answer (ADR 0088's stand-in; no mock draws it). */
+/** The status line when a search got no answer (ADR 0089's stand-in; no mock draws it). */
 export const HOST_SEARCH_FAILED_TEXT =
   "Couldn't search hosts. Check your connection and type again.";

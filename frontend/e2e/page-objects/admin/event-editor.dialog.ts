@@ -32,7 +32,7 @@ export class EventEditorDialog {
   readonly closeButton: Locator;
   readonly title: Locator;
   readonly category: Locator;
-  /** The Host field, a search over Listed directory listings (ADR 0088). */
+  /** The Host field, a search over Listed directory listings (ADR 0089). */
   readonly host: Locator;
   readonly hostHint: Locator;
   /** The matching hosts under the Host field, each a button that chooses it. */

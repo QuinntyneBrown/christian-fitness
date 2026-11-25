@@ -2521,7 +2521,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   `main` held before planning saved redoing the migration.
 - The mock drew the host matches as `pick-card` links to other mock states. Inside a form a
   choice is a button, so the design system's `pick-list` page and the `host-searching` mock gained
-  the button form before the library's `PickCards` was built (ADR 0088).
+  the button form before the library's `PickCards` was built (ADR 0089).
 - The API test host's InMemory store had no team listing, so any event read through its host
   would have failed in every older test. `ApiFactory.CreateHost` now adds it, as the migration
   guarantees in a real database; every existing API test stayed green.
@@ -2553,4 +2553,5 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Break each rule alone" (5, 17): removing the Listed filter and the limit of 10 failed exactly
   the search tests, and removing the focus return failed the choosing spec; each was restored.
 - "Check `origin/main` and open PRs for the next ADR number right before each commit" (17): 0088
-  was free at the first commit and checked again before the push.
+  was free at the first commit, but journey 8's PR (#196) had taken it by the push, so this ADR
+  became 0089. Check again just before pushing too, not only before committing.

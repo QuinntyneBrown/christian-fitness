@@ -45,7 +45,7 @@ function answerSaves(api: ApiHandlers): { created: unknown[]; edited: unknown[] 
   return sent;
 }
 
-// L2-022 AC1, AC11 (ADR 0067, ADR 0088): the editor's required Host starts as the Listed team
+// L2-022 AC1, AC11 (ADR 0067, ADR 0089): the editor's required Host starts as the Listed team
 // listing for a new event and as the saved host for an edit, and the save sends it.
 test.describe('Admin app, an event host', () => {
   test('New event starts with the Christian Fitness team listing as its host and saves it', async ({
@@ -95,7 +95,7 @@ test.describe('Admin app, an event host', () => {
     expect(sent.edited).toEqual([expect.objectContaining({ hostListingId: DANIELLE_HOST.id })]);
   });
 
-  // L2-022 AC11 (ADR 0088): the Admin searches Listed listings and chooses one; none says so.
+  // L2-022 AC11 (ADR 0089): the Admin searches Listed listings and chooses one; none says so.
   test('searching offers the matching Listed hosts, and choosing one makes it the host', async ({
     page,
     api,
@@ -166,7 +166,7 @@ test.describe('Admin app, an event host', () => {
     await expect(editor.hostChoices).toHaveCount(1);
   });
 
-  // L2-022 AC12 (ADR 0088): a save with no Listed host is refused; the field and the summary say so.
+  // L2-022 AC12 (ADR 0089): a save with no Listed host is refused; the field and the summary say so.
   test('a save with no host shows the Host error in the field and the summary and keeps the fields', async ({
     page,
     api,

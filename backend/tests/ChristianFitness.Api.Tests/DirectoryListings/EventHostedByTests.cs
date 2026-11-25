@@ -6,7 +6,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-010 AC4 (journey 7; ADR 0088): a member's event carries its host listing, with its kind,
+/// L2-010 AC4 (journey 7; ADR 0089): a member's event carries its host listing, with its kind,
 /// name, whether it is verified and its photo, so the page shows "Hosted by" and links to it. An
 /// event keeps its host whatever the listing's status.
 /// </summary>

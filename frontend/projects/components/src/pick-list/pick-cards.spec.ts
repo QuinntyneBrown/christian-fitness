@@ -15,7 +15,7 @@ async function render(stack: boolean) {
   return { root: fixture.nativeElement as HTMLElement, picked };
 }
 
-// ADR 0088: pick cards that choose a value in a form are buttons in a labelled list.
+// ADR 0089: pick cards that choose a value in a form are buttons in a labelled list.
 describe('PickCards', () => {
   it('lists each card as a button in a list named by its label, text as text', async () => {
     const { root } = await render(true);

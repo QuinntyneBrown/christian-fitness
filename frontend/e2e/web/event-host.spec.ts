@@ -24,7 +24,7 @@ const BY_OKAFOR: EventDetail = { ...BOOTCAMP_DETAIL, host: hostCardOf(OKAFOR) };
 /** The Bootcamp hosted by Northline Athletic, an unverified company. */
 const BY_NORTHLINE: EventDetail = { ...BOOTCAMP_DETAIL, host: hostCardOf(NORTHLINE) };
 
-// L2-010 AC4 (ADR 0088): every event shows who hosts it under the registration card, with the
+// L2-010 AC4 (ADR 0089): every event shows who hosts it under the registration card, with the
 // listing's mark, kind, name and Verified mark, and leads to the listing's profile.
 test.describe('Member app, who hosts an event', () => {
   test('a team event shows "Hosted by · Organization", Christian Fitness and the Verified mark', async ({

@@ -18,7 +18,7 @@ nothing. Only staff reach these endpoints (ADR 0011); Admin-only access comes wi
 
 The event editor includes a required searchable Host picker (`L2-022` AC11–12). An Admin selects a Listed directory listing; a new event defaults to the Christian Fitness team listing and an edit retains its saved host. No results are explained in the picker. A missing or no-longer-Listed selection is refused with `validation_failed`, shown at the field and in the error summary, without losing other values. `Event.HostListingId` is non-null and existing events are backfilled as in ADR 0067.
 
-- **Host picker** (journey 7, ADR 0088) — the editor's Host field, after Category (mock states
+- **Host picker** (journey 7, ADR 0089) — the editor's Host field, after Category (mock states
   `default`, `edit`, `host-searching`, `host-selected`, `host-no-results`, `host-invalid`): the
   library's `TextField` labelled "Host (required)" with the hint "Choose a Listed directory
   listing.", and under it, while a search of 2 or more characters has matches, the library's

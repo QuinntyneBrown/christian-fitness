@@ -10,7 +10,7 @@ export interface PickCardItem {
 
 /**
  * The design system's pick cards (docs/design-system/components/pick-list.html, blocks
- * `pick-cards` and `pick-card`), in the form that chooses a value inside a form (ADR 0088): a list
+ * `pick-cards` and `pick-card`), in the form that chooses a value inside a form (ADR 0089): a list
  * named by `label`, each card a `button` with its title and meta, which emits `picked` with the
  * card's id. `stack` keeps the cards stacked at every width, as the event editor's Host picker
  * does. Titles and meta are rendered as text. The link form, which chooses the record a page shows,

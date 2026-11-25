@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC1, AC11 (ADR 0067, ADR 0088): a new event's host defaults to the Listed Christian
+/// L2-022 AC1, AC11 (ADR 0067, ADR 0089): a new event's host defaults to the Listed Christian
 /// Fitness team listing, an event is saved with the host the Admin chose, and the editor opens
 /// with the saved host.
 /// </summary>

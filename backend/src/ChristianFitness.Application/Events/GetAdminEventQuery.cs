@@ -10,7 +10,7 @@ namespace ChristianFitness.Application.Events;
 /// <summary>
 /// An event as the editor shows it (L2-022 AC7; ADR 0025): the start as the Toronto date
 /// (<c>yyyy-MM-dd</c>) and time (<c>HH:mm</c>) staff typed, the price in cents, the optional image
-/// key, how many are going and the saved host (ADR 0088).
+/// key, how many are going and the saved host (ADR 0089).
 /// </summary>
 public sealed record AdminEventDetailDto(
     Guid Id,

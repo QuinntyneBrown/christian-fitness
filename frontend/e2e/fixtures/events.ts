@@ -128,7 +128,7 @@ export function answerEvents(
   return asked;
 }
 
-/** The listing that hosts an event, as `GET /api/events/{id}` carries it (`EventHostCardDto`, ADR 0088). */
+/** The listing that hosts an event, as `GET /api/events/{id}` carries it (`EventHostCardDto`, ADR 0089). */
 export interface EventHostCard {
   id: string;
   kind: string;
@@ -148,7 +148,7 @@ export interface EventDetail extends EventSummary {
   summary: string;
   /** The caller's own registration: `confirmed` (free), `reserved` (paid) or none (ADR 0032). */
   registration: 'confirmed' | 'reserved' | null;
-  /** Its host (ADR 0088): every event has one. */
+  /** Its host (ADR 0089): every event has one. */
   host: EventHostCard;
 }
 

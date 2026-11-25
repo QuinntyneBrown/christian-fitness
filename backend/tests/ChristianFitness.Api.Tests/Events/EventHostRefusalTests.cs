@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC12 (ADR 0088): a missing host, or one that is not a Listed directory listing, is
+/// L2-022 AC12 (ADR 0089): a missing host, or one that is not a Listed directory listing, is
 /// refused with 400 <c>validation_failed</c> naming <c>hostListingId</c> in <c>fieldCodes</c>, on
 /// create and on edit, and nothing is saved. One row per case.
 /// </summary>

@@ -81,7 +81,7 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
  * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021), and
- * `GET /api/admin/events/hosts/default` answers the team listing, a new event's host (ADR 0088), and
+ * `GET /api/admin/events/hosts/default` answers the team listing, a new event's host (ADR 0089), and
  * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
  * `GET /api/admin/dashboard/activity` answers eight quiet weeks, so the Dashboard opens empty (ADR 0000), and
  * `GET /api/admin/dashboard/awaiting` answers nothing waiting (ADR 0060), and

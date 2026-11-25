@@ -114,7 +114,7 @@ export function problem(
   };
 }
 
-/** A Listed directory listing as the Host picker shows it (`EventHostDto`, ADR 0088). */
+/** A Listed directory listing as the Host picker shows it (`EventHostDto`, ADR 0089). */
 export interface EventHostFixture {
   id: string;
   kind: string;
@@ -159,7 +159,7 @@ export interface AdminEventDetailFixture {
   imageKey: string | null;
   going: number;
   status: 'draft' | 'published';
-  /** The saved host (ADR 0088). */
+  /** The saved host (ADR 0089). */
   host: EventHostFixture;
 }
 
@@ -201,7 +201,7 @@ export const RETREAT_DETAIL: AdminEventDetailFixture = {
 };
 
 /**
- * Answers `GET /api/admin/events/hosts?q=` as the API does (ADR 0088): the `hosts` whose name
+ * Answers `GET /api/admin/events/hosts?q=` as the API does (ADR 0089): the `hosts` whose name
  * holds the search, ignoring case, at most 10. `fail` answers a search, by its zero-based number,
  * with no answer at all. Returns the searches asked, in order.
  */

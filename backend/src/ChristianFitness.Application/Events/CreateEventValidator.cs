@@ -95,7 +95,7 @@ public abstract class EventFieldsValidator<T> : AbstractValidator<T>
             .Must(Present).WithErrorCode(EventFieldCodes.SummaryRequired).WithMessage("Give a summary")
             .Must(summary => summary.Trim().Length <= Event.SummaryMaxLength).WithErrorCode(EventFieldCodes.SummaryTooLong).WithMessage("Use 1,000 characters or fewer");
 
-        // A host is a Listed directory listing (L2-022 AC12; ADR 0067, ADR 0088).
+        // A host is a Listed directory listing (L2-022 AC12; ADR 0067, ADR 0089).
         RuleFor(c => c.HostListingId)
             .Must(host => host is not null).WithErrorCode(EventFieldCodes.HostRequired).WithMessage("Choose a Listed host")
             .MustAsync((host, cancellationToken) => db.DirectoryListings.AnyAsync(l => l.Id == host && l.Status == ListingStatus.Published, cancellationToken))

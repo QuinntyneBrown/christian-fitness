@@ -2,7 +2,7 @@ import type { EventHostCardDto } from '@cf/api';
 import { listingKindInfo } from './listing-kinds';
 import { directoryListingHref, listingInitials } from './listing-row-view';
 
-/** What the "Hosted by" card shows (L2-010 AC4; ADR 0088): the page passes these as they are. */
+/** What the "Hosted by" card shows (L2-010 AC4; ADR 0089): the page passes these as they are. */
 export interface HostCardView {
   /** The host's profile (L2-055). */
   href: string;

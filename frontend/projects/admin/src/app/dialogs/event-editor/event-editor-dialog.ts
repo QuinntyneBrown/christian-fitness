@@ -104,7 +104,7 @@ export class EventEditorDialog {
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
-  /** The Host search waiting for the typing to stop, and the one on its way (ADR 0088). */
+  /** The Host search waiting for the typing to stop, and the one on its way (ADR 0089). */
   private hostTimer: ReturnType<typeof setTimeout> | undefined;
   private hostSearch: Subscription | null = null;
   private hostMatches: readonly EventHostDto[] = [];
@@ -168,7 +168,7 @@ export class EventEditorDialog {
   }
 
   /**
-   * The Host field's text (ADR 0088): any edit clears the choice; from 2 characters, the matches
+   * The Host field's text (ADR 0089): any edit clears the choice; from 2 characters, the matches
    * are asked for once the typing stops, and a new edit drops a search still on its way.
    */
   protected searchHost(text: string): void {
@@ -211,7 +211,7 @@ export class EventEditorDialog {
   }
 
   /**
-   * A new event's host starts as the team listing (ADR 0088), unless staff already typed in the
+   * A new event's host starts as the team listing (ADR 0089), unless staff already typed in the
    * field; a failure leaves the field for them to search.
    */
   private askDefaultHost(): void {

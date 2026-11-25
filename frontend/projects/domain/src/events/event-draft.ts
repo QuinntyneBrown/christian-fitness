@@ -18,7 +18,7 @@ export interface EventEditorValues {
   imageKey: string | null;
   /** What the image field shows: the chosen file's name, or none. */
   imageName: string | null;
-  /** The chosen host's listing, or none while nothing is chosen (ADR 0088). */
+  /** The chosen host's listing, or none while nothing is chosen (ADR 0089). */
   hostListingId: string | null;
   /** What the Host field shows: the chosen host's name, or what is being searched. */
   hostName: string;

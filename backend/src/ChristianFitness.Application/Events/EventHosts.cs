@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
-/// <summary>A directory listing as the event editor's Host picker shows it (L2-022 AC11; ADR 0088): its kind by slug.</summary>
+/// <summary>A directory listing as the event editor's Host picker shows it (L2-022 AC11; ADR 0089): its kind by slug.</summary>
 public sealed record EventHostDto(Guid Id, string Kind, string Name)
 {
     public static EventHostDto Of(DirectoryListing listing)
@@ -17,7 +17,7 @@ public sealed record EventHostDto(Guid Id, string Kind, string Name)
     }
 }
 
-/// <summary>The host a new event starts with: the Listed Christian Fitness team listing (ADR 0067, ADR 0088).</summary>
+/// <summary>The host a new event starts with: the Listed Christian Fitness team listing (ADR 0067, ADR 0089).</summary>
 public sealed record GetDefaultEventHostQuery : IRequest<EventHostDto>;
 
 internal sealed class GetDefaultEventHostHandler(IAppDbContext db) : IRequestHandler<GetDefaultEventHostQuery, EventHostDto>
@@ -32,11 +32,11 @@ internal sealed class GetDefaultEventHostHandler(IAppDbContext db) : IRequestHan
     }
 }
 
-/// <summary>The Host picker's matches (L2-022 AC11; ADR 0088), at most <see cref="SearchEventHostsQuery.Limit"/>.</summary>
+/// <summary>The Host picker's matches (L2-022 AC11; ADR 0089), at most <see cref="SearchEventHostsQuery.Limit"/>.</summary>
 public sealed record EventHostListDto(IReadOnlyList<EventHostDto> Hosts);
 
 /// <summary>
-/// Listed directory listings whose folded name contains the folded search, in name order (ADR 0088).
+/// Listed directory listings whose folded name contains the folded search, in name order (ADR 0089).
 /// A search under 2 characters answers none; the directory's rules fold and escape it (ADR 0082).
 /// </summary>
 public sealed record SearchEventHostsQuery(string? Q) : IRequest<EventHostListDto>

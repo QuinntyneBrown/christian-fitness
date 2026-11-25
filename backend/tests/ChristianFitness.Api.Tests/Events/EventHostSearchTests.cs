@@ -6,7 +6,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Api.Tests.Events;
 
 /// <summary>
-/// L2-022 AC11 (ADR 0088): the Host picker searches Listed directory listings by name: folded,
+/// L2-022 AC11 (ADR 0089): the Host picker searches Listed directory listings by name: folded,
 /// at most 10 in name order, from 2 characters; nothing that is not Listed is offered.
 /// </summary>
 public sealed class EventHostSearchTests(AdminEventsFactory factory) : IClassFixture<AdminEventsFactory>

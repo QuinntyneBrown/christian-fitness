@@ -94,7 +94,7 @@ public sealed class CreateEventValidatorTests
         Assert.All(codes, code => Assert.Contains(code, EventFieldCodes.All));
     }
 
-    /// <summary>A store holding one Listed listing, one draft and one removed (ADR 0088).</summary>
+    /// <summary>A store holding one Listed listing, one draft and one removed (ADR 0089).</summary>
     private static async Task<AppDbContext> ListingsAsync()
     {
         var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase($"validator-{Guid.NewGuid():N}").Options);

@@ -41,7 +41,7 @@ export interface AdminEventListDto {
   events: AdminEventDto[];
 }
 
-/** A Listed directory listing as the editor's Host picker shows it (`EventHostDto`, ADR 0088). */
+/** A Listed directory listing as the editor's Host picker shows it (`EventHostDto`, ADR 0089). */
 export interface EventHostDto {
   id: string;
   kind: ListingKind;
@@ -70,7 +70,7 @@ export interface CreateEventRequestDto {
   summary: string;
   /** The image `uploadImage` kept, or none (ADR 0025). */
   imageKey?: string | null;
-  /** The chosen host's listing, or none, which the API refuses with `host_required` (ADR 0088). */
+  /** The chosen host's listing, or none, which the API refuses with `host_required` (ADR 0089). */
   hostListingId: string | null;
 }
 
@@ -96,7 +96,7 @@ export interface AdminEventDetailDto {
   imageKey?: string | null;
   going: number;
   status: EventStatus;
-  /** The saved host (ADR 0088). */
+  /** The saved host (ADR 0089). */
   host: EventHostDto;
 }
 
@@ -132,12 +132,12 @@ export interface AdminEventsApi {
    */
   create(request: CreateEventRequestDto): Observable<AdminEventDto>;
 
-  /** The host a new event starts with: the Christian Fitness team listing (ADR 0088). */
+  /** The host a new event starts with: the Christian Fitness team listing (ADR 0089). */
   defaultHost(): Observable<EventHostDto>;
 
   /**
    * The Listed listings whose name holds `q`, in name order, at most 10; a search under 2
-   * characters answers none. A failure errors with an `ApiError` (ADR 0088).
+   * characters answers none. A failure errors with an `ApiError` (ADR 0089).
    */
   searchHosts(q: string): Observable<EventHostListDto>;
 
