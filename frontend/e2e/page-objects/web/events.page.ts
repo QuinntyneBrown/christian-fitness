@@ -85,6 +85,21 @@ export class WebEventsPage {
     await this.page.goto(category ? `/events?category=${encodeURIComponent(category)}` : '/events');
   }
 
+  /** Opens Events at an address with its query, such as `?q=hoops&going=true`. */
+  async openWith(query: string): Promise<void> {
+    await this.page.goto(`/events${query}`);
+  }
+
+  /** The "Search events" field (L2-075; ADR 0081). */
+  get search(): Locator {
+    return this.page.getByRole('searchbox', { name: 'Search events' });
+  }
+
+  /** Types `text` into the search a key at a time, as a member does. */
+  async typeSearch(text: string): Promise<void> {
+    await this.search.pressSequentially(text);
+  }
+
   title(): Promise<string> {
     return this.page.title();
   }

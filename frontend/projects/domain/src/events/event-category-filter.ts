@@ -1,12 +1,5 @@
 import type { EventCategory } from '@cf/api';
-import { EVENT_CATEGORIES, eventCategoryLabel } from './admin-event-tabs';
-
-/** One filter chip on the member Events screen (L2-009 AC2; ADR 0030). */
-export interface EventCategoryChipView {
-  label: string;
-  href: string;
-  current: boolean;
-}
+import { EVENT_CATEGORIES } from './admin-event-tabs';
 
 const KNOWN_CATEGORIES: ReadonlySet<string> = new Set(EVENT_CATEGORIES);
 
@@ -16,18 +9,6 @@ const KNOWN_CATEGORIES: ReadonlySet<string> = new Set(EVENT_CATEGORIES);
  */
 export function eventCategoryOf(raw: string | null): EventCategory | null {
   return raw !== null && KNOWN_CATEGORIES.has(raw) ? (raw as EventCategory) : null;
-}
-
-/** All and the six categories, with their addresses and `current` marked (mock `events/filtered`). */
-export function eventCategoryChips(current: EventCategory | null): EventCategoryChipView[] {
-  return [
-    { label: 'All', href: '/events', current: current === null },
-    ...EVENT_CATEGORIES.map((category) => ({
-      label: eventCategoryLabel(category),
-      href: `/events?category=${category}`,
-      current: current === category,
-    })),
-  ];
 }
 
 /** The no-results sentence for a category with no matching events (L2-009 AC3; mock `events/no-results`). */

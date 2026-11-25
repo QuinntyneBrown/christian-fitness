@@ -26,12 +26,28 @@ public sealed record EventPageDto(IReadOnlyList<EventSummaryDto> Events, string?
 
 /// <summary>
 /// The published events that have not started, soonest first, 20 to a page after the opaque
-/// <paramref name="Cursor"/>, of one category when <paramref name="Category"/> names it (L2-009 AC1, AC2,
-/// AC4, AC5; ADR 0027, ADR 0030).
+/// <see cref="Cursor"/>, of one category when <see cref="Category"/> names it, whose title contains
+/// <see cref="Search"/> in any case (L2-009 AC1, AC2, AC4, AC5; L2-075; ADR 0027, ADR 0030,
+/// ADR 0081). A class, not a record, so no generated <c>ToString</c> can print what a member typed.
 /// </summary>
-public sealed record ListEventsQuery(string? Cursor, string? Category = null) : IRequest<EventPageDto>
+public sealed class ListEventsQuery(string? cursor, string? category = null, string? search = null) : IRequest<EventPageDto>
 {
     public const int PageSize = 20;
+
+    public string? Cursor { get; } = cursor;
+
+    public string? Category { get; } = category;
+
+    /// <summary>What a title must contain, in any case, once trimmed; none or blank narrows nothing.</summary>
+    public string? Search { get; } = search;
+}
+
+/// <summary>The search rule (L2-075 AC2, AC3; ADR 0081): trimmed, compared in lower case, blank is none.</summary>
+public static class EventSearch
+{
+    /// <summary>The lower-case term a title must contain, or none for no text or blank text.</summary>
+    public static string? TermOf(string? text) =>
+        string.IsNullOrWhiteSpace(text) ? null : text.Trim().ToLowerInvariant();
 }
 
 /// <summary>A cursor or category this API does not know is refused with <c>cursor_invalid</c> or <c>category_invalid</c>.</summary>
@@ -96,6 +112,13 @@ internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader re
         if (EventNames.CategoryOf(request.Category) is { } category)
         {
             events = events.Where(e => e.Category == category);
+        }
+
+        if (EventSearch.TermOf(request.Search) is { } term)
+        {
+#pragma warning disable CA1304, CA1311, CA1862 // Translated by EF Core to the database's lower(); no culture is involved.
+            events = events.Where(e => e.Title.ToLower().Contains(term));
+#pragma warning restore CA1304, CA1311, CA1862
         }
 
         if (request.Cursor is not null && EventCursor.TryParse(request.Cursor, out var after))

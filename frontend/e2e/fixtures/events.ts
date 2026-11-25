@@ -78,30 +78,41 @@ export interface EventsAsked {
   /** The `cursor` of each request, in order; `null` for the first page. */
   cursors: (string | null)[];
   categories: (string | null)[];
+  /** The `q` of each request, as sent; `null` when there was none (ADR 0081). */
+  searches: (string | null)[];
 }
 
 /**
  * Answers `GET /api/events` from `events`, 20 to a page, the cursor being the index of the next one
- * (opaque to the app). `fail` may refuse a request, by its zero-based number, as a reply.
+ * (opaque to the app). As the API does, `category` keeps one category and `q`, trimmed, keeps the
+ * titles that contain it in any case, blank narrowing nothing (ADR 0081). `fail` may refuse a
+ * request, by its zero-based number, as a reply.
  */
 export function answerEvents(
   api: ApiHandlers,
   events: EventSummary[],
   fail: (requestNumber: number) => { status?: number; abort?: boolean } | null = () => null,
 ): EventsAsked {
-  const asked: EventsAsked = { cursors: [], categories: [] };
+  const asked: EventsAsked = { cursors: [], categories: [], searches: [] };
   api.on('GET', '/api/events', (request) => {
     const number = asked.cursors.length;
-    const cursor = new URL(request.url()).searchParams.get('cursor');
-    const category = new URL(request.url()).searchParams.get('category');
+    const params = new URL(request.url()).searchParams;
+    const cursor = params.get('cursor');
+    const category = params.get('category');
+    const search = params.get('q');
     asked.categories.push(category);
     asked.cursors.push(cursor);
+    asked.searches.push(search);
     const refusal = fail(number);
     if (refusal?.abort) return { abort: true };
     if (refusal) return { status: refusal.status ?? 400, json: { code: 'error' } };
     const from = cursor === null ? 0 : Number(cursor);
-    const matches =
-      category === null ? events : events.filter((event) => event.category === category);
+    const term = (search ?? '').trim().toLowerCase();
+    const matches = events.filter(
+      (event) =>
+        (category === null || event.category === category) &&
+        event.title.toLowerCase().includes(term),
+    );
     const page = matches.slice(from, from + 20);
     const next = from + 20 < matches.length ? String(from + 20) : null;
     return { json: { events: page, nextCursor: next } };

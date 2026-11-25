@@ -5,6 +5,12 @@
         <h1 class="display page-title">Events</h1>
         <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
       </div>
+      <cf-search-field
+        label="Search events"
+        placeholder="Search events"
+        [value]="term()"
+        (valueChange)="onSearch($event)"
+      />
     </div>
     <cf-chip-bar label="Filter events">
       @for (chip of chips(); track chip.href) {

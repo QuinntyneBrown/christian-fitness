@@ -47,6 +47,7 @@ export * from './events/event-card-view';
 export * from './events/event-detail-view';
 export * from './events/event-full';
 export * from './events/event-category-filter';
+export * from './events/event-list-query';
 export * from './events/event-draft';
 export * from './events/event-feed';
 export * from './events/event-refusal';
