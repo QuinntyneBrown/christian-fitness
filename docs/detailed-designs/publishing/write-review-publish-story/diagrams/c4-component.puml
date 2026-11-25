@@ -13,7 +13,7 @@ Container_Boundary(adminApp, "Admin web app") {
 Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "AdminStoriesController", "ASP.NET Core controller, Publishing area", "api/admin/stories")
   Component(val, "StoryFieldsValidator, PublishStoryValidator", "FluentValidation", "Field codes")
-  Component(cmds, "Story command handlers", "MediatR handlers", "Save, submit, request changes, publish, schedule, unschedule, unpublish")
+  Component(cmds, "Story command handlers", "MediatR handlers", "Save, submit, return to draft, publish, schedule, unschedule, unpublish")
   Component(ent, "Story", "Domain entity", "Status transitions, slug, version")
   Component(clock, "PublishingClock", "BackgroundService", "Sends PublishDueStoriesCommand every 30 s")
   Component(audit, "AuditTrail", "Application service", "One entry per status change")

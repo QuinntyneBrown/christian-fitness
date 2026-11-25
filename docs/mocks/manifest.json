@@ -1187,6 +1187,65 @@
         "empty",
         "error"
       ]
+    },
+    {
+      "id": "admin-bylines",
+      "kind": "page",
+      "title": "Manage bylines",
+      "group": "Admin console",
+      "route": "/admin/stories/bylines",
+      "source": "Derived: the story editor's Byline picker needs a list to read; the prototype draws a fixed one (L2-077).",
+      "requirements": [
+        "L2-077"
+      ],
+      "states": [
+        "default",
+        "saved",
+        "removed",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
+      "id": "byline-editor",
+      "kind": "dialog",
+      "title": "Add or edit a byline",
+      "group": "Admin console",
+      "opens_from": "admin-bylines",
+      "source": "Derived: the story editor's Byline picker and the Listing editor's form; the prototype draws no byline form (L2-077).",
+      "requirements": [
+        "L2-077"
+      ],
+      "states": [
+        "default",
+        "edit",
+        "invalid",
+        "busy",
+        "failed",
+        "refused"
+      ]
+    },
+    {
+      "id": "remove-byline",
+      "kind": "dialog",
+      "title": "Remove a byline",
+      "group": "Admin console",
+      "opens_from": "admin-bylines",
+      "source": "Derived: the Remove a listing dialog; the prototype draws no byline list (L2-077).",
+      "requirements": [
+        "L2-077"
+      ],
+      "states": [
+        "default",
+        "in-use",
+        "busy",
+        "failed",
+        "refused"
+      ],
+      "not_applicable": {
+        "invalid": "There is nothing to type: it asks one question."
+      }
     }
   ]
 }
