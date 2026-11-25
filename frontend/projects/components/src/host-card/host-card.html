@@ -1,0 +1,16 @@
+<a class="host-card" [href]="href()" (click)="follow($event)">
+  <cf-listing-mark [initials]="initials()" [photoSrc]="photoSrc()" [person]="person()" />
+  <span class="host-card__body">
+    <span class="host-card__label">{{ kind() ? 'Hosted by · ' + kind() : 'Hosted by' }}</span>
+    <span class="host-card__name"
+      ><span>{{ name() }}</span>
+      @if (verified()) {
+        <cf-verified-mark />
+      }
+    </span>
+  </span>
+  <svg class="icon host-card__arrow" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
+  </svg>
+</a>

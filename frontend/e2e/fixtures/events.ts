@@ -1,3 +1,4 @@
+import { type ListingProfileFixture, TEAM } from './listing-profile';
 import type { ApiHandlers } from './api-handlers';
 
 /** An event as `GET /api/events` answers it (ADR 0027): the app words the date and the price. */
@@ -127,11 +128,28 @@ export function answerEvents(
   return asked;
 }
 
+/** The listing that hosts an event, as `GET /api/events/{id}` carries it (`EventHostCardDto`, ADR 0089). */
+export interface EventHostCard {
+  id: string;
+  kind: string;
+  name: string;
+  isVerified: boolean;
+  photoKey: string | null;
+}
+
+/** A listing profile's fields as its events carry it as their host. */
+export function hostCardOf(profile: ListingProfileFixture): EventHostCard {
+  const { id, kind, name, isVerified, photoKey } = profile;
+  return { id, kind, name, isVerified, photoKey };
+}
+
 /** An event as `GET /api/events/{id}` answers it (ADR 0031): the summary's fields and its summary text. */
 export interface EventDetail extends EventSummary {
   summary: string;
   /** The caller's own registration: `confirmed` (free), `reserved` (paid) or none (ADR 0032). */
   registration: 'confirmed' | 'reserved' | null;
+  /** Its host (ADR 0089): every event has one. */
+  host: EventHostCard;
 }
 
 /** The first event in full: the mock `event-detail/unregistered`, 12 of 50 spots left. */
@@ -139,6 +157,7 @@ export const BOOTCAMP_DETAIL: EventDetail = {
   ...BOOTCAMP,
   summary: 'Forty-five minutes of full-body circuits for every level. Bring a mat and water.',
   registration: null,
+  host: hostCardOf(TEAM),
 };
 
 /** A free event in full, 142 of 200 going and the member not yet registered. */
@@ -146,6 +165,7 @@ export const SUNRISE_DETAIL: EventDetail = {
   ...SUNRISE_5K,
   summary: 'Run the waterfront together at sunrise.',
   registration: null,
+  host: hostCardOf(TEAM),
 };
 
 /**

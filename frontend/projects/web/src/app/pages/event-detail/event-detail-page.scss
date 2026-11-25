@@ -1,5 +1,5 @@
 // The page's own layout (docs/design-system/assets/components.css: "split--detail", "banner-image",
-// "eyebrow", "detail-title", "block-section", "prose", "sticky-aside", "register__*", "posted-by");
+// "eyebrow", "detail-title", "block-section", "prose", "sticky-aside", "register__*"); the host card is the library's.
 // the back link, the facts, the card, the skeletons and the error screens are the library's.
 :host {
   display: block;
@@ -177,11 +177,4 @@
   padding-top: var(--space-5);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-}
-
-.event-detail__posted-by {
-  margin-top: var(--space-4);
-  padding-inline: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-fg-muted);
 }

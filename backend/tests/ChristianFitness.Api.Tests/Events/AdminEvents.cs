@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
 using ChristianFitness.Api.Tests.Admin;
+using ChristianFitness.Domain.Directory;
+using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -28,6 +30,7 @@ internal static class AdminEvents
         ["priceCents"] = 34000,
         ["capacity"] = 60,
         ["summary"] = "Three days of trail runs, strength sessions, worship by the lake and real rest. Meals and cabins included.",
+        ["hostListingId"] = Domain.Directory.DirectoryListing.TeamListingId,
     };
 
     /// <summary>Signs a new staff member with <paramref name="email"/> in to the admin app; answers the staff session cookie.</summary>
@@ -74,5 +77,30 @@ public class AdminEventsFactory : ApiFactory
         base.ConfigureServices(services);
         services.RemoveAll<TimeProvider>();
         services.AddSingleton<TimeProvider>(Time);
+    }
+
+    /// <summary>Puts a directory listing in the store, as staff's check will (ADR 0082): Listed unless <paramref name="status"/> says otherwise.</summary>
+    public async Task<Guid> AddListingAsync(ListingKind kind, string name, ListingStatus status = ListingStatus.Published, bool verified = false)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var listing = DirectoryListing.CreateDraft(Guid.CreateVersion7(), kind, name, "A tagline", "Toronto", [], Time.GetUtcNow(), string.Empty, null, verified);
+        if (status is ListingStatus.Published or ListingStatus.Removed)
+        {
+            listing.Publish(Time.GetUtcNow());
+        }
+
+        if (status == ListingStatus.Removed)
+        {
+            listing.Remove();
+        }
+        else if (status == ListingStatus.Declined)
+        {
+            listing.Decline();
+        }
+
+        db.DirectoryListings.Add(listing);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return listing.Id;
     }
 }

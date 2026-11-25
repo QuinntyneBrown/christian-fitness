@@ -4,6 +4,7 @@ import type { ApiError } from '@cf/api';
 export type EventFieldKey =
   | 'title'
   | 'category'
+  | 'host'
   | 'date'
   | 'startTime'
   | 'place'
@@ -20,6 +21,7 @@ export type EventFieldErrors = Partial<Record<EventFieldKey, string>>;
 export const EVENT_FIELD_ORDER: readonly EventFieldKey[] = [
   'title',
   'category',
+  'host',
   'date',
   'startTime',
   'place',
@@ -34,6 +36,7 @@ export const EVENT_FIELD_ORDER: readonly EventFieldKey[] = [
 export const EVENT_FIELD_IDS: Record<EventFieldKey, string> = {
   title: 'f-title',
   category: 'f-category',
+  host: 'f-host',
   date: 'f-date',
   startTime: 'f-time',
   place: 'f-place',
@@ -57,6 +60,7 @@ const FIELD_OF_KEY: Record<string, EventFieldKey> = {
   summary: 'summary',
   imageKey: 'image',
   image: 'image',
+  hostListingId: 'host',
 };
 
 /** What each field code says to staff, in the mock's words (ADR 0021, ADR 0025). */
@@ -77,6 +81,8 @@ const MESSAGES: Record<string, string> = {
   summary_required: 'Give a summary',
   summary_too_long: 'Use 1,000 characters or fewer',
   image_invalid: 'Use a JPEG, PNG or WebP image up to 5 MB',
+  host_required: 'Choose a Listed host',
+  host_not_listed: 'Choose a Listed host',
 };
 
 const UNKNOWN_CODE = 'Check this field';

@@ -32,6 +32,13 @@ export class EventEditorDialog {
   readonly closeButton: Locator;
   readonly title: Locator;
   readonly category: Locator;
+  /** The Host field, a search over Listed directory listings (ADR 0089). */
+  readonly host: Locator;
+  readonly hostHint: Locator;
+  /** The matching hosts under the Host field, each a button that chooses it. */
+  readonly hostChoices: Locator;
+  /** The line under the Host field saying a search found nothing or failed. */
+  readonly hostStatus: Locator;
   readonly date: Locator;
   readonly startTime: Locator;
   readonly place: Locator;
@@ -70,6 +77,12 @@ export class EventEditorDialog {
     this.closeButton = this.dialog.getByRole('button', { name: 'Close' });
     this.title = this.dialog.getByLabel('Title');
     this.category = this.dialog.getByLabel('Category');
+    this.host = this.dialog.getByLabel('Host (required)');
+    this.hostHint = this.dialog.locator('#f-host-hint');
+    this.hostChoices = this.dialog
+      .getByRole('list', { name: 'Matching hosts' })
+      .locator('.pick-card');
+    this.hostStatus = this.dialog.locator('#f-host-status');
     this.date = this.dialog.getByLabel('Date');
     this.startTime = this.dialog.getByLabel('Start time');
     this.place = this.dialog.getByLabel('Place');
@@ -111,6 +124,21 @@ export class EventEditorDialog {
     await this.price.fill(values.price);
     await this.capacity.fill(values.capacity);
     await this.summary.fill(values.summary);
+  }
+
+  /** Types `text` into the Host field, as a person searching for a host does. */
+  async searchHost(text: string): Promise<void> {
+    await this.host.fill(text);
+  }
+
+  /** Chooses the matching host named `name`. */
+  async chooseHost(name: string): Promise<void> {
+    await this.hostChoices.filter({ hasText: name }).click();
+  }
+
+  /** Whether the Host field has focus. */
+  async hostIsFocused(): Promise<boolean> {
+    return this.host.evaluate((element) => element === document.activeElement);
   }
 
   async saveDraft(): Promise<void> {

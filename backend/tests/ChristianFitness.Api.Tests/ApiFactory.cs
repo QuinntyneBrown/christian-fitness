@@ -2,6 +2,8 @@ using System.Net;
 using System.Security.Cryptography;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Email;
+using ChristianFitness.Application.Seeding;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace ChristianFitness.Api.Tests;
 
@@ -67,6 +70,25 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddSingleton<IStartupFilter, ClientAddressStartupFilter>();
             ConfigureServices(services);
         });
+    }
+
+    /// <summary>
+    /// Starts the host with the Listed Christian Fitness team listing in its store, as the
+    /// migration guarantees in a real database before any event exists (ADR 0067, ADR 0089): every
+    /// event is hosted by it unless an Admin chooses another.
+    /// </summary>
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        var host = base.CreateHost(builder);
+        using var scope = host.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (!db.DirectoryListings.Any(l => l.Id == DirectoryListing.TeamListingId))
+        {
+            new DirectoryListingSeed(DirectoryListingSeed.Team, scope.ServiceProvider.GetRequiredService<TimeProvider>()).Apply(db);
+            db.SaveChanges();
+        }
+
+        return host;
     }
 
     /// <summary>Where a derived fixture swaps or adds services (fault injection, exporters).</summary>

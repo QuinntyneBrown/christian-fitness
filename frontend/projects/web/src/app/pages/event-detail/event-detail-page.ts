@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import type { DialogRef } from '@angular/cdk/dialog';
 import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EVENTS_SERVICE, type EventDetailDto } from '@cf/api';
 import {
   Button,
@@ -12,11 +12,18 @@ import {
   DescriptionList,
   EmptyState,
   ErrorPage,
+  HostCard,
   Link,
   Skeleton,
   SkeletonRegion,
 } from '@cf/components';
-import { type EventDetailView, eventDetailViewOf, isEventFull } from '@cf/domain';
+import {
+  type EventDetailView,
+  eventDetailViewOf,
+  type HostCardView,
+  hostCardViewOf,
+  isEventFull,
+} from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import type {
   CancelRegistrationDialog,
@@ -36,6 +43,8 @@ import { HttpEventsService } from '../../services/http-events.service';
  * last place first (ADR 0033). "Can't make it" opens the Cancel registration dialog (L2-012; ADR 0034),
  * whose code and the CDK Dialog load on first use; confirming frees the place and the page shows
  * Register again. A registered member also sees a Group chat link to the event's chat (L2-010 AC3; ADR 0039).
+ * Under the registration card, "Hosted by" names the event's host and leads to its profile
+ * (L2-010 AC4; ADR 0089).
  */
 @Component({
   selector: 'cf-event-detail-page',
@@ -46,6 +55,7 @@ import { HttpEventsService } from '../../services/http-events.service';
     DescriptionList,
     EmptyState,
     ErrorPage,
+    HostCard,
     Link,
     Skeleton,
     SkeletonRegion,
@@ -62,12 +72,15 @@ export default class EventDetailPage {
   private registration: Subscription | null = null;
   private current: EventDetailDto | null = null;
   private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
   /** The Cancel registration dialog while it shows, or `true` while its code loads: one at a time. */
   private dialog: DialogRef<CancelRegistrationResult, CancelRegistrationDialog> | true | null =
     null;
 
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
   protected readonly event = signal<EventDetailView | null>(null);
+  /** Who hosts it, under the registration card (L2-010 AC4; ADR 0089). */
+  protected readonly host = signal<HostCardView | null>(null);
   protected readonly chatHref = signal('');
   protected readonly registering = signal(false);
   protected readonly registerFailed = signal(false);
@@ -147,6 +160,12 @@ export default class EventDetailPage {
   private show(event: EventDetailDto): void {
     this.current = event;
     this.event.set(eventDetailViewOf(event));
+    this.host.set(hostCardViewOf(event.host));
+  }
+
+  /** Opens the host's profile in the app. */
+  protected openHost(href: string): void {
+    void this.router.navigateByUrl(href);
   }
 
   private load(): void {

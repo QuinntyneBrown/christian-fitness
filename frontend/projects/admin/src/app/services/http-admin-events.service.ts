@@ -7,6 +7,8 @@ import type {
   AdminEventsApi,
   AdminEventTab,
   CreateEventRequestDto,
+  EventHostDto,
+  EventHostListDto,
   EventImageDto,
   EventRegistrationsDto,
   UpdateEventRequestDto,
@@ -31,6 +33,18 @@ export class HttpAdminEventsService implements AdminEventsApi {
 
   create(request: CreateEventRequestDto): Observable<AdminEventDto> {
     return this.http.post<AdminEventDto>('/api/admin/events', request).pipe(catchError(asApiError));
+  }
+
+  defaultHost(): Observable<EventHostDto> {
+    return this.http
+      .get<EventHostDto>('/api/admin/events/hosts/default')
+      .pipe(catchError(asApiError));
+  }
+
+  searchHosts(q: string): Observable<EventHostListDto> {
+    return this.http
+      .get<EventHostListDto>('/api/admin/events/hosts', { params: { q } })
+      .pipe(catchError(asApiError));
   }
 
   get(id: string): Observable<AdminEventDetailDto> {

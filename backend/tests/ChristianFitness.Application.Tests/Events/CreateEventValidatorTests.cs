@@ -1,4 +1,7 @@
 using ChristianFitness.Application.Events;
+using ChristianFitness.Domain.Directory;
+using ChristianFitness.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 
 namespace ChristianFitness.Application.Tests.Events;
@@ -12,6 +15,9 @@ public sealed class CreateEventValidatorTests
 {
     private static readonly DateTimeOffset Now = new(2026, 4, 15, 12, 45, 0, TimeSpan.Zero);
     private const string StoredKey = "0123456789abcdef0123456789abcdef.jpg";
+    private static readonly Guid Listed = new("0193a9c0-0000-7000-8000-0000000000a1");
+    private static readonly Guid Draft = new("0193a9c0-0000-7000-8000-0000000000a2");
+    private static readonly Guid Removed = new("0193a9c0-0000-7000-8000-0000000000a3");
 
     public static TheoryData<string, string, object?, string?> Cases() => new()
     {
@@ -60,6 +66,11 @@ public sealed class CreateEventValidatorTests
         { "an image that is stored", "ImageKey", StoredKey, null },
         { "an image that is not stored", "ImageKey", "fedcba9876543210fedcba9876543210.png", "ImageKey:image_invalid" },
         { "an image key that is a path", "ImageKey", "../../secret.jpg", "ImageKey:image_invalid" },
+        { "no host", "HostListingId", null, "HostListingId:host_required" },
+        { "a Listed host", "HostListingId", Listed.ToString(), null },
+        { "a host no listing has", "HostListingId", Guid.Empty.ToString(), "HostListingId:host_not_listed" },
+        { "a draft listing as host", "HostListingId", Draft.ToString(), "HostListingId:host_not_listed" },
+        { "a removed listing as host", "HostListingId", Removed.ToString(), "HostListingId:host_not_listed" },
     };
 
     [Theory]
@@ -68,7 +79,8 @@ public sealed class CreateEventValidatorTests
     {
         var command = With(field, value);
 
-        var result = await new CreateEventValidator(new FakeTimeProvider(Now), new FakeImageStore(StoredKey)).ValidateAsync(command, TestContext.Current.CancellationToken);
+        await using var db = await ListingsAsync();
+        var result = await new CreateEventValidator(new FakeTimeProvider(Now), new FakeImageStore(StoredKey), db).ValidateAsync(command, TestContext.Current.CancellationToken);
 
         var actual = result.Errors.Select(e => $"{e.PropertyName}:{e.ErrorCode}").ToList();
         Assert.True((expected is null ? [] : new[] { expected }).SequenceEqual(actual), $"{why}: {string.Join(", ", actual)}");
@@ -80,6 +92,21 @@ public sealed class CreateEventValidatorTests
         var codes = Cases().Select(row => (string?)row.Data.Item4).OfType<string>().Select(e => e.Split(':')[1]).Distinct(StringComparer.Ordinal);
 
         Assert.All(codes, code => Assert.Contains(code, EventFieldCodes.All));
+    }
+
+    /// <summary>A store holding one Listed listing, one draft and one removed (ADR 0089).</summary>
+    private static async Task<AppDbContext> ListingsAsync()
+    {
+        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase($"validator-{Guid.NewGuid():N}").Options);
+        DirectoryListing Made(Guid id, string name) => DirectoryListing.CreateDraft(id, ListingKind.Organization, name, "A tagline", "Toronto", [], Now, string.Empty, null, false);
+        var listed = Made(Listed, "Listed Club");
+        listed.Publish(Now);
+        var removed = Made(Removed, "Removed Club");
+        removed.Publish(Now);
+        removed.Remove();
+        db.DirectoryListings.AddRange(listed, Made(Draft, "Draft Club"), removed);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return db;
     }
 
     /// <summary>Whole Life Retreat from the event editor mock, with <paramref name="field"/> set to <paramref name="value"/>.</summary>
@@ -98,6 +125,7 @@ public sealed class CreateEventValidatorTests
             Capacity = field == "Capacity" ? (int?)value : 60,
             Summary = field == "Summary" ? (string)value! : "Three days of trail runs, strength sessions, worship by the lake and real rest.",
             ImageKey = field == "ImageKey" ? (string?)value : null,
+            HostListingId = field == "HostListingId" ? (value is null ? null : Guid.Parse((string)value)) : Listed,
         };
     }
 }

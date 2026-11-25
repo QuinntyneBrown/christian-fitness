@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 14% (6 of 36 journeys; 16 of 113 days)
+**% complete:** 22% (8 of 36 journeys; 21 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2510,3 +2510,49 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Break each rule alone" (5, 17): the race catch, the pruning, the window's `>`, the limit of 60, the suspension check, the in-flight guard and the refusal rollback each failed exactly their own tests when broken, and were restored from a scratchpad copy.
 - "Run `npm test` after every contract change" (6): the three domain fixtures that build a row or profile DTO were updated in slice 1, when `following` joined the contracts.
 - "Check `origin/main` and open PRs for the next ADR number right before each commit" (17): checked before the first commit and again at the rebase.
+
+## Journey 7: See who hosts an event
+
+**What slowed it**
+
+- Journeys 5 and 6 had already built two of the four planned slices: `Event.HostListingId` with
+  its backfill migration and default (ADR 0082), and the profile's Hosting section (ADR 0087). The
+  journey became the editor's Host picker, its refusal and the "Hosted by" card; reading what
+  `main` held before planning saved redoing the migration.
+- The mock drew the host matches as `pick-card` links to other mock states. Inside a form a
+  choice is a button, so the design system's `pick-list` page and the `host-searching` mock gained
+  the button form before the library's `PickCards` was built (ADR 0089).
+- The API test host's InMemory store had no team listing, so any event read through its host
+  would have failed in every older test. `ApiFactory.CreateHost` now adds it, as the migration
+  guarantees in a real database; every existing API test stayed green.
+- Every member event answer (read, register, cancel) builds `EventDetailDto`, so the host had to
+  join all three handlers, not only `GetEventQuery`; an API test registers and cancels to prove
+  the card survives both.
+- A wait loop grepping `ng serve`'s log for "Local:" never ended: the line carries colour codes
+  between "Local" and the colon.
+
+**New lessons**
+
+- A search a refusal names by its top-level code (`query_too_long`) is not a `fieldCodes` entry:
+  `ProblemCodes` promotes it. Read how an existing rule is answered before writing the ADR's
+  wording for a copy of it.
+- A rule that reads the store (a host must be a Listed listing) belongs in the validator with an
+  `IAppDbContext`, so it is refused with the other fields' codes in one answer; its direct test
+  gives the validator an InMemory `AppDbContext` holding one listing per status.
+- A live region that starts empty is kept in the page but out of the flow (`:empty { position:
+  absolute }`), not `display: none`, so a later sentence is announced and an empty one adds no gap.
+
+**How earlier lessons worked**
+
+- "Never bind `[class.x]`" (5): `pick-cards` composes its class with `[attr.class]`; the initial
+  totals stayed at main's after every slice: web 278.18 kB (278.21 kB once rebased on journey
+  8's token) and admin 279.98 kB.
+- "A `setTimeout` cleared on each key and on destroy, not `debounceTime`" (4): the Host search
+  waits 250 ms that way.
+- "Prove in-app routing with a component test" (6): `HostCard` has one; the e2e test only proves
+  the profile opens.
+- "Break each rule alone" (5, 17): removing the Listed filter and the limit of 10 failed exactly
+  the search tests, and removing the focus return failed the choosing spec; each was restored.
+- "Check `origin/main` and open PRs for the next ADR number right before each commit" (17): 0088
+  was free at the first commit, but journey 8's PR (#196) had taken it by the push, so this ADR
+  became 0089. Check again just before pushing too, not only before committing.

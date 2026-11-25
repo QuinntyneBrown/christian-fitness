@@ -1,5 +1,6 @@
 import {
   BOOTCAMP_DETAIL,
+  DANIELLE_HOST,
   eventList,
   PUBLISHED_EVENTS,
   problem,
@@ -26,6 +27,7 @@ const SAVED_REQUEST = {
   capacity: 50,
   summary: BOOTCAMP_DETAIL.summary,
   imageKey: KEPT_KEY,
+  hostListingId: DANIELLE_HOST.id,
 };
 
 interface Sent {

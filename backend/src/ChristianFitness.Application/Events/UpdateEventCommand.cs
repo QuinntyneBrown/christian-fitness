@@ -26,7 +26,7 @@ public sealed class UpdateEventCommand : EventFields, IRequest<AdminEventDto>, I
 }
 
 /// <summary>The rules of an edit; the start is checked by the handler, which knows what was stored.</summary>
-public sealed class UpdateEventValidator(TimeProvider time, IImageStore images) : EventFieldsValidator<UpdateEventCommand>(time, images, refusePastStart: false)
+public sealed class UpdateEventValidator(TimeProvider time, IImageStore images, IAppDbContext db) : EventFieldsValidator<UpdateEventCommand>(time, images, db, refusePastStart: false)
 {
 }
 
@@ -67,6 +67,8 @@ internal sealed class UpdateEventHandler(IAppDbContext db, TimeProvider time, IR
             capacity,
             request.Summary,
             request.ImageKey);
+        stored.HostedBy(request.HostListingId ?? throw new InvalidOperationException("The validator lets no missing host through."));
+
         audit.Record(current.Id, nameof(Event), stored.Id);
         return AdminEventDto.Of(stored, going);
     }

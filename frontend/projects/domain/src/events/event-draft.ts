@@ -18,6 +18,10 @@ export interface EventEditorValues {
   imageKey: string | null;
   /** What the image field shows: the chosen file's name, or none. */
   imageName: string | null;
+  /** The chosen host's listing, or none while nothing is chosen (ADR 0089). */
+  hostListingId: string | null;
+  /** What the Host field shows: the chosen host's name, or what is being searched. */
+  hostName: string;
 }
 
 /** A new event: the first category, every other field blank. */
@@ -33,6 +37,8 @@ export const EMPTY_EVENT_EDITOR: EventEditorValues = {
   summary: '',
   imageKey: null,
   imageName: null,
+  hostListingId: null,
+  hostName: '',
 };
 
 /** Dollars, an optional thousands comma every three digits, and up to two decimals. */
@@ -77,6 +83,7 @@ export function eventDraftOf(values: EventEditorValues): CreateEventRequestDto {
     capacity: capacityOf(values.capacity),
     summary: values.summary,
     imageKey: values.imageKey,
+    hostListingId: values.hostListingId,
   };
 }
 
@@ -110,5 +117,7 @@ export function eventEditorValuesOf(event: AdminEventDetailDto): EventEditorValu
     summary: event.summary,
     imageKey: event.imageKey ?? null,
     imageName: event.imageKey ? KEPT_IMAGE_NAME : null,
+    hostListingId: event.host.id,
+    hostName: event.host.name,
   };
 }

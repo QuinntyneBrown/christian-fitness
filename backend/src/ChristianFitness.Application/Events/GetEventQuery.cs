@@ -1,12 +1,27 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Directory;
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
-/// <summary>An event as a member's detail screen shows it (L2-010 AC1; ADR 0031); the app words the date and the price.</summary>
+/// <summary>
+/// The listing that hosts an event, as the "Hosted by" card shows it (L2-010 AC4; ADR 0089): the
+/// field names are the directory's, and the app works out the initials.
+/// </summary>
+public sealed record EventHostCardDto(Guid Id, string Kind, string Name, bool IsVerified, string? PhotoKey)
+{
+    public static EventHostCardDto Of(DirectoryListing listing)
+    {
+        ArgumentNullException.ThrowIfNull(listing);
+        return new(listing.Id, ListingKinds.SlugOf(listing.Kind), listing.Name, listing.IsVerified, listing.PhotoKey);
+    }
+}
+
+/// <summary>An event as a member's detail screen shows it (L2-010 AC1, AC4; ADR 0031, ADR 0089); the app words the date and the price.</summary>
 public sealed record EventDetailDto(
     Guid Id,
     string Title,
@@ -19,10 +34,11 @@ public sealed record EventDetailDto(
     int Going,
     string Summary,
     string? ImageKey,
-    string? Registration)
+    string? Registration,
+    EventHostCardDto Host)
 {
     /// <summary>The event as the caller sees it: <paramref name="mine"/> is their registration, if any (L2-010 AC3).</summary>
-    public static EventDetailDto Of(Event e, int going, RegistrationStatus? mine)
+    public static EventDetailDto Of(Event e, int going, RegistrationStatus? mine, DirectoryListing host)
     {
         ArgumentNullException.ThrowIfNull(e);
         return new(
@@ -32,7 +48,8 @@ public sealed record EventDetailDto(
                 RegistrationStatus.Confirmed => "confirmed",
                 RegistrationStatus.Reserved => "reserved",
                 _ => null,
-            });
+            },
+            EventHostCardDto.Of(host));
     }
 }
 
@@ -54,6 +71,10 @@ internal sealed class GetEventHandler(IAppDbContext db, IRegistrationReader regi
             .Select(r => (RegistrationStatus?)r.Status)
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
-        return EventDetailDto.Of(e, going, mine);
+        // The foreign key guarantees the host; it is shown whatever the listing's status (ADR 0089).
+        var host = await db.DirectoryListings.AsNoTracking()
+            .SingleAsync(l => l.Id == e.HostListingId, cancellationToken)
+            .ConfigureAwait(false);
+        return EventDetailDto.Of(e, going, mine, host);
     }
 }

@@ -67,6 +67,8 @@ describe('eventDraftOf', () => {
         summary: 'Meals and cabins included.',
         imageKey: null,
         imageName: null,
+        hostListingId: 'h1',
+        hostName: 'Lakeshore Runners Fellowship',
       }),
     ).toEqual({
       title: 'Whole Life Retreat',
@@ -79,6 +81,7 @@ describe('eventDraftOf', () => {
       capacity: 60,
       summary: 'Meals and cabins included.',
       imageKey: null,
+      hostListingId: 'h1',
     });
   });
 
@@ -95,6 +98,8 @@ describe('eventDraftOf', () => {
       summary: '',
       imageKey: null,
       imageName: null,
+      hostListingId: null,
+      hostName: '',
     });
     expect(eventDraftOf(EMPTY_EVENT_EDITOR)).toEqual({
       title: '',
@@ -107,6 +112,7 @@ describe('eventDraftOf', () => {
       capacity: null,
       summary: '',
       imageKey: null,
+      hostListingId: null,
     });
   });
 });
@@ -141,6 +147,7 @@ describe('eventEditorValuesOf', () => {
     summary: 'Meals and cabins included.',
     going: 36,
     status: 'draft' as const,
+    host: { id: 'h4', kind: 'instructor' as const, name: 'Danielle Okafor' },
   };
 
   it('shows the saved fields as typed, with the price text and the capacity as text', () => {
@@ -156,6 +163,8 @@ describe('eventEditorValuesOf', () => {
       summary: 'Meals and cabins included.',
       imageKey: null,
       imageName: null,
+      hostListingId: 'h4',
+      hostName: 'Danielle Okafor',
     });
   });
 

@@ -94,7 +94,18 @@
               </div>
               <p class="event-detail__going">{{ view.going }}</p>
             </cf-card>
-            <p class="event-detail__posted-by">Posted by the Christian Fitness team</p>
+            @if (host(); as by) {
+              <cf-host-card
+                [href]="by.href"
+                [name]="by.name"
+                [kind]="by.kind"
+                [initials]="by.initials"
+                [photoSrc]="by.photoSrc"
+                [person]="by.person"
+                [verified]="by.verified"
+                (navigate)="openHost($event)"
+              />
+            }
           </aside>
         </div>
       }

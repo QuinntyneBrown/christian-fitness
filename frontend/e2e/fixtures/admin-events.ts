@@ -1,4 +1,4 @@
-import type { ApiReply } from './api-handlers';
+import type { ApiHandlers, ApiReply } from './api-handlers';
 
 /** An event as `GET /api/admin/events` answers it. */
 export interface AdminEventFixture {
@@ -114,6 +114,34 @@ export function problem(
   };
 }
 
+/** A Listed directory listing as the Host picker shows it (`EventHostDto`, ADR 0089). */
+export interface EventHostFixture {
+  id: string;
+  kind: string;
+  name: string;
+}
+
+/** The Listed Christian Fitness team listing, every new event's host (ADR 0067). */
+export const TEAM_HOST: EventHostFixture = {
+  id: '0193a9c0-0000-7000-8000-00000000cf01',
+  kind: 'organization',
+  name: 'Christian Fitness',
+};
+
+/** The mocks' run club, a Listed organization. */
+export const LAKESHORE_HOST: EventHostFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000000a1',
+  kind: 'organization',
+  name: 'Lakeshore Runners Fellowship',
+};
+
+/** The mocks' strength coach, a Listed instructor, who hosts the Bootcamp. */
+export const DANIELLE_HOST: EventHostFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000000a4',
+  kind: 'instructor',
+  name: 'Danielle Okafor',
+};
+
 /** An event as `GET /api/admin/events/{id}` opens it in the editor (ADR 0025). */
 export interface AdminEventDetailFixture {
   id: string;
@@ -131,6 +159,8 @@ export interface AdminEventDetailFixture {
   imageKey: string | null;
   going: number;
   status: 'draft' | 'published';
+  /** The saved host (ADR 0089). */
+  host: EventHostFixture;
 }
 
 /** Saturday Park Bootcamp as the editor opens it: the second published event, with an image. */
@@ -148,6 +178,7 @@ export const BOOTCAMP_DETAIL: AdminEventDetailFixture = {
   imageKey: '0123456789abcdef0123456789abcdef.jpg',
   going: 38,
   status: 'published',
+  host: DANIELLE_HOST,
 };
 
 /** Whole Life Retreat, the draft of the cast, as the editor opens it. */
@@ -166,4 +197,29 @@ export const RETREAT_DETAIL: AdminEventDetailFixture = {
   imageKey: null,
   going: 0,
   status: 'draft',
+  host: TEAM_HOST,
 };
+
+/**
+ * Answers `GET /api/admin/events/hosts?q=` as the API does (ADR 0089): the `hosts` whose name
+ * holds the search, ignoring case, at most 10. `fail` answers a search, by its zero-based number,
+ * with no answer at all. Returns the searches asked, in order.
+ */
+export function answerHostSearch(
+  api: ApiHandlers,
+  hosts: EventHostFixture[],
+  fail: (searchNumber: number) => boolean = () => false,
+): string[] {
+  const asked: string[] = [];
+  api.on('GET', '/api/admin/events/hosts', (request) => {
+    const q = new URL(request.url()).searchParams.get('q') ?? '';
+    const number = asked.length;
+    asked.push(q);
+    if (fail(number)) return { abort: true };
+    const term = q.trim().toLowerCase();
+    return {
+      json: { hosts: hosts.filter((h) => h.name.toLowerCase().includes(term)).slice(0, 10) },
+    };
+  });
+  return asked;
+}

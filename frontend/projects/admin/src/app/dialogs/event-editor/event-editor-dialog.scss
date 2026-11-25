@@ -1,5 +1,15 @@
-// The event editor composes the library's drawer, form layout and fields; it adds no look of its
-// own.
+// The event editor composes the library's drawer, form layout, fields and pick cards; its own
+// look is the Host search's status line (mock `event-editor/host-no-results`).
 :host {
   display: contents;
+}
+
+.event-editor__host-status {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  &:empty {
+    // Out of the flow while empty, but still in the page, so a new line is announced.
+    position: absolute;
+  }
 }
