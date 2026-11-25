@@ -50,7 +50,7 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   | `members` | Members | Community | `/members` |
   | `feedback` | Feedback | Community | `/feedback` |
 
-  The paths are fixed by ADR 0062; `/series` is used rather than `/events/series` so that
+  The paths are fixed by ADR 0079; `/series` is used rather than `/events/series` so that
   `currentAdminArea`'s prefix rule never marks Events for a series.
 - **`currentAdminArea(url)`** — the area a URL is in: the Dashboard for `/` alone, any other area
   for its path and every path under it. A story's editor sits under `/stories/<id>`, so Stories
@@ -88,7 +88,7 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
 
   A pure helper in `domain`, `waitingCountsFor(totals)`, turns the totals into `count` and
   `countLabel` per key, singular and plural, and leaves out a zero. The totals come from
-  `GET /api/admin/counts` (ADR 0062), a totals-only answer in one MediatR query scoped to the
+  `GET /api/admin/counts` (ADR 0079), a totals-only answer in one MediatR query scoped to the
   caller's role: an Admin gets `stories`, `suggestions`, `applications`, `members` and `feedback`; a
   Moderator gets `members` only, the other keys absent. `members` is the open message reports
   (ADR 0058) plus the flagged members, each member counted once. It shares its count queries with
@@ -104,7 +104,7 @@ The design system's LG is 1024 px (`64rem`), which the components follow; `docs/
 992 px. The mocks place the sidebar as a column from 1024 px (`docs/mocks/README.md`, "Admin sidebar
 on desktop").
 
-### Decisions (ADR 0062)
+### Decisions (ADR 0079)
 
 - **Count source.** A totals-only `GET /api/admin/counts`, scoped to the caller's role and read again
   when the admin hub pushes `countsChanged`; the Dashboard keeps its own query.

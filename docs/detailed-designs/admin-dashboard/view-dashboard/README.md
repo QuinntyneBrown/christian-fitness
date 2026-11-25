@@ -111,14 +111,14 @@ questions).
   Try again) states, apart from the activity section's. Its Try again asks for this answer alone
   (`L2-020` AC10).
 - **Navigation counts** — the admin side navigation reads `GET /api/admin/counts`, not this answer
-  (ADR 0062; [navigate the admin app](../../admin-access/navigate-admin-app/README.md); `L2-021` AC3).
+  (ADR 0079; [navigate the admin app](../../admin-access/navigate-admin-app/README.md); `L2-021` AC3).
 
 ### Telemetry
 
 The handler logs nothing. A span records the route template only; no span, metric or log carries a
 story title, a suggested name, a member's name or a note (`L2-033` AC2).
 
-### Decisions (ADR 0062)
+### Decisions (ADR 0079)
 
 - **Community tiles.** "Community" shows Members (total) with "+{n} in the last 7 days" for those who
   joined, Registrations in the last 7 days and Live listings, all over the 7-day window (`L2-020` AC1).
@@ -137,7 +137,7 @@ story title, a suggested name, a member's name or a note (`L2-033` AC2).
 
 ### Open questions
 
-- Settled by ADR 0062; the code behind them lands in the slices that build the tiles, the stories,
+- Settled by ADR 0079; the code behind them lands in the slices that build the tiles, the stories,
   suggestions and feedback.
 
 - **Code behind the requirement.** `WorkAwaitingStaffDto`, `GetWorkAwaitingStaffHandler` and the
