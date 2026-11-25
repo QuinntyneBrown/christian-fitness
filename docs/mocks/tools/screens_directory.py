@@ -488,7 +488,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
     sr_list, ev_list = hosted_by(l["id"])
     hosting = len(sr_list) + len(ev_list)
     verified = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if l["verified"] else ""
-    website = (f'<div><dt>{icon("globe")}Website</dt><dd><a class="link" href="https://{l["website"]}" rel="noopener noreferrer" target="_blank">{l["website"]}<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
+    website = (f'<div><dt>{icon("globe")}Website</dt><dd><a class="link" href="https://{l["website"]}" rel="noopener noreferrer" target="_blank">{l["website"].removeprefix("www.")}{icon("external-link", "link__external")}<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>'
                if l["website"] else "")
     links = "".join(f"""<li><a class="mini-row" href="{listing_link(LS[i])}">
                   {listing_mark(LS[i], "sm")}
@@ -499,6 +499,9 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
             <ul class="mini-list">{links}</ul>
           </section>""" if links else "")
     focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    # ADR 0061, ADR 0085: the same member owns a Services listing, so the profile links to it.
+    also = (f'\n          <p><a class="text-link" href="{href("services")}">Also offers services</a></p>'
+            if l["id"] == "okafor" else "")
     message = f'<a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>' if has_owner else ""
     actions = (f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="{href("owner-listing-editor")}">Edit listing</button>' if owner
                else f'{follow_button(l, big=True)}\n          {message}')
@@ -535,7 +538,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True) -> str
             {website}
             <div><dt>Followers</dt><dd>{l["followers"]:,}</dd></div>
             <div><dt>On Christian Fitness</dt><dd>{l["since"]}</dd></div>
-          </dl>
+          </dl>{also}
           {connected}
         </aside>
       </div>
