@@ -74,15 +74,18 @@ these open or disagreed:
   the series adds the host, place, area, prices, `firstStartsAt`, `lastStartsAt`, `sessionsLeft`,
   `sessionsHeld` and the sessions, each with `id`, `number`, `startsAt`, `endsAt`, `topic` and
   `state`. `cadence` is numbers, never words: `{ weekday, dates }`, the weekday (0 Sunday to 6
-  Saturday, in Toronto) when every held date falls 7 days after the one before on that weekday,
-  else null, and the count of held dates. `startsAt` is the next held session's start, else the
+  Saturday, in Toronto) when there are two or more held dates, all on that weekday, and every week
+  from the first to the last has a date (a cancelled date keeps its week, so Couch to 5K with May 12
+  cancelled still reads "Every Tuesday" as the mocks draw it), else null, and the count of held
+  dates. `startsAt` is the next held session's start, else the
   last held one's, else null. The API decides each `state`: `cancelled`; `done` once a held
   session's end (its start when it has none) has passed; `live` for the first held session not
   done; `upcoming` for the rest. The app words them "Cancelled", "Done", "Live" and nothing.
 - **Wording.** A weekly cadence reads "Every Tuesday", as the mocks and the design system draw it,
   in place of ADR 0080's "Weekly on Tuesdays"; otherwise "<n> dates", and "No dates yet" with
   none. "Sessions left <left> of <held>" leaves cancelled dates out of both, as ADR 0080 decides;
-  the mocks' "5 of 8" becomes "5 of 7".
+  the mocks' "5 of 8" becomes "5 of 7". The mocks' "Last Thursday of the month" for Women's Hoops &
+  Devotion, which no rule of ADR 0080 derives, becomes "6 dates", its count of dates.
 - **Order.** By the next held session's start, then series with no session left, then by title,
   then id (ADR 0080), at most 100.
 - **Series tag in Events.** `AdminEventDto` gains `series` (`id`, `title`) for a session event;

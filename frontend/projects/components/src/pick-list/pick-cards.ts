@@ -12,6 +12,8 @@ export interface PickCardItem {
   meta: string | readonly string[];
   href?: string;
   tag?: string;
+  /** A count under the meta in the accent, such as "31 / 40 joined" (ADR 0091). */
+  count?: string;
 }
 
 /**

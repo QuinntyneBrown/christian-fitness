@@ -9,10 +9,11 @@ import {
 
 // L2-021 AC1: the navigation lists the areas and marks the one the URL is in (ADR 0011).
 describe('ADMIN_AREAS', () => {
-  it('lists Dashboard, Events, Listings, Services and Members with their paths', () => {
+  it('lists Dashboard, Events, Event series, Listings, Services and Members with their paths', () => {
     expect(ADMIN_AREAS.map((area) => [area.label, area.path])).toEqual([
       ['Dashboard', '/'],
       ['Events', '/events'],
+      ['Event series', '/series'],
       ['Listings', '/listings'],
       ['Services', '/services'],
       ['Members', '/members'],
@@ -26,6 +27,7 @@ describe('currentAdminArea', () => {
     { why: 'the root with a query', url: '/?from=sign-in', expected: 'dashboard' },
     { why: 'an empty URL', url: '', expected: 'dashboard' },
     { why: 'an area', url: '/events', expected: 'events' },
+    { why: 'event series, not events', url: '/series?id=c5', expected: 'series' },
     { why: 'an area with a trailing slash', url: '/services/', expected: 'services' },
     { why: 'a screen under an area', url: '/members/0190c0de', expected: 'members' },
     {
@@ -40,8 +42,8 @@ describe('currentAdminArea', () => {
   });
 });
 
-// L2-019 AC1, AC5 (ADR 0020): which role opens which area. The rows are the same as the four-area
-// rows of StaffAccessTests.cs in backend/tests/ChristianFitness.Application.Tests/Members.
+// L2-019 AC1, AC5 (ADR 0020, ADR 0091): which role opens which area. The rows are the same as the
+// five-area rows of StaffAccessTests.cs in backend/tests/ChristianFitness.Application.Tests/Members.
 describe('canManage', () => {
   it.each<{ role: StaffRoleName; area: AdminAreaKey; allowed: boolean; why: string }>([
     { role: 'Admin', area: 'dashboard', allowed: true, why: 'an Admin may use every area' },
@@ -69,6 +71,8 @@ describe('canManage', () => {
       why: 'a Moderator does not manage services',
     },
     { role: 'Moderator', area: 'members', allowed: true, why: 'a Moderator moderates members' },
+    { role: 'Admin', area: 'series', allowed: true, why: 'an Admin manages event series' },
+    { role: 'Moderator', area: 'series', allowed: true, why: 'a Moderator manages event series' },
   ])('$role on $area is $allowed: $why', ({ role, area, allowed }) => {
     expect(canManage(role, area)).toBe(allowed);
   });
@@ -83,15 +87,17 @@ describe('areasFor', () => {
     expect(areasFor('Admin').map((area) => area.key)).toEqual([
       'dashboard',
       'events',
+      'series',
       'listings',
       'services',
       'members',
     ]);
   });
 
-  it('lists the Dashboard, Listings and Members for a Moderator', () => {
+  it('lists the Dashboard, Event series, Listings and Members for a Moderator', () => {
     expect(areasFor('Moderator').map((area) => area.key)).toEqual([
       'dashboard',
+      'series',
       'listings',
       'members',
     ]);

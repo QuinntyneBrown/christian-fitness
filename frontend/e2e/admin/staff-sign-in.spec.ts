@@ -80,6 +80,7 @@ test.describe('Admin app, staff sign in', () => {
       await expect(shell.navItems).toHaveText([
         'Dashboard',
         'Events',
+        'Event series',
         'Listings',
         'Services',
         'Members',

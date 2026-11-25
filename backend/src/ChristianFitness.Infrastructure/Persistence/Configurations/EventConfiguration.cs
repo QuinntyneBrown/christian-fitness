@@ -31,5 +31,9 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.HasIndex(e => new { e.HostListingId, e.Status, e.StartsAt });
         builder.HasIndex(e => new { e.Status, e.StartsAt });
         builder.HasIndex(e => e.StartsAt);
+        // A session of a series (ADR 0091): the series' page reads its sessions by date.
+        builder.Property(e => e.Topic).HasMaxLength(Event.TopicMaxLength);
+        builder.HasOne<EventSeries>().WithMany().HasForeignKey(e => e.SeriesId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(e => new { e.SeriesId, e.StartsAt });
     }
 }

@@ -58,6 +58,7 @@ async function renderLinks() {
       title: 'Rooted Physio',
       meta: ['Physio · Leslieville', '2 days ago'],
       href: '/listings?selected=s1',
+      count: '31 / 40 joined',
     },
     {
       id: 's2',
@@ -91,6 +92,9 @@ describe('PickCards as links', () => {
       ['Physio · Leslieville', '2 days ago'],
     );
     expect(links[1].querySelector('.pick-card__tag')?.textContent).toBe('Approved');
+    // L2-071 AC1 (ADR 0091): a count under the meta, such as a series' joined.
+    expect(links[0].querySelector('.pick-card__count')?.textContent).toBe('31 / 40 joined');
+    expect(links[1].querySelector('.pick-card__count')).toBeNull();
     expect(root.querySelector('button')).toBeNull();
   });
 

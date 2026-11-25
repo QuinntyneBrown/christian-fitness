@@ -25,7 +25,7 @@ function answerSignOut(api: ApiHandlers, reply: ApiReply): (string | undefined)[
 }
 
 // L2-021 AC1: at LG and wider the side navigation shows Dashboard, then the areas under their
-// group headings, with aria-current on the one showing (ADR 0079, ADR 0090: an area is listed once
+// group headings, with aria-current on the one showing (ADR 0079, ADR 0091: an area is listed once
 // it has a screen, and a group only with an area in it).
 test.describe('Admin app, navigation at LG and wider', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -39,13 +39,14 @@ test.describe('Admin app, navigation at LG and wider', () => {
     await expect(shell.navItems).toHaveText([
       'Dashboard',
       'Events',
+      'Event series',
       'Listings',
       'Services',
       'Members',
     ]);
     expect(
       await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
-    ).toEqual(['/', '/events', '/listings', '/services', '/members']);
+    ).toEqual(['/', '/events', '/series', '/listings', '/services', '/members']);
     await expect(shell.currentItem).toHaveCount(1);
     await expect(shell.currentItem).toHaveText('Dashboard');
     expect(await shell.navIsOneRow()).toBe(false);
@@ -60,7 +61,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
 
     await expect(shell.navGroups).toHaveText(['Gather', 'Community']);
     await expect(shell.navGroups.first()).toBeVisible();
-    await expect(shell.navGroupLinks('Gather')).toHaveText(['Events']);
+    await expect(shell.navGroupLinks('Gather')).toHaveText(['Events', 'Event series']);
     await expect(shell.navGroupLinks('Community')).toHaveText(['Listings', 'Services', 'Members']);
     expect(await shell.navListNames()).toEqual([null, 'Gather', 'Community']);
   });

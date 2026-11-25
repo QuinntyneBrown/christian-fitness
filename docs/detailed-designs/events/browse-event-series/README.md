@@ -6,7 +6,7 @@ Christian Fitness is a Christian community for health in body and spirit in the 
 
 - **event series** — program of dated sessions with one host, one place, one capacity and one group chat, such as eight Tuesdays of Couch to 5K
 - **session** — one dated meeting of a series, stored as an `Event` that carries the series' id and its number
-- **cadence** — text naming how often a series meets, such as "Every Tuesday" or "Last Thursday of the month"
+- **cadence** — text naming how often a series meets, such as "Every Tuesday" or "6 dates"
 - **enrolment** — record that a member joined a series and holds a place at each of its sessions still to come
 - **listed series** — published series with at least one session that is neither started nor cancelled
 

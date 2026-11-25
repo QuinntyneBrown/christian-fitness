@@ -1,0 +1,125 @@
+<div class="page-head page-head--wrap">
+  <div>
+    <h1 class="admin-title">Event series</h1>
+    <p class="subtitle">
+      Recurring programs. Members join the whole series or drop in to one date.
+    </p>
+  </div>
+</div>
+
+<ng-template #failed>
+  <cf-empty-state
+    variant="error"
+    heading="Series didn't load"
+    text="We couldn't reach Christian Fitness. Check your connection and try again."
+  >
+    <cf-button slot="actions" size="sm" (click)="tryAgain()">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+        <path d="M21 3v5h-5" />
+      </svg>
+      Try again
+    </cf-button>
+  </cf-empty-state>
+</ng-template>
+
+<ng-template #seriesSkeleton>
+  <div class="skeleton-stack">
+    <cf-skeleton shape="tile" />
+    <ol class="skeleton-sessions">
+      @for (row of skeletonSessions; track row) {
+        <li class="skeleton-session">
+          <cf-skeleton shape="text" width="20" />
+          <cf-skeleton shape="text" width="80" />
+          <cf-skeleton shape="text" width="40" />
+        </li>
+      }
+    </ol>
+  </div>
+</ng-template>
+
+@switch (list().kind) {
+  @case ('loading') {
+    <cf-skeleton-region label="Loading series">
+      <div class="split split--picker">
+        <div class="skeleton-stack">
+          @for (card of skeletonCards; track card) {
+            <cf-skeleton shape="tile" />
+          }
+        </div>
+        <ng-container *ngTemplateOutlet="seriesSkeleton" />
+      </div>
+    </cf-skeleton-region>
+  }
+  @case ('failed') {
+    <ng-container *ngTemplateOutlet="failed" />
+  }
+  @default {
+    @if (cards().length === 0) {
+      <cf-empty-state
+        heading="No series yet"
+        text="A series is a run of dated sessions members join once, such as eight Tuesdays of Couch to 5K."
+      />
+    } @else {
+      <div class="split split--picker">
+        <cf-pick-cards
+          label="Series"
+          [items]="cards()"
+          [current]="currentId()"
+          (picked)="choose($event)"
+        />
+        @switch (chosen().kind) {
+          @case ('loading') {
+            <cf-skeleton-region label="Loading series">
+              <ng-container *ngTemplateOutlet="seriesSkeleton" />
+            </cf-skeleton-region>
+          }
+          @case ('failed') {
+            <ng-container *ngTemplateOutlet="failed" />
+          }
+          @default {
+            @if (view(); as series) {
+              <section aria-labelledby="series-title">
+                <cf-series-summary-card
+                  titleId="series-title"
+                  [title]="series.title"
+                  [imageSrc]="series.imageSrc"
+                  [host]="series.host"
+                  [when]="series.when"
+                  [place]="series.place"
+                  [joined]="series.joined"
+                  [joinedCount]="series.joinedCount"
+                  [capacity]="series.capacity"
+                  [full]="series.full"
+                  [price]="series.price"
+                  [dropIn]="series.dropIn"
+                  [left]="series.left"
+                />
+                <div class="section-head mt-section">
+                  <h3 class="section-title">Sessions</h3>
+                </div>
+                @if (series.sessions.length > 0) {
+                  <cf-admin-sessions [sessions]="series.sessions" />
+                } @else {
+                  <cf-empty-state
+                    variant="tight"
+                    headingTag="p"
+                    heading="No dates yet"
+                    text="Members can join once the series has dates. Add the first one."
+                  />
+                }
+              </section>
+            }
+          }
+        }
+      </div>
+    }
+  }
+}
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

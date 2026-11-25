@@ -120,7 +120,7 @@ on desktop").
 - **Moderators and the new areas.** Settled by ADR 0064 (amending ADR 0020) and `L2-019` AC1: a
   Moderator opens Newsletter, Event series, Community Pick, Listings and Feedback, and not
   Stories. `canManage`, the API's `StaffAccess` table and `L2-019` carry the same table.
-- **Code behind the requirement.** Journey 9 (ADR 0090) gave `ADMIN_AREAS` its groups and the
+- **Code behind the requirement.** Journey 9 (ADR 0091) gave `ADMIN_AREAS` its groups and the
   Event series area, `AdminNav` its group headings and the sidebar its scrolling link column; an
   area joins the list with its own screen, and a group shows only when it holds one. The shell
   fills no counts yet: `GET /api/admin/counts` and the admin hub are still to be built. The admin app also still routes `sign-in/verify`

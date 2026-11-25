@@ -1,0 +1,63 @@
+<cf-card variant="pad-sm">
+  <div class="series-summary-card">
+    <img
+      class="series-summary-card__image"
+      [attr.src]="imageSrc()"
+      alt=""
+      width="1376"
+      height="768"
+    />
+    <div class="series-summary-card__body">
+      <h2 class="series-summary-card__title" [id]="titleId()">{{ title() }}</h2>
+      <p class="series-summary-card__host">{{ host() }}</p>
+      <p class="series-summary-card__facts">
+        @if (when(); as when) {
+          <span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m17 2 4 4-4 4" />
+              <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+              <path d="m7 22-4-4 4-4" />
+              <path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg
+            >{{ when }}</span
+          >
+        }
+        <span>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+            />
+            <circle cx="12" cy="10" r="3" /></svg
+          >{{ place() }}</span
+        >
+      </p>
+    </div>
+    <ng-content select="[slot=action]" />
+    <dl class="series-summary-card__stats">
+      <div>
+        <dt>Joined</dt>
+        <dd>{{ joined() }}</dd>
+        <dd>
+          <meter
+            class="series-summary-card__meter"
+            min="0"
+            [attr.max]="capacity()"
+            [attr.value]="joinedCount()"
+          >
+            {{ full() }}
+          </meter>
+        </dd>
+      </div>
+      <div>
+        <dt>Price</dt>
+        <dd>{{ price() }}</dd>
+        @if (dropIn(); as dropIn) {
+          <dd class="series-summary-card__sub">{{ dropIn }}</dd>
+        }
+      </div>
+      <div>
+        <dt>Sessions left</dt>
+        <dd>{{ left() }}</dd>
+      </div>
+    </dl>
+  </div>
+</cf-card>

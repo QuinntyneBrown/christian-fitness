@@ -61,6 +61,18 @@ public sealed class Event
 
     public DateTimeOffset CreatedAt { get; private set; }
 
+    /// <summary>The series this event is a session of, or none for a standalone event (ADR 0080, ADR 0091).</summary>
+    public Guid? SeriesId { get; private set; }
+
+    /// <summary>What a session covers, such as "First 5-minute run"; none for a standalone event or a session without one.</summary>
+    public string? Topic { get; private set; }
+
+    /// <summary>When a session ends; none for a standalone event, which has only a start.</summary>
+    public DateTimeOffset? EndsAt { get; private set; }
+
+    /// <summary>The longest topic a session takes.</summary>
+    public const int TopicMaxLength = 200;
+
     /// <summary>
     /// Counts the places taken; the store refuses a save whose count is no longer the one read, so
     /// two registrations for the last place cannot both commit (L2-011 AC3; ADR 0033).
@@ -135,6 +147,51 @@ public sealed class Event
         Capacity = capacity;
         Summary = summary.Trim();
         ImageKey = imageKey;
+    }
+
+    /// <summary>
+    /// A dated session of <paramref name="series"/> (L2-071 AC14; ADR 0091): published at once, with
+    /// the series' details (<see cref="FollowSeries"/>), and the given start, end and topic, trimmed
+    /// (a blank topic is none). The handler has checked the start is after now and the end after it.
+    /// </summary>
+    public static Event CreateSession(EventSeries series, DateTimeOffset startsAt, DateTimeOffset endsAt, string? topic, DateTimeOffset createdAt)
+    {
+        ArgumentNullException.ThrowIfNull(series);
+        var session = new Event
+        {
+            Id = Guid.CreateVersion7(createdAt),
+            StartsAt = startsAt.ToUniversalTime(),
+            EndsAt = endsAt.ToUniversalTime(),
+            Topic = string.IsNullOrWhiteSpace(topic) ? null : topic.Trim(),
+            SeriesId = series.Id,
+            Status = EventStatus.Published,
+            CreatedAt = createdAt,
+        };
+        session.FollowSeries(series);
+        return session;
+    }
+
+    /// <summary>
+    /// Takes the series' title, category, place, area, capacity, description, image, host and the
+    /// price of one date (ADR 0091), so the event members see follows the series (L2-071 AC6, AC13).
+    /// </summary>
+    public void FollowSeries(EventSeries series)
+    {
+        ArgumentNullException.ThrowIfNull(series);
+        if (SeriesId != series.Id)
+        {
+            throw new InvalidOperationException("Only a session of the series follows it.");
+        }
+
+        Title = series.Title;
+        Category = series.Category;
+        Place = series.Place;
+        Area = series.Area;
+        Capacity = series.Capacity;
+        Summary = series.Summary;
+        ImageKey = series.ImageKey;
+        HostListingId = series.HostListingId;
+        PriceCents = series.SessionPriceCents;
     }
 
     /// <summary>Makes <paramref name="listingId"/> its host (ADR 0067); the caller has checked it is a Listed directory listing.</summary>

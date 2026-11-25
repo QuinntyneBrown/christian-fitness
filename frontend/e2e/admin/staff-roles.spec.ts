@@ -23,7 +23,7 @@ test.describe('Admin app, a Moderator', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test(
-    'the navigation lists Dashboard, Listings and Members only, and names the role',
+    'the navigation lists Dashboard, Event series, Listings and Members only, and names the role',
     { tag: '@critical' },
     async ({ page, api }) => {
       signedInAsModerator(api);
@@ -32,10 +32,10 @@ test.describe('Admin app, a Moderator', () => {
       await shell.open();
 
       await expect(shell.heading).toHaveText('Dashboard');
-      await expect(shell.navItems).toHaveText(['Dashboard', 'Listings', 'Members']);
+      await expect(shell.navItems).toHaveText(['Dashboard', 'Event series', 'Listings', 'Members']);
       expect(
         await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
-      ).toEqual(['/', '/listings', '/members']);
+      ).toEqual(['/', '/series', '/listings', '/members']);
       // L2-021 AC1: a Moderator's one list carries no group names.
       await expect(shell.navGroups).toHaveCount(0);
       expect(await shell.navListNames()).toEqual([null]);
@@ -102,7 +102,7 @@ test.describe('Admin app, a Moderator on an Admins-only area', () => {
 
     await expect(shell.heading).toHaveText('Dashboard');
     expect(shell.location()).toBe('/');
-    await expect(shell.navItems).toHaveText(['Dashboard', 'Listings', 'Members']);
+    await expect(shell.navItems).toHaveText(['Dashboard', 'Event series', 'Listings', 'Members']);
   });
 
   // L2-019 AC4: an Admin made Moderator while signed in meets the new role on their next screen.
@@ -121,6 +121,7 @@ test.describe('Admin app, a Moderator on an Admins-only area', () => {
     await expect(shell.navItems).toHaveText([
       'Dashboard',
       'Events',
+      'Event series',
       'Listings',
       'Services',
       'Members',

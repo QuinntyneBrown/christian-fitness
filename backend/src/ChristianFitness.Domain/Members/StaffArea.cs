@@ -17,6 +17,9 @@ public enum StaffArea
     /// <summary>Listings and listing suggestions, <c>api/admin/directory</c> (ADR 0064, ADR 0090).</summary>
     Directory,
 
+    /// <summary>Event series (L2-071; ADR 0091): open to Moderators too.</summary>
+    Series,
+
     /// <summary>An admin endpoint in no area above yet: closed to Moderators until a slice names its area.</summary>
     Unlisted,
 }

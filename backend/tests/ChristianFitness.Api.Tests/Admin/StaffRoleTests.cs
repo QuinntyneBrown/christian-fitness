@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-019 AC1 and AC2 (ADR 0020): a Moderator may use the staff session, the Dashboard and Members,
+/// L2-019 AC1 and AC2 (ADR 0020, ADR 0091): a Moderator may use the staff session, the Dashboard, Members and Event series,
 /// and is refused every Events and Services endpoint, and any admin endpoint in no area yet, with
 /// 403 and <c>forbidden_role</c>; an Admin may use them all. Events and Members are asked through
 /// their real lists (slices 10.1 and 26.1); the areas without an endpoint yet through the probes of
@@ -24,12 +24,14 @@ public sealed class StaffRoleTests(StaffRolesApiFactory factory) : IClassFixture
         { "moderator.members", StaffRoleName.Moderator, "/api/admin/members", HttpStatusCode.OK },
         { "moderator.events", StaffRoleName.Moderator, "/api/admin/events", HttpStatusCode.Forbidden },
         { "moderator.services", StaffRoleName.Moderator, "/api/admin/services/probe", HttpStatusCode.Forbidden },
+        { "moderator.series", StaffRoleName.Moderator, "/api/admin/series", HttpStatusCode.OK },
         { "moderator.unlisted", StaffRoleName.Moderator, "/api/admin/reports/probe", HttpStatusCode.Forbidden },
         { "admin.console", StaffRoleName.Admin, "/api/admin/session", HttpStatusCode.OK },
         { "admin.dashboard", StaffRoleName.Admin, "/api/admin/dashboard/probe", HttpStatusCode.NoContent },
         { "admin.members", StaffRoleName.Admin, "/api/admin/members", HttpStatusCode.OK },
         { "admin.events", StaffRoleName.Admin, "/api/admin/events", HttpStatusCode.OK },
         { "admin.services", StaffRoleName.Admin, "/api/admin/services/probe", HttpStatusCode.NoContent },
+        { "admin.series", StaffRoleName.Admin, "/api/admin/series", HttpStatusCode.OK },
         { "admin.unlisted", StaffRoleName.Admin, "/api/admin/reports/probe", HttpStatusCode.NoContent },
     };
 
