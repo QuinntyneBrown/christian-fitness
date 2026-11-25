@@ -114,6 +114,10 @@ Publish the material-change summary in the member index as a meta element named
 `cf-privacy-change` or `cf-terms-change`, with the ISO effective date in `content`
 and a plain-language summary in `data-summary`. Register that date in both legal
 schedules. Keep the current text in place until the effective date.
+Before replacing it, retain its complete text, effective date and current-version
+link in `frontend/projects/web/public/legal/<document>/<yyyy-mm-dd>.html`. On
+the effective date release the new page text, retain both schedules and remove
+the expired notice metadata. Check the dated address with JavaScript disabled.
 
 At least 30 days ahead, run `cf announce-legal-change privacy yyyy-mm-dd` or
 `cf announce-legal-change terms yyyy-mm-dd` with the existing SQL, SMTP and
