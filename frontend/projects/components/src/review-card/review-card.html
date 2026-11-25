@@ -1,0 +1,13 @@
+<a class="review-card" [href]="href()" (click)="follow($event)"
+  ><span class="review-card__body"
+    ><span class="review-card__label">{{ label() }}</span
+    ><span class="review-card__title">{{ title() }}</span>
+    @if (meta()) {
+      <span class="review-card__meta">{{ meta() }}</span>
+    }</span
+  ><span class="review-card__action"
+    >{{ actionLabel() }}
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" /></svg></span
+></a>

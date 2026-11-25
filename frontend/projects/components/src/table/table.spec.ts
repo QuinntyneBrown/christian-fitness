@@ -192,4 +192,45 @@ describe('Table', () => {
     expect(el.querySelector('.table__strong')?.textContent).toBe('<b>x</b>');
     expect(el.querySelector('tbody b')).toBeNull();
   });
+
+  // A title cell links to its record (a story's headline); a plain click is the screen's to follow.
+  it('draws a title cell as a link with its second line, and a column at the end right-aligned', async () => {
+    const { fixture, el } = await render({
+      actionLabel: undefined,
+      columns: [
+        { key: 'story', label: 'Story', kind: 'title' },
+        { key: 'reads', label: 'Reads', end: true },
+      ],
+      rows: [
+        {
+          id: 's1',
+          name: 'Story',
+          cells: {
+            story: { text: '<i>Fasting</i>', sub: 'Priya Raman', href: '/stories/s1' },
+            reads: { text: '3,412' },
+          },
+        },
+      ],
+    });
+    const followed: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => followed.push(href));
+    const link = el.querySelector<HTMLAnchorElement>('a.row-title')!;
+
+    const plain = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    link.dispatchEvent(plain);
+    const modified = new MouseEvent('click', { bubbles: true, cancelable: true, metaKey: true });
+    link.dispatchEvent(modified);
+
+    expect([link.getAttribute('href'), link.textContent]).toEqual([
+      '/stories/s1',
+      '<i>Fasting</i>',
+    ]);
+    expect(link.parentElement?.querySelector('.table__sub')?.textContent).toBe('Priya Raman');
+    expect([plain.defaultPrevented, modified.defaultPrevented, followed]).toEqual([
+      true,
+      false,
+      ['/stories/s1'],
+    ]);
+    expect(el.querySelectorAll('.table__end')).toHaveLength(2);
+  });
 });

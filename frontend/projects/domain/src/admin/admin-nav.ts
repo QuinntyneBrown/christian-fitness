@@ -28,20 +28,30 @@ const AREA_GROUPS: Record<AdminAreaKey, AdminAreaGroup | null> = {
 
 /**
  * The navigation for `role`, each area in its group, with the counts beside their areas (ADR 0079,
- * ADR 0090, ADR 0091): Listings counts the suggestions waiting, named "{n} suggestions to check"
- * (one: "1 suggestion to check"). No count shows at zero or when the counts did not load (`null`).
+ * ADR 0090, ADR 0091, ADR 0097): Listings counts the suggestions waiting, named "{n} suggestions to
+ * check" (one: "1 suggestion to check"), and Stories the stories in review, named "{n} stories to
+ * review" (one: "1 story to review"). No count shows at zero or when the counts did not load
+ * (`null`).
  */
 export function adminNavOf(role: StaffRoleName, counts: AdminCountsDto | null): AdminNavArea[] {
   return areasFor(role).map(({ key, label, path }) => {
     const area = { key, label, href: path, group: AREA_GROUPS[key] };
-    const waiting = key === 'listings' ? (counts?.suggestions ?? 0) : 0;
-    return waiting > 0
-      ? {
-          ...area,
-          count: waiting,
-          countLabel: waiting === 1 ? '1 suggestion to check' : `${waiting} suggestions to check`,
-        }
-      : area;
+    const waiting =
+      key === 'listings'
+        ? (counts?.suggestions ?? 0)
+        : key === 'stories'
+          ? (counts?.storiesInReview ?? 0)
+          : 0;
+    if (waiting <= 0) return area;
+    const countLabel =
+      key === 'stories'
+        ? waiting === 1
+          ? '1 story to review'
+          : `${waiting} stories to review`
+        : waiting === 1
+          ? '1 suggestion to check'
+          : `${waiting} suggestions to check`;
+    return { ...area, count: waiting, countLabel };
   });
 }
 

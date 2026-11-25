@@ -4,6 +4,8 @@ import type { Observable } from 'rxjs';
 /** How much waits behind each area: for now the listing suggestions to check (ADR 0090). */
 export interface AdminCountsDto {
   suggestions: number;
+  /** Stories waiting in review; none for a Moderator (L2-068 AC5; ADR 0097). */
+  storiesInReview: number;
 }
 
 /** `GET /api/admin/counts` (ADR 0079, ADR 0090): the work waiting behind the navigation's areas. */

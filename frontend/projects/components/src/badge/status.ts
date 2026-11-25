@@ -1,12 +1,14 @@
 import { Component, input } from '@angular/core';
 
 /**
- * The statuses the design system names: the product's event and member statuses, then the
- * generic tones.
+ * The statuses the design system names: the product's event, story and member statuses, then
+ * the generic tones.
  */
 export type StatusVariant =
   | 'published'
   | 'draft'
+  | 'review'
+  | 'scheduled'
   | 'cancelled'
   | 'active'
   | 'flagged'

@@ -8,17 +8,19 @@ import {
   type TemplateRef,
 } from '@angular/core';
 import { Avatar } from '../avatar/avatar';
+import { isPlainClick } from '../link/plain-click';
 import { Skeleton } from '../skeleton/skeleton';
 
 /**
  * How a column's cells read (table.html, "Code"): plain `text`, `muted` text, a `primary` name
  * with a muted second line, a `person` (the avatar's initials, the name and a muted second line,
  * as the Member column reads), tabular `num`bers, `nowrap` dates, a `count` out of a total (the
- * count strong, " / 200" muted, as the Registered column reads), or `custom` cells the screen
+ * count strong, " / 200" muted, as the Registered column reads), a `title` that links to its
+ * record with a muted second line (a story's headline and byline), or `custom` cells the screen
  * draws with its `cell` template (a status badge).
  */
 export type TableCellKind =
-  'text' | 'muted' | 'primary' | 'person' | 'num' | 'nowrap' | 'count' | 'custom';
+  'text' | 'muted' | 'primary' | 'person' | 'num' | 'nowrap' | 'count' | 'title' | 'custom';
 
 export interface TableColumn {
   key: string;
@@ -29,6 +31,8 @@ export interface TableColumn {
    * em dash it skips. Without it an empty cell is blank. For `text`, `muted`, `num` and `nowrap`.
    */
   empty?: string;
+  /** A column read at the row's end, right-aligned and strong (the Reads column). */
+  end?: boolean;
 }
 
 /**
@@ -39,6 +43,8 @@ export interface TableCell {
   text: string;
   sub?: string;
   of?: string;
+  /** Where a `title` cell's link goes. */
+  href?: string;
 }
 
 export interface TableRow {
@@ -93,11 +99,19 @@ export class Table {
   readonly cell = input<TemplateRef<TableCellContext>>();
 
   readonly action = output<string>();
+  /** A plain click on a `title` link, with its `href`; a modified click is left to the browser. */
+  readonly navigate = output<string>();
   readonly secondAction = output<string>();
 
   protected readonly skeletonRows = computed(() =>
     Array.from({ length: this.loadingRows() }, (_, n) => n),
   );
+
+  protected follow(event: MouseEvent, href: string): void {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    this.navigate.emit(href);
+  }
 
   protected tableClasses(): string {
     const width = this.width();
@@ -109,7 +123,10 @@ export class Table {
   }
 
   protected cellClass(column: TableColumn): string | null {
+    if (column.end) return 'table__end table__strong';
     switch (column.kind) {
+      case 'title':
+        return 'table__wrap';
       case 'num':
         return 'table__num table__nowrap';
       case 'nowrap':

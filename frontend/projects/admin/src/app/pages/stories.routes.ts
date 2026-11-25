@@ -5,10 +5,16 @@ const titled = (page: string) => `${page} · Christian Fitness Admin`;
 
 /**
  * The Stories area's routes, loaded with the area so they cost the initial bundle one entry
- * (ADR 0094). Until the Stories list exists, Stories opens Bylines.
+ * (ADR 0094, ADR 0097).
  */
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'bylines' },
+  {
+    // Every story, newest activity first, by status and page (journey 22; L2-068; ADR 0097).
+    path: '',
+    pathMatch: 'full',
+    title: titled('Stories'),
+    loadComponent: () => import('./stories/stories-page'),
+  },
   {
     // The names stories run under, for Admins (journey 21; L2-077; ADR 0094).
     path: 'bylines',

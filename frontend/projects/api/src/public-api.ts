@@ -12,6 +12,7 @@ export * from './admin/admin-directory';
 export * from './admin/admin-events';
 export * from './admin/admin-members';
 export * from './admin/admin-series';
+export * from './admin/admin-stories';
 export * from './admin/admin-services';
 export * from './admin/staff-session';
 export * from './admin/toasts';

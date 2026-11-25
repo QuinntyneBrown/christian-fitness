@@ -81,6 +81,7 @@ export * from './pagination/pagination-items';
 export * from './profile-hero/profile-hero';
 export * from './progress-bar/progress-bar';
 export * from './pick-list/pick-cards';
+export * from './review-card/review-card';
 export * from './review-card/series-summary-card';
 export * from './session-list/admin-sessions';
 export * from './session-list/session-meter';
