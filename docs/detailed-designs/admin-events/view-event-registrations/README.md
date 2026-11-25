@@ -23,7 +23,7 @@ without exposing personal data beyond names.
   URL and revokes the URL at once.
 - **Windowed list** — the page holds one page of rows at a time; the page size is `<TO SUPPLY>`.
 - **`AdminEventsController`** — `GET /api/admin/events/{id}/registrations` and
-  `GET /api/admin/events/{id}/registrations.csv` under `AdminOnly`.
+  `GET /api/admin/events/{id}/registrations.csv` under the `AuthenticationSetup.StaffPolicy` ("Staff") policy.
 - **`GetEventRegistrationsQuery`** / handler — returns `RegistrationRowDto` items (`MemberName`,
   `RegisteredAt`) ordered by date, with `Total` counted by the same rule as going; unknown event
   returns `event_not_found` `<TO SUPPLY: code not in spec>`.

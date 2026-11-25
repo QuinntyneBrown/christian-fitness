@@ -23,7 +23,6 @@ class Event {
   +string? ImageKey
   +string Summary
   +EventStatus Status
-  +Guid? ConversationId
 }
 enum EventStatus {
   Draft
@@ -44,16 +43,6 @@ class "Event (behaviour)" as EventB {
   +Publish(): Result
   +Cancel(now: DateTimeOffset): Result
 }
-class Conversation {
-  +Guid Id
-  +Guid? EventId
-}
-class Message {
-  +Guid Id
-  +Guid ConversationId
-  +bool IsSystem
-  +DateTimeOffset SentAt
-}
 class PublishEventCommand {
   +Guid EventId
 }
@@ -62,19 +51,16 @@ class CancelEventCommand {
 }
 class PublishEventHandler
 class CancelEventHandler
-interface IChatNotifier {
-  +SendToConversationAsync(id: Guid, msg: MessageDto): Task
+interface IChatChannel {
+  +NotifyCancelledAsync(eventId: Guid): Task
 }
-class SignalRChatNotifier
+class HubChatChannel
 
 Event .. EventB
-Event "1" --> "0..1" Conversation
-Conversation "1" *-- "*" Message
 PublishEventHandler ..> PublishEventCommand : handles
 CancelEventHandler ..> CancelEventCommand : handles
 PublishEventHandler ..> Event
 CancelEventHandler ..> Event
-CancelEventHandler ..> Message : adds notice
-CancelEventHandler ..> IChatNotifier
-SignalRChatNotifier ..|> IChatNotifier
+CancelEventHandler ..> IChatChannel
+HubChatChannel ..|> IChatChannel
 @enduml
