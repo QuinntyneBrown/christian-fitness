@@ -53,8 +53,8 @@ User-supplied names, areas, websites and the member's words are rendered as text
 
 ### Open questions
 
-- **Decided suggestions in the list.** `L2-073` AC1 counts only waiting suggestions on the tab, while AC2 and AC9 keep decided ones in the list with their outcome. How long a decided suggestion stays listed, and how the list pages past 50, is `<TO SUPPLY>`.
-- **Decline reason.** The mock declines at once with no reason, while `L2-062` AC9 words the message "only where staff wrote a reason" and declining an application asks for one (`docs/mocks/README.md` open question 11). The command accepts an optional reason; no field asks for it until the mock does.
+- **Decided suggestions in the list.** Decided (`L2-073` AC9): they stay listed for 90 days and the console pages 50 at a time with "Load more".
+- **Decline reason.** Decided (`L2-073` AC8): Decline asks for an optional reason, as applications do; the reason is kept for staff and not sent to the member who suggested it (`L2-062` AC9). The mock needs the dialog added.
 - **Claim link.** Specified by `L2-078` and `docs/detailed-designs/directory/claim-listing/`: single-use, 14 days, the claim screen at `/claim/{token}`, and `ListingStatus.Declined` when the party says "This isn't me". With no email, a self-submission's link goes to the sender by direct message; otherwise the listing is staff-managed with no owner. Staff resend an expired link; that action has no admin mock yet.
 - **Listed's Edit.** The owner's Edit is specified by `L2-079` and `docs/detailed-designs/directory/edit-listing/`. Staff's Edit in Listed still has no screen; `L2-079` AC8 says what it changes.
 - **Failure of a tick.** `L2-073` AC4 saves a tick at once but no mock state shows a failed save. Putting the box back with a toast, as Follow does, is proposed; `<TO SUPPLY>` in the mock.

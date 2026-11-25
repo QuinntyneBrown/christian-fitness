@@ -37,8 +37,8 @@ Telemetry records the route template `/api/directory/{id}/follow`, never the mem
 ### Open questions
 
 - **Home "Coming up".** Resolved by ADR 0076: "Coming up" is the member's next three registrations (`L2-007` AC6) and the follow ranks Home's suggested events. A followed host's new events are those published after the follow and not yet seen. This depends on events and series having a host listing (browse-directory design, Open questions).
-- **Presses while a request is in flight.** `L2-056` AC3 changes the button at once but does not say what a second press does before the first answers. Keeping one request per listing and sending the last state when it settles is proposed; `<TO SUPPLY>` in an ADR.
-- **Rate limit.** No limit on follow requests is specified (`L2-034` names messages, accounts and resets only).
+- **Presses while a request is in flight.** Decided (`L2-056` AC8): the button is `aria-disabled` while a request is in flight, so a second press does nothing.
+- **Rate limit.** Decided (`L2-056` AC9): 60 follows and unfollows an hour per member, refused with `too_many_attempts` (429).
 - **Notifications.** Telling followers about new dates (`L2-064` AC4) is notified through the in-app inbox, a "New dates from listings you follow" notification kind with its own Preferences switch (ADR 0068; mocks `notifications`).
 
 ## Requirements
