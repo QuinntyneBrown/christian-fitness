@@ -4,8 +4,8 @@ Manage Preferences, Privacy Policy and Terms of Service."""
 from __future__ import annotations
 
 from cf_data import ADD_ONS, EASTSIDE, LISTING_KINDS, ME, NEWSLETTER, PREF_AREAS, PREF_INTERESTS
-from cf_ui import (busy_label, error_block, error_summary, field, file_field, form_alert, href, icon, listing_mark, loading_region, lockup,
-                   member_shell, screen, textarea, toast, toast_region, verified_badge)
+from cf_ui import (busy_label, empty_block, error_block, error_summary, field, file_field, form_alert, href, icon, listing_mark,
+                   loading_region, lockup, member_shell, screen, textarea, toast, toast_region, verified_badge)
 from overlays import autofocus_first, dialog, over_member
 from screens_directory import profile_page
 from screens_member import SRC
@@ -261,10 +261,10 @@ PREF_SECTIONS = [("email", "Email"), ("notifications", "Notifications"), ("priva
 VISIBILITY = [("public", "Anyone", "Including people who aren’t signed in"), ("members", "Members", "Anyone signed in to Christian Fitness"),
               ("groups", "Just my groups", "People in the group chats you’re part of")]
 EMAILS = [("newsletter", NEWSLETTER["name"], f"The week’s stories and events. {NEWSLETTER['cadence']}.")] + [(i, l, d) for i, l, d in ADD_ONS]
-PUSH = [("reminders", "Event reminders", "The night before and an hour before anything you’re going to"),
-        ("messages", "Messages", "New messages in your chats and group chats"),
-        ("follows", "New dates from listings you follow", "When Lakeshore Runners or anyone you follow posts an event"),
-        ("changes", "Changes to your events", "Cancellations, new times and new locations. We recommend keeping this on.")]
+PUSH = [("reminders", "Event reminders", "A day before anything you’re going to"),
+        ("cancelled-events", "Cancelled events", "When an event you’re registered for is cancelled. We recommend keeping this on."),
+        ("cancelled-dates", "Cancelled series dates", "When one date of a series you’ve joined is cancelled. We recommend keeping this on."),
+        ("follows", "New dates from listings you follow", "When Lakeshore Runners or anyone you follow posts an event")]
 
 
 def switch(name: str, label: str, desc: str, on: bool, disabled: bool = False) -> str:
@@ -305,7 +305,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
     email_sub = ("You won’t get any email from us except security and service notices." if n == 0 else f"{n} of 4 emails on.")
     email_rows = "".join(switch(f"email-{i}", l, d, i in emails, busy) for i, l, d in EMAILS)
     off = ('<p class="pref__action"><button class="btn btn--link" type="button" data-mock-href="unsubscribed.html">Turn off all email</button></p>' if n else "")
-    push_rows = "".join(switch(f"push-{i}", l, d, True, busy) for i, l, d in PUSH)
+    push_rows = "".join(switch(f"notify-{i}", l, d, True, busy) for i, l, d in PUSH)
     radios = "".join(f"""<label class="choice"><input class="choice__input" type="radio" name="visibility" value="{v}"{" checked" if v == "members" else ""}{" disabled" if busy else ""}>
                   <span><span class="choice__label">{l}</span><span class="choice__desc">{d}</span></span></label>""" for v, l, d in VISIBILITY)
     privacy = f"""<fieldset class="pref__row pref__row--block">
@@ -345,7 +345,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
         <nav class="side-nav" aria-label="Preference sections"><ul class="side-nav__list">{nav}</ul></nav>
         <div class="prefs__sections">
           {pref_section("email", "Email", email_sub, email_rows + off)}
-          {pref_section("notifications", "Notifications", "On your phone and in the app.", push_rows)}
+          {pref_section("notifications", "Notifications", "In the app, on the bell. Chat messages show as unread dots on Messages.", push_rows)}
           {pref_section("privacy", "Privacy", "Who can see you on Christian Fitness.", privacy)}
           {pref_section("suggestions", "Suggestions", "What we use to pick events and stories for you.", suggestions)}
           {pref_section("account", "Your data", "It’s yours. Take it with you or take it down.", account)}
@@ -790,3 +790,81 @@ def _():
 def _():
     t = toast("success", "Your listing is updated", "Your changes are live in the directory.")
     return member_shell("directory", profile_page(EASTSIDE, owner=True), after=toast_region(t))
+# Notifications: the bell's inbox (ADR 0068)
+# ===========================================================================
+# (kind icon, title, text, when, link, unread). The four kinds that notify: a reminder 24 hours before,
+# a cancelled event, a cancelled series date and new dates from a followed host.
+NOTES = [
+    ("clock", "Tomorrow: Saturday Park Bootcamp", "Sat, Apr 25 at 6:30 AM · Centennial Park, Etobicoke", "2 hours ago", "event-detail", True),
+    ("calendar-x", "Cancelled: Stretch & Pray: Mobility Morning", "Wed, May 6. The host cancelled it; your registration is released.", "Yesterday", "events", True),
+    ("calendar-plus", "Lakeshore Runners posted a new date", "Couch to 5K: Week 4 is Tue, Apr 28 at 6:30 PM.", "Yesterday", "listing-profile", False),
+    ("calendar-x", "Cancelled date: Couch to 5K Run Club", "Tue, Apr 14 is off; the other dates in the series stand.", "Apr 12", "event-series", False),
+    ("clock", "Tomorrow: Easter Sunrise 5K", "Sat, Apr 18 at 6:30 AM · Humber Bay Park", "Apr 17", "event-detail", False),
+]
+
+
+def note_row(n: tuple) -> str:
+    ic, title, text, when, to, unread = n
+    mark = '<span class="unread-dot" aria-hidden="true"></span><span class="visually-hidden">Unread</span>' if unread else ""
+    return (f'<li class="note{" note--unread" if unread else ""}"><a class="note__link" href="{href(to)}">'
+            f'<span class="note__icon" aria-hidden="true">{icon(ic)}</span>'
+            f'<span class="note__body"><span class="note__title">{title}</span><span class="note__text">{text}</span>'
+            f'<span class="note__time">{when}</span></span>{mark}</a></li>')
+
+
+def notifications_page(body: str, *, mark_all: bool = True, foot: str = "") -> str:
+    action = f'<button class="btn btn--secondary btn--sm" type="button">{icon("check")}Mark all as read</button>' if mark_all else ""
+    return f"""    <div class="container page">
+      <div class="notes-head">
+        <div>
+          <h1 class="display page-title">Notifications</h1>
+          <p class="subtitle">Reminders, cancellations and new dates from hosts you follow. We keep the latest 50 from the last 30 days.</p>
+        </div>
+        <div class="notes-head__actions">{action}<a class="btn btn--link" href="{href("preferences", fragment="notifications")}">Notification settings</a></div>
+      </div>
+      {body}
+      {foot}
+    </div>"""
+
+
+NOTES_FOOT = '<p class="notes-foot">That’s everything from the last 30 days.</p>'
+
+s = screen("notifications", "page", "Notifications", route="/notifications", source="Added by ADR 0068 (no Magic Patterns frame)",
+           description="The bell's inbox: event reminders, cancelled events and series dates, and new dates from followed hosts.")
+
+
+@s("default", "Five notifications, newest first: two unread (a dot, bold title and \"Unread\" for assistive technology), then read ones; the bell shows 2.")
+def _():
+    return member_shell("notifications", notifications_page(
+        f'<ul class="card card--list notes">{"".join(note_row(n) for n in NOTES)}</ul>', foot=NOTES_FOOT), notes=2)
+
+
+@s("many", "Twelve unread: the bell shows 9+ and its label still says how many; the inbox keeps only the latest 50.")
+def _():
+    rows = [(ic, t, x, w, to, True) for ic, t, x, w, to, _u in NOTES] * 2 + list(NOTES[:2])
+    rows = [(ic, t, x, w, to, i < 12) for i, (ic, t, x, w, to, _u) in enumerate(rows)]
+    return member_shell("notifications", notifications_page(
+        f'<ul class="card card--list notes">{"".join(note_row(n) for n in rows)}</ul>', foot=NOTES_FOOT), notes=12)
+
+
+@s("loading", "Inbox loading: five row skeletons under the heading; the bell keeps the count it already had.")
+def _():
+    row = ('<li class="note"><div class="note__link"><span class="skeleton skeleton--avatar"></span>'
+           '<div class="note__body skeleton-stack"><span class="skeleton skeleton--text w-60"></span>'
+           '<span class="skeleton skeleton--text-sm w-80"></span></div></div></li>')
+    return member_shell("notifications", notifications_page(
+        loading_region("Loading your notifications", f'<ul class="card card--list notes">{row * 5}</ul>'), mark_all=False), notes=2)
+
+
+@s("empty", "Nothing yet: says what will appear here and points to events; the bell has no badge.")
+def _():
+    return member_shell("notifications", notifications_page(empty_block(
+        "No notifications yet", "Reminders for events you’ve joined, cancellations and new dates from hosts you follow will appear here.",
+        f'<a class="btn btn--primary btn--sm" href="{href("events")}">Browse events</a>'), mark_all=False), notes=0)
+
+
+@s("error", "Inbox failed to load: the heading stays; retry in place; the bell has no badge because the count is unknown.")
+def _():
+    return member_shell("notifications", notifications_page(error_block(
+        "Notifications didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", ref="CF-N7B2"),
+        mark_all=False), notes=0)

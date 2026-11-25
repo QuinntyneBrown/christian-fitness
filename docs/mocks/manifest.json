@@ -1317,6 +1317,22 @@
       "not_applicable": {
         "busy": "Only the host picker is specified; the complete series save flow is not yet designed."
       }
+    },
+    {
+      "id": "notifications",
+      "kind": "page",
+      "title": "Notifications",
+      "group": "Member app",
+      "route": "/notifications",
+      "source": "Added by ADR 0068 (no Magic Patterns frame)",
+      "requirements": [],
+      "states": [
+        "default",
+        "many",
+        "loading",
+        "empty",
+        "error"
+      ]
     }
   ]
 }
