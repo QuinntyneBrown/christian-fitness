@@ -1,0 +1,20 @@
+<nav class="side-nav" aria-label="Contents">
+  <p class="side-nav__title">Contents</p>
+  <ol class="side-nav__list" [attr.role]="numbered() ? null : 'list'">
+    @for (entry of entries(); track entry.id) {
+      <li>
+        <a
+          class="side-nav__link"
+          [class.side-nav__link--numbered]="numbered()"
+          [href]="route() + '#' + entry.id"
+          (click)="follow($event, entry.id)"
+        >
+          @if (numbered()) {
+            <span class="side-nav__n">{{ $index + 1 }}.</span>
+          }
+          {{ entry.title }}</a
+        >
+      </li>
+    }
+  </ol>
+</nav>

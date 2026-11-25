@@ -7,5 +7,10 @@
       [effective]="effective"
       [points]="points"
       [sections]="sections"
-  /></cf-container>
+      ><cf-side-navigation
+        slot="contents"
+        route="/terms"
+        [entries]="sections"
+        (navigate)="router.navigateByUrl($event)" /></cf-prose
+  ></cf-container>
 </main>
