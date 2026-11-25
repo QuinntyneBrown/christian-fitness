@@ -561,6 +561,10 @@
       "requirements": [],
       "states": [
         "default",
+        "host-searching",
+        "host-selected",
+        "host-no-results",
+        "host-invalid",
         "edit",
         "edit-saving",
         "edit-invalid",
@@ -1081,6 +1085,27 @@
         "empty",
         "error"
       ]
+    },
+    {
+      "id": "series-editor",
+      "kind": "dialog",
+      "title": "Series editor",
+      "group": "Admin console",
+      "opens_from": "admin-series",
+      "source": "Derived: host selection in the New series and Edit details drawers (ADR 0062).",
+      "requirements": [],
+      "states": [
+        "default",
+        "edit",
+        "edit-bootcamp",
+        "searching",
+        "selected",
+        "no-results",
+        "invalid"
+      ],
+      "not_applicable": {
+        "busy": "Only the host picker is specified; the complete series save flow is not yet designed."
+      }
     },
     {
       "id": "cancel-session",

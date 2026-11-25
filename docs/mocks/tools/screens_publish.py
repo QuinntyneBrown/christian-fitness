@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from cf_data import (ADMIN_STORIES, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
                      PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
-from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, field, form_alert, href, icon,
+from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field, form_alert, href, icon,
                    image, listing_mark, loading_region, screen, select, textarea, toast, toast_region, verified_badge)
-from overlays import dialog, over_admin
+from overlays import dialog, drawer, over_admin
 from screens_admin import G, SRC, table_skeleton
 
 N = NEWSLETTER
@@ -414,7 +414,7 @@ def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
                 <span class="admin-session__date">{x["weekday"]} {x["month"]} {x["day"]}</span>
                 <span class="admin-session__topic">{x["topic"]}</span><span class="admin-session__end">{end}</span></li>""")
     pct = round(sr["enrolled"] / sr["capacity"] * 100)
-    new = f'<button class="btn btn--primary btn--md" type="button">{icon("plus")}New series</button>'
+    new = f'<button class="btn btn--primary btn--md" type="button" data-mock-href="{href("series-editor")}">{icon("plus")}New series</button>'
     return f"""{admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.", new)}
       <div class="split split--picker">
         <nav aria-label="Series"><ul class="pick-cards">{picker}</ul></nav>
@@ -426,7 +426,7 @@ def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
               <p class="muted">Hosted by {LS[sr["host"]]["name"]}</p>
               <p class="series-summary-card__facts"><span>{icon("repeat")}{sr["cadence"]}, {sr["time"]} · {sr["range"]}</span><span>{icon("map-pin")}{sr["place"]}</span></p>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button">Edit details</button>
+            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("series-editor", "edit" if sr["id"] == "couch-to-5k" else "edit-bootcamp")}">Edit details</button>
             <dl class="series-summary-card__stats">
               <div><dt>Joined</dt><dd>{sr["enrolled"]} of {sr["capacity"]}</dd>
                 <dd><meter class="fill__meter" min="0" max="{sr["capacity"]}" value="{sr["enrolled"]}">{pct}% full</meter></dd></div>
@@ -474,13 +474,73 @@ def _():
 def _():
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + empty_block(
         "No series yet", "A series is a run of dated sessions members join once, such as eight Tuesdays of Couch to 5K.",
-        f'<button class="btn btn--primary btn--sm" type="button">{icon("plus")}New series</button>'))
+        f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("series-editor")}">{icon("plus")}New series</button>'))
 
 
 @s("error", "Series failed to load: retry in place.")
 def _():
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + error_block(
         "Series didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", ref="CF-A9R3"))
+
+
+def series_editor(state: str) -> str:
+    invalid = state == "invalid"
+    selected = state in ("edit", "edit-bootcamp", "selected")
+    value = "" if invalid else "Lakeshore" if state == "searching" else "Northside" if state == "no-results" else "Danielle Okafor" if state == "edit-bootcamp" else "Lakeshore Runners Fellowship" if selected else "Christian Fitness"
+    alert = error_summary("1 thing to fix", [("Choose a Listed host", "f-host")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') if invalid else ""
+    host = field("Host (required)", "host", value, required=True,
+                 error="Choose a Listed host" if invalid else "",
+                 hint="" if invalid else "Choose a Listed directory listing.")
+    if state == "searching":
+        results = '<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html"><span class="pick-card__title">Lakeshore Runners Fellowship</span><span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a>'
+    elif state == "no-results":
+        results = '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="searching.html">Search again</a>'
+    else:
+        results = '<a href="searching.html">Search hosts</a>'
+    body = f'{alert}{host}{results}<p class="field__hint">Other series fields are not yet specified.</p>'
+    foot = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>'
+    return over_admin("admin-series", series_admin(SR["park-bootcamp" if state == "edit-bootcamp" else "couch-to-5k"]),
+                      drawer("Edit series" if state in ("edit", "edit-bootcamp") else "New series", body, foot))
+
+
+s = screen("series-editor", "dialog", "Series editor", group=G, opens_from="admin-series",
+           source="Derived: host selection in the New series and Edit details drawers (ADR 0062).",
+           not_applicable={"busy": "Only the host picker is specified; the complete series save flow is not yet designed."})
+
+
+@s("default", "A new series defaults to the Christian Fitness team host.")
+def _():
+    return series_editor("default")
+
+
+@s("edit", "Edit a series with its saved host.")
+def _():
+    return series_editor("edit")
+
+
+@s("edit-bootcamp", "Edit Saturday Park Bootcamp with its saved host Danielle Okafor.")
+def _():
+    return series_editor("edit-bootcamp")
+
+
+@s("searching", "Search Listed hosts and choose a matching listing.")
+def _():
+    return series_editor("searching")
+
+
+@s("selected", "A matching Listed host has been selected.")
+def _():
+    return series_editor("selected")
+
+
+@s("no-results", "A host search with no matching Listed listings.")
+def _():
+    return series_editor("no-results")
+
+
+@s("invalid", "A missing host shows an error at the field and in the summary.")
+def _():
+    return series_editor("invalid")
 
 
 def cancel_session(*, busy: bool = False, failed: bool = False) -> str:

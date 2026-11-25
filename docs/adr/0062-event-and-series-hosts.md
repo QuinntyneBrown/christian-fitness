@@ -13,7 +13,7 @@ Every event and series shows a host directory listing (`L2-010` AC4, `L2-051` AC
 - An Admin sets a required Host in both the event and series editors. New records default to the Listed "Christian Fitness" team listing; editing shows the saved host. The searchable picker offers Listed directory listings only and shows a no-results state. The server refuses a missing or non-Listed selection; the field and error summary identify the error.
 - Every event, including a series session, and every series has a non-null `HostListingId` foreign key to a directory listing. The event and series each store their own host; this decision does not specify propagation when either changes.
 - `cf seed` creates the Listed Christian Fitness team listing idempotently using a stable identity. The migration ensures that same listing exists before backfilling every existing event and series, including drafts and cancelled records, and then enforces the non-null foreign keys. It must not overwrite an existing host on a rerun or replace an existing team listing.
-- The migration also creates or reuses the listing because releases run `cf migrate` before `cf seed` (ADR 0047). The migration and seed use the same stable identity, so the subsequent seed does not duplicate it. The schema rollout must remain compatible with the running revision as required by ADR 0047.
+- The migration also creates or reuses the listing because releases run `cf migrate` before `cf seed` (ADR 0047). The migration and seed use the same stable identity, so the subsequent seed does not duplicate it. The new foreign-key columns default to that identity in the database, allowing the running older revision to insert events without a host during rollout (ADR 0047).
 
 ## Consequences
 
