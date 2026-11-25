@@ -889,7 +889,7 @@ def session_meter(sr: dict, *, mine: bool = False) -> str:
             return " session-meter__bar--cancelled"
         if x["status"] == "next":
             return " session-meter__bar--next"
-        done = x["attended"] if mine else x["status"] == "past"
+        done = x["attended"] is True if mine else x["status"] == "past"
         return " session-meter__bar--done" if done else ""
     return ('<span class="session-meter" aria-hidden="true">'
             + "".join(f'<span class="session-meter__bar{mod(x)}"></span>' for x in sr["sessions"]) + '</span>')
