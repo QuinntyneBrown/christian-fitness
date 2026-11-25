@@ -7,6 +7,7 @@ import type {
   ListingConversationDto,
   ListingFollowDto,
   ListingProfileDto,
+  OwnListingPhotoDto,
   OwnListingSavedDto,
   OwnListingUpdateDto,
 } from '@cf/api';
@@ -17,7 +18,7 @@ import { catchError, type Observable, throwError } from 'rxjs';
  * {@link DirectoryApi} over HTTP: `GET /api/directory?kind=&q=&cursor=` (ADR 0082) and
  * `GET /api/directory/{id}` and `POST /api/directory/{id}/conversation` (ADR 0087) and
  * `PUT` and `DELETE /api/directory/{id}/follow` (ADR 0088) and the owner's `PUT /api/directory/{id}`
- * (ADR 0093), whose refusal errors with an `ApiError`. A 5xx opens
+ * and `POST /api/directory/photos` (ADR 0093), whose refusals error with an `ApiError`. A 5xx opens
  * the server-error screen through the interceptor; every failure passes on to the screen. It holds
  * no state, and is provided on the Directory screen, so it lives only while the screen does.
  */
@@ -55,6 +56,14 @@ export class HttpDirectoryService implements DirectoryApi {
   updateOwn(id: string, update: OwnListingUpdateDto): Observable<OwnListingSavedDto> {
     return this.http
       .put<OwnListingSavedDto>(`/api/directory/${encodeURIComponent(id)}`, update)
+      .pipe(catchError(asApiError));
+  }
+
+  uploadPhoto(file: File): Observable<OwnListingPhotoDto> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http
+      .post<OwnListingPhotoDto>('/api/directory/photos', body)
       .pipe(catchError(asApiError));
   }
 }

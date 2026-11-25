@@ -170,13 +170,26 @@ internal sealed class UploadListingPhotoHandler(IImageStore store, ICurrentMembe
     public async Task<ListingPhotoDto> Handle(UploadListingPhotoCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (request.Length is <= 0 or > ImageKeys.MaxBytes)
+        return await ListingPhotos.StoreAsync(store, current, audit, request.Content, request.Length, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Stores one listing photo for staff or an owner: a JPEG, PNG or WebP of up to 5 MB judged by its
+/// first bytes, else 400 <c>photo_invalid</c>; audited <c>listing_photo.uploaded</c> against the key's GUID.
+/// </summary>
+internal static class ListingPhotos
+{
+    public static async Task<ListingPhotoDto> StoreAsync(
+        IImageStore store, ICurrentMember current, AuditTrail audit, Stream source, long length, CancellationToken cancellationToken)
+    {
+        if (length is <= 0 or > ImageKeys.MaxBytes)
         {
             throw Refused();
         }
 
-        var content = new byte[request.Length];
-        await request.Content.ReadExactlyAsync(content, cancellationToken).ConfigureAwait(false);
+        var content = new byte[length];
+        await source.ReadExactlyAsync(content, cancellationToken).ConfigureAwait(false);
         var kind = ImageKeys.Detect(content) ?? throw Refused();
         var key = ImageKeys.NewKey(kind.Extension);
         await store.SaveAsync(key, content, cancellationToken).ConfigureAwait(false);

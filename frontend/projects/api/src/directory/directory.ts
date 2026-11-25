@@ -144,6 +144,11 @@ export interface OwnListingUpdateDto {
   contactEmail: string | null;
 }
 
+/** A stored photo's key, which the owner's save sends as `photoKey`. */
+export interface OwnListingPhotoDto {
+  photoKey: string;
+}
+
 /** What the owner's save answers: the listing as saved, and whether a name or kind waits for staff. */
 export interface OwnListingSavedDto {
   nameChangePending: boolean;
@@ -192,6 +197,13 @@ export interface DirectoryApi {
    * 400 `validation_failed` with `fieldCodes`, 403 `not_listing_owner`, 404 `listing_not_found`.
    */
   updateOwn(id: string, update: OwnListingUpdateDto): Observable<OwnListingSavedDto>;
+
+  /**
+   * The owner stores a photo for their listing and gets its key, saved with {@link updateOwn}
+   * (ADR 0093). A refusal errors with an `ApiError`: 400 `validation_failed` with
+   * `fieldCodes.photo` `photo_invalid`, 403 `not_listing_owner`.
+   */
+  uploadPhoto(file: File): Observable<OwnListingPhotoDto>;
 }
 
 /** One listing's follow as a screen shows it: the member's state, the count where known, and whether a change is in flight. */

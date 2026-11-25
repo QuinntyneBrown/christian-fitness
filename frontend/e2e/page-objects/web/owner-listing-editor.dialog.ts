@@ -38,6 +38,7 @@ export class OwnerListingEditorDialog {
   readonly cancelButton: Locator;
   /** The foot's save button, whichever it reads: Save changes or Saving…. */
   readonly saveButton: Locator;
+  readonly removePhotoButton: Locator;
   readonly alert: Locator;
   readonly alertTitle: Locator;
   readonly alertText: Locator;
@@ -65,6 +66,7 @@ export class OwnerListingEditorDialog {
     this.saveButton = this.dialog.locator('.dialog__foot .btn', {
       hasText: /Save changes|Saving/,
     });
+    this.removePhotoButton = this.dialog.getByRole('button', { name: 'Remove photo' });
     this.alert = this.dialog.locator('.form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertText = this.alert.locator('.form-alert__text');

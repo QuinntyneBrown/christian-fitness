@@ -126,3 +126,35 @@ internal sealed class UpdateOwnListingHandler(IAppDbContext db, ICurrentMember c
         return new OwnListingSavedDto(listing.PendingName is not null || listing.PendingKind is not null, saved);
     }
 }
+
+/// <summary>
+/// An owner stores a photo for their listing (L2-079 AC1; ADR 0093): only a member who owns a
+/// published listing may, else 403 <c>not_listing_owner</c>; the photo is judged and audited as
+/// staff's is (<c>listing_photo.uploaded</c>).
+/// </summary>
+public sealed class UploadOwnListingPhotoCommand(Stream content, long length) : IRequest<ListingPhotoDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "listing_photo.uploaded";
+
+    public Stream Content { get; } = content;
+
+    public long Length { get; } = length;
+}
+
+internal sealed class UploadOwnListingPhotoHandler(IAppDbContext db, IImageStore store, ICurrentMember current, AuditTrail audit)
+    : IRequestHandler<UploadOwnListingPhotoCommand, ListingPhotoDto>
+{
+    public async Task<ListingPhotoDto> Handle(UploadOwnListingPhotoCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var owns = await db.DirectoryListings
+            .AnyAsync(l => l.MemberId == current.Id && l.Status == ListingStatus.Published, cancellationToken)
+            .ConfigureAwait(false);
+        if (!owns)
+        {
+            throw new RefusalException(RefusalCodes.NotListingOwner, RefusalKind.Forbidden);
+        }
+
+        return await ListingPhotos.StoreAsync(store, current, audit, request.Content, request.Length, cancellationToken).ConfigureAwait(false);
+    }
+}

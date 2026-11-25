@@ -1,6 +1,7 @@
 import { expect, test } from '../fixtures/test';
 import {
   answerListingProfile,
+  answerOwnListingPhoto,
   answerOwnListingSave,
   EASTSIDE_OWNED,
   LAKESHORE,
@@ -166,6 +167,46 @@ test.describe('Member app, edit my listing', () => {
 
     await editor.website.fill('eastsideladies.ca');
     await expect(editor.website).not.toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('A chosen photo is uploaded at once and saved by its key; one that is not an image is refused on its field, and Remove clears it', async ({
+    page,
+    api,
+  }) => {
+    answerListingProfile(api, [EASTSIDE_OWNED]);
+    const key = '0193a9c0000070008000000000ea5101.png';
+    const uploads = answerOwnListingPhoto(api, (n) =>
+      n === 0
+        ? { status: 400, code: 'validation_failed', fieldCodes: { photo: 'photo_invalid' } }
+        : { photoKey: key },
+    );
+    const sent = answerOwnListingSave(api, (_, body) => ({
+      listing: { ...EASTSIDE_OWNED, photoKey: body.photoKey },
+    }));
+    const profile = new WebListingProfilePage(page);
+    const editor = new OwnerListingEditorDialog(page);
+    await profile.open(EASTSIDE_OWNED.id);
+    await profile.editListingButton.click();
+
+    await editor.choosePhoto('notes.png', Buffer.from('%PDF-1.7'));
+
+    await expect(editor.photoError).toHaveText('Use a JPEG, PNG or WebP image up to 5 MB');
+    await expect(editor.photoName).toHaveText('No photo yet');
+
+    await editor.choosePhoto('team.png', Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+
+    await expect(editor.photoName).toHaveText('team.png');
+    await expect(editor.photoError).toHaveCount(0);
+    expect(uploads.count).toBe(2);
+
+    await editor.removePhotoButton.click();
+    await expect(editor.photoName).toHaveText('No photo yet');
+    await editor.choosePhoto('team.png', Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+    await expect(editor.photoName).toHaveText('team.png');
+    await editor.saveButton.click();
+
+    await expect(editor.dialog).toHaveCount(0);
+    expect(sent.map((body) => body.photoKey)).toEqual([key]);
   });
 
   for (const [why, reply] of [

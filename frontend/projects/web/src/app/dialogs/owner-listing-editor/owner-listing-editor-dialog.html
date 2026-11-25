@@ -55,7 +55,9 @@
     [accept]="imageTypes"
     [fileName]="photoName()"
     [error]="errors().photo"
-    [disabled]="saving()"
+    [disabled]="saving() || uploading()"
+    (fileChosen)="choosePhoto($event)"
+    (removed)="removePhoto()"
   />
   <cf-text-field
     fieldId="f-focus"
@@ -83,7 +85,13 @@
   <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
     Cancel
   </cf-button>
-  <cf-button slot="foot" grow [busy]="saving()" [disabled]="saving()" (click)="save()">
+  <cf-button
+    slot="foot"
+    grow
+    [busy]="saving()"
+    [disabled]="saving() || uploading()"
+    (click)="save()"
+  >
     @if (saving()) {
       Saving…
     } @else {

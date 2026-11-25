@@ -28,6 +28,9 @@ const DESCRIPTION_ID = 'owner-listing-editor-desc';
 /** The image types the picker offers. */
 const IMAGE_TYPES = 'image/jpeg,image/png,image/webp';
 
+/** What the photo field says when an upload fails for any reason but a refused file. */
+const PHOTO_REFUSED = 'Use a JPEG, PNG or WebP image up to 5 MB';
+
 /** The editor fields typed as text. */
 type TextKey = 'name' | 'about' | 'website' | 'focus' | 'contact';
 
@@ -39,7 +42,8 @@ export interface OwnerListingEditorResult {
 /**
  * The owner's listing editor, "Edit your listing" (mock docs/mocks/dialogs/owner-listing-editor/;
  * L2-079; ADR 0093): a CDK Dialog rendering the library's dialog with the listing's name, about,
- * website, photo, focus tags (one comma field) and contact email. Focus starts on Name. While a
+ * website, photo, focus tags (one comma field) and contact email. Focus starts on Name. A chosen
+ * photo is uploaded at once and saved with the listing by its key. While a
  * save is on its way the button reads "Saving…", the fields hold still and the dialog stays open;
  * a save that goes through closes it with the listing as saved. A refusal that names fields shows
  * each on its field with an error summary that takes focus; any other failure shows one alert
@@ -65,6 +69,7 @@ export class OwnerListingEditorDialog {
   protected readonly imageTypes = IMAGE_TYPES;
   protected readonly values = signal<OwnListingEditorValues>(ownListingValuesOf(this.listing));
   protected readonly saving = signal(false);
+  protected readonly uploading = signal(false);
   protected readonly failed = signal(false);
   protected readonly errors = signal<OwnListingFieldErrors>({});
   protected readonly errorItems = computed(() => ownListingErrorItems(this.errors()));
@@ -81,13 +86,38 @@ export class OwnerListingEditorDialog {
     this.clearError(field);
   }
 
+  /** The photo field's file: uploaded at once, kept by its key until the listing is saved. */
+  protected choosePhoto(file: File): void {
+    this.uploading.set(true);
+    this.clearError('photo');
+    this.directory
+      .uploadPhoto(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ photoKey }) => {
+          this.values.update((values) => ({ ...values, photoKey, photoName: file.name }));
+          this.uploading.set(false);
+        },
+        error: (error: unknown) => {
+          const photo = ownListingErrorsOf(error)?.photo ?? PHOTO_REFUSED;
+          this.errors.update((errors) => ({ ...errors, photo }));
+          this.uploading.set(false);
+        },
+      });
+  }
+
+  protected removePhoto(): void {
+    this.values.update((values) => ({ ...values, photoKey: null, photoName: null }));
+    this.clearError('photo');
+  }
+
   protected close(): void {
     if (this.saving()) return;
     this.ref.close();
   }
 
   protected save(): void {
-    if (this.saving()) return;
+    if (this.saving() || this.uploading()) return;
     this.saving.set(true);
     // Escape, Close and the scrim wait for the answer, so it is never lost.
     this.ref.disableClose = true;

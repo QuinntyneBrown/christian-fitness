@@ -343,3 +343,32 @@ export function answerOwnListingSave(
   });
   return sent;
 }
+
+/**
+ * Answers the owner's `POST /api/directory/photos` (ADR 0093) with `reply(n)` for the `n`th upload:
+ * a key, or a refusal. Returns how many were sent.
+ */
+export function answerOwnListingPhoto(
+  api: ApiHandlers,
+  reply: (
+    requestNumber: number,
+  ) =>
+    { photoKey: string } | { status: number; code?: string; fieldCodes?: Record<string, string> },
+): { count: number } {
+  const sent = { count: 0 };
+  api.on('POST', /^\/api\/directory\/photos$/, (): ApiReply => {
+    const answer = reply(sent.count);
+    sent.count += 1;
+    if ('photoKey' in answer) return { status: 201, json: answer };
+    return {
+      status: answer.status,
+      headers: { 'content-type': 'application/problem+json' },
+      json: {
+        status: answer.status,
+        code: answer.code ?? 'error',
+        ...(answer.fieldCodes ? { fieldCodes: answer.fieldCodes } : {}),
+      },
+    };
+  });
+  return sent;
+}
