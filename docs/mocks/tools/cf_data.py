@@ -405,7 +405,15 @@ ADMIN_STORIES = [
     ("park-bootcamp-guide", "A beginner’s guide to your first outdoor bootcamp", "Training", "Marcus Bell", "Published", "Apr 8", "4,340"),
 ]
 STORY_STATUSES = ["Draft", "In review", "Scheduled", "Published"]
-AUTHORS = ["Naomi Clarke", "Priya Raman", "Marcus Bell", "Pastor Ruth Adeyemi", "CF Team"]
+# Bylines are a list Admins manage under Stories > Bylines (L2-075); the editor's picker reads it.
+BYLINES = [
+    ("CF Team", "CF", "Notices and event news from the Christian Fitness team."),
+    ("Marcus Bell", "MB", "Personal trainer who writes beginner guides and profiles of our professionals."),
+    ("Naomi Clarke", "NC", "Writes about community, church sport and the people behind both."),
+    ("Pastor Ruth Adeyemi", "RA", "Pastor and writer on faith, rest and the body."),
+    ("Priya Raman", "PR", "Nutrition writer and meal-prep volunteer in Mississauga."),
+]
+AUTHORS = [b[0] for b in BYLINES]
 PAST_ISSUES = [
     (48, "Apr 11", "A church basement, 200 neighbours, and a lot of kettlebells", "61%", "18%"),
     (47, "Apr 4", "Holy Week on the move: five runs and one quiet walk", "58%", "15%"),

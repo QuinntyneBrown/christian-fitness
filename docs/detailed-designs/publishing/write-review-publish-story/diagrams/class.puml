@@ -34,13 +34,12 @@ class Story <<entity>> {
   +string? Summary
   +string Text
   +StorySection? Section
-  +string? Byline
+  +Guid? BylineId
   +string? ImageKey
   +StoryStatus Status
   +FrontPagePlacement Placement
   +bool IncludeInWeekly
   +StoryPointer PointsTo
-  +string? WriterNote
   +DateTimeOffset? PublishAt
   +DateTimeOffset? PublishedAt
   +DateTimeOffset? SubmittedAt
@@ -50,7 +49,7 @@ class Story <<entity>> {
   +int Version
   +Edit(fields, now): void
   +SendForReview(now): void
-  +RequestChanges(now): void
+  +ReturnToDraft(now): void
   +Publish(now): void
   +Schedule(at, by, now): void
   +Unschedule(now): void
@@ -74,7 +73,7 @@ class StoryFields {
   +string? Summary
   +string Text
   +string? Section
-  +string? Byline
+  +Guid? BylineId
   +string? Slug
   +string? ImageKey
   +string Placement
@@ -87,7 +86,7 @@ class StoryFields {
 class SaveStoryCommand
 class PublishStoryCommand
 class SubmitStoryCommand
-class RequestStoryChangesCommand
+class ReturnStoryToDraftCommand
 class UnscheduleStoryCommand
 class UnpublishStoryCommand
 class PublishDueStoriesCommand
@@ -110,7 +109,7 @@ PublishStoryCommand --|> StoryFields
 PublishStoryValidator ..> PublishStoryCommand : validates
 IAuditableCommand <|.. PublishStoryCommand
 IAuditableCommand <|.. SubmitStoryCommand
-IAuditableCommand <|.. RequestStoryChangesCommand
+IAuditableCommand <|.. ReturnStoryToDraftCommand
 IAuditableCommand <|.. UnscheduleStoryCommand
 IAuditableCommand <|.. UnpublishStoryCommand
 PublishDueStoriesCommand ..> Story : publishes Scheduled when due

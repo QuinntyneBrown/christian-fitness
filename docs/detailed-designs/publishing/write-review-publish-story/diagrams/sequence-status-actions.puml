@@ -28,10 +28,10 @@ alt Send for review (Draft)
   page -> client : submit(id, version)
   client -> ctrl : POST /api/admin/stories/{id}/submit
   ctrl -> h : SubmitStoryCommand: SendForReview, In review (L2-069 AC2)
-else Request changes (In review)
-  page -> client : requestChanges(id, version)
-  client -> ctrl : POST /api/admin/stories/{id}/request-changes
-  ctrl -> h : RequestStoryChangesCommand: RequestChanges, Draft (L2-069 AC3)
+else Back to draft (In review)
+  page -> client : returnToDraft(id, version)
+  client -> ctrl : POST /api/admin/stories/{id}/return-to-draft
+  ctrl -> h : ReturnStoryToDraftCommand: ReturnToDraft, Draft (L2-069 AC3)
 else Publish now, Schedule, Approve & publish or Approve & schedule
   page -> client : publish(id, fields with optional date and time)
   client -> ctrl : POST /api/admin/stories/{id}/publish
