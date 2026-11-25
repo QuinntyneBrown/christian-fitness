@@ -41,7 +41,7 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 ### Open questions
 
 - The dialog says "anyone who dropped in for this date is refunded". There is no online payment (`L2-011` AC5), so the system refunds nothing; what is refunded and by whom is `<TO SUPPLY>` and the copy should match (`docs/mocks/README.md` open question 12).
-- "Told" is a notice in the series' group chat in this design. Whether members are also emailed or notified on their phone is `<TO SUPPLY>` (`docs/mocks/README.md` open question 1).
+- "Told" is a notice in the series' group chat in this design. Members are also told in the in-app inbox, a "Cancelled series date" notification with its own Preferences switch; there is no email or web push for it yet (ADR 0061).
 - The dialog names only "The <n> members who joined the series"; drop-ins for that date are counted in the toast but not named in the dialog's count. The wording needs a decision.
 - New series, Edit details and Add a date have no screen in the mocks (`docs/mocks/README.md` open question 10). Until a requirement and mock exist, series and sessions come from the CLI's idempotent seed; `L2-071` AC6 for changed and added dates holds by construction once they exist, since sessions are events.
 - The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.

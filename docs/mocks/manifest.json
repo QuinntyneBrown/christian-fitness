@@ -1004,6 +1004,22 @@
       }
     },
     {
+      "id": "notifications",
+      "kind": "page",
+      "title": "Notifications",
+      "group": "Member app",
+      "route": "/notifications",
+      "source": "Added by ADR 0061 (no Magic Patterns frame)",
+      "requirements": [],
+      "states": [
+        "default",
+        "many",
+        "loading",
+        "empty",
+        "error"
+      ]
+    },
+    {
       "id": "admin-stories",
       "kind": "page",
       "title": "Manage stories",
