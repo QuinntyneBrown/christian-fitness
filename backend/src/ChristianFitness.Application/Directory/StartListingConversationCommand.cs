@@ -7,8 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Directory;
 
-/// <summary>The member to open the direct conversation with: the listing's owner.</summary>
-public sealed record ListingConversationDto(Guid MemberId);
+/// <summary>
+/// The member to open the direct conversation with: the listing's owner, and the contact email
+/// they gave for members who message the listing, or none (L2-079 AC7; ADR 0095). A class, so no
+/// generated <c>ToString</c> prints the email.
+/// </summary>
+public sealed class ListingConversationDto(Guid memberId, string? contactEmail)
+{
+    public Guid MemberId { get; } = memberId;
+
+    public string? ContactEmail { get; } = contactEmail;
+}
 
 /// <summary>
 /// A member messages a listing (L2-055 AC6, L2-014 AC1 to AC2; ADR 0087): the answer is its owner,
@@ -27,7 +36,7 @@ internal sealed class StartListingConversationHandler(IAppDbContext db, ICurrent
         ArgumentNullException.ThrowIfNull(request);
         var listing = await db.DirectoryListings.AsNoTracking()
             .Where(l => l.Id == request.ListingId && l.Status == ListingStatus.Published)
-            .Select(l => new { l.MemberId })
+            .Select(l => new { l.MemberId, l.ContactEmail })
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.ListingNotFound, RefusalKind.NotFound);
@@ -37,6 +46,6 @@ internal sealed class StartListingConversationHandler(IAppDbContext db, ICurrent
         // The owner's "Let anyone message me" preference (L2-065) arrives with journey 34 and does not
         // apply to a listing's Message; until then nothing else stands between them (ADR 0087).
         var name = await DirectChat.OtherNameAsync(db, current.Id, owner, cancellationToken).ConfigureAwait(false);
-        return name is null ? throw DirectChat.Unavailable() : new ListingConversationDto(owner);
+        return name is null ? throw DirectChat.Unavailable() : new ListingConversationDto(owner, listing.ContactEmail);
     }
 }

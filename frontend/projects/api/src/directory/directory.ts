@@ -158,6 +158,11 @@ export interface OwnListingSavedDto {
 /** Who receives a listing's messages: the member whose direct conversation Message opens. */
 export interface ListingConversationDto {
   memberId: string;
+  /**
+   * The contact email the owner gave for members who message the listing, or none (L2-079 AC7;
+   * ADR 0095). No screen shows it yet: no mock draws it.
+   */
+  contactEmail: string | null;
 }
 
 /** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0087). */

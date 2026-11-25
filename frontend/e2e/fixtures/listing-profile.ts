@@ -277,7 +277,8 @@ export function answerListingConversation(api: ApiHandlers, reply: ConversationR
   const asked: string[] = [];
   api.on('POST', /^\/api\/directory\/[0-9a-f-]{36}\/conversation$/, (request): ApiReply => {
     asked.push(new URL(request.url()).pathname.split('/')[3] ?? '');
-    if (reply && 'memberId' in reply) return { json: { memberId: reply.memberId } };
+    if (reply && 'memberId' in reply)
+      return { json: { memberId: reply.memberId, contactEmail: null } };
     if (reply?.abort) return { abort: true };
     const status = reply?.status ?? 500;
     return {
