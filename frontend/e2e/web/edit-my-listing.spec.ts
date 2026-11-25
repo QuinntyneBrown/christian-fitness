@@ -128,4 +128,77 @@ test.describe('Member app, edit my listing', () => {
       await expect(profile.editListingButton).toBeFocused();
     },
   );
+
+  test('A website the server refuses is marked on its field with a focused summary, and what was typed stays', async ({
+    page,
+    api,
+  }) => {
+    answerListingProfile(api, [EASTSIDE_OWNED]);
+    const sent = answerOwnListingSave(api, () => ({
+      status: 400,
+      code: 'validation_failed',
+      fieldCodes: { website: 'website_invalid' },
+    }));
+    const profile = new WebListingProfilePage(page);
+    const editor = new OwnerListingEditorDialog(page);
+    await profile.open(EASTSIDE_OWNED.id);
+    await profile.editListingButton.click();
+
+    await editor.website.fill('eastsideladies');
+    await editor.about.fill('Thirty women now.');
+    await editor.saveButton.click();
+
+    await expect(editor.alertTitle).toHaveText('1 thing to fix before saving');
+    await expect(editor.alertLinks).toHaveText(['Enter a web address like eastsideladies.ca']);
+    await expect(editor.alertLinks).toHaveAttribute('href', '#f-website');
+    await expect(editor.alert).toBeFocused();
+    await expect(editor.website).toHaveAttribute('aria-invalid', 'true');
+    await expect(editor.name).not.toHaveAttribute('aria-invalid', 'true');
+    await expect(editor.dialog.locator('#f-website-error')).toHaveText(
+      'Enter a web address like eastsideladies.ca',
+    );
+    await expect(editor.saveButton).toHaveText('Save changes');
+    expect([await editor.website.inputValue(), await editor.about.inputValue()]).toEqual([
+      'eastsideladies',
+      'Thirty women now.',
+    ]);
+    expect(sent).toHaveLength(1);
+
+    await editor.website.fill('eastsideladies.ca');
+    await expect(editor.website).not.toHaveAttribute('aria-invalid', 'true');
+  });
+
+  for (const [why, reply] of [
+    ['the connection drops', { status: 0, abort: true }],
+    ['the listing is no longer theirs', { status: 403, code: 'not_listing_owner' }],
+  ] as const) {
+    test(`When ${why}, a message above the fields says so and everything typed is kept`, async ({
+      page,
+      api,
+    }) => {
+      answerListingProfile(api, [EASTSIDE_OWNED]);
+      answerOwnListingSave(api, () => reply);
+      const profile = new WebListingProfilePage(page);
+      const editor = new OwnerListingEditorDialog(page);
+      await profile.open(EASTSIDE_OWNED.id);
+      await profile.editListingButton.click();
+
+      await editor.about.fill('Thirty women now.');
+      await editor.focus.fill('Strength, Prayer');
+      await editor.saveButton.click();
+
+      await expect(editor.alertTitle).toHaveText("We couldn't save your listing");
+      await expect(editor.alertText).toHaveText(
+        'Something went wrong on our side. Your changes are still here, so try again in a moment.',
+      );
+      await expect(editor.alert).toHaveAttribute('role', 'alert');
+      await expect(editor.saveButton).toHaveText('Save changes');
+      await expect(editor.saveButton).toBeEnabled();
+      expect([await editor.about.inputValue(), await editor.focus.inputValue()]).toEqual([
+        'Thirty women now.',
+        'Strength, Prayer',
+      ]);
+      await expect(profile.successToasts).toHaveCount(0);
+    });
+  }
 });

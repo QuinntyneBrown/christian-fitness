@@ -2,8 +2,24 @@ import { Dialog, DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Component, computed, DestroyRef, inject, type Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DIRECTORY_SERVICE, type ListingProfileDto } from '@cf/api';
-import { Button, Dialog as DialogShell, FileField, Textarea, TextField } from '@cf/components';
-import { type OwnListingEditorValues, ownListingUpdateOf, ownListingValuesOf } from '@cf/domain';
+import {
+  Alert,
+  Button,
+  Dialog as DialogShell,
+  FileField,
+  Textarea,
+  TextField,
+} from '@cf/components';
+import {
+  listingErrorHeading,
+  type OwnListingEditorValues,
+  ownListingErrorItems,
+  ownListingErrorsOf,
+  type OwnListingFieldErrors,
+  type OwnListingFieldKey,
+  ownListingUpdateOf,
+  ownListingValuesOf,
+} from '@cf/domain';
 
 /** The ids that name and describe the dialog. */
 const HEADING_ID = 'owner-listing-editor-title';
@@ -25,12 +41,14 @@ export interface OwnerListingEditorResult {
  * L2-079; ADR 0093): a CDK Dialog rendering the library's dialog with the listing's name, about,
  * website, photo, focus tags (one comma field) and contact email. Focus starts on Name. While a
  * save is on its way the button reads "Saving…", the fields hold still and the dialog stays open;
- * a save that goes through closes it with the listing as saved. Every word the listing gives is
+ * a save that goes through closes it with the listing as saved. A refusal that names fields shows
+ * each on its field with an error summary that takes focus; any other failure shows one alert
+ * above the fields (L2-079 AC3, AC6); both keep what was typed. Every word the listing gives is
  * rendered as text.
  */
 @Component({
   selector: 'cf-owner-listing-editor-dialog',
-  imports: [Button, DialogShell, FileField, Textarea, TextField],
+  imports: [Alert, Button, DialogShell, FileField, Textarea, TextField],
   templateUrl: './owner-listing-editor-dialog.html',
   styleUrl: './owner-listing-editor-dialog.scss',
 })
@@ -47,6 +65,10 @@ export class OwnerListingEditorDialog {
   protected readonly imageTypes = IMAGE_TYPES;
   protected readonly values = signal<OwnListingEditorValues>(ownListingValuesOf(this.listing));
   protected readonly saving = signal(false);
+  protected readonly failed = signal(false);
+  protected readonly errors = signal<OwnListingFieldErrors>({});
+  protected readonly errorItems = computed(() => ownListingErrorItems(this.errors()));
+  protected readonly errorHeading = computed(() => listingErrorHeading(this.errorItems().length));
   /** The photo field's file name: the one chosen now, or "Current photo" for the one it has. */
   protected readonly photoName = computed(() => {
     const values = this.values();
@@ -56,6 +78,7 @@ export class OwnerListingEditorDialog {
 
   protected set(field: TextKey, value: string): void {
     this.values.update((values) => ({ ...values, [field]: value }));
+    this.clearError(field);
   }
 
   protected close(): void {
@@ -68,16 +91,27 @@ export class OwnerListingEditorDialog {
     this.saving.set(true);
     // Escape, Close and the scrim wait for the answer, so it is never lost.
     this.ref.disableClose = true;
+    this.failed.set(false);
+    // Cleared first, so a refusal again draws a new summary, which takes focus.
+    this.errors.set({});
     this.directory
       .updateOwn(this.listing.id, ownListingUpdateOf(this.values()))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ listing }) => this.ref.close({ saved: listing }),
-        error: () => {
+        error: (error: unknown) => {
+          const fields = ownListingErrorsOf(error);
+          if (fields) this.errors.set(fields);
+          else this.failed.set(true);
           this.saving.set(false);
           this.ref.disableClose = false;
         },
       });
+  }
+
+  private clearError(field: OwnListingFieldKey): void {
+    if (!this.errors()[field]) return;
+    this.errors.update((errors) => ({ ...errors, [field]: undefined }));
   }
 }
 

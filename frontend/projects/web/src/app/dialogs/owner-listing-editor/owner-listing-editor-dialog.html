@@ -5,12 +5,20 @@
   [descriptionId]="descriptionId"
   (closed)="close()"
 >
+  @if (errorItems().length > 0) {
+    <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+  } @else if (failed()) {
+    <cf-alert heading="We couldn't save your listing">
+      Something went wrong on our side. Your changes are still here, so try again in a moment.
+    </cf-alert>
+  }
   <cf-text-field
     fieldId="f-name"
     label="Name"
     name="name"
     hint="Changing the name or the kind sends the listing back to staff to check"
     [value]="values().name"
+    [error]="errors().name"
     [readonly]="saving()"
     (valueChange)="set('name', $event)"
   />
@@ -20,6 +28,7 @@
     name="about"
     [rows]="4"
     [value]="values().about"
+    [error]="errors().about"
     [readonly]="saving()"
     (valueChange)="set('about', $event)"
   />
@@ -30,6 +39,7 @@
     inputmode="url"
     optional
     [value]="values().website"
+    [error]="errors().website"
     [readonly]="saving()"
     (valueChange)="set('website', $event)"
   />
@@ -44,6 +54,7 @@
     hint="JPEG, PNG or WebP, up to 5 MB"
     [accept]="imageTypes"
     [fileName]="photoName()"
+    [error]="errors().photo"
     [disabled]="saving()"
   />
   <cf-text-field
@@ -52,6 +63,7 @@
     name="focus"
     hint="Up to 6, separated by commas"
     [value]="values().focus"
+    [error]="errors().focus"
     [readonly]="saving()"
     (valueChange)="set('focus', $event)"
   />
@@ -64,6 +76,7 @@
     optional
     hint="Shown to members who message you"
     [value]="values().contact"
+    [error]="errors().contact"
     [readonly]="saving()"
     (valueChange)="set('contact', $event)"
   />
