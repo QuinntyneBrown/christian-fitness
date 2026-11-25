@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Read the Privacy Policy and Terms
+
+Person_Ext(visitor, "Visitor or member", "Anyone")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular, served by nginx", "PrivacyPage, TermsPage: text in the bundle")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "CreateAccountHandler records accepted versions")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members with accepted versions")
+  Container(cli, "Christian Fitness CLI", ".NET console", "cf announce-legal-change")
+}
+System_Ext(mail, "Email provider", "SMTP relay")
+Rel(visitor, web, "Opens /privacy, /terms (no API request)", "HTTPS")
+Rel(web, api, "POST /api/account/join at Join", "JSON/HTTPS")
+Rel(api, db, "Writes", "EF Core")
+Rel(cli, db, "Reads members", "EF Core")
+Rel(cli, mail, "Sends notice", "SMTP")
+@enduml

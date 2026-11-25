@@ -1,0 +1,63 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Read the Privacy Policy and Terms
+
+enum LegalDocument {
+  PrivacyPolicy
+  TermsOfService
+}
+class LegalVersion {
+  +LegalDocument Document
+  +DateOnly EffectiveOn
+  +bool Matters
+}
+class LegalDocuments <<static, C#>> {
+  +Versions: LegalVersion[]
+  +InForce(document, now): LegalVersion
+}
+class LegalVersions <<TypeScript, @cf/domain>> {
+  +versions: LegalVersion[]
+  +inForce(document, now): LegalVersion
+  +upcoming(document, now): LegalVersion | null
+}
+class Member {
+  +DateOnly? AcceptedTermsVersion
+  +DateOnly? AcceptedPrivacyVersion
+  +DateTimeOffset? AcceptedLegalAt
+  +AcceptLegal(terms, privacy, now): void
+}
+class CreateAccountHandler {
+  +Handle(command: CreateAccountCommand): Task<SessionDto>
+}
+class AnnounceLegalChange <<cf command>> {
+  +RunAsync(document, version): Task<int>
+}
+class PrivacyPage
+class TermsPage
+class Prose <<component>>
+class SideNavigation <<component>>
+LegalDocuments "1" *-- "*" LegalVersion
+LegalVersions "1" *-- "*" LegalVersion
+LegalVersion --> LegalDocument
+CreateAccountHandler ..> LegalDocuments : InForce
+CreateAccountHandler --> Member : AcceptLegal
+AnnounceLegalChange ..> LegalDocuments
+PrivacyPage ..> LegalVersions
+TermsPage ..> LegalVersions
+PrivacyPage ..> Prose
+PrivacyPage ..> SideNavigation
+TermsPage ..> Prose
+TermsPage ..> SideNavigation
+note "Both lists share one inline case table in their unit tests" as N1
+LegalDocuments .. N1
+LegalVersions .. N1
+@enduml

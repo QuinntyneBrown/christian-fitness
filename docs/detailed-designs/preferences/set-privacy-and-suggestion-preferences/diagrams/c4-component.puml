@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Set privacy and suggestion preferences
+
+Container(web, "Member web app", "Angular", "PreferencesPage, MemberProfilePage, chat page, HomePage")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(save, "SavePreferencesHandler", "MediatR handler", "Visibility, switches, area, interests")
+  Component(profile, "GetPublicProfileHandler", "MediatR handler", "Applies profile visibility (L2-065 AC2, AC3)")
+  Component(direct, "JoinDirectHandler / SendDirectMessageHandler", "MediatR handlers", "Apply DirectChat.MayStartAsync (AC5)")
+  Component(attend, "IRegistrationReader", "Application abstraction", "Going counts; attendee names only when shown (AC4)")
+  Component(home, "GetHomeHandler", "MediatR handler", "Area and interests first (AC7)")
+  Component(groups, "GroupMembership", "Application helper", "ShareAGroupAsync through registrations")
+  Component(prefs, "MemberPreferences", "Domain entity", "Visibility, ShowOnAttendeeLists, LetAnyoneMessage, Area")
+  Component(adminq, "SearchMembersQuery", "MediatR handler", "Staff: unaffected by visibility")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Settings and registrations")
+Rel(web, save, "PUT /api/preferences", "JSON/HTTPS")
+Rel(web, profile, "GET /api/members/{id}/profile", "JSON/HTTPS")
+Rel(web, direct, "JoinDirect, SendDirect", "SignalR")
+Rel(web, home, "GET /api/home", "JSON/HTTPS")
+Rel(save, prefs, "Writes")
+Rel(profile, prefs, "Reads visibility")
+Rel(profile, groups, "Shares a group?")
+Rel(direct, prefs, "Reads LetAnyoneMessage")
+Rel(direct, groups, "Shares a group?")
+Rel(attend, prefs, "Reads ShowOnAttendeeLists")
+Rel(home, prefs, "Reads area")
+Rel(groups, db, "Registrations by event", "EF Core")
+Rel(adminq, db, "Reads members", "EF Core")
+@enduml

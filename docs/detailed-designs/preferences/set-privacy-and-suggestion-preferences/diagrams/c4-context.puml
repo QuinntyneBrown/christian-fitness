@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Set privacy and suggestion preferences
+
+Person(member, "Member", "Sets who can see and message them")
+Person(other, "Other member", "Opens profiles, starts conversations, views attendees")
+Person_Ext(visitor, "Visitor", "Not signed in")
+Person(staff, "Staff member", "Moderates members in the admin app")
+System(cf, "Christian Fitness", "Member app, admin app and API")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(member, cf, "Saves privacy and suggestion settings in", "HTTPS")
+Rel(other, cf, "Sees only what the settings allow in", "HTTPS")
+Rel(visitor, cf, "Opens Anyone profiles in", "HTTPS")
+Rel(staff, cf, "Sees every member in", "HTTPS")
+Rel(cf, otel, "Exports telemetry without setting values to", "OTLP")
+@enduml

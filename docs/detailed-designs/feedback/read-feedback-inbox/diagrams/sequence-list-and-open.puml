@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — list and open notes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminFeedbackPage" as page
+  participant "AdminFeedbackApi (ADMIN_FEEDBACK_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Staff area policy" as policy
+  participant "AdminFeedbackController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListFeedbackHandler" as list
+  participant "GetFeedbackNoteHandler" as note
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IFeedbackScreenshotStore" as store
+end box
+actor -> page : Open Feedback (or choose a tab)
+page --> actor : Skeletons (L2-074 AC9)
+page -> client : list(status, null)
+client -> policy : GET /api/admin/feedback?status=new
+policy -> policy : Role from the database admits StaffArea.Feedback (else 403 forbidden_role)
+policy -> ctrl : Admitted
+ctrl -> list : Send ListFeedbackQuery
+list -> db : Notes of the status, newest first, 51; counts by status
+db --> list : Rows
+list --> ctrl : FeedbackListDto
+ctrl --> client : 200 JSON
+alt none at all
+  page --> actor : "No feedback yet" and where notes come from
+else empty tab
+  page --> actor : "Nothing here."
+else notes
+  page --> actor : feedback-row list; New senders bold; tab counts (AC1, AC2)
+end
+actor -> page : Choose a note
+page -> client : note(id)
+client -> ctrl : GET /api/admin/feedback/{id}
+ctrl -> note : Send GetFeedbackNoteQuery
+note -> db : Note and its member
+db --> note : Rows
+note --> ctrl : FeedbackNoteDto
+ctrl --> client : 200 JSON
+client --> page : Note
+page --> actor : Kind, status, text as text, sender and email, page, device, "Reply to <first name>" (AC3, AC8)
+opt screenshot added
+  page -> ctrl : GET /api/admin/feedback/{id}/screenshot (staff session only)
+  ctrl -> store : Open by key
+  store --> ctrl : Image stream, private, no-store
+  ctrl --> page : Image
+end
+@enduml

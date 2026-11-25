@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read the Privacy Policy and Terms
+
+Container_Boundary(web, "Member web app") {
+  Component(routes, "app.routes", "Angular routes", "/privacy, /terms, outside the shell, no guard")
+  Component(pages, "PrivacyPage / TermsPage", "Routed pages", "Text in templates; no service")
+  Component(prose, "Prose, SideNavigation, TopBar", "components library", "Summary, sections, contents at LG")
+  Component(versions, "LegalVersions", "domain library", "Versions, inForce, upcoming")
+  Component(banner, "Member shell banner", "Banner component", "Upcoming change, 30 days ahead")
+  Component(join, "JoinPage", "Routed page", "Accepts both documents, linked")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(create, "CreateAccountHandler", "MediatR handler", "Records versions in force")
+  Component(docs, "LegalDocuments", "Domain constants", "Same versions as LegalVersions")
+}
+Container(cli, "Christian Fitness CLI", ".NET console", "cf announce-legal-change")
+Rel(routes, pages, "loadComponent")
+Rel(pages, prose, "Composes")
+Rel(pages, versions, "Effective date")
+Rel(banner, versions, "upcoming(now)")
+Rel(join, create, "POST /api/account/join", "JSON/HTTPS")
+Rel(create, docs, "Versions in force")
+Rel(cli, docs, "Announces a version")
+@enduml

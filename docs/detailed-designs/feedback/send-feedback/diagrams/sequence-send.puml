@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — send a note
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "FeedbackPage" as page
+  participant "FeedbackForm" as rules
+  participant "FeedbackApi (FEEDBACK_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "FeedbackController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SendFeedbackValidator" as val
+  participant "SendFeedbackHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IFeedbackScreenshotStore" as store
+end box
+actor -> page : Send feedback in the footer (?from=path) or Send a correction (?kind=correction&story=slug)
+page -> client : form()
+client -> ctrl : GET /api/feedback/form
+ctrl --> client : { email }
+page --> actor : Kind cards, About this page, question, email choice naming the address (L2-063 AC1 to AC3)
+opt Something's off
+  actor -> page : Add a screenshot
+  page -> rules : screenshotRule(file)
+  rules --> page : JPEG, PNG or WebP up to 5 MB, or the refusal (AC4)
+end
+actor -> page : Send feedback
+page -> rules : validate(draft)
+alt note blank
+  rules --> page : "Tell us a little more first."
+  page --> actor : Note aria-invalid; nothing sent (AC5)
+else valid
+  page --> actor : "Sending…", disabled, fields read-only
+  page -> client : send(note, screenshot)
+  client -> ctrl : POST /api/feedback (multipart)
+  ctrl -> h : Send SendFeedbackCommand
+  h -> val : Text 1..2,000 (field_too_long, AC8), kind, file, app path
+  val --> h : Valid
+  h -> db : Count my notes in the last hour
+  alt 10 or more
+    h --> ctrl : 429 too_many_attempts (AC9)
+  else room
+    h -> store : Save screenshot under a new key
+    h -> db : Add FeedbackNote(kind, text, page, member, SentAt, device, browser, MayEmail, New)
+    h --> ctrl : Done
+  end
+  ctrl --> client : 201, or ProblemDetails
+  alt sent
+    client --> page : Ok
+    page --> actor : "Got it. Thank you." (role=status, focused), Back to Home, Send more (AC6)
+  else refused or no answer
+    client --> page : ApiError
+    page --> actor : "We couldn't send your feedback" above the form; text kept (AC7)
+  end
+end
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — open a member's profile under its visibility
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Viewer (member or visitor)" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "MemberProfilePage" as page
+  participant "ProfileApi (PROFILE_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ProfileController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetPublicProfileHandler" as h
+  participant "GroupMembership" as groups
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /members/{id}
+page -> client : member(id)
+client -> ctrl : GET /api/members/{id}/profile (anonymous allowed)
+ctrl -> h : Send GetPublicProfileQuery(id, viewer?)
+h -> db : Member (not being deleted) and MemberPreferences or defaults
+db --> h : Member, Visibility
+alt Anyone, or viewer is the member
+  h --> ctrl : PublicProfileDto (no email; home church only if shown) (L2-065 AC3)
+else Members and viewer signed in
+  h --> ctrl : PublicProfileDto
+else JustMyGroups and viewer signed in
+  h -> groups : ShareAGroupAsync(viewer, member)
+  groups -> db : Registrations for one event by both
+  db --> groups : Found or none
+  alt shares a group
+    groups --> h : true
+    h --> ctrl : PublicProfileDto
+  else
+    groups --> h : false
+    h --> ctrl : RefusalException not_found (AC2)
+  end
+else visitor on a Members or JustMyGroups profile
+  h --> ctrl : RefusalException not_found (AC2)
+end
+ctrl --> client : 200 JSON or 404 ProblemDetails not_found
+client --> page : Profile or ApiError
+page --> actor : Public fields, or the not-found view
+@enduml

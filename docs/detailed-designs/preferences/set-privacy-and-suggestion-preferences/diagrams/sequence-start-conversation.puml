@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — start a direct conversation under the messaging setting
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Chat page (direct)" as page
+  participant "ChatConnection (CHAT_CONNECTION)" as conn
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ChatHub" as hub
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "JoinDirectHandler / SendDirectMessageHandler" as h
+  participant "DirectChat" as rule
+  participant "GroupMembership" as groups
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Message a member from their profile
+page -> conn : joinDirect(memberId)
+conn -> hub : JoinDirect(memberId)
+hub -> h : Send JoinDirectCommand
+h -> rule : MayStartAsync(me, other)
+rule -> db : Recipient's LetAnyoneMessage
+db --> rule : Off
+rule -> db : Any DirectMessage between the pair?
+db --> rule : None
+rule -> groups : ShareAGroupAsync(me, other)
+groups -> db : Registrations for one event by both
+db --> groups : None
+groups --> rule : false
+rule --> h : false
+h --> hub : ChatAnswer.Refused("messages_restricted") (L2-065 AC5)
+hub --> conn : Answer with code
+conn --> page : messages_restricted
+page --> actor : "Only takes messages from people in their groups"
+note over rule : LetAnyoneMessage on, a shared group, or an open conversation each admits the member
+@enduml

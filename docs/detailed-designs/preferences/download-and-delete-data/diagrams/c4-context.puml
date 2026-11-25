@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Download and delete data
+
+Person(member, "Member", "Downloads their data or deletes their account")
+Person(other, "Other member", "Stops seeing the deleted member")
+System(cf, "Christian Fitness", "Member app, API and CLI")
+System_Ext(mail, "Email provider", "Delivers the archive link")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(member, cf, "Requests a download, deletes or restores the account in", "HTTPS")
+Rel(other, cf, "Sees 'A former member' in group chats of", "HTTPS")
+Rel(cf, mail, "Sends the download link via", "SMTP")
+Rel(cf, otel, "Exports telemetry without archive contents to", "OTLP")
+@enduml

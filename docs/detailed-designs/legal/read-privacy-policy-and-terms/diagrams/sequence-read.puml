@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — read a document
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Anyone" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Router" as router
+  participant "PrivacyPage / TermsPage" as page
+  participant "SideNavigation" as nav
+end box
+box "Backend — Christian Fitness web host" #D1FADF
+  participant "nginx (static files)" as nginx
+end box
+actor -> router : Open /privacy (from a footer, Join, Preferences or Google)
+router -> nginx : Fetch the page's lazy chunk
+nginx --> router : JavaScript chunk
+router -> page : Create (no guard, no service, no API request) (L2-067 AC7)
+page --> actor : One h1, effective date, "The short version" and note, numbered sections, Questions? (AC1)
+page --> actor : Header links to the other document and the landing page (AC3)
+alt viewport LG or wider
+  page -> nav : Render contents, sticky
+  actor -> nav : Choose "6. How long we keep it"
+  nav -> router : routerLink fragment #retention
+  router -> page : Scroll to the section; scroll-margin keeps its heading below the header (AC2)
+else below LG
+  page --> actor : No contents list
+end
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+title UML sequence behaviour — attendee list and suggestions
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventDetailPage" as event
+  participant "HomePage" as home
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController / HomeController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "IRegistrationReader" as reader
+  participant "GetHomeHandler" as hh
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> event : Open an event others are going to
+event -> ctrl : GET /api/events/{id}
+ctrl -> reader : GoingAsync and AttendeesAsync(eventId)
+reader -> db : Registrations joined with MemberPreferences
+db --> reader : Rows
+reader --> ctrl : Going counts everyone; names only where ShowOnAttendeeLists (L2-065 AC4)
+ctrl --> event : EventDetailDto
+event --> actor : avatar-stack without hidden members
+actor -> home : Open Home
+home -> ctrl : GET /api/home
+ctrl -> hh : Send GetHomeQuery
+hh -> db : Member interests, MemberPreferences area, upcoming published events
+db --> hh : Rows
+hh -> hh : Order events of the member's area and interests first (AC7; area rule TO SUPPLY)
+hh --> ctrl : HomeDto
+ctrl --> home : 200 JSON
+home --> actor : Suggested events
+@enduml

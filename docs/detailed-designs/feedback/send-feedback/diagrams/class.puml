@@ -1,0 +1,95 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Send feedback
+
+enum FeedbackKind {
+  Idea
+  Problem
+  Correction
+  Thanks
+}
+enum FeedbackStatus {
+  New
+  Replied
+  Resolved
+}
+class FeedbackNote {
+  +Guid Id
+  +Guid MemberId
+  +FeedbackKind Kind
+  +string Text
+  +string? PagePath
+  +string? PageTitle
+  +string? StorySlug
+  +bool MayEmail
+  +string Device
+  +string Browser
+  +string? ScreenshotKey
+  +FeedbackStatus Status
+  +DateTimeOffset SentAt
+  +{static} TextMaxLength = 2000
+  +{static} SendWindow = AttemptWindow(10, 1 h)
+  +{static} Send(...): FeedbackNote
+}
+class SendFeedbackCommand {
+  +string Kind
+  +string Text
+  +string? PagePath
+  +string? PageTitle
+  +string? StorySlug
+  +bool MayEmail
+  +ReadOnlyMemory<byte>? Screenshot
+}
+class SendFeedbackValidator
+class SendFeedbackHandler {
+  +Handle(command): Task
+}
+interface IClientDevice {
+  +Device: string
+  +Browser: string
+}
+interface IFeedbackScreenshotStore {
+  +SaveAsync(key, content): Task
+  +OpenAsync(key): Task<StoredImage?>
+  +DeleteAsync(key): Task
+}
+class AttemptWindow {
+  +Since(now): DateTimeOffset
+  +IsFull(count): bool
+}
+interface FeedbackApi {
+  +form(): Observable<FeedbackFormDto>
+  +send(note, screenshot?): Observable<void>
+}
+class HttpFeedbackService
+class FeedbackPage {
+  +kind: Signal<FeedbackKindKey>
+  +about: Signal<AboutPage | null>
+  +send(): void
+}
+class FeedbackForm {
+  +questionFor(kind): string
+  +validate(draft): FeedbackErrors
+  +screenshotRule(file): string | null
+}
+FeedbackNote --> FeedbackKind
+FeedbackNote --> FeedbackStatus
+FeedbackNote ..> AttemptWindow
+SendFeedbackHandler ..> SendFeedbackCommand : handles
+SendFeedbackValidator ..> SendFeedbackCommand : validates
+SendFeedbackHandler --> FeedbackNote : creates
+SendFeedbackHandler ..> IClientDevice
+SendFeedbackHandler ..> IFeedbackScreenshotStore
+HttpFeedbackService ..|> FeedbackApi
+FeedbackPage ..> FeedbackApi : FEEDBACK_SERVICE
+FeedbackPage ..> FeedbackForm
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Read the feedback inbox
+
+Person(staff, "Staff member", "Admin (Moderator TO SUPPLY)")
+Person(member, "Member", "Sent the note; receives the reply")
+System(cf, "Christian Fitness", "Admin app, member app and API")
+System_Ext(mail, "Email provider", "Delivers email replies")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(staff, cf, "Reads, answers and resolves feedback in", "HTTPS")
+Rel(cf, member, "Delivers a direct message reply to", "HTTPS, SignalR")
+Rel(cf, mail, "Sends email replies via", "SMTP")
+Rel(cf, otel, "Exports telemetry without note or reply text to", "OTLP")
+@enduml
