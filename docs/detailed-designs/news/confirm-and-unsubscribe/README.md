@@ -71,7 +71,7 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   depend on Data Protection keys, which are retained for 90 days after retirement (ADR 0062).
 - **`NewsletterEmails`** — Application service (introduced in `subscribe-to-newsletter`) that also
   writes the part every newsletter email shares (`L2-058` AC4): a footer that names Christian
-  Fitness and its postal address (setting `Newsletter:PostalAddress`), the Unsubscribe link
+  Fitness and its postal address (setting `Organisation:PostalAddress`), the Unsubscribe link
   `<MemberApp:BaseUrl>/subscribe#unsubscribe=<token>`, and two headers:
   `List-Unsubscribe: <https://…/api/public/newsletter/unsubscribe?token=…>` and
   `List-Unsubscribe-Post: List-Unsubscribe=One-Click`. The existing `EmailMessage` has no headers;
@@ -98,8 +98,6 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
 - **Access logs.** The one-click URL carries the token in its query string. nginx and ingress
   access logs must omit query strings, or be disabled if they cannot (ADR 0062 and deployment
   settings).
-- **Postal address.** The mocks' footer reads "Christian Fitness · Toronto, ON", which is not a
-  postal address. The address itself is `<TO SUPPLY>`.
 - **Link scanners.** Mail security scanners that fetch links do not run the page's script, so
   they neither confirm nor unsubscribe. A scanner that runs scripts would confirm a subscription;
   no defence beyond the page's POST is specified.
