@@ -20,7 +20,13 @@ import {
   type ToastData,
   ToastRegion,
 } from '@cf/components';
-import { adminSeriesViewOf, seriesPickCardOf, seriesRowOf, ToastStore } from '@cf/domain';
+import {
+  adminSeriesViewOf,
+  sessionAddedTitleOf,
+  seriesPickCardOf,
+  seriesRowOf,
+  ToastStore,
+} from '@cf/domain';
 import {
   catchError,
   distinctUntilChanged,
@@ -76,7 +82,7 @@ export default class AdminSeriesPage {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly toasts = inject(TOASTS_SERVICE);
-  /** True while an editor is open, so a second press opens no other. */
+  /** True while an editor or Add a date is open, so a second press opens no other. */
   private editorOpen = false;
 
   /** Asks for the list, and so the chosen series, again. */
@@ -186,16 +192,40 @@ export default class AdminSeriesPage {
         this.editorOpen = false;
         if (!saved) return;
         this.toasts.show(`${saved.title} updated`, 'Members see the changes now.');
-        // Shown as saved in place, so the card and Edit details stay and focus returns to it.
-        this.list.update((list) =>
-          list.kind === 'ready'
-            ? {
-                kind: 'ready',
-                rows: list.rows.map((row) => (row.id === saved.id ? seriesRowOf(saved) : row)),
-              }
-            : list,
-        );
-        this.chosen.set({ kind: 'ready', series: saved });
+        this.showSaved(saved);
+      });
+  }
+
+  /** Shows `saved` in place, so its card and the button pressed stay and focus returns to it. */
+  private showSaved(saved: AdminSeriesDto): void {
+    this.list.update((list) =>
+      list.kind === 'ready'
+        ? {
+            kind: 'ready',
+            rows: list.rows.map((row) => (row.id === saved.id ? seriesRowOf(saved) : row)),
+          }
+        : list,
+    );
+    this.chosen.set({ kind: 'ready', series: saved });
+  }
+
+  /**
+   * Add a date (L2-071 AC14): opens the dialog on the series shown; the series is shown as it now
+   * is, the new date among its sessions, and a toast says so.
+   */
+  protected async addDate(): Promise<void> {
+    const chosen = this.chosen();
+    if (this.editorOpen || chosen.kind !== 'ready') return;
+    this.editorOpen = true;
+    const { openAddSession } = await import('../../dialogs/add-session/add-session-dialog');
+    if (this.destroyRef.destroyed) return;
+    openAddSession(this.injector, chosen.series)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((added) => {
+        this.editorOpen = false;
+        if (!added) return;
+        this.toasts.show(sessionAddedTitleOf(added.date), 'It is now listed under Events.');
+        this.showSaved(added.series);
       });
   }
 

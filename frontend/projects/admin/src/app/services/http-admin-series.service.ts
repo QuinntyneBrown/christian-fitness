@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type {
+  AddSessionDto,
   AdminSeriesApi,
   AdminSeriesDto,
   AdminSeriesListDto,
@@ -37,6 +38,12 @@ export class HttpAdminSeriesService implements AdminSeriesApi {
   update(id: string, draft: SeriesDraftDto): Observable<AdminSeriesDto> {
     return this.http
       .put<AdminSeriesDto>(`/api/admin/series/${encodeURIComponent(id)}`, draft)
+      .pipe(catchError(asApiError));
+  }
+
+  addSession(id: string, session: AddSessionDto): Observable<AdminSeriesDto> {
+    return this.http
+      .post<AdminSeriesDto>(`/api/admin/series/${encodeURIComponent(id)}/sessions`, session)
       .pipe(catchError(asApiError));
   }
 

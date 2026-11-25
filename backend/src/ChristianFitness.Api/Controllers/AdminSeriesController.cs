@@ -51,6 +51,15 @@ public sealed class AdminSeriesController(ISender sender) : ControllerBase
     }
 
     /// <summary>Stores one image and answers 201 with its key, as the event editor's upload does (ADR 0025).</summary>
+    /// <summary>Adds a dated session and answers 201 with the series as it now is (L2-071 AC14).</summary>
+    [HttpPost("{id:guid}/sessions")]
+    public async Task<IActionResult> AddSession(Guid id, AddSessionCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.SeriesId = id;
+        return StatusCode(StatusCodes.Status201Created, await sender.Send(command, cancellationToken).ConfigureAwait(false));
+    }
+
     [HttpPost("images")]
     [RequestSizeLimit(ImageBodyLimit)]
     [RequestFormLimits(MultipartBodyLengthLimit = ImageBodyLimit)]

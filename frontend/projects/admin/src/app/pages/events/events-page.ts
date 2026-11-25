@@ -23,6 +23,7 @@ import {
   ToastRegion,
 } from '@cf/components';
 import {
+  adminEventSubOf,
   adminEventTabOf,
   adminEventTabs,
   eventSavedToast,
@@ -231,7 +232,7 @@ function rowOf(event: AdminEventDto): TableRow {
     id: event.id,
     name: event.title,
     cells: {
-      event: { text: event.title, sub: event.place },
+      event: { text: event.title, sub: adminEventSubOf(event) },
       date: { text: eventWhen(event.startsAt) },
       registered: { text: String(event.going), of: String(event.capacity) },
       status: { text: STATUS_WORD[event.status] },

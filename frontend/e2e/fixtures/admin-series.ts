@@ -143,6 +143,29 @@ export const BOOTCAMP_SERIES: AdminSeriesFixture = {
 };
 
 /** Women's Hoops & Devotion: monthly dates, so its cadence is a count (ADR 0091). */
+/** Sunday Stretch & Prayer as mock `admin-series/series-created` draws it: no dates yet. */
+export const STRETCH_NO_DATES: AdminSeriesFixture = {
+  id: '0190c0de-0000-7000-8000-00000000c504',
+  title: 'Sunday Stretch & Prayer',
+  category: 'mobility',
+  summary: 'Gentle mobility and prayer after church.',
+  imageKey: null,
+  host: TEAM_HOST,
+  cadence: { weekday: null, dates: 0 },
+  startsAt: null,
+  firstStartsAt: null,
+  lastStartsAt: null,
+  place: 'St. Lawrence Community Rec Centre',
+  area: 'St. Lawrence, Toronto',
+  priceCents: 0,
+  dropInPriceCents: 0,
+  capacity: 25,
+  joined: 0,
+  sessionsLeft: 0,
+  sessionsHeld: 0,
+  sessions: [],
+};
+
 export const HOOPS_SERIES: AdminSeriesRowFixture = {
   id: '0190c0de-0000-7000-8000-00000000c503',
   title: 'Women’s Hoops & Devotion',

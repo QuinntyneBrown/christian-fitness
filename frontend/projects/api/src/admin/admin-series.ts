@@ -80,6 +80,17 @@ export interface SeriesDraftDto {
   area: string;
 }
 
+/**
+ * What Add a date sends (L2-071 AC14; ADR 0091): the Toronto date (`yyyy-MM-dd`), start and end
+ * (`HH:mm`), and a topic or none.
+ */
+export interface AddSessionDto {
+  date: string;
+  startTime: string;
+  endTime: string;
+  topic: string | null;
+}
+
 /** Staff list, open, create and edit event series (L2-071; ADR 0091); Moderators use it as Admins do. */
 export interface AdminSeriesApi {
   /** Every series, by its next session. A failure errors with an `ApiError`. */
@@ -100,6 +111,13 @@ export interface AdminSeriesApi {
    * `validation_failed` (400) and an unknown series with `not_found` (404).
    */
   update(id: string, draft: SeriesDraftDto): Observable<AdminSeriesDto>;
+
+  /**
+   * Add a date (L2-071 AC14): the series as it now is, the new session among its sessions in date
+   * order. A field errors with `validation_failed` (400) naming it in `fieldCodes`, an unknown
+   * series with `not_found` (404).
+   */
+  addSession(id: string, session: AddSessionDto): Observable<AdminSeriesDto>;
 
   /** The host a new series starts with: the Christian Fitness team listing (L2-071 AC10). */
   defaultHost(): Observable<EventHostDto>;

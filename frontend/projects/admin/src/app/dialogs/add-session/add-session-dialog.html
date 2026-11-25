@@ -1,0 +1,70 @@
+<cf-dialog
+  heading="Add a date"
+  [subtitle]="subtitle"
+  [titleId]="headingId"
+  [descriptionId]="descriptionId"
+  (closed)="close()"
+>
+  @if (errorItems().length > 0) {
+    @for (shown of [round()]; track shown) {
+      <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+    }
+  } @else if (failed()) {
+    <cf-alert heading="We couldn't add this date">
+      Nothing was changed and nobody was told. Try again in a moment.
+    </cf-alert>
+  }
+  <cf-text-field
+    fieldId="f-date"
+    label="Date"
+    name="date"
+    type="date"
+    [value]="values().date"
+    [error]="errors().date"
+    [readonly]="saving()"
+    (valueChange)="set('date', $event)"
+  />
+  <cf-form-layout layout="grid">
+    <cf-text-field
+      fieldId="f-start"
+      label="Start time"
+      name="start"
+      type="time"
+      [value]="values().startTime"
+      [error]="errors().startTime"
+      [readonly]="saving()"
+      (valueChange)="set('startTime', $event)"
+    />
+    <cf-text-field
+      fieldId="f-end"
+      label="End time"
+      name="end"
+      type="time"
+      [value]="values().endTime"
+      [error]="errors().endTime"
+      [readonly]="saving()"
+      (valueChange)="set('endTime', $event)"
+    />
+  </cf-form-layout>
+  <cf-text-field
+    fieldId="f-topic"
+    label="Topic"
+    name="topic"
+    optional
+    hint="What this session covers"
+    [value]="values().topic"
+    [error]="errors().topic"
+    [readonly]="saving()"
+    (valueChange)="set('topic', $event)"
+  />
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button slot="foot" grow [busy]="saving()" [disabled]="saving()" (click)="add()">
+    @if (saving()) {
+      Adding…
+    } @else {
+      Add date
+    }
+  </cf-button>
+</cf-dialog>

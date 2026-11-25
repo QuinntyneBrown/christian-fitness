@@ -5,7 +5,7 @@ import {
   rowOf,
   SERIES_ROWS,
   seriesList,
-  TEAM_HOST,
+  STRETCH_NO_DATES,
   type AdminSeriesFixture,
 } from '../fixtures/admin-series';
 import { expect, MODERATOR_SIGNED_IN, test, type ApiHandlers } from '../fixtures/test';
@@ -29,28 +29,6 @@ function answerSeries(
 }
 
 /** Sunday Stretch & Prayer just created: no dates yet (mock `admin-series/series-created`). */
-const STRETCH_NO_DATES: AdminSeriesFixture = {
-  id: '0190c0de-0000-7000-8000-00000000c504',
-  title: 'Sunday Stretch & Prayer',
-  category: 'mobility',
-  summary: 'Gentle mobility and prayer after church.',
-  imageKey: null,
-  host: TEAM_HOST,
-  cadence: { weekday: null, dates: 0 },
-  startsAt: null,
-  firstStartsAt: null,
-  lastStartsAt: null,
-  place: 'St. Lawrence Community Rec Centre',
-  area: 'St. Lawrence, Toronto',
-  priceCents: 0,
-  dropInPriceCents: 0,
-  capacity: 25,
-  joined: 0,
-  sessionsLeft: 0,
-  sessionsHeld: 0,
-  sessions: [],
-};
-
 // L2-071 AC1 to AC3 (ADR 0080, ADR 0091): Event series lists every series with its cadence, time
 // and joined of capacity, chooses the first, and shows it with its summary and sessions.
 test.describe('Admin app, the Event series page', () => {

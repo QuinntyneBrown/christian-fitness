@@ -104,6 +104,12 @@
                 </cf-series-summary-card>
                 <div class="section-head mt-section">
                   <h3 class="section-title">Sessions</h3>
+                  <cf-button variant="link" (click)="addDate()">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M5 12h14" />
+                      <path d="M12 5v14" /></svg
+                    >Add a date
+                  </cf-button>
                 </div>
                 @if (series.sessions.length > 0) {
                   <cf-admin-sessions [sessions]="series.sessions" />
@@ -113,7 +119,14 @@
                     headingTag="p"
                     heading="No dates yet"
                     text="Members can join once the series has dates. Add the first one."
-                  />
+                  >
+                    <cf-button slot="actions" size="sm" (click)="addDate()">
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" /></svg
+                      >Add a date
+                    </cf-button>
+                  </cf-empty-state>
                 }
               </section>
             }

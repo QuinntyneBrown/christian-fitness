@@ -1,11 +1,14 @@
+using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Events;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
 /// <summary>
 /// An event as the admin app shows it (ADR 0021): the start as an instant in UTC, which the app
 /// shows in Toronto, the price in cents, and the category and status by their lower-case names.
-/// Numbers are fields, never words (AGENTS.md).
+/// A series' session names its series, which Events tags it with (L2-071 AC6; ADR 0091); any other
+/// event names none. Numbers are fields, never words (AGENTS.md).
 /// </summary>
 public sealed record AdminEventDto(
     Guid Id,
@@ -17,13 +20,36 @@ public sealed record AdminEventDto(
     int PriceCents,
     int Capacity,
     int Going,
-    string Status)
+    string Status,
+    AdminEventSeriesDto? Series)
 {
-    /// <summary>The event as staff see it; nobody registers before slice 6.1, so going is 0 until then.</summary>
-    public static AdminEventDto Of(Event e, int going)
+    /// <summary>The event as staff see it, with its series from <paramref name="series"/> when it is a session.</summary>
+    public static AdminEventDto Of(Event e, int going, IReadOnlyDictionary<Guid, AdminEventSeriesDto>? series = null)
     {
         ArgumentNullException.ThrowIfNull(e);
-        return new AdminEventDto(e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.Area, e.PriceCents, e.Capacity, going, EventNames.Of(e.Status));
+        var tag = e.SeriesId is { } id && series is not null ? series.GetValueOrDefault(id) : null;
+        return new AdminEventDto(e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.Area, e.PriceCents, e.Capacity, going, EventNames.Of(e.Status), tag);
+    }
+}
+
+/// <summary>The series a session belongs to, as Events tags it (L2-071 AC6; ADR 0091).</summary>
+public sealed record AdminEventSeriesDto(Guid Id, string Title)
+{
+    /// <summary>The series of each of <paramref name="events"/> that is a session, by id.</summary>
+    public static async Task<IReadOnlyDictionary<Guid, AdminEventSeriesDto>> OfAsync(IAppDbContext db, IEnumerable<Event> events, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(db);
+        List<Guid> ids = [.. events.Select(e => e.SeriesId).OfType<Guid>().Distinct()];
+        if (ids.Count == 0)
+        {
+            return new Dictionary<Guid, AdminEventSeriesDto>();
+        }
+
+        return await db.EventSeries.AsNoTracking()
+            .Where(s => ids.Contains(s.Id))
+            .Select(s => new AdminEventSeriesDto(s.Id, s.Title))
+            .ToDictionaryAsync(s => s.Id, cancellationToken)
+            .ConfigureAwait(false);
     }
 }
 

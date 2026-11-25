@@ -34,6 +34,7 @@ export class AdminSeriesPage {
   readonly emptyText: Locator;
   readonly emptyNewSeriesButton: Locator;
   readonly noDates: Locator;
+  readonly noDatesAddButton: Locator;
   readonly error: Locator;
   readonly errorTitle: Locator;
   readonly errorText: Locator;
@@ -63,7 +64,9 @@ export class AdminSeriesPage {
     this.meter = this.summary.locator('meter');
     this.editDetailsButton = this.summary.getByRole('button', { name: /^Edit details/ });
     this.sessionsHeading = this.main.getByRole('heading', { name: 'Sessions', level: 3 });
-    this.addDateButton = this.main.getByRole('button', { name: 'Add a date' });
+    this.addDateButton = this.main
+      .locator('.section-head')
+      .getByRole('button', { name: 'Add a date' });
     this.sessions = this.main.locator('.admin-sessions .admin-session');
     this.loading = this.main.locator('.skeleton-region[aria-busy="true"]');
     this.loadingLabel = this.loading.locator('.visually-hidden');
@@ -73,6 +76,7 @@ export class AdminSeriesPage {
     this.emptyText = this.empty.locator('.empty-state__text');
     this.emptyNewSeriesButton = this.empty.getByRole('button', { name: 'New series' });
     this.noDates = this.main.locator('.empty-state--tight');
+    this.noDatesAddButton = this.noDates.getByRole('button', { name: 'Add a date' });
     this.error = this.main.locator('.error-state');
     this.errorTitle = this.error.locator('.empty-state__title');
     this.errorText = this.error.locator('.empty-state__text');
