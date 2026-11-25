@@ -1,9 +1,10 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EVENTS_SERVICE, type EventCategory } from '@cf/api';
+import { EVENTS_SERVICE } from '@cf/api';
 import {
   Button,
+  Checkbox,
   Chip,
   ChipBar,
   Container,
@@ -11,6 +12,7 @@ import {
   EventCard,
   EventGrid,
   InlineMessage,
+  SearchField,
   Skeleton,
   SkeletonRegion,
   Spinner,
@@ -21,10 +23,14 @@ import {
   type EventCardView,
   eventCardViewOf,
   eventCategoryChips,
-  eventCategoryOf,
   type EventFeed,
+  eventListHref,
+  type EventListQuery,
+  eventListQueryOf,
+  eventSearchOf,
+  eventsNoResults,
+  EVENT_SEARCH_DELAY_MS,
   hasMore,
-  noCategoryEventsText,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpEventsService } from '../../services/http-events.service';
@@ -35,7 +41,10 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 
 /**
  * Events at `/events` (L2-009 AC1, AC4 to AC7; ADR 0027): the published events that have not
- * started, soonest first, as cards. The first page loads on arrival and the next 20 when the end
+ * started, soonest first, as cards. The address holds the category, the search (`q`) and "Only
+ * events I'm going to" (`going`), and every
+ * new address starts the list again (L2-075; ADR 0081); typing waits for a pause, then replaces it.
+ * The first page loads on arrival and the next 20 when the end
  * of the list comes into view, until there is no more or 200 are shown, which ends the list with a
  * note. `EVENTS_SERVICE` is bound here, so the client lives only while the screen does, and the
  * observer, the request and the cards go with it. While the first page loads it shows skeleton
@@ -47,6 +56,7 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
   selector: 'cf-events-page',
   imports: [
     Button,
+    Checkbox,
     Chip,
     ChipBar,
     Container,
@@ -55,6 +65,7 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
     EventGrid,
     InlineMessage,
     InView,
+    SearchField,
     Skeleton,
     SkeletonRegion,
     Spinner,
@@ -66,12 +77,22 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 export default class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
-  protected readonly category = signal<EventCategory | null>(null);
-  protected readonly chips = computed(() => eventCategoryChips(this.category()));
-  protected readonly noResultsText = computed(() => {
-    const current = this.category();
-    return current === null ? '' : noCategoryEventsText(current);
-  });
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  /** The selection the address holds: category, search and going (ADR 0081). */
+  protected readonly query = signal<EventListQuery>({ category: null, q: '', going: false });
+  /**
+   * The search field's text. It is the member's while they type (a trailing space stays) and the
+   * address's when the address names another search: on arrival, on Back and after clearing.
+   */
+  protected readonly term = signal('');
+  /**
+   * The wait after the last key before the search is asked for. A plain timer, cleared on each key
+   * and on destroy: `debounceTime` would add to the initial bundle (lesson 26.1).
+   */
+  private searchTimer: ReturnType<typeof setTimeout> | undefined;
+  protected readonly chips = computed(() => eventCategoryChips(this.query()));
+  /** What an empty answer says for this selection; none with nothing chosen (ADR 0081). */
+  protected readonly noResults = computed(() => eventsNoResults(this.query()));
   private readonly destroyRef = inject(DestroyRef);
   private request: Subscription | null = null;
 
@@ -94,9 +115,38 @@ export default class EventsPage {
     inject(ActivatedRoute)
       .queryParamMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
-        this.category.set(eventCategoryOf(params.get('category')));
+        const query = eventListQueryOf(params);
+        this.query.set(query);
+        if (eventSearchOf(this.term()) !== query.q) this.term.set(query.q);
         this.loadFirst();
       });
+    this.destroyRef.onDestroy(() => clearTimeout(this.searchTimer));
+  }
+
+  /**
+   * Clear filter, or Clear search and filters: back to the unfiltered date list, which empties the
+   * field through the address, with focus in the field so the next search can be typed.
+   */
+  protected clear(): void {
+    clearTimeout(this.searchTimer);
+    this.navigate('/events');
+    this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
+  }
+
+  /** "Only events I'm going to" was ticked or cleared: a new place in history, as a chip is. */
+  protected onGoing(going: boolean): void {
+    this.navigate(eventListHref({ ...this.query(), going }));
+  }
+
+  /** The search field changed: show it at once, ask for it once typing pauses. */
+  protected onSearch(text: string): void {
+    this.term.set(text);
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      // The address is replaced: a search is one place in history, not one a letter.
+      const href = eventListHref({ ...this.query(), q: eventSearchOf(text) });
+      void this.router.navigateByUrl(href, { replaceUrl: true });
+    }, EVENT_SEARCH_DELAY_MS);
   }
 
   protected navigate(href: string): void {
@@ -115,7 +165,7 @@ export default class EventsPage {
     this.request?.unsubscribe();
     this.more.set('loading');
     this.request = this.events
-      .page(cursor, this.category())
+      .page(cursor, this.query())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
@@ -132,7 +182,7 @@ export default class EventsPage {
     this.more.set('idle');
     this.feed.set(EMPTY_FEED);
     this.request = this.events
-      .page(null, this.category())
+      .page(null, this.query())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {

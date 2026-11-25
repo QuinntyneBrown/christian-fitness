@@ -143,7 +143,7 @@ public sealed class OwnProfileTests(ProfileApiFactory factory) : IClassFixture<P
         return Browser.SessionCookie(response);
     }
 
-    private static async Task<Guid> MemberIdAsync(HttpClient client, string cookie)
+    internal static async Task<Guid> MemberIdAsync(HttpClient client, string cookie)
     {
         using var response = await Browser.SendAsync(client, HttpMethod.Get, "/api/session", cookie);
         var session = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);

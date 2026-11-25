@@ -37,14 +37,27 @@ export interface EventDetailDto extends EventSummaryDto {
   registration: 'confirmed' | 'reserved' | null;
 }
 
+/**
+ * Which events the list asks for (ADR 0030, ADR 0081): a category or All, a trimmed search or none,
+ * and whether only the signed-in member's registrations (the server knows whose from the session).
+ */
+export interface EventSelection {
+  category: EventCategory | null;
+  /** Text the title must contain, in any case; empty for none. */
+  q: string;
+  /** Only events the signed-in member is going to (L2-076). */
+  going: boolean;
+}
+
 /** The events a member browses (L2-009; ADR 0027). */
 export interface EventsApi {
   /**
    * One page of the published events that have not started, soonest first, 20 to a page, after
-   * `cursor` (`null` for the first). A 5xx to it opens the server-error screen; any failure errors
-   * with the `HttpErrorResponse`, so the screen shows its own failed state.
+   * `cursor` (`null` for the first), narrowed by `selection` (L2-075; ADR 0081). A 5xx to it opens
+   * the server-error screen; any failure errors with the `HttpErrorResponse`, so the screen shows
+   * its own failed state.
    */
-  page(cursor: string | null, category?: EventCategory | null): Observable<EventPageDto>;
+  page(cursor: string | null, selection?: EventSelection): Observable<EventPageDto>;
 
   /**
    * One published event (L2-010). An unknown or unpublished id fails with a 404 whose `code` is

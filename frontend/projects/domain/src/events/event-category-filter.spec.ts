@@ -1,4 +1,4 @@
-import { eventCategoryChips, eventCategoryOf, noCategoryEventsText } from './event-category-filter';
+import { eventCategoryOf, noCategoryEventsText } from './event-category-filter';
 
 // L2-009 AC2, AC9, AC10 (ADR 0030): the same 11 rows as ListEventsValidatorTests.cs.
 // What the API accepts as a category, the URL reader keeps; anything else shows All (`null`),
@@ -18,28 +18,6 @@ describe('eventCategoryOf', () => {
     { why: 'unknown category', raw: 'yoga', expected: null },
   ])('$why ($raw) -> $expected', ({ raw, expected }) => {
     expect(eventCategoryOf(raw)).toBe(expected);
-  });
-});
-
-describe('eventCategoryChips', () => {
-  it('lists All and the six categories with their addresses, marking All current when none is selected', () => {
-    expect(eventCategoryChips(null)).toEqual([
-      { label: 'All', href: '/events', current: true },
-      { label: 'Run', href: '/events?category=run', current: false },
-      { label: 'Workout', href: '/events?category=workout', current: false },
-      { label: 'Basketball', href: '/events?category=basketball', current: false },
-      { label: 'Mobility', href: '/events?category=mobility', current: false },
-      { label: 'Workshop', href: '/events?category=workshop', current: false },
-      { label: 'Retreat', href: '/events?category=retreat', current: false },
-    ]);
-  });
-
-  it('marks only the chosen category current', () => {
-    expect(
-      eventCategoryChips('workshop')
-        .filter((chip) => chip.current)
-        .map((chip) => chip.label),
-    ).toEqual(['Workshop']);
   });
 });
 

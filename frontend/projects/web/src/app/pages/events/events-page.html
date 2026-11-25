@@ -5,13 +5,26 @@
         <h1 class="display page-title">Events</h1>
         <p class="subtitle">Posted by the Christian Fitness team. Free unless marked.</p>
       </div>
+      <cf-search-field
+        label="Search events"
+        placeholder="Search events"
+        [value]="term()"
+        (valueChange)="onSearch($event)"
+      />
     </div>
-    <cf-chip-bar label="Filter events">
+    <cf-chip-bar label="Filter events" divided>
       @for (chip of chips(); track chip.href) {
         <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate($event)">{{
           chip.label
         }}</cf-chip>
       }
+      <cf-checkbox
+        slot="after"
+        variant="compact"
+        label="Only events I'm going to"
+        [checked]="query().going"
+        (checkedChange)="onGoing($event)"
+      />
     </cf-chip-bar>
     @if (state() === 'loading') {
       <cf-skeleton-region label="Loading events">
@@ -25,9 +38,9 @@
       >
         <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
       </cf-empty-state>
-    } @else if (cards().length === 0 && category() !== null) {
-      <cf-empty-state heading="Nothing here yet" [text]="noResultsText()">
-        <cf-button slot="actions" size="sm" (click)="navigate('/events')">Clear filter</cf-button>
+    } @else if (cards().length === 0 && noResults(); as empty) {
+      <cf-empty-state [heading]="empty.heading" [text]="empty.text">
+        <cf-button slot="actions" size="sm" (click)="clear()">{{ empty.action }}</cf-button>
       </cf-empty-state>
     } @else if (cards().length === 0) {
       <cf-empty-state
