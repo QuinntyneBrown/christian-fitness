@@ -53,7 +53,7 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 - The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.
 - The list's order is not stated (`L2-071` AC1); the mock lists by first session date. `<TO SUPPLY>`.
 - The `loading` mock draws a table skeleton beside the cards, unlike the loaded list; the skeleton should mirror the `admin-sessions` list.
-- `docs/detailed-designs/admin-events/publish-and-cancel-events` describes a `Conversation` entity and an `AdminOnly` policy that the code does not have; this design follows the code (`IChatChannel`, staff areas).
+- `docs/detailed-designs/admin-events/publish-and-cancel-events` described a `Conversation` entity and an `AdminOnly` policy that the code does not have; it now follows the code (`IChatChannel`, `AuthenticationSetup.StaffPolicy`), as does this design.
 
 ## Requirements
 
