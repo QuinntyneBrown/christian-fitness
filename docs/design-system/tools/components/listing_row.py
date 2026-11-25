@@ -126,21 +126,28 @@ SPEC = {
         ])
         + "<h3>Loading, empty, no results, error</h3>"
         + ex(LOADING, "Loading: group title and row skeletons; the heading, search and chips are already there (directory/loading).", True, mod="block")
+        + "<h3>Listing head</h3>"
+        + vmatrix("Listing head", [
+            ("Default", HEAD_ORG),
+            ("Not verified, not followed", HEAD_UNVERIFIED),
+            ("Preview", HEAD_PREVIEW),
+        ])
+        + "<p>The head itself takes no hover or focus; its Follow and Message buttons do. While the profile loads it is the same head of skeletons, its hidden <code>&lt;h1&gt;</code> saying \"Loading listing\" (listing-profile/loading). The <code>--preview</code> variant has no loading state and no actions: it shows what the claim form holds as it stands (claim-listing/default).</p>"
         + "<p>No listings, no results for a search (\"aquafit\") and a failed load use the <a href=\"empty-state.html\">empty state</a> under the kind chips (directory/empty, no-results, error). A failed Follow puts the button back to Follow and shows a <a href=\"toast.html\">toast</a> (directory/follow-failed).</p>",
         "themes": themes(MARKS) + '<div data-theme="dark">' + ex(GROUPS, "Directory groups in the dark theme.", mod="block")
-        + ex(HEAD_ORG, "Listing head in the dark theme.", mod="block") + "</div>",
+        + ex(HEAD_ORG, "Listing head in the dark theme.", mod="block") + "</div>" + themes(HEAD_PREVIEW, mod="block"),
         "notes": "<ul><li>Hover fills the row and turns the name accent; the matrix shows both through the <code>data-state=\"hover\"</code> hook.</li><li>\"1 hosting\" is accent and semibold, \"No events yet\" muted: the words differ, so colour is not the only cue.</li></ul>",
     },
     "responsive": """<ul>
 <li><b>Below 768px</b>: mark, name, tagline and the area inline under it; Follow on the right.</li>
 <li><b>From 768px</b> (<code>--layout-breakpoint-md</code>): the area moves to its own 9rem column.</li>
 <li><b>From 1024px</b> (<code>--layout-breakpoint-lg</code>): the 7rem hosting column appears.</li>
-<li><b>Listing head</b>: stacked on phones with Follow and Message sharing the width; from 768px the actions sit right, aligned to the bottom of the name.</li>
+<li><b>Listing head</b>: stacked on phones with Follow and Message sharing the width; from 768px the actions sit right, aligned to the bottom of the name. The preview keeps the mark beside the name at every width and has no actions to place.</li>
 <li>The kind chips above scroll sideways on phones (<a href="chip.html">chip bar, scroll</a>).</li>
 </ul>""",
-    "theming": "<p>Organization marks are <code>--color-bg-inverse</code>/<code>--color-fg-inverse</code> (light on dark in the light theme, dark on light in the dark theme); people's <code>--color-accent-subtle</code>/<code>--color-fg-accent</code>. Rows sit on the card surface and hover to <code>--color-bg-canvas</code>. Taglines, areas and blurbs are <code>--color-fg-muted</code>; \"1 hosting\" and the verified marks <code>--color-fg-accent</code>. The head's rule is <code>--color-border-default</code>.</p>",
+    "theming": "<p>Organization marks are <code>--color-bg-inverse</code>/<code>--color-fg-inverse</code> (light on dark in the light theme, dark on light in the dark theme); people's <code>--color-accent-subtle</code>/<code>--color-fg-accent</code>. Rows sit on the card surface and hover to <code>--color-bg-canvas</code>. Taglines, areas and blurbs are <code>--color-fg-muted</code>; \"1 hosting\" and the verified marks <code>--color-fg-accent</code>. The head's rule is <code>--color-border-default</code>; the preview has none.</p>",
     "accessibility": {
-        "pattern": "<p>Each group is a <code>&lt;section&gt;</code> with an <code>&lt;h2&gt;</code> and a <code>&lt;ul&gt;</code>. A row holds two siblings: the link to the profile and a toggle button (<a href=\"https://www.w3.org/WAI/ARIA/apg/patterns/button/\">APG Button, toggle</a>) whose hidden text names the listing (\"Follow Christian Fitness\"). The head's name is the page's <code>&lt;h1&gt;</code>.</p>",
+        "pattern": "<p>Each group is a <code>&lt;section&gt;</code> with an <code>&lt;h2&gt;</code> and a <code>&lt;ul&gt;</code>. A row holds two siblings: the link to the profile and a toggle button (<a href=\"https://www.w3.org/WAI/ARIA/apg/patterns/button/\">APG Button, toggle</a>) whose hidden text names the listing (\"Follow Christian Fitness\"). The head's name is the page's <code>&lt;h1&gt;</code>. In the <code>--preview</code> variant the page has its own <code>&lt;h1&gt;</code>, so the name is a <code>&lt;p&gt;</code> and the preview sits in a section named by a visually hidden <code>&lt;h2&gt;</code> (\"Your listing as members will see it\").</p>",
         "keys": [
             (kbd("Tab"), "Link, then its Follow button, then the next row."),
             (kbd("Enter"), "Opens the listing."),
@@ -165,6 +172,7 @@ SPEC = {
 <li>Kinds and blurbs: \"Organizations · Clubs and groups that run events\", \"Instructors · Certified coaches who lead sessions\".</li>
 <li>Hosting: \"1 hosting\", \"No events yet\". Area: a neighbourhood or \"Toronto-wide\".</li>
 <li>Head eyebrow: kind, then \"· Verified\" for verified listings.</li>
+<li>Preview: the draft's own words as typed; an empty tagline is left out rather than shown as a placeholder.</li>
 </ul>""",
     "dodont": [
         ("do", one(CF), "Follow sits beside the link and names the listing in hidden text."),
@@ -188,6 +196,8 @@ SPEC = {
         ("Row padding", "--space-4 / --space-5", "value"),
         ("Group spacing", "--space-8 / --space-10", "value"),
         ("Head name", "--font-size-4xl / --font-size-6xl", "value"),
+        ("Head top margin / gap / bottom padding (all but the gap 0 in --preview)", "--space-6 / --space-6 / --space-8", "value"),
+        ("Head rule (none in --preview)", "--border-width-hairline", "value"),
     ],
     "code": {
         "snippet": '''<div class="directory-groups">
@@ -209,7 +219,21 @@ SPEC = {
       </li>
     </ul>
   </section>
-</div>''',
+</div>
+
+<!-- The claim screen's preview, under the page's own <h1> -->
+<section class="form-section" aria-labelledby="preview-title">
+  <h2 class="visually-hidden" id="preview-title">Your listing as members will see it</h2>
+  <header class="listing-head listing-head--preview">
+    <div class="listing-head__who">
+      <span class="listing-mark listing-mark--xl" aria-hidden="true">EL</span>
+      <div class="listing-head__body">
+        <p class="eyebrow listing-head__kind">Organization</p>
+        <p class="display detail-title listing-head__name">Eastside Ladies Who Lift</p>
+      </div>
+    </div>
+  </header>
+</section>''',
         "classes": [
             ("<code>.listing-mark</code> <code>--person</code> <code>--sm</code> <code>--xl</code>", "A listing's picture: shape by kind, three sizes; also on an <code>&lt;img&gt;</code>."),
             ("<code>.directory-groups</code> <code>.directory-group</code> <code>__head</code> <code>__blurb</code>", "Groups by kind."),

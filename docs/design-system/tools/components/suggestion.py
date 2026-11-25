@@ -47,16 +47,26 @@ LISTED = ('<div class="table-wrap table-wrap--flush"><table class="table"><capti
           '<td class="table__nowrap">Instructor</td><td class="table__nowrap muted">North York</td><td class="table__end">214</td>'
           '<td class="table__end"><button class="row-link" type="button">Edit<span class="visually-hidden"> Tasha Grant</span></button></td></tr>'
           '</tbody></table></div>')
-LISTED_CHANGE = ('<div class="table-wrap table-wrap--flush"><table class="table"><caption class="visually-hidden">Listed</caption>'
-                 '<thead><tr><th scope="col">Listing</th><th scope="col">Kind</th><th scope="col" class="table__end">Followers</th></tr></thead><tbody>'
-                 '<tr><td><span class="listed-cell listed-cell--change"><span class="listing-mark listing-mark--sm" aria-hidden="true">EL</span>'
-                 '<span class="table__strong">Eastside Ladies Who Lift</span>'
-                 f'<span class="verified-mark" role="img" aria-label="Verified">{icon("badge-check")}</span>'
-                 '<span class="listed-cell__change"><span>New name waiting: <span class="listed-cell__new">Eastside Women’s Strength</span></span>'
-                 '<button class="listed-cell__action" type="button">Approve<span class="visually-hidden"> the new name of Eastside Ladies Who Lift</span></button>'
-                 '<button class="listed-cell__action" type="button">Decline<span class="visually-hidden"> the new name of Eastside Ladies Who Lift</span></button></span></span></td>'
-                 '<td class="table__nowrap">Organization</td><td class="table__end">41</td></tr>'
-                 '</tbody></table></div>')
+def change_cell(what="name", value="Eastside Women’s Strength", a="", disabled=False):
+    """The listed cell's change variant alone: `a` goes on Approve (a data-state hook); `disabled` holds both actions."""
+    d = " disabled" if disabled else ""
+    return ('<span class="listed-cell listed-cell--change"><span class="listing-mark listing-mark--sm" aria-hidden="true">EL</span>'
+            '<span class="table__strong">Eastside Ladies Who Lift</span>'
+            f'<span class="verified-mark" role="img" aria-label="Verified">{icon("badge-check")}</span>'
+            f'<span class="listed-cell__change"><span>New {what} waiting: <span class="listed-cell__new">{value}</span></span>'
+            f'<button class="listed-cell__action" type="button"{a}{d}>Approve<span class="visually-hidden"> the new {what} of Eastside Ladies Who Lift</span></button>'
+            f'<button class="listed-cell__action" type="button"{d}>Decline<span class="visually-hidden"> the new {what} of Eastside Ladies Who Lift</span></button></span></span>')
+
+
+def change_table(cell):
+    return ('<div class="table-wrap table-wrap--flush"><table class="table"><caption class="visually-hidden">Listed</caption>'
+            '<thead><tr><th scope="col">Listing</th><th scope="col">Kind</th><th scope="col" class="table__end">Followers</th></tr></thead><tbody>'
+            f'<tr><td>{cell}</td><td class="table__nowrap">Organization</td><td class="table__end">41</td></tr>'
+            '</tbody></table></div>')
+
+
+LISTED_CHANGE = change_table(change_cell())
+CELL_W = '<div style="width: 100%; min-width: 18rem; max-width: 26rem;">{c}</div>'
 ROW = '<div style="width: 100%; min-width: 18rem; max-width: 26rem;"><ul class="list-divided">{c}</ul></div>'
 
 
@@ -109,42 +119,52 @@ SPEC = {
                            ROW.format(c=f"<li>{check(0, 'sm3', True)}</li>"), ROW.format(c=f"<li>{check(3, 'sm4', disabled=True)}</li>"),
                            ROW.format(c=f"<li>{check(0, 'sm5', True, True)}</li>")]),
         ]) + "<h3>Approving</h3>" + ex(view("s1", passed=4, busy=True), "Approve listing pressed: busy, Decline disabled, checks read-only (listings approving)."),
-        "themes": themes(view("th", passed=4)),
+        "themes": themes(view("th", passed=4)) + themes(LISTED_CHANGE, mod="block"),
         "notes": """<ul>
 <li><b>Unchecked</b>: a new suggestion starts with no checks passed (listings unchecked).</li>
 <li>A disabled check row has no style of its own: the native checkbox greys and the cursor goes back to default. Text stays full strength so a decided suggestion stays readable.</li>
 <li><b>Loading</b>, <b>empty</b> (\"No suggestions waiting\") and <b>error</b> replace the picker and card with skeletons, an <a href="empty-state.html">empty state</a> or an inline error.</li>
-</ul>""",
+<li><b>Listed cell, change</b>: Approve and Decline are text buttons with hover (underline), focus (the shared ring) and disabled (muted, no underline) while a decision is on its way; the matrix below forces hover and focus on Approve through <code>data-state</code>. When the decision lands the change line goes, the cell is a plain listed cell again and a <a href="toast.html">toast</a> says what changed; a failed decision keeps the line and a toast says \"We couldn't save that decision\" (ADR 0095).</li>
+</ul>""" + grid(["Default", "Hover", "Focus", "Disabled"], [
+            ("Change", [CELL_W.format(c=change_cell()), CELL_W.format(c=change_cell(a=' data-state="hover"')),
+                        CELL_W.format(c=change_cell(a=' data-state="focus"')), CELL_W.format(c=change_cell(disabled=True))]),
+            ("Change of kind", [CELL_W.format(c=change_cell("kind", "Company")), None, None, None]),
+        ]),
     },
     "responsive": """<ul>
 <li>Below 1024px the suggestion card follows the stacked pick cards; from 1024px it sits beside the 18.75rem picker (<code>.split--picker-wide</code>).</li>
 <li>The decision row wraps: the hint drops under the buttons on narrow screens.</li>
-<li>The listed cell keeps the mark and verified mark on the name's line; the table scrolls inside its wrapper.</li>
+<li>The listed cell keeps the mark and verified mark on the name's line; the table scrolls inside its wrapper. In the change variant the change line takes the cell's full width under them, indented to the name (<code>--size-avatar-md</code> + <code>--space-3</code>), and its actions wrap under the waiting value when the column is narrow.</li>
 </ul>""",
     "theming": "<p>The card is a surface <a href=\"card.html\">card</a>. Rules (note, checks, foot) are <code>--color-border-default</code>; descriptions and hints <code>--color-fg-muted</code>; the checkboxes are drawn by the browser with <code>accent-color: var(--color-accent)</code>; the kind eyebrow is <code>--color-fg-accent</code>.</p>",
     "accessibility": {
-        "pattern": "<p>A native form. The checks are a <code>&lt;fieldset&gt;</code> with the <code>&lt;legend&gt;</code> \"Checks\"; each row is a <code>&lt;label&gt;</code> around its checkbox. The disabled Approve listing is joined to its hint with <code>aria-describedby</code>. The decision is announced with <code>role=\"status\"</code>.</p>",
+        "pattern": "<p>A native form. The checks are a <code>&lt;fieldset&gt;</code> with the <code>&lt;legend&gt;</code> \"Checks\"; each row is a <code>&lt;label&gt;</code> around its checkbox. The disabled Approve listing is joined to its hint with <code>aria-describedby</code>. The decision is announced with <code>role=\"status\"</code>. In the listed cell's change variant, Approve and Decline are native <code>&lt;button&gt;</code>s after the waiting value, <code>disabled</code> while a decision is on its way.</p>",
         "keys": [
             (kbd("Tab"), "Website link, each check, Approve listing (when enabled), Decline."),
             (kbd("Space"), "Ticks or unticks a check."),
             (kbd("Enter"), "Approves (when all four pass) or declines."),
+            (kbd("Tab") + " then " + kbd("Enter") + " or " + kbd("Space"), "In a listed cell with a change: Approve, then Decline; either decides the waiting name or kind."),
         ],
         "focus": "<p>The checkbox's own ring; the whole row is the target.</p>",
-        "labelling": "<p>Each check reads its label and standard (\"Two references, At least one from a church or ministry leader\"). The verified mark is <code>role=\"img\"</code> with <code>aria-label=\"Verified\"</code>; the listing mark is decorative.</p>",
+        "labelling": "<p>Each check reads its label and standard (\"Two references, At least one from a church or ministry leader\"). The verified mark is <code>role=\"img\"</code> with <code>aria-label=\"Verified\"</code>; the listing mark is decorative. The change actions carry hidden text that names what and whose: \"Approve the new name of Eastside Ladies Who Lift\".</p>",
         "pairs": [
             ("Name and labels", "--color-fg-default", "--color-bg-surface", 4.5),
             ("Descriptions and hint", "--color-fg-muted", "--color-bg-surface", 4.5),
             ("Kind", "--color-fg-accent", "--color-bg-surface", 4.5),
             ("Checkbox fill (non-text)", "--color-accent", "--color-bg-surface", 3),
+            ("Change line", "--color-fg-muted", "--color-bg-surface", 4.5),
+            ("Waiting value", "--color-fg-default", "--color-bg-surface", 4.5),
+            ("Change action", "--color-fg-accent", "--color-bg-surface", 4.5),
         ],
         "motion": "<p>None.</p>",
-        "touch": "<p>Check rows are full width and at least 52px tall; the box itself is 28px.</p>",
+        "touch": "<p>Check rows are full width and at least 52px tall; the box itself is 28px. The change actions are small text buttons whose target extends to 44 × 44px on coarse pointers (<code>--target-comfortable</code>).</p>",
     },
     "content": """<ul>
 <li>Checks are nouns with the standard beneath: \"Credentials\", \"Certification or registration number verified with the issuing body\".</li>
 <li>Progress: \"3 of 4 passed\". Hint: \"Approve unlocks when all four checks pass.\"</li>
 <li>Results say what happened and who was told: \"Approved. We’ve sent them a link to claim and publish their listing.\" / \"Declined. The person who suggested it has been told.\"</li>
 <li>By: \"Submitted by the listing themselves\" or \"Jordan Reid · knows them\".</li>
+<li>Change line: \"New name waiting:\" or \"New kind waiting:\" and the value as the owner wrote it; the actions are the verbs alone, \"Approve\" and \"Decline\".</li>
 </ul>""",
     "dodont": [
         ("do", '<div class="suggestion__foot" style="margin: 0;"><button class="btn btn--primary btn--md" type="submit" disabled aria-describedby="dd-hint">Approve listing</button>'
@@ -165,6 +185,11 @@ SPEC = {
         ("Name", "--font-size-2xl", "value"),
         ("Note", "--font-size-lg / --line-height-relaxed", "value"),
         ("Note rule", "--border-width-thick", "value"),
+        ("Change line / waiting value / action", "--color-fg-muted / --color-fg-default / --color-fg-accent", "color"),
+        ("Change line text", "--font-size-sm", "value"),
+        ("Change line indent", "--size-avatar-md / --space-3", "value"),
+        ("Change line gap", "--space-1 / --space-4", "value"),
+        ("Change action radius", "--radius-xs", "value"),
     ],
     "code": {
         "snippet": '''<form class="card card--pad suggestion" novalidate>
@@ -185,7 +210,17 @@ SPEC = {
     <button class="btn btn--secondary btn--md" type="button">Decline</button>
     <p class="suggestion__hint" id="approve-hint">Approve unlocks when all four checks pass.</p>
   </div>
-</form>''',
+</form>
+
+<span class="listed-cell listed-cell--change">
+  <span class="listing-mark listing-mark--sm" aria-hidden="true">EL</span>
+  <span class="table__strong">Eastside Ladies Who Lift</span>
+  <span class="listed-cell__change">
+    <span>New name waiting: <span class="listed-cell__new">Eastside Women’s Strength</span></span>
+    <button class="listed-cell__action" type="button">Approve<span class="visually-hidden"> the new name of Eastside Ladies Who Lift</span></button>
+    <button class="listed-cell__action" type="button">Decline<span class="visually-hidden"> the new name of Eastside Ladies Who Lift</span></button>
+  </span>
+</span>''',
         "classes": [
             ("<code>.suggestion__name</code> <code>__note</code> <code>__by</code>", "Who, what the member said, who sent it."),
             ("<code>.suggestion__checks</code> <code>__foot</code> <code>__hint</code> <code>__result</code>", "Checks fieldset and the decision row."),
