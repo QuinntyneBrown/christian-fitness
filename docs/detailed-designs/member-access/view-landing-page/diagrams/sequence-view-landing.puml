@@ -18,36 +18,67 @@ actor "Visitor" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "redirectSignedInGuard" as guard
   participant "LandingPage" as page
-  participant "HttpPublicEventsService" as client
+  participant "HttpStoriesService" as stories
+  participant "HttpPublicEventsService" as events
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "PublicEventsController" as ctrl
+  participant "PublicStoriesController" as sctrl
+  participant "PublicEventsController" as ectrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "GetUpcomingEventsHandler" as h
+  participant "ListFrontPageStoriesHandler" as front
+  participant "ListMostReadStoriesHandler" as most
+  participant "GetUpcomingEventsHandler" as up
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> guard : Open /
-guard -> guard : Read SESSION_SERVICE
-alt Signed-in member (L2-001 AC4)
+guard -> guard : SESSION_SERVICE.current()
+alt Signed-in member (L2-001 AC8)
   guard --> actor : Redirect to /home
 else Visitor
-  guard -> page : Activate (loadComponent)
-  page --> actor : Show skeleton rows
-  page -> client : upcoming(3)
-  client -> ctrl : GET /api/public/events/upcoming?take=3
-  ctrl -> h : Send GetUpcomingEventsQuery (AllowAnonymous)
-  h -> db : Published events with StartsAt > now, order by StartsAt, take 3
-  db --> h : 0..3 rows
-  h --> ctrl : UpcomingEventDto list
-  ctrl --> client : 200 JSON
-  client --> page : Events
-  alt One to three events (L2-001 AC1, AC2)
-    page --> actor : Render event rows in date order, no empty rows
-  else No events (L2-001 AC3)
-    page --> actor : "No events posted yet. Check back soon."
+  guard -> page : Activate
+  page -> page : newsSectionOf(query): Latest
+  page --> actor : Masthead (Sign in, Join free, sections; Latest aria-current),\nskeletons for stories and events (L2-001 AC1)
+  par Stories
+    page -> stories : frontPage(Latest)
+    stories -> sctrl : GET /api/public/stories
+    sctrl -> front : Send ListFrontPageStoriesQuery(null)
+    front -> db : Published stories, newest first (bounded)
+    db --> front : Rows
+    front --> sctrl : FrontPageDto: lead, 4 headlines, latest
+    sctrl --> stories : 200 FrontPageDto
+    alt Stories answered
+      stories --> page : FrontPageDto
+      page --> actor : Lead, headlines and "The latest" as text (L2-001 AC2, AC10),\nor "No stories yet. Check back soon." (AC4)
+    else Failed
+      stories --> page : error
+      page --> actor : "Stories didn't load." with Try again; rail unaffected (AC7)
+    end
+  else Most read
+    page -> stories : mostRead()
+    stories -> sctrl : GET /api/public/stories/most-read
+    sctrl -> most : Send ListMostReadStoriesQuery
+    most -> db : Sum StoryReadTally for the last 7 days (TimeProvider)
+    most --> sctrl : Five StorySummaryDto
+    sctrl --> stories : 200
+    stories --> page : Most read
+    page --> actor : "Most read" numbered 1 to 5 (AC5)
+  else Events
+    page -> events : upcoming(4)
+    events -> ectrl : GET /api/public/events/upcoming?take=4
+    ectrl -> up : Send GetUpcomingEventsQuery(4)
+    up -> db : Published, StartsAt > now, soonest first, take 4
+    up --> ectrl : LandingEventDto list (0 to 4)
+    ectrl --> events : 200
+    alt Events answered
+      events --> page : Events
+      page --> actor : Up to four rows: date, title, weekday, time, area, each to /join (AC5, AC6),\nor "No events posted yet. Check back soon."
+    else Failed
+      events --> page : error
+      page --> actor : "Upcoming events didn't load." with Try again; stories unaffected (AC7)
+    end
   end
 end
 @enduml

@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Suggest a listing
+
+Person(member, "Member", "Signed-in member")
+Person(staff, "Admin", "Staff member with the Admin role")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "SuggestListingPage, Messages")
+  Container(admin, "Admin web app", "Angular", "Listings screen")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "ListingSuggestionsController, SuggestListingHandler, SuggestionOutcome")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "ListingSuggestions, DirectMessages, Members")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(member, web, "Uses", "HTTPS")
+Rel(staff, admin, "Uses", "HTTPS")
+Rel(web, api, "POST /api/directory/suggestions", "JSON/HTTPS, cookie session")
+Rel(admin, api, "Approve or decline", "JSON/HTTPS, staff session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, otel, "Exports telemetry, route templates only", "OTLP")
+@enduml

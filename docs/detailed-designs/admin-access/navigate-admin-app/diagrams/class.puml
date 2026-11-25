@@ -12,9 +12,10 @@ skinparam class {
 title Class structure — Navigate the admin app
 
 class AdminShell {
-  -items: AdminNavItem[]
+  -items: Signal<AdminNavItem[]>
   -current: WritableSignal<AdminAreaKey | null>
   -staff: WritableSignal<StaffSessionDto | null>
+  -counts: WritableSignal<WaitingCounts>
   -signingOut: WritableSignal<boolean>
   +navigate(href: string): void
   +signOut(): void
@@ -22,48 +23,94 @@ class AdminShell {
 class AdminLayout {
   +items: InputSignal<AdminNavItem[]>
   +current: InputSignal<string | null>
+  +showGroups: InputSignal<boolean>
   +navigate: OutputEmitterRef<string>
   +signOut: OutputEmitterRef<void>
-}
-class SkipLink {
-  +target: InputSignal<string>
 }
 class SidebarNavigation {
   +items: InputSignal<AdminNavItem[]>
   +current: InputSignal<string | null>
+  +showGroups: InputSignal<boolean>
   +userName, userRole, userInitials: InputSignal<string>
   +signingOut: InputSignal<boolean>
-  +navigate: OutputEmitterRef<string>
-  +signOut: OutputEmitterRef<void>
 }
 class AdminNav {
   +items: InputSignal<AdminNavItem[]>
   +current: InputSignal<string | null>
+  +showGroups: InputSignal<boolean>
   +navigate: OutputEmitterRef<string>
 }
 class AdminUser {
   +name, role, initials: InputSignal<string>
   +signOut: OutputEmitterRef<void>
 }
-class AreaPage {
-  -heading: string
-}
 class AdminNavItem {
   +key: string
   +label: string
   +href: string
+  +group?: AdminNavGroup
   +count?: number
   +countLabel?: string
 }
-class "ADMIN_AREAS, currentAdminArea(), initialsOf()" as domain
+enum AdminNavGroup {
+  Publish
+  Gather
+  Community
+}
+enum AdminAreaKey {
+  dashboard
+  stories
+  newsletter
+  events
+  series
+  community-pick
+  listings
+  services
+  members
+  feedback
+}
+class AdminArea {
+  +key: AdminAreaKey
+  +label: string
+  +path: string
+  +group?: AdminNavGroup
+}
+class "admin-areas (domain)" as areas <<module>> {
+  +ADMIN_AREAS: AdminArea[]
+  +currentAdminArea(url): AdminAreaKey | null
+  +canManage(role, area): boolean
+  +areasFor(role): AdminArea[]
+}
+class "waitingCountsFor(totals)" as counts <<function>> {
+  stories -> "n story/stories to review"
+  listings -> "n suggestion(s) to check"
+  services -> "n application(s) waiting"
+  members -> "n report(s) to review"
+  feedback -> "n new note(s)"
+}
+class WorkAwaitingStaffDto {
+  +Applications?: AwaitingListDto
+  +FlaggedMembers: AwaitingListDto
+  +Stories?: AwaitingListDto
+  +Suggestions?: AwaitingListDto
+  +Feedback?: AwaitingListDto
+}
 interface StaffSessionApi
+interface AdminDashboardApi {
+  +awaiting(): Observable<WorkAwaitingStaffDto>
+}
 AdminShell *-- AdminLayout
-AdminLayout *-- SkipLink
 AdminLayout *-- SidebarNavigation
 SidebarNavigation *-- AdminNav
 SidebarNavigation *-- AdminUser
-AdminShell ..> AreaPage : router outlet
+AdminNav --> "*" AdminNavItem
+AdminNavItem --> AdminNavGroup
+AdminArea --> AdminAreaKey
+AdminArea --> AdminNavGroup
+areas --> "10" AdminArea
+AdminShell ..> areas
+AdminShell ..> counts
+counts ..> WorkAwaitingStaffDto : reads totals
 AdminShell ..> StaffSessionApi : injects STAFF_SESSION_SERVICE
-AdminShell ..> domain
-AdminNav --> AdminNavItem
+AdminShell ..> AdminDashboardApi : injects ADMIN_DASHBOARD_SERVICE
 @enduml

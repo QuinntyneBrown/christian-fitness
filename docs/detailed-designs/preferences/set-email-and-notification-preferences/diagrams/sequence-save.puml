@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — change and save preferences
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "PreferencesPage" as page
+  participant "SaveBar" as bar
+  participant "PreferencesApi (PREFERENCES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PreferencesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SavePreferencesValidator" as val
+  participant "SavePreferencesHandler" as h
+  participant "MemberPreferences" as prefs
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Flip a switch or press "Turn off all email"
+page -> page : PreferencesDraft.isDirty (AC3, AC5)
+page -> bar : state dirty
+bar --> actor : "Unsaved changes" with Save, above the tab bar on a phone
+opt member leaves while dirty
+  page -> page : unsavedChangesGuard asks first (AC5)
+end
+actor -> bar : Save
+bar -> page : save
+page -> bar : state saving: "Saving…", settings read-only (AC6)
+page -> client : save(SavePreferencesDto)
+client -> ctrl : PUT /api/preferences
+ctrl -> h : Send SavePreferencesCommand
+h -> val : Validate area, visibility, interests
+val --> h : Valid
+h -> db : Load MemberPreferences, subscription, Member
+db --> h : Rows or none
+h -> prefs : Apply notification and privacy values
+h -> h : Subscribe switched-on emails without confirmation; unsubscribe all when all off (AC8)
+h -> db : SaveChanges once (all settings together)
+db --> h : Committed
+h --> ctrl : PreferencesDto as saved
+ctrl --> client : 200 JSON
+alt saved
+  client --> page : PreferencesDto
+  page -> bar : state saved: "Preferences saved" (role=status), cleared after about 2 s
+else failed or no answer
+  client --> page : ApiError
+  page -> bar : state failed: "Couldn't save. Your changes are still here." with Try again (role=alert, AC7)
+end
+@enduml

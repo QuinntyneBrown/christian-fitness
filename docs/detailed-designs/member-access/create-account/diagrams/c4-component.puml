@@ -4,12 +4,16 @@ LAYOUT_WITH_LEGEND()
 title Components — Create a member account
 
 Container_Boundary(web, "Member web app") {
-  Component(page, "JoinPage", "Angular routed component", "Join form, client validation")
+  Component(page, "JoinPage", "Angular routed component", "Join form, Sign up with Google, Finish your profile")
+  Component(gui, "GoogleButton, Divider, sso-notice", "components library", "google-button, or-divider, sso-account blocks")
+  Component(ses, "HttpSessionService", "SESSION_SERVICE", "startGoogle, completeGoogle")
   Component(ui, "InterestPicker", "components library", "Interest toggles")
   Component(svc, "HttpAccountService", "ACCOUNT_SERVICE", "HTTP client")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "AccountController", "ASP.NET Core controller", "[AllowAnonymous] POST /api/account/join")
+  Component(ctrl, "AccountController", "ASP.NET Core controller", "[AllowAnonymous] POST /api/account/join, GET /api/account/google, POST /api/account/join/google")
+  Component(gh, "CreateGoogleAccountHandler", "MediatR handler", "Google identity, limit, match, create without password")
+  Component(reader, "IGoogleIdentityReader", "Infrastructure", "Google identity kept in __Host-cf-google")
   Component(v, "CreateAccountValidator", "FluentValidation", "Lengths, email, password")
   Component(h, "CreateAccountHandler", "MediatR handler", "Duplicate check, hash, persist")
   Component(hash, "IPasswordHasher", "Infrastructure", "Password hashing")
@@ -25,4 +29,9 @@ Rel(v, h, "Validates before")
 Rel(h, hash, "Hashes password")
 Rel(h, db, "Writes Member", "EF Core")
 Rel(ctrl, sess, "Signs in on success")
+Rel(page, gui, "Renders")
+Rel(page, ses, "Starts and finishes Google sign-up")
+Rel(ctrl, gh, "Sends CreateGoogleAccountCommand")
+Rel(gh, reader, "Reads, forgets")
+Rel(gh, db, "Writes Member with GoogleSubject", "EF Core")
 @enduml

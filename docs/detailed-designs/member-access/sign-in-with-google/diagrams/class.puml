@@ -1,0 +1,124 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Sign in with Google
+package "Frontend libraries" {
+  class GoogleButton <<components>> {
+    +label: input<string>
+    +busy: input<boolean>
+    +chosen: output<void>
+  }
+  class googleReturnOf <<domain>> {
+    +(value: string | null): 'returned' | 'failed' | null
+  }
+  interface SessionApi <<api>> {
+    +current(): Observable<SessionDto>
+    +signIn(request: SignInRequestDto): Observable<SessionDto>
+    +startGoogle(request: GoogleStartRequestDto): Observable<GoogleRedirectDto>
+    +completeGoogle(intent: GoogleIntent): Observable<SessionDto>
+    +signOut(): Observable<void>
+  }
+  interface StaffSessionApi <<api>> {
+    +startGoogle(): Observable<GoogleRedirectDto>
+    +completeGoogle(): Observable<StaffSessionDto>
+  }
+  class GoogleStartRequestDto <<api>> {
+    +intent: 'sign-in' | 'join'
+    +returnUrl: string | null
+  }
+  class GoogleRedirectDto <<api>> {
+    +location: string
+  }
+}
+package "Christian Fitness API, Application and Domain" {
+  class StartGoogleSignInCommand {
+    +GoogleSignInApp App
+    +GoogleSignInIntent Intent
+    +string? ReturnUrl
+  }
+  class StartGoogleSignInHandler {
+    +Handle(c): Task<GoogleRedirectDto>
+  }
+  class GoogleSignInLimiter {
+    20 leases / 15 minutes
+  }
+  abstract class AddressRateLimiter {
+    +TryAcquire(partitionKey): Lease?
+  }
+  interface IGoogleChallenge {
+    +BeginAsync(app, intent, returnPath): Task<string>
+  }
+  class OpenIdConnectGoogleChallenge
+  class CompleteGoogleSignInCommand {
+    +GoogleSignInIntent Intent
+  }
+  class CompleteGoogleSignInHandler {
+    +Handle(c): Task<SessionDto>
+  }
+  interface IGoogleIdentityReader {
+    +ReadAsync(): Task<GoogleIdentity?>
+    +ForgetAsync(): Task
+  }
+  class ExternalCookieGoogleIdentityReader
+  class GoogleIdentity <<record>> {
+    +string Subject
+    +string Email
+    +bool EmailVerified
+    +string Name
+    +string? PictureUrl
+    +string? HostedDomain
+  }
+  class GoogleAccountMatch {
+    +FindAsync(identity): Task<Member?>
+  }
+  interface ISessionSignIn {
+    +SignInAsync(member): Task
+  }
+  class MemberCredentials {
+    +VerifyAsync(email, password): Task<Member>
+  }
+  class Member {
+    +Guid Id
+    +string NormalizedEmail
+    +string PasswordHash
+    +string? GoogleSubject
+    +MemberStatus Status
+    +{static} JoinWithGoogle(name, email, subject, joinedAt, homeChurch, interests): Member
+    +LinkGoogle(subject): void
+  }
+  enum GoogleSignInApp {
+    Member
+    Staff
+  }
+  enum GoogleSignInIntent {
+    SignIn
+    Join
+  }
+}
+SessionApi ..> GoogleStartRequestDto
+SessionApi ..> GoogleRedirectDto
+StaffSessionApi ..> GoogleRedirectDto
+StartGoogleSignInHandler ..> StartGoogleSignInCommand : handles
+StartGoogleSignInHandler ..> GoogleSignInLimiter : too_many_attempts
+GoogleSignInLimiter --|> AddressRateLimiter
+StartGoogleSignInHandler ..> IGoogleChallenge
+OpenIdConnectGoogleChallenge ..|> IGoogleChallenge
+StartGoogleSignInCommand --> GoogleSignInApp
+StartGoogleSignInCommand --> GoogleSignInIntent
+CompleteGoogleSignInHandler ..> CompleteGoogleSignInCommand : handles
+CompleteGoogleSignInHandler ..> IGoogleIdentityReader
+ExternalCookieGoogleIdentityReader ..|> IGoogleIdentityReader
+IGoogleIdentityReader ..> GoogleIdentity : reads
+CompleteGoogleSignInHandler ..> GoogleAccountMatch
+GoogleAccountMatch ..> Member : finds by subject, then email; links
+CompleteGoogleSignInHandler ..> ISessionSignIn
+MemberCredentials ..> Member : no password = wrong password
+@enduml

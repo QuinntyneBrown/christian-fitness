@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Download and delete data
+
+Container(web, "Member web app", "Angular", "PreferencesPage, DeleteAccountDialog, HttpDataService")
+Container(cli, "Christian Fitness CLI", ".NET console", "cf export-data, cf erase-accounts")
+Container_Boundary(api, "Christian Fitness API and Application") {
+  Component(ctrl, "DataController", "ASP.NET Core controller", "data-exports, account, restore")
+  Component(req, "RequestDataExportHandler", "MediatR handler", "One request per 24 hours; audited")
+  Component(get, "GetDataExportArchiveHandler", "MediatR handler", "Own archive, 7 days, else 404")
+  Component(del, "DeleteAccountHandler", "MediatR handler", "Refuses staff; hides, frees places, signs out")
+  Component(restore, "RestoreAccountHandler", "MediatR handler", "Clears deletion within 30 days")
+  Component(builder, "DataExportBuilder", "Application service", "Builds .zip; emails link")
+  Component(erase, "AccountErasureService", "Application service", "Erases accounts 30 days after deletion")
+  Component(audit, "AuditBehavior / AuditTrail", "MediatR behaviour", "Records asked-for and when")
+  Component(rev, "ISessionRevocation", "Application abstraction", "Ends every session")
+  Component(chat, "IChatChannel", "Application abstraction", "Leave chats; disconnect member")
+  Component(store, "IArchiveStore", "Application abstraction", "Private archive files")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "")
+Rel(web, ctrl, "POST data-exports, GET archive, DELETE account", "JSON/HTTPS")
+Rel(ctrl, req, "Sends RequestDataExportCommand")
+Rel(ctrl, get, "Sends GetDataExportArchiveQuery")
+Rel(ctrl, del, "Sends DeleteAccountCommand")
+Rel(ctrl, restore, "Sends RestoreAccountCommand")
+Rel(req, audit, "Audited")
+Rel(del, audit, "Audited")
+Rel(del, rev, "EndAllAsync")
+Rel(del, chat, "LeaveAsync, DisconnectMemberAsync")
+Rel(get, store, "Opens")
+Rel(cli, builder, "Runs")
+Rel(cli, erase, "Runs")
+Rel(builder, store, "Saves")
+Rel(builder, db, "Reads member data", "EF Core")
+Rel(erase, db, "Deletes and erases", "EF Core")
+Rel(del, db, "One unit of work", "EF Core")
+@enduml

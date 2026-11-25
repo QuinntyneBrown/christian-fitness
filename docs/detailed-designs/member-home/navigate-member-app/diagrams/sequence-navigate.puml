@@ -18,39 +18,38 @@ actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "MemberShell" as shell
   participant "TopBar / TabBar" as nav
-  participant "UnreadCountService" as svc
-  participant "SignalRChatConnection" as conn
+  participant "MemberInbox" as inbox
+  participant "HttpConversationsService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "MessagesController" as ctrl
-  participant "ChatHub" as hub
+  participant "ConversationsController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "GetUnreadCountHandler" as h
+  participant "ListConversationsHandler" as h
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> shell : Open a member route
-shell -> svc : Read unread count
-svc -> ctrl : GET unread count
-ctrl -> h : Send GetUnreadCountQuery
-h -> db : Count unread for caller
-db --> h : Count
-h --> ctrl : number
-ctrl --> svc : 200 JSON
-svc -> conn : Subscribe to message events
-conn -> hub : Connect (shared via parent route)
-shell -> nav : destinations, current, unreadCount
+shell -> inbox : refresh()
+inbox -> client : list()
+client -> ctrl : GET /api/conversations
+ctrl -> h : Send ListConversationsQuery
+h -> db : Read caller's conversations
+db --> h : Conversations with unread counts
+h --> ctrl : ConversationListDto
+ctrl --> client : 200 JSON
+client --> inbox : Conversations
+inbox --> shell : unread = totalUnreadOf(...)
+shell -> shell : current = placeOf(url)\n(/directory/<id> -> Directory,\n/events/series/<id> -> Events)
+shell -> nav : six destinations, current, unread
 alt Viewport MD or wider (L2-008 AC1)
-  nav --> actor : Header with aria-current="page" on current
+  nav --> actor : Header: Home, Events, Directory, Services, Messages;\naria-current="page" on current
 else Viewport XS or SM (L2-008 AC2)
-  nav --> actor : Bottom bar, targets >= 44 x 44 px
+  nav --> actor : Bottom bar of six tabs, >= 44 x 44 px,\nno label cut at 360 px
 end
 nav --> actor : Messages shows count as text (L2-008 AC3)
-hub --> conn : Message event
-conn --> svc : Update count signal
-svc --> shell : New count
-actor -> nav : Choose a destination
-nav -> shell : Navigate; current updates
+actor -> nav : Choose Directory
+nav -> shell : navigate('/directory')
+shell -> shell : current = directory; inbox.refresh()
 @enduml

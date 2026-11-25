@@ -1,6 +1,6 @@
 # Christian Fitness design system
 
-Extracted from [docs/mocks](../mocks/README.md) on 2026-11-22. Open [index.html](index.html) locally (no build step, no server).
+Extracted from [docs/mocks](../mocks/README.md) on 2026-11-22; updated for the new mocks on 2026-11-25. Open [index.html](index.html) locally (no build step, no server).
 The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.css` only `@import` the files below.
 
 ## Foundations
@@ -25,6 +25,8 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Button](components/button.html) | Actions | Primary, secondary, ghost, danger, link and brand-panel buttons; icon buttons. |
 | [Link](components/link.html) | Actions | Inline, text and back links; external links. |
 | [Menu](components/menu.html) | Actions | A menu button that opens a list of actions. |
+| [Google button](components/google-button.html) | Actions | Continue with Google: Google's mark and wording on a neutral surface. |
+| [Follow button](components/follow-button.html) | Actions | A toggle that follows or unfollows a directory listing. |
 | [Text field](components/text-field.html) | Inputs | Text, e-mail, password, search and one-time code inputs. |
 | [Textarea](components/textarea.html) | Inputs | Multi-line text with optional counter. |
 | [File field](components/file-field.html) | Inputs | Chooses one file, shows its name and lets people remove it. |
@@ -32,11 +34,19 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Checkbox](components/checkbox.html) | Inputs | Single and grouped checkboxes. |
 | [Radio group](components/radio-group.html) | Inputs | One choice from a short list; list or card style. |
 | [Switch](components/switch.html) | Inputs | An on/off setting that applies immediately. |
+| [Segmented control](components/segmented-control.html) | Inputs | Two or three views of one list, switched in place. |
+| [Choice card](components/choice-card.html) | Inputs | Radio choices drawn as cards or chips, in a grid. |
+| [Plan option](components/plan-option.html) | Inputs | How to take part in a series: the whole program or single dates. |
+| [Dropzone](components/dropzone.html) | Inputs | A drop target and button for adding one image. |
+| [Preference row](components/preference-row.html) | Inputs | A setting with its explanation and a switch, in grouped lists. |
 | [Form field](components/form-field.html) | Inputs | Label, control, hint and error: the wrapper every input uses. |
 | [Form layout](components/form-layout.html) | Inputs | Field stacks, two-column rows, error summary and submit states. |
 | [Top bar](components/top-bar.html) | Navigation | Member app header, public site header and their mobile forms. |
 | [Tab bar](components/tab-bar.html) | Navigation | Bottom navigation for the member app on phones. |
 | [Sidebar navigation](components/sidebar-navigation.html) | Navigation | The admin console sidebar with counts. |
+| [Masthead](components/masthead.html) | Navigation | The news front page's nameplate, date line and section navigation. |
+| [Side navigation](components/side-navigation.html) | Navigation | In-page section links for Preferences and the legal pages. |
+| [Steps](components/steps.html) | Navigation | What happens next, as a short numbered list after a form is sent. |
 | [Tabs](components/tabs.html) | Navigation | Underline tabs with counts for filtered views. |
 | [Breadcrumb](components/breadcrumb.html) | Navigation | Where a page sits; collapses to the parent on phones. |
 | [Pagination](components/pagination.html) | Navigation | Numbered and previous/next paging for long lists. |
@@ -45,6 +55,11 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Card](components/card.html) | Containers and overlays | Surfaces for grouped content; event, list and stat cards. |
 | [Dialog](components/dialog.html) | Containers and overlays | Modal dialogs that become bottom sheets on phones. |
 | [Drawer](components/drawer.html) | Containers and overlays | Side panels for editing without leaving the list. |
+| [Save bar](components/save-bar.html) | Containers and overlays | A sticky bar that holds unsaved changes and their Save action. |
+| [Section heading](components/section-heading.html) | Containers and overlays | Page heads, ruled section titles and eyebrows. |
+| [Newsletter box](components/newsletter-box.html) | Containers and overlays | Subscribe and join call-outs on the front page, stories and Subscribe. |
+| [Review card](components/review-card.html) | Containers and overlays | Admin side panels: review, send, summary and settings cards. |
+| [Prose](components/prose.html) | Containers and overlays | Long-form legal text with a plain-language summary. |
 | [Tooltip](components/tooltip.html) | Containers and overlays | Short labels for icon-only controls. |
 | [Accordion](components/accordion.html) | Containers and overlays | Show and hide sections with details and summary. |
 | [Divider](components/divider.html) | Containers and overlays | Hairline rules between content. |
@@ -59,10 +74,23 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Event card](components/event-card.html) | Data display | The event summary card with image, date badge and seats. |
 | [Message](components/message.html) | Data display | Chat bubbles, day separators and the composer. |
 | [Date badge](components/date-badge.html) | Data display | Month and day tiles used across event surfaces. |
+| [Story](components/story.html) | Data display | Lead story, headlines, river rows, ranked lists and story cards. |
+| [Newsletter issue](components/issue.html) | Data display | An issue of the newsletter on the web and its preview. |
+| [Feed list](components/feed-list.html) | Data display | RSS feeds with their addresses and a copy action. |
+| [Series card](components/series-card.html) | Data display | Event series rows, the series summary, its panel and progress. |
+| [Session list](components/session-list.html) | Data display | The dated sessions of a series with their state and seat meter. |
+| [Host card](components/host-card.html) | Data display | Who hosts an event, and what a listing is hosting. |
+| [Listing row](components/listing-row.html) | Data display | Directory listings: mark, name, kind, verified mark and profile head. |
+| [Story editor](components/editor.html) | Data display | The admin writing surface with its notes and side panels. |
+| [Pick list](components/pick-list.html) | Data display | Choose stories, events and sessions for an issue or a post. |
+| [Pick art](components/pick-art.html) | Data display | Community Pick artwork in each size, captions and the Slack preview. |
+| [Suggestion](components/suggestion.html) | Data display | A suggested listing with the four checks staff record. |
+| [Feedback row](components/feedback-row.html) | Data display | Feedback inbox rows, kinds, the detail and what was said. |
 | [Toast](components/toast.html) | Feedback | Short-lived notices with optional action. |
 | [Alert](components/alert.html) | Feedback | Inline alerts and error summaries inside forms and pages. |
 | [Banner](components/banner.html) | Feedback | Page-level notices under the header. |
 | [Inline message](components/inline-message.html) | Feedback | Field hints, field errors and inline retry messages. |
+| [Sign-in notice](components/sso-notice.html) | Feedback | Which account is signing in, and notes about Google sign-in. |
 | [Progress bar](components/progress-bar.html) | Feedback | Determinate and indeterminate progress, and meters. |
 | [Spinner](components/spinner.html) | Feedback | Busy indicators inside buttons and regions. |
 | [Skeleton](components/skeleton.html) | Feedback | Placeholders that mirror the layout while loading. |
@@ -116,12 +144,22 @@ python3 .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks
 | assets/ui.css (avatar, table) | 38px table avatar; `.table--wide` 42.5rem next to `.table--wider` 45rem. | Avatar → 40px (`--size-avatar-md`); both tables → `--layout-table-min-wide`. |
 | assets/ui.css (sizes) | Raw sizes for lead width, toast width, schedule column, skeleton blocks, tab-bar dot offset. | Layout tokens or spacing multiples. |
 | tokens (missing roles) | No subtle/disabled text, sunken surface, accent active, status icon/border/solid, danger hover, mono font, control heights, z-layers for menus and popovers. | Added, contrast-checked in both themes. |
+| assets/components.css (new blocks, 2026-11-25) | Six links used `--target-min` (24px): `.newsletter-box__rss`, `.site-footer__links a`, `.app-footer__links a`, `.issue__links a`, `.issue__more`, `.issue-preview__more`; `.follow`, `.segmented__option`, `.row-link`, `.sso-account__change`, link buttons and side-nav links had no 44px touch area. | All use `--target-comfortable` or extend to 44 × 44px on coarse pointers. |
+| assets/components.css (admin, 2026-11-25) | Dark-theme contrast failures: review-card action text 1.09:1, current pick-card count 1.70:1, selected rings and the current-section underline and pull quote in `--color-accent` 2.16:1. | Override removed; count uses `--color-fg-inverse`; rings, underline and quote bar use `--color-fg-accent`. Pairs added to `contrast-pairs.json`. |
+| assets/components.css (status badge) | `.status--review` read the primitive `--palette-stone-1000`. | New semantic `--color-fg-on-highlight`. |
+| assets/components.css (states) | No disabled style on `.event-choice`; no `data-state="hover"` hooks on story links and cards, footer links, text links, event choices, series rows, host cards, hosting rows and listing rows; `.section-head` did not wrap. | Added. |
+| assets/ds.css (docs chrome) | The docs' `a` rule loaded after components.css and underlined every link inside the specimens. | Scoped to unclassed links (`a:where(:not([class]))`). |
+| assets/components.css (open) | About 25 fixed widths in the new blocks (story measure 48rem, figure 64rem, picker and inbox columns, thumbnails, `.feed__copy` 7rem) are raw rem, not layout or size tokens. | Open: tokenise when the screens are built. |
+| tokens (open) | `--color-accent` is 2.16:1 on the dark surface, so switch tracks, checked boxes and radios, the segmented current fill, spinners, progress bars and unread dots fall under 3:1 in dark (the label or a second cue carries the state). | Open: needs a brand decision on the dark accent (an L between about 0.13 and 0.18 would pass 3:1 on the surface and 4.5:1 under white text). |
+| mocks (open) | Mocks the extraction did not change: `pages/join/google` and `google-submitting` overflow 11px at 360px (`.auth__brand`, `.auth__main`); Sign out has no rule and shows at every width; Most read titles are not links; `.or-divider` duplicates `.divider--label`, `.inline-link` duplicates `.link`, `.subtitle--measure` duplicates `.subtitle--narrow`, `.key-facts` nearly duplicates `.spec-list`; the follow button changes its label while toggling `aria-pressed`; skeleton ratios differ from the loaded banner, date column and listing mark. | Open: listed on each component page under Sources. |
 
 ## Verification
-Run on 2026-11-22:
+Run on 2026-11-25, after adding the pages for the new mocks:
 
-- `check_contrast.py`: 170 pairs passed in light and dark, 0 failed.
-- `check_design_system.py`: 67 pages (46 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
-- `check_mocks.py docs/mocks` after pointing the mocks at this system: 28 screens, 131 mocks, 0 errors.
-- Horizontal overflow (Playwright, every page at 360 and 1280px): none.
-- Screenshots reviewed: button, dialog, text-field, event-card and color in both themes at 1280 and 360px; mocks events, sign-in (invalid), admin members and request-booking against the pre-extraction originals (only intended changes: stronger input borders, button heights).
+- `check_contrast.py`: 174 pairs passed in light and dark, 0 failed.
+- `check_design_system.py`: 96 pages (75 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
+- `check_mocks.py docs/mocks`: no new errors; the 25 it reports came with the mocks (see Drift).
+- Horizontal overflow (Playwright, all 96 pages and every page and dialog mock at 360 and 1280px): none, except the two Google join mocks listed under Drift.
+- Screenshots reviewed at 360 and 1280px in both themes for every new and changed component page.
+
+Earlier run, 2026-11-22: 170 pairs passed; 67 pages; 28 screens and 131 mocks, 0 errors; screenshots of button, dialog, text-field, event-card and color.

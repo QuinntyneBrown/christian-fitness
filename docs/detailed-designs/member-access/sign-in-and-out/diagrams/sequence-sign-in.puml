@@ -57,7 +57,7 @@ end
 h -> cred : VerifyAsync(email, password)
 cred -> db : Load Member by NormalizedEmail
 db --> cred : Member or none
-cred -> hash : Verify password (a fixed hash when none)
+cred -> hash : Verify password (a fixed hash for an unknown email\nor a Google-only account, L2-004 AC2)
 hash --> cred : Match result
 cred --> h : Member, or RefusalException invalid_credentials
 alt Unknown email or wrong password (L2-004 AC2)
@@ -65,7 +65,7 @@ alt Unknown email or wrong password (L2-004 AC2)
   h --> ctrl : RefusalException invalid_credentials
   ctrl --> client : 401 ProblemDetails code invalid_credentials
   client --> page : ApiError
-  page --> actor : "Email or password is incorrect"
+  page --> actor : "Email or password is incorrect"\n+ "If you joined with Google, use Continue with Google." for every email
 else Right password, member suspended (L2-004 AC4)
   h --> ctrl : RefusalException account_suspended
   ctrl --> client : 403 ProblemDetails code account_suspended

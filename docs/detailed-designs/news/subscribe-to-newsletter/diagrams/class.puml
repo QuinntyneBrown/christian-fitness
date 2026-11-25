@@ -1,0 +1,99 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Subscribe to the newsletter
+
+enum SubscriptionStatus {
+  Pending
+  Subscribed
+  Unsubscribed
+}
+class NewsletterExtras <<value>> {
+  +bool EventAlerts
+  +bool TrainingPlan
+  +bool MorningDevotion
+}
+class NewsletterSubscription <<entity>> {
+  +Guid Id
+  +string Email
+  +SubscriptionStatus Status
+  +bool Weekly
+  +NewsletterExtras Extras
+  +DateTimeOffset RequestedAt
+  +DateTimeOffset? ConsentedAt
+  +DateTimeOffset? UnsubscribedAt
+  +{static} Request(email, extras, now): NewsletterSubscription
+  +UpdateExtras(extras): void
+}
+class SubscriptionConfirmation <<entity>> {
+  +Guid Id
+  +Guid SubscriptionId
+  +string TokenHash
+  +NewsletterExtras Extras
+  +DateTimeOffset ExpiresAt
+  +DateTimeOffset? UsedAt
+  +{static} Issue(subscriptionId, extras, now): (SubscriptionConfirmation, string)
+}
+class SubscribeCommand {
+  +string Email
+  +NewsletterExtras Extras
+}
+class SubscribeHandler {
+  +Handle(command): Task<SubscribeAnswerDto>
+}
+class SubscriptionLimiter {
+  +const int Limit = 5
+  +Window = 1 hour
+}
+abstract class AddressRateLimiter {
+  +TryAcquire(partitionKey): Lease?
+}
+class NewsletterEmails {
+  +Confirmation(subscription, token): EmailMessage
+}
+interface IEmailSender {
+  +SendAsync(message, ct): Task
+}
+class SubscribeAnswerDto {
+  +string Email
+}
+class GetNewsletterSummaryQuery
+class NewsletterSummaryDto {
+  +string Name
+  +string About
+  +string Cadence
+  +int Readers
+  +IssuePreviewDto? Latest
+}
+class SubscribePage <<Angular page>>
+class SubscribeForm <<domain>> {
+  +state: Signal<SubscribeState>
+  +emailError(email): string?
+}
+interface NewsletterApi <<NEWSLETTER_SERVICE>> {
+  +summary(): Observable<NewsletterSummaryDto>
+  +subscribe(request): Observable<SubscribeAnswerDto>
+}
+NewsletterSubscription --> SubscriptionStatus
+NewsletterSubscription *-- NewsletterExtras
+NewsletterSubscription "1" *-- "*" SubscriptionConfirmation
+AddressRateLimiter <|-- SubscriptionLimiter
+SubscribeHandler ..> SubscribeCommand : handles
+SubscribeHandler ..> SubscriptionLimiter
+SubscribeHandler ..> NewsletterSubscription
+SubscribeHandler ..> SubscriptionConfirmation : issues
+SubscribeHandler ..> NewsletterEmails
+SubscribeHandler ..> IEmailSender
+SubscribeHandler ..> SubscribeAnswerDto
+GetNewsletterSummaryQuery ..> NewsletterSummaryDto
+SubscribePage ..> NewsletterApi
+SubscribePage *-- SubscribeForm
+@enduml

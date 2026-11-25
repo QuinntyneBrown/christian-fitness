@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — honour email and notification switches
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Subscriber's inbox" as inbox
+box "Frontend — Member web app" #E0F2FE
+  participant "PreferencesPage" as page
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Newsletter sender (L2-070 design)" as news
+  participant "Unsubscribe handler (L2-058 design)" as unsub
+  participant "GetPreferencesHandler" as get
+  participant "Notification sender (future)" as notify
+  participant "MemberPreferences" as prefs
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IEmailSender" as mail
+end box
+news -> db : Subscriptions with this email kind on
+db --> news : Addresses switched on
+news -> mail : Send issue or extra; none to an address switched off (L2-064 AC8)
+inbox -> unsub : Follow Unsubscribe link in an email
+unsub -> db : Unsubscribe the address from every email (L2-058 AC5)
+page -> get : Next GET /api/preferences
+get -> db : Read the subscription
+db --> get : Unsubscribed
+get --> page : All four email switches off (L2-064 AC9)
+notify -> prefs : Allows(EventReminder | Message | FollowedListingDate | EventChange)
+alt switched off
+  prefs --> notify : false: nothing shown or sent (AC10)
+else switched on
+  prefs --> notify : true: notify the member
+end
+note over notify : "Changes to your events" off still shows the change on the event page and in its chat
+@enduml

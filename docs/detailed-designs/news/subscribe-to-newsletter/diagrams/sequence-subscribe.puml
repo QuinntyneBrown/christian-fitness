@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — subscribe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SubscribePage" as page
+  participant "SubscribeForm" as form
+  participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SubscribeHandler" as h
+  participant "SubscriptionLimiter" as lim
+  participant "NewsletterSubscription" as sub
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "QueuedEmailSender" as mail
+end box
+actor -> page : Press "Subscribe free"
+page -> form : submit(email, extras)
+alt email empty or malformed
+  form --> page : invalid
+  page --> actor : aria-invalid="true" and "That email doesn't look right..." ; nothing sent (L2-057 AC3)
+else email looks valid
+  form --> page : submitting
+  page --> actor : "Subscribing…", button disabled, fields read-only (L2-057 AC4)
+  page -> client : subscribe({ email, extras })
+  client -> ctrl : POST /api/public/newsletter/subscriptions
+  ctrl -> h : Send SubscribeCommand
+  h -> h : SubscribeValidator: email_invalid as a server check (L2-032 AC1)
+  h -> lim : TryAcquire(client network)
+  alt more than 5 from this network in the hour
+    lim --> h : none
+    h --> ctrl : RefusalException too_many_attempts
+    ctrl --> client : 429 ProblemDetails (L2-057 AC7)
+    client --> page : ApiError too_many_attempts
+    page --> actor : Alert "Too many sign-ups" above the form; email and extras kept
+  else lease taken
+    h -> db : Subscription by normalized email
+    alt none, or Unsubscribed
+      h -> sub : Request(email, extras, now): Pending
+      h -> db : Save subscription and new SubscriptionConfirmation (token hash, 7 days)
+      h -> mail : Confirmation email with one link (L2-058 AC1)
+    else Pending
+      h -> db : New SubscriptionConfirmation; earlier ones stay until expiry
+      h -> mail : Confirmation email again (L2-057 AC5)
+    else Subscribed
+      h -> sub : UpdateExtras(extras)
+      h -> db : Save
+    end
+    h --> ctrl : SubscribeAnswerDto(email), the same for every case
+    ctrl --> client : 202 JSON
+    client --> page : Answer
+    page --> actor : "Check your inbox" (role="status", focused) naming the address (L2-057 AC4, AC5)
+  end
+end
+opt server fails or does not answer
+  client --> page : ApiError, status 5xx or none
+  page --> actor : Alert "We couldn't subscribe you" above the form; email and extras kept (L2-057 AC6)
+end
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — search and load the next page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "DirectoryPage" as page
+  participant "directorySearchTerm" as term
+  participant "DirectoryApi (DIRECTORY_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "DirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListDirectoryHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Type "running"
+page -> page : debounceTime(300 ms) after the last keystroke (L2-054 AC4)
+page -> term : directorySearchTerm("running")
+term --> page : "running" (null below 2 characters: nothing sent)
+page -> page : Address /directory?q=running; reset DirectoryFeed
+page -> client : list(kind, "running", null)
+client -> ctrl : GET /api/directory?q=running
+ctrl -> h : Send ListDirectoryQuery
+h -> db : Published; name, tagline, area or focus contains q, ignoring case
+db --> h : Rows
+h --> ctrl : DirectoryPageDto (kind counts not narrowed by q)
+ctrl --> client : 200 JSON
+client --> page : DirectoryPageDto
+alt no match
+  page --> actor : "No one by that name yet" with the search as text, Clear search, Suggest a listing (L2-054 AC5)
+  actor -> page : Clear search
+  page -> page : Clear q and kind; address /directory; reload first page
+else matches
+  page --> actor : Matching rows, still grouped by kind
+end
+opt member reaches the end and NextCursor is set (L2-054 AC7)
+  page -> client : list(kind, q, NextCursor)
+  client -> ctrl : GET /api/directory?q=running&cursor=...
+  ctrl -> h : Send ListDirectoryQuery
+  h -> db : Next 50 after the cursor's kind, name and id
+  db --> h : Rows
+  h --> ctrl : DirectoryPageDto
+  ctrl --> client : 200 JSON, or 400 validation_failed cursor_invalid
+  client --> page : Append to bounded DirectoryFeed; regroup
+end
+@enduml

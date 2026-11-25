@@ -4,23 +4,28 @@ LAYOUT_WITH_LEGEND()
 title Components — View the admin dashboard
 
 Container_Boundary(admin, "Admin web app") {
-  Component(page, "AdminDashboardPage", "Angular page", "Loading, default, empty, partial, error")
-  Component(tile, "StatTile", "components", "One count")
-  Component(queue, "AttentionQueue", "components", "queue block with Review links")
-  Component(svc, "HttpDashboardService", "DASHBOARD_SERVICE", "Implements DashboardApi")
+  Component(page, "AdminDashboardPage", "Angular page", "Needs attention, Community activity; states per section")
+  Component(lib, "List, Button, Link, Table, Skeleton, EmptyState", "components", "Presentation")
+  Component(dom, "awaitingRowsOf, awaitingTotalOf, awaitingMoreOf, activityRowsOf", "domain", "Shape rows and totals")
+  Component(svc, "HttpAdminDashboardService", "ADMIN_DASHBOARD_SERVICE", "Implements AdminDashboardApi")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "AdminDashboardController", "ASP.NET Core controller", "GET /api/admin/dashboard, StaffOnly")
-  Component(handler, "GetDashboardSummaryHandler", "MediatR handler", "Six counts and two lists")
-  Component(clock, "TimeProvider", ".NET", "Defines the 7-day window")
+  Component(ctrl, "AdminDashboardController", "ASP.NET Core controller", "GET /api/admin/dashboard/activity and /awaiting")
+  Component(act, "GetCommunityActivityHandler", "MediatR handler", "Eight weekly counts")
+  Component(wait, "GetWorkAwaitingStaffHandler", "MediatR handler", "Totals and oldest items by role")
+  Component(roles, "StaffRoles", "Application helper", "Caller's staff role")
+  Component(clock, "TimeProvider", ".NET", "Defines the weeks")
 }
 ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
 
-Rel(page, tile, "Renders")
-Rel(page, queue, "Renders")
-Rel(page, svc, "Calls getSummary")
+Rel(page, lib, "Renders")
+Rel(page, dom, "Shapes answers with")
+Rel(page, svc, "activity(), awaiting()")
 Rel(svc, ctrl, "Calls", "JSON/HTTPS")
-Rel(ctrl, handler, "Sends GetDashboardSummaryQuery")
-Rel(handler, clock, "Reads now")
-Rel(handler, db, "Counts rows", "EF Core")
+Rel(ctrl, act, "Sends GetCommunityActivityQuery")
+Rel(ctrl, wait, "Sends GetWorkAwaitingStaffQuery")
+Rel(act, clock, "Reads now")
+Rel(wait, roles, "Reads role")
+Rel(act, db, "Counts", "IAppDbContext")
+Rel(wait, db, "Counts and reads oldest", "IAppDbContext")
 @enduml

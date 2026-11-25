@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Member reaches the footer
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Router" as router
+  participant "MemberShell" as shell
+  participant "Footer (app)" as foot
+  participant "Routed screen" as page
+end box
+actor -> router : Open a member route
+router --> shell : NavigationEnd with route data
+alt Route fills the window (Messages)
+  shell -> shell : showFooter = false (L2-008 AC5)
+  shell --> actor : No footer
+else Any other member page
+  shell -> foot : variant="app", feedbackHref with the current page
+  actor -> page : Scroll to the end
+  foot --> actor : "Send feedback", Preferences, Privacy, Terms;\neach >= 44 px tall, above the tab bar on XS/SM (L2-008 AC5)
+  alt Send feedback
+    actor -> foot : Choose "Send feedback"
+    foot -> shell : navigate(feedbackHref)
+    shell -> router : /feedback with "About this page" (L2-063 AC1)
+  else Preferences
+    actor -> foot : Choose Preferences
+    foot -> shell : navigate('/preferences')
+    shell -> router : /preferences; Profile current (L2-064 AC1)
+  else Privacy or Terms
+    actor -> foot : Choose Privacy or Terms
+    foot -> shell : navigate('/privacy' or '/terms')
+    shell -> router : Public static page (L2-067 AC4)
+  end
+end
+@enduml

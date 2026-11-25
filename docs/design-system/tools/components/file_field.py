@@ -16,7 +16,8 @@ def ff(sfx, filename="", error="", hint="JPEG, PNG or WebP, up to 5 MB", opt=Tru
     return (f'<div class="field file-field"><span class="field__label" id="{fid}-label">Image{o}</span>'
             f'<div class="file-field__row"><button class="btn btn--secondary btn--sm" id="{fid}" type="button" '
             f'aria-labelledby="{fid}-label {fid}" aria-describedby="{msg_id}"{d}>Choose image</button>'
-            f'<input type="file" accept="image/jpeg,image/png,image/webp" hidden>{shown}</div>{msg}</div>')
+            f'<input id="{fid}-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" '
+            f'aria-labelledby="{fid}-label" hidden>{shown}</div>{msg}</div>')
 
 
 SPEC = {
@@ -53,7 +54,7 @@ SPEC = {
     "responsive": "<ul><li>Fills its column; the row wraps so the file name sits under the buttons on a phone.</li></ul>",
     "theming": "<p>Uses the button and field tokens; no tokens of its own.</p>",
     "accessibility": {
-        "pattern": "<p>A visible label, a real button that opens the picker (the hidden input is not focusable, so keyboard and touch use the button), and the hint or error linked with <code>aria-describedby</code>. The chosen name is plain text beside the button; Remove names the file kind for screen readers.</p>",
+        "pattern": "<p>A visible label, a real button that opens the picker (the hidden input is not focusable, so keyboard and touch use the button, but it still carries <code>aria-labelledby</code> pointing at the field label, as the mocks do), and the hint or error linked with <code>aria-describedby</code>. The chosen name is plain text beside the button; Remove names the file kind for screen readers.</p>",
         "keys": [
             (kbd("Tab"), "Moves between Choose and Remove."),
             (kbd("Enter") + " / " + kbd("Space"), "Opens the file picker, or removes the file."),
@@ -71,7 +72,7 @@ SPEC = {
     "content": "<ul><li>Name the file: \"Image\", \"Photo\".</li><li>Hints say what is allowed: \"JPEG, PNG or WebP, up to 5 MB\".</li><li>Errors say the fix: \"Use a JPEG, PNG or WebP image up to 5 MB\".</li></ul>",
     "dodont": [
         ("do", ff("dd1"), "Say the allowed types and size before people choose."),
-        ("dont", '<input type="file" aria-label="Image">', "The browser's own file input looks different in every browser and says nothing of limits."),
+        ("dont", '<input class="input" type="file" aria-label="Image">', "The browser's own file input looks different in every browser and says nothing of limits."),
     ],
     "tokens": [
         ("Row gap", "--space-3", "value"),
@@ -84,7 +85,7 @@ SPEC = {
   <span class="field__label" id="f-image-label">Image <span class="field__optional">(optional)</span></span>
   <div class="file-field__row">
     <button class="btn btn--secondary btn--sm" id="f-image" type="button" aria-labelledby="f-image-label f-image" aria-describedby="f-image-hint">Choose image</button>
-    <input type="file" accept="image/jpeg,image/png,image/webp" hidden>
+    <input id="f-image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" aria-labelledby="f-image-label" hidden>
     <span class="file-field__name file-field__name--empty">No image chosen</span>
   </div>
   <span class="field__hint" id="f-image-hint">JPEG, PNG or WebP, up to 5 MB</span>
@@ -100,6 +101,6 @@ SPEC = {
             mock("dialogs/event-editor/edit", "Image chosen, with Remove"),
             mock("dialogs/event-editor/image-invalid", "Invalid image"),
         ],
-        "drift": "New with slice 10.2: no mock had a file input before the event editor's image.",
+        "drift": "New with slice 10.2: no mock had a file input before the event editor's image. The page's examples left the hidden native input unnamed; it now carries an id and <code>aria-labelledby</code> pointing at the field label, as the mocks' input does (the mocks also add a <code>.file-field__input</code> class, which has no rule in components.css).",
     },
 }

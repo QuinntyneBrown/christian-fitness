@@ -1,0 +1,105 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Read the feedback inbox
+
+enum FeedbackStatus {
+  New
+  Replied
+  Resolved
+}
+enum StaffArea {
+  Console
+  Dashboard
+  Members
+  Events
+  Services
+  Feedback
+  Unlisted
+}
+class FeedbackNote {
+  +Guid Id
+  +Guid MemberId
+  +FeedbackKind Kind
+  +string Text
+  +bool MayEmail
+  +string? ScreenshotKey
+  +FeedbackStatus Status
+  +DateTimeOffset SentAt
+  +DateTimeOffset? RepliedAt
+  +DateTimeOffset? ResolvedAt
+  +MarkReplied(now): void
+  +Resolve(now): bool
+  +Reopen(): bool
+}
+class ListFeedbackQuery {
+  +string? Status
+  +string? Cursor
+}
+class FeedbackListDto {
+  +FeedbackRowDto[] Items
+  +FeedbackCountsDto Counts
+  +string? NextCursor
+}
+class FeedbackNoteDto {
+  +string Kind
+  +string Status
+  +string Text
+  +string SenderName
+  +string SenderEmail
+  +string? PagePath
+  +string? PageTitle
+  +string? StoryRef
+  +string Device
+  +string Browser
+  +string? ScreenshotUrl
+  +bool MayEmail
+}
+class ReplyToFeedbackCommand <<IAuditableCommand>> {
+  +Guid NoteId
+  +string Text
+  AuditAction = "feedback.replied"
+}
+class ResolveFeedbackCommand <<IAuditableCommand>>
+class ReopenFeedbackCommand <<IAuditableCommand>>
+class ReplyToFeedbackHandler
+interface IEmailSender
+class SendDirectMessageCommand
+class AuditTrail {
+  +Record(actor, recordType, recordId): void
+}
+interface AdminFeedbackApi {
+  +list(status, cursor?): Observable<FeedbackListDto>
+  +note(id): Observable<FeedbackNoteDto>
+  +counts(): Observable<FeedbackCountsDto>
+  +reply(id, text): Observable<FeedbackNoteDto>
+  +resolve(id): Observable<FeedbackNoteDto>
+  +reopen(id): Observable<FeedbackNoteDto>
+}
+class AdminFeedbackPage
+class FeedbackInbox {
+  +kindName(kind): string
+  +replyHint(kind): string
+  +firstName(name): string
+}
+FeedbackNote --> FeedbackStatus
+ReplyToFeedbackHandler ..> ReplyToFeedbackCommand : handles
+ReplyToFeedbackHandler --> FeedbackNote : MarkReplied
+ReplyToFeedbackHandler ..> IEmailSender : MayEmail
+ReplyToFeedbackHandler ..> SendDirectMessageCommand : otherwise
+ReplyToFeedbackHandler ..> AuditTrail
+ResolveFeedbackCommand ..> FeedbackNote : Resolve
+ReopenFeedbackCommand ..> FeedbackNote : Reopen
+FeedbackListDto ..> FeedbackNote : projects
+FeedbackNoteDto ..> FeedbackNote : projects
+AdminFeedbackPage ..> AdminFeedbackApi : ADMIN_FEEDBACK_SERVICE
+AdminFeedbackPage ..> FeedbackInbox
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Set email and notification preferences
+
+Container(web, "Member web app", "Angular", "PreferencesPage, PreferencesDraft, SaveBarState, SaveBar, PreferenceRow, HttpPreferencesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "PreferencesController", "ASP.NET Core controller", "GET and PUT /api/preferences")
+  Component(get, "GetPreferencesHandler", "MediatR handler", "Saved values or defaults")
+  Component(val, "SavePreferencesValidator", "FluentValidation", "Known area, visibility and interests")
+  Component(save, "SavePreferencesHandler", "MediatR handler", "Saves every setting in one unit of work")
+  Component(prefs, "MemberPreferences", "Domain entity", "Notification switches; Allows(kind)")
+  Component(sub, "NewsletterSubscription", "Domain entity (L2-057 design)", "The account address's emails")
+  Component(senders, "Newsletter and notification senders", "Application services (other designs)", "Read the switches before sending")
+  Component(ctx, "IAppDbContext", "Application abstraction", "MemberPreferences, subscriptions, Members")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Preferences and subscriptions")
+Rel(web, ctrl, "GET, PUT /api/preferences", "JSON/HTTPS")
+Rel(ctrl, get, "Sends GetPreferencesQuery")
+Rel(ctrl, save, "Sends SavePreferencesCommand")
+Rel(save, val, "Validated by")
+Rel(save, prefs, "Applies switches")
+Rel(save, sub, "Subscribes or unsubscribes")
+Rel(get, ctx, "Reads")
+Rel(save, ctx, "Saves once")
+Rel(senders, prefs, "Allows(kind)")
+Rel(senders, sub, "Reads before sending")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

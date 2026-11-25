@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send feedback
+
+Person(member, "Member", "Sends ideas, problems, corrections and thanks")
+Person(staff, "Staff member", "Reads and answers feedback")
+System(cf, "Christian Fitness", "Member app, admin app and API")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(member, cf, "Sends feedback from any page of", "HTTPS")
+Rel(staff, cf, "Reads notes in the admin console of", "HTTPS")
+Rel(cf, otel, "Exports telemetry without note text or address to", "OTLP")
+@enduml

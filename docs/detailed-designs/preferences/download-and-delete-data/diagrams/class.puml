@@ -1,0 +1,94 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Download and delete data
+
+class Member {
+  +Guid Id
+  +string Name
+  +string Email
+  +DateTimeOffset? DeletionRequestedAt
+  +RequestDeletion(now): void
+  +Restore(): void
+  +IsDeleting: bool
+}
+class DataExportRequest {
+  +Guid Id
+  +Guid MemberId
+  +DateTimeOffset RequestedAt
+  +DateTimeOffset? ReadyAt
+  +string? ArchiveKey
+  +DateTimeOffset? ExpiresAt
+  +IsServableTo(memberId, now): bool
+}
+class RequestDataExportCommand <<IAuditableCommand>> {
+  AuditAction = "data_export.requested"
+}
+class DeleteAccountCommand <<IAuditableCommand>> {
+  +string Confirm
+  AuditAction = "account.deletion_requested"
+}
+class DeleteAccountValidator
+class DeleteAccountHandler {
+  +Handle(command): Task
+}
+class RestoreAccountCommand
+class GetDataExportArchiveQuery {
+  +Guid Id
+}
+class DataExportBuilder {
+  +RunAsync(ct): Task
+}
+class AccountErasureService {
+  +RunAsync(ct): Task
+}
+interface IArchiveStore {
+  +SaveAsync(key, zip): Task
+  +OpenAsync(key): Task<Stream?>
+  +DeleteAsync(key): Task
+}
+interface ISessionRevocation {
+  +EndAllAsync(memberId): Task
+}
+interface IChatChannel {
+  +LeaveAsync(memberId, eventId): Task
+  +DisconnectMemberAsync(memberId): Task
+}
+interface IEmailSender {
+  +SendAsync(EmailMessage): Task
+}
+class AuditEntry {
+  +Guid ActorMemberId
+  +string Action
+  +string RecordType
+  +Guid RecordId
+  +DateTimeOffset OccurredAt
+}
+interface DataApi {
+  +requestDownload(): Observable<DataExportStatusDto>
+  +deleteAccount(confirm): Observable<void>
+}
+class DeleteAccountDialog
+Member "1" -- "0..*" DataExportRequest
+DeleteAccountHandler ..> DeleteAccountCommand : handles
+DeleteAccountValidator ..> DeleteAccountCommand : "confirm == delete"
+DeleteAccountHandler --> Member : RequestDeletion
+DeleteAccountHandler ..> ISessionRevocation
+DeleteAccountHandler ..> IChatChannel
+DataExportBuilder --> DataExportRequest : ReadyAt, ArchiveKey
+DataExportBuilder ..> IArchiveStore
+DataExportBuilder ..> IEmailSender
+AccountErasureService --> Member : deletes after 30 days
+AccountErasureService ..> IArchiveStore
+RequestDataExportCommand ..> AuditEntry : recorded
+DeleteAccountCommand ..> AuditEntry : recorded
+DeleteAccountDialog ..> DataApi : DATA_SERVICE
+@enduml

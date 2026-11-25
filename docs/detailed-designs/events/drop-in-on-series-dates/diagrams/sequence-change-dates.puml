@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — change drop-in dates
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventSeriesPage" as page
+  participant "EventSeriesApi (EVENT_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SetDropInDatesHandler" as h
+  participant "IChatChannel" as chat
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : "Change dates"
+page --> actor : Tick boxes again with sessions 4 and 6 ticked (L2-053 AC3)
+actor -> page : Untick session 6; confirm
+page -> client : setDropIns(id, [s4])
+client -> ctrl : PUT /api/events/series/{id}/drop-ins
+ctrl -> h : Send SetDropInDatesCommand
+h -> db : Caller's registrations at the series' sessions
+alt an unticked session has started
+  h --> ctrl : event_started (as L2-012 AC2)
+else
+  h -> db : Remove the registration at session 6; ReleasePlace(); SaveChanges (L2-053 AC4)
+  db --> h : Committed
+  opt no registration left at any session of the series and no enrolment
+    h -> chat : LeaveAsync(member, series chat)
+  end
+  h --> ctrl : SeriesDetailDto
+end
+ctrl --> client : 200 JSON or ProblemDetails
+client --> page : Result
+page --> actor : "Registered for 1 date" or the sign-up panel when none is left
+note over page, db : Choosing "Every session" later sends JoinSeriesCommand, which keeps these registrations and adds the rest (L2-053 AC5)
+@enduml

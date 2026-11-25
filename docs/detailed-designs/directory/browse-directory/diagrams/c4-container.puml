@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Browse the directory
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "DirectoryPage with components, domain and api libraries")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "DirectoryController and ListDirectoryHandler")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Directory listings, follows, events and series")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/directory", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry, route templates only", "OTLP")
+@enduml

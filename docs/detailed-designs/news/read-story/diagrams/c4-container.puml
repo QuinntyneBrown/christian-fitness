@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Read a story
+
+Person(visitor, "Visitor or member", "Opens /stories/<slug>")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "StoryPage, served by nginx with /api/ proxied")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "PublicStoriesController and the story queries")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Stories, slug redirects, read tallies, events")
+  ContainerDb(images, "Image store", "Azure Files at Images:Directory", "Lead images by key")
+}
+System_Ext(otel, "OpenTelemetry collector", "Route templates only")
+Rel(visitor, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/public/stories/{slug}", "JSON/HTTPS, no session needed")
+Rel(api, db, "Reads and counts reads", "EF Core")
+Rel(api, images, "Reads lead images", "IImageStore")
+Rel(api, otel, "Exports telemetry", "OTLP")
+@enduml

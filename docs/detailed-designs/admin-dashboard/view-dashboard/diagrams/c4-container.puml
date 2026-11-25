@@ -4,21 +4,21 @@ LAYOUT_WITH_LEGEND()
 title Containers — View the admin dashboard
 
 Person(staff, "Staff member", "Admin or Moderator")
-Person(member, "Member", "Sees the effect of staff changes")
+Person(member, "Member", "Generates activity and waiting work")
 System_Boundary(cf, "Christian Fitness") {
   Container(admin, "Admin web app", "Angular (standalone, signals, zoneless), projects/admin", "Staff console")
   Container(web, "Member web app", "Angular, projects/web", "Member screens")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, StaffOnly policy, ProblemDetails with code")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, staff policies, ProblemDetails with code")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
-  ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members, staff roles, events, audit entries")
+  ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members, events, messages, applications, stories, suggestions, feedback")
 }
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 
 Rel(staff, admin, "Opens the Dashboard in", "HTTPS")
-Rel(admin, api, "Calls", "JSON/HTTPS, session cookie")
+Rel(admin, api, "GET activity and awaiting", "JSON/HTTPS, session cookie")
 Rel(member, web, "Uses", "HTTPS")
 Rel(web, api, "Calls", "JSON/HTTPS")
-Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, db, "Counts and reads", "EF Core")
 Rel(cli, db, "Migrates and seeds", "EF Core")
 Rel(api, otel, "Exports telemetry", "OTLP")
 @enduml

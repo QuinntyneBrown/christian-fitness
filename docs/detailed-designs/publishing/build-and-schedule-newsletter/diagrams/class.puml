@@ -1,0 +1,104 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Build and schedule the newsletter
+
+enum IssueStatus {
+  Draft
+  Scheduled
+  Sending
+  Sent
+}
+class NewsletterIssue <<entity>> {
+  +int Number
+  +IssueStatus Status
+  +DateTimeOffset SendAt
+  +string Subject
+  +string EditorsNote
+  +Guid? LeadStoryId
+  +Guid[] AlsoStoryIds
+  +Guid[] EventIds
+  +string? Verse
+  +string? VerseReference
+  +Guid? ScheduledBy
+  +DateTimeOffset? SentAt
+  +bool MissedSend
+  +int RecipientCount
+  +int OpenedCount
+  +int ClickedCount
+  +IssueContent? Sent
+  +Edit(fields): void
+  +Schedule(by): void
+  +Unschedule(): void
+  +StartSending(content, recipients, now): void
+  +MarkMissed(): void
+}
+class IssueDelivery <<entity>> {
+  +Guid Id
+  +int IssueNumber
+  +Guid SubscriptionId
+  +string MarkToken
+  +DateTimeOffset? SentAt
+}
+class IssueRecipientMark <<entity>> {
+  +int IssueNumber
+  +string MarkHash
+  +bool Opened
+  +bool Clicked
+}
+class NewsletterSubscription <<entity>> {
+  +string Email
+  +SubscriptionStatus Status
+  +bool Weekly
+}
+class Story <<entity>> {
+  +bool IncludeInWeekly
+  +StoryStatus Status
+}
+class Event <<entity>> {
+  +EventStatus Status
+  +DateTimeOffset StartsAt
+}
+class IssueFields {
+  +string Subject
+  +string EditorsNote
+  +Guid? LeadStoryId
+  +Guid[] AlsoStoryIds
+  +Guid[] EventIds
+  +string? Verse
+  +string? VerseReference
+}
+class ScheduleIssueCommand
+class SaveIssueCommand
+class UnscheduleIssueCommand
+class SendTestIssueCommand
+class SendDueIssueCommand
+class ScheduleIssueValidator {
+  subject_required, lead_story_required
+  editors_note_required, too_many_stories
+}
+class IssueBuilder <<domain>> {
+  +picked: Signal<Guid[]>
+  +canPick(id): bool
+  +{static} preselect(stories): Guid[]
+}
+NewsletterIssue --> IssueStatus
+NewsletterIssue ..> Story : lead and up to 3 more
+NewsletterIssue ..> Event : events this week
+NewsletterIssue "1" *-- "*" IssueDelivery : while sending
+NewsletterIssue "1" *-- "*" IssueRecipientMark : no subscriber link
+IssueDelivery --> NewsletterSubscription
+SaveIssueCommand --|> IssueFields
+ScheduleIssueCommand --|> IssueFields
+ScheduleIssueValidator ..> ScheduleIssueCommand : validates
+SendDueIssueCommand ..> NewsletterIssue : sends when due
+IssueBuilder ..> Story : preselects IncludeInWeekly
+@enduml

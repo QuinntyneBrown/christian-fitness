@@ -1,0 +1,81 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Publish RSS feeds
+
+class StoryFeeds <<domain>> {
+  +{static} All: FeedDefinition
+  +{static} Sections: FeedDefinition[5]
+  +{static} BySlug(slug): FeedDefinition?
+}
+class FeedDefinition <<value>> {
+  +string Name
+  +string Path
+  +StorySection? Section
+}
+class GetStoryFeedQuery {
+  +string? SectionSlug
+  +string? IfNoneMatch
+  +DateTimeOffset? IfModifiedSince
+}
+class GetStoryFeedHandler {
+  +Handle(query): Task<StoryFeed>
+}
+class StoryFeed {
+  +FeedDefinition Feed
+  +FeedItem[] Items
+  +string ETag
+  +DateTimeOffset LastModified
+  +bool NotModified
+}
+class FeedItem {
+  +Guid Id
+  +string Title
+  +string Link
+  +string? Summary
+  +string Section
+  +string Byline
+  +DateTimeOffset PublishedAt
+}
+class RssFeedResult <<IActionResult>> {
+  +ExecuteResultAsync(context): Task
+}
+class ListFeedsQuery
+class FeedSummaryDto {
+  +string Name
+  +string Url
+  +int StoriesPerWeek
+  +bool IsAll
+}
+class Story <<entity>> {
+  +Guid Id
+  +StoryStatus Status
+  +StorySection Section
+  +DateTimeOffset? PublishedAt
+  +DateTimeOffset EditedAt
+}
+interface FeedsApi <<FEEDS_SERVICE>> {
+  +list(): Observable<FeedSummaryDto[]>
+}
+class CopiedFlag <<domain>> {
+  +raise(): void
+  +dispose(): void
+}
+StoryFeeds *-- FeedDefinition
+GetStoryFeedHandler ..> GetStoryFeedQuery : handles
+GetStoryFeedHandler ..> StoryFeeds
+GetStoryFeedHandler ..> Story : reads published
+GetStoryFeedHandler ..> StoryFeed
+StoryFeed *-- "0..30" FeedItem
+RssFeedResult ..> StoryFeed : writes
+ListFeedsQuery ..> FeedSummaryDto
+FeedsApi ..> FeedSummaryDto
+@enduml

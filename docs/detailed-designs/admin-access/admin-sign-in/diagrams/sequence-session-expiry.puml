@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — Idle staff session expires
+title UML sequence behaviour — Staff session expires
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -35,14 +35,14 @@ guard -> icpt : GET /api/admin/session
 icpt -> auth : Request with __Host-cf-admin cookie
 auth -> store : RetrieveAsync(session key)
 store -> db : Find the Sessions row
-alt last request 30 minutes ago or more (L2-018 AC5)
+alt last request 30 minutes ago or more (L2-018 AC6),\nor signed in 12 hours ago or more (L2-018 AC9)
   store -> db : Delete the expired row (the session ends on the server)
   store --> auth : no ticket
-  auth --> icpt : 401 ProblemDetails code session_expired, cookie expired, no data (L2-018 AC4)
+  auth --> icpt : 401 ProblemDetails code session_expired, cookie expired, no data (L2-018 AC5)
   note right of handler : Handler is never reached
   icpt -> signin : Navigate to /sign-in with state { session: 'expired' }
-  signin --> actor : "Your session expired", sign in again
-else within 30 minutes of the last request
+  signin --> actor : "Your session expired", sign in with Google again
+else within 30 minutes of the last request and 12 hours of sign-in
   store --> auth : ticket
   auth -> handler : Send the request's MediatR request
   handler --> auth : answer

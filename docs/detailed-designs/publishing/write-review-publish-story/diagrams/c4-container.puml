@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Write, review and publish a story
+
+Person(admin, "Admin", "Staff session in the admin app")
+System_Boundary(cf, "Christian Fitness") {
+  Container(adminApp, "Admin web app", "Angular", "StoryEditorPage, StoryPreviewPage")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminStoriesController, story commands, PublishingClock")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Stories, slug redirects, audit entries")
+  ContainerDb(images, "Image store", "Azure Files at Images:Directory", "Lead images")
+  Container(web, "Member web app", "Angular", "Story page, landing page, feeds read what is published")
+}
+Rel(admin, adminApp, "Uses", "HTTPS")
+Rel(adminApp, api, "Calls api/admin/stories", "JSON/HTTPS, staff cookie")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, images, "Stores lead images", "IImageStore")
+Rel(web, api, "Reads published stories", "JSON/HTTPS")
+@enduml

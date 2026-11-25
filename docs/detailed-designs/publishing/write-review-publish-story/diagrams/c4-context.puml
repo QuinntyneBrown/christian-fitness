@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Write, review and publish a story
+
+Person(admin, "Admin", "Writes, reviews, schedules, publishes and unpublishes stories")
+Person(reader, "Reader", "Reads published stories, feeds and the Weekly")
+System(cf, "Christian Fitness", "Admin web app and the public news")
+System_Ext(otel, "OpenTelemetry collector", "No story text or personal data")
+Rel(admin, cf, "Writes and publishes stories in", "HTTPS")
+Rel(reader, cf, "Reads published stories in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

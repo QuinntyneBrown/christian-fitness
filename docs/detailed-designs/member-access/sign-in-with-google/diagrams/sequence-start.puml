@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Start a Google sign-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member, visitor or staff member" as actor
+box "Frontend — Member web app or Admin web app" #E0F2FE
+  participant "SignInPage or JoinPage" as page
+  participant "GoogleButton" as btn
+  participant "HttpSessionService or HttpStaffSessionService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SessionController or StaffSessionController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "StartGoogleSignInHandler" as h
+  participant "GoogleSignInLimiter" as limit
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "OpenIdConnectGoogleChallenge" as chal
+  participant "GoogleMember or GoogleStaff scheme" as oidc
+end box
+participant "Google" as google
+actor -> btn : Press Continue / Sign up / Sign in with Google
+btn -> page : chosen
+page --> actor : "Opening Google…", button disabled and aria-busy
+page -> client : startGoogle({ intent, returnUrl })
+client -> ctrl : POST .../session/google/start with X-XSRF-TOKEN
+ctrl -> h : Send StartGoogleSignInCommand(App, Intent, ReturnUrl)
+h -> limit : TryAcquire(client address)
+alt More than 20 starts from this network in 15 minutes (L2-049 AC7)
+  limit --> h : none
+  h --> ctrl : RefusalException too_many_attempts
+  ctrl --> client : 429 ProblemDetails code too_many_attempts
+  client --> page : ApiError
+  page --> actor : Button enabled again; the screen shows the refusal
+else Google client or team's domain missing (L2-018 AC10)
+  h --> ctrl : RefusalException <TO SUPPLY>
+  ctrl --> client : 503 ProblemDetails, nothing sent to Google
+  client --> page : ApiError
+  page --> actor : Button enabled again
+else Started
+  h -> h : Drop a return address that is not a path in the member app (L2-004 AC6)
+  h -> chal : BeginAsync(app, intent, returnPath)
+  chal -> oidc : Challenge the app's scheme
+  oidc -> oidc : New state, nonce and PKCE verifier for this attempt;\ncorrelation and nonce cookies (10 minutes)
+  oidc --> chal : Authorization address: scope openid email profile,\nredirect_uri of the app, code_challenge, nonce, state;\nhd = team's domain for staff (L2-049 AC1)
+  chal --> h : Address
+  h --> ctrl : GoogleRedirectDto
+  ctrl --> client : 200 { location } + Set-Cookie (correlation, nonce)
+  client --> page : location
+  page -> google : DOCUMENT.location.assign(location): full-page redirect (L2-049 AC9)
+  google --> actor : Google's account chooser
+end
+@enduml

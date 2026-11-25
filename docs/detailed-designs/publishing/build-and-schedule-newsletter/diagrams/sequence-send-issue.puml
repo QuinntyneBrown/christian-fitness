@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — send an issue when its time arrives
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Subscriber" as actor
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicIssueTrackingController" as track
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "PublishingClock" as clock
+  participant "IssueSender" as sender
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SendDueIssueHandler" as h
+  participant "NewsletterIssue" as issue
+  participant "NewsletterEmails" as mails
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IEmailSender" as mail
+end box
+clock -> h : Send SendDueIssueCommand (every 30 s)
+h -> db : Issue with SendAt <= now and Status Scheduled or Draft
+alt still a Draft
+  h -> issue : MarkMissed(): nothing sent (L2-070 AC8)
+  h -> db : Save; Dashboard "Needs attention" says the issue was not scheduled
+else Scheduled
+  h -> db : Subscriptions Subscribed with the Weekly on (L2-058 AC6)
+  h -> issue : StartSending(content captured now, recipients, now): Sending
+  h -> db : One IssueDelivery and one IssueRecipientMark per recipient; audit newsletter_issue.sent (L2-070 AC13)
+  note right of h : Status Sending makes a second tick find nothing: sent once (L2-070 AC7)
+end
+loop until no delivery is left
+  sender -> db : Next batch of unsent deliveries
+  sender -> mails : Issue email: greeting by first name where a member has that address, own Unsubscribe link and headers (L2-070 AC7; L2-058 AC4)
+  sender -> mail : SendAsync(message)
+  sender -> db : Mark each delivery sent
+end
+sender -> db : No delivery left: Status Sent, SentAt, RecipientCount; deliveries deleted
+note over db : The issue now shows on the web (L2-059) and under Sent
+actor -> track : Email client loads the open image or follows a link
+track -> db : Opened or Clicked on the IssueRecipientMark by hash; never the subscriber (L2-070 AC10)
+track --> actor : Image, or redirect to the story or event the link names
+@enduml

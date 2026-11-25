@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Follow a listing
+
+Person(member, "Member", "Signed-in member of the Christian community")
+System(cf, "Christian Fitness", "Events, directory, services and messages for members; admin console for staff")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(member, cf, "Follows listings and sees their dates first in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

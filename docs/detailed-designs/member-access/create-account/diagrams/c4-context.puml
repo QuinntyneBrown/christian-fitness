@@ -6,8 +6,11 @@ title System Context — Create a member account
 Person(user, "Visitor", "Person who is not signed in")
 
 System(cf, "Christian Fitness", "Christian community for health in body and spirit in the Greater Toronto Area")
+System_Ext(google, "Google", "OpenID Connect provider")
 System_Ext(otel, "OpenTelemetry collector", "Receives traces, metrics and logs")
 
 Rel(user, cf, "Creates a member account using", "HTTPS")
+Rel(user, google, "Chooses a Google account at", "full-page redirect")
+Rel(cf, google, "Exchanges the code and reads keys from", "HTTPS")
 Rel(cf, otel, "Exports telemetry to", "OTLP")
 @enduml

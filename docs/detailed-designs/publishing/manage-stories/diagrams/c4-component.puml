@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage stories
+
+Container_Boundary(adminApp, "Admin web app") {
+  Component(page, "AdminStoriesPage", "Routed page /stories", "Review cards, tabs, table, pages")
+  Component(tabs, "adminStoryTabs, storyWhen", "Domain library", "Tab from address; when in words")
+  Component(client, "HttpAdminStoriesService", "ADMIN_STORIES_SERVICE", "list(status, page)")
+  Component(ui, "Tabs, Table, Badge, Pagination, EmptyState, SkeletonRegion", "Components library", "Plus the review-card composite")
+  Component(nav, "AdminShell navigation", "Admin web app", "Stories with its count in words")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(policy, "Staff area policy", "StaffAreaAuthorizationHandler", "Publishing area: Admins only")
+  Component(ctrl, "AdminStoriesController", "ASP.NET Core controller", "GET api/admin/stories")
+  Component(h, "ListAdminStoriesHandler", "MediatR handler", "Counts, in review, page of 50")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Stories, StoryReadTallies")
+Rel(page, tabs, "Uses")
+Rel(page, ui, "Renders")
+Rel(page, client, "Calls")
+Rel(client, policy, "JSON/HTTPS")
+Rel(policy, ctrl, "Admits an Admin")
+Rel(ctrl, h, "Sends ListAdminStoriesQuery")
+Rel(h, db, "Reads", "IAppDbContext")
+Rel(nav, client, "Reads the in-review count")
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — drop in on picked dates
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventSeriesPage" as page
+  participant "EventSeriesApi (EVENT_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SetDropInDatesHandler" as h
+  participant "Event (session)" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose "Pick dates to drop in"
+page --> actor : "Drop in" tick box per open session; "Full" where none is left; "Pick a date first" disabled (L2-053 AC1, AC6)
+actor -> page : Tick two dates
+page --> actor : "2 picked below"; "Register for 2 dates"
+actor -> page : Press "Register for 2 dates"
+page -> client : setDropIns(id, [s4, s6])
+client -> ctrl : PUT /api/events/series/{id}/drop-ins
+ctrl -> h : Send SetDropInDatesCommand
+h -> db : Member, series, its sessions, going per session, caller's registrations
+alt member suspended
+  h --> ctrl : account_suspended
+else
+  h -> h : Each id must be a session of the series, not cancelled, not started
+  loop each picked session without the caller's place
+    alt going >= Capacity
+      h -> h : Collect session number
+    else
+      h -> ent : TakePlace()
+      h -> h : Registration.Of(session, member, session price)
+    end
+  end
+  alt any picked session full
+    h --> ctrl : event_full naming the full sessions; nothing saved (L2-053 AC2)
+  else all have places
+    h -> db : SaveChanges (one unit of work)
+    db --> h : Committed or concurrency conflict: reload and decide again
+    h --> ctrl : SeriesDetailDto with the caller's dates
+  end
+end
+ctrl --> client : 200 JSON or ProblemDetails
+alt 200
+  client --> page : SeriesDetailDto
+  page --> actor : "Registered for 2 dates", "Sessions 4, 6", how to pay where priced, "Change dates" (L2-053 AC3)
+else event_full
+  page --> actor : Alert naming the full date(s); ticks kept
+end
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Load community activity
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminDashboardPage" as page
+  participant "HttpAdminDashboardService" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDashboardController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetCommunityActivityHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Dashboard
+page --> actor : Skeleton rows in Community activity
+page -> client : activity()
+client -> ctrl : GET /api/admin/dashboard/activity
+ctrl -> ctrl : Dashboard area policy (Admin or Moderator)
+ctrl -> handler : Send GetCommunityActivityQuery
+handler -> handler : Eight UTC weeks from TimeProvider (Monday 00:00)
+handler -> db : Count members, registrations, messages per week
+db --> handler : Counts only
+handler --> ctrl : CommunityActivityDto
+alt success with activity (L2-020 AC4)
+  ctrl --> client : 200 JSON
+  client --> page : Weeks
+  page --> actor : Table, current week first "(this week)"
+else no activity in eight weeks (L2-020 AC5)
+  page --> actor : "No activity yet"
+else request fails (L2-020 AC6)
+  ctrl --> client : ProblemDetails or no answer
+  client --> page : ApiError
+  page --> actor : "Activity didn't load" with Try again; no server words
+  actor -> page : Try again
+  page -> client : activity()
+end
+@enduml

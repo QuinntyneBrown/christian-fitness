@@ -4,25 +4,31 @@ LAYOUT_WITH_LEGEND()
 title Components — Navigate the admin app
 
 Container_Boundary(admin, "Admin web app") {
-  Component(shell, "AdminShell", "Angular layout route", "Hosts the staff routes")
+  Component(shell, "AdminShell", "Angular layout route", "Hosts the staff routes; items, current, counts")
+  Component(domain, "ADMIN_AREAS, areasFor, currentAdminArea, waitingCountsFor", "domain library", "Areas, groups, role filter, count phrases")
   Component(layout, "AdminLayout", "components", "admin block: skip link, sidebar, main")
-  Component(side, "SidebarNavigation", "components", "admin__sidebar: brand, links, staff member")
-  Component(nav, "AdminNav", "components", "admin-nav block, aria-current")
+  Component(side, "SidebarNavigation", "components", "admin__sidebar: brand, scrolling links, staff member")
+  Component(nav, "AdminNav", "components", "admin-nav: groups, aria-current, counts")
   Component(user, "AdminUser", "components", "Staff member and Sign out")
-  Component(area, "AreaPage", "Angular page", "Stand-in heading per area")
-  Component(svc, "HttpStaffSessionService", "STAFF_SESSION_SERVICE", "Session and sign-out")
+  Component(sess, "HttpStaffSessionService", "STAFF_SESSION_SERVICE", "Session and sign-out")
+  Component(dash, "HttpAdminDashboardService", "ADMIN_DASHBOARD_SERVICE", "Waiting work")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "StaffSessionController", "ASP.NET Core controller", "GET, DELETE /api/admin/session")
+  Component(sctrl, "StaffSessionController", "ASP.NET Core controller", "GET, DELETE /api/admin/session")
+  Component(dctrl, "AdminDashboardController", "ASP.NET Core controller", "GET /api/admin/dashboard/awaiting")
+  Component(h, "GetWorkAwaitingStaffHandler", "MediatR handler", "Totals by role (L2-020 AC11)")
 }
 ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
 
+Rel(shell, domain, "Builds items with")
 Rel(shell, layout, "Renders")
 Rel(layout, side, "Renders")
 Rel(side, nav, "Renders")
 Rel(side, user, "Renders")
-Rel(shell, area, "Routes to")
-Rel(shell, svc, "Reads session, signs out")
-Rel(svc, ctrl, "Calls", "JSON/HTTPS")
-Rel(ctrl, db, "Reads staff role, ends the session", "EF Core")
+Rel(shell, sess, "Reads session, signs out")
+Rel(shell, dash, "Reads waiting totals")
+Rel(sess, sctrl, "Calls", "JSON/HTTPS")
+Rel(dash, dctrl, "Calls", "JSON/HTTPS")
+Rel(dctrl, h, "Sends GetWorkAwaitingStaffQuery")
+Rel(h, db, "Counts", "IAppDbContext")
 @enduml

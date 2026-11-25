@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — create Community Pick assets
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "CommunityPickPage" as page
+  participant "CommunityPickApi (COMMUNITY_PICK_SERVICE)" as client
+  participant "PickArtRenderer" as render
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminCommunityPickController" as ctrl
+  participant "EventImagesController" as img
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListPickableEventsHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Community Pick (or "Make it a pick" with ?event={id})
+page --> actor : Skeleton rows (L2-072 AC11)
+page -> client : events()
+client -> ctrl : GET /api/admin/community-pick/events
+ctrl -> h : Send ListPickableEventsQuery (Staff:CommunityPick; a Moderator gets Admins only)
+h -> db : Published, StartsAt > now, soonest first, with going
+db --> h : Rows
+h --> ctrl : PickableEventDto[]
+ctrl --> client : 200 JSON
+client --> page : Events
+page --> actor : event-choice radio group, the asked or first chosen; "Create assets"; what will be made (L2-072 AC1, AC3)
+actor -> page : Type "Why it's a pick"
+page --> actor : "<n> of 70 characters" (L2-072 AC2)
+actor -> page : "Create assets"
+page --> actor : "Creating…"
+page -> render : import() then render(input, five sizes)
+render -> img : GET /api/events/images/{key}
+img --> render : Photo
+render -> render : Load self-hosted fonts; draw label, photo, title, weekday, date, time, area, note; shade for 4.5:1 (L2-072 AC5)
+render -> render : canvas.toBlob("image/png") for each size; object URLs
+alt drawing or export fails
+  render --> page : Error
+  page --> actor : Message above the button; button usable (L2-072 AC10)
+else made
+  render --> page : Five PickImage
+  page -> page : Revoke the previous object URLs; keep these with the input they were made from
+  page --> actor : Instagram post 1080 x 1080 and story 1080 x 1920 with PNG, caption with Copy (L2-072 AC4, AC6)
+end
+actor -> page : Choose Facebook, WhatsApp or Slack
+page --> actor : That platform's images and caption; segmented option aria-current="page"
+actor -> page : "PNG"
+page -> page : Download the object URL as community-pick-<event>-<platform>[-kind].png (L2-072 AC7)
+actor -> page : "Copy"
+page -> page : navigator.clipboard.writeText(caption); "Copied" for 2 s; role=status message
+actor -> page : Change the event or the note
+page --> actor : "You changed the event or note. Recreate to update."; "Recreate assets"; old assets stay (L2-072 AC8)
+@enduml

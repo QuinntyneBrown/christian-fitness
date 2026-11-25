@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — view an event series
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventSeriesPage" as page
+  participant "EventSeriesApi (EVENT_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetSeriesHandler" as h
+  participant "SeriesPlaces" as places
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /events/series/{id}
+page --> actor : Skeletons for banner, title, facts, sessions, panel (L2-051 AC7)
+page -> client : get(id)
+client -> ctrl : GET /api/events/series/{id}
+ctrl -> h : Send GetSeriesQuery
+h -> db : Published series by id with its session events
+alt unknown or not published
+  db --> h : None
+  h --> ctrl : RefusalException series_not_found
+  ctrl --> client : 404 ProblemDetails code series_not_found
+  client --> page : HttpErrorResponse
+  page --> actor : Not-found view (L2-051 AC6)
+else found
+  db --> h : Series and sessions
+  h -> db : Going per session; caller's registrations and enrolment
+  db --> h : Counts and places
+  h -> places : SpotsLeft and remaining sessions
+  places --> h : Numbers
+  h --> ctrl : SeriesDetailDto
+  ctrl --> client : 200 JSON
+  client --> page : SeriesDetailDto
+  page -> page : sessionRowViewOf per session (L2-051 AC2 to AC5)
+  page --> actor : Banner, facts, summary, "<past> done · <remaining> to go", session-row list, sign-up panel, host-card
+end
+opt answer fails (4xx other than 404, or no answer)
+  page --> actor : Error state with Try again and "All events" (L2-051 AC7)
+end
+@enduml

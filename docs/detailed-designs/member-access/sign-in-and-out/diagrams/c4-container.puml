@@ -10,11 +10,14 @@ System_Boundary(cf, "Christian Fitness") {
   ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, events, registrations, conversations")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
 }
+System_Ext(google, "Google", "OpenID Connect provider")
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 
 Rel(user, web, "Opens /sign-in and member routes", "HTTPS")
-Rel(web, api, "Posts credentials; ends the session", "JSON/HTTPS")
+Rel(web, api, "Posts credentials; starts and finishes Google sign-in; ends the session", "JSON/HTTPS")
 Rel(api, db, "Reads and writes", "EF Core")
 Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(user, google, "Is redirected to; returns to the API callback", "HTTPS")
+Rel(api, google, "Exchanges code with PKCE; reads keys", "HTTPS")
 Rel(api, otel, "Exports telemetry", "OTLP")
 @enduml

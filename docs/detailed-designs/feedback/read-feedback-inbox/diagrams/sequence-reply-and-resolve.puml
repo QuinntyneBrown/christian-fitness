@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — reply, resolve and reopen
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Staff member" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "AdminFeedbackPage" as page
+  participant "AdminFeedbackApi (ADMIN_FEEDBACK_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminFeedbackController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "AuditBehavior" as audit
+  participant "ReplyToFeedbackHandler" as reply
+  participant "Resolve / ReopenFeedbackHandler" as status
+  participant "SendDirectMessageHandler" as dm
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IEmailSender" as mail
+end box
+actor -> page : Write a reply and press Send reply
+alt reply empty
+  page --> actor : The box says to write one; nothing sent (L2-074 AC5)
+else reply written
+  page --> actor : "Sending…", reply read-only
+  page -> client : reply(id, text)
+  client -> ctrl : POST /api/admin/feedback/{id}/replies
+  ctrl -> audit : Send ReplyToFeedbackCommand
+  audit -> reply : Handle
+  reply -> db : Note and member
+  alt MayEmail
+    reply -> mail : Email the reply to the member's address (L2-063 AC11)
+  else not allowed
+    reply -> dm : Direct message from the Christian Fitness sender
+  end
+  reply -> db : Status Replied; AuditTrail.Record(staff, FeedbackNote, id)
+  audit -> db : SaveChanges once (change and entry together, AC11)
+  audit --> ctrl : FeedbackNoteDto
+  ctrl --> client : 200, or ProblemDetails
+  alt sent
+    page --> actor : Box empty, Replied, toast "Reply sent to <first name>"
+  else failed
+    page --> actor : Message; reply kept; status unchanged (AC7)
+  end
+end
+actor -> page : Mark resolved (or Reopen on a Resolved note)
+page -> client : resolve(id) or reopen(id)
+client -> ctrl : POST /api/admin/feedback/{id}/resolve or /reopen
+ctrl -> audit : Send Resolve/ReopenFeedbackCommand
+audit -> status : Handle
+status -> db : Resolved, or New again (AC6); audit entry
+audit -> db : SaveChanges
+ctrl --> client : 200 FeedbackNoteDto, or 409 status_conflict
+client --> page : Note
+page --> actor : Status in words; Reopen or Mark resolved offered
+@enduml

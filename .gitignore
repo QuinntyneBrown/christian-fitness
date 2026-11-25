@@ -8,3 +8,6 @@ bin/
 obj/
 *.user
 TestResults/
+
+# Python bytecode from the docs tools
+__pycache__/

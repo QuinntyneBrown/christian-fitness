@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Sign in with Google
+
+Person(member, "Member or visitor", "Google account")
+Person(staff, "Staff member", "Google Workspace account")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web; Sign in and Join")
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless)", "projects/admin; Staff sign in")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Session controllers, OpenID Connect schemes, MediatR handlers")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members with their Google subject, staff roles, sessions")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
+}
+System_Ext(google, "Google", "accounts.google.com, oauth2.googleapis.com")
+System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
+
+Rel(member, web, "Presses Continue or Sign up with Google", "HTTPS")
+Rel(staff, admin, "Presses Sign in with Google", "HTTPS")
+Rel(web, api, "Starts and finishes an attempt", "JSON/HTTPS")
+Rel(admin, api, "Starts and finishes an attempt", "JSON/HTTPS")
+Rel(member, google, "Is redirected to; returns to the API callback", "HTTPS")
+Rel(staff, google, "Is redirected to (hd = team's domain)", "HTTPS")
+Rel(api, google, "Exchanges code with PKCE; reads keys", "HTTPS")
+Rel(api, db, "Matches and links members; keeps sessions", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+@enduml

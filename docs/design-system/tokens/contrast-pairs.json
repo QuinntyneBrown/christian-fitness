@@ -510,6 +510,18 @@
       "bg": "--color-bg-surface",
       "min": 1,
       "note": "alert border (decorative; icon + text carry the meaning)"
+    },
+    {
+      "fg": "--color-fg-accent",
+      "bg": "--color-accent-subtle-hover",
+      "min": 4.5,
+      "note": "story next label on hover"
+    },
+    {
+      "fg": "--color-fg-on-highlight",
+      "bg": "--color-highlight",
+      "min": 4.5,
+      "note": "in review / new badge"
     }
   ]
 }

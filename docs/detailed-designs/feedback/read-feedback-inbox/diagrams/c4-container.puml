@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Read the feedback inbox
+
+Person(staff, "Staff member", "Staff session")
+Person(member, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(admin, "Admin web app", "Angular", "AdminFeedbackPage at /feedback")
+  Container(web, "Member web app", "Angular", "Messages")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminFeedbackController, ChatHub")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "FeedbackNotes, DirectMessages, AuditEntries")
+  ContainerDb(files, "Screenshot store", "File share /data", "Private screenshots")
+}
+System_Ext(mail, "Email provider", "SMTP relay")
+Rel(staff, admin, "Uses", "HTTPS")
+Rel(member, web, "Uses", "HTTPS")
+Rel(admin, api, "Calls /api/admin/feedback", "JSON/HTTPS, staff session")
+Rel(web, api, "Receives direct messages", "SignalR")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, files, "Streams screenshots to staff")
+Rel(api, mail, "Sends email replies", "SMTP")
+@enduml

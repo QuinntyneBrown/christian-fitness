@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read a story
+
+Container_Boundary(web, "Member web app") {
+  Component(page, "StoryPage", "Routed page /stories/:slug", "Loads, redirects, copies the link, counts the read")
+  Component(article, "StoryArticle, StoryNext, StoryCard", "Components library", "Blocks story, story-next, story-more, story-card")
+  Component(client, "HttpStoriesService", "STORIES_SERVICE", "get(slug), countRead(id)")
+  Component(clip, "NavigatorClipboard", "CLIPBOARD_SERVICE", "write(text)")
+  Component(copied, "CopiedFlag, storyAge", "Domain library", "2-second Link copied; age in words")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "PublicStoriesController", "ASP.NET Core controller, anonymous", "GET {slug}, POST {id}/reads, GET images/{key}")
+  Component(q, "GetPublishedStoryHandler", "MediatR handler", "Published only, former slugs, card, Keep reading")
+  Component(c, "CountStoryReadHandler", "MediatR handler", "Adds one to the day's tally")
+  Component(limit, "PublicReadLimiter", "AddressRateLimiter", "Public reads per network")
+  Component(text, "StoryText", "Domain service", "Paragraphs, pull quotes, reading time")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Stories, StorySlugRedirects, StoryReadTallies")
+Rel(page, client, "Calls")
+Rel(page, article, "Renders")
+Rel(page, clip, "Copies the address")
+Rel(page, copied, "Uses")
+Rel(client, ctrl, "JSON/HTTPS")
+Rel(ctrl, q, "Sends GetPublishedStoryQuery")
+Rel(ctrl, c, "Sends CountStoryReadCommand")
+Rel(q, limit, "Takes a lease")
+Rel(q, text, "Splits the text")
+Rel(q, db, "Reads", "IAppDbContext")
+Rel(c, db, "Writes", "IAppDbContext")
+@enduml

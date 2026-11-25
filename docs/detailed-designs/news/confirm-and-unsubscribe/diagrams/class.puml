@@ -1,0 +1,85 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Confirm and unsubscribe
+
+class NewsletterSubscription <<entity>> {
+  +Guid Id
+  +string Email
+  +SubscriptionStatus Status
+  +bool Weekly
+  +NewsletterExtras Extras
+  +DateTimeOffset? ConsentedAt
+  +DateTimeOffset? UnsubscribedAt
+  +Confirm(extras, now): void
+  +Unsubscribe(now): void
+  +IsPurgeableAt(now): bool
+}
+class SubscriptionConfirmation <<entity>> {
+  +string TokenHash
+  +NewsletterExtras Extras
+  +DateTimeOffset ExpiresAt
+  +DateTimeOffset? UsedAt
+  +IsUsableAt(now): bool
+  +Use(now): void
+}
+class ConfirmSubscriptionCommand {
+  +string Token
+}
+class ConfirmSubscriptionHandler {
+  +Handle(command): Task<SubscriptionConfirmedDto>
+}
+class SubscriptionConfirmedDto {
+  +string Email
+  +DateTimeOffset FirstIssueAt
+  +NewsletterExtras Extras
+}
+class UnsubscribeCommand {
+  +string Token
+}
+class UnsubscribeHandler {
+  +Handle(command): Task<UnsubscribedDto>
+}
+class UnsubscribedDto {
+  +string Email
+}
+interface INewsletterTokens {
+  +UnsubscribeToken(subscriptionId): string
+  +TryReadUnsubscribeToken(token, out subscriptionId): bool
+}
+class DataProtectionNewsletterTokens
+class NewsletterEmails {
+  +Confirmation(subscription, token): EmailMessage
+  +Footer(subscription): string
+  +UnsubscribeHeaders(subscription): headers
+}
+class EmailMessage {
+  +string To
+  +string Subject
+  +string Text
+  +Headers (to add)
+}
+class PurgeUnsubscribedCommand
+class NewsletterUpkeep <<BackgroundService>>
+NewsletterSubscription "1" *-- "*" SubscriptionConfirmation
+ConfirmSubscriptionHandler ..> ConfirmSubscriptionCommand : handles
+ConfirmSubscriptionHandler ..> SubscriptionConfirmation : uses once
+ConfirmSubscriptionHandler ..> NewsletterSubscription : confirms
+ConfirmSubscriptionHandler ..> SubscriptionConfirmedDto
+UnsubscribeHandler ..> UnsubscribeCommand : handles
+UnsubscribeHandler ..> INewsletterTokens
+UnsubscribeHandler ..> NewsletterSubscription : unsubscribes
+UnsubscribeHandler ..> UnsubscribedDto
+INewsletterTokens <|.. DataProtectionNewsletterTokens
+NewsletterEmails ..> INewsletterTokens
+NewsletterEmails ..> EmailMessage : builds
+NewsletterUpkeep ..> PurgeUnsubscribedCommand : sends daily
+@enduml

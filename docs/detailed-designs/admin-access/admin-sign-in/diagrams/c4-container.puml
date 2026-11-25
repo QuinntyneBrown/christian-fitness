@@ -5,15 +5,18 @@ title Containers — Admin sign-in
 
 Person(staff, "Staff member", "Admin or Moderator")
 System_Boundary(cf, "Christian Fitness") {
-  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless), projects/admin", "Staff console")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, StaffOnly policy, ProblemDetails with code")
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless), projects/admin", "Staff console on the admin origin")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, GoogleStaff scheme, Staff policy, ProblemDetails with code")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
-  ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members, staff roles, events, audit entries")
+  ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Members with Google subject, staff roles, sessions, audit entries")
 }
+System_Ext(google, "Google Workspace", "OpenID Connect provider, hd = team's domain")
 System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
 
-Rel(staff, admin, "Signs in through", "HTTPS")
-Rel(admin, api, "Calls", "JSON/HTTPS, session cookie")
+Rel(staff, admin, "Presses Sign in with Google", "HTTPS")
+Rel(admin, api, "Starts and finishes sign-in; calls admin endpoints", "JSON/HTTPS, staff cookie")
+Rel(staff, google, "Is redirected to; returns to the API callback", "HTTPS")
+Rel(api, google, "Exchanges code with PKCE; reads keys", "HTTPS")
 Rel(api, db, "Reads and writes", "EF Core")
 Rel(cli, db, "Migrates and seeds", "EF Core")
 Rel(api, otel, "Exports telemetry", "OTLP")

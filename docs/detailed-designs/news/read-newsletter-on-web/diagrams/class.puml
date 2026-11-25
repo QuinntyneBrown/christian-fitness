@@ -1,0 +1,81 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Read the newsletter on the web
+
+enum IssueStatus {
+  Draft
+  Scheduled
+  Sending
+  Sent
+}
+class NewsletterIssue <<entity>> {
+  +int Number
+  +IssueStatus Status
+  +DateTimeOffset SendAt
+  +DateTimeOffset? SentAt
+  +string Subject
+  +IssueContent? Sent
+}
+class IssueContent <<value, captured at sending>> {
+  +string EditorsNote
+  +string Signoff
+  +IssueStoryItem Lead
+  +IssueEventItem[] Calendar
+  +IssueStoryItem[] Briefs
+  +string Verse
+  +string VerseReference
+}
+class IssueStoryItem <<value>> {
+  +string Slug
+  +string Section
+  +string Title
+  +string? Summary
+  +string Byline
+  +string? ImageKey
+}
+class IssueEventItem <<value>> {
+  +Guid EventId
+  +DateTimeOffset StartsAt
+  +string Title
+  +string Area
+  +int PriceCents
+}
+class GetIssueQuery {
+  +int? Number
+}
+class GetIssueHandler {
+  +Handle(query): Task<IssueDto>
+}
+class IssueDto {
+  +int Number
+  +DateTimeOffset SentAt
+  +string Name
+  +IssueContentDto Content
+}
+class NewsletterPage <<Angular page>> {
+  -issue: Signal<IssueDto>
+  -greeting: Signal<string?>
+}
+class issueGreeting <<domain helper>> {
+  +issueGreeting(session?): string?
+}
+NewsletterIssue --> IssueStatus
+NewsletterIssue *-- IssueContent
+IssueContent *-- "1" IssueStoryItem : lead
+IssueContent *-- "0..3" IssueStoryItem : briefs
+IssueContent *-- "0..4" IssueEventItem : calendar
+GetIssueHandler ..> GetIssueQuery : handles
+GetIssueHandler ..> NewsletterIssue : reads Sent
+GetIssueHandler ..> IssueDto
+NewsletterPage ..> IssueDto
+NewsletterPage ..> issueGreeting
+@enduml

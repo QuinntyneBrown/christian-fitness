@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — build and schedule an issue
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "NewsletterDeskPage" as page
+  participant "IssueBuilder" as builder
+  participant "AdminNewsletterApi (ADMIN_NEWSLETTER_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Issue handlers" as h
+  participant "ScheduleIssueValidator" as val
+  participant "NewsletterIssue" as issue
+  participant "AuditTrail" as audit
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Newsletter
+page --> actor : Skeletons (L2-070 AC12)
+page -> client : desk()
+client -> ctrl : GET /api/admin/newsletter
+ctrl -> h : Send GetNewsletterDeskQuery
+h -> db : Confirmed subscribers with the Weekly on; next issue; published stories; upcoming published events; sent issues
+db --> h : Rows
+h --> ctrl : NewsletterDeskDto
+ctrl --> client : 200 JSON
+client --> builder : load(desk)
+builder -> builder : preselect: stories marked Include in the Weekly, newest first, until 3 (L2-070 AC3)
+page --> actor : Heading with name, subscribers, cadence; Issue #49 Draft; fields; send card; Sent (L2-070 AC1, AC2, AC4, AC10, AC11)
+actor -> page : Tick stories ("<n> of 3"), toggle events, write subject, note, verse
+builder -> builder : Rest unavailable once 3 are ticked (L2-070 AC2)
+actor -> page : Press "Schedule issue"
+page --> actor : "Scheduling…", fields read-only
+page -> client : schedule(number, fields)
+client -> ctrl : POST /api/admin/newsletter/issues/{number}/schedule
+ctrl -> h : Send ScheduleIssueCommand
+h -> val : Subject, big story, editor's note; at most 3 more stories, all published (L2-070 AC5)
+alt something missing
+  val --> h : fieldCodes
+  h --> ctrl : 400 validation_failed, nothing scheduled
+  ctrl --> client : ProblemDetails
+  page --> actor : Each field marked and says what to add
+else complete
+  h -> issue : Edit(fields); Schedule(admin): Scheduled (L2-070 AC6)
+  h -> audit : newsletter_issue.scheduled (L2-070 AC13)
+  h -> db : Save in one unit of work
+  h --> ctrl : IssueDto
+  ctrl --> client : 200 JSON
+  page --> actor : Fields locked; card reads "Scheduled for" with "Unschedule to edit"
+end
+opt Unschedule to edit, before sending starts
+  page -> client : unschedule(number)
+  client -> ctrl : POST …/unschedule
+  ctrl -> h : UnscheduleIssueCommand: Draft; status_conflict once Sending (L2-070 AC6)
+  h -> audit : newsletter_issue.unscheduled
+end
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — accept at Join and announce a change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Visitor" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "JoinPage" as join
+  participant "Member shell banner" as banner
+  participant "LegalVersions" as lv
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AccountController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CreateAccountHandler" as h
+  participant "LegalDocuments" as ld
+  participant "cf announce-legal-change" as announce
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IEmailSender" as mail
+end box
+join --> actor : "Creating a profile accepts the Terms of Service and the Privacy Policy", both linked (L2-067 AC5)
+actor -> join : Create my profile
+join -> ctrl : POST /api/account/join
+ctrl -> h : Send CreateAccountCommand
+h -> ld : InForce(Terms, now), InForce(Privacy, now)
+ld --> h : Effective dates
+h -> db : Add Member with AcceptedTermsVersion, AcceptedPrivacyVersion, AcceptedLegalAt
+h --> ctrl : SessionDto
+ctrl --> join : 200; Home
+== A change that matters, 30 days or more ahead ==
+announce -> ld : Version and effective date
+announce -> db : Members, in batches
+loop each batch
+  announce -> mail : Notice of the change and its date (AC6)
+end
+banner -> lv : upcoming(document, now)
+lv --> banner : Version taking effect on its date
+banner --> actor : Banner in the app linking to the new version; earlier version stays at its own address
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Build and schedule the newsletter
+
+Container_Boundary(adminApp, "Admin web app") {
+  Component(page, "NewsletterDeskPage", "Routed page /newsletter", "Builder, send card, Sent table")
+  Component(store, "IssueBuilder", "Domain library", "Fields, n of 3 picks, locked when Scheduled")
+  Component(client, "HttpAdminNewsletterService", "ADMIN_NEWSLETTER_SERVICE", "desk, save, schedule, unschedule, sendTest, preview")
+  Component(preview, "IssuePreviewPage", "Routed page /newsletter/preview", "IssueView as the web version")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminNewsletterController", "ASP.NET Core controller, Publishing area", "api/admin/newsletter")
+  Component(h, "Issue command handlers", "MediatR handlers", "Save, schedule, unschedule, send a test")
+  Component(val, "ScheduleIssueValidator", "FluentValidation", "subject, big story, editor's note")
+  Component(clock, "PublishingClock", "BackgroundService", "Sends SendDueIssueCommand every 30 s")
+  Component(send, "SendDueIssueHandler", "MediatR handler", "Captures content, queues one delivery per recipient")
+  Component(sender, "IssueSender", "BackgroundService", "Delivers queued deliveries in batches")
+  Component(track, "PublicIssueTrackingController", "ASP.NET Core controller, anonymous", "Open image and click redirect")
+  Component(mailer, "NewsletterEmails, IEmailSender", "Application, Infrastructure", "Issue email, footer, headers")
+}
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "NewsletterIssues, IssueDeliveries, IssueRecipientMarks")
+Rel(page, store, "Holds")
+Rel(page, client, "Calls")
+Rel(client, ctrl, "JSON/HTTPS")
+Rel(preview, ctrl, "GET issues/{number}/preview")
+Rel(ctrl, h, "Sends one request per action")
+Rel(h, val, "Validated by")
+Rel(clock, send, "Sends SendDueIssueCommand")
+Rel(send, db, "Writes deliveries", "IAppDbContext")
+Rel(sender, db, "Reads and marks deliveries", "IAppDbContext")
+Rel(sender, mailer, "Builds and sends")
+Rel(track, db, "Counts opens and clicks", "IAppDbContext")
+Rel(h, db, "Reads and writes", "IAppDbContext")
+@enduml

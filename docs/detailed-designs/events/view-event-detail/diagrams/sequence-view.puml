@@ -5,6 +5,15 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
 actor "Member" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "EventDetailPage" as page
@@ -20,7 +29,7 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 actor -> page : Open /events/{id}
-page -> client : getEvent(id)
+page -> client : get(id)
 client -> ctrl : GET /api/events/{id}
 ctrl -> h : Send GetEventQuery
 h -> db : Event by id where Status = Published
@@ -31,13 +40,13 @@ alt missing or not published
   client --> page : Error code
   page --> actor : Not-found view (L2-010)
 else published
-  h -> db : Member's Registration and event Conversation
-  db --> h : Registration?, ConversationId
+  h -> db : Going count and the member's Registration
+  db --> h : going, registration?
   h --> ctrl : EventDetailDto
   ctrl --> client : 200 JSON
   client --> page : EventDetailDto
-  alt IsGoing
-    page --> actor : "You're going" and group chat link (L2-010)
+  alt registration confirmed or reserved
+    page --> actor : "You're going" and Group chat link to /events/{id}/chat (L2-010 AC3)
   else not registered
     page --> actor : Detail with registration action
   end

@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — approve or decline a suggestion
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageListingsPage" as page
+  participant "AdminDirectoryApi" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ApproveSuggestionHandler / DeclineSuggestionHandler" as h
+  participant "ListingSuggestion" as ent
+  participant "SuggestionOutcome" as out
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IEmailSender" as mail
+end box
+actor -> page : Approve listing
+page --> actor : "Approving…"; checks read-only
+page -> client : approve(id)
+client -> ctrl : POST /api/admin/directory/suggestions/{id}/approve
+ctrl -> h : Send ApproveSuggestionCommand (audited)
+h -> db : Load suggestion with checks
+db --> h : Suggestion
+h -> ent : Approve(admin, now)
+alt decided already
+  ent --> h : 409 suggestion_decided
+else fewer than four checks passed
+  ent --> h : 409 checks_incomplete (L2-073 AC5)
+else four passed
+  ent --> h : Approved; DirectoryListing Status Draft (L2-073 AC6, AC7)
+  h -> out : TellSender (L2-062 AC9)
+  out -> db : Add DirectMessage to the sender
+  h -> db : Save suggestion, draft listing, message, audit entry suggestion.approved
+  db --> h : Committed
+  h -> mail : Claim link to the suggestion's contact email (link <TO SUPPLY>)
+  h --> ctrl : DecisionDto(Approved)
+end
+ctrl --> client : 200 JSON or ProblemDetails
+client --> page : Result
+page --> actor : role="status" "Approved. We've sent them a link to claim and publish their listing."; row tag Approved; waiting count falls (L2-073 AC9)
+actor -> page : Decline (another suggestion)
+page -> client : decline(id)
+client -> ctrl : POST /api/admin/directory/suggestions/{id}/decline
+ctrl -> h : Send DeclineSuggestionCommand (audited)
+h -> ent : Decline(reason?, admin, now)
+ent --> h : Declined, or 409 suggestion_decided
+h -> out : TellSender, reason only where written
+out -> db : Add DirectMessage to the sender
+h -> db : Save; audit entry suggestion.declined; suggested party not contacted (L2-073 AC8)
+db --> h : Committed
+h --> ctrl : DecisionDto(Declined)
+ctrl --> client : 200 JSON
+client --> page : Result
+page --> actor : "Declined. The person who suggested it has been told."; checks read-only
+@enduml

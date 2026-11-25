@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send feedback
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular", "FeedbackPage at /feedback; footer link")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "FeedbackController and handlers")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "FeedbackNotes")
+  ContainerDb(files, "Screenshot store", "File share /data", "Private screenshots, staff-only")
+  Container(cli, "Christian Fitness CLI", ".NET console", "cf migrate applies AddFeedback")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/feedback/form, POST /api/feedback", "JSON and multipart/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, files, "Saves screenshot")
+Rel(cli, db, "Migrates", "EF Core")
+@enduml

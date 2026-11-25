@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — send a suggestion
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SuggestListingPage" as page
+  participant "checkSuggestion" as check
+  participant "ListingSuggestionsApi" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ListingSuggestionsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SuggestListingValidator" as val
+  participant "SuggestListingHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose "Myself"
+page --> actor : Labels "Your name or your organization's", "What should members know about you?"; no email or permission (L2-062 AC3)
+actor -> page : Send suggestion
+page -> check : checkSuggestion(form)
+alt name missing
+  check --> page : name
+  page --> actor : aria-invalid="true", "Add a name so we know who to look up."; nothing sent (L2-062 AC4)
+else valid
+  check --> page : none
+  page --> actor : "Sending…", disabled, fields read-only (L2-062 AC5)
+  page -> client : suggest(dto)
+  client -> ctrl : POST /api/directory/suggestions
+  ctrl -> val : SuggestListingCommand (ValidationBehavior)
+  alt name > 100, reason > 1,000 or website not a web address
+    val --> ctrl : 400 validation_failed with fieldCodes (L2-062 AC7)
+  else valid fields
+    ctrl -> h : Send SuggestListingCommand
+    h -> db : Caller's status
+    alt suspended
+      h --> ctrl : 403 account_suspended (L2-062 AC11)
+    else active
+      h -> db : Count caller's suggestions since now - 1 day
+      alt 5 already
+        h --> ctrl : 429 too_many_attempts (L2-062 AC8)
+      else room
+        h -> db : Insert ListingSuggestion(sender, SubmittedAt, Waiting)
+        db --> h : Saved
+        h --> ctrl : SuggestionSentDto
+      end
+    end
+  end
+  ctrl --> client : 201 JSON or ProblemDetails (no body in telemetry, L2-062 AC10)
+  client --> page : Result
+  alt sent
+    page --> actor : done role="status", focused: "Thanks, <first name>", suggested name, Back to the directory, Suggest another
+  else refused or failed
+    page --> actor : form-alert above the form; values kept; fields marked by fieldCodes (L2-062 AC6)
+  end
+end
+@enduml

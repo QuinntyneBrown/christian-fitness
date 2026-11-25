@@ -13,85 +13,54 @@ title Class structure — Admin sign-in
 
 interface StaffSessionApi {
   +current(): Observable<StaffSessionDto>
-  +signIn(request: SignInRequestDto): Observable<void>
-  +verify(request: TwoStepRequestDto): Observable<StaffSessionDto>
+  +startGoogle(): Observable<GoogleRedirectDto>
+  +completeGoogle(): Observable<StaffSessionDto>
   +signOut(): Observable<void>
 }
 class HttpStaffSessionService
 class SignInPage {
-  -email: WritableSignal<string>
-  -password: WritableSignal<string>
-  -submitting: WritableSignal<boolean>
+  -redirecting: WritableSignal<boolean>
   -refusal: WritableSignal<StaffSignInRefusal | null>
-  +submit(): void
+  +startGoogle(): void
 }
-class "staffSignInRefusalOf()" as refusalOf
-class TwoStepPage {
-  -code: WritableSignal<string>
-  -submitting: WritableSignal<boolean>
-  -refusal: WritableSignal<TwoStepRefusal | null>
-  +submit(): void
+class "staffSignInRefusalOf()" as refusalOf {
+  +(error): wrong-domain | not-staff | failed
 }
-class "twoStepRefusalOf()" as twoStepRefusalOf
+class "googleReturnOf()" as returnOf
+class "sessionEndingOf()" as sessionEndingOf
 class "staffAuthGuard" as guard
 class "sessionExpiredInterceptor" as expiredIcpt
-class "sessionEndingOf()" as sessionEndingOf
 class "forbiddenInterceptor" as forbiddenIcpt
 class ForbiddenPage {
   -signingOut: WritableSignal<boolean>
   +signOut(): void
 }
-class SignInFailure {
-  +{static} Attempts: AttemptWindow(5, 15 minutes)
-  +string EmailKey
-  +DateTimeOffset FailedAt
+class GoogleButton <<components>>
+class SsoNotice <<components>>
+class StaffLayout <<components>>
+class CompleteStaffGoogleSignInCommand <<IAuditableCommand>> {
+  AuditAction = staff_session.started
 }
-class StaffSignInCommand {
-  +string Email
-  +string Password
-}
-class StaffSignInHandler {
-  +Handle(cmd): Task
-}
-class VerifyTwoStepCommand {
-  +string Code
-}
-class VerifyTwoStepHandler {
+class CompleteStaffGoogleSignInHandler {
   +Handle(cmd): Task<StaffSessionDto>
 }
-interface ITwoStepCookie {
-  +Issue(token, expiresAt): void
-  +Read(): string?
-  +Clear(): void
+interface IGoogleIdentityReader {
+  +ReadAsync(): Task<GoogleIdentity?>
+  +ForgetAsync(): Task
 }
-class CookieTwoStepCookie
-class StaffTwoStep {
-  +Guid MemberId
-  +byte[] Secret
-  +long LastUsedStep
-  +TryUse(code, now): bool
+class GoogleIdentity <<record>> {
+  +string Subject
+  +string Email
+  +bool EmailVerified
+  +string? HostedDomain
 }
-class TwoStepChallenge {
-  +{static} Lifetime: 5 minutes
-  +{static} FailureWindow: AttemptWindow(5, 15 minutes)
-  +string TokenHash
-  +DateTimeOffset ExpiresAt
+class GoogleAccountMatch {
+  +FindAsync(identity): Task<Member?>
 }
-class TwoStepFailure {
-  +Guid MemberId
-  +DateTimeOffset FailedAt
-}
-class "Totp" as totp {
-  +{static} Match(secret, code, now, lastUsedStep): long?
-}
-class AttemptWindow {
-  +int Limit
-  +TimeSpan Period
-  +IsFull(attemptsSince): bool
-}
-class MemberCredentials {
-  +VerifyAsync(email, password): Task<Member>
-  +ForgetFailuresAsync(email): Task
+class GoogleOptions {
+  +string ClientId
+  +string ClientSecret
+  +string StaffDomain
 }
 class StaffSessionDto {
   +Guid MemberId
@@ -102,12 +71,16 @@ interface IStaffSessionSignIn {
   +SignInAsync(member, role): Task
   +SignOutAsync(): Task
 }
-class CookieStaffSessionSignIn
+class CookieStaffSessionSignIn {
+  StaffIdleTimeout = 30 minutes
+  StaffSessionMaxAge = 12 hours
+}
 class DatabaseTicketStore
 class Member {
   +Guid Id
   +string NormalizedEmail
-  +string PasswordHash
+  +string? GoogleSubject
+  +MemberStatus Status
 }
 class StaffRole {
   +Guid MemberId
@@ -117,42 +90,30 @@ enum StaffRoleName {
   Admin
   Moderator
 }
-interface IPasswordHasherService {
-  +Verify(hash: string, password: string): bool
-}
-interface IAppDbContext
 
 HttpStaffSessionService ..|> StaffSessionApi
 SignInPage ..> StaffSessionApi : injects STAFF_SESSION_SERVICE
-SignInPage ..> refusalOf : chooses the alert
+SignInPage ..> refusalOf : chooses the notice
+SignInPage ..> returnOf : google=returned or failed
+SignInPage ..> sessionEndingOf : reads the notice once
+SignInPage --> StaffLayout
+SignInPage --> GoogleButton
+SignInPage --> SsoNotice
 guard ..> StaffSessionApi : current()
 expiredIcpt ..> SignInPage : opens with { session: 'expired' }
-SignInPage ..> sessionEndingOf : reads the notice once
 forbiddenIcpt ..> ForbiddenPage : opens on a 403 to a GET
 ForbiddenPage ..> StaffSessionApi : signOut()
-StaffSignInHandler ..> StaffSignInCommand : handles
-StaffSignInHandler ..> MemberCredentials : verifies
-StaffSignInHandler ..> IAppDbContext : reads StaffRole
-StaffSignInHandler ..> TwoStepChallenge : issues
-StaffSignInHandler ..> ITwoStepCookie : sets the step cookie
-TwoStepPage ..> StaffSessionApi : verify()
-TwoStepPage ..> twoStepRefusalOf : chooses the message
-VerifyTwoStepHandler ..> VerifyTwoStepCommand : handles
-VerifyTwoStepHandler ..> ITwoStepCookie : reads, clears
-VerifyTwoStepHandler ..> TwoStepFailure : counts, records
-VerifyTwoStepHandler ..> StaffTwoStep : TryUse(code)
-VerifyTwoStepHandler ..> IStaffSessionSignIn : signs in
-VerifyTwoStepHandler ..> StaffSessionDto : returns
-TwoStepChallenge ..> AttemptWindow
-StaffTwoStep ..> totp
-CookieTwoStepCookie ..|> ITwoStepCookie
-MemberCredentials ..> IAppDbContext
-MemberCredentials ..> SignInFailure : counts, records, forgets
-SignInFailure ..> AttemptWindow
-MemberCredentials ..> IPasswordHasherService
+CompleteStaffGoogleSignInHandler ..> CompleteStaffGoogleSignInCommand : handles
+CompleteStaffGoogleSignInHandler ..> IGoogleIdentityReader : reads, forgets
+IGoogleIdentityReader ..> GoogleIdentity
+CompleteStaffGoogleSignInHandler ..> GoogleOptions : StaffDomain vs hd
+CompleteStaffGoogleSignInHandler ..> GoogleAccountMatch
+CompleteStaffGoogleSignInHandler ..> StaffRole : none = not_staff
+CompleteStaffGoogleSignInHandler ..> IStaffSessionSignIn : signs in
+CompleteStaffGoogleSignInHandler ..> StaffSessionDto : returns
+GoogleAccountMatch ..> Member
 CookieStaffSessionSignIn ..|> IStaffSessionSignIn
 CookieStaffSessionSignIn ..> DatabaseTicketStore : session kept on the server
 Member "1" --> "0..1" StaffRole
-Member "1" --> "0..1" StaffTwoStep
 StaffRole --> StaffRoleName
 @enduml

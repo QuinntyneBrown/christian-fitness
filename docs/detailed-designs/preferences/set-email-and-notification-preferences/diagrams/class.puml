@@ -1,0 +1,106 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Set email and notification preferences
+
+enum NotificationKind {
+  EventReminder
+  Message
+  FollowedListingDate
+  EventChange
+}
+class MemberPreferences {
+  +Guid MemberId
+  +bool EventReminders
+  +bool Messages
+  +bool FollowedListingDates
+  +bool EventChanges
+  +ProfileVisibility Visibility
+  +bool ShowOnAttendeeLists
+  +bool LetAnyoneMessage
+  +SuggestionArea? Area
+  +{static} DefaultsFor(memberId): MemberPreferences
+  +Allows(kind: NotificationKind): bool
+  +Apply(values: SavePreferencesCommand): void
+}
+class NewsletterSubscription <<L2-057 design>> {
+  +string NormalizedEmail
+  +bool Weekly
+  +bool EventAlerts
+  +bool TrainingPlan
+  +bool Devotion
+  +DateTimeOffset? ConsentedAt
+  +SubscribeFromAccount(choice, now): void
+  +UnsubscribeAll(now): void
+}
+class Member {
+  +Guid Id
+  +string Name
+  +string NormalizedEmail
+  +IReadOnlyList<string> Interests
+}
+class SavePreferencesCommand {
+  +EmailChoiceDto Email
+  +NotificationChoiceDto Notifications
+  +string Visibility
+  +bool ShowOnAttendeeLists
+  +bool LetAnyoneMessage
+  +string? Area
+  +string[] Interests
+}
+class SavePreferencesHandler {
+  +Handle(command): Task<PreferencesDto>
+}
+class GetPreferencesHandler {
+  +Handle(query: GetPreferencesQuery): Task<PreferencesDto>
+}
+class PreferencesDto {
+  +string Name
+  +EmailChoiceDto Email
+  +NotificationChoiceDto Notifications
+  +PrivacyChoiceDto Privacy
+  +SuggestionChoiceDto Suggestions
+  +DateTimeOffset? DownloadRequestedAt
+}
+interface PreferencesApi {
+  +get(): Observable<PreferencesDto>
+  +save(dto: SavePreferencesDto): Observable<PreferencesDto>
+}
+class HttpPreferencesService
+class PreferencesPage {
+  +draft: Signal<PreferencesDraft>
+  +bar: Signal<SaveBarState>
+  +save(): void
+  +turnOffAllEmail(): void
+}
+class PreferencesDraft {
+  +isDirty: boolean
+  +emailOnCount: number
+  +canTurnOffAllEmail: boolean
+  +turnOffAllEmail(): PreferencesDraft
+  +toSaveDto(): SavePreferencesDto
+}
+class SaveBarState {
+  +kind: hidden | dirty | saving | saved | failed
+}
+MemberPreferences --> NotificationKind
+SavePreferencesHandler ..> SavePreferencesCommand : handles
+SavePreferencesHandler --> MemberPreferences : applies
+SavePreferencesHandler --> NewsletterSubscription : subscribes / unsubscribes
+SavePreferencesHandler --> Member : interests
+GetPreferencesHandler ..> PreferencesDto : returns
+Member "1" -- "0..1" MemberPreferences
+Member "1" ..> "0..1" NewsletterSubscription : by NormalizedEmail
+HttpPreferencesService ..|> PreferencesApi
+PreferencesPage ..> PreferencesApi : PREFERENCES_SERVICE
+PreferencesPage *-- PreferencesDraft
+PreferencesPage *-- SaveBarState
+@enduml

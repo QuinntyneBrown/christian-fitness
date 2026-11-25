@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Review listing suggestions
+
+Container(admin, "Admin web app", "Angular", "ManageListingsPage, SuggestionPanel, listingChecksOf, HttpAdminDirectoryService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminDirectoryController", "ASP.NET Core controller", "api/admin/directory; StaffArea.Directory, Admins only")
+  Component(list, "ListListingSuggestionsHandler / GetListingSuggestionHandler / ListListedHandler", "MediatR handlers", "Suggestions oldest first, counts, Listed")
+  Component(check, "SetSuggestionCheckHandler", "MediatR handler", "Saves a tick with who and when")
+  Component(decide, "ApproveSuggestionHandler / DeclineSuggestionHandler", "MediatR handlers", "checks_incomplete; draft listing; outcome")
+  Component(audit, "AuditBehavior", "MediatR pipeline (existing)", "suggestion.check_set, .approved, .declined")
+  Component(ent, "ListingSuggestion", "Domain entity", "SetCheck, Approve, Decline rules")
+  Component(out, "SuggestionOutcome", "Application service", "Direct message to the sender")
+  Component(mail, "IEmailSender", "Application abstraction (existing)", "Claim link to the suggested party")
+  Component(ctx, "IAppDbContext", "Application abstraction", "ListingSuggestions, DirectoryListings, DirectMessages, AuditEntries")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Directory and audit")
+Rel(admin, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, list, "Sends queries")
+Rel(ctrl, check, "Sends SetSuggestionCheckCommand")
+Rel(ctrl, decide, "Sends Approve or DeclineSuggestionCommand")
+Rel(audit, check, "Wraps")
+Rel(audit, decide, "Wraps")
+Rel(check, ent, "SetCheck")
+Rel(decide, ent, "Approve or Decline")
+Rel(decide, out, "Tells the sender with")
+Rel(decide, mail, "Sends claim link with")
+Rel(list, ctx, "Reads")
+Rel(decide, ctx, "Writes")
+Rel(ctx, db, "Persists", "EF Core")
+@enduml

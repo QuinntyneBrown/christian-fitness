@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Confirm and unsubscribe
+
+Person(sub, "Subscriber", "Owner of an email address, no account needed")
+System(cf, "Christian Fitness", "The Abundant Weekly and its extras")
+System_Ext(mail, "Email delivery", "SMTP relay")
+System_Ext(client, "Subscriber's mail client", "Offers one-click unsubscribe from List-Unsubscribe headers")
+Rel(cf, mail, "Sends confirmation and newsletter emails via", "SMTP")
+Rel(mail, sub, "Delivers emails with links to")
+Rel(sub, cf, "Follows confirmation and Unsubscribe links in", "HTTPS")
+Rel(client, cf, "Posts one-click unsubscribe to", "HTTPS, RFC 8058")
+@enduml

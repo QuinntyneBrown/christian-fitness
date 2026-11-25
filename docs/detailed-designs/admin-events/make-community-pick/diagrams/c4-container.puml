@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Make a Community Pick
+
+Person(user, "Admin", "Staff member with the Admin role")
+System_Boundary(cf, "Christian Fitness") {
+  Container(app, "Admin web app", "Angular (standalone, signals, zoneless)", "CommunityPickPage with its lazily loaded PickArtRenderer; components, domain and api libraries")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminCommunityPickController and ListPickableEventsHandler; event images")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events, Registrations, event images")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
+  Container(web, "Member web app", "Angular", "The /e/{id} short link")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(user, app, "Uses", "HTTPS")
+Rel(app, api, "Calls", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+Rel(web, api, "Opens the event of a short link", "JSON/HTTPS")
+@enduml

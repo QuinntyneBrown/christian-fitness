@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — delete the account
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "DeleteAccountDialog" as dlg
+  participant "DataApi (DATA_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "DataController" as ctrl
+  participant "ChatHub" as hub
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "DeleteAccountValidator" as val
+  participant "DeleteAccountHandler" as h
+  participant "Member" as m
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "ISessionRevocation" as rev
+end box
+actor -> dlg : Delete account (dialog opens, focus in the field, AC4)
+actor -> dlg : Type a word and press "Delete my account"
+alt word is not "delete"
+  dlg --> actor : Field aria-invalid "Type the word delete to confirm."; nothing sent (AC5)
+else "delete"
+  dlg --> actor : "Deleting…", buttons disabled
+  dlg -> client : deleteAccount("delete")
+  client -> ctrl : DELETE /api/account
+  ctrl -> h : Send DeleteAccountCommand
+  h -> val : confirm == "delete"
+  val --> h : Valid
+  h -> db : Caller and StaffRole
+  alt staff
+    h --> ctrl : RefusalException staff_account 403 (AC9)
+  else member
+    h -> m : RequestDeletion(now): hidden from everyone (AC6)
+    h -> db : Remove registrations at events not started (places go back)
+    h -> db : Unsubscribe account address; delete resets and archives
+    h -> rev : EndAllAsync(member): every session ends
+    h -> db : SaveChanges with AuditEntry account.deletion_requested (AC10)
+    h -> hub : LeaveAsync per chat; DisconnectMemberAsync
+    h --> ctrl : Done
+  end
+  ctrl --> client : 204, or ProblemDetails
+  alt deleted
+    client --> dlg : Ok
+    dlg -> dlg : Close by its ref, navigate to the landing page
+  else failed
+    client --> dlg : ApiError
+    dlg --> actor : "We couldn't delete your account" "Nothing was changed."
+  end
+end
+@enduml

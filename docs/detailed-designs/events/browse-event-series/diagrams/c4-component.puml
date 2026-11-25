@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse event series
+
+Container(web, "Member web app", "Angular", "EventsPage, EventSeriesView, SegmentedControl, SeriesCard, seriesFilterOf, seriesMeterOf, HttpEventSeriesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "SeriesController", "ASP.NET Core controller", "GET /api/events/series, GET /api/events/series/count")
+  Component(val, "ListSeriesValidator", "FluentValidation", "Category shape: category_invalid")
+  Component(h, "ListSeriesHandler", "MediatR handler", "Published series with a session to come, by next session")
+  Component(ch, "CountSeriesHandler", "MediatR handler", "Count of the same list with no filter")
+  Component(ctx, "IAppDbContext", "Application abstraction", "EventSeries, Events, Registrations, SeriesEnrolments sets")
+  Component(ent, "EventSeries and Event", "Domain entities", "A series and its sessions")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Series, sessions, enrolments")
+Rel(web, ctrl, "GET series list and count", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ListSeriesQuery")
+Rel(ctrl, ch, "Sends CountSeriesQuery")
+Rel(h, val, "Validated by")
+Rel(h, ctx, "Queries")
+Rel(ch, ctx, "Queries")
+Rel(ctx, ent, "Materializes")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

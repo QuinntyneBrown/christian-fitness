@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Build and schedule the newsletter
+
+Person(admin, "Admin", "Staff session")
+System_Boundary(cf, "Christian Fitness") {
+  Container(adminApp, "Admin web app", "Angular", "NewsletterDeskPage, IssuePreviewPage")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminNewsletterController, PublishingClock, IssueSender")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Issues, deliveries, recipient marks, subscriptions, stories, events")
+  Container(web, "Member web app", "Angular", "Web version of sent issues")
+}
+System_Ext(mail, "Email delivery", "SMTP relay")
+Rel(admin, adminApp, "Uses", "HTTPS")
+Rel(adminApp, api, "Calls api/admin/newsletter", "JSON/HTTPS, staff cookie")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, mail, "Delivers issue emails", "SMTP")
+Rel(web, api, "Reads sent issues", "JSON/HTTPS")
+@enduml

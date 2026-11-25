@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — switch the Events view
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Router" as router
+  participant "EventsPage" as page
+  participant "Series contract (browse-event-series)" as series
+  participant "Series view (lazy)" as view
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "Series endpoint (browse-event-series)" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Series count handler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> router : Open /events
+router -> page : queryParams (view, category)
+page -> page : view = 'series' only when view=series;\nany other value shows By date (L2-050 AC7)
+page -> series : count with no filter (once)
+series -> ctrl : GET <TO SUPPLY>
+ctrl -> h : Send one query
+h -> db : Count published series with a session to come
+db --> h : n
+h --> ctrl : n
+ctrl --> series : 200 JSON (number)
+series --> page : n
+page --> actor : Subtitle "From the churches, clubs and coaches in our directory.\nFree unless marked."; "By date" (aria-current="page") and "Series (n)" (L2-009 AC11)
+opt Count fails
+  page --> actor : Link reads "Series" with no number
+end
+actor -> page : Choose "Series (n)"
+page -> router : navigate /events?view=series
+router -> page : queryParams view=series
+page -> view : Import lazily and render
+view --> actor : Series list (designed in browse-event-series);\n"Series (n)" marked current
+actor -> page : Choose "By date"
+page -> router : navigate /events (category kept)
+router -> page : queryParams without view
+page --> actor : Event list as in the list behaviour
+@enduml

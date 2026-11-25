@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — show the host and the series
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventDetailPage" as page
+  participant "HostCard" as host
+  participant "SeriesCard" as card
+  participant "EventsApi (EVENTS_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetEventHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /events/{id}
+page -> client : get(id)
+client -> ctrl : GET /api/events/{id}
+ctrl -> h : Send GetEventQuery
+h -> db : Published event by id
+db --> h : Event with HostListingId, SeriesId?
+h -> db : Host listing: name, kind, initials, verified
+db --> h : Listing
+opt Event is a session (SeriesId set)
+  h -> db : Series title, cadence, number, total;\nmember joined?; next 3 sessions after this one
+  db --> h : Series and next dates
+end
+h --> ctrl : EventDetailDto with host and series?
+ctrl --> client : 200 JSON
+client --> page : EventDetailDto
+page -> host : name, kind, initials, verified, href /directory/{hostId}
+host --> actor : "Hosted by · <kind>", name, Verified mark\n(accessible name "Verified") under the register card (L2-010 AC4)
+alt series present (L2-010 AC5)
+  page -> card : "Session 3 of 8 · Every Tuesday", title, next dates, joined
+  alt member joined the series
+    card --> actor : Series card with "View series"
+  else not joined
+    card --> actor : Series card with "Join the series"
+  end
+else no series (L2-010 AC6)
+  page --> actor : No series card
+end
+actor -> host : Choose the host card
+host --> actor : Listing profile /directory/{hostId} (L2-055)
+actor -> card : Choose the series action
+card --> actor : Series /events/series/{seriesId} (L2-051)
+@enduml

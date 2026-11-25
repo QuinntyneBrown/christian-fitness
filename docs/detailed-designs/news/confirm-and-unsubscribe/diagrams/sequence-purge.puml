@@ -1,0 +1,28 @@
+@startuml
+title UML sequence behaviour — skip and delete unsubscribed addresses
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "NewsletterUpkeep" as upkeep
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "PurgeUnsubscribedHandler" as h
+  participant "SendDueIssueHandler" as send
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+== Every issue and extra ==
+send -> db : Recipients: Status = Subscribed and the kind switched on only
+db --> send : No unsubscribed address (L2-058 AC6)
+== Once a day ==
+upkeep -> upkeep : Timer from TimeProvider (FakeTimeProvider in tests)
+upkeep -> h : Send PurgeUnsubscribedCommand
+h -> db : Delete subscriptions UnsubscribedAt at least 29 days ago, so none outlives 30 days, with their confirmations
+db --> h : Count deleted
+h --> upkeep : Done; the log carries the count only
+note over h : An address that subscribed again is Pending or Subscribed and is not deleted (L2-058 AC6)
+@enduml

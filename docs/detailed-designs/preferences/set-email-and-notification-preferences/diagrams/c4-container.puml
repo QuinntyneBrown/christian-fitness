@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Set email and notification preferences
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "PreferencesPage at /preferences")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "PreferencesController and handlers")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "MemberPreferences, account subscription, Members")
+  Container(cli, "Christian Fitness CLI", ".NET console", "cf migrate applies AddMemberPreferences")
+}
+System_Ext(mail, "Email provider", "SMTP relay")
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "GET and PUT /api/preferences", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates", "EF Core")
+Rel(api, mail, "Sends newsletter emails to subscribed addresses", "SMTP")
+Rel(api, otel, "Exports telemetry", "OTLP")
+@enduml

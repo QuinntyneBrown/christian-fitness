@@ -12,7 +12,8 @@ SPEC = {
 <li><b>Secondary</b> (outlined) is every other action that still matters: "Cancel", "Message", "Decline".</li>
 <li><b>Ghost</b> sits in dense chrome where an outline would be noise: "Sign in" in the public header.</li>
 <li><b>Danger</b> is for destructive actions and appears only inside a confirmation step.</li>
-<li><b>Link</b> looks like a link but behaves like a button: "Retry" inside a failed message.</li>
+<li><b>Neutral</b> (<code>.btn--neutral</code>) is a near-black primary for screens where bordeaux would compete: the member Sign in submit, under the Google button, and the Copy buttons on Community Pick assets.</li>
+<li><b>Link</b> looks like a link but behaves like a button: "Retry" inside a failed message. <b>Quiet link</b> (<code>.btn--link.btn--link-quiet</code>) drops the underline and the link colour for a row action that should not shout: "Cancel date" on each session in admin series.</li>
 <li><b>Inverse</b> and <b>On brand</b> are the primary and secondary pair for bordeaux panels (verse band, report card).</li>
 <li><b>Icon button</b> (<code>.icon-button</code>) is the round, label-less button for close, dismiss and back.</li>
 </ul>""",
@@ -32,6 +33,12 @@ SPEC = {
         '<button class="btn btn--danger" type="button">Delete event</button>'
         '<button class="btn btn--link" type="button">Retry</button>',
         "Emphasis from highest to lowest; danger is reserved for destructive confirmations.", True)
+    + "<h3>Neutral and quiet link</h3>"
+    + ex('<button class="btn btn--neutral btn--lg btn--block" type="submit">Sign in</button>',
+         "Neutral, large, block: the member Sign in submit below Continue with Google.", True, mod="stack")
+    + ex(f'<button class="btn btn--neutral btn--xs" type="button">{icon("copy")}Copy<span class="visually-hidden"> caption</span></button>'
+         '<button class="btn btn--link btn--link-quiet" type="button">Cancel date<span class="visually-hidden">: session 3, Tue Apr 21</span></button>',
+         "Neutral extra-small Copy (Community Pick); quiet link Cancel date with hidden context (admin series).", True)
     + "<h3>On brand panels</h3>"
     + ex('<button class="btn btn--inverse btn--sm" type="button">Suspend</button>'
          '<button class="btn btn--on-brand btn--sm" type="button">Dismiss report</button>',
@@ -59,7 +66,9 @@ SPEC = {
             ("Secondary", '<button class="btn btn--secondary" type="button"{a}>Cancel</button>'),
             ("Ghost", '<button class="btn btn--ghost" type="button"{a}>Sign in</button>'),
             ("Danger", '<button class="btn btn--danger" type="button"{a}>Delete</button>'),
+            ("Neutral", '<button class="btn btn--neutral" type="button"{a}>Sign in</button>'),
             ("Link", '<button class="btn btn--link" type="button"{a}>Retry</button>', {"Busy": None}),
+            ("Quiet link", '<button class="btn btn--link btn--link-quiet" type="button"{a}>Cancel date</button>', {"Busy": None}),
             ("Icon button", f'<button class="icon-button" type="button" aria-label="Close"{{a}}>{icon("x", "icon--lg")}</button>',
              {"Busy": None}),
         ]) + "<h3>Busy with spinner</h3>" + ex(
@@ -73,7 +82,9 @@ SPEC = {
         "notes": """<ul>
 <li><b>Busy</b> sets <code>aria-busy="true"</code>, shows the spinner icon and a "…ing" label ("Signing in…", "Sending…", "Saving…"). The rest of the form stays readable.</li>
 <li><b>Disabled</b> uses the native attribute at 70% opacity. Prefer an enabled button that explains the problem when pressed; disable only while a request is in flight or when the reason is visible ("Full").</li>
-<li><b>Pressed</b> toggles are <a href="chip.html">chips</a> with <code>aria-pressed</code>, not buttons.</li>
+<li><b>Pressed</b> toggles are <a href="chip.html">chips</a> with <code>aria-pressed</code>, not buttons; following a listing is the <a href="follow-button.html">follow button</a>.</li>
+<li><b>Neutral</b> sets only <code>--btn-bg</code> and <code>--btn-fg</code>, so its hover and active fall back to the same fill: the matrix shows no change on hover or press. Only the cursor and the focus ring respond until the stylesheet gives it hover and active tokens.</li>
+<li><b>Quiet link</b> hovers to <code>--color-fg-link-hover</code> (the link rule sets the colour directly), so on hover it turns bordeaux; it has no underline in any state.</li>
 </ul>""",
     },
     "responsive": """<ul>
@@ -86,6 +97,7 @@ SPEC = {
     "theming": """<p>The button reads semantic tokens through six component tokens declared on <code>.btn</code>: <code>--btn-bg</code>, <code>--btn-bg-hover</code>, <code>--btn-bg-active</code>, <code>--btn-fg</code>, <code>--btn-border</code>, <code>--btn-border-hover</code>. Each variant only reassigns them, so a re-skin overrides component tokens and never touches the rules.</p>
 <pre><code>/* A partner event page with its own accent, without touching .btn */
 .partner .btn--primary { --btn-bg: var(--color-highlight); --btn-fg: var(--color-fg-default); }</code></pre>
+<p><code>.btn--neutral</code> reads <code>--color-bg-inverse</code> and <code>--color-fg-inverse</code>, so it flips with the theme: near-black with a white label in light, near-white with a black label in dark. <code>.btn--link-quiet</code> sets <code>--btn-fg: var(--color-fg-muted)</code>.</p>
 <p>In the dark theme the accent brightens from bordeaux 700 to 600 (hover 500, active 400) so the white label stays above 4.5:1 while the button still reads as bordeaux; the outline uses the dark border tokens and the focus ring turns borealis.</p>""",
     "accessibility": {
         "pattern": '<p>Native <code>&lt;button type="button"&gt;</code>, or <code>type="submit"</code> inside a form (<a href="https://www.w3.org/WAI/ARIA/apg/patterns/button/">APG Button</a>). A link styled as a button stays an <code>&lt;a href&gt;</code>; never a <code>&lt;div&gt;</code> with a click handler.</p>',
@@ -100,12 +112,15 @@ SPEC = {
             ("Label on primary", "--color-fg-on-accent", "--color-accent", 4.5),
             ("Label on primary, hover", "--color-fg-on-accent", "--color-accent-hover", 4.5),
             ("Label on danger", "--color-fg-on-danger", "--color-danger-solid", 4.5),
+            ("Label on neutral", "--color-fg-inverse", "--color-bg-inverse", 4.5),
+            ("Neutral fill on surface (non-text)", "--color-bg-inverse", "--color-bg-surface", 3),
+            ("Quiet link label", "--color-fg-muted", "--color-bg-surface", 4.5),
             ("Inverse label on white", "--color-fg-brand-inverse", "--color-bg-brand-inverse", 4.5),
             ("Focus ring on surface", "--color-focus-ring", "--color-bg-surface", 3),
             ("Focus ring on brand panel", "--color-focus-ring-on-dark", "--color-bg-brand", 3),
         ],
         "motion": "<p>Background, border and colour transition over <code>--duration-fast</code> (150ms). Reduced motion zeroes the duration in the tokens. The busy spinner stops rotating under reduced motion; the label still says what is happening.</p>",
-        "touch": "<p>Default (44px) and large (52px) buttons meet the 44px target. Small and extra-small (36px) extend to 44 × 44px on coarse pointers, and sit at least 8px (<code>--space-2</code>) apart in rows.</p>",
+        "touch": "<p>Default (44px) and large (52px) buttons meet the 44px target. Small and extra-small (36px) extend to 44 × 44px on coarse pointers, and sit at least 8px (<code>--space-2</code>) apart in rows. The link and quiet-link buttons are 24px tall (<code>--target-min</code>) and extend to 44 × 44px on coarse pointers.</p>",
     },
     "content": """<ul>
 <li>Verb first, sentence case: "Register", "Send request", "Save changes", "Approve", "Create a profile". Never "OK", "Submit" or "Click here".</li>
@@ -132,6 +147,9 @@ SPEC = {
         ("Danger background / hover", "--color-danger-solid / --color-danger-solid-hover", "color"),
         ("Danger label", "--color-fg-on-danger", "color"),
         ("Link label / hover", "--color-fg-link / --color-fg-link-hover", "color"),
+        ("Neutral background / label", "--color-bg-inverse / --color-fg-inverse", "color"),
+        ("Quiet link label", "--color-fg-muted", "color"),
+        ("Link min-height", "--target-min", "value"),
         ("Inverse background / label", "--color-bg-brand-inverse / --color-fg-brand-inverse", "color"),
         ("Focus ring / on dark", "--color-focus-ring / --color-focus-ring-on-dark", "color"),
         ("Min-height sm / md / lg", "--control-height-sm / --control-height-md / --control-height-lg", "value"),
@@ -158,6 +176,8 @@ SPEC = {
             ("<code>.btn</code>", "Base: 44px, 15px label, pill. Add a variant."),
             ("<code>.btn--primary</code> <code>.btn--secondary</code> <code>.btn--ghost</code> <code>.btn--danger</code> <code>.btn--link</code>", "Emphasis variants."),
             ("<code>.btn--inverse</code> <code>.btn--on-brand</code>", "Primary and secondary on bordeaux panels."),
+            ("<code>.btn--neutral</code>", "Near-black (light) or near-white (dark) primary: Sign in, Copy."),
+            ("<code>.btn--link-quiet</code>", "With <code>.btn--link</code>: muted, not underlined, 14px row action."),
             ("<code>.btn--xs</code> <code>.btn--sm</code> <code>.btn--md</code> <code>.btn--lg</code>", "Sizes; omit for the default."),
             ("<code>.btn--block</code> <code>.btn--grow</code> <code>.btn--quiet</code>", "Full width; share a row equally; borderless full-width text action."),
             ("<code>.btn-row</code> <code>.btn-row--stack</code> <code>.btn-grid</code>", "Button groupings: row, row that stacks on phones, two-column grid."),
@@ -174,7 +194,12 @@ SPEC = {
             mock("pages/admin-members/flagged", "inverse and on-brand on the report panel"),
             mock("pages/landing/default", "ghost Sign in, link styled as primary"),
             mock("notifications/toast/info", "icon button dismiss"),
+            mock("pages/sign-in/default", "neutral large block submit"),
+            mock("pages/sign-in/submitting", "neutral, busy"),
+            mock("pages/admin-community-pick/default", "neutral extra-small Copy"),
+            mock("pages/admin-series/default", "quiet link Cancel date"),
+            mock("dialogs/cancel-session/default", "quiet link behind the dialog"),
         ],
-        "drift": "Buttons were sized by padding alone (42.5px tall at the default size); they now have a 44px min-height from <code>--control-height-md</code>. Secondary buttons were 2px taller than primaries because only they had a border; every variant now has a 1px border (transparent unless outlined) and padding reduced by 1px, so all variants share a height. No mock had a danger, link or active state; they were added from the core set.",
+        "drift": "Buttons were sized by padding alone (42.5px tall at the default size); they now have a 44px min-height from <code>--control-height-md</code>. Secondary buttons were 2px taller than primaries because only they had a border; every variant now has a 1px border (transparent unless outlined) and padding reduced by 1px, so all variants share a height. No mock had a danger, link or active state; they were added from the core set. <code>.btn--neutral</code> and <code>.btn--link-quiet</code> came with Google sign-in, Community Pick and admin series; neutral has no hover or active fill yet (proposed: <code>--btn-bg-hover</code> and <code>--btn-bg-active</code> from new inverse hover tokens), and the quiet link needs a coarse-pointer hit area.",
     },
 }

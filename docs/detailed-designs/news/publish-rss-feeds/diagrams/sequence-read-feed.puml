@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — read a feed
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Feed reader" as actor
+box "Backend — Christian Fitness API" #D1FADF
+  participant "FeedsController" as ctrl
+  participant "RssFeedResult" as rss
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetStoryFeedHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> ctrl : GET /feed or /{section}/feed, with If-None-Match / If-Modified-Since
+ctrl -> h : Send GetStoryFeedQuery(section, validators)
+h -> h : PublicReadLimiter.TryAcquire(network) (L2-060 AC7)
+alt section unknown
+  h --> ctrl : RefusalException not_found
+  ctrl --> actor : 404 ProblemDetails
+else known feed
+  h -> db : 30 newest Published stories of the feed (L2-060 AC1, AC6)
+  db --> h : Id, slug, title, summary, section, byline, PublishedAt, EditedAt
+  h -> h : ETag = hash of ids and EditedAt; Last-Modified = newest change
+  alt validators match
+    h --> ctrl : StoryFeed NotModified
+    ctrl --> actor : 304, no body (L2-060 AC2)
+  else changed
+    h --> ctrl : StoryFeed with items
+    ctrl -> rss : new RssFeedResult(feed)
+    rss --> actor : 200 application/rss+xml; Cache-Control public, max-age=900; ETag; Last-Modified; no Set-Cookie
+  end
+end
+@enduml

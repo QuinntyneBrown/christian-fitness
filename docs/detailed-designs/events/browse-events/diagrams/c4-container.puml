@@ -6,14 +6,14 @@ title Containers — Browse and filter events
 Person(member, "Member", "Signed-in member")
 System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web with components, domain and api libraries")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "EventsController and ListEventsHandler")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "EventsController and ListEventsHandler; series count")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events, series, registrations, listings")
   Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
 }
 System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
 Rel(member, web, "Uses", "HTTPS")
-Rel(web, api, "Calls", "JSON/HTTPS, cookie session")
-Rel(api, db, "Reads and writes", "EF Core")
+Rel(web, api, "GET /api/events; series count", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads", "EF Core")
 Rel(cli, db, "Migrates and seeds", "EF Core")
 Rel(api, otel, "Exports telemetry", "OTLP")
 @enduml

@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Publish RSS feeds
+
+Person(reader, "Reader", "Anyone, no account")
+System_Ext(rss, "Feed reader", "Feedly, Inoreader, NetNewsWire or any RSS reader")
+System(cf, "Christian Fitness", "Publishes stories and their feeds")
+Rel(reader, cf, "Finds and copies feed addresses in", "HTTPS")
+Rel(reader, rss, "Follows feeds with")
+Rel(rss, cf, "Polls /feed and /<section>/feed", "HTTPS, conditional GET")
+@enduml

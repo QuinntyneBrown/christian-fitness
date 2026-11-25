@@ -15,6 +15,14 @@ DRIFT = [
     ("assets/ui.css (avatar, table)", "38px table avatar; `.table--wide` 42.5rem next to `.table--wider` 45rem.", "Avatar → 40px (`--size-avatar-md`); both tables → `--layout-table-min-wide`."),
     ("assets/ui.css (sizes)", "Raw sizes for lead width, toast width, schedule column, skeleton blocks, tab-bar dot offset.", "Layout tokens or spacing multiples."),
     ("tokens (missing roles)", "No subtle/disabled text, sunken surface, accent active, status icon/border/solid, danger hover, mono font, control heights, z-layers for menus and popovers.", "Added, contrast-checked in both themes."),
+    ("assets/components.css (new blocks, 2026-11-25)", "Six links used `--target-min` (24px): `.newsletter-box__rss`, `.site-footer__links a`, `.app-footer__links a`, `.issue__links a`, `.issue__more`, `.issue-preview__more`; `.follow`, `.segmented__option`, `.row-link`, `.sso-account__change`, link buttons and side-nav links had no 44px touch area.", "All use `--target-comfortable` or extend to 44 × 44px on coarse pointers."),
+    ("assets/components.css (admin, 2026-11-25)", "Dark-theme contrast failures: review-card action text 1.09:1, current pick-card count 1.70:1, selected rings and the current-section underline and pull quote in `--color-accent` 2.16:1.", "Override removed; count uses `--color-fg-inverse`; rings, underline and quote bar use `--color-fg-accent`. Pairs added to `contrast-pairs.json`."),
+    ("assets/components.css (status badge)", "`.status--review` read the primitive `--palette-stone-1000`.", "New semantic `--color-fg-on-highlight`."),
+    ("assets/components.css (states)", "No disabled style on `.event-choice`; no `data-state=\"hover\"` hooks on story links and cards, footer links, text links, event choices, series rows, host cards, hosting rows and listing rows; `.section-head` did not wrap.", "Added."),
+    ("assets/ds.css (docs chrome)", "The docs' `a` rule loaded after components.css and underlined every link inside the specimens.", "Scoped to unclassed links (`a:where(:not([class]))`)."),
+    ("assets/components.css (open)", "About 25 fixed widths in the new blocks (story measure 48rem, figure 64rem, picker and inbox columns, thumbnails, `.feed__copy` 7rem) are raw rem, not layout or size tokens.", "Open: tokenise when the screens are built."),
+    ("tokens (open)", "`--color-accent` is 2.16:1 on the dark surface, so switch tracks, checked boxes and radios, the segmented current fill, spinners, progress bars and unread dots fall under 3:1 in dark (the label or a second cue carries the state).", "Open: needs a brand decision on the dark accent (an L between about 0.13 and 0.18 would pass 3:1 on the surface and 4.5:1 under white text)."),
+    ("mocks (open)", "Mocks the extraction did not change: `pages/join/google` and `google-submitting` overflow 11px at 360px (`.auth__brand`, `.auth__main`); Sign out has no rule and shows at every width; Most read titles are not links; `.or-divider` duplicates `.divider--label`, `.inline-link` duplicates `.link`, `.subtitle--measure` duplicates `.subtitle--narrow`, `.key-facts` nearly duplicates `.spec-list`; the follow button changes its label while toggling `aria-pressed`; skeleton ratios differ from the loaded banner, date column and listing mark.", "Open: listed on each component page under Sources."),
 ]
 
 
@@ -30,7 +38,7 @@ def render():
     d = table(["Mock", "Issue", "Resolution"], DRIFT)
     return f"""# Christian Fitness design system
 
-Extracted from [docs/mocks](../mocks/README.md) on {build.EXTRACTED}. Open [index.html](index.html) locally (no build step, no server).
+Extracted from [docs/mocks](../mocks/README.md) on {build.EXTRACTED}; updated for the new mocks on {build.UPDATED}. Open [index.html](index.html) locally (no build step, no server).
 The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.css` only `@import` the files below.
 
 ## Foundations

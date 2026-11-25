@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — restore within 30 days or erase after
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SignInPage" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SessionController / DataController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SignInHandler" as signin
+  participant "RestoreAccountHandler" as restore
+  participant "AccountErasureService (cf erase-accounts)" as erase
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IArchiveStore / screenshot store" as files
+end box
+actor -> page : Sign in with the same email or Google account
+page -> ctrl : POST /api/session
+ctrl -> signin : Send SignInCommand
+signin -> db : Member by email; credentials checked
+alt deleting (DeletionRequestedAt within 30 days)
+  signin --> ctrl : 409 account_deleting, no session
+  ctrl --> page : ProblemDetails
+  page --> actor : Account is being deleted; Restore (L2-066 AC8; mock TO SUPPLY)
+  actor -> page : Restore
+  page -> ctrl : POST /api/account/restore with credentials
+  ctrl -> restore : Send RestoreAccountCommand
+  restore -> db : Re-check credentials; clear DeletionRequestedAt; sign in
+  restore --> ctrl : SessionDto
+  ctrl --> page : 200; Home
+end
+== Daily scheduled run ==
+erase -> db : Members with DeletionRequestedAt 30 days or more ago
+loop each due member
+  erase -> db : Erase text of sent messages; delete registrations, preferences, follows, suggestions, feedback, exports
+  erase -> files : Delete archives and feedback screenshots
+  erase -> db : Delete Member row (cascades sessions, resets); keep audit entries (ids only)
+end
+note over erase : After erasure the email can join as new (AC8); erasure form needs an ADR
+@enduml

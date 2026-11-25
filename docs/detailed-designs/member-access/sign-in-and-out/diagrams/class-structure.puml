@@ -32,12 +32,22 @@ package "Member web app and libraries" {
   class signInRefusalOf <<domain>> {
     +(error): 'invalid-credentials'|'too-many-attempts'|'suspended'|'failed'
   }
+  class googleSignInRefusalOf <<domain>> {
+    +(error): 'no-account'|'suspended'|'failed'
+  }
+  class googleReturnOf <<domain>> {
+    +(value): 'returned'|'failed'|null
+  }
+  class GoogleButton <<components>>
+  class SsoNotice <<components>>
   class signInReturnPathOf <<domain>> {
     +(value): string
   }
   interface SessionApi <<api>> {
     +current(): Observable<SessionDto>
     +signIn(request: SignInRequestDto): Observable<SessionDto>
+    +startGoogle(request: GoogleStartRequestDto): Observable<GoogleRedirectDto>
+    +completeGoogle(intent: GoogleIntent): Observable<SessionDto>
     +signOut(): Observable<void>
   }
   class HttpSessionService
@@ -85,6 +95,7 @@ package "Christian Fitness API, Application and Domain" {
     +Guid Id
     +string NormalizedEmail
     +string PasswordHash
+    +string? GoogleSubject
     +MemberStatus Status
   }
   enum MemberStatus {
@@ -97,6 +108,10 @@ HttpSessionService ..|> SessionApi
 SignInPage ..> SessionApi : injects SESSION_SERVICE
 SignInPage ..> signInRefusalOf
 SignInPage ..> signInReturnPathOf : returnUrl
+SignInPage ..> googleReturnOf : google marker
+SignInPage ..> googleSignInRefusalOf
+SignInPage --> GoogleButton
+SignInPage --> SsoNotice
 MemberShell --> AppHeader
 MemberShell ..> SessionApi : signOut()
 memberAuthGuard ..> SessionApi : current()
@@ -110,7 +125,7 @@ SignInHandler ..> MemberCredentials : verifies
 MemberCredentials ..> IPasswordHasherService : verifies
 SignInHandler ..> ISessionSignIn : signs in
 SignOutHandler ..> ISessionSignIn : signs out
-MemberCredentials ..> Member : loads by NormalizedEmail
+MemberCredentials ..> Member : loads by NormalizedEmail;\nno password = wrong password
 SignInHandler ..> SignInFailure : counts last 15 min, records, clears
 SignInHandler ..> TimeProvider : now
 Member --> MemberStatus

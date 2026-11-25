@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage stories
+
+Person(admin, "Admin", "Sees every story and what waits for review")
+Person(mod, "Moderator", "Staff who moderate members; refused here")
+System(cf, "Christian Fitness", "Admin web app and API")
+Rel(admin, cf, "Lists and opens stories in", "HTTPS")
+Rel(mod, cf, "Is shown Admins only in", "HTTPS")
+@enduml

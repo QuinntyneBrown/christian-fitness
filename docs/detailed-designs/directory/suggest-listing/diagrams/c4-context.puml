@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Suggest a listing
+
+Person(member, "Member", "Signed-in member of the Christian community")
+Person(staff, "Admin", "Checks and decides listing suggestions")
+System(cf, "Christian Fitness", "Events, directory, services and messages for members; admin console for staff")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics, no names, emails or bodies")
+Rel(member, cf, "Suggests listings and reads outcome messages in", "HTTPS")
+Rel(staff, cf, "Approves or declines suggestions in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

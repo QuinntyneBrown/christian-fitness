@@ -30,6 +30,28 @@ EVENTS = ('<div class="table-wrap table-wrap--flush"><table class="table">'
           + event_row("Whole Life Retreat", "Crieff Hills, Puslinch", "May 15 · 6:00 PM", 0, 60, "draft", "Draft")
           + '</tbody></table></div>')
 
+def story_row(title, author, section, status, label, when, reads):
+    r = reads or '<span aria-hidden="true">—</span><span class="visually-hidden">Not published</span>'
+    return (f'<tr><td class="table__wrap"><a class="row-title" href="#">{title}</a><p class="table__sub">{author}</p></td>'
+            f'<td class="table__nowrap">{section}</td><td><span class="status status--{status}">{label}</span></td>'
+            f'<td class="table__nowrap muted">{when}</td><td class="table__end table__strong">{r}</td></tr>')
+
+
+STORIES = ('<div class="table-wrap table-wrap--flush"><table class="table table--wide"><caption class="visually-hidden">Stories</caption>'
+           '<thead><tr><th scope="col">Story</th><th scope="col">Section</th><th scope="col">Status</th><th scope="col">When</th>'
+           '<th scope="col" class="table__end">Reads</th></tr></thead><tbody>'
+           + story_row("Fasting and training: what a dietitian wants you to know", "Priya Raman", "Nutrition", "review", "In review", "Submitted 1 hour ago", "")
+           + story_row("What to pack for the Whole Life Retreat", "CF Team", "Events", "scheduled", "Scheduled", "Sat Apr 18, 6:00 AM", "")
+           + story_row("A West End church turned its basement into a free gym", "Naomi Clarke", "Community", "published", "Published", "Today, 7:12 AM", "3,412")
+           + '</tbody></table></div>')
+ACTIONS = ('<div class="table-wrap table-wrap--flush"><table class="table"><caption class="visually-hidden">Events with two actions</caption>'
+           '<thead><tr><th scope="col">Event</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>'
+           '<tr><td><p class="table__strong">Easter Sunrise 5K</p><p class="table__sub">Martin Goodman Trail, Marilyn Bell Park</p></td>'
+           '<td><span class="status status--published">Published</span></td>'
+           '<td class="table__end"><span class="row-actions"><a class="row-link row-link--quiet" href="#">Make it a pick<span class="visually-hidden">: Easter Sunrise 5K</span></a>'
+           '<button class="row-link" type="button">Edit<span class="visually-hidden"> Easter Sunrise 5K</span></button></span></td></tr>'
+           '</tbody></table></div>')
+
 SMALL = ('<div class="table-wrap table-wrap--flush"><table class="table"><caption class="visually-hidden">Events, {cap}</caption>'
          '<thead><tr><th scope="col">Event</th><th scope="col">Registered</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>'
          '<tbody><tr><td class="table__strong">Saturday Park Bootcamp</td><td class="table__num">38 / 50</td>'
@@ -42,7 +64,8 @@ SPEC = {
 <ul>
 <li><b>Standard</b> (<code>.table</code>) holds four or five short columns; the events table is the reference.</li>
 <li><b>Wider</b> (<code>.table--wider</code>) gives a person column with avatar, name and e-mail room to breathe; the members table uses it.</li>
-<li><b>Row action</b> is a <code>.row-link</code> button in the last, right-aligned column, with the row's name added for screen readers.</li>
+<li><b>Row action</b> is a <code>.row-link</code> button in the last, right-aligned column, with the row's name added for screen readers. Two actions sit in a <code>.row-actions</code> group: the quieter one (<code>.row-link--quiet</code>, muted) first, the main one last (admin events: "Make it a pick", "Edit").</li>
+<li><b>Title link</b> (<code>.row-title</code>): when the row opens a page of its own (a story in the editor), its name is the link, semibold and underlined on hover; the cell is <code>.table__wrap</code>, capped at 22.5rem so long headlines wrap instead of widening the table.</li>
 </ul>
 <p>The member app has no tables: on a phone, a table of five columns is a sideways scroll, so member-facing data is a list instead.</p>""",
     "anatomy": {
@@ -57,6 +80,9 @@ SPEC = {
         ],
     },
     "variants": "<h3>Standard: events</h3>" + ex(EVENTS, "Five columns at <code>--layout-table-min</code>; the last column holds the row action.", True)
+    + "<h3>Wide: stories with title links</h3>" + ex(STORIES, "<code>.table--wide</code>; the headline is a <code>.row-title</code> link to the editor in a <code>.table__wrap</code> cell; Reads is right-aligned and a dash is spoken as \"Not published\" (admin stories).", True)
+    + "<h3>Two row actions</h3>" + ex(ACTIONS, "<code>.row-actions</code> holds a quiet secondary link and the main action, 16px apart.", True)
+    + "<h3>Listing cell</h3><p>The Listed table's first cell is a <a href=\"suggestion.html\"><code>.listed-cell</code></a>: mark, name and verified mark on one line.</p>"
     + "<h3>Wider: members with person cell</h3>" + ex(MEMBERS, "<code>.table--wider</code> and <code>.table__person</code> with a 40px avatar. Numbers use <code>.table__num</code> for tabular figures.", True),
     "sizes": "<p>One density. Header cells are 12px × 20px padding (<code>--space-3</code> / <code>--space-5</code>), body cells 16px × 20px (<code>--space-4</code> / <code>--space-5</code>). Width is set by the minimum: <code>--layout-table-min</code> for standard and <code>--layout-table-min-wide</code> (45rem) for <code>.table--wide</code> and <code>.table--wider</code>; below that the wrapper scrolls.</p>",
     "states": {
@@ -84,6 +110,7 @@ SPEC = {
 <li><b>Empty</b> ("No events yet") and <b>no results</b> ("No members match…") swap the table for an empty state with one next step.</li>
 <li><b>Error</b> replaces the table with an inline error and "Try again"; stale rows are never shown as current.</li>
 <li>There is no selected-row state: bulk actions are not part of the console.</li>
+<li><b>Title link</b> states: <code>.row-title</code> underlines on hover and takes the shared focus ring; it has no <code>data-state="hover"</code> hook.</li>
 </ul>""",
     },
     "responsive": """<ul>
@@ -106,6 +133,7 @@ SPEC = {
             ("Header label", "--color-fg-muted", "--color-bg-surface", 4.5),
             ("Cell text", "--color-fg-default", "--color-bg-surface", 4.5),
             ("Row link", "--color-fg-accent", "--color-bg-surface", 4.5),
+            ("Quiet row link and When", "--color-fg-muted", "--color-bg-surface", 4.5),
             ("Row rule (non-text)", "--color-border-default", "--color-bg-surface", 1),
         ],
         "motion": "<p>None. Rows do not animate in; skeletons pulse only when motion is allowed.</p>",
@@ -115,7 +143,8 @@ SPEC = {
 <li>Header labels are nouns in sentence case: "Member", "Joined", "Registered".</li>
 <li>Dates as "Jan 12, 2026"; event times as "Apr 18 · 6:45 AM". Counts as numerals, capacity as "142 / 200".</li>
 <li>Missing optional data reads "Not shared" in muted text, never a dash alone; church and faith details are optional.</li>
-<li>Row actions are one verb: "Edit", "Review".</li>
+<li>Row actions are one verb: "Edit", "Review"; a secondary action may be a short phrase: "Make it a pick".</li>
+<li>Story times are relative where recent ("Today, 7:12 AM", "Submitted 1 hour ago") and dated when scheduled ("Sat Apr 18, 6:00 AM").</li>
 </ul>""",
     "dodont": [
         ("do", '<button class="row-link" type="button">Edit<span class="visually-hidden"> Easter Sunrise 5K</span></button>',
@@ -129,7 +158,8 @@ SPEC = {
     ],
     "tokens": [
         ("Wrapper surface / border", "--color-bg-surface / --color-border-default", "color"),
-        ("Header label", "--color-fg-muted", "color"),
+        ("Header label / quiet link", "--color-fg-muted", "color"),
+        ("Row link", "--color-fg-accent", "color"),
         ("Row rule", "--color-border-default", "color"),
         ("Wrapper radius", "--radius-xl", "value"),
         ("Minimum width / wide", "--layout-table-min / --layout-table-min-wide", "value"),
@@ -137,6 +167,7 @@ SPEC = {
         ("Cell padding", "--space-4 / --space-5", "value"),
         ("Avatar size", "--size-avatar-md", "value"),
         ("Body / header size", "--font-size-ui / --font-size-sm", "value"),
+        ("Row actions gap", "--space-4", "value"),
     ],
     "code": {
         "snippet": '''<div class="table-wrap" role="region" aria-label="Events" tabindex="0">
@@ -158,6 +189,8 @@ SPEC = {
             ("<code>.table__person</code>", "Avatar plus name block in one cell."),
             ("<code>.table__num</code> <code>.table__nowrap</code> <code>.table__end</code>", "Tabular figures; no wrapping; right-aligned."),
             ("<code>.row-link</code>", "The row's action button or link."),
+            ("<code>.row-link--quiet</code> · <code>.row-actions</code>", "Muted secondary action; a group of two actions, right-aligned."),
+            ("<code>.row-title</code> · <code>.table__wrap</code>", "Row name as a link; a cell capped at 22.5rem so it wraps."),
         ],
     },
     "sources": {
@@ -167,7 +200,10 @@ SPEC = {
             mock("pages/admin-members/no-results", "no results state"),
             mock("pages/admin-events/loading", "skeleton rows"),
             mock("pages/admin-events/empty", "empty state"),
+            mock("pages/admin-stories/default", "wide table, title links, statuses"),
+            mock("pages/admin-series/loading", "table skeleton rows under the series"),
+            mock("pages/admin-listings/listed", "listed cell"),
         ],
-        "drift": "The members table avatar was 38px; it snapped to 40px (<code>--size-avatar-md</code>). <code>.table--wide</code> used a one-off 42.5rem minimum; it merged into <code>--layout-table-min-wide</code> (45rem), shared with <code>.table--wider</code>. The wrapper's 24px radius is now named <code>--radius-xl</code> (was 3xl).",
+        "drift": "The members table avatar was 38px; it snapped to 40px (<code>--size-avatar-md</code>). <code>.table--wide</code> used a one-off 42.5rem minimum; it merged into <code>--layout-table-min-wide</code> (45rem), shared with <code>.table--wider</code>. The wrapper's 24px radius is now named <code>--radius-xl</code> (was 3xl). <code>.table__wrap</code> (a cell that wraps) is one character from <code>.table-wrap</code> (the scrolling wrapper); proposed rename <code>.table__cell--wrap</code>.",
     },
 }

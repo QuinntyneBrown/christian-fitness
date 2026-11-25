@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — open a Community Pick link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Reader of the post" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "Router: e/:id" as route
+  participant "memberAuthGuard" as guard
+  participant "EventDetailPage" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "EventsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetEventHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> route : Open /e/{id}
+route -> route : redirectTo /events/{id}
+route -> guard : Activate member shell
+alt visitor
+  guard --> actor : Join or sign-in with returnUrl=/events/{id}; back after signing in (L2-004 AC6, L2-072 AC9)
+else signed-in member
+  guard -> page : Load
+  page -> ctrl : GET /api/events/{id}
+  ctrl -> h : Send GetEventQuery
+  h -> db : Published event by id
+  alt not published or unknown
+    h --> ctrl : 404 event_not_found
+    ctrl --> page : 404
+    page --> actor : Not-found view
+  else published
+    h --> ctrl : EventDetailDto
+    ctrl --> page : 200 JSON
+    page --> actor : Event detail (L2-010)
+  end
+end
+@enduml

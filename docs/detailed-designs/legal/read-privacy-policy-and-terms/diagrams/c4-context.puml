@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Read the Privacy Policy and Terms
+
+Person_Ext(visitor, "Visitor", "Not signed in")
+Person(member, "Member", "Signed in; accepted the documents at Join")
+System(cf, "Christian Fitness", "Member app with bundled legal pages; API; CLI")
+System_Ext(google, "Google sign-in", "Consent screen links to both documents")
+System_Ext(mail, "Email provider", "Delivers the change notice")
+Rel(visitor, cf, "Reads /privacy and /terms in", "HTTPS")
+Rel(member, cf, "Reads documents and the change banner in", "HTTPS")
+Rel(google, cf, "Links to the documents of", "HTTPS")
+Rel(cf, mail, "Sends the change notice via", "SMTP")
+@enduml

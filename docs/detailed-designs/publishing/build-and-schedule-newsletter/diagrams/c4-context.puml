@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Build and schedule the newsletter
+
+Person(admin, "Admin", "Builds, tests and schedules each issue")
+Person(sub, "Subscriber", "Confirmed address with the Weekly on")
+System(cf, "Christian Fitness", "Newsletter builder, sender and web version")
+System_Ext(mail, "Email delivery", "SMTP relay (Azure Communication Services)")
+Rel(admin, cf, "Builds and schedules issues in", "HTTPS")
+Rel(cf, mail, "Sends each issue via", "SMTP")
+Rel(mail, sub, "Delivers the issue to")
+Rel(sub, cf, "Opens images and links, counted without identity", "HTTPS")
+@enduml

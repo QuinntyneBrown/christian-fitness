@@ -1,0 +1,86 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Set privacy and suggestion preferences
+
+enum ProfileVisibility {
+  Anyone
+  Members
+  JustMyGroups
+}
+enum SuggestionArea {
+  TorontoEast
+  TorontoWest
+  DowntownToronto
+  Scarborough
+  NorthYork
+  Mississauga
+  Brampton
+  Durham
+}
+class MemberPreferences {
+  +Guid MemberId
+  +ProfileVisibility Visibility
+  +bool ShowOnAttendeeLists
+  +bool LetAnyoneMessage
+  +SuggestionArea? Area
+  +AdmitsViewer(viewerId?: Guid, sharesGroup: bool): bool
+}
+class Member {
+  +Guid Id
+  +IReadOnlyList<string> Interests
+  +bool ShowHomeChurch
+  +ChangeInterests(keys): void
+}
+class GroupMembership <<static>> {
+  +ShareAGroupAsync(db, a: Guid, b: Guid): Task<bool>
+}
+class DirectChat <<static>> {
+  +MayStartAsync(db, sender: Guid, recipient: Guid): Task<bool>
+}
+class GetPublicProfileHandler {
+  +Handle(query: GetPublicProfileQuery): Task<PublicProfileDto>
+}
+class PublicProfileDto {
+  +string Name
+  +string? Bio
+  +string[] Interests
+  +string? HomeChurch
+  +bool MessagesRestricted
+}
+class JoinDirectHandler
+class SendDirectMessageHandler
+interface IRegistrationReader {
+  +GoingAsync(eventId): Task<int>
+  +AttendeesAsync(eventId, viewer): Task<AttendeeDto[]>
+}
+class GetHomeHandler {
+  +Handle(query: GetHomeQuery): Task<HomeDto>
+}
+interface ICurrentMember {
+  +Guid Id
+  +Guid? IdIfSignedIn
+}
+MemberPreferences --> ProfileVisibility
+MemberPreferences --> SuggestionArea
+Member "1" -- "0..1" MemberPreferences
+GetPublicProfileHandler ..> MemberPreferences : visibility
+GetPublicProfileHandler ..> GroupMembership
+GetPublicProfileHandler ..> ICurrentMember : optional viewer
+GetPublicProfileHandler ..> PublicProfileDto : returns
+JoinDirectHandler ..> DirectChat
+SendDirectMessageHandler ..> DirectChat
+DirectChat ..> MemberPreferences : LetAnyoneMessage
+DirectChat ..> GroupMembership
+IRegistrationReader ..> MemberPreferences : ShowOnAttendeeLists
+GetHomeHandler ..> MemberPreferences : Area
+GetHomeHandler ..> Member : Interests
+@enduml

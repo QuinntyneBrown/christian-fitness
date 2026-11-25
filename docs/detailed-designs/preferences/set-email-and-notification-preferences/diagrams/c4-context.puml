@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Set email and notification preferences
+
+Person(member, "Member", "Signed-in member of the Christian community")
+System(cf, "Christian Fitness", "Events, directory, news and messages for members; admin console for staff")
+System_Ext(mail, "Email provider", "Delivers the newsletter and its extras (SMTP relay)")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
+Rel(member, cf, "Chooses emails and notifications in", "HTTPS")
+Rel(cf, mail, "Sends only the emails switched on via", "SMTP")
+Rel(cf, otel, "Exports telemetry without setting values to", "OTLP")
+@enduml

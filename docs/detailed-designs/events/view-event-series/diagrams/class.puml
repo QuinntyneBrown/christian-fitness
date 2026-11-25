@@ -1,0 +1,107 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View an event series
+
+class EventSeries {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +string Cadence
+  +string Place
+  +string Area
+  +string Summary
+  +Guid HostListingId
+  +int PriceCents
+  +int DropInPriceCents
+  +int Capacity
+  +string? ImageKey
+  +EventStatus Status
+}
+class Event {
+  +Guid Id
+  +DateTimeOffset StartsAt
+  +int Capacity
+  +EventStatus Status
+  +Guid? SeriesId
+  +int? SessionNumber
+  +string? Topic
+}
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+  +RegistrationStatus Status
+}
+class SeriesEnrolment {
+  +Guid SeriesId
+  +Guid MemberId
+  +RegistrationStatus Status
+}
+class SeriesPlaces <<domain service>> {
+  +SpotsLeft(series, sessions, going, now): int
+  +Remaining(sessions, now): Event[]
+}
+class GetSeriesQuery {
+  +Guid Id
+}
+class GetSeriesHandler {
+  +Handle(query: GetSeriesQuery): Task<SeriesDetailDto>
+}
+class SeriesDetailDto {
+  +Guid Id
+  +string Title
+  +string Category
+  +string Cadence
+  +string Place
+  +string Area
+  +string Summary
+  +string? ImageKey
+  +HostDto Host
+  +int PriceCents
+  +int DropInPriceCents
+  +int Capacity
+  +int SpotsLeft
+  +string? Enrolment
+  +SessionDto[] Sessions
+}
+class SessionDto {
+  +Guid EventId
+  +int Number
+  +DateTimeOffset StartsAt
+  +string Topic
+  +bool Cancelled
+  +bool Full
+  +string? Mine
+  +bool? Attended
+}
+interface EventSeriesApi {
+  +get(id): Observable<SeriesDetailDto>
+}
+class EventSeriesPage {
+  +series: Signal<SeriesDetailDto | null>
+  +state: Signal<'loading' | 'loaded' | 'not-found' | 'failed'>
+  +retry(): void
+}
+class SessionRowView <<domain>> {
+  +meta: string
+  +nextUp: boolean
+  +end: 'you-came' | 'missed' | 'done' | 'cancelled' | 'details' | 'none'
+}
+EventSeriesPage ..> EventSeriesApi : EVENT_SERIES_SERVICE
+EventSeriesPage ..> SessionRowView
+GetSeriesHandler ..> GetSeriesQuery : handles
+GetSeriesHandler ..> SeriesPlaces
+GetSeriesHandler ..> SeriesDetailDto : returns
+SeriesDetailDto "1" *-- "1..*" SessionDto
+EventSeries "1" o-- "1..*" Event : sessions
+Event "1" o-- "*" Registration
+EventSeries "1" o-- "*" SeriesEnrolment
+@enduml

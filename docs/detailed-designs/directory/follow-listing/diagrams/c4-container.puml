@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Follow a listing
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "Follow button, ListingFollowStore, Home")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "DirectoryController, follow handlers, GetHomeHandler")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "ListingFollows, listings, events")
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "PUT and DELETE /api/directory/{id}/follow; GET /api/home", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, otel, "Exports telemetry, route templates only", "OTLP")
+@enduml

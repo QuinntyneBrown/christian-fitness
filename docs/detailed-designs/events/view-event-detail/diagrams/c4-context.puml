@@ -4,10 +4,10 @@ LAYOUT_WITH_LEGEND()
 title System Context — View event detail
 
 Person(member, "Member", "Signed-in member of the Christian community")
-Person(staff, "Staff member", "Publishes events and listings")
-System(cf, "Christian Fitness", "Events, services and messages for members; admin console for staff")
+Person(staff, "Staff member", "Publishes events and series for hosts in the directory")
+System(cf, "Christian Fitness", "Events, series, directory, services and messages for members; admin console for staff")
 System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
-Rel(member, cf, "Uses", "HTTPS")
+Rel(member, cf, "Views an event, its host and its series in", "HTTPS")
 Rel(staff, cf, "Publishes content in", "HTTPS")
 Rel(cf, otel, "Exports telemetry to", "OTLP")
 @enduml

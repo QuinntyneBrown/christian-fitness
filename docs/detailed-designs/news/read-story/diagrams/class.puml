@@ -1,0 +1,104 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Read a story
+
+enum StoryStatus {
+  Draft
+  InReview
+  Scheduled
+  Published
+}
+enum StorySection {
+  Events
+  Training
+  Nutrition
+  FaithBody
+  Community
+  Pros
+}
+class Story <<entity>> {
+  +Guid Id
+  +string Slug
+  +string Headline
+  +string? Summary
+  +string Text
+  +string Byline
+  +string? ImageKey
+  +StoryPointer PointsTo
+  +DateTimeOffset? PublishedAt
+}
+class StoryPointer <<value>> {
+  +StoryPointerKind Kind
+  +Guid? TargetId
+}
+class StorySlugRedirect <<entity>> {
+  +string FormerSlug
+  +Guid StoryId
+}
+class StoryReadTally <<entity>> {
+  +Guid StoryId
+  +DateOnly Day
+  +int Count
+}
+class StoryText <<domain service>> {
+  +{static} Paragraphs(text: string): StoryParagraph[]
+  +{static} ReadingMinutes(text: string): int
+}
+class GetPublishedStoryQuery {
+  +string Slug
+}
+class GetPublishedStoryHandler {
+  +Handle(query): Task<PublishedStoryDto>
+}
+class PublishedStoryDto {
+  +Guid Id
+  +string Slug
+  +string Section
+  +string Headline
+  +string? Summary
+  +string Byline
+  +DateTimeOffset PublishedAt
+  +int ReadingMinutes
+  +string? ImageUrl
+  +StoryParagraphDto[] Paragraphs
+  +StoryNextDto? Next
+  +StoryCardDto[] KeepReading
+}
+class CountStoryReadCommand {
+  +Guid StoryId
+}
+class StoryPage <<Angular page>> {
+  -story: Signal<PublishedStoryDto>
+  -copied: CopiedFlag
+  +copyLink(): void
+}
+interface StoriesApi <<STORIES_SERVICE>> {
+  +get(slug): Observable<PublishedStoryDto>
+  +countRead(id): Observable<void>
+}
+interface ClipboardApi <<CLIPBOARD_SERVICE>> {
+  +write(text): Promise<boolean>
+}
+Story --> StoryStatus
+Story --> StorySection
+Story *-- StoryPointer
+Story "1" <-- "*" StorySlugRedirect : names
+Story "1" <-- "*" StoryReadTally : counts
+GetPublishedStoryHandler ..> GetPublishedStoryQuery : handles
+GetPublishedStoryHandler ..> Story : reads published
+GetPublishedStoryHandler ..> StorySlugRedirect : resolves former slug
+GetPublishedStoryHandler ..> StoryText : splits
+GetPublishedStoryHandler ..> PublishedStoryDto : answers
+StoryPage ..> StoriesApi
+StoryPage ..> ClipboardApi
+StoryPage ..> CountStoryReadCommand : via countRead
+@enduml

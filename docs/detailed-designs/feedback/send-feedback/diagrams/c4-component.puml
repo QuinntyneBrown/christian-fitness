@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send feedback
+
+Container(web, "Member web app", "Angular", "FeedbackPage, FeedbackForm, HttpFeedbackService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "FeedbackController", "ASP.NET Core controller", "GET /api/feedback/form, POST /api/feedback")
+  Component(form, "GetFeedbackFormHandler", "MediatR handler", "The member's address for the email choice")
+  Component(val, "SendFeedbackValidator", "FluentValidation", "Text 1 to 2,000, kind, file type and size, app path")
+  Component(h, "SendFeedbackHandler", "MediatR handler", "10 an hour; device family; stores note")
+  Component(dev, "IClientDevice", "Application abstraction", "Device and browser family from User-Agent")
+  Component(store, "IFeedbackScreenshotStore", "Application abstraction", "Private screenshot files")
+  Component(note, "FeedbackNote", "Domain entity", "Kind, text, page, status New")
+  Component(ctx, "IAppDbContext", "Application abstraction", "FeedbackNotes")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "FeedbackNotes")
+Rel(web, ctrl, "Calls", "JSON and multipart/HTTPS")
+Rel(ctrl, form, "Sends GetFeedbackFormQuery")
+Rel(ctrl, h, "Sends SendFeedbackCommand")
+Rel(h, val, "Validated by")
+Rel(h, dev, "Reads")
+Rel(h, store, "Saves screenshot")
+Rel(h, note, "Creates")
+Rel(h, ctx, "Counts window; adds; saves")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

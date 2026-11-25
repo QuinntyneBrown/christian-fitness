@@ -182,6 +182,7 @@
   --color-accent-subtle-hover: var(--palette-bordeaux-100);
   --color-accent-ring: rgb(108 29 54 / 0.15);              /* input focus halo */
   --color-highlight: var(--palette-borealis-300);
+  --color-fg-on-highlight: var(--palette-stone-1000);
 
   --color-focus-ring: var(--palette-bordeaux-700);
   --color-focus-ring-on-dark: var(--palette-borealis-300);

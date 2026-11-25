@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read the feedback inbox
+
+Container(admin, "Admin web app", "Angular", "AdminFeedbackPage, FeedbackRow, FeedbackInbox, HttpAdminFeedbackService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(policy, "Staff area policy", "ASP.NET Core authorization", "StaffArea.Feedback")
+  Component(ctrl, "AdminFeedbackController", "ASP.NET Core controller", "api/admin/feedback")
+  Component(list, "ListFeedbackHandler / GetFeedbackCountsHandler", "MediatR handlers", "Pages of 50; tab counts")
+  Component(note, "GetFeedbackNoteHandler / GetFeedbackScreenshotHandler", "MediatR handlers", "Full note; staff-only file")
+  Component(reply, "ReplyToFeedbackHandler", "MediatR handler", "Email or direct message; Replied")
+  Component(status, "Resolve / ReopenFeedbackHandler", "MediatR handlers", "Resolved or New")
+  Component(audit, "AuditBehavior / AuditTrail", "MediatR behaviour", "feedback.replied, .resolved, .reopened")
+  Component(dm, "SendDirectMessageHandler", "MediatR handler", "From the Christian Fitness sender")
+  Component(email, "IEmailSender", "Application abstraction", "Queued SMTP")
+  Component(store, "IFeedbackScreenshotStore", "Application abstraction", "Private files")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "")
+Rel(admin, policy, "Requests", "JSON/HTTPS")
+Rel(policy, ctrl, "Admits staff of the area")
+Rel(ctrl, list, "Sends ListFeedbackQuery")
+Rel(ctrl, note, "Sends GetFeedbackNoteQuery")
+Rel(ctrl, reply, "Sends ReplyToFeedbackCommand")
+Rel(ctrl, status, "Sends Resolve/ReopenFeedbackCommand")
+Rel(reply, email, "When MayEmail")
+Rel(reply, dm, "Otherwise")
+Rel(reply, audit, "Audited")
+Rel(status, audit, "Audited")
+Rel(note, store, "Opens")
+Rel(list, db, "Reads", "EF Core")
+Rel(reply, db, "Saves", "EF Core")
+@enduml

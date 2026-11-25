@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Set privacy and suggestion preferences
+
+Person(member, "Member", "Signed-in member")
+Person_Ext(visitor, "Visitor", "Not signed in")
+Person(staff, "Staff member", "Admin or Moderator")
+System_Boundary(cf, "Christian Fitness") {
+  Container(web, "Member web app", "Angular", "Preferences, member profile, chat and Home pages")
+  Container(admin, "Admin web app", "Angular", "Members screen")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Preferences, profile, chat hub, home and admin members endpoints")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "MemberPreferences, Members, Registrations, DirectMessages")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(visitor, web, "Opens an Anyone profile", "HTTPS")
+Rel(staff, admin, "Uses", "HTTPS")
+Rel(web, api, "Calls; joins chat", "JSON/HTTPS, SignalR")
+Rel(admin, api, "Calls", "JSON/HTTPS, staff session")
+Rel(api, db, "Reads settings on every request", "EF Core")
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — leave a series
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventSeriesPage" as page
+  participant "LeaveSeriesDialog" as dlg
+  participant "EventSeriesApi (EVENT_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "LeaveSeriesHandler" as h
+  participant "IChatChannel" as chat
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : "Leave the series"
+page -> dlg : Open (CDK Dialog, lazily loaded)
+dlg --> actor : "Leave the series?" with series and the number of sessions still to come; focus on "Stay in the series" (L2-052 AC9)
+actor -> dlg : "Leave the series"
+dlg --> actor : Buttons disabled while it waits
+dlg -> client : leave(id)
+client -> ctrl : DELETE /api/events/series/{id}/enrolment/me
+ctrl -> h : Send LeaveSeriesCommand
+h -> db : Series, caller's enrolment and registrations at its sessions
+h -> h : Keep registrations at sessions already started
+h -> db : Remove enrolment and registrations at sessions not started; Withdraw(); ReleasePlace() on each; SaveChanges
+db --> h : Committed
+opt no registration left at any session of the series
+  h -> chat : LeaveAsync(member, series chat)
+end
+h --> ctrl : SeriesDetailDto
+ctrl --> client : 200 JSON
+alt 200
+  client --> dlg : SeriesDetailDto
+  dlg --> page : Close by ref with the result
+  page --> actor : Sign-up panel again; past sessions keep "You came" (L2-051 AC3)
+else failure
+  dlg --> actor : "We couldn't take you out of the series" (role=alert); nothing changed
+end
+@enduml

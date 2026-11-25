@@ -1,0 +1,137 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View a listing's profile
+
+package "Backend" {
+  class DirectoryListing {
+    +Guid Id
+    +ListingKind Kind
+    +string Name
+    +string Tagline
+    +string Description
+    +IReadOnlyList<string> Focus
+    +string Area
+    +string? WebsiteUrl
+    +bool IsVerified
+    +ListingStatus Status
+    +DateTimeOffset ListedAt
+    +Guid? MemberId
+  }
+  class ListingConnection {
+    +Guid ListingId
+    +Guid ConnectedListingId
+    +string Relation
+  }
+  class Event <<existing, gains HostListingId>> {
+    +Guid? SeriesId
+    +Guid HostListingId
+    +DateTimeOffset StartsAt
+    +EventStatus Status
+  }
+  class EventSeries <<event series designs>> {
+    +Guid HostListingId
+    +string Cadence
+  }
+  class GetListingProfileQuery {
+    +Guid Id
+  }
+  class GetListingProfileHandler {
+    +Handle(q): Task<ListingProfileDto>
+  }
+  class StartListingConversationCommand {
+    +Guid ListingId
+  }
+  class StartListingConversationHandler {
+    +Handle(c): Task<ListingConversationDto>
+  }
+  class ListingProfileDto {
+    +Guid Id
+    +string Kind
+    +string Name
+    +string Tagline
+    +string? PhotoUrl
+    +bool IsVerified
+    +string Description
+    +string[] Focus
+    +string Area
+    +string? Website
+    +int Followers
+    +int ListedYear
+    +bool IsFollowing
+    +HostedSeriesDto[] Series
+    +HostedEventDto[] Events
+    +ConnectionDto[] Connected
+  }
+  class HostedSeriesDto {
+    +Guid Id
+    +string? ImageUrl
+    +string Cadence
+    +string Title
+    +DateTimeOffset NextSessionAt
+    +int SessionsLeft
+  }
+  class HostedEventDto {
+    +Guid Id
+    +string? ImageUrl
+    +string Category
+    +DateTimeOffset StartsAt
+    +string Title
+    +string Place
+  }
+  class ConnectionDto {
+    +Guid Id
+    +string Name
+    +string Kind
+    +string? PhotoUrl
+    +string Relation
+  }
+}
+
+package "Frontend" {
+  interface DirectoryApi <<DIRECTORY_SERVICE>> {
+    +get(id): Observable<ListingProfileDto>
+    +startConversation(id): Observable<{memberId}>
+  }
+  class ListingProfilePage {
+    +profile: Signal<ListingProfileDto | null>
+    +message(): void
+    +retry(): void
+  }
+  class ListingHead <<component>>
+  class HostingRow <<component>>
+  class MiniRow <<component, existing>>
+  class TagList <<component, existing>>
+  class websiteLinkOf <<domain>>
+}
+
+DirectoryListing "1" --> "*" ListingConnection : from
+ListingConnection --> DirectoryListing : connected
+Event --> DirectoryListing : host
+EventSeries --> DirectoryListing : host
+Event --> EventSeries : session of
+GetListingProfileHandler ..> GetListingProfileQuery : handles
+GetListingProfileHandler ..> DirectoryListing : reads Published
+GetListingProfileHandler ..> ListingConnection : reads, published only
+GetListingProfileHandler ..> Event : reads
+GetListingProfileHandler ..> EventSeries : reads
+GetListingProfileHandler ..> ListingProfileDto : returns
+StartListingConversationHandler ..> StartListingConversationCommand : handles
+ListingProfileDto *-- HostedSeriesDto
+ListingProfileDto *-- HostedEventDto
+ListingProfileDto *-- ConnectionDto
+ListingProfilePage ..> DirectoryApi
+ListingProfilePage *-- ListingHead
+ListingProfilePage *-- HostingRow
+ListingProfilePage *-- MiniRow
+ListingProfilePage *-- TagList
+ListingProfilePage ..> websiteLinkOf
+@enduml

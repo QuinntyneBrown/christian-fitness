@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Suggest a listing
+
+Container(web, "Member web app", "Angular", "SuggestListingPage, suggestionFormOf, checkSuggestion, HttpListingSuggestionsService")
+Container(admin, "Admin web app", "Angular", "ManageListingsPage")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "ListingSuggestionsController", "ASP.NET Core controller", "POST /api/directory/suggestions")
+  Component(val, "SuggestListingValidator", "FluentValidation", "Name 100, reason 1,000, website a web address")
+  Component(h, "SuggestListingHandler", "MediatR handler", "account_suspended; 5 a day; stores the suggestion")
+  Component(win, "AttemptWindow", "Domain rule (existing)", "At most 5 within 1 day")
+  Component(dec, "Approve / Decline suggestion handlers", "MediatR handlers", "Review design")
+  Component(out, "SuggestionOutcome", "Application service", "Outcome direct message to the sender")
+  Component(ctx, "IAppDbContext", "Application abstraction", "ListingSuggestions, DirectMessages, Members")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Suggestions and messages")
+Rel(web, ctrl, "Calls", "JSON/HTTPS")
+Rel(admin, dec, "Decides through AdminDirectoryController", "JSON/HTTPS")
+Rel(ctrl, h, "Sends SuggestListingCommand")
+Rel(h, val, "Validated by")
+Rel(h, win, "Checks the daily limit with")
+Rel(h, ctx, "Writes")
+Rel(dec, out, "Tells the sender with")
+Rel(out, ctx, "Adds a DirectMessage")
+Rel(ctx, db, "Persists", "EF Core")
+@enduml

@@ -34,16 +34,24 @@ ctrl -> handler : Send GetStaffSessionQuery
 handler -> db : Read StaffRole and name
 handler --> ctrl : StaffSessionDto
 ctrl --> shell : Name, role and initials in the sidebar
-note over nav : Below LG the links sit in one row under the brand,\nscrolling within the band (L2-021 AC2)
-actor -> nav : Click or press Enter on Events
+shell -> shell : items = areasFor(role) with groups (L2-019 AC5)
+alt Admin at LG or wider (L2-021 AC1)
+  shell -> nav : items, showGroups = true
+  nav --> actor : Dashboard; Publish, Gather, Community headings
+else Moderator, or viewport below LG (L2-021 AC1, AC2)
+  shell -> nav : items, showGroups = false
+  nav --> actor : Links without group names;\nbelow LG one row scrolling within the band
+end
+note over nav : At LG, links taller than the window scroll inside\nAdminNav; brand and Sign out stay in view (L2-021 AC4)
+actor -> nav : Click or press Enter on Stories
 nav -> nav : Plain click: prevent the page load
-nav --> shell : navigate('/events')
-shell -> router : navigateByUrl('/events')
+nav --> shell : navigate('/stories')
+shell -> router : navigateByUrl('/stories')
 router -> ctrl : staffAuthGuard (canActivateChild): GET /api/admin/session
 ctrl --> router : session (an expired one opens Staff sign in, ADR 0016)
 router -> router : loadComponent for the area
 router --> shell : NavigationEnd
-shell -> shell : current = currentAdminArea(url)
-shell -> nav : current = events
-nav --> actor : aria-current="page" on Events (L2-021 AC1)
+shell -> shell : current = currentAdminArea(url)\n(/stories/<id> stays Stories)
+shell -> nav : current = stories
+nav --> actor : aria-current="page" on Stories (L2-021 AC1)
 @enduml

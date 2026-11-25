@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — open Preferences
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "PreferencesPage" as page
+  participant "PreferencesApi (PREFERENCES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PreferencesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetPreferencesHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Choose Preferences on Profile or in the footer
+page --> actor : Skeleton rows; no switch shown on or off (L2-064 AC11)
+page -> client : get()
+client -> ctrl : GET /api/preferences
+ctrl -> h : Send GetPreferencesQuery
+h -> db : Member, MemberPreferences (or defaults), subscription by NormalizedEmail
+db --> h : Rows
+h --> ctrl : PreferencesDto
+ctrl --> client : 200 JSON
+alt loaded
+  client --> page : PreferencesDto
+  page -> page : PreferencesDraft.of(saved)
+  page --> actor : Five sections, "<n> of 4 emails on.", switches as saved (AC1, AC2, AC4)
+else no answer or refused
+  client --> page : ApiError
+  page --> actor : "Your preferences didn't load" with Try again and Back to profile (AC11)
+end
+@enduml

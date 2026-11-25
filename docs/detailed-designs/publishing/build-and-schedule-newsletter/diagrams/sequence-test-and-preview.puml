@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — send a test and preview
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "NewsletterDeskPage" as page
+  participant "IssuePreviewPage" as preview
+  participant "AdminNewsletterApi (ADMIN_NEWSLETTER_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "SendTestIssueHandler" as h
+  participant "NewsletterEmails" as mails
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+  participant "IEmailSender" as mail
+end box
+actor -> page : Press "Send me a test"
+page -> client : sendTest(number, fields as they stand)
+client -> ctrl : POST /api/admin/newsletter/issues/{number}/test
+ctrl -> h : Send SendTestIssueCommand
+h -> db : The signed-in Admin's own email (ICurrentMember)
+h -> mails : Issue email from the fields as they stand
+h -> mail : SendAsync to the Admin only (L2-070 AC9)
+h --> ctrl : TestSentDto(address)
+ctrl --> client : 200 JSON
+page --> actor : Button reads "Test sent"; status "Test sent to <address>"
+actor -> page : Press Preview
+page -> preview : Open /newsletter/preview?number=49 in a new tab
+preview -> client : preview(number)
+client -> ctrl : GET /api/admin/newsletter/issues/{number}/preview
+ctrl --> client : IssueDto built from the saved fields
+preview --> actor : IssueView as the web version (L2-070 AC9)
+@enduml

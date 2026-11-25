@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — open Listings and record checks
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "ManageListingsPage" as page
+  participant "AdminDirectoryApi" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminDirectoryController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Suggestion handlers" as h
+  participant "AuditBehavior" as audit
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open /listings
+page --> actor : Skeletons (L2-073 AC11)
+page -> client : suggestions()
+client -> ctrl : GET /api/admin/directory/suggestions
+ctrl -> ctrl : Staff session; StaffArea.Directory policy (Moderator: 403 forbidden_role)
+ctrl -> h : Send ListListingSuggestionsQuery
+h -> db : Waiting count, published count, suggestions oldest first
+db --> h : Rows
+h --> ctrl : SuggestionListDto
+ctrl --> client : 200 JSON
+client --> page : SuggestionListDto
+alt failure
+  page --> actor : "Suggestions didn't load" with Try again
+else none waiting
+  page --> actor : "No suggestions waiting" with See what is listed
+else suggestions
+  page -> client : suggestion(oldest id)
+  client -> ctrl : GET /api/admin/directory/suggestions/{id}
+  ctrl -> h : Send GetListingSuggestionQuery
+  h -> db : Suggestion and its four checks
+  db --> h : Detail
+  h --> ctrl : SuggestionDetailDto
+  ctrl --> client : 200 JSON
+  client --> page : Detail
+  page --> actor : Tabs with counts; first chosen aria-current; panel with quotation, sender, Checks, "<n> of 4 passed" (L2-073 AC1-AC3)
+end
+actor -> page : Tick "Conversation"
+page -> client : setCheck(id, Conversation, true)
+client -> ctrl : PUT /api/admin/directory/suggestions/{id}/checks/conversation
+ctrl -> audit : Send SetSuggestionCheckCommand
+audit -> h : Handle
+h -> db : Load suggestion
+alt decided
+  h --> audit : 409 suggestion_decided
+else waiting
+  h -> h : ListingSuggestion.SetCheck(check, passed, admin, now)
+  h -> db : Save at once (L2-073 AC4)
+  h --> audit : CheckDto
+  audit -> db : AuditEntry: who, suggestion id, suggestion.check_set (L2-073 AC12)
+end
+audit --> ctrl : Result
+ctrl --> client : 200 JSON or ProblemDetails
+client --> page : Result
+page --> actor : "4 of 4 passed"; Approve listing available (listingChecksOf)
+opt Admin chooses Listed
+  page -> client : listed(null)
+  client -> ctrl : GET /api/admin/directory/listings
+  ctrl -> h : Send ListListedQuery
+  h -> db : Published listings with follower counts, name order, 50
+  db --> h : Rows
+  h --> ctrl : ListedPageDto
+  ctrl --> client : 200 JSON
+  page --> actor : Table: mark, name, Verified, kind, area, followers, Edit (L2-073 AC10)
+end
+@enduml

@@ -21,6 +21,15 @@ def mini(av, name, time, text, unread=False, end="", cls="mini-row", a=""):
             f'<p class="mini-row__text{tx}">{text}</p></div>{end}</a>')
 
 
+RAIL = ('<ul class="list-divided">'
+        + event_row("Apr", "18", "Easter Sunrise 5K", "Sat 6:45 AM · Waterfront", "").replace('<span class="event-row__end"></span>', "")
+        + event_row("Apr", "21", "Couch to 5K: Week 3", "Tue 6:30 PM · Etobicoke", "").replace('<span class="event-row__end"></span>', "")
+        + "</ul>").replace('<a class="event-row"', '<li><a class="event-row"').replace("</a>", "</a></li>")
+STATIC = ('<ul class="list-divided"><li class="event-row"><div class="event-row__date"><p class="event-row__month">Apr</p><p class="event-row__day">18</p></div>'
+          '<div class="event-row__body"><p class="event-row__title event-row__title--wrap">Easter Sunrise 5K</p>'
+          '<p class="event-row__meta">Sat 6:45 AM · Waterfront · Free</p></div></li></ul>')
+RAIL_LOADING = ('<ul class="list-divided" aria-busy="true" aria-label="Loading events"><li class="event-row"><span class="skeleton skeleton--date"></span>'
+                '<div class="event-row__body skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div></li></ul>')
 GROUP = '<span class="avatar avatar--group" aria-hidden="true">5K</span>'
 DO = '<span class="avatar" aria-hidden="true">DO</span>'
 MINI = ('<ul class="mini-list">'
@@ -41,6 +50,7 @@ SPEC = {
     "overview": """<p>Use a list when each item stands on its own and opens something. Use a <a href="table.html">table</a> when staff compare columns, and a <a href="description-list.html">description list</a> for name–value facts.</p>
 <ul>
 <li><b>Event row</b> (<code>.event-row</code>) in a <code>.list-ruled</code>: date column, title and meta, an end value (price or "Going"). Home and the events list.</li>
+<li><b>Rail event row</b>: the same row with no end slot in a <code>.list-divided</code>, under "Upcoming events" in the landing page's rail. For signed-out visitors each row links to Join; a static, non-link form with a wrapping title (<code>.event-row__title--wrap</code>) lists events in the newsletter.</li>
 <li><b>Mini row</b> (<code>.mini-row</code>) in a <code>.mini-list</code>: avatar, name, time and last line; home's message preview.</li>
 <li><b>Conversation</b> (<code>.conversation</code>): the mini row inside the inbox, with a current state.</li>
 <li><b>Going item</b> (<code>.going-item</code>): a thumbnail card row on the profile.</li>
@@ -57,11 +67,14 @@ SPEC = {
         ],
     },
     "variants": "<h3>Event rows</h3>" + ex(EVENTS, "Ruled list of whole-row links; the end slot says price or that you're going.", True)
+    + "<h3>Rail event rows (landing)</h3>"
+    + ex(RAIL, "Landing rail: no end slot, divided list; each row links to Join for visitors (landing/default).", True)
+    + ex(STATIC, "Static row in the newsletter: an <code>&lt;li&gt;</code>, not a link; the title wraps and the price joins the meta (newsletter/default).", True)
     + "<h3>Mini rows and conversations</h3>" + ex(MINI, "Home's message preview: bold name and darker text when unread, plus an unread dot.", True)
     + ex(CONVS, "The inbox list: <code>aria-current=\"true\"</code> on the open conversation; count pill for unread.", True)
     + "<h3>Going items and static lists</h3>" + ex(GOING, "Profile's \"Going to\": a 16:9 thumbnail, date and name.", True)
     + ex(GOALS, "<code>.goals</code>: static 18px items between hairlines (profile goals).", True),
-    "sizes": "<p>Event rows come in two sizes: default (24px day, 16px padding) and <code>.event-row--lg</code> (30px day, 20px padding, wrapping 18px title) for the landing page. Mini rows and conversations have one size, with a 48px avatar (<code>--size-avatar-lg</code>).</p>"
+    "sizes": "<p>Event rows come in two sizes: default (24px day, 16px padding), used everywhere including the redrawn landing rail, and <code>.event-row--lg</code> (30px day, 20px padding, wrapping 18px title), which no mock uses since the landing page was redrawn. Mini rows and conversations have one size, with a 48px avatar (<code>--size-avatar-lg</code>).</p>"
     + ex(f'<ul class="list-ruled"><li>{event_row("Apr", "18", "Easter Sunrise 5K", "Sat 6:45 AM · Waterfront", "Free").replace("event-row", "event-row event-row--lg", 1)}</li></ul>', "Large event row.", True),
     "states": {
         "intro": "<p>Rows are links. Pointer and focus are forced with <code>data-state</code>; the open conversation uses <code>aria-current=\"true\"</code>; unread is a text and badge state.</p>",
@@ -78,6 +91,7 @@ SPEC = {
         + "<h3>Loading and empty</h3>"
         + ex('<ul class="skeleton-stack" aria-busy="true" aria-label="Loading events"><li><span class="skeleton skeleton--date"></span></li><li><span class="skeleton skeleton--text"></span></li></ul>',
              "Loading draws skeleton rows of the same shape.", True)
+        + ex(RAIL_LOADING, "Landing rail while events load: date block and two lines per row (landing/loading). If events fail while stories load, the list becomes an inline error with Try again (landing/events-error).", True)
         + ex('<div class="empty-inline"><p class="empty-inline__text">No messages yet.</p><a class="empty-inline__action" href="#">Find an event</a></div>',
              "Empty lists show an inline empty state with one next step.", True),
         "themes": themes(EVENTS + MINI),
@@ -89,7 +103,7 @@ SPEC = {
     },
     "responsive": """<ul>
 <li>Titles, meta and last lines truncate to one line with an ellipsis; the end slot never shrinks.</li>
-<li>Large event rows let the title wrap, since the landing page has room to breathe.</li>
+<li>Large event rows and <code>.event-row__title--wrap</code> let the title wrap; the landing rail keeps one line because the rail is narrow beside the stories from 1024px and full width below.</li>
 <li>On phones the inbox shows the conversation list or the thread, never both; from <code>--layout-breakpoint-md</code> the list sits beside the thread at <code>--layout-conversations-width</code>.</li>
 </ul>""",
     "theming": "<p>Rows read <code>--color-fg-default</code>, <code>--color-fg-muted</code> and <code>--color-fg-accent</code>; hover uses <code>--color-bg-surface</code> (mini row) or <code>--color-bg-canvas</code> (conversation); current uses <code>--color-accent-subtle</code>. All are themed tokens, so dark mode needs no overrides.</p>",
@@ -149,6 +163,7 @@ SPEC = {
         "classes": [
             ("<code>.list-ruled</code> <code>.list-divided</code> <code>.goals</code> <code>.card--list</code>", "Hairline-separated lists: ruled adds top and bottom rules; divided only between."),
             ("<code>.event-row</code> <code>.event-row--lg</code> <code>.event-row__end--going</code>", "Event row, its large size and the Going end."),
+            ("<code>.event-row__title--wrap</code>", "Lets the title wrap (static newsletter rows)."),
             ("<code>.mini-list</code> <code>.mini-row</code> <code>.conversation</code>", "Compact person rows; the inbox variant."),
             ("<code>.mini-row__name--unread</code> <code>.mini-row__text--unread</code>", "Unread emphasis."),
             ("<code>.going-list</code> <code>.going-item</code>", "Thumbnail card rows."),
@@ -161,9 +176,12 @@ SPEC = {
             mock("pages/home/empty", "inline empty state"),
             mock("pages/messages/default", "conversations, current, count pill"),
             mock("pages/profile/default", "going items, goals"),
-            mock("pages/landing/default", "large event rows"),
+            mock("pages/landing/default", "rail event rows, no end slot"),
+            mock("pages/landing/loading", "rail skeleton rows"),
+            mock("pages/landing/events-error", "rail inline error"),
+            mock("pages/newsletter/default", "static row, wrapping title"),
             mock("pages/services/default", "card list of service rows"),
         ],
-        "drift": "The going-item hover shadow was the old shadow-2 (8/24); it merged into <code>--shadow-2</code> (12/32). The goals list was 17px; it snapped to 18px (<code>--font-size-lg</code>). Rounded rows' 16px radius is now <code>--radius-lg</code> (was 2xl).",
+        "drift": "The redrawn landing page dropped <code>.event-row--lg</code> for default rows in a <code>.list-divided</code> rail; the large size stays in components.css with no mock using it (proposed: remove it or keep it for a future wide list). The going-item hover shadow was the old shadow-2 (8/24); it merged into <code>--shadow-2</code> (12/32). The goals list was 17px; it snapped to 18px (<code>--font-size-lg</code>). Rounded rows' 16px radius is now <code>--radius-lg</code> (was 2xl).",
     },
 }

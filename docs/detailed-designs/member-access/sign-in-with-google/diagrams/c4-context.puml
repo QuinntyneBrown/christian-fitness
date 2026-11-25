@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Sign in with Google
+
+Person(member, "Member or visitor", "Signs in or joins with a Google account")
+Person(staff, "Staff member", "Signs in with a Google Workspace account of the team's domain")
+
+System(cf, "Christian Fitness", "Christian community for health in body and spirit in the Greater Toronto Area")
+System_Ext(google, "Google", "OpenID Connect provider: account chooser, token endpoint, signing keys")
+System_Ext(otel, "OpenTelemetry collector", "Receives telemetry without personal data")
+
+Rel(member, cf, "Signs in or joins using", "HTTPS")
+Rel(staff, cf, "Signs in to the admin app of", "HTTPS")
+Rel(member, google, "Chooses an account at", "full-page redirect")
+Rel(staff, google, "Chooses a Workspace account at", "full-page redirect")
+Rel(cf, google, "Exchanges the code and reads signing keys from", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

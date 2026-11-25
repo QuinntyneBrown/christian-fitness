@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — confirm a subscription
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Subscriber" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "SubscribePage" as page
+  participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "PublicNewsletterController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ConfirmSubscriptionHandler" as h
+  participant "NewsletterSubscription" as sub
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Follow /subscribe#confirm=<token> from the email
+page -> page : takeFragmentToken("confirm"); replace URL with /subscribe (L2-058 AC7)
+page -> client : confirm(token)
+client -> ctrl : POST /api/public/newsletter/confirmations { token }
+ctrl -> h : Send ConfirmSubscriptionCommand
+h -> db : SubscriptionConfirmation by SHA-256 of the token
+db --> h : Confirmation or none
+alt none, expired or already used
+  h --> ctrl : RefusalException subscription_link_expired
+  ctrl --> client : 400 ProblemDetails
+  client --> page : ApiError subscription_link_expired
+  page --> actor : Alert "That link has expired" and the form again; nobody subscribed (L2-058 AC3)
+else usable
+  h -> sub : Confirm(confirmation.Extras, now): Subscribed, Weekly on, ConsentedAt = now (L2-058 AC2)
+  h -> db : Use(now) on this confirmation and every other open one; save
+  h --> ctrl : SubscriptionConfirmedDto(email, next Saturday 7 AM Toronto, extras)
+  ctrl --> client : 200 JSON
+  client --> page : Confirmed
+  page --> actor : "You're subscribed" (role="status") with the address and when the first issue arrives
+end
+@enduml

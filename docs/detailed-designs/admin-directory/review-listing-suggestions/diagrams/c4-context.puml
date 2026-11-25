@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Review listing suggestions
+
+Person(staff, "Admin", "Staff member with the Admin role")
+Person(member, "Member who suggested", "Told the outcome by direct message")
+Person_Ext(party, "Suggested party", "Person or group proposed for the directory")
+System(cf, "Christian Fitness", "Member app, admin console and API")
+System_Ext(email, "Email provider", "Delivers the claim link")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics, no names, emails or words")
+Rel(staff, cf, "Checks, approves and declines suggestions in", "HTTPS")
+Rel(cf, member, "Messages the outcome to", "Messages")
+Rel(cf, email, "Sends the claim link via", "SMTP or API")
+Rel(email, party, "Delivers the claim link to")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml
