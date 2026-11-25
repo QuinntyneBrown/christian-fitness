@@ -29,7 +29,7 @@ Three things made the design's shape unworkable as written:
 
 ## Decision
 
-- **Amendment, 24 November 2026.** [ADR 0062](0062-personal-data-erasure-and-retention.md)
+- **Amendment, 24 November 2026.** [ADR 0078](0078-personal-data-erasure-and-retention.md)
   extends this behaviour to auditable member commands. Their handlers record the member id as actor.
   At account erasure identifying actor and record references to the member are removed, while the
   remaining entry is kept for two years from `OccurredAt`. Only Admins read entries via `cf audit`;

@@ -5,7 +5,7 @@ How Christian Fitness is released and where it runs (ADR 0047). Every setting is
 
 ## Future retention and access-log controls
 
-[ADR 0062](../adr/0062-personal-data-erasure-and-retention.md) requires the deployment slice to
+[ADR 0078](../adr/0078-personal-data-erasure-and-retention.md) requires the deployment slice to
 configure nginx access logs with an explicit format using `$uri`, not `$request`, `$request_uri`
 or `$args`. The ingress must also omit query strings; disable its access logs or replace the ingress
 if it cannot guarantee this. Verify both layers with a non-secret test query before enabling

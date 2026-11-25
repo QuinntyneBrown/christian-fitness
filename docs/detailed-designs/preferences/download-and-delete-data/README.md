@@ -36,7 +36,7 @@ This feature supersedes the export and deletion parts of [protect personal data]
 - **`RestoreAccountCommand`** — sign-in by password (`SignInHandler`) or by Google (`L2-049` design) for a deleting account answers 409 `account_deleting` with no session; the screen then offers Restore, which re-proves the credentials, clears `DeletionRequestedAt` and signs the member in (AC8). Places that went back are not restored.
 - **`DataExportRequest`** — new entity (`Id`, `MemberId`, `RequestedAt`, `ReadyAt?`, `ArchiveKey?`, `ExpiresAt?`) with a cascade from `Member`; migration `AddDataExportsAndDeletion` adds it and `Member.DeletionRequestedAt`.
 - **Settings** — the archive store's directory (`Exports__Directory`, on the `/data` share of [ADR 0047](../../../adr/0047-continuous-deployment-to-azure-container-apps.md)) and the schedules of `cf export-data` and `cf erase-accounts` shall be documented in `docs/operations/settings.md` in the same change.
-- **Archive and rate limit** — [ADR 0062](../../../adr/0062-personal-data-erasure-and-retention.md) fixes the seven JSON sections and README, display-name-only participants, and five deletion attempts per member per rolling hour, counting invalid and refused attempts. The sixth receives 429 `too_many_attempts`.
+- **Archive and rate limit** — [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md) fixes the seven JSON sections and README, display-name-only participants, and five deletion attempts per member per rolling hour, counting invalid and refused attempts. The sixth receives 429 `too_many_attempts`.
 
 ### Personal data and what happens to it
 

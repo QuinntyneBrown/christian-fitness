@@ -68,7 +68,7 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
 - **`INewsletterTokens`** — Application contract for generating a cryptographically random token
   for each email and storing only its hash linked to the subscription. Links have no expiry;
   hashes survive resubscription of the same record and are deleted when it is purged. They do not
-  depend on Data Protection keys, which are retained for 90 days after retirement (ADR 0062).
+  depend on Data Protection keys, which are retained for 90 days after retirement (ADR 0078).
 - **`NewsletterEmails`** — Application service (introduced in `subscribe-to-newsletter`) that also
   writes the part every newsletter email shares (`L2-058` AC4): a footer that names Christian
   Fitness and its postal address (setting `Organisation:PostalAddress`), the Unsubscribe link
@@ -96,7 +96,7 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   "as the email reads" (`L2-059` AC1) suggests an HTML body. Both change the shared email contract
   and need an ADR next to ADR 0010.
 - **Access logs.** The one-click URL carries the token in its query string. nginx and ingress
-  access logs must omit query strings, or be disabled if they cannot (ADR 0062 and deployment
+  access logs must omit query strings, or be disabled if they cannot (ADR 0078 and deployment
   settings).
 - **Link scanners.** Mail security scanners that fetch links do not run the page's script, so
   they neither confirm nor unsubscribe. A scanner that runs scripts would confirm a subscription;

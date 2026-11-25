@@ -51,7 +51,7 @@ The suggested party's email is used only to contact them about the listing (`L2-
 - **The day of the limit.** "More than 5 suggestions from one member in a day" does not say whether the day is the last 24 hours or a calendar day in Toronto. The design proposes the last 24 hours, as `AttemptWindow` counts.
 - **Self-submission and the listing's owner.** For Myself the mock still says "Sent as Grace Thompson" while naming "Coach Marcus Delaney", and the console shows "Self-submitted". Whether a self-submitted listing becomes linked to the sender's account (and so receives its messages) is not specified; it bears on the profile's Message (view-listing-profile design).
 - **Who gets the claim link.** Approval sends the suggested party a link (`L2-073` AC6), but their email is optional and not asked for Myself. Who receives the link then is `<TO SUPPLY>` (`docs/mocks/README.md` open question 9).
-- **Retention.** Scheduled work purges decided suggestions and their contact emails 12 months after `DecidedAt`, or earlier at the submitter's erasure (ADR 0062).
+- **Retention.** Scheduled work purges decided suggestions and their contact emails 12 months after `DecidedAt`, or earlier at the submitter's erasure (ADR 0078).
 
 ## Requirements
 

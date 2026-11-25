@@ -110,7 +110,7 @@ Slice 29.1 builds the roles and their enforcement (`L2-019` AC1, AC2, AC4, AC5;
   and `OccurredAt` from `TimeProvider`; no name, email, field value or request text. The
   `AuditEntries` table has no foreign key, so an entry outlives the member and the record it names,
   and indexes by record and by actor, each with time. A staff session's record is the staff
-  member's own id (its key is a secret). ADR 0062 extends auditing to member commands, removes
+  member's own id (its key is a secret). ADR 0078 extends auditing to member commands, removes
   identifying references at member erasure, retains entries for two years and restricts `cf audit`
   to Admins. Scheduled work purges due entries; this is not yet implemented.
 
@@ -171,7 +171,7 @@ address kept (`L2-019` AC5).
 1. Granting, changing and taking away roles has no screen: `cf seed` grants the first Admin, and
    anything else is a change in the database until a later slice adds one. The API already applies
    such a change at the next request.
-2. Nothing reads or purges the audit trail yet. ADR 0062 specifies an Admin-only `cf audit`
+2. Nothing reads or purges the audit trail yet. ADR 0078 specifies an Admin-only `cf audit`
    reader and scheduled two-year retention for a later slice.
 3. Which of the six new areas a Moderator opens is not settled: `L2-019` AC1 and AC5 name only
    Dashboard and Members, and `docs/mocks/README.md` (open question 8) asks about Feedback. A

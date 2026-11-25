@@ -18,7 +18,7 @@ across the accounts, profile, messages and telemetry parts of the system.
 - **Telemetry redaction** — logging uses structured templates with no personal fields; `TelemetryRedactionProcessor` drops request/response bodies, query strings and headers; the HTTP instrumentation records `http.route` (template) rather than the URL. See `operations/emit-telemetry-and-health`.
 - **`RequestDataExportCommand` / `RequestDataExportHandler`** — records a request for the private ZIP described in [download and delete data](../../preferences/download-and-delete-data/README.md), which supersedes this design's earlier immediate JSON download.
 - **`RequestAccountDeletionCommand` / `RequestAccountDeletionHandler`** — records `Member.DeletionRequestedAt`, ends every session of the member and signs them out.
-- **`AccountErasureService`** — scheduled work erases accounts after the 30-day grace period as specified in [ADR 0062](../../../adr/0062-personal-data-erasure-and-retention.md).
+- **`AccountErasureService`** — scheduled work erases accounts after the 30-day grace period as specified in [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md).
 - **Member web app** — Preferences exposes download and deletion; deletion confirms in a CDK Dialog. See the download and delete data design and its mocks.
 
 ## Requirements

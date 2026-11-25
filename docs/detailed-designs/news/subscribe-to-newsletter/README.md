@@ -91,7 +91,7 @@ to send the newsletter, never shared, and never written to a span, metric or log
   `MorningDevotion`), `RequestedAt`, `ConsentedAt`, `UnsubscribedAt`. A class with no generated
   `ToString`, so the address is never printed by accident (the pattern of `EmailMessage`).
   Each Pending request updates `RequestedAt`; scheduled work purges a still-Pending subscription
-  and its confirmations 30 days after the most recent request (ADR 0062).
+  and its confirmations 30 days after the most recent request (ADR 0078).
 - **`SubscriptionConfirmation`** — entity: the SHA-256 hash of a 32-byte base64url token, the
   extras chosen, `ExpiresAt` 7 days after issue and `UsedAt`, as `PasswordReset` keeps its token
   (ADR 0010). The token exists only in the email.

@@ -1,4 +1,4 @@
-# 0062. Personal data: hard erasure, bounded retention and durable unsubscribe links
+# 0078. Personal data: hard erasure, bounded retention and durable unsubscribe links
 
 ## Status
 
