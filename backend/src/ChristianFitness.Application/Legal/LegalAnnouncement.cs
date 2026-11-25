@@ -10,8 +10,8 @@ public sealed class LegalAnnouncement(IAppDbContext db, IEmailSender sender, Mem
 {
     public async Task<int> SendAsync(string document, DateOnly version, CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
-        if (!schedule.Versions(document).Contains(version) || version.DayNumber - today.DayNumber < 30)
+        var takesEffect = version.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        if (!schedule.Versions(document).Contains(version) || takesEffect - clock.GetUtcNow().UtcDateTime < TimeSpan.FromDays(30))
         {
             throw new InvalidOperationException("A published version at least 30 days away is required.");
         }
