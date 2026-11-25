@@ -15,7 +15,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(val, "StoryFieldsValidator, PublishStoryValidator", "FluentValidation", "Field codes")
   Component(cmds, "Story command handlers", "MediatR handlers", "Save, submit, request changes, publish, schedule, unschedule, unpublish")
   Component(ent, "Story", "Domain entity", "Status transitions, slug, version")
-  Component(clock, "PublishingClock", "BackgroundService", "Sends PublishDueStoriesCommand every 30 s")
+  Component(clock, "PublishingClock", "BackgroundService", "Leased 30-second scheduler for due jobs")
   Component(audit, "AuditTrail", "Application service", "One entry per status change")
 }
 ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Stories, StorySlugRedirects, AuditEntries")

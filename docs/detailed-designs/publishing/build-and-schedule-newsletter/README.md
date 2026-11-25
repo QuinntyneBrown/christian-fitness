@@ -17,7 +17,7 @@ it.
 - **confirmed subscriber** — Subscribed address with the Weekly on (`news/subscribe-to-newsletter`)
 - **missed issue** — issue still a Draft when its send time passed, so nothing was sent
 - **recipient mark** — per-recipient random mark, stored only as a hash with no link to the subscriber, that counts an open or a click once
-- **add-on emails** — event alerts, the training plan and devotions, which send on their own schedules and are not built here
+- **add-on emails** — event alerts, the training plan and devotions; their sending is deferred to [#90](https://github.com/QuinntyneBrown/christian-fitness/issues/90), with no trigger yet
 
 The screen shows the newsletter's name, confirmed subscribers and cadence; the next issue's
 number and status; its Subject line, Editor's note, The big story, Also this week, Events this
@@ -83,8 +83,8 @@ share of opens and clicks.
   sends it through `IEmailSender` to the signed-in Admin's own address only (`ICurrentMember`),
   answering that address for the status message "Test sent to <address>" (`L2-070` AC9). No
   unsubscribe token or recipient mark is issued for a test.
-- **`SendDueIssueCommand`** / handler — sent by `PublishingClock` every 30 seconds
-  (`write-review-publish-story`). For the issue whose send time has passed:
+- **`SendDueIssueCommand`** / handler — sent by the shared, leased `PublishingClock` on its
+  30-second tick ([ADR 0061](../../../adr/0061-scheduled-work.md)). For the issue whose send time has passed:
   - still a Draft: `MarkMissed()` and nothing is sent; the Dashboard's "Needs attention" says the
     issue was not scheduled (`L2-070` AC8; `admin-dashboard/view-dashboard`), and the Admin may
     schedule it for a later time the same day;
@@ -130,8 +130,9 @@ share of opens and clicks.
   Policy (`L2-067`) is `<TO SUPPLY>`.
 - **Who scheduled a sent issue.** The audit entry for `newsletter_issue.sent` names the Admin who
   scheduled it, since the clock has no member; whether that is the intended "who" is `<TO SUPPLY>`.
-- **Add-on emails.** They "send on their own schedules" (`L2-070` AC11), but nothing builds or
-  schedules them (`docs/mocks/README.md`, open question 14).
+- **Add-on emails.** `L2-070` AC11 describes their own schedules, but nothing builds, schedules
+  or triggers them yet; their design is deferred to
+  [#90](https://github.com/QuinntyneBrown/christian-fitness/issues/90).
 - **First name of a subscriber.** A subscriber is greeted by first name "where one is known"; the
   only source is a member account with the same address, which `L2-033` treats as personal data
   read only at sending.

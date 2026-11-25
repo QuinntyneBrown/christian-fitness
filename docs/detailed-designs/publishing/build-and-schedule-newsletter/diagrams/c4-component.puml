@@ -13,7 +13,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "AdminNewsletterController", "ASP.NET Core controller, Publishing area", "api/admin/newsletter")
   Component(h, "Issue command handlers", "MediatR handlers", "Save, schedule, unschedule, send a test")
   Component(val, "ScheduleIssueValidator", "FluentValidation", "subject, big story, editor's note")
-  Component(clock, "PublishingClock", "BackgroundService", "Sends SendDueIssueCommand every 30 s")
+  Component(clock, "PublishingClock", "BackgroundService", "Leased 30-second scheduler for due jobs")
   Component(send, "SendDueIssueHandler", "MediatR handler", "Captures content, queues one delivery per recipient")
   Component(sender, "IssueSender", "BackgroundService", "Delivers queued deliveries in batches")
   Component(track, "PublicIssueTrackingController", "ASP.NET Core controller, anonymous", "Open image and click redirect")

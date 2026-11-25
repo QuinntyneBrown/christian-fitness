@@ -28,14 +28,14 @@ This feature supersedes the export and deletion parts of [protect personal data]
 
 - **`DataController`** — `POST /api/data-exports` sends `RequestDataExportCommand`; `GET /api/data-exports/{id}/archive` sends `GetDataExportArchiveQuery`; `DELETE /api/account` sends `DeleteAccountCommand`; `POST /api/account/restore` sends `RestoreAccountCommand`. Each requires a member session except restore (see the restore behaviour).
 - **`RequestDataExportCommand` / handler** — an `IAuditableCommand` (`data_export.requested`). When a request of the caller's is younger than 24 hours it answers that one and adds nothing; otherwise it adds a `DataExportRequest`. It records the audit entry with the member as actor (AC10).
-- **`DataExportBuilder`** — application service run by the CLI command `cf export-data`. For each request without an archive it assembles the member's own data (below) into a .zip, stores it through a private `IArchiveStore`, sets `ReadyAt` and `ExpiresAt = ReadyAt + 7 days`, and sends one `EmailMessage` to the account's address with the link `{MemberAppAddress}/preferences/download/{id}` (AC1). The same run deletes archives past their expiry. Neither the email nor any span carries what the archive holds (AC10).
+- **`DataExportBuilder`** — application service run daily by the shared scheduler ([ADR 0061](../../../adr/0061-scheduled-work.md)), or manually by `cf export-data`. For each request without an archive it assembles the member's own data (below) into a .zip, stores it through a private `IArchiveStore`, sets `ReadyAt` and `ExpiresAt = ReadyAt + 7 days`, and sends one `EmailMessage` to the account's address with the link `{MemberAppAddress}/preferences/download/{id}` (AC1). The same run deletes archives past their expiry. Neither the email nor any span carries what the archive holds (AC10).
 - **`GetDataExportArchiveQuery` / handler** — streams the archive only when the request's `MemberId` is the caller's and `ExpiresAt` is in the future; any other id, an expired one or another member's is the same 404 `not_found` (AC2, `L2-031` AC3).
 - **`DeleteAccountCommand` / `DeleteAccountValidator` / handler** — an `IAuditableCommand` (`account.deletion_requested`). The validator refuses a `confirm` other than "delete" with 400 `validation_failed`. The handler refuses a member who holds a `StaffRole` with 403 `staff_account` (AC9), then, in one unit of work: marks the member deleting (`Member.RequestDeletion(now)`, which sets `DeletionRequestedAt`); removes their registrations at events (and later series sessions) that have not started, so the places go back (AC6); unsubscribes the account subscription; deletes unused password resets and every archive; ends every session through `ISessionRevocation.EndAllAsync` (AC6, "signed out everywhere at once"). After the save it calls `IChatChannel.LeaveAsync` for each event chat the member was in and a new `IChatChannel.DisconnectMemberAsync`, so open hub connections close too.
 - **Deleting accounts in other handlers** — from the moment of deletion: `GetPublicProfileHandler` answers `not_found`; group chat history and the conversation list name the author "A former member" (AC7); `ChatMembership.SeatAsync` and `GroupMembership.ShareAGroupAsync` ignore the member, so they leave every group chat (AC6); `DirectChat.OtherNameAsync` treats them as unavailable; going counts exclude them.
-- **`AccountErasureService`** — application service run by the CLI command `cf erase-accounts`. With `TimeProvider`, it finds members whose `DeletionRequestedAt` is 30 days or more in the past and erases them as the table below states (AC7). After erasure the email is free, so it can join as new (AC8).
+- **`AccountErasureService`** — application service run daily by the same scheduler, or manually by `cf erase-accounts`. With `TimeProvider`, it finds members whose `DeletionRequestedAt` is 30 days or more in the past and erases them as the table below states (AC7). After erasure the email is free, so it can join as new (AC8).
 - **`RestoreAccountCommand`** — sign-in by password (`SignInHandler`) or by Google (`L2-049` design) for a deleting account answers 409 `account_deleting` with no session; the screen then offers Restore, which re-proves the credentials, clears `DeletionRequestedAt` and signs the member in (AC8). Places that went back are not restored.
 - **`DataExportRequest`** — new entity (`Id`, `MemberId`, `RequestedAt`, `ReadyAt?`, `ArchiveKey?`, `ExpiresAt?`) with a cascade from `Member`; migration `AddDataExportsAndDeletion` adds it and `Member.DeletionRequestedAt`.
-- **Settings** — the archive store's directory (`Exports__Directory`, on the `/data` share of [ADR 0047](../../../adr/0047-continuous-deployment-to-azure-container-apps.md)) and the schedules of `cf export-data` and `cf erase-accounts` shall be documented in `docs/operations/settings.md` in the same change.
+- **Settings** — the archive store's directory (`Exports__Directory`, on the `/data` share of [ADR 0047](../../../adr/0047-continuous-deployment-to-azure-container-apps.md)) and any scheduler settings shall be documented in `docs/operations/settings.md` in the same change as implementation.
 
 ### Personal data and what happens to it
 
@@ -71,9 +71,12 @@ The table lists every store of member data in the code today, then the stores th
 
 ### Open questions
 
+- **Deadline and daily cadence.** A daily run can finish an export after its 24-hour deadline
+  or erase an account after its 30-day threshold, even without an outage. The implementation
+  slice must resolve the timing and recovery needed to meet `L2-066` and `L2-033`, without
+  shortening the member's 30-day restoration period.
 - **Hard or soft erasure.** The design deletes the `Member` row at erasure and erases message text in place, keeping message rows and audit entries that hold only ids; no foreign key ties messages to members. `L2-066` says "erased" without settling the form. An ADR is needed.
 - **Messages.** AC7 names only group chats for "A former member". How a deleting member's direct messages show to the other person, whether received direct messages are erased, and what an erased message reads as are `<TO SUPPLY>`. The dialog's copy ("the messages you sent are removed within 30 days") and AC7 (group messages stay, shown as from a former member, until their text is erased) should agree.
-- **Schedules and hosting.** `cf export-data` (at least once in 24 hours) and `cf erase-accounts` (at least daily) need a scheduler; a scheduled Container Apps job beside the release job of ADR 0047 is one option. An ADR is needed.
 - **Archive format.** `L2-066` fixes a .zip; the files inside (one JSON document per section is proposed) are `<TO SUPPLY>`. Whether other members' names appear beside the member's messages, given AC2 forbids "other person's profile", is `<TO SUPPLY>`.
 - **Retention.** Audit entries, message reports and the professional's application and listing have no retention in the specs; the Privacy Policy mock promises seven-year receipts, and no payment exists.
 - **Unmocked states.** Sign-in for a deleting account with Restore, the download page (ready, expired), the `staff_account` refusal in the dialog, and the email's wording have no mock.
@@ -100,13 +103,13 @@ A member asks Christian Fitness for their data or deletes their account. The arc
 
 ### Containers
 
-The API records requests and deletions; the CLI builds archives and erases accounts on a schedule; archives sit on private storage that only the API serves.
+The API records requests and deletions; its scheduler builds archives and erases accounts daily. The CLI can run the same services manually; archives sit on private storage that only the API serves.
 
 ![C4 container view: download and delete data](diagrams/c4-container.png)
 
 ### Components
 
-`DataController` sends one request per action. `DataExportBuilder` and `AccountErasureService` run from the CLI; `ISessionRevocation` and `IChatChannel` end the member's sessions and chat connections at deletion.
+`DataController` sends one request per action. The scheduler or CLI runs `DataExportBuilder` and `AccountErasureService`; `ISessionRevocation` and `IChatChannel` end the member's sessions and chat connections at deletion.
 
 ![C4 component view: download and delete data](diagrams/c4-component.png)
 

@@ -44,6 +44,25 @@ The secret settings are secrets of the container app (`db-connection`, `smtp-use
 `smtp-password`) and of the job (`db-owner-connection`, `seed-staff-password`). To change one:
 `az containerapp secret set`, then run `Deploy` so a new revision reads it.
 
+## Scheduled work (planned)
+
+[ADR 0061](../adr/0061-scheduled-work.md) chooses a hosted scheduler in the API container, not
+another Container Apps job. It is not implemented yet: deploying the current release does not
+run these jobs. Once built, each API replica ticks every 30 seconds with `TimeProvider` and takes
+a short PostgreSQL lease before running due work. A replica without the lease skips the tick;
+after a restart or missed tick, due work is picked up again.
+
+The scheduler publishes due stories and starts scheduled newsletter issues; a past-due Scheduled
+story also reads as Published before the status write. Daily jobs run newsletter upkeep (purging
+unsubscribed addresses), data exports and account erasures. `cf export-data` and
+`cf erase-accounts` remain manual commands when implemented, coordinated with scheduled runs.
+The release job still runs only migrations and seed. Add-on emails have no trigger yet
+([#90](https://github.com/QuinntyneBrown/christian-fitness/issues/90)).
+
+The scheduler stops when the API or database is unavailable; an outage can delay maintenance,
+exports and email. The lease does not remove ADR 0047's other single-replica constraints. Document
+any scheduler settings and operational recovery procedures alongside their implementation.
+
 ## The first staff account
 
 `cf seed` creates it from the job's `Seed__*` settings. Read its first password, sign in at the

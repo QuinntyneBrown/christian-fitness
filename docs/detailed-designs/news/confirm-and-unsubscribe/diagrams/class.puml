@@ -68,7 +68,8 @@ class EmailMessage {
   +Headers (to add)
 }
 class PurgeUnsubscribedCommand
-class NewsletterUpkeep <<BackgroundService>>
+class PublishingClock <<BackgroundService>>
+class NewsletterUpkeep <<scheduler job>>
 NewsletterSubscription "1" *-- "*" SubscriptionConfirmation
 ConfirmSubscriptionHandler ..> ConfirmSubscriptionCommand : handles
 ConfirmSubscriptionHandler ..> SubscriptionConfirmation : uses once
@@ -81,5 +82,6 @@ UnsubscribeHandler ..> UnsubscribedDto
 INewsletterTokens <|.. DataProtectionNewsletterTokens
 NewsletterEmails ..> INewsletterTokens
 NewsletterEmails ..> EmailMessage : builds
+PublishingClock ..> NewsletterUpkeep : runs daily
 NewsletterUpkeep ..> PurgeUnsubscribedCommand : sends daily
 @enduml

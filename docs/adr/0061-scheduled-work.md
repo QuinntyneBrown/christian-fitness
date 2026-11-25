@@ -43,6 +43,12 @@ scheduler must also avoid concurrent ticks if a second replica or an overlapping
 - A running API and database are needed for scheduled work. An outage delays writes, sends and
   daily maintenance until recovery; story reads still use the scheduled time when the API returns.
   Daily processing alone does not guarantee a 24-hour export or 30-day purge during an outage.
+- A daily run after an account reaches 30 days can lag the erasure deadline even without an
+  outage; a daily export run can likewise finish after 24 hours. The implementation must resolve
+  these deadline and recovery gaps without shortening the 30-day restoration period.
+- RSS feeds are cacheable for 15 minutes (`L2-060`); a previously cached feed can remain stale
+  past a story's scheduled time even though a fresh read evaluates it as Published. The
+  implementation must resolve that freshness tension with `L2-069`.
 - The lease protects scheduler work, not the rest of the app. A second replica still needs the
   SignalR backplane, shared mail queue and rate-limit review of ADR 0047.
 - A scheduled Container Apps job would add a separate deployment and schedule; read-time evaluation
