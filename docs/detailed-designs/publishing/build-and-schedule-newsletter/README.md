@@ -117,8 +117,9 @@ share of opens and clicks.
 - **Bulk sending and the email queue.** `QueuedEmailSender` holds at most 500 messages and drops
   the newest when full (ADR 0010). An issue to 6,800 addresses through it would lose mail; the
   `IssueDelivery` table is this design's durable queue, and `IssueSender` needs back-pressure from
-  the transport (or a transport-level batch API) before it hands over more. The SMTP relay's
-  sending limits are `<TO SUPPLY>`. This needs an ADR.
+  the transport (or a transport-level batch API) before it hands over more. The required
+  `Email:MaxPerMinute` and `Email:MaxPerDay` settings size and rate-limit the sender to the
+  relay's limits; neither has a hard-coded value. The transport integration needs an ADR.
 - **Opens and clicks.** An open image is blocked or prefetched by many mail clients, so open shares
   are estimates. Whether tracking images and redirected links are acceptable under the Privacy
   Policy (`L2-067`) is `<TO SUPPLY>`.

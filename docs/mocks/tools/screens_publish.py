@@ -310,7 +310,8 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
             else '<button class="btn btn--secondary btn--sm btn--grow" type="button" data-mock-href="test-sent.html">Send me a test</button>')
     past = "".join(f"""<tr><td class="table__nowrap"><span class="table__strong">#{n}</span> <span class="muted">· {date}</span></td><td>{subject}</td>
                 <td class="table__end table__strong">{opens}</td><td class="table__end muted">{clicks}</td></tr>""" for n, date, subject, opens, clicks in PAST_ISSUES)
-    return f"""{admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}')}
+    header = admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}').replace("  \n", "\n")
+    return f"""{header}
       <form class="split split--builder" novalidate>
         <section class="card card--pad" aria-labelledby="issue-title">
           <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}</div>{'<p role="status">Saved 10:42 AM</p>' if not scheduled and not busy and not invalid else ''}
@@ -335,7 +336,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
             {send}
           </section>
           <div class="btn-row"><a class="btn btn--secondary btn--sm btn--grow" href="{href("newsletter")}">{icon("eye")}Preview</a>{test}</div>
-          <p class="visually-hidden" role="status">{"Test sent to dana@christianfitness.ca" if tested else ""}</p>
+          <p class="visually-hidden" role="status">{"Test sent to dana@christian.fitness" if tested else ""}</p>
           <p class="builder__note">Add-on emails (event alerts, training plan, devotions) are deferred until someone owns writing and scheduling them.</p>
         </aside>
       </form>
@@ -553,7 +554,7 @@ def caption(text: str, hint: str = "") -> str:
 
 def pick_assets(e: dict, platform: str) -> str:
     slug = f'community-pick-{e["id"]}'
-    link = f'christianfitness.ca/e/{e["id"]}'
+    link = f'www.christian.fitness/e/{e["id"]}'
     when = f'{e["weekday"]}, {e["month"]} {int(e["day"])} at {e["time"]}'
     left = e["capacity"] - e["going"]
     tabs_ = "".join(f'<a class="segmented__option segmented__option--ink" href="{"default" if p == "Instagram" else p.lower()}.html"{CUR if p == platform else ""}>{p}</a>' for p in PLATFORMS)
@@ -572,7 +573,7 @@ def pick_assets(e: dict, platform: str) -> str:
             <span class="avatar avatar--group" aria-hidden="true">CF</span>
             <div class="slack-preview__body"><p><strong>Christian Fitness</strong> <span class="muted">9:02 AM</span></p>
               <p><strong>Community Pick:</strong> <span class="slack-preview__link">{e["title"]}</span></p><p>{PICK_NOTE}</p><p>{when} · {e["place"]}</p>
-              <div class="slack-preview__unfurl"><p class="slack-preview__site">christianfitness.ca</p>{pick_art(e, "landscape")}</div></div>
+              <div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{pick_art(e, "landscape")}</div></div>
           </div>
           <div class="assets assets--pair">{asset("Unfurl image · 1200 × 630", f"{slug}-slack.png", pick_art(e, "landscape"))}
           {caption(f"*Community Pick:* &lt;https://{link}|{e['title']}&gt;\n{PICK_NOTE}\n{when} · {e['place']}", "Slack formatting: the title becomes a link.")}</div>"""
