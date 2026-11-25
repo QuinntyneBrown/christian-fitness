@@ -9,8 +9,8 @@ cancellation notice in its group chat.
 
 - **publish** — transition from `Draft` to `Published`
 - **cancel** — transition from `Published` to `Cancelled`, made only after the Admin confirms
-- **event group chat** — `Conversation` whose participants are the event's registered members
-- **cancellation notice** — system `Message` in the event group chat stating that the event is cancelled
+- **event group chat** — the chat of one event, keyed by the event's id (its messages are `ChatMessage` rows with an `EventId`); the connections joined to it receive what is sent
+- **cancellation notice** — what `IChatChannel.NotifyCancelledAsync` tells every connection in the event's chat; no message is stored for it
 
 ## Description
 
@@ -20,7 +20,7 @@ cancellation notice in its group chat.
   exists for it; the mock is `<TO SUPPLY>` before implementation.
 - **`AdminEventsApi.publish(id)` / `cancel(id)`** — contract methods on `ADMIN_EVENTS_SERVICE`.
 - **`AdminEventsController`** — `POST /api/admin/events/{id}/publish` and
-  `POST /api/admin/events/{id}/cancel` under `AdminOnly`; one MediatR send each.
+  `POST /api/admin/events/{id}/cancel` under the `AuthenticationSetup.StaffPolicy` ("Staff") authorization policy; one MediatR send each.
 - **`PublishEventHandler`** (slice 11.1, ADR 0026) — calls `Event.Publish()`, which refuses any
   state but `Draft` (409 `event_not_draft`); a draft whose start has passed is refused with 400
   `validation_failed` and `fieldCodes.date` = `start_in_past`; audited as `event.published`. In
@@ -28,10 +28,9 @@ cancellation notice in its group chat.
   saved id, so a failed publish shows the alert `publish-failed` and a retry updates the same
   draft (`edit-draft`, `publish-failed`, `busy`).
 - **`CancelEventHandler`** — calls `Event.Cancel()`, which refuses any state but `Published`
-  (code `event_not_published` `<TO SUPPLY>`), adds a system `Message` to the event's
-  `Conversation`, saves both in one unit of work, then calls **`IChatNotifier`**.
-- **`SignalRChatNotifier`** — Api implementation of `IChatNotifier`; sends the notice to the
-  conversation group on `ChatHub`. Member clients receive it through `CHAT_CONNECTION`.
+  (code `event_not_published` `<TO SUPPLY>`), saves the event, then calls **`IChatChannel.NotifyCancelledAsync`** with the event's id.
+- **`HubChatChannel`** — Api implementation of `IChatChannel`; sends the notice to the
+  event's group on `ChatHub`. Member clients receive it through `CHAT_CONNECTION`.
 - **Member queries** — the member events list and landing queries return only `Published`
   events with a future start; the Profile registrations query returns cancelled events with
   status `Cancelled`. These belong to the member subsystems and change no code here.
@@ -61,15 +60,14 @@ The API changes the event and pushes the cancellation notice to member web apps 
 
 ### Components
 
-The controller sends `PublishEventCommand` or `CancelEventCommand`; the cancel handler adds the
-notice and calls `IChatNotifier`.
+The controller sends `PublishEventCommand` or `CancelEventCommand`; the cancel handler saves the event and
+notifies the event's chat through `IChatChannel`.
 
 ![C4 component view for publishing and cancelling events](diagrams/c4-component.png)
 
 ### Class structure
 
-`Event` owns its state transitions and links to its `Conversation`, which holds the notice
-`Message`.
+`Event` owns its state transitions; its group chat is addressed by the event's id.
 
 ![Class diagram for publishing and cancelling events](diagrams/class.png)
 
