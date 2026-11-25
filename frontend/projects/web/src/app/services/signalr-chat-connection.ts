@@ -52,7 +52,10 @@ export class SignalRChatConnection implements ChatConnection, NotificationStream
     this.connection?.off('MessageReceived');
     this.connection?.off('EventCancelled');
     this.connection?.off('NotificationReceived');
-    void this.connection?.stop();
+    // Stopping while it starts makes the library log an error; `start` stops it once it is up.
+    if (this.connection && String(this.connection.state) !== 'Connecting') {
+      void this.connection.stop();
+    }
     this.connection = null;
     this.incoming.complete();
     this.cancelledEvents.complete();
