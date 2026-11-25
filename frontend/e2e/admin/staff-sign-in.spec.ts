@@ -79,6 +79,7 @@ test.describe('Admin app, staff sign in', () => {
       await expect.poll(() => shell.title()).toBe('Dashboard · Christian Fitness Admin');
       await expect(shell.navItems).toHaveText([
         'Dashboard',
+        'Stories',
         'Events',
         'Event series',
         'Listings',

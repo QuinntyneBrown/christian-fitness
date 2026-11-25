@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 33% (12 of 36 journeys; 36 of 113 days)
+**% complete:** 36% (13 of 36 journeys; 38 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2765,3 +2765,47 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   - the search address for the series view
   - Show all series keeping a filter
   - the session number
+
+## Journey 21: Manage bylines
+
+**What slowed it**
+
+- Journey 19 merged ADR 0092 while this journey held it, so the bylines ADR became 0093 before
+  the first commit; journey 10 then merged its own 0093 after the PR was open, so it became 0094.
+  A scratchpad script renumbered the files that named it each time, and the ADR index was merged
+  by hand at each rebase. `AddBylines` was generated again after `AddClaimVoidedAt`.
+- Stories do not exist yet, but L2-077 AC7 needs "a story uses this byline". A minimal `Story`
+  (id, byline, headline) with a restricted key carries the count and the refusal; journey 22
+  extends it rather than adding a second table (ADR 0094).
+- The seed must not bring back bylines an Admin removed. "No bylines" alone would, so it also
+  looks for any `Byline` audit entry.
+- Adding Stories to the navigation changed the Admin's nav lists, groups and hrefs asserted in
+  three shell specs, and the group count in a fourth. Grep every spec for the old list first.
+- Routing `stories` and `stories/bylines` as two entries in `app.routes.ts` cost the admin initial
+  bundle 300 bytes; one `loadChildren` for the area cost 140, which is the Stories nav item.
+
+**New lessons**
+
+- EF InMemory orders strings culture-aware, so `OrderBy(NameKey)` and `OrderBy(Name)` give the
+  same rows and an order break cannot fail through the API. Prove the order by the unit-tested
+  list helper the screen uses (`withByline`), and say so in the test.
+- The page behind a CDK Dialog is `inert`, so `getByRole('main')` finds nothing while a dialog is
+  open. Assert the page after the dialog closes.
+- A break for an honest red must compile with the analysers: `throw;` in a catch that names its
+  exception failed the build, and the filter showed no test at all. A typed
+  `InvalidOperationException` kept the build and failed both race tests.
+- A refusal that names one field the user can see (409 `byline_name_taken`) goes on that field
+  alone, while a check that names several draws the summary too, as the `refused` and `invalid`
+  mocks show.
+
+**How earlier lessons worked**
+
+- "Check `origin/main` and open PRs for the next ADR number right before each commit": the check
+  caught 0092 before anything was pushed, but not 0093, which journey 10 took while this PR was
+  open. Check again before every push, not only before the commit that adds the ADR.
+- "Regenerate a migration that sorts before main's": `AddBylines` was generated on main's model
+  after the rebase, and `AppDbContextModelSnapshot.cs` was taken from main first.
+- "The worktree guard refuses compound git commands": git ran alone, and edits went through the
+  scratchpad scripts or the Edit tool.
+- "Read the initial total after each build": web stayed 278.21 kB; admin went from main's
+  280.52 kB to 280.66 kB for the Stories nav item, with every Bylines screen and dialog lazy.

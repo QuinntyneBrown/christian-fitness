@@ -120,6 +120,7 @@ test.describe('Admin app, a Moderator on an Admins-only area', () => {
     await shell.open('/');
     await expect(shell.navItems).toHaveText([
       'Dashboard',
+      'Stories',
       'Events',
       'Event series',
       'Listings',

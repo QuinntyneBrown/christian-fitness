@@ -7,7 +7,7 @@ import { isPlainClick } from '../link/plain-click';
  * applications waiting").
  */
 export interface AdminNavItem {
-  key: 'dashboard' | 'events' | 'series' | 'listings' | 'services' | 'members';
+  key: 'dashboard' | 'stories' | 'events' | 'series' | 'listings' | 'services' | 'members';
   label: string;
   href: string;
   /** The group's name ("Gather"); none for the Dashboard, which stands alone. */

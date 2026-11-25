@@ -9,9 +9,10 @@ import {
 
 // L2-021 AC1: the navigation lists the areas and marks the one the URL is in (ADR 0011).
 describe('ADMIN_AREAS', () => {
-  it('lists Dashboard, Events, Event series, Listings, Services and Members with their paths', () => {
+  it('lists Dashboard, Stories, Events, Event series, Listings, Services and Members with their paths', () => {
     expect(ADMIN_AREAS.map((area) => [area.label, area.path])).toEqual([
       ['Dashboard', '/'],
+      ['Stories', '/stories'],
       ['Events', '/events'],
       ['Event series', '/series'],
       ['Listings', '/listings'],
@@ -28,6 +29,7 @@ describe('currentAdminArea', () => {
     { why: 'an empty URL', url: '', expected: 'dashboard' },
     { why: 'an area', url: '/events', expected: 'events' },
     { why: 'event series, not events', url: '/series?id=c5', expected: 'series' },
+    { why: 'bylines, under stories', url: '/stories/bylines', expected: 'stories' },
     { why: 'an area with a trailing slash', url: '/services/', expected: 'services' },
     { why: 'a screen under an area', url: '/members/0190c0de', expected: 'members' },
     {
@@ -73,6 +75,13 @@ describe('canManage', () => {
     { role: 'Moderator', area: 'members', allowed: true, why: 'a Moderator moderates members' },
     { role: 'Admin', area: 'series', allowed: true, why: 'an Admin manages event series' },
     { role: 'Moderator', area: 'series', allowed: true, why: 'a Moderator manages event series' },
+    { role: 'Admin', area: 'stories', allowed: true, why: 'an Admin manages stories and bylines' },
+    {
+      role: 'Moderator',
+      area: 'stories',
+      allowed: false,
+      why: 'a Moderator does not open Stories (L2-068 AC7, L2-077 AC10)',
+    },
   ])('$role on $area is $allowed: $why', ({ role, area, allowed }) => {
     expect(canManage(role, area)).toBe(allowed);
   });
@@ -86,6 +95,7 @@ describe('areasFor', () => {
   it('lists every area for an Admin, in navigation order', () => {
     expect(areasFor('Admin').map((area) => area.key)).toEqual([
       'dashboard',
+      'stories',
       'events',
       'series',
       'listings',

@@ -1,0 +1,37 @@
+@if (inUse) {
+  <cf-dialog
+    [heading]="heading"
+    [titleId]="headingId"
+    subtitle="A byline that stories use stays until they run under another."
+    (closed)="keep()"
+  >
+    <cf-alert tone="info" [heading]="usedBy" [focusOnShow]="false">
+      <p>Choose another byline on each of them, then remove this one.</p>
+    </cf-alert>
+    <cf-button slot="foot" variant="secondary" grow (click)="keep()">Close</cf-button>
+  </cf-dialog>
+} @else {
+  <cf-dialog [heading]="heading" [titleId]="headingId" (closed)="keep()">
+    @switch (refused()) {
+      @case ('in-use') {
+        <cf-alert heading="A story now uses this byline">
+          <p>Someone chose it while this was open. Change those stories' byline first.</p>
+        </cf-alert>
+      }
+      @case ('failed') {
+        <cf-alert heading="Couldn't remove the byline">
+          <p>The server didn't respond. Nothing was lost; try again.</p>
+        </cf-alert>
+      }
+    }
+    <p class="remove-byline__text">
+      No story uses {{ byline.name }}. Admins will no longer see it in the story editor.
+    </p>
+    <cf-button slot="foot" variant="secondary" grow [disabled]="removing()" (click)="keep()"
+      >Keep it</cf-button
+    >
+    <cf-button slot="foot" grow [disabled]="removing()" [busy]="removing()" (click)="remove()">{{
+      removing() ? 'Removing…' : 'Remove byline'
+    }}</cf-button>
+  </cf-dialog>
+}
