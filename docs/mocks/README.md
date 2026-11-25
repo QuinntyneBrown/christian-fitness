@@ -200,10 +200,10 @@ navigation, say) must be made in the generator and in those files.
 1. **Notification centre.** No bell or inbox for event reminders and replies exists; Messages'
    unread badge is the only signal. Preferences now promises notifications "on your phone and in
    the app": is that web push, an in-app inbox, or both? Neither is drawn.
-2. **11 px labels.** The phone tab bar and date badges use 11 px text, below the 12 px minimum in
-   the mocks skill. Kept for parity; raise to 12 px?
-3. **Admin console shape.** One app with a role-guarded area, or a separate app, needs an ADR
-   (`AGENTS.md`); the mocks work either way.
+2. ~~**11 px labels.**~~ Closed: the phone tab bar and date badges are 12 px, the smallest step
+   in the design system.
+3. ~~**Admin console shape.**~~ Closed: `AGENTS.md` mandates two apps, Web (members) and Admin
+   (staff).
 4. **Home church.** Preferences sets who sees the whole profile; should home church have its own
    switch, since it is sensitive (L2-033)?
 5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
