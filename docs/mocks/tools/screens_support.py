@@ -3,10 +3,11 @@ Layout and copy follow the Magic Patterns prototype "Christian Fitness" frames S
 Manage Preferences, Privacy Policy and Terms of Service."""
 from __future__ import annotations
 
-from cf_data import ADD_ONS, LISTING_KINDS, ME, NEWSLETTER, PREF_AREAS, PREF_INTERESTS
-from cf_ui import (busy_label, error_block, field, file_field, form_alert, href, icon, loading_region, lockup, member_shell,
-                   screen, textarea)
-from overlays import dialog, over_member
+from cf_data import ADD_ONS, EASTSIDE, LISTING_KINDS, ME, NEWSLETTER, PREF_AREAS, PREF_INTERESTS
+from cf_ui import (busy_label, error_block, error_summary, field, file_field, form_alert, href, icon, listing_mark, loading_region, lockup,
+                   member_shell, screen, textarea, toast, toast_region, verified_badge)
+from overlays import autofocus_first, dialog, over_member
+from screens_directory import profile_page
 from screens_member import SRC
 
 
@@ -586,3 +587,206 @@ s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Te
 @s("default", "The Terms of Service, in the same layout: a plain-language summary, nine numbered sections with contents, and who to ask.")
 def _():
     return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"))
+
+
+# ===========================================================================
+# Claim a listing (L2-078) and the owner's listing editor (L2-079)
+# ===========================================================================
+CLAIM_EXPIRY = "December 9"
+
+
+def claim_card(*, busy: bool = False, failed: bool = False, confirm: bool = False) -> str:
+    """The listing as it will appear, with the two ways to answer; the claim link is single-use and lasts 14 days."""
+    l = EASTSIDE
+    alert = ('<div class="form-section">' + form_alert(
+        "We couldn't publish your listing", "Something went wrong on our side. Nothing was published, so try again in a moment.").replace(
+        'tabindex="-1"', 'tabindex="-1" autofocus') + "</div>" if failed else "")
+    focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    d = " disabled" if busy else ""
+    publish = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Publishing…")}</button>' if busy
+               else '<button class="btn btn--primary btn--md" type="submit">Publish my listing</button>')
+    return f"""    <div class="container page">
+      <div class="form-page form-page--flush">
+        <form class="form-page__main" action="published.html" novalidate>
+          <h1 class="display page-title">Publish your listing</h1>
+          <p class="form-page__lead">Our team has checked it. It goes into the directory only when you say it is yours. Here is how it will look.</p>
+          {alert}
+          <section class="form-section" aria-labelledby="preview-title">
+            <h2 class="visually-hidden" id="preview-title">Your listing as members will see it</h2>
+            <div class="listing-head__who">
+              {listing_mark(l, "xl")}
+              <div class="listing-head__body">
+                <p class="eyebrow listing-head__kind">{l["kind"]} <span class="listing-head__verified">· {icon("badge-check")} Verified</span></p>
+                <p class="display detail-title listing-head__name">{l["name"]}</p>
+                <p class="subtitle">{l["tagline"]}</p>
+              </div>
+            </div>
+            <p class="prose lead">{l["about"]}</p>
+            <ul class="tag-list">{focus}</ul>
+            <dl class="key-facts">
+              <div class="key-facts__row"><dt>{icon("map-pin")}Area</dt><dd>{l["area"]}</dd></div>
+              <div class="key-facts__row"><dt>{icon("globe")}Website</dt><dd>{l["website"]}</dd></div>
+            </dl>
+          </section>
+          <p class="field__hint">Signed in as {ME["name"]}. Publishing makes you the owner, so you can edit it later. This link works once and expires on {CLAIM_EXPIRY}.</p>
+          <div class="form-page__foot">
+            {publish}
+            <button class="btn btn--secondary btn--md" type="button" data-mock-href="declined.html"{d}>This isn’t me</button>
+          </div>
+        </form>
+      </div>
+    </div>"""
+
+
+def claim_signed_out() -> str:
+    return f"""<div class="signin">
+  <header class="signin__header">
+    {lockup(href("landing"))}
+  </header>
+  <main id="main" class="signin__main">
+    <div class="signin__card">
+      <h1 class="display auth__title">Claim {EASTSIDE["name"]}</h1>
+      <p class="auth__lead">Sign in or join first, so the listing is yours and you can edit it later. We bring you straight back here.</p>
+      <div class="form-page__foot">
+        <a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>
+        <a class="btn btn--secondary btn--lg btn--block" href="{href("join")}">Join Christian Fitness</a>
+      </div>
+      <p class="auth__alt">This link works once and expires on {CLAIM_EXPIRY}.</p>
+    </div>
+  </main>
+</div>"""
+
+
+s = screen("claim-listing", "page", "Claim a listing", route="/claim/:token", group="Public",
+           source="Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-078.",
+           not_applicable={"empty": "One listing behind one link, not a collection."})
+
+
+@s("default", "A signed-in member opens the claim link: the listing as it will appear, with Publish my listing and This isn’t me, and the link’s single use and expiry stated.")
+def _():
+    return member_shell("", claim_card())
+
+
+@s("signed-out", "The link opened signed out: the listing is named, and Sign in or Join comes first; the visitor returns here afterwards.")
+def _():
+    return claim_signed_out()
+
+
+@s("loading", "The link is being checked: the listing as skeletons.")
+def _():
+    body = """    <div class="container page">
+      <div class="form-page form-page--flush"><div class="form-page__main skeleton-stack">
+        <h1 class="visually-hidden">Checking your link</h1>
+        <span class="skeleton skeleton--title-lg"></span><span class="skeleton skeleton--block skeleton--tile"></span>
+        <span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text w-80"></span></div></div>
+    </div>"""
+    return member_shell("", loading_region("Checking your link", body))
+
+
+@s("busy", "Publish my listing pressed: the button reads Publishing…, both answers disabled, no second submit.")
+def _():
+    return member_shell("", claim_card(busy=True))
+
+
+@s("published", "Published: the listing is in the directory and owned by the member, with ways to see it or edit it.")
+def _():
+    return member_shell("", """    <div class="container page">""" + done_panel(
+        "Your listing is live",
+        f"<strong>{EASTSIDE['name']}</strong> is in the directory and you own it. You can edit it any time from its page.",
+        f'<a class="btn btn--primary btn--md" href="{href("listing-profile", "owner")}">See your listing</a>'
+        f'<a class="btn btn--secondary btn--md" href="{href("directory")}">Back to the directory</a>') + "\n    </div>")
+
+
+@s("declined", "This isn’t me pressed: the listing stays unpublished and the team is told; no one is contacted.")
+def _():
+    return member_shell("", """    <div class="container page">""" + done_panel(
+        "Thanks for letting us know",
+        "We won’t publish this listing, and we’ve told the team. Nothing about you was shared.",
+        f'<a class="btn btn--primary btn--md" href="{href("directory")}">Back to the directory</a>') + "\n    </div>")
+
+
+@s("expired", "The link is past its 14 days: it reads \"This link has expired. Ask us for a new one.\"; staff can resend it.")
+def _():
+    return member_shell("", f"""    <div class="container page">{done_panel(
+        "This link has expired", "This link has expired. Ask us for a new one.",
+        f'<a class="btn btn--primary btn--md" href="{href("feedback")}">Ask us for a new one</a>'
+        f'<a class="btn btn--secondary btn--md" href="{href("directory")}">Back to the directory</a>').replace('role="status"', 'role="alert"').replace(icon("check", "icon--lg"), icon("clock", "icon--lg"))}
+    </div>""")
+
+
+@s("claimed", "The link was already used: the listing is not shown again and nothing can be changed from here.")
+def _():
+    return member_shell("", f"""    <div class="container page">{done_panel(
+        "This listing has already been claimed", "A link works once. If that was you, find your listing in the directory and use Edit listing.",
+        f'<a class="btn btn--primary btn--md" href="{href("directory")}">Back to the directory</a>')}
+    </div>""")
+
+
+@s("error", "Publishing failed: a message above the listing (focused); nothing was published and both answers stay available.")
+def _():
+    return member_shell("", claim_card(failed=True))
+
+
+def owner_editor(*, invalid: bool = False, busy: bool = False, failed: bool = False, review: bool = False) -> str:
+    l = EASTSIDE
+    ro = busy
+    d = " disabled" if ro else ""
+    alert = ""
+    if invalid:
+        alert = error_summary("1 thing to fix before saving", [("Add a website that starts with https://", "f-website")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("We couldn't save your listing", "Something went wrong on our side. Your changes are still here, so try again in a moment.")
+    if review:
+        alert = form_alert("Staff will check the new name", "A new name or kind goes back to our team before it shows. Until then the directory keeps the old one; your other changes are live.",
+                           kind="info", ic="info", role="status")
+    name = "Eastside Women’s Strength" if review else l["name"]
+    focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    body = f"""    {alert}
+    {field("Name", "name", name, readonly=ro, hint="Changing the name or the kind sends the listing back to staff to check" if not review else "")}
+    {textarea("About", "about", l["about"], rows=4, readonly=ro)}
+    {field("Website", "website", "eastsideladies" if invalid else l["website"], error="Add a website that starts with https://" if invalid else "", readonly=ro, optional=True)}
+    {file_field("Photo", "photo", optional=True, choose="Choose photo", empty="No photo yet", hint="JPEG, PNG or WebP, up to 5 MB", readonly=ro)}
+    <div class="field"><span class="field__label">Focus</span><ul class="tag-list">{focus}</ul></div>
+    {field("Contact email", "contact", "eastsideladies@example.org", type_="email", optional=True, hint="Shown to members who message you", readonly=ro)}"""
+    save = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
+            else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("listing-profile", "owner")}">Save changes</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("listing-profile", "owner")}">Cancel</button>\n    {save}'
+    html = dialog("Edit your listing", body, foot, sub=f"{l['name']} · Changes go live at once")
+    if not invalid and not failed and not review and not busy:
+        html = autofocus_first(html, 'id="f-name"')
+    return over_member("directory", profile_page(l, owner=True), html)
+
+
+s = screen("owner-listing-editor", "dialog", "Owner's listing editor", opens_from="listing-profile",
+           source="Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-079.")
+
+
+@s("default", "The owner edits their listing: name, about, website, photo, focus tags and contact; focus on the first field.")
+def _():
+    return owner_editor()
+
+
+@s("invalid", "A website without https://: summary focused, inline error; nothing is saved.")
+def _():
+    return owner_editor(invalid=True)
+
+
+@s("busy", "Save changes pressed: the button reads Saving…, fields read-only, no second submit.")
+def _():
+    return owner_editor(busy=True)
+
+
+@s("failed", "Saving failed: a message above the fields; everything typed is kept.")
+def _():
+    return owner_editor(failed=True)
+
+
+@s("review", "The name was changed: a notice says staff will check the new name while the other changes go live at once.")
+def _():
+    return owner_editor(review=True)
+
+
+@s("saved", "Saved: the dialog closes and a toast over the listing says the changes are live.")
+def _():
+    t = toast("success", "Your listing is updated", "Your changes are live in the directory.")
+    return member_shell("directory", profile_page(EASTSIDE, owner=True), after=toast_region(t))

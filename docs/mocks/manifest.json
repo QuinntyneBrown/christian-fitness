@@ -824,6 +824,7 @@
         "person",
         "one-off",
         "unverified",
+        "owner",
         "loading",
         "error"
       ],
@@ -1250,6 +1251,46 @@
       "not_applicable": {
         "invalid": "There is nothing to type: it asks one question."
       }
+    },
+    {
+      "id": "claim-listing",
+      "kind": "page",
+      "title": "Claim a listing",
+      "group": "Public",
+      "route": "/claim/:token",
+      "source": "Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-078.",
+      "requirements": [],
+      "states": [
+        "default",
+        "signed-out",
+        "loading",
+        "busy",
+        "published",
+        "declined",
+        "expired",
+        "claimed",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One listing behind one link, not a collection."
+      }
+    },
+    {
+      "id": "owner-listing-editor",
+      "kind": "dialog",
+      "title": "Owner's listing editor",
+      "group": "Member app",
+      "opens_from": "listing-profile",
+      "source": "Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-079.",
+      "requirements": [],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "review",
+        "saved"
+      ]
     }
   ]
 }
