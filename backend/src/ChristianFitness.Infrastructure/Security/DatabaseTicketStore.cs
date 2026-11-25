@@ -17,7 +17,7 @@ namespace ChristianFitness.Infrastructure.Security;
 /// </summary>
 public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvider time) : ITicketStore
 {
-    private const string StaffSignedInAt = "cf.staff.signed-in-at";
+    internal const string StaffSignedInAt = "cf.staff.signed-in-at";
     private static readonly TimeSpan StaffMaximumAge = TimeSpan.FromHours(12);
 
     public Task<string> StoreAsync(AuthenticationTicket ticket) => StoreAsync(ticket, CancellationToken.None);
@@ -27,11 +27,6 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
         ArgumentNullException.ThrowIfNull(ticket);
         var memberId = MemberIdOf(ticket);
         var now = time.GetUtcNow();
-        if (ticket.AuthenticationScheme == SessionSchemes.Staff)
-        {
-            ticket.Properties.Items[StaffSignedInAt] = now.UtcTicks.ToString(CultureInfo.InvariantCulture);
-        }
-
         using var scope = scopes.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var expired = await db.Sessions
@@ -120,7 +115,15 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
         if ((record.ExpiresAt is { } expiresAt && expiresAt <= now) || staffExpired)
         {
             db.Sessions.Remove(record);
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Another request already removed this expired session.
+            }
+
             return (null, true);
         }
 

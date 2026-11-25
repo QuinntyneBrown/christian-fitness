@@ -40,7 +40,7 @@ internal sealed class CookieSessionSignIn(IHttpContextAccessor accessor) : ISess
 /// the staff role, nothing personal, kept on the server like the member session. It is not
 /// persistent: it ends with the browser.
 /// </summary>
-internal sealed class CookieStaffSessionSignIn(IHttpContextAccessor accessor) : IStaffSessionSignIn
+internal sealed class CookieStaffSessionSignIn(IHttpContextAccessor accessor, TimeProvider time) : IStaffSessionSignIn
 {
     public Task SignInAsync(Member member, StaffRoleName role)
     {
@@ -49,7 +49,8 @@ internal sealed class CookieStaffSessionSignIn(IHttpContextAccessor accessor) : 
             accessor,
             SessionSchemes.Staff,
             [CookieSignIn.IdOf(member), new Claim(ClaimTypes.Role, role.ToString())],
-            persistent: false);
+            persistent: false,
+            signedInAt: time.GetUtcNow());
     }
 
     public Task SignOutAsync() => CookieSignIn.SignOutAsync(accessor, SessionSchemes.Staff);
@@ -61,11 +62,22 @@ internal static class CookieSignIn
     public static Claim IdOf(Member member) =>
         new(ClaimTypes.NameIdentifier, member.Id.ToString("D", CultureInfo.InvariantCulture));
 
-    public static async Task SignInAsync(IHttpContextAccessor accessor, string scheme, IEnumerable<Claim> claims, bool persistent)
+    public static async Task SignInAsync(
+        IHttpContextAccessor accessor,
+        string scheme,
+        IEnumerable<Claim> claims,
+        bool persistent,
+        DateTimeOffset? signedInAt = null)
     {
         var context = Current(accessor);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, scheme));
-        await context.SignInAsync(scheme, principal, new AuthenticationProperties { IsPersistent = persistent }).ConfigureAwait(false);
+        var properties = new AuthenticationProperties { IsPersistent = persistent };
+        if (signedInAt is { } time)
+        {
+            properties.Items[DatabaseTicketStore.StaffSignedInAt] = time.UtcTicks.ToString(CultureInfo.InvariantCulture);
+        }
+
+        await context.SignInAsync(scheme, principal, properties).ConfigureAwait(false);
         context.User = principal;
     }
 

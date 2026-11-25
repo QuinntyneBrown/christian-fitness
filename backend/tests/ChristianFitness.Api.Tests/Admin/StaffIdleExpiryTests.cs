@@ -133,6 +133,20 @@ public sealed class StaffIdleExpiryTests(ProtectionsApiFactory factory) : IClass
         client.Dispose();
     }
 
+    [Fact]
+    public async Task Given_a_staff_session_When_the_staff_member_signs_in_again_Then_the_new_session_is_usable()
+    {
+        var (client, cookie) = await SignedInAsync("dana.again@example.org");
+        factory.Time.Advance(TimeSpan.FromMinutes(1));
+        using var password = await Staff.SignInAsync(client, "dana.again@example.org", Staff.Password);
+        using var signedIn = await Staff.VerifyAsync(client, $"{Staff.StepCookie(password)}; {cookie}", Staff.CodeAt(factory.Time.GetUtcNow()));
+        Assert.Equal(HttpStatusCode.OK, signedIn.StatusCode);
+
+        using var response = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", Staff.Cookie(signedIn));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        client.Dispose();
+    }
+
     /// <summary>A new staff account signed in with both steps at the fixture's time; its client and cookie.</summary>
     private async Task<(HttpClient Client, string Cookie)> SignedInAsync(string email)
     {
