@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 22 November 2026 (slice 29.1). Amended by [ADR 0061](0061-moderator-areas.md): a Moderator also opens Newsletter, Event series, Community Pick, Listings and Feedback, and the "Admins only" words no longer name Events and Services.
+Accepted, 22 November 2026 (slice 29.1). Amended by [ADR 0062](0062-moderator-areas.md): a Moderator also opens Newsletter, Event series, Community Pick, Listings and Feedback, and the "Admins only" words no longer name Events and Services.
 
 ## Context
 

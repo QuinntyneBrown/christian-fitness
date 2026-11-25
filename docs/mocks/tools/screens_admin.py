@@ -96,7 +96,7 @@ def _():
 
 def forbidden(*, busy: bool = False, role: bool = False) -> str:
     if role:
-        # A Moderator on an Admins-only area (L2-019 AC5; ADR 0061): their session is valid, so the
+        # A Moderator on an Admins-only area (L2-019 AC5; ADR 0062): their session is valid, so the
         # way out is the Dashboard, not Sign out.
         return staff(f"""    <form action="{href("admin-dashboard")}" novalidate>
       <h1 class="display staff__title" tabindex="-1">Admins only</h1>
@@ -129,7 +129,7 @@ def _():
     return forbidden(busy=True)
 
 
-@s("role", "A Moderator opened an Admins-only area (Stories, Events or Services), or a read was refused forbidden_role (L2-019 AC5; ADR 0061): \"Admins only\", the heading takes focus, Go to dashboard; the title is \"Admins only · Christian Fitness Admin\".")
+@s("role", "A Moderator opened an Admins-only area (Stories, Events or Services), or a read was refused forbidden_role (L2-019 AC5; ADR 0062): \"Admins only\", the heading takes focus, Go to dashboard; the title is \"Admins only · Christian Fitness Admin\".")
 def _():
     return forbidden(role=True)
 
@@ -232,7 +232,7 @@ def fill_list() -> str:
 def dashboard(*, queue: str | None = None, count: str = "4", upcoming: str | None = None, stats: str | None = None,
               staff: dict | None = None) -> str:
     staff = staff or ADMIN
-    # A Moderator manages neither services nor events (L2-019 AC5; ADR 0061): no applications to
+    # A Moderator manages neither services nor events (L2-019 AC5; ADR 0062): no applications to
     # review and no link to manage events.
     admin = staff["role"] != "Moderator"
     q, n = queue_items(applications=admin)
@@ -288,7 +288,7 @@ def _():
     return admin_shell("admin-dashboard", body)
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0061): the navigation lists Dashboard, Newsletter, Event series, Community Pick, Listings, Members and Feedback, without group names; the queue holds the listing suggestions, new feedback and member reports, and Upcoming events has no Manage link.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0062): the navigation lists Dashboard, Newsletter, Event series, Community Pick, Listings, Members and Feedback, without group names; the queue holds the listing suggestions, new feedback and member reports, and Upcoming events has no Manage link.")
 def _():
     return admin_shell("admin-dashboard", dashboard(count="1", staff=MODERATOR), staff=MODERATOR)
 

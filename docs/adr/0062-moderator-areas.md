@@ -1,4 +1,4 @@
-# 0061. Which areas a Moderator opens (amends ADR 0020)
+# 0062. Which areas a Moderator opens (amends ADR 0020)
 
 ## Status
 

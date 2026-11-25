@@ -357,7 +357,7 @@ def _():
     return admin_shell("admin-newsletter", newsletter_page())
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0061) on Newsletter: the navigation shows their areas, without group names, and the issue is built, scheduled and sent as an Admin does; nothing on the screen differs.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0062) on Newsletter: the navigation shows their areas, without group names, and the issue is built, scheduled and sent as an Admin does; nothing on the screen differs.")
 def _():
     return admin_shell("admin-newsletter", newsletter_page(), staff=MODERATOR)
 
@@ -457,7 +457,7 @@ def _():
     return admin_shell("admin-series", series_admin(SR["couch-to-5k"]))
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0061) on Event series: the navigation shows their areas, without group names, and series and their dates are managed as an Admin does; nothing on the screen differs.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0062) on Event series: the navigation shows their areas, without group names, and series and their dates are managed as an Admin does; nothing on the screen differs.")
 def _():
     return admin_shell("admin-series", series_admin(SR["couch-to-5k"]), staff=MODERATOR)
 
@@ -616,7 +616,7 @@ def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram")))
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0061) on Community Pick: the navigation shows their areas, without group names, and the assets are made and downloaded as an Admin does; nothing on the screen differs.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0062) on Community Pick: the navigation shows their areas, without group names, and the assets are made and downloaded as an Admin does; nothing on the screen differs.")
 def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram")), staff=MODERATOR)
 
@@ -738,7 +738,7 @@ def _():
     return admin_shell("admin-listings", listings_page(suggestion_view()))
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0061) on Listings: the navigation shows their areas, without group names, and suggestions are checked, approved and declined as an Admin does; nothing on the screen differs.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0062) on Listings: the navigation shows their areas, without group names, and suggestions are checked, approved and declined as an Admin does; nothing on the screen differs.")
 def _():
     return admin_shell("admin-listings", listings_page(suggestion_view()), staff=MODERATOR)
 
@@ -864,7 +864,7 @@ def _():
                        after=toast_region(toast("success", "Reply sent to Michael", "He gets it by email."), admin=True))
 
 
-@s("moderator", "A Moderator (L2-019 AC5; ADR 0061) on a correction to a story: the navigation shows their areas, and the note can be read, answered and resolved, but \"Open the story to correct it\" is not offered, since Stories is Admins only.")
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0062) on a correction to a story: the navigation shows their areas, and the note can be read, answered and resolved, but \"Open the story to correct it\" is not offered, since Stories is Admins only.")
 def _():
     return admin_shell("admin-feedback", feedback_inbox("f2", moderator=True), staff=MODERATOR)
 

@@ -19,7 +19,7 @@ from `admin-sign-in` and the counts of work waiting.
 An Admin sees all ten links (mocks `docs/mocks/pages/admin-*/default.html`, block `admin-nav`).
 A Moderator sees only the areas the role opens (Dashboard, Newsletter, Event series, Community
 Pick, Listings, Members and Feedback; not Stories, Events or Services), with no group names
-(`L2-019` AC1 and AC5, ADR 0061; mock `docs/mocks/pages/admin-dashboard/moderator.html`). The new areas have designs
+(`L2-019` AC1 and AC5, ADR 0062; mock `docs/mocks/pages/admin-dashboard/moderator.html`). The new areas have designs
 of their own: [manage stories](../../publishing/manage-stories/README.md),
 [review listing suggestions](../../admin-directory/review-listing-suggestions/README.md) and
 [read the feedback inbox](../../feedback/read-feedback-inbox/README.md).
@@ -58,7 +58,7 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   stays current while a story is edited (`L2-021` AC1; mock `admin-story-editor/`).
 - **`canManage` / `areasFor`** — the role table of [staff roles](../staff-roles/README.md). A
   Moderator opens Dashboard, Newsletter, Event series, Community Pick, Listings, Members and
-  Feedback (ADR 0061); an Admin opens every area.
+  Feedback (ADR 0062); an Admin opens every area.
 - **`AdminLayout`** — presentation component in `components` (`layout/`, the `admin` block):
   `cf-skip-link` first, then `cf-sidebar-navigation` and `main#main.admin__main`, the routed page
   projected (`L2-038` AC8; [ADR 0019](../../../adr/0019-design-system-layout-navigation-and-migration.md)).
@@ -107,7 +107,7 @@ on desktop").
 
 ### Open questions
 
-- **Moderators and the new areas.** Settled by ADR 0061 (amending ADR 0020) and `L2-019` AC1: a
+- **Moderators and the new areas.** Settled by ADR 0062 (amending ADR 0020) and `L2-019` AC1: a
   Moderator opens Newsletter, Event series, Community Pick, Listings and Feedback, and not
   Stories. `canManage`, the API's `StaffAccess` table and `L2-019` carry the same table.
 - **Members count.** `L2-021` AC3 counts "reports" for Members and the mock names "1 report to

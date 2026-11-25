@@ -159,7 +159,7 @@ navigation, say) must be made in the generator and in those files.
   category events can have (L2-009 AC2).
 - **Admin navigation.** Grouped as the frames draw it (Publish, Gather, Community), ten links. A
   Moderator sees Dashboard, Newsletter, Event series, Community Pick, Listings, Members and
-  Feedback (L2-019, ADR 0061), with no group names.
+  Feedback (L2-019, ADR 0062), with no group names.
 - **Admin sidebar on desktop.** The stylesheet laid the sidebar out as the phone band at every
   width (the seal collapsed and the signed-in person sat under the brand). It is a column again
   at 1024 px and wider: brand, links, person at the foot.
@@ -206,21 +206,23 @@ navigation, say) must be made in the generator and in those files.
    (staff).
 4. **Home church.** Preferences sets who sees the whole profile; should home church have its own
    switch, since it is sensitive (L2-033)?
-5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
-   Services professional and a directory listing, with different copy, and the console has both
-   Services (applications) and Listings (suggestions). One record or two? One review or two?
+5. **Services and the directory.** Resolved (ADR 0061): two records and two reviews, cross-linked
+   through the owning member ("Also offers services" on the listing profile, `person.html`;
+   "Also in the directory" on Services), and Message reaches the same conversation from either.
 6. **Messaging an organization.** A listing's Message button opens a direct conversation. For an
    organization, company or ministry, who receives it?
 7. **Who writes stories.** The editor shows a writer's note and "Sent back to Priya", but the
    bylines (Priya Raman, Naomi Clarke, Marcus Bell) are not staff, and staff roles are Admin and
    Moderator. Do writers get accounts and a role, or do Admins write under any byline?
-8. ~~**Moderators.**~~ Settled (ADR 0061): a Moderator opens Newsletter, Event series, Community Pick,
+8. ~~**Moderators.**~~ Settled (ADR 0062): a Moderator opens Newsletter, Event series, Community Pick,
    Listings and Feedback besides Dashboard and Members; Stories, Events and Services stay Admins
    only.
 9. **Claiming a listing.** Approving a suggestion "sends them a link to claim and publish their
    listing". That screen, and how a listing's owner edits it afterwards, are not drawn.
 10. **Buttons with nothing behind them.** New series, Edit details and Add a date (Event series),
-    Edit (Listed), and Preview (story editor) have no screen or drawer in the frames.
+    Edit (Listed) have no screen or drawer in the frames. Preview (story editor) is decided:
+    `StoryPreviewPage` at `/stories/:id/preview` in the admin app (L2-069 AC13); its mock state
+    is issue 99.
 11. **Declining a suggestion.** Instant in the frame, with no reason; declining an application asks
     for one (L2-025 AC3). Should this?
 12. **What the legal pages promise.** They state things the system must then do: data stored in
