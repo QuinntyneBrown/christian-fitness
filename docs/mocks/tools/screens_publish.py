@@ -289,7 +289,7 @@ def _():
 
 
 # ===========================================================================
-# Bylines (Stories > Bylines; L2-075)
+# Bylines (Stories > Bylines; L2-077)
 # ===========================================================================
 def byline_uses(name: str) -> int:
     return sum(1 for x in ADMIN_STORIES if x[3] == name)
@@ -330,7 +330,7 @@ def bylines_page(body: str, *, action: bool = True, after: str = "") -> str:
 
 
 s = screen("admin-bylines", "page", "Manage bylines", route="/admin/stories/bylines", group=G,
-           source="Derived: the story editor's Byline picker needs a list to read; the prototype draws a fixed one (L2-075).")
+           source="Derived: the story editor's Byline picker needs a list to read; the prototype draws a fixed one (L2-077).")
 
 
 @s("default", "Every byline with its short bio and how many stories use it; Add byline, and Edit and Remove on each row.")
@@ -371,7 +371,7 @@ def bylines_behind() -> str:
 
 
 def byline_editor(*, edit: bool = False, invalid: bool = False, busy: bool = False, failed: bool = False, taken: bool = False) -> str:
-    """Add or edit a byline (L2-075): a name, a short bio and an optional photo. The name is unique."""
+    """Add or edit a byline (L2-077): a name, a short bio and an optional photo. The name is unique."""
     name, bio = ("Marcus Bell", next(b[2] for b in BYLINES if b[0] == "Marcus Bell")) if edit else ("", "")
     if invalid:
         name = bio = ""
@@ -400,7 +400,7 @@ def byline_editor(*, edit: bool = False, invalid: bool = False, busy: bool = Fal
 
 
 s = screen("byline-editor", "dialog", "Add or edit a byline", opens_from="admin-bylines", group=G,
-           source="Derived: the story editor's Byline picker and the Listing editor's form; the prototype draws no byline form (L2-075).")
+           source="Derived: the story editor's Byline picker and the Listing editor's form; the prototype draws no byline form (L2-077).")
 
 
 @s("default", "Add a byline: name, short bio and an optional photo; focus on the name.")
@@ -434,7 +434,7 @@ def _():
 
 
 def remove_byline(*, in_use: bool = False, busy: bool = False, failed: bool = False, refused: bool = False) -> str:
-    """Remove a byline (L2-075): one stories use cannot be removed, so the dialog says so and offers no Remove."""
+    """Remove a byline (L2-077): one stories use cannot be removed, so the dialog says so and offers no Remove."""
     name = "Marcus Bell" if in_use else "CF Team"
     n = byline_uses(name)
     alert = ""
@@ -461,7 +461,7 @@ def remove_byline(*, in_use: bool = False, busy: bool = False, failed: bool = Fa
 
 
 s = screen("remove-byline", "dialog", "Remove a byline", opens_from="admin-bylines", group=G,
-           source="Derived: the Remove a listing dialog; the prototype draws no byline list (L2-075).",
+           source="Derived: the Remove a listing dialog; the prototype draws no byline list (L2-077).",
            not_applicable={"invalid": "There is nothing to type: it asks one question."})
 
 

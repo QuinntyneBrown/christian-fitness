@@ -1065,9 +1065,9 @@
       "title": "Manage bylines",
       "group": "Admin console",
       "route": "/admin/stories/bylines",
-      "source": "Derived: the story editor's Byline picker needs a list to read; the prototype draws a fixed one (L2-075).",
+      "source": "Derived: the story editor's Byline picker needs a list to read; the prototype draws a fixed one (L2-077).",
       "requirements": [
-        "L2-075"
+        "L2-077"
       ],
       "states": [
         "default",
@@ -1084,9 +1084,9 @@
       "title": "Add or edit a byline",
       "group": "Admin console",
       "opens_from": "admin-bylines",
-      "source": "Derived: the story editor's Byline picker and the Listing editor's form; the prototype draws no byline form (L2-075).",
+      "source": "Derived: the story editor's Byline picker and the Listing editor's form; the prototype draws no byline form (L2-077).",
       "requirements": [
-        "L2-075"
+        "L2-077"
       ],
       "states": [
         "default",
@@ -1103,9 +1103,9 @@
       "title": "Remove a byline",
       "group": "Admin console",
       "opens_from": "admin-bylines",
-      "source": "Derived: the Remove a listing dialog; the prototype draws no byline list (L2-075).",
+      "source": "Derived: the Remove a listing dialog; the prototype draws no byline list (L2-077).",
       "requirements": [
-        "L2-075"
+        "L2-077"
       ],
       "states": [
         "default",

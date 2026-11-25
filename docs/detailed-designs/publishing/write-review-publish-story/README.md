@@ -9,7 +9,7 @@ Admin publishes here is what the public reads on the landing page (`L2-001`), on
 Weekly (`build-and-schedule-newsletter`).
 
 - **story status** — one of Draft, In review, Scheduled and Published (`L2-068`)
-- **byline** — name a story runs under, chosen from a list Admins manage (`L2-075`); not an account
+- **byline** — name a story runs under, chosen from a list Admins manage (`L2-077`); not an account
 - **Publishing panel** — side panel of the editor: when, front-page placement, the Weekly, section, byline, what the story points to, and its link
 - **front-page placement** — where a published story sits on the landing page: Lead story, Top headlines or The latest
 - **autosave** — save of a Draft or In review story 2 seconds after the Admin stops typing
@@ -119,7 +119,7 @@ allows.
 - **`GetStoryPreviewQuery`** — answers the reader's `PublishedStoryDto` shape for any status, to
   Admins only.
 
-### Bylines (`L2-075`)
+### Bylines (`L2-077`)
 
 Decided by the owner (2026-11-24): no new role. Admins write, review and publish under any byline;
 writers get no accounts; the writer's note and "Request changes" do not exist, so "Back to draft"
@@ -135,7 +135,7 @@ AC7).
 - **`ADMIN_BYLINES_SERVICE`** — contract in the `api` library: `list`, `create`, `update`, `remove`.
   `AdminStoriesApi.options` returns the same list for the editor's Byline `Select`.
 - **`Byline`** — entity in `ChristianFitness.Domain/News`: `Id`, `Name`, `Bio`, `PhotoKey?`. A
-  `Story` holds `BylineId`, so renaming a byline changes every story at once (`L2-075` AC5). The
+  `Story` holds `BylineId`, so renaming a byline changes every story at once (`L2-077` AC5). The
   name is unique without regard to case.
 - **Commands** — `AddBylineCommand`, `UpdateBylineCommand`, `RemoveBylineCommand`, each one MediatR
   request from `AdminBylinesController` under `api/admin/stories/bylines`, so `StaffAccess` refuses
@@ -145,7 +145,7 @@ AC7).
   Photos reuse `ImageKeys.Detect` and `IImageStore` (JPEG, PNG or WebP, at most 5 MB).
 - **Seed** — the CLI's idempotent seed adds Naomi Clarke, Priya Raman, Marcus Bell, Pastor Ruth
   Adeyemi and CF Team, and only when the byline table is empty, so it never restores one an Admin
-  removed or overwrites one an Admin edited (`L2-075` AC2).
+  removed or overwrites one an Admin edited (`L2-077` AC2).
 - **Audit** — `byline.created`, `byline.updated`, `byline.removed` as `IAuditableCommand`s
   (`L2-019` AC3). No log, span or metric carries a bio.
 
@@ -187,7 +187,7 @@ criteria; the text below condenses those criteria faithfully.
 | L2 ID    | Refines (L1) | Requirement |
 | -------- | ------------ | ----------- |
 | `L2-069` | `L1-022`     | The story editor shall have a bar with a way back to Stories, the status, when last saved, Preview and the actions the status allows; the lead image; a labelled Headline, Summary and Story text; and Publishing: when (on publishing, or a date and time), front-page placement (Lead story, Top headlines, The latest), inclusion in the next Weekly named with its issue and date, section, byline (chosen from the bylines list), what it points to (nothing, a published event or a published listing) and its link under `/stories/`. A Draft's "Send for review" shall make it In review, and its primary action shall publish now or, with a date and time, read "Schedule" and make it Scheduled. A story In review shall show no writer's note; "Back to draft" shall make it a Draft and tell no one; "Approve & publish" (or "Approve & schedule") shall publish or schedule it. A Scheduled story shall be published within a minute of its time; before then "Unschedule" shall make it a Draft and "Publish now" publish it. A Published story's Update shall make changes live at once; "Unpublish" shall make it a Draft and remove it from the front page, the feeds and its address. A published story shall appear on the front page where placed, replacing the Lead story if it is the lead, in the All stories feed and its section's feed, and in the next issue if included, with a toast naming what happened. Publishing or scheduling with an empty headline or text, a missing section or byline, or a past time shall publish nothing, focus a message naming what is missing and mark the field. An empty link shall be made from the headline; a link shall hold only lowercase letters, digits and hyphens, be unique, and keep its earlier address working when changed after publishing. A lead image shall be a JPEG, PNG or WebP at least 1600 px wide and at most 5 MB, cropped to 16:9, with "Replace image"; a story may be published without one. A paragraph beginning with `>` shall be published as a pull quote, and the text shall be stored and rendered as text, never HTML. A Draft or In review story shall be saved 2 seconds after typing stops with the bar saying when; a Published or Scheduled story shall change only on Update or an action; a failed save shall say so above the story and keep the text. A save over an unseen version shall be refused with `story_changed`, offering to load the newer version without losing what was typed. Preview shall open the story as readers see it in a new tab, whatever its status, for Admins only. Each status change shall record an audit entry of who, which story and the change. An unknown story id shall show the admin not-found page; loading shall show skeletons; a failure shall offer Try again and a way back to Stories. |
-| `L2-075` | `L1-022`     | Admins shall manage bylines under Stories → Bylines, listed by name with short bio and how many stories use each, with Add, Edit and Remove. The seed shall create the starting set once. A byline shall have a name (unique without regard to case, else `byline_name_taken`), a short bio of at most 200 characters and an optional photo. An edit shall show on every story using it. A byline no story uses shall be removable; one that stories use shall not (`byline_in_use`), and no story shall lose its byline. The editor's Byline field shall list them in name order. Moderators shall be refused with `forbidden_role`; each change shall be audited. |
+| `L2-077` | `L1-022`     | Admins shall manage bylines under Stories → Bylines, listed by name with short bio and how many stories use each, with Add, Edit and Remove. The seed shall create the starting set once. A byline shall have a name (unique without regard to case, else `byline_name_taken`), a short bio of at most 200 characters and an optional photo. An edit shall show on every story using it. A byline no story uses shall be removable; one that stories use shall not (`byline_in_use`), and no story shall lose its byline. The editor's Byline field shall list them in name order. Moderators shall be refused with `forbidden_role`; each change shall be audited. |
 
 ## Diagrams
 

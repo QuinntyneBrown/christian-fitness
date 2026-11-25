@@ -409,7 +409,7 @@ ADMIN_STORIES = [
     ("park-bootcamp-guide", "A beginner’s guide to your first outdoor bootcamp", "Training", "Marcus Bell", "Published", "Apr 8", "4,340"),
 ]
 STORY_STATUSES = ["Draft", "In review", "Scheduled", "Published"]
-# Bylines are a list Admins manage under Stories > Bylines (L2-075); the editor's picker reads it.
+# Bylines are a list Admins manage under Stories > Bylines (L2-077); the editor's picker reads it.
 BYLINES = [
     ("CF Team", "CF", "Notices and event news from the Christian Fitness team."),
     ("Marcus Bell", "MB", "Personal trainer who writes beginner guides and profiles of our professionals."),
