@@ -44,7 +44,11 @@ export const NOTIFICATIONS_SERVICE = new InjectionToken<NotificationsApi>('NOTIF
  * real-time client implements it, so no component opens a connection of its own.
  */
 export interface NotificationStream {
+  /** Each notification as the hub pushes it to the member (`NotificationReceived`). */
   readonly received: Observable<NotificationDto>;
+
+  /** Opens the connection if it is not open; rejects when it cannot be made. */
+  connect(): Promise<void>;
 }
 
 /** Binds {@link NotificationStream}; the member shell's providers provide it. */

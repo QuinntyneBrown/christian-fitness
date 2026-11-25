@@ -28,6 +28,14 @@ interface Registration {
 /** The antiforgery token the fixture hands out, as the API's `__Host-cf-xsrf` cookie (ADR 0009). */
 export const XSRF_TOKEN = 'e2e-xsrf-token';
 
+/** The hub's answer to SignalR's negotiate request (ADR 0039): WebSockets, no real server behind. */
+export const NEGOTIATED = {
+  negotiateVersion: 1,
+  connectionId: 'e2e-connection',
+  connectionToken: 'e2e-token',
+  availableTransports: [{ transport: 'WebSockets', transferFormats: ['Text', 'Binary'] }],
+};
+
 /** The signed-in member the fixture answers `GET /api/session` with unless a spec says otherwise. */
 export const SIGNED_IN = {
   memberId: '0190c0de-0000-7000-8000-000000000001',
@@ -131,6 +139,8 @@ export class ApiHandlers {
       handler: () => ({ json: { conversations: [] } }),
     },
     { method: 'GET', path: '/api/notifications', handler: () => ({ json: NO_NOTIFICATIONS }) },
+    // The member shell's one real-time connection (ADR 0083); the socket is the fixture's quiet hub.
+    { method: 'POST', path: '/api/chat/negotiate', handler: () => ({ json: NEGOTIATED }) },
   ];
 
   /** Answers `method` requests to `path` (exact pathname, or a pattern over it) with `handler`. */

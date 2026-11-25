@@ -1,6 +1,6 @@
 import type { Page, WebSocketRoute } from '@playwright/test';
 import type { ApiHandlers } from './api-handlers';
-import { SIGNED_IN } from './api-handlers';
+import { NEGOTIATED, SIGNED_IN } from './api-handlers';
 
 /** A message as the hub pushes it (`MessageReceived`, ADR 0039). */
 export interface ChatMessage {
@@ -25,6 +25,25 @@ const HISTORY_PAGE = 50;
 /** SignalR's JSON protocol ends every frame with this record separator. */
 const SEPARATOR = '\u001e';
 
+/** A ping, which each side sends to keep the connection open. */
+const PING = `{"type":6}${SEPARATOR}`;
+
+/**
+ * Stands in for the hub when a spec does not install {@link FakeChatHub}: it completes SignalR's
+ * handshake and answers pings, so the member shell's one connection (ADR 0083) opens and stays
+ * quiet. The shared fixture routes every page's hub socket here; a spec's `FakeChatHub` takes over.
+ */
+export function quietHub(socket: WebSocketRoute): void {
+  socket.onMessage((data) => {
+    for (const text of String(data).split(SEPARATOR)) {
+      if (!text) continue;
+      const frame = JSON.parse(text) as { type?: number; protocol?: string };
+      if (frame.protocol !== undefined) socket.send(`{}${SEPARATOR}`);
+      else if (frame.type === 6) socket.send(PING);
+    }
+  });
+}
+
 /**
  * Stands in for the chat hub (`/api/chat`): it answers SignalR's negotiate request and speaks its
  * JSON protocol over the page's WebSocket, so the real client library runs in the spec. `Join`
@@ -43,6 +62,12 @@ export class FakeChatHub {
   readonly pagesAsked: (string | null)[] = [];
   /** The event id of each read marker the page set (`POST /api/events/{id}/chat/read`, ADR 0042), in order. */
   readonly read: string[] = [];
+  /** The connections the page negotiated: one per member session (ADR 0083). */
+  connections = 0;
+  /** The connections whose handshake the hub answered: from then on, pushes reach the page. */
+  opened = 0;
+  /** The connections the page closed. */
+  closed = 0;
 
   private socket: WebSocketRoute | null = null;
   private count = 0;
@@ -81,14 +106,10 @@ export class FakeChatHub {
         return { status: 204 };
       },
     );
-    api.on('POST', '/api/chat/negotiate', () => ({
-      json: {
-        negotiateVersion: 1,
-        connectionId: 'e2e-connection',
-        connectionToken: 'e2e-token',
-        availableTransports: [{ transport: 'WebSockets', transferFormats: ['Text', 'Binary'] }],
-      },
-    }));
+    api.on('POST', '/api/chat/negotiate', () => {
+      hub.connections += 1;
+      return { json: NEGOTIATED };
+    });
     await page.routeWebSocket(/\/api\/chat\?/, (socket) => hub.attach(socket));
     return hub;
   }
@@ -103,6 +124,11 @@ export class FakeChatHub {
     this.frame({ type: 1, target: 'EventCancelled', arguments: [eventId] });
   }
 
+  /** A notification reaches the member: the hub pushes `NotificationReceived` (ADR 0083). */
+  notify(notification: object): void {
+    this.frame({ type: 1, target: 'NotificationReceived', arguments: [notification] });
+  }
+
   /** A message from another member reaches the page. */
   push(message: Omit<ChatMessage, 'id'> & { id?: string }): void {
     this.count += 1;
@@ -115,6 +141,9 @@ export class FakeChatHub {
 
   private attach(socket: WebSocketRoute): void {
     this.socket = socket;
+    socket.onClose(() => {
+      this.closed += 1;
+    });
     socket.onMessage((data) => {
       for (const text of String(data).split(SEPARATOR)) {
         if (!text) continue;
@@ -127,6 +156,9 @@ export class FakeChatHub {
         };
         if (frame.protocol !== undefined) {
           socket.send(`{}${SEPARATOR}`);
+          this.opened += 1;
+        } else if (frame.type === 6) {
+          socket.send(PING);
         } else if (frame.type === 1) {
           this.invoked(frame);
         }

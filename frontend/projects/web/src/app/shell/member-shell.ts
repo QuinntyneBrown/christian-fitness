@@ -1,7 +1,13 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { CONVERSATIONS, NOTIFICATIONS_SERVICE, SESSION_SERVICE } from '@cf/api';
+import {
+  CHAT_CONNECTION,
+  CONVERSATIONS,
+  NOTIFICATION_STREAM,
+  NOTIFICATIONS_SERVICE,
+  SESSION_SERVICE,
+} from '@cf/api';
 import {
   Banner,
   type MemberDestination,
@@ -16,6 +22,7 @@ import { HttpConversationsService } from '../services/http-conversations.service
 import { HttpNotificationsService } from '../services/http-notifications.service';
 import { MemberInbox } from '../services/member-inbox';
 import { MemberNotifications } from '../services/member-notifications';
+import { SignalRChatConnection } from '../services/signalr-chat-connection';
 
 /**
  * The places of the member app so far (ADR 0027, 0042, 0045, 0000).
@@ -36,7 +43,9 @@ const DESTINATIONS: readonly MemberDestination[] = [
  * MD (L2-008 AC1–AC3; ADR 0019, 0045). `MemberInbox` refreshes the member's conversations on entry
  * and on route changes so the navigation unread badge, Home's Messages aside and Messages share one
  * request. `MemberNotifications` loads the member's notifications once on entry for the bell, which
- * the Notifications screen shares (ADR 0068, ADR 0083). Sign out ends the session on the server and returns the member to the start, a session
+ * the Notifications screen shares (ADR 0068, ADR 0083), and opens the member's one real-time
+ * connection, which chat screens share and which ends with the shell, so pushed notifications reach
+ * the bell on every member screen. Sign out ends the session on the server and returns the member to the start, a session
  * that had already ended included (L2-004 AC5); any other failure keeps them where they are with
  * Sign out enabled.
  */
@@ -48,6 +57,10 @@ const DESTINATIONS: readonly MemberDestination[] = [
     { provide: CONVERSATIONS, useClass: HttpConversationsService },
     MemberInbox,
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
+    // The member's one real-time connection, for chat and notifications alike (ADR 0083).
+    SignalRChatConnection,
+    { provide: CHAT_CONNECTION, useExisting: SignalRChatConnection },
+    { provide: NOTIFICATION_STREAM, useExisting: SignalRChatConnection },
     MemberNotifications,
   ],
   templateUrl: './member-shell.html',
@@ -75,6 +88,7 @@ export default class MemberShell {
     let lastUrl = this.urlNow();
     this.inbox.refresh();
     this.notifications.load();
+    this.notifications.listen();
     if (this.network.online()) {
       void import('../pages/offline/offline-page').then(() => this.offlineReady.set(true));
     }
