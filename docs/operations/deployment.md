@@ -43,6 +43,19 @@ az containerapp revision list -g rg-christian-fitness -n ca-christian-fitness -o
 az containerapp revision activate -g rg-christian-fitness -n ca-christian-fitness --revision <name>
 ```
 
+## Story shell (planned, ADR 0073)
+
+The story-preview slice will configure the member nginx host to proxy `/stories/*` to the
+anonymous API shell endpoint before the SPA fallback. The API container must have the built
+member `index.html`, copied into the image or mounted read-only, and read it once at startup.
+Release that shell and nginx's hashed frontend assets from the same build and revision; otherwise
+the shell can reference assets that are not present. The API must not silently serve a stale or
+mismatched shell if it is unavailable. The endpoint serves metadata for published stories, a
+301 for their former slugs, and a 404 shell for unknown or unpublished slugs. It uses
+`MemberApp__BaseUrl` for absolute preview URLs. Shell and redirect responses use
+`Cache-Control: no-store`, and nginx retains the member app's security headers. This routing
+and shell provisioning are not deployed yet.
+
 ## What runs where (resource group `rg-christian-fitness`, Canada Central)
 
 | Resource                                  | Purpose                                                                 |
