@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Security.Claims;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
@@ -17,9 +16,6 @@ namespace ChristianFitness.Infrastructure.Security;
 /// </summary>
 public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvider time) : ITicketStore
 {
-    internal const string StaffSignedInAt = "cf.staff.signed-in-at";
-    private static readonly TimeSpan StaffMaximumAge = TimeSpan.FromHours(12);
-
     public Task<string> StoreAsync(AuthenticationTicket ticket) => StoreAsync(ticket, CancellationToken.None);
 
     public async Task<string> StoreAsync(AuthenticationTicket ticket, CancellationToken cancellationToken)
@@ -105,29 +101,14 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
             return (null, false);
         }
 
-        var now = time.GetUtcNow();
-        var ticket = TicketSerializer.Default.Deserialize(record.Ticket);
-        var staffExpired = ticket?.AuthenticationScheme == SessionSchemes.Staff
-            && (!ticket.Properties.Items.TryGetValue(StaffSignedInAt, out var value)
-                || !long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var signedInAt)
-                || signedInAt > now.UtcTicks
-                || signedInAt <= now.UtcTicks - StaffMaximumAge.Ticks);
-        if ((record.ExpiresAt is { } expiresAt && expiresAt <= now) || staffExpired)
+        if (record.ExpiresAt is { } expiresAt && expiresAt <= time.GetUtcNow())
         {
             db.Sessions.Remove(record);
-            try
-            {
-                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Another request already removed this expired session.
-            }
-
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return (null, true);
         }
 
-        return (ticket, false);
+        return (TicketSerializer.Default.Deserialize(record.Ticket), false);
     }
 
     public Task RemoveAsync(string key) => RemoveAsync(key, CancellationToken.None);

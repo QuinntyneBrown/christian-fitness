@@ -86,67 +86,6 @@ public sealed class StaffIdleExpiryTests(ProtectionsApiFactory factory) : IClass
         client.Dispose();
     }
 
-    // L2-018 AC9: activity must not extend a staff session beyond its original sign-in.
-    [Fact]
-    public async Task Given_an_active_staff_session_When_it_reaches_12_hours_Then_it_expires_on_the_server()
-    {
-        var (client, cookie) = await SignedInAsync("dana.maximum@example.org");
-        for (var i = 0; i < 35; i++)
-        {
-            factory.Time.Advance(TimeSpan.FromMinutes(20));
-            using var active = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", cookie);
-            Assert.Equal(HttpStatusCode.OK, active.StatusCode);
-        }
-
-        factory.Time.Advance(TimeSpan.FromMinutes(20));
-        using var expired = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", cookie);
-        Assert.Equal(HttpStatusCode.Unauthorized, expired.StatusCode);
-        var problem = await expired.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
-        Assert.Equal("session_expired", problem.GetProperty("code").GetString());
-        Assert.Equal(0, await StaffSessionsOfAsync("dana.maximum@example.org"));
-        client.Dispose();
-    }
-
-    // L2-018 AC9: a pre-release staff ticket has no original sign-in time and must be ended.
-    [Fact]
-    public async Task Given_a_legacy_staff_session_without_a_sign_in_time_When_it_is_used_Then_it_expires()
-    {
-        var (client, cookie) = await SignedInAsync("dana.legacy@example.org");
-        using (var scope = factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var normalized = Member.NormalizeEmail("dana.legacy@example.org");
-            var id = await db.Members.Where(m => m.NormalizedEmail == normalized).Select(m => m.Id).SingleAsync(TestContext.Current.CancellationToken);
-            var sessions = await db.Sessions.Where(s => s.MemberId == id).ToListAsync(TestContext.Current.CancellationToken);
-            var record = sessions.Single(s => TicketSerializer.Default.Deserialize(s.Ticket)?.AuthenticationScheme == SessionSchemes.Staff);
-            var ticket = TicketSerializer.Default.Deserialize(record.Ticket)!;
-            ticket.Properties.Items.Remove("cf.staff.signed-in-at");
-            record.Ticket = TicketSerializer.Default.Serialize(ticket);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        }
-
-        using var expired = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", cookie);
-        Assert.Equal(HttpStatusCode.Unauthorized, expired.StatusCode);
-        var problem = await expired.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
-        Assert.Equal("session_expired", problem.GetProperty("code").GetString());
-        Assert.Equal(0, await StaffSessionsOfAsync("dana.legacy@example.org"));
-        client.Dispose();
-    }
-
-    [Fact]
-    public async Task Given_a_staff_session_When_the_staff_member_signs_in_again_Then_the_new_session_is_usable()
-    {
-        var (client, cookie) = await SignedInAsync("dana.again@example.org");
-        factory.Time.Advance(TimeSpan.FromMinutes(1));
-        using var password = await Staff.SignInAsync(client, "dana.again@example.org", Staff.Password);
-        using var signedIn = await Staff.VerifyAsync(client, $"{Staff.StepCookie(password)}; {cookie}", Staff.CodeAt(factory.Time.GetUtcNow()));
-        Assert.Equal(HttpStatusCode.OK, signedIn.StatusCode);
-
-        using var response = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", Staff.Cookie(signedIn));
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        client.Dispose();
-    }
-
     /// <summary>A new staff account signed in with both steps at the fixture's time; its client and cookie.</summary>
     private async Task<(HttpClient Client, string Cookie)> SignedInAsync(string email)
     {
