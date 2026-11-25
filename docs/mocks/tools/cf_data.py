@@ -2,6 +2,9 @@
 shared/cf/data.ts, shared/cf/news.ts and shared/cf/admin/data.ts). "Today" is Wednesday, April 15, 2026,
 8:45 AM, Toronto: Grace's next event, the Easter Sunrise 5K, is in 3 days."""
 
+import re
+from pathlib import Path
+
 TODAY = "Wednesday, April 15, 2026"
 
 ME = {
@@ -474,9 +477,16 @@ FEEDBACK = [
 
 # Preferences (prototype frame Manage Preferences)
 PREF_AREAS = ["Toronto East", "Toronto West", "Downtown Toronto", "Scarborough", "North York", "Mississauga", "Brampton", "Durham"]
-PREF_INTERESTS = ["Running", "Strength", "Basketball", "Nutrition", "Mobility", "Walking", "Retreats", "Pickleball"]
 
-INTERESTS = ["Running", "Strength", "Basketball", "Walking groups", "Mobility", "Nutrition", "Cycling", "Retreats"]
+def _interest_labels():
+    """The interest labels, read from INTERESTS in frontend/projects/api/src/account/interests.ts,
+    the single source of the list (ADR 0076)."""
+    src = (Path(__file__).resolve().parents[3] / "frontend/projects/api/src/account/interests.ts").read_text()
+    return re.findall(r"\{ key: '[a-z-]+', label: '([^']+)' \}", src)
+
+
+INTERESTS = _interest_labels()
+PREF_INTERESTS = INTERESTS
 EVENT_CATEGORIES = ["All", "Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 SERVICE_CATEGORIES = ["All", "Training", "Nutrition", "Physio", "Coaching", "Counselling"]
 IMAGE_SIZES = {"run": (1376, 768), "bootcamp": (1200, 896), "hoops": (1200, 896), "stretch": (1200, 896), "trainer": (1024, 1024),

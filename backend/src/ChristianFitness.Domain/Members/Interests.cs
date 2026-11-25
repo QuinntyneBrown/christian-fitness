@@ -7,5 +7,5 @@ namespace ChristianFitness.Domain.Members;
 public static class Interests
 {
     public static IReadOnlyList<string> All { get; } =
-        ["running", "strength", "basketball", "walking-groups", "mobility", "nutrition", "cycling", "retreats"];
+        ["running", "strength", "basketball", "walking-groups", "mobility", "nutrition", "cycling", "retreats", "pickleball"];
 }
