@@ -1,6 +1,7 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,10 +20,31 @@ public sealed record DirectoryKindCountDto(string Kind, int Count);
 /// <summary>One page of the directory, the count of each kind, and the cursor of the next page or none.</summary>
 public sealed record DirectoryPageDto(IReadOnlyList<DirectoryListingRowDto> Listings, IReadOnlyList<DirectoryKindCountDto> Counts, string? NextCursor);
 
-/// <summary>The published listings in kind order, each kind in name order (L2-054 AC1, AC8).</summary>
-public sealed record ListDirectoryQuery : IRequest<DirectoryPageDto>
+/// <summary>
+/// The published listings in kind order, each kind in name order (L2-054 AC1, AC8), or those of
+/// the one kind <paramref name="Kind"/> names by its slug (L2-054 AC3).
+/// </summary>
+public sealed record ListDirectoryQuery(string? Kind = null) : IRequest<DirectoryPageDto>
 {
     public const int PageSize = 50;
+}
+
+/// <summary>The codes a directory request is refused with (ADR 0082).</summary>
+public static class ListDirectoryRules
+{
+    public const string KindInvalid = "kind_invalid";
+
+    public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal) { KindInvalid };
+}
+
+/// <summary>A kind this API does not know is refused with <c>kind_invalid</c>.</summary>
+public sealed class ListDirectoryValidator : AbstractValidator<ListDirectoryQuery>
+{
+    public ListDirectoryValidator() =>
+        RuleFor(q => q.Kind)
+            .Must(kind => kind is null || ListingKinds.KindOf(kind) is not null)
+            .WithMessage("Choose one of the kinds")
+            .WithErrorCode(ListDirectoryRules.KindInvalid);
 }
 
 internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListDirectoryQuery, DirectoryPageDto>
@@ -36,7 +58,8 @@ internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) 
             .ToDictionaryAsync(g => g.Kind, g => g.Count, cancellationToken)
             .ConfigureAwait(false);
 
-        var page = await published
+        var listed = ListingKinds.KindOf(request.Kind) is { } kind ? published.Where(l => l.Kind == kind) : published;
+        var page = await listed
             .OrderBy(l => l.KindOrder)
             .ThenBy(l => l.NameKey)
             .ThenBy(l => l.Id)

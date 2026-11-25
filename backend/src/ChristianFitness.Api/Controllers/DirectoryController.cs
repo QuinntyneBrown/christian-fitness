@@ -14,8 +14,8 @@ namespace ChristianFitness.Api.Controllers;
 [Route("api/directory")]
 public sealed class DirectoryController(ISender sender) : ControllerBase
 {
-    /// <summary>One page of the published listings in kind and name order, with each kind's count.</summary>
+    /// <summary>One page of the published listings in kind and name order, or of one kind, with each kind's count.</summary>
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken cancellationToken) =>
-        Ok(await sender.Send(new ListDirectoryQuery(), cancellationToken).ConfigureAwait(false));
+    public async Task<IActionResult> List([FromQuery] string? kind, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new ListDirectoryQuery(kind), cancellationToken).ConfigureAwait(false));
 }
