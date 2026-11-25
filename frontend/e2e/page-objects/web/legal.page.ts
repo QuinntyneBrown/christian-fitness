@@ -22,6 +22,9 @@ export class LegalPage {
   get note() {
     return this.page.locator('.legal__summary-note');
   }
+  get collection() {
+    return this.page.locator('#collect');
+  }
   get contact() {
     return this.page.locator('.legal__questions');
   }
@@ -42,6 +45,9 @@ export class LegalPage {
   }
   get sections() {
     return this.page.locator('.legal__section h2');
+  }
+  get currentVersion() {
+    return this.page.getByRole('link', { name: 'Read the current version' });
   }
   get effective() {
     return this.page.locator('.legal__effective');

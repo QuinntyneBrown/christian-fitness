@@ -15,6 +15,7 @@ for (const signedIn of [false, true]) {
       await expect(legal.heading).toHaveText('Privacy Policy');
       await expect(page).toHaveTitle('Privacy Policy · Christian Fitness');
       await expect(legal.effective).toHaveText('Effective April 1, 2026');
+      await expect(legal.collection).toContainText('events you register for and messages you send');
       await expect(legal.summary).toBeVisible();
       await expect(legal.note).toContainText('The full text below is what applies');
       await expect(legal.sections).toHaveCount(9);

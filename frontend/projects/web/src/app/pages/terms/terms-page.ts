@@ -18,7 +18,7 @@ export default class TermsPage {
     timeZone: 'UTC',
   }).format(new Date(new LegalVersions().inForce('terms')!));
   protected readonly points = [
-    'Christian Fitness is free to join. Some events and services cost money, and the price is always shown before you register. Any fee is paid to the host directly.',
+    'Christian Fitness is free to join. Some events and services may carry a fee. Any fee is paid to the host directly.',
     'Treat people the way you’d want to be treated at church. No harassment, spam or selling in group chats.',
     'Exercise has risks. Know your limits and talk to a doctor before starting something new.',
     'Professionals in the directory are independent. We check them, but they are responsible for their own work.',
@@ -38,14 +38,14 @@ export default class TermsPage {
       paragraphs: [
         'Christian Fitness is a faith community open to everyone who wants to take part respectfully, whatever their background or stage of faith.',
         'Don’t harass, shame or threaten anyone. Don’t post anything sexual, hateful or illegal. Don’t sell products, recruit for businesses or promote supplements in messages or group chats.',
-        'Report anything that breaks these standards from the message or profile. Our team reviews every report.',
+        'You can report a message for the team to review.',
       ],
     },
     {
       id: 'events',
-      title: 'Events and series',
+      title: 'Events',
       paragraphs: [
-        'Hosts set the details, capacity and price of their events. Any fee for an event is paid to the host directly, under the host’s own terms; Christian Fitness takes no payment and gives no refunds.',
+        'The team publishes event details and capacity. Any fee for an event is paid to the host directly, under the host’s own terms; Christian Fitness takes no payment and gives no refunds.',
         'You can cancel your registration up to 24 hours before an event starts.',
       ],
     },
@@ -54,14 +54,14 @@ export default class TermsPage {
       title: 'Health and safety',
       paragraphs: [
         'Physical activity carries a risk of injury. You take part in events at your own risk and should only do what is safe for you.',
-        'Nothing on Christian Fitness, including stories, training plans and devotions, is medical advice. Talk to a doctor before starting a new exercise program, especially if you are pregnant, injured or managing a health condition.',
+        'Information on Christian Fitness is general and does not provide individual medical advice. Talk to a doctor before starting a new exercise program, especially if you are pregnant, injured or managing a health condition.',
       ],
     },
     {
       id: 'directory',
       title: 'The directory and services',
       paragraphs: [
-        'Listings are independent organizations and people. We check credentials, insurance, references and fit before a listing goes live, but we don’t supervise their work.',
+        'Professionals listed here work independently. The team reviews applications before publishing a listing.',
         'Any agreement for services is between you and the provider.',
       ],
     },
