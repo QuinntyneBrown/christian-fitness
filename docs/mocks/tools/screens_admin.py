@@ -35,7 +35,7 @@ def signin(mode: str = "") -> str:
         # The account Google returned is named, so the person can see which one they picked (L2-018 AC2, AC3).
         "wrong-domain": ("That's not a staff account", "dana.reyes@gmail.com",
                          f"Only @{STAFF_DOMAIN} accounts can open the console. Pick your work account instead."),
-        "no-access": ("No admin access yet", "events@christianfitness.ca",
+        "no-access": ("No admin access yet", "events@christian.fitness",
                       "Your Workspace account is fine, but it hasn’t been given a console role. Ask an Admin to add you to the team."),
     }
     if mode in notices:

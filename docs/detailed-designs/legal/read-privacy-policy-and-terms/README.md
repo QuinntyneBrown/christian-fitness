@@ -48,7 +48,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 - **Version addresses and archive.** AC6 keeps earlier versions readable at their own addresses; the scheme and whether superseded texts stay in the bundle (growing it) or move to static files need an ADR.
 - **Who sees the change notice.** Whether the legal-change email counts as a service notice that reaches members with all email off (`L2-064` AC3) is `<TO SUPPLY>`; the banner's copy and mock are drawn (see Change banner).
 - **Accepting a new version.** `L2-067` records versions at Join only. Whether continued use accepts a new version, or each member is asked to accept it, is not stated.
-- **Statements to correct.** Every row of the table not marked true shall be made true or the text changed before launch (mocks README open question 12). The legal pages also use `privacy@christianfitness.ca` while the deployed domain is `christian.fitness` (ADR 0047); the team's addresses are `<TO SUPPLY>`.
+- **Statements to correct.** Every row of the table not marked true shall be made true or the text changed before launch (mocks README open question 12). The legal contact is `privacy@christian.fitness`, at 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.
 - **Who writes the text.** The documents live in the app's source, so a change ships as a release; no console screen edits them.
 
 ## Requirements
