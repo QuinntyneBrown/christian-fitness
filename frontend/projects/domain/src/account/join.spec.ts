@@ -6,6 +6,7 @@ const FORM: JoinForm = {
   email: 'grace.thompson@gmail.com',
   password: 'abundantlife',
   homeChurch: 'Grace Fellowship, Scarborough',
+  ageConfirmed: true,
   interests: ['running', 'strength'],
 };
 
@@ -30,6 +31,7 @@ describe('joinRequestOf', () => {
       email: 'grace.thompson@gmail.com',
       password: 'abundantlife',
       homeChurch: expected,
+      ageConfirmed: true,
       interests: ['running', 'strength'],
     });
   });

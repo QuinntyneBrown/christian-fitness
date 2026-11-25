@@ -36,6 +36,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(IProblemDetailsServ
             RefusalKind.Unauthenticated => StatusCodes.Status401Unauthorized,
             RefusalKind.Forbidden => StatusCodes.Status403Forbidden,
             RefusalKind.TooManyRequests => StatusCodes.Status429TooManyRequests,
+            RefusalKind.BadRequest => StatusCodes.Status400BadRequest,
             RefusalKind.Gone => StatusCodes.Status410Gone,
             RefusalKind.NotFound => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status400BadRequest,

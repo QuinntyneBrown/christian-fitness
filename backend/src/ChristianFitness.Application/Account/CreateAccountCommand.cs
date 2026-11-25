@@ -9,6 +9,8 @@ namespace ChristianFitness.Application.Account;
 /// </summary>
 public sealed class CreateAccountCommand : IRequest<SessionDto>
 {
+    public bool AgeConfirmed { get; init; }
+
     public string FullName { get; init; } = string.Empty;
 
     public string Email { get; init; } = string.Empty;

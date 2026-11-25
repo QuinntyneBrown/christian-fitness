@@ -84,6 +84,26 @@
       >
     }
   </cf-interest-list>
+  <div slot="fields">
+    <cf-checkbox
+      fieldId="f-age"
+      name="age16"
+      label="I'm 16 or older"
+      required
+      [checked]="ageConfirmed()"
+      [invalid]="!!fieldErrors().ageConfirmed"
+      [disabled]="submitting()"
+      [describedBy]="fieldErrors().ageConfirmed ? 'f-age-error' : undefined"
+      (checkedChange)="confirmAge($event)"
+    />
+    @if (fieldErrors().ageConfirmed; as error) {
+      <span id="f-age-error" class="join__error">{{ error }}</span>
+    }
+  </div>
+  <p class="auth__terms" slot="terms">
+    By creating a profile you agree to our <cf-link href="/terms">Terms of Service</cf-link> and
+    <cf-link href="/privacy">Privacy Policy</cf-link>.
+  </p>
   <cf-button
     slot="submit"
     type="submit"

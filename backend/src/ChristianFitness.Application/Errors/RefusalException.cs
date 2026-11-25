@@ -20,6 +20,8 @@ public enum RefusalKind
 
     /// <summary>The record asked for does not exist (404).</summary>
     NotFound,
+
+    BadRequest,
 }
 
 /// <summary>

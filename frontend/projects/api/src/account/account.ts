@@ -5,6 +5,7 @@ import type { SessionDto } from './session';
 
 /** The Join form as the API takes it (`POST /api/account/join`, L2-003). */
 export interface JoinRequestDto {
+  ageConfirmed: boolean;
   fullName: string;
   email: string;
   password: string;

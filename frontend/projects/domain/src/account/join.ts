@@ -2,6 +2,7 @@ import { INTERESTS, type InterestKey, type JoinRequestDto } from '@cf/api';
 
 /** What the Join screen holds while the visitor types. */
 export interface JoinForm {
+  ageConfirmed: boolean;
   fullName: string;
   email: string;
   password: string;
@@ -17,6 +18,7 @@ export interface JoinForm {
 export function joinRequestOf(form: JoinForm): JoinRequestDto {
   const homeChurch = form.homeChurch.trim();
   return {
+    ageConfirmed: form.ageConfirmed,
     fullName: form.fullName,
     email: form.email,
     password: form.password,

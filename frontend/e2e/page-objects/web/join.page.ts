@@ -91,7 +91,15 @@ export class WebJoinPage {
   }
 
   /** Types the details into the form; a missing home church is left blank. */
+  get age() {
+    return this.form.getByRole('checkbox', { name: "I'm 16 or older" });
+  }
+  get termsSentence() {
+    return this.form.locator('.auth__terms');
+  }
+
   async fill(details: JoinDetails): Promise<void> {
+    await this.age.check();
     await this.fullName.fill(details.fullName);
     await this.email.fill(details.email);
     await this.password.fill(details.password);
@@ -131,6 +139,8 @@ export class WebJoinPage {
       await this.page.keyboard.press('Tab');
       if (interests.includes(label.trim())) await this.page.keyboard.press('Space');
     }
+    await this.page.keyboard.press('Tab');
+    await this.page.keyboard.press('Space');
     await this.page.keyboard.press('Tab');
     await this.page.keyboard.press('Enter');
   }

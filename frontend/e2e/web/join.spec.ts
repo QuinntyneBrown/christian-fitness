@@ -48,6 +48,7 @@ test.describe('Member app, join with valid details', () => {
         email: 'grace.thompson@gmail.com',
         password: 'abundantlife',
         homeChurch: 'Grace Fellowship, Scarborough',
+        ageConfirmed: true,
         interests: ['running', 'strength', 'pickleball'],
       },
     ]);
@@ -100,6 +101,7 @@ test.describe('Member app, join with valid details', () => {
         email: 'grace.thompson@gmail.com',
         password: 'abundantlife',
         homeChurch: null,
+        ageConfirmed: true,
         interests: [],
       },
     ]);
@@ -158,6 +160,7 @@ test.describe('Member app, join with valid details', () => {
         email: 'grace.thompson@gmail.com',
         password: 'abundantlife',
         homeChurch: 'Grace Fellowship, Scarborough',
+        ageConfirmed: true,
         interests: ['strength', 'cycling'],
       },
     ]);
