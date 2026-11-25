@@ -56,4 +56,12 @@ describe('conversationHref', () => {
   it('opens an event group in its chat', () => {
     expect(conversationHref('group', 'e1')).toBe('/events/e1/chat');
   });
+
+  it("opens a series' one chat on the series (ADR 0099)", () => {
+    expect(conversationHref('series', 's1')).toBe('/events/series/s1/chat');
+  });
+
+  it('opens a direct conversation with the other member', () => {
+    expect(conversationHref('direct', 'm1')).toBe('/messages/m1');
+  });
 });

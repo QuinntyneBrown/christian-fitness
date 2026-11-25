@@ -1,9 +1,10 @@
 namespace ChristianFitness.Domain.Events;
 
 /// <summary>
-/// How far one member has read one event's group chat (L2-016 AC7; ADR 0042): the instant they last
-/// opened it. A message sent by someone else after <see cref="ReadAt"/> is unread. There is at most
-/// one per member and event.
+/// How far one member has read one conversation (L2-016 AC7; ADR 0042): the instant they last opened
+/// it. A message sent by someone else after <see cref="ReadAt"/> is unread. There is at most one per
+/// member and conversation, keyed by the conversation's id: an event's or a series' chat (ADR 0099),
+/// or the other member of a direct conversation (ADR 0043).
 /// </summary>
 public sealed class ChatReadMarker
 {
@@ -13,15 +14,16 @@ public sealed class ChatReadMarker
 
     public Guid MemberId { get; private set; }
 
-    public Guid EventId { get; private set; }
+    /// <summary>The id of the event, the series or the other member whose conversation it is.</summary>
+    public Guid ScopeId { get; private set; }
 
     public DateTimeOffset ReadAt { get; private set; }
 
-    /// <summary>A marker for <paramref name="memberId"/> in the event's chat, read up to <paramref name="readAt"/>.</summary>
-    public static ChatReadMarker Of(Guid memberId, Guid eventId, DateTimeOffset readAt) => new()
+    /// <summary>A marker for <paramref name="memberId"/> in the conversation <paramref name="scopeId"/>, read up to <paramref name="readAt"/>.</summary>
+    public static ChatReadMarker Of(Guid memberId, Guid scopeId, DateTimeOffset readAt) => new()
     {
         MemberId = memberId,
-        EventId = eventId,
+        ScopeId = scopeId,
         ReadAt = readAt,
     };
 

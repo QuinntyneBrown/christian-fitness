@@ -140,7 +140,7 @@ public sealed class CommunityActivityTests
         var member = Member.Join("Seeded Member", "seeded.activity@example.org", "hash", at);
         db.Members.Add(member);
         db.Registrations.Add(Registration.Of(Guid.NewGuid(), member.Id, 0, at));
-        db.ChatMessages.Add(ChatMessage.Of(Guid.NewGuid(), member.Id, "private words", at));
+        db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(Guid.NewGuid()), member.Id, "private words", at));
         db.DirectMessages.Add(DirectMessage.Of(member.Id, Guid.NewGuid(), "more private words", at));
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }

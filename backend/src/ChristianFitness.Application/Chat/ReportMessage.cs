@@ -83,11 +83,11 @@ internal sealed class ReportMessageHandler(IAppDbContext db, ICurrentMember curr
     {
         var group = await db.ChatMessages.AsNoTracking()
             .Where(m => m.Id == messageId)
-            .Select(m => new { m.AuthorId, m.EventId })
+            .Select(m => new { m.AuthorId, m.ScopeId })
             .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
         if (group is not null)
         {
-            var seat = await ChatMembership.SeatAsync(db, group.EventId, reporter, cancellationToken).ConfigureAwait(false);
+            var seat = await ChatMembership.SeatAsync(db, group.ScopeId, reporter, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
             return seat is null ? throw NotFound() : group.AuthorId;
         }
 

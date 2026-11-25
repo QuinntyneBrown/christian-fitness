@@ -5,17 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Chat;
 
-/// <summary>One page of an event chat's stored messages, oldest first, and whether earlier ones remain.</summary>
+/// <summary>One page of a group chat's stored messages, oldest first, and whether earlier ones remain.</summary>
 public sealed record ChatHistoryDto(IReadOnlyList<ChatMessageDto> Messages, bool HasMore, bool Cancelled);
 
 /// <summary>
-/// The latest <see cref="PageSize"/> messages of an event's chat, or the page before the message
-/// <paramref name="Before"/> (L2-016 AC6; ADR 0040). Only a member registered for the event may read
-/// it; anyone else, and an unknown event, is refused <c>not_a_participant</c> (403).
+/// The latest <see cref="GetChatHistoryHandler.PageSize"/> messages of a group chat, or the page
+/// before the message <paramref name="Before"/> (L2-016 AC6; ADR 0040). The chat is named by its
+/// id: a standalone event's or a series' (ADR 0099). Only a member of the chat may read it; anyone
+/// else, and an unknown id, is refused <c>not_a_participant</c> (403).
 /// </summary>
-public sealed record GetChatHistoryQuery(Guid EventId, Guid? Before) : IRequest<ChatHistoryDto>;
+public sealed record GetChatHistoryQuery(Guid ChatId, Guid? Before) : IRequest<ChatHistoryDto>;
 
-internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember current) : IRequestHandler<GetChatHistoryQuery, ChatHistoryDto>
+internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<GetChatHistoryQuery, ChatHistoryDto>
 {
     /// <summary>The messages in a page (L2-016 AC6).</summary>
     public const int PageSize = 50;
@@ -23,13 +24,11 @@ internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember cur
     public async Task<ChatHistoryDto> Handle(GetChatHistoryQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var seat = await ChatMembership.SeatAsync(db, request.EventId, current.Id, cancellationToken).ConfigureAwait(false);
-        if (seat is null)
-        {
-            throw new RefusalException(RefusalCodes.NotAParticipant, RefusalKind.Forbidden);
-        }
+        var seat = await ChatMembership.SeatAsync(db, request.ChatId, current.Id, time.GetUtcNow(), cancellationToken).ConfigureAwait(false)
+            ?? throw new RefusalException(RefusalCodes.NotAParticipant, RefusalKind.Forbidden);
 
-        var messages = db.ChatMessages.AsNoTracking().Where(m => m.EventId == request.EventId);
+        var scope = seat.Scope;
+        var messages = db.ChatMessages.AsNoTracking().Where(m => m.ScopeKind == scope.Kind && m.ScopeId == scope.Id);
         if (request.Before is { } before)
         {
             var cut = await messages.Where(m => m.Id == before)
@@ -55,7 +54,7 @@ internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember cur
             .Where(m => authorIds.Contains(m.Id))
             .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
             .ConfigureAwait(false);
-        var page = held.Select(m => new ChatMessageDto(m.Id, m.EventId, m.AuthorId, names[m.AuthorId], m.Text, m.SentAt)).ToList();
+        var page = held.Select(m => new ChatMessageDto(m.Id, m.ScopeId, m.AuthorId, names[m.AuthorId], m.Text, m.SentAt)).ToList();
         return new ChatHistoryDto(page, hasMore, seat.Cancelled);
     }
 }

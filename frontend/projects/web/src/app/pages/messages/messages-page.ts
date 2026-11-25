@@ -54,7 +54,7 @@ export default class MessagesPage {
       id: `${c.kind}:${c.id}`,
       href: conversationHref(c.kind, c.id),
       name: c.name,
-      group: c.kind === 'group',
+      group: c.kind !== 'direct',
       meta: groupMemberCount(c.memberCount),
       text: conversationPreview(c.lastMessage),
       time: conversationTime(c.lastMessage?.sentAt ?? c.activityAt, now),

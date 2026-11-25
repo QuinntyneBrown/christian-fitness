@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Chat;
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Members;
 using MediatR;
@@ -22,7 +23,7 @@ public sealed record GetHomeQuery : IRequest<HomeDto>
 /// <summary>
 /// Reads the earliest published event the member is going to that has not started, the three
 /// soonest published upcoming events of the categories their interests name that they are not going
-/// to, and the unread message count across their registered event chats and direct conversations.
+/// to, and the unread message count across their group chats (ADR 0099) and direct conversations.
 /// </summary>
 internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, IRegistrationReader registrations, TimeProvider time)
     : IRequestHandler<GetHomeQuery, HomeDto>
@@ -52,10 +53,14 @@ internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, I
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        // The group chats the member is in: standalone events' and series' (ADR 0099).
+        var chats = (await ChatMembership.RoomsOfAsync(db, memberId, now, cancellationToken).ConfigureAwait(false))
+            .Select(c => c.Scope.Id)
+            .ToList();
         var groupUnread = await (
             from m in db.ChatMessages.AsNoTracking()
-            where m.AuthorId != memberId && mine.Contains(m.EventId)
-            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == memberId) on m.EventId equals k.EventId into markers
+            where m.AuthorId != memberId && chats.Contains(m.ScopeId)
+            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == memberId) on m.ScopeId equals k.ScopeId into markers
             from k in markers.DefaultIfEmpty()
             where k == null || m.SentAt > k.ReadAt
             select m.Id)
@@ -65,7 +70,7 @@ internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, I
         var directUnread = await (
             from m in db.DirectMessages.AsNoTracking()
             where m.RecipientId == memberId
-            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == memberId) on m.SenderId equals k.EventId into markers
+            join k in db.ChatReadMarkers.AsNoTracking().Where(k => k.MemberId == memberId) on m.SenderId equals k.ScopeId into markers
             from k in markers.DefaultIfEmpty()
             where k == null || m.SentAt > k.ReadAt
             select m.Id)

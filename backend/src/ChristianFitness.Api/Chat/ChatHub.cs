@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using ChristianFitness.Application.Chat;
 using ChristianFitness.Application.Notifications;
+using ChristianFitness.Domain.Events;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 
@@ -16,13 +17,13 @@ public sealed class ChatHub(ISender sender, IChatChannel channel) : Hub
 {
     public const string Path = "/api/chat";
 
-    /// <summary>Joins the event's chat on this connection.</summary>
-    public Task<ChatAnswer> Join(Guid eventId) =>
-        sender.Send(new JoinChatCommand(Caller, eventId, Context.ConnectionId), Context.ConnectionAborted);
+    /// <summary>Joins a group chat on this connection: a standalone event's or a series' (ADR 0099), named by its id.</summary>
+    public Task<ChatAnswer> Join(Guid chatId) =>
+        sender.Send(new JoinChatCommand(Caller, chatId, Context.ConnectionId), Context.ConnectionAborted);
 
-    /// <summary>Sends a message to the event's chat.</summary>
-    public Task<ChatAnswer> Send(Guid eventId, string? text) =>
-        sender.Send(new SendChatMessageCommand(Caller, eventId, text), Context.ConnectionAborted);
+    /// <summary>Sends a message to a group chat named by its id.</summary>
+    public Task<ChatAnswer> Send(Guid chatId, string? text) =>
+        sender.Send(new SendChatMessageCommand(Caller, chatId, text), Context.ConnectionAborted);
 
     /// <summary>Opens a direct conversation with a member (slice 14.1; ADR 0043).</summary>
     public Task<ChatAnswer> JoinDirect(Guid memberId) =>
@@ -41,29 +42,33 @@ public sealed class ChatHub(ISender sender, IChatChannel channel) : Hub
     private Guid Caller => Guid.Parse(Context.UserIdentifier!, CultureInfo.InvariantCulture);
 }
 
-/// <summary>Delivers a chat's messages through <see cref="ChatHub"/>'s groups, one group per event.</summary>
+/// <summary>
+/// Delivers a chat's messages through <see cref="ChatHub"/>'s groups, one group per conversation scope:
+/// a standalone event's chat or a series' one chat (ADR 0099).
+/// </summary>
 internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
 {
-    private static string GroupOf(Guid eventId) => $"event-chat:{eventId}";
+    private static string GroupOf(ChatScope scope) =>
+        scope.Kind == ChatScopeKind.Series ? $"chat:series:{scope.Id}" : $"chat:event:{scope.Id}";
 
-    // Who is joined, by member and event, so leaving can take their connections out of the group. An
+    // Who is joined, by member and chat, so leaving can take their connections out of the group. An
     // entry goes when its connection closes, so the map is as large as the live connections.
-    private readonly ConcurrentDictionary<(Guid MemberId, Guid EventId), HashSet<string>> joined = new();
+    private readonly ConcurrentDictionary<(Guid MemberId, ChatScope Scope), HashSet<string>> joined = new();
 
-    public async Task JoinAsync(string connectionId, Guid memberId, Guid eventId, CancellationToken cancellationToken)
+    public async Task JoinAsync(string connectionId, Guid memberId, ChatScope scope, CancellationToken cancellationToken)
     {
-        var connections = joined.GetOrAdd((memberId, eventId), _ => []);
+        var connections = joined.GetOrAdd((memberId, scope), _ => []);
         lock (connections)
         {
             connections.Add(connectionId);
         }
 
-        await hub.Groups.AddToGroupAsync(connectionId, GroupOf(eventId), cancellationToken).ConfigureAwait(false);
+        await hub.Groups.AddToGroupAsync(connectionId, GroupOf(scope), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task LeaveAsync(Guid memberId, Guid eventId, CancellationToken cancellationToken)
+    public async Task LeaveAsync(Guid memberId, ChatScope scope, CancellationToken cancellationToken)
     {
-        if (!joined.TryRemove((memberId, eventId), out var connections))
+        if (!joined.TryRemove((memberId, scope), out var connections))
         {
             return;
         }
@@ -76,12 +81,12 @@ internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
 
         foreach (var connectionId in held)
         {
-            await hub.Groups.RemoveFromGroupAsync(connectionId, GroupOf(eventId), cancellationToken).ConfigureAwait(false);
+            await hub.Groups.RemoveFromGroupAsync(connectionId, GroupOf(scope), cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public Task NotifyCancelledAsync(Guid eventId, CancellationToken cancellationToken) =>
-        hub.Clients.Group(GroupOf(eventId)).SendAsync("EventCancelled", eventId, cancellationToken);
+    public Task NotifyCancelledAsync(ChatScope scope, CancellationToken cancellationToken) =>
+        hub.Clients.Group(GroupOf(scope)).SendAsync("EventCancelled", scope.Id, cancellationToken);
 
     public void Disconnected(string connectionId)
     {
@@ -96,7 +101,7 @@ internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
 
             if (empty)
             {
-                joined.TryRemove(new KeyValuePair<(Guid, Guid), HashSet<string>>(key, connections));
+                joined.TryRemove(new KeyValuePair<(Guid, ChatScope), HashSet<string>>(key, connections));
             }
         }
     }
@@ -104,8 +109,8 @@ internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
     public Task SendToMemberAsync(Guid memberId, ChatMessageDto message, CancellationToken cancellationToken) =>
         hub.Clients.User(memberId.ToString()).SendAsync("MessageReceived", message, cancellationToken);
 
-    public Task SendAsync(ChatMessageDto message, CancellationToken cancellationToken) =>
-        hub.Clients.Group(GroupOf(message.EventId)).SendAsync("MessageReceived", message, cancellationToken);
+    public Task SendAsync(ChatScope scope, ChatMessageDto message, CancellationToken cancellationToken) =>
+        hub.Clients.Group(GroupOf(scope)).SendAsync("MessageReceived", message, cancellationToken);
 }
 
 /// <summary>
