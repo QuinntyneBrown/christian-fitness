@@ -43,7 +43,7 @@ editor finds the default and the matches, the refusal codes, what a choice in th
   "Couldn't search hosts. Check your connection and type again."; a default that fails to load
   leaves the field empty for the Admin to search, and a save without a choice is refused as
   above. No mock draws either; they are recorded here rather than invented in a mock.
-- **Hosted by.** `GET /api/events/{id}` adds `host`: `id`, `kind`, `name`, `isVerified` and
+- **Hosted by.** `GET /api/events/{id}`, and the register and cancel answers that share its shape, add `host`: `id`, `kind`, `name`, `isVerified` and
   `photoKey`, read through `HostListingId`; the field names match the directory's. The member
   page shows the library's `host-card` under the registration card in the aside, replacing the
   line "Posted by the Christian Fitness team": the listing mark (initials, or the photo once

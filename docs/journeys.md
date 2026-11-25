@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 16% (7 of 36 journeys; 18 of 113 days)
+**% complete:** 22% (8 of 36 journeys; 21 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -19,7 +19,7 @@ audit), so those are not listed on their own.
 | 4   | ✅ Search events and see mine          | Member | Search Events by title and show only the events I'm going to.                                                  | 2             |
 | 5   | ✅ Browse the directory                | Member | Find the organizations, people and ministries behind events, by kind and by search.                            | 3             |
 | 6   | ✅ View a listing's profile            | Member | See what a listing hosts and is connected to, and message its owner.                                           | 3             |
-| 7   | See who hosts an event                 | Both   | Every event has a required host listing, chosen in the event editor and shown on the event.                    | 3             |
+| 7   | ✅ See who hosts an event              | Both   | Every event has a required host listing, chosen in the event editor and shown on the event.                    | 3             |
 | 8   | ✅ Follow a listing                    | Member | Follow or unfollow a listing from the directory or its profile.                                                | 2             |
 | 9   | Manage event series                    | Admin  | Staff create a series, edit its details and add dated sessions under the regrouped console navigation.         | 5             |
 | 10  | Browse event series                    | Member | A Series view on Events lists programs by next session, with progress and filters.                             | 3             |
