@@ -1,0 +1,11 @@
+<ol class="steps">
+  @for (step of items(); track step.title; let i = $index) {
+    <li class="steps__item">
+      <span class="steps__n" aria-hidden="true">{{ i + 1 }}</span>
+      <div>
+        <p class="steps__title">{{ step.title }}</p>
+        <p class="steps__text">{{ step.text }}</p>
+      </div>
+    </li>
+  }
+</ol>

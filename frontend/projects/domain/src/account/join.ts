@@ -33,8 +33,13 @@ export function toggleInterest(selected: readonly InterestKey[], key: InterestKe
   return INTERESTS.map((interest) => interest.key).filter((k) => pressed.includes(k));
 }
 
+/** A member's first name: the first word of their name, or none when it is blank or not known yet. */
+export function firstNameOf(name: string | null): string | null {
+  return name?.trim().split(/\s+/, 1)[0] || null;
+}
+
 /** The Home stand-in's greeting: "Welcome, " and the first name, or "Welcome" (ADR 0007). */
 export function welcomeOf(name: string | null): string {
-  const first = name?.trim().split(/\s+/, 1)[0];
+  const first = firstNameOf(name);
   return first ? `Welcome, ${first}` : 'Welcome';
 }

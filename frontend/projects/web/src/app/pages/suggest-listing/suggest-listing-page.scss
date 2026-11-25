@@ -1,0 +1,34 @@
+// The Suggest a listing screen's own layout (mock `suggest-listing/default`): the details as a
+// form section with fields 20 px apart (`stack-5`) and the place and website side by side from
+// 640 px (`field-grid--2`). The form page, the choice groups, the fields and the steps are the
+// library's.
+:host {
+  display: block;
+}
+
+.suggest-listing-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.suggest-listing__fields {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.suggest-listing__pair {
+  display: grid;
+  gap: var(--space-5);
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+// The suggested name in the thanks (`done__text strong`).
+.suggest-listing__name {
+  font-weight: var(--font-weight-semibold);
+}

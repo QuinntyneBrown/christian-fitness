@@ -68,3 +68,4 @@ export * from './directory/listing-kinds';
 export * from './directory/listing-row-view';
 export * from './directory/directory-filter';
 export * from './legal/legal-versions';
+export * from './directory/suggestion-form';

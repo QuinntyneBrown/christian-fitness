@@ -1,0 +1,98 @@
+<main id="main" class="suggest-listing-page">
+  <cf-container page="default">
+    <cf-link variant="back" href="/directory">Directory</cf-link>
+    <cf-form-page
+      heading="Suggest a listing"
+      lead="Know a church ministry, club, coach or business that belongs here? Tell us about them and we’ll do the checking."
+      asideHeading="What happens next"
+      [sentAs]="sentAs()"
+      (send)="send()"
+    >
+      <cf-choice-card-group
+        legend="Who are you suggesting?"
+        name="relation"
+        [options]="relations"
+        [value]="values().relation"
+        (valueChange)="chooseRelation($event)"
+      />
+      <cf-choice-chip-group
+        legend="What kind of listing?"
+        name="kind"
+        [options]="kinds"
+        [value]="values().kind"
+        (valueChange)="chooseKind($event)"
+      />
+      <div class="suggest-listing__fields">
+        <cf-text-field
+          fieldId="f-name"
+          [label]="view().nameLabel"
+          name="name"
+          [value]="values().name"
+          [error]="fieldErrors().name"
+          (valueChange)="edit('name', $event)"
+        />
+        <div class="suggest-listing__pair">
+          <cf-text-field
+            fieldId="f-where"
+            label="Where they meet or work"
+            name="where"
+            [value]="values().where"
+            [error]="fieldErrors().where"
+            (valueChange)="edit('where', $event)"
+          />
+          <cf-text-field
+            fieldId="f-website"
+            label="Website or social"
+            name="website"
+            optional
+            [value]="values().website"
+            [error]="fieldErrors().website"
+            (valueChange)="edit('website', $event)"
+          />
+        </div>
+        <cf-text-field
+          fieldId="f-church"
+          label="Church connection"
+          name="church"
+          optional
+          hint="For example: meets at Danforth Baptist"
+          [value]="values().churchConnection"
+          [error]="fieldErrors().churchConnection"
+          (valueChange)="edit('churchConnection', $event)"
+        />
+        <cf-textarea
+          fieldId="f-why"
+          [label]="view().reasonLabel"
+          name="why"
+          rows="4"
+          [value]="values().reason"
+          [error]="fieldErrors().reason"
+          (valueChange)="edit('reason', $event)"
+        />
+        @if (view().asksContact) {
+          <cf-text-field
+            fieldId="f-their-email"
+            label="Their email"
+            name="their-email"
+            type="email"
+            optional
+            hint="So we can reach them directly"
+            [value]="values().email"
+            [error]="fieldErrors().email"
+            (valueChange)="edit('email', $event)"
+          />
+        }
+        @if (view().asksContact) {
+          <cf-checkbox
+            label="It’s fine to tell them you suggested them"
+            name="tell"
+            [checked]="values().mayTellWhoSuggested"
+            (checkedChange)="allowTelling($event)"
+          />
+        }
+      </div>
+      <cf-button slot="actions" type="submit" size="md">Send suggestion</cf-button>
+      <cf-steps slot="aside" [items]="steps" />
+    </cf-form-page>
+  </cf-container>
+</main>

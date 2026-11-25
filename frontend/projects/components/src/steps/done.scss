@@ -1,0 +1,57 @@
+// The design system's done block (docs/design-system/assets/components.css, "Steps": done,
+// done__icon, __title, __text, __actions; typography: display, page-title).
+:host {
+  display: block;
+}
+
+.done:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--space-2);
+}
+
+.done__icon {
+  display: flex;
+  width: var(--size-avatar-xl);
+  height: var(--size-avatar-xl);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+}
+
+.icon--lg {
+  width: var(--size-icon-lg);
+  height: var(--size-icon-lg);
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.done__title {
+  margin-top: var(--space-5);
+}
+
+.done__text {
+  margin-top: var(--space-4);
+  max-width: var(--layout-lead-max);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.done__actions {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
