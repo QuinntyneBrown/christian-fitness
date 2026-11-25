@@ -8,7 +8,7 @@ Browse, suggest, follow and review left validation, limits and data sources open
 
 ## Decision
 
-- **Search.** The API treats `q` under 2 characters after trimming as absent and refuses `q` over 100 characters with 400 `query_too_long`. Matching is case- and accent-insensitive: a PostgreSQL nondeterministic ICU collation (`und-u-ks-level1`) on name, with a trigram GIN index for `ILIKE`.
+- **Search.** The API treats `q` under 2 characters after trimming as absent and refuses `q` over 100 characters with 400 `query_too_long`. Matching is case- and accent-insensitive: a PostgreSQL nondeterministic ICU collation (`und-u-ks-level1`) on name, with a trigram GIN index for `ILIKE`. (Superseded by ADR 0082: a folded `SearchText` column with a trigram GIN index, since PostgreSQL before 18 refuses `LIKE` on a nondeterministic collation.)
 - **Suggestion fields.** Name, kind and place are required; reason is optional. Limits: name 120, place 120, website 200 (`https` only), church connection 200, email 254, reason 1,000.
 - **Rate window.** "5 suggestions a day" is a rolling 24 hours, like the other rate windows.
 - **Decided suggestions.** They stay listed for 90 days and are purged at 12 months (erasure and retention). The console pages 50 at a time with "Load more".
