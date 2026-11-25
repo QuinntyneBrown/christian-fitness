@@ -8,12 +8,10 @@ System_Ext(client, "Mail client", "One-click unsubscribe")
 System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular", "SubscribePage reads the token from the fragment")
   Container(api, "Christian Fitness API", "ASP.NET Core", "PublicNewsletterController, NewsletterUpkeep")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Subscriptions, confirmation token hashes")
-  ContainerDb(keys, "Data Protection key ring", "Azure Files at DataProtection:KeysPath", "Signs unsubscribe tokens")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Subscriptions and token hashes")
 }
 Rel(sub, web, "Opens /subscribe#confirm=… or #unsubscribe=…", "HTTPS")
 Rel(web, api, "POST confirmations, POST unsubscriptions", "JSON/HTTPS")
 Rel(client, api, "POST /api/public/newsletter/unsubscribe?token=…", "HTTPS")
 Rel(api, db, "Reads and writes", "EF Core")
-Rel(api, keys, "Protects and unprotects tokens", "IDataProtector")
 @enduml

@@ -29,6 +29,12 @@ Three things made the design's shape unworkable as written:
 
 ## Decision
 
+- **Amendment, 24 November 2026.** [ADR 0062](0062-personal-data-erasure-and-retention.md)
+  extends this behaviour to auditable member commands. Their handlers record the member id as actor.
+  At account erasure identifying actor and record references to the member are removed, while the
+  remaining entry is kept for two years from `OccurredAt`. Only Admins read entries via `cf audit`;
+  scheduled work purges entries at the retention deadline. The original implementation below
+  describes slice 29.2; this amendment is not yet implemented.
 - **A marker on each staff command.** `IAuditableCommand` (Application) carries `AuditAction`, a
   stable name `{record}.{past tense}`, implemented explicitly so model binding never sees it.
   `VerifyTwoStepCommand` is `staff_session.started` and `StaffSignOutCommand`
@@ -50,9 +56,8 @@ Three things made the design's shape unworkable as written:
   `RecordId` and `OccurredAt` (from `TimeProvider`), and nothing personal: no name, email, field
   value or request text. The `AuditEntries` table has no foreign key, so an entry outlives the member
   and the record, and it is indexed by record and by actor, each with time.
-- **Retention: keep everything for now.** Nothing reads the trail yet. Entries are kept with no
-  automatic deletion; the slice that adds an audit view decides who may read it and any retention
-  period (staff-roles design, open question 2). An entry holds a member id and no contact detail.
+- **Original retention.** Slice 29.2 keeps entries indefinitely and has no reader or purge; the
+  amendment above replaces that policy for the future implementation.
 - **Proved on the staff session.** The acceptance tests sign staff in and out through the API and
   read the store: one entry each, with the exact actor, action, record and time of a
   `FakeTimeProvider`; a wrong password, the password step alone and a wrong code leave none; the

@@ -11,7 +11,7 @@ unsubscribe").
 
 - **confirmation token** — 32 random bytes in base64url, single-use and valid for 7 days, of which the system stores only a SHA-256 hash
 - **consent time** — instant the owner followed a valid confirmation link, kept on the subscription
-- **unsubscribe token** — opaque token that names one subscription, signed with the API's Data Protection keys and placed in every newsletter email
+- **unsubscribe token** — random opaque token linked to one subscription by a stored hash, placed in every newsletter email
 - **one-click unsubscribe** — unsubscribe a mail client performs from the `List-Unsubscribe` and `List-Unsubscribe-Post` headers (RFC 8058)
 - **purge** — deletion of an unsubscribed address no later than 30 days after it unsubscribed
 
@@ -34,8 +34,8 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
     and "Read last week's issue" (`L2-058` AC2);
   - `link-expired` — the library's `Alert` "That link has expired. Confirmation links last 7 days.
     Enter your email again and we'll send a new one." above the form (`L2-058` AC3);
-  - `unsubscribed` — "You're unsubscribed", the address, and Subscribe again, which shows the form
-    (`L2-058` AC5).
+  - `unsubscribed` — "You're unsubscribed" and Subscribe again, which shows the form
+    (`L2-058` AC5); a purged or unknown token shows the same without an address.
 
   While the request runs the page shows its loading state (`<TO SUPPLY>`: no mock state is drawn
   for it). A 5xx or no answer shows the `error` alert.
@@ -60,17 +60,15 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   this and every other open confirmation of the subscription used, and answers
   `SubscriptionConfirmedDto` (`email`, `firstIssueAt` — the next send time of the Weekly in
   `America/Toronto` — and `extras`).
-- **`UnsubscribeCommand`** / **`UnsubscribeHandler`** — reads the subscription id from the token
-  through **`INewsletterTokens`**; a token it cannot read is refused with
-  `subscription_link_expired`. `NewsletterSubscription.Unsubscribe(now)` turns the Weekly and all
+- **`UnsubscribeCommand`** / **`UnsubscribeHandler`** — hashes the token and looks up its
+  subscription through **`INewsletterTokens`**. `NewsletterSubscription.Unsubscribe(now)` turns the Weekly and all
   three extras off at once and sets `UnsubscribedAt` the first time only, so a second visit
   answers the same and does not delay the purge (`L2-058` AC5). A subscription already purged
-  answers as an unknown token does.
-- **`INewsletterTokens`** / **`DataProtectionNewsletterTokens`** — Application contract and its
-  Infrastructure implementation over ASP.NET Core Data Protection (`IDataProtector` with the
-  purpose `newsletter.unsubscribe`, keys at `DataProtection:KeysPath`, ADR 0047). The token holds
-  the subscription id only; nothing is stored for it, so every email can carry one without a row
-  per message.
+  is an idempotent no-op, as is an unknown token; neither reveals an address.
+- **`INewsletterTokens`** — Application contract for generating a cryptographically random token
+  for each email and storing only its hash linked to the subscription. Links have no expiry;
+  hashes survive resubscription of the same record and are deleted when it is purged. They do not
+  depend on Data Protection keys, which are retained for 90 days after retirement (ADR 0062).
 - **`NewsletterEmails`** — Application service (introduced in `subscribe-to-newsletter`) that also
   writes the part every newsletter email shares (`L2-058` AC4): a footer that names Christian
   Fitness and its postal address (setting `Newsletter:PostalAddress`), the Unsubscribe link
@@ -97,12 +95,9 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   `SmtpEmailTransport` sends plain text. One-click unsubscribe needs custom headers, and the issue
   "as the email reads" (`L2-059` AC1) suggests an HTML body. Both change the shared email contract
   and need an ADR next to ADR 0010.
-- **Access logs.** The one-click URL carries the token in its query string, as RFC 8058 requires.
-  nginx and the Container Apps ingress may log request lines; whether their logs drop query strings
-  is `<TO SUPPLY>` and belongs to the deployment settings.
-- **Unsubscribe token lifetime.** The design gives unsubscribe tokens no expiry, so a link in an
-  old email still works; rotating the Data Protection keys out of the ring would end old links.
-  The key retention period is `<TO SUPPLY>`.
+- **Access logs.** The one-click URL carries the token in its query string. nginx and ingress
+  access logs must omit query strings, or be disabled if they cannot (ADR 0062 and deployment
+  settings).
 - **Postal address.** The mocks' footer reads "Christian Fitness · Toronto, ON", which is not a
   postal address. The address itself is `<TO SUPPLY>`.
 - **Link scanners.** Mail security scanners that fetch links do not run the page's script, so
@@ -134,7 +129,7 @@ client, follows them back to Christian Fitness.
 ### Containers
 
 The Member web app posts tokens it read from the fragment; a mail client posts the one-click
-unsubscribe to the API directly. The API signs unsubscribe tokens with its Data Protection keys.
+unsubscribe to the API directly. The API looks up a hash of the opaque unsubscribe token.
 
 ![C4 container view for confirming and unsubscribing](diagrams/c4-container.png)
 

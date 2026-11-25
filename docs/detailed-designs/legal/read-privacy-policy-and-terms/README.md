@@ -35,8 +35,8 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 | Data stored in Canada | PostgreSQL Flexible Server and the file share of ADR 0047; region not recorded | `<TO SUPPLY>` |
 | Encrypted in transit and at rest | HTTPS with HSTS (`L2-030` AC4); at rest depends on the Azure services' settings | `<TO SUPPLY>` |
 | Staff access is logged | `AuditEntry` records staff changes, not staff reads | Not true as written |
-| Deletion completed within 30 days | [Download and delete data](../../preferences/download-and-delete-data/README.md) erases after 30 days | True once built |
-| Payment receipts kept seven years; refunds for cancelled paid events | No online payment (`L2-011` AC5) | Not applicable yet |
+| Deletion and retention periods | [ADR 0062](../../../adr/0062-personal-data-erasure-and-retention.md) specifies erasure after the 30-day grace period and bounded retention of shared records | True once built and scheduled |
+| Refunds for cancelled paid events | No online payment (`L2-011` AC5) | Not applicable yet |
 | Cancel up to 48 hours before a paid event | The event page says 24 hours | Conflict |
 | Minimum age 16 | Join asks no age | Not enforced |
 | Event hosts see the name and email of registrants | No host access exists; staff see registrations (`L2-024`) | Not true yet |

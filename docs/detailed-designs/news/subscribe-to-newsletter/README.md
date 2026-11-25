@@ -90,6 +90,8 @@ to send the newsletter, never shared, and never written to a span, metric or log
   normalized), `Status`, `Weekly`, `Extras` (`NewsletterExtras`: `EventAlerts`, `TrainingPlan`,
   `MorningDevotion`), `RequestedAt`, `ConsentedAt`, `UnsubscribedAt`. A class with no generated
   `ToString`, so the address is never printed by accident (the pattern of `EmailMessage`).
+  Each Pending request updates `RequestedAt`; scheduled work purges a still-Pending subscription
+  and its confirmations 30 days after the most recent request (ADR 0062).
 - **`SubscriptionConfirmation`** — entity: the SHA-256 hash of a 32-byte base64url token, the
   extras chosen, `ExpiresAt` 7 days after issue and `UsedAt`, as `PasswordReset` keeps its token
   (ADR 0010). The token exists only in the email.
@@ -108,9 +110,6 @@ to send the newsletter, never shared, and never written to a span, metric or log
 - **Extras of a subscribed address.** `L2-057` AC5 updates a subscribed address's extras on a new
   submission, with no confirmation. Anyone who knows the address can then turn its extras on or
   off. The specification settles it; the risk is recorded for review.
-- **Pending addresses never confirmed.** The specification deletes unsubscribed addresses within
-  30 days (`L2-058` AC6) but says nothing of Pending ones. Deleting a Pending subscription once
-  its last confirmation expires is proposed and needs a decision.
 - **Email pattern.** The client check and `email_invalid` need one pattern; the case table is
   `<TO SUPPLY>` and is shared by both suites (`AGENTS.md`, "Contracts").
 - **Design-system gaps.** The mocks' blocks `subscribe`, `issue-preview`, `rss` and `feed` have no

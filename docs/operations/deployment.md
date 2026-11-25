@@ -3,6 +3,18 @@
 How Christian Fitness is released and where it runs (ADR 0047). Every setting is in
 [`settings.md`](settings.md).
 
+## Future retention and access-log controls
+
+[ADR 0062](../adr/0062-personal-data-erasure-and-retention.md) requires the deployment slice to
+configure nginx access logs with an explicit format using `$uri`, not `$request`, `$request_uri`
+or `$args`. The ingress must also omit query strings; disable its access logs or replace the ingress
+if it cannot guarantee this. Verify both layers with a non-secret test query before enabling
+token-bearing unsubscribe links. Do not log request bodies or token-bearing headers. This is a
+deployment requirement, not a claim that the current configuration already provides it.
+
+Retain Data Protection keys for 90 days after retirement and verify that no other protected payload
+needs them longer before removing them. Unsubscribe tokens must not depend on these keys.
+
 | Address                            | Serves                                   |
 | ---------------------------------- | ---------------------------------------- |
 | `https://www.christian.fitness`    | the member app, and its `/api/`          |
