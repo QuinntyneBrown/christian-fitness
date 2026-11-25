@@ -53,7 +53,7 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 - **"Just my groups" and past events.** A registration stays after its event, so members of a past event's chat still share a group. Whether a past or cancelled event's chat counts is `<TO SUPPLY>`.
 - **Area matching.** Events record a free-text area. Either events gain a suggestion area, or a mapping table relates places to areas; an ADR is needed. How the area, interests and followed listings (`L2-056` AC7) combine in Home's order is not stated.
 - **Landing order.** `L2-065` AC7 and `L2-001` AC8 contradict each other for a signed-in member; the requirement needs correcting.
-- **Interest list.** The mock lists Running, Strength, Basketball, Nutrition, Mobility, Walking, Retreats and Pickleball; `Interests.All` holds running, strength, basketball, walking-groups, mobility, nutrition, cycling and retreats. Pickleball is missing from the code and Cycling from the mock.
+- **Interest list.** The interests are the union of the mock's and the code's lists: Running, Strength, Basketball, Walking groups, Mobility, Nutrition, Cycling, Retreats and Pickleball. `Interests.All` holds the corresponding keys and `INTERESTS` in `@cf/api` supplies the frontend labels.
 - **Home church.** Preferences sets who sees the whole profile; whether the home church deserves its own setting is open (mocks README open question 4). It stays under `ShowHomeChurch` from Edit profile.
 - **Privacy Policy wording.** The policy mock says hosts see the name and email of people registered; no host access exists in the code, and `L2-065` AC4 says only that hosts still see attendees (see [read the Privacy Policy and Terms](../../legal/read-privacy-policy-and-terms/README.md)).
 

@@ -129,10 +129,10 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   JoinRequestDto): Observable<SessionDto>`; for Google, `pendingGoogle():
   Observable<PendingGoogleAccountDto>` (`email`, `name`) and `joinWithGoogle(request:
   GoogleJoinRequestDto): Observable<SessionDto>` (`displayName`, `homeChurch`, `interests`). `JoinRequestDto` is `fullName`, `email`, `password`,
-  `homeChurch` (`null` when blank) and `interests` (keys). `INTERESTS` lists the eight interests
+  `homeChurch` (`null` when blank) and `interests` (keys). `INTERESTS` lists the nine interests
   as `{ key, label }`: `running` Running, `strength` Strength, `basketball` Basketball,
   `walking-groups` Walking groups, `mobility` Mobility, `nutrition` Nutrition, `cycling` Cycling,
-  `retreats` Retreats. `HttpAccountService` in the member app posts to `/api/account/join` and is
+  `retreats` Retreats, `pickleball` Pickleball. `HttpAccountService` in the member app posts to `/api/account/join` and is
   bound in `app.config.ts`; a failed request errors with an `ApiError` (`status`, `code`,
   `errors`), made with `apiErrorOf`, so the page never handles an `HttpErrorResponse`.
 - **`AccountController`** — `[AllowAnonymous]` `POST /api/account/join`. It sends one
