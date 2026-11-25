@@ -107,3 +107,20 @@ reverse proxy in front of the API must pass WebSocket upgrades (`Upgrade` and `C
 `/api/chat`; SignalR falls back to long polling if it does not. `connect-src 'self'` already covers the
 WebSocket. Messages are delivered by the one API instance that holds the connection, so a deployment with
 more than one instance needs a SignalR backplane before the chat is scaled out; none is configured.
+
+## Legal document releases
+
+Publish the material-change summary in the member index as a meta element named
+`cf-privacy-change` or `cf-terms-change`, with the ISO effective date in `content`
+and a plain-language summary in `data-summary`. Register that date in both legal
+schedules. Keep the current text in place until the effective date.
+
+At least 30 days ahead, run `cf announce-legal-change privacy yyyy-mm-dd` or
+`cf announce-legal-change terms yyyy-mm-dd` with the existing SQL, SMTP and
+`MemberApp__BaseUrl` settings. The command awaits each SMTP submission. Use one
+operator per announcement. If delivery is interrupted, reconcile SMTP delivery
+records before repeating the command to avoid duplicate mail.
+
+Configure the Google OAuth consent screen's Privacy Policy URL as
+https://www.christian.fitness/privacy and Terms of Service URL as
+https://www.christian.fitness/terms when provisioning the member OAuth client.
