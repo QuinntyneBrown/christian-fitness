@@ -1,7 +1,7 @@
 from dslib import ex, icon, kbd, matrix, mock, seal, themes
 
 ITEMS = [("Dashboard", "layout-dashboard", 0, ""), ("Events", "calendar-days", 0, ""),
-         ("Services", "heart-handshake", 3, "applications waiting"), ("Members", "users", 1, "report to review")]
+         ("Services", "heart-handshake", 3, "applications waiting"), ("Members", "users", 1, "member to review")]
 # The sidebar is sticky and 100dvh tall from 1024px; examples give it a fixed height and static position.
 BOX = ' style="position: static; height: 30rem;"'
 
@@ -11,8 +11,8 @@ def nav(cur="Dashboard", label="Admin example"):
     for text, ic, n, what in ITEMS:
         c = ' aria-current="page"' if text == cur else ""
         badge = f'<span class="admin-nav__count" aria-label="{n} {what}">{n}</span>' if n else ""
-        out.append(f'<a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a>')
-    return f'<nav class="admin-nav" aria-label="{label}">{"".join(out)}</nav>'
+        out.append(f'<li><a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a></li>')
+    return f'<nav class="admin-nav" aria-label="{label}"><ul class="admin-nav__list">{"".join(out)}</ul></nav>'
 
 
 def sidebar(cur="Dashboard", label="Admin example"):
@@ -28,18 +28,22 @@ GROUPED = [("", [("Dashboard", "layout-dashboard", 0, "")]),
            ("Publish", [("Stories", "newspaper", 1, "story to review"), ("Newsletter", "mail", 0, "")]),
            ("Gather", [("Events", "calendar-days", 0, ""), ("Event series", "repeat", 0, ""), ("Community Pick", "megaphone", 0, "")]),
            ("Community", [("Listings", "book-user", 3, "suggestions to check"), ("Services", "heart-handshake", 3, "applications waiting"),
-                          ("Members", "users", 1, "report to review"), ("Feedback", "message-square-text", 2, "new notes")])]
+                          ("Members", "users", 1, "member to review"), ("Feedback", "message-square-text", 2, "new notes")])]
 
 
 def grouped_nav(cur="Feedback", label="Admin grouped example"):
     out = []
     for group, entries in GROUPED:
-        if group:
-            out.append(f'<p class="admin-nav__group">{group}</p>')
-        for text, ic, n, what in entries:
+        lis = []
+        for text, ic, count, what in entries:
             c = ' aria-current="page"' if text == cur else ""
-            badge = f'<span class="admin-nav__count" aria-label="{n} {what}">{n}</span>' if n else ""
-            out.append(f'<a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a>')
+            badge = f'<span class="admin-nav__count" aria-label="{count} {what}">{count}</span>' if count else ""
+            lis.append(f'<li><a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a></li>')
+        gid = f"nav-group-{group.lower()}"
+        if group:
+            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2>')
+        label_attr = f' aria-labelledby="{gid}"' if group else ""
+        out.append(f'<ul class="admin-nav__list"{label_attr}>{"".join(lis)}</ul>')
     return f'<nav class="admin-nav" aria-label="{label}">{"".join(out)}</nav>'
 
 
@@ -106,7 +110,7 @@ SPEC = {
         "pattern": "<p>An <code>&lt;aside&gt;</code> holding <code>&lt;nav aria-label=\"Admin\"&gt;</code> of plain links. No disclosure or tree: four flat items.</p>",
         "keys": [(kbd("Tab") + " / " + kbd("Shift", "Tab"), "Moves through items, then Sign out."), (kbd("Enter"), "Follows the link.")],
         "focus": "<p>2px <code>--color-focus-ring-on-dark</code> (borealis), which holds 3:1 on the chrome.</p>",
-        "labelling": "<p>Group labels are plain <code>&lt;p&gt;</code> text inside the <code>&lt;nav&gt;</code>, read in order before their items; they are not headings, so the page keeps one heading outline. Counts carry their meaning: \"3 applications waiting\", \"1 report to review\". Sign out is an icon link with <code>aria-label=\"Sign out\"</code>.</p>",
+        "labelling": "<p>Each group is an <code>&lt;h2 id&gt;</code> followed by a <code>&lt;ul aria-labelledby&gt;</code> of its links, so assistive technology announces the group name and its number of links; below 1024px the headings are hidden with the band and the lists stay named. Dashboard sits alone in an unlabelled list, and a Moderator's single list has no headings. Counts carry their meaning: \"3 applications waiting\", \"1 member to review\". Sign out is an icon link with <code>aria-label=\"Sign out\"</code>.</p>",
         "pairs": [
             ("Item on chrome", "--color-fg-on-chrome-muted", "--color-bg-chrome", 4.5),
             ("Current item", "--color-fg-on-chrome", "--color-bg-chrome-current", 4.5),
@@ -149,9 +153,13 @@ SPEC = {
         "snippet": '''<aside class="admin__sidebar">
   <div class="admin__brand">…<div><p class="admin__brand-name">Christian Fitness</p><p class="admin__brand-sub">Admin console</p></div></div>
   <nav class="admin-nav" aria-label="Admin">
-    <a class="admin-nav__item" href="/admin" aria-current="page">…Dashboard</a>
-    <p class="admin-nav__group">Community</p>
-    <a class="admin-nav__item" href="/admin/services">…Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a>
+    <ul class="admin-nav__list">
+      <li><a class="admin-nav__item" href="/admin" aria-current="page">…Dashboard</a></li>
+    </ul>
+    <h2 class="admin-nav__group" id="nav-group-community">Community</h2>
+    <ul class="admin-nav__list" aria-labelledby="nav-group-community">
+      <li><a class="admin-nav__item" href="/admin/services">…Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a></li>
+    </ul>
   </nav>
   <div class="admin__user">…<button class="admin__signout" type="button" aria-label="Sign out">…</button></div>
 </aside>''',
@@ -159,7 +167,7 @@ SPEC = {
             ("<code>.admin__sidebar</code>", "Chrome column (desktop) or band (phones)."),
             ("<code>.admin__brand</code> <code>.admin__brand-name</code> <code>.admin__brand-sub</code>", "Brand block."),
             ("<code>.admin-nav</code> <code>.admin-nav__item</code> <code>.admin-nav__count</code>", "Links and counts."),
-            ("<code>.admin-nav__group</code>", "Group label; shown from 1024px."),
+            ("<code>.admin-nav__group</code>", "Group heading (an <code>h2</code>) that names the <code>ul.admin-nav__list</code> after it through <code>aria-labelledby</code>; shown from 1024px."),
             ("<code>.admin__user</code> … <code>.admin__signout</code>", "Signed-in staff member and Sign out."),
             ("<code>aria-current=\"page\"</code>", "Current section."),
         ],

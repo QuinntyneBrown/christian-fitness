@@ -190,9 +190,11 @@ navigation, say) must be made in the generator and in those files.
 - **Community Pick graphics.** Drawn in HTML over the event photo to stand for the PNGs the product
   will render; the frame's exact artwork (`components/PickArt.tsx`) is the reference for the build.
 - **Listing checks.** Real tick boxes with labels in place of the frame's round toggle buttons.
-- **Dashboard queue.** The Dashboard mock is hand-edited (ADR 0060); the three new lines (story in
-  review, suggestions, feedback) were added to its `default` and `partial` states, and the
-  Moderator's queue is unchanged.
+- **Dashboard queue.** The Dashboard mock is hand-edited (ADR 0060, amended by ADR 0079); the three
+  new lines (story in review, suggestions, feedback) were added to its `default` and `partial`
+  states, and the Moderator's queue is unchanged. The queue counts items (10), the feedback line
+  shows kind and age only, times in the last 24 hours are relative inside `<time>`, and the
+  Community tiles cover the last 7 days.
 - **Phone tab bar.** Six tabs now (Directory added), still at least 44 px each at 360 px wide.
 - **Member profile view.** The prototype's `view=member` shows Grace's own data with a Message
   button; the `member` state shows Michael Chen instead, at `/members/:id`.

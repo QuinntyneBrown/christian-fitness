@@ -1948,9 +1948,11 @@ a.listing-row__link:hover .listing-row__name, .listing-row__link[data-state="hov
 .legal__questions-title { font-weight: var(--font-weight-semibold); color: var(--color-fg-default); }
 
 /* ---------- Admin: grouped navigation, statuses, shared bits ------------ */
-.admin-nav__group { display: none; padding: var(--space-5) var(--space-3-5) var(--space-1); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wider); color: var(--color-fg-on-chrome-subtle); }
+.admin-nav__group { display: none; margin: 0; padding: var(--space-5) var(--space-3-5) var(--space-1); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wider); color: var(--color-fg-on-chrome-subtle); }
 @media (min-width: 64rem) { .admin-nav__group { display: block; } .admin-nav { overflow-y: auto; padding-bottom: var(--space-4); } }
 .admin-nav__item { flex-shrink: 0; }
+.admin-nav__list { display: flex; flex-shrink: 0; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+@media (min-width: 64rem) { .admin-nav__list { flex-direction: column; } }
 .admin__page--flush { max-width: none; padding: 0; }
 .status--review, .status--new { background: var(--color-highlight); color: var(--color-fg-on-highlight); }
 .status--scheduled, .status--replied { background: var(--color-bg-surface); color: var(--color-fg-default); box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-strong); }
