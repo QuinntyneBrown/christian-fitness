@@ -53,7 +53,7 @@ choices below marked `<TO SUPPLY>` are its open points.
   shows the spinner icon, and is `disabled` and `aria-busy="true"` (mock states `redirecting`). It
   follows Google's sign-in branding: Google's wording, a neutral border and fill, at least 44 px tall
   (`L2-049` AC10). Output `chosen`.
-- **`Divider`** — the existing components-library divider in its labelled form (block `or-divider`),
+- **`Divider`** — the existing components-library divider in its labelled form (block `divider--label`),
   reading "or with email" between the Google button and the email form.
 - **Start** — each screen calls its session contract's `startGoogle(...)`: `SessionApi.startGoogle({
   intent, returnUrl })` in the member app, `StaffSessionApi.startGoogle()` in the admin app (see the

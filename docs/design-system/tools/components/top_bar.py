@@ -130,7 +130,7 @@ SPEC = {
             ("<code>.app-header</code> <code>.app-header__inner</code>", "Sticky member bar and its centred row."),
             ("<code>.app-nav</code> <code>.app-nav__link</code>", "Primary links; hidden below 768px."),
             ("<code>.profile-button</code>", "Initials disc linking to Profile."),
-            ("<code>.app-header__signout</code>", "Ghost Sign out button; has no rule of its own in components.css."),
+            ("<code>.app-header__signout</code>", "Ghost Sign out button: never shrinks or wraps, 44px tall, and shown at every width, since the tab bar has no other way to sign out."),
             ("<code>.site-header</code> <code>.site-header__actions</code> <code>.site-header__signin</code>", "Public header; Sign in hides below 640px."),
             ("<code>aria-current=\"page\"</code>", "Current place."),
         ],
@@ -143,6 +143,6 @@ SPEC = {
             mock("pages/directory/default", "Directory current"),
             mock("pages/landing/default", "site header actions inside the masthead"),
         ],
-        "drift": "The wordmark in the lockup was 22px in the mocks; it now uses <code>--font-size-xl</code> (20px). Link pills used the old xl radius in places; all now use <code>--radius-full</code>. The redrawn member pages add Directory as the third primary link (and a sixth tab-bar item). <code>.app-header__signout</code> is used by every member page but has no CSS rule, so Sign out shows at every width beside the profile button (open: hide it below 768px or move it into Profile).",
+        "drift": "The wordmark in the lockup was 22px in the mocks; it now uses <code>--font-size-xl</code> (20px). Link pills used the old xl radius in places; all now use <code>--radius-full</code>. The redrawn member pages add Directory as the third primary link (and a sixth tab-bar item). Closed: <code>.app-header__signout</code> now has a rule and shows at every width beside the profile button.",
     },
 }

@@ -250,7 +250,7 @@ def google_button(label: str = "Continue with Google", *, loading: bool = False,
 
 
 def or_divider(label: str = "or with email") -> str:
-    return f'<p class="or-divider">{label}</p>'
+    return f'<p class="divider--label">{label}</p>'
 
 
 # ---------------------------------------------------------------------------
@@ -345,19 +345,18 @@ def admin_nav(active: str, *, counts: dict | None = None, moderator: bool = Fals
         entries = [e for e in entries if not moderator or e[0] in MODERATOR_AREAS]
         if not entries:
             continue
-        label = ""
-        if group and not moderator:
-            gid = "nav-group-" + group.lower()
-            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2>')
-            label = f' aria-labelledby="{gid}"'
-        lis = []
-        for key, label_text, ic, n, what in entries:
+        items = []
+        for key, label, ic, n, what in entries:
             n = counts.get(key, n)
             cur = ' aria-current="page"' if key == active else ""
             one, _, many = what.partition("|")
             badge = f'<span class="admin-nav__count" aria-label="{n} {one if n == 1 else many}">{n}</span>' if n else ""
-            lis.append(f'<li><a class="admin-nav__item" href="{href(key)}"{cur}>{icon(ic, "icon--md")}{label_text}{badge}</a></li>')
-        out.append(f'<ul class="admin-nav__list"{label}>{"".join(lis)}</ul>')
+            items.append(f'<li><a class="admin-nav__item" href="{href(key)}"{cur}>{icon(ic, "icon--md")}{label}{badge}</a></li>')
+        if group and not moderator:
+            gid = "admin-nav-" + group.lower()
+            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2><ul class="admin-nav__list" aria-labelledby="{gid}">{"".join(items)}</ul>')
+        else:
+            out.append(f'<ul class="admin-nav__list" aria-label="{"Areas" if group or moderator else "Overview"}">{"".join(items)}</ul>')
     return f"""<nav class="admin-nav" aria-label="Admin">
       {''.join(out)}
     </nav>"""

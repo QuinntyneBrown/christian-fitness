@@ -336,7 +336,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 <div><p class="pref__legend">Delete your account</p><p class="pref__desc">Erases your profile and sent message text after 30 days</p></div>
                 <button class="btn btn--secondary btn--sm pref__delete" type="button" data-mock-href="{href("delete-account")}">Delete account</button>
               </div>
-              <p class="pref__note">Read how we handle your information in our <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
+              <p class="pref__note">Read how we handle your information in our <a class="link" href="{href("privacy")}">Privacy Policy</a>.</p>"""
     nav = "".join(f'<li><a class="side-nav__link" href="#{i}">{l}</a></li>' for i, l in PREF_SECTIONS)
     return f"""    <div class="container page">
       <a class="back-link" href="{href("profile")}">{icon("arrow-left")} Profile</a>
@@ -627,7 +627,7 @@ def legal(title: str, summary: list, sections: list, other: tuple, *, banner: st
         {body}
         <div class="legal__questions">
           <p class="legal__questions-title">Questions?</p>
-          <p>Email privacy@christian.fitness, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.</p>
+          <p>Email privacy@christian.fitness, or <a class="link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.</p>
         </div>
       </div>
     </div>
@@ -713,7 +713,7 @@ LEGAL_NA = {"loading": "A static page shipped with the app; nothing loads.", "em
             "error": "A static page shipped with the app; nothing can fail to load."}
 
 LEGAL_BANNER = ("We\u2019re updating our Privacy Policy and Terms on May 20, 2026. "
-                f'<a class="inline-link" href="{href("privacy", "updating", "whats-changing")}">Read what\u2019s changing.</a> Using Christian Fitness after that date means you accept them.')
+                f'<a class="link" href="{href("privacy", "updating", "whats-changing")}">Read what\u2019s changing.</a> Using Christian Fitness after that date means you accept them.')
 
 
 def whats_changing(doc: str) -> str:

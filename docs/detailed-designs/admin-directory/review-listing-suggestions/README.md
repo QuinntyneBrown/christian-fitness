@@ -62,7 +62,7 @@ User-supplied names, areas, websites and the member's words are rendered as text
 - **Failure of a tick.** `L2-073` AC4 saves a tick at once but no mock state shows a failed save. The mock `tick-failed` puts the box back and shows a toast, as Follow does.
 - **"Admins only" copy and Moderators.** Settled by ADR 0064: the sentence is general (`L2-019` AC5) and a Moderator opens Listings.
 - **Navigation count.** `L2-021` AC3 puts the waiting count on Listings, with "3 suggestions to check" for assistive technology in the mock. Which endpoint serves the navigation's counts belongs to the admin navigation design.
-- **Design-system pages.** `pick-card`, `check-row`, `suggestion` and `row-link` have no page in `docs/design-system/components/`; they need one before they are built, or the panel is composed from existing library components.
+- **Design-system pages (resolved).** `pick-card` is documented on `pick-list`, and `check-row` and `row-link` on `suggestion`, in `docs/design-system/components/`; the panel is built from those pages (`suggestion`, `pick-list`, `listing-row`), with no further page needed.
 
 ## Requirements
 

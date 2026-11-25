@@ -15,7 +15,7 @@ def gbtn(label="Continue with Google", a=""):
 
 BUSY = f'<button class="google-button" type="button" disabled aria-busy="true">{SPIN}Opening Google…</button>'
 FORM = '<div class="auth__form">{}</div>'
-SSO = FORM.format(f'<div class="auth__sso">{gbtn()}<p class="or-divider">or with email</p></div>')
+SSO = FORM.format(f'<div class="auth__sso">{gbtn()}<p class="divider--label">or with email</p></div>')
 
 STATES = [("Default", ""), ("Hover", ' data-state="hover"'), ("Focus", ' data-state="focus"'),
           ("Disabled", " disabled"), ("Busy", "")]
@@ -41,7 +41,7 @@ SPEC = {
     },
     "variants": "<h3>Member sign in and join</h3>"
     + ex(SSO, "Sign in: \"Continue with Google\" above the email form, then the or divider.", True, mod="stack")
-    + ex(FORM.format(f'<div class="auth__sso">{gbtn("Sign up with Google")}<p class="or-divider">or with email</p></div>'),
+    + ex(FORM.format(f'<div class="auth__sso">{gbtn("Sign up with Google")}<p class="divider--label">or with email</p></div>'),
          "Join: \"Sign up with Google\".", True, mod="stack")
     + "<h3>Staff sign in</h3>"
     + ex(FORM.format(f'<div class="staff__sso">{gbtn("Sign in with Google")}</div>'),
@@ -124,7 +124,7 @@ SPEC = {
   <button class="google-button" type="button">
     <svg class="google-g" viewBox="0 0 48 48" aria-hidden="true">…Google's four paths, unaltered…</svg>Continue with Google
   </button>
-  <p class="or-divider">or with email</p>
+  <p class="divider--label">or with email</p>
 </div>
 
 <!-- Redirecting -->

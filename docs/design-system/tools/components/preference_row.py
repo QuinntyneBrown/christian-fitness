@@ -51,7 +51,7 @@ def account(sfx="", requested=False):
                    '<div class="pref__row pref__row--split"><div><p class="pref__legend">Delete your account</p>'
                    '<p class="pref__desc">Removes your profile and messages within 30 days</p></div>'
                    '<button class="btn btn--secondary btn--sm pref__delete" type="button">Delete account</button></div>'
-                   '<p class="pref__note">Read how we handle your information in our <a class="inline-link" href="#">Privacy Policy</a>.</p>')
+                   '<p class="pref__note">Read how we handle your information in our <a class="link" href="#">Privacy Policy</a>.</p>')
 
 
 NAV = ('<nav class="side-nav" aria-label="Preference sections"><ul class="side-nav__list">'

@@ -12,7 +12,7 @@ def nav(cur="Dashboard", label="Admin example"):
         c = ' aria-current="page"' if text == cur else ""
         badge = f'<span class="admin-nav__count" aria-label="{n} {what}">{n}</span>' if n else ""
         out.append(f'<li><a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a></li>')
-    return f'<nav class="admin-nav" aria-label="{label}"><ul class="admin-nav__list">{"".join(out)}</ul></nav>'
+    return f'<nav class="admin-nav" aria-label="{label}"><ul class="admin-nav__list" aria-label="Areas">{"".join(out)}</ul></nav>'
 
 
 def sidebar(cur="Dashboard", label="Admin example"):
@@ -34,16 +34,16 @@ GROUPED = [("", [("Dashboard", "layout-dashboard", 0, "")]),
 def grouped_nav(cur="Feedback", label="Admin grouped example"):
     out = []
     for group, entries in GROUPED:
-        lis = []
-        for text, ic, count, what in entries:
+        items = []
+        for text, ic, n, what in entries:
             c = ' aria-current="page"' if text == cur else ""
-            badge = f'<span class="admin-nav__count" aria-label="{count} {what}">{count}</span>' if count else ""
-            lis.append(f'<li><a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a></li>')
-        gid = f"nav-group-{group.lower()}"
+            badge = f'<span class="admin-nav__count" aria-label="{n} {what}">{n}</span>' if n else ""
+            items.append(f'<li><a class="admin-nav__item" href="#top"{c}>{icon(ic, "icon--md")}{text}{badge}</a></li>')
         if group:
-            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2>')
-        label_attr = f' aria-labelledby="{gid}"' if group else ""
-        out.append(f'<ul class="admin-nav__list"{label_attr}>{"".join(lis)}</ul>')
+            gid = f"{label.lower().replace(' ', '-')}-{group.lower()}"
+            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2><ul class="admin-nav__list" aria-labelledby="{gid}">{"".join(items)}</ul>')
+        else:
+            out.append(f'<ul class="admin-nav__list" aria-label="Overview">{"".join(items)}</ul>')
     return f'<nav class="admin-nav" aria-label="{label}">{"".join(out)}</nav>'
 
 
@@ -57,8 +57,8 @@ def grouped_sidebar(cur="Feedback", label="Admin grouped example", height="50rem
 
 
 ROW = ('<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><div class="admin-nav">'
-       '<a class="admin-nav__item" href="#top"{a}>' + icon("heart-handshake", "icon--md")
-       + 'Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a></div></div>')
+       '<ul class="admin-nav__list" aria-label="Areas"><li><a class="admin-nav__item" href="#top"{a}>' + icon("heart-handshake", "icon--md")
+       + 'Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a></li></ul></div></div>')
 
 SPEC = {
     "lead": "The admin sidebar is where staff move between the console's sections, grouped by the job (Publish, Gather, Community), with counts for what needs them.",
@@ -107,10 +107,10 @@ SPEC = {
 </ul>""",
     "theming": "<p>The chrome tokens do the work: <code>--color-bg-chrome</code>, <code>--color-fg-on-chrome</code>, <code>--color-fg-on-chrome-muted</code>, <code>--color-bg-on-chrome-hover</code>, <code>--color-bg-chrome-current</code>, <code>--color-bg-chrome-badge</code>. In dark theme the chrome stays dark and gains a hairline right border so it separates from the canvas.</p>",
     "accessibility": {
-        "pattern": "<p>An <code>&lt;aside&gt;</code> holding <code>&lt;nav aria-label=\"Admin\"&gt;</code> of plain links. No disclosure or tree: four flat items.</p>",
+        "pattern": "<p>An <code>&lt;aside&gt;</code> holding <code>&lt;nav aria-label=\"Admin\"&gt;</code> of plain links. No disclosure or tree.</p>",
         "keys": [(kbd("Tab") + " / " + kbd("Shift", "Tab"), "Moves through items, then Sign out."), (kbd("Enter"), "Follows the link.")],
         "focus": "<p>2px <code>--color-focus-ring-on-dark</code> (borealis), which holds 3:1 on the chrome.</p>",
-        "labelling": "<p>Each group is an <code>&lt;h2 id&gt;</code> followed by a <code>&lt;ul aria-labelledby&gt;</code> of its links, so assistive technology announces the group name and its number of links; below 1024px the headings are hidden with the band and the lists stay named. Dashboard sits alone in an unlabelled list, and a Moderator's single list has no headings. Counts carry their meaning: \"3 applications waiting\", \"1 member to review\". Sign out is an icon link with <code>aria-label=\"Sign out\"</code>.</p>",
+        "labelling": "<p>Each group is an <code>&lt;h2&gt;</code> naming a <code>&lt;ul aria-labelledby&gt;</code> of its links, so a screen reader announces \"Publish, list, 2 items\" and can jump between groups by heading; the Dashboard's own list is named \"Overview\" and a Moderator's single list \"Areas\", with no heading. The name survives where the heading is hidden below 1024px. Counts carry their meaning: \"3 applications waiting\", \"1 report to review\". Sign out is an icon link with <code>aria-label=\"Sign out\"</code>.</p>",
         "pairs": [
             ("Item on chrome", "--color-fg-on-chrome-muted", "--color-bg-chrome", 4.5),
             ("Current item", "--color-fg-on-chrome", "--color-bg-chrome-current", 4.5),
@@ -129,10 +129,10 @@ SPEC = {
 </ul>""",
     "dodont": [
         ("do", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);">' + nav("Services", "Admin do example") + "</div>", "Counts only where work is waiting, each with its own label."),
-        ("dont", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><nav class="admin-nav" aria-label="Admin don\'t example"><a class="admin-nav__item" href="#top">' + icon("layout-dashboard", "icon--md") + 'Dashboard<span class="admin-nav__count">0</span></a><a class="admin-nav__item" href="#top">' + icon("calendar-days", "icon--md") + 'Events<span class="admin-nav__count">0</span></a></nav></div>',
+        ("dont", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><nav class="admin-nav" aria-label="Admin don\'t example"><ul class="admin-nav__list" aria-label="Areas"><li><a class="admin-nav__item" href="#top">' + icon("layout-dashboard", "icon--md") + 'Dashboard<span class="admin-nav__count">0</span></a></li><li><a class="admin-nav__item" href="#top">' + icon("calendar-days", "icon--md") + 'Events<span class="admin-nav__count">0</span></a></li></ul></nav></div>',
          "Zero counts are noise, and a bare number says nothing to a screen reader."),
-        ("do", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><nav class="admin-nav" aria-label="Admin do example 2"><a class="admin-nav__item" href="#top" aria-current="page">' + icon("users", "icon--md") + "Members</a></nav></div>", "Current set with <code>aria-current</code>."),
-        ("dont", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><nav class="admin-nav" aria-label="Admin don\'t example 2"><a class="admin-nav__item" href="#top" aria-current="page">' + icon("users", "icon--md") + 'Members</a><a class="admin-nav__item" href="#top">' + icon("flag", "icon--md") + "Flagged members</a></nav></div>",
+        ("do", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><nav class="admin-nav" aria-label="Admin do example 2"><ul class="admin-nav__list" aria-label="Areas"><li><a class="admin-nav__item" href="#top" aria-current="page">' + icon("users", "icon--md") + "Members</a></li></ul></nav></div>", "Current set with <code>aria-current</code>."),
+        ("dont", '<div class="admin__sidebar" style="position: static; height: auto; width: 100%; padding-top: var(--space-3);"><nav class="admin-nav" aria-label="Admin don\'t example 2"><ul class="admin-nav__list" aria-label="Areas"><li><a class="admin-nav__item" href="#top" aria-current="page">' + icon("users", "icon--md") + 'Members</a></li><li><a class="admin-nav__item" href="#top">' + icon("flag", "icon--md") + "Flagged members</a></li></ul></nav></div>",
          "A filter as a sidebar item; Flagged is a tab inside Members."),
     ],
     "tokens": [
@@ -153,11 +153,9 @@ SPEC = {
         "snippet": '''<aside class="admin__sidebar">
   <div class="admin__brand">…<div><p class="admin__brand-name">Christian Fitness</p><p class="admin__brand-sub">Admin console</p></div></div>
   <nav class="admin-nav" aria-label="Admin">
-    <ul class="admin-nav__list">
-      <li><a class="admin-nav__item" href="/admin" aria-current="page">…Dashboard</a></li>
-    </ul>
-    <h2 class="admin-nav__group" id="nav-group-community">Community</h2>
-    <ul class="admin-nav__list" aria-labelledby="nav-group-community">
+    <ul class="admin-nav__list" aria-label="Overview"><li><a class="admin-nav__item" href="/admin" aria-current="page">…Dashboard</a></li></ul>
+    <h2 class="admin-nav__group" id="admin-nav-community">Community</h2>
+    <ul class="admin-nav__list" aria-labelledby="admin-nav-community">
       <li><a class="admin-nav__item" href="/admin/services">…Services<span class="admin-nav__count" aria-label="3 applications waiting">3</span></a></li>
     </ul>
   </nav>
@@ -167,7 +165,7 @@ SPEC = {
             ("<code>.admin__sidebar</code>", "Chrome column (desktop) or band (phones)."),
             ("<code>.admin__brand</code> <code>.admin__brand-name</code> <code>.admin__brand-sub</code>", "Brand block."),
             ("<code>.admin-nav</code> <code>.admin-nav__item</code> <code>.admin-nav__count</code>", "Links and counts."),
-            ("<code>.admin-nav__group</code>", "Group heading (an <code>h2</code>) that names the <code>ul.admin-nav__list</code> after it through <code>aria-labelledby</code>; shown from 1024px."),
+            ("<code>.admin-nav__group</code> <code>.admin-nav__list</code>", "Group heading (<code>h2</code>, shown from 1024px) and its list, named by it with <code>aria-labelledby</code>."),
             ("<code>.admin__user</code> … <code>.admin__signout</code>", "Signed-in staff member and Sign out."),
             ("<code>aria-current=\"page\"</code>", "Current section."),
         ],

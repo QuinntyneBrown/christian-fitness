@@ -98,11 +98,7 @@ has no footer (`L2-008` AC5).
 
 ### Open questions
 
-- **Footer in the design system.** `docs/design-system/components/footer.html` says member and
-  admin screens have no footer and documents only `site-footer`. `L2-008` AC5 and every member
-  mock now draw an `app-footer`. The design system's footer page should gain the `app` variant
-  (anatomy, the four links, the tab-bar offset) before the component is built, so the library
-  keeps one `Footer` rather than a second component.
+- **Footer in the design system (resolved).** `docs/design-system/components/footer.html` documents the member footer (`.app-footer`: anatomy, the links, the tab-bar offset) beside `site-footer`, so the library keeps one `Footer` with an `app` variant.
 - **Event chat.** `messages/:id` and `events/:id/chat` show the same chat screen. `L2-008` AC5
   names only Messages; whether the event chat reached from an event also omits the footer is
   `<TO SUPPLY>`. The design treats every chat route as filling the window.

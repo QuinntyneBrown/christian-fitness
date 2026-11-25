@@ -1210,7 +1210,7 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
                    else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="approved.html"{"" if ok else " disabled aria-describedby=" + chr(34) + "approve-hint" + chr(34)}>Approve listing</button>')
         foot = (approve + f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="declined.html"{" disabled" if busy else ""}>Decline</button>'
                 + ("" if ok else '<p class="suggestion__hint" id="approve-hint">Approve unlocks when all four checks pass.</p>'))
-    site = (f' · <a class="inline-link inline-link--ink" href="https://{sg["website"]}" target="_blank" rel="noopener noreferrer">{sg["website"]} {icon("external-link", "icon--xs")}<span class="visually-hidden"> (opens in a new tab)</span></a>'
+    site = (f' · <a class="link link--ink" href="https://{sg["website"]}" target="_blank" rel="noopener noreferrer">{sg["website"]} {icon("external-link", "icon--xs")}<span class="visually-hidden"> (opens in a new tab)</span></a>'
             if sg["website"] else "")
     by = "Submitted by the listing themselves" if sg["relation"] == "Is them" else f'{sg["by"]} · {sg["relation"].lower()}'
     return f"""<div class="split split--picker split--picker-wide">

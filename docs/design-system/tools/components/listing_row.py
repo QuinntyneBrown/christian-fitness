@@ -14,7 +14,7 @@ VERIFIED = f'<span class="verified-mark" role="img" aria-label="Verified">{icon(
 
 def follow(name, on=False, a=""):
     if on:
-        return f'<button class="follow" type="button" aria-pressed="true"{a}>{icon("check")}Following<span class="visually-hidden"> {name}</span></button>'
+        return f'<button class="follow" type="button" aria-pressed="true"{a}>{icon("check")}Follow<span class="visually-hidden"> {name}</span></button>'
     return f'<button class="follow" type="button" aria-pressed="false"{a}>Follow<span class="visually-hidden"> {name}</span></button>'
 
 
@@ -55,7 +55,7 @@ MARKS = ('<div class="cluster"><span class="listing-mark listing-mark--sm" aria-
 
 def head(mark, kind, name, sub, verified=True, on=True):
     v = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if verified else ""
-    btn = (f'<button class="follow follow--lg" type="button" aria-pressed="true">{icon("check")}Following<span class="visually-hidden"> {name}</span></button>'
+    btn = (f'<button class="follow follow--lg" type="button" aria-pressed="true">{icon("check")}Follow<span class="visually-hidden"> {name}</span></button>'
            if on else f'<button class="follow follow--lg" type="button" aria-pressed="false">Follow<span class="visually-hidden"> {name}</span></button>')
     return (f'<header class="listing-head"><div class="listing-head__who">{mark}<div class="listing-head__body">'
             f'<p class="eyebrow listing-head__kind">{kind}{v}</p><h2 class="display detail-title listing-head__name">{name}</h2>'
@@ -96,7 +96,7 @@ SPEC = {
             ("Mark", "48px listing mark, <code>aria-hidden</code> (the name follows)."),
             ("Name and verified mark", "Semibold, one line with ellipsis; the <a href=\"host-card.html\">verified mark</a> after it."),
             ("Tagline and area", "One muted line with ellipsis; below 768px the area follows on its own line (<code>__area--inline</code>). From 768px the area moves to a 9rem column (<code>__area--col</code>) and from 1024px a 7rem hosting column appears (<code>__hosting</code>, accent <code>--some</code> for \"1 hosting\"); see Variants. They are left out of this figure, which is narrower than the page."),
-            ("Follow", "A toggle beside the link, never inside it: \"Follow\" or \"Following\" (<code>aria-pressed</code>)."),
+            ("Follow", "A toggle beside the link, never inside it: \"Follow\", pressed or not (<code>aria-pressed</code>, check icon when on)."),
         ],
     },
     "variants": "<h3>Listing marks</h3>"
@@ -124,7 +124,7 @@ SPEC = {
         + "<p>No listings, no results for a search (\"aquafit\") and a failed load use the <a href=\"empty-state.html\">empty state</a> under the kind chips (directory/empty, no-results, error). A failed Follow puts the button back to Follow and shows a <a href=\"toast.html\">toast</a> (directory/follow-failed).</p>",
         "themes": themes(MARKS) + '<div data-theme="dark">' + ex(GROUPS, "Directory groups in the dark theme.", mod="block")
         + ex(HEAD_ORG, "Listing head in the dark theme.", mod="block") + "</div>",
-        "notes": "<ul><li>Hover fills the row and turns the name accent; the matrix shows both through the <code>data-state="hover"</code> hook.</li><li>\"1 hosting\" is accent and semibold, \"No events yet\" muted: the words differ, so colour is not the only cue.</li></ul>",
+        "notes": "<ul><li>Hover fills the row and turns the name accent; the matrix shows both through the <code>data-state=\"hover\"</code> hook.</li><li>\"1 hosting\" is accent and semibold, \"No events yet\" muted: the words differ, so colour is not the only cue.</li></ul>",
     },
     "responsive": """<ul>
 <li><b>Below 768px</b>: mark, name, tagline and the area inline under it; Follow on the right.</li>

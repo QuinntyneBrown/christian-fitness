@@ -41,7 +41,7 @@ The feature is a vertical slice from the Send feedback screen to the database. N
 ### Open questions
 
 - **Suspended-member access.** AC12 permits feedback as an appeal, but `L2-004` AC4 and AC10 refuse suspended sign-in and `L2-029` AC2 ends sessions on suspension. The authenticated route above cannot currently be reached by a suspended member. An authenticated appeal access mechanism and any necessary changes to those requirements are `<TO SUPPLY>` before implementation; allowing the handler alone does not resolve access.
-- **Design-system blocks.** The mock's `context-chip` ("About this page") and the success `done` block have no design-system page of their own; they should be placed in `choice-card` or `form-layout` before they are built.
+- **Design-system blocks (resolved).** The mock's `context-chip` ("About this page") and the success `done` block are documented on the design-system page `steps`; the components are built from it.
 
 ## Requirements
 

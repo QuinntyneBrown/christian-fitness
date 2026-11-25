@@ -87,7 +87,7 @@ def rail_events(events=None) -> str:
 def landing(top: str, stories: str, *, section: str = "Latest", events: str | None = None, most_read: str = "shown") -> str:
     tabs = "".join(f'<a class="section-nav__link" href="{SECTION_STATE.get(s_, "section")}.html"{CUR if s_ == section else ""}>{s_}</a>'
                    for s_ in SECTIONS)
-    ranked = "".join(f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title">{t}</p></li>'
+    ranked = "".join(f'<li><span class="ranked__n" aria-hidden="true">{i}</span><p class="ranked__title"><a href="{href("story", "default")}">{t}</a></p></li>'
                      for i, t in enumerate(MOST_READ, 1))
     most_read_html = {
         "shown": f"""<section aria-labelledby="rail-most-read">
@@ -349,7 +349,7 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
         {age}
       </div>
       {submit}
-      <p class="auth__terms">By creating a profile you agree to our <a class="inline-link" href="{href("terms")}">Terms of Service</a> and <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>
+      <p class="auth__terms">By creating a profile you agree to our <a class="link" href="{href("terms")}">Terms of Service</a> and <a class="link" href="{href("privacy")}">Privacy Policy</a>.</p>
       <p class="auth__alt">Already a member? <a href="{href("sign-in")}">Sign in</a></p>
     </form>"""
 
@@ -406,7 +406,7 @@ def _():
 
 @s("invalid", "The email already has an account: inline error under Email with a way to sign in.")
 def _():
-    return auth(join_form(email_error=f'An account with this email already exists. <a class="inline-link" href="{href("sign-in")}">Sign in instead?</a>'))
+    return auth(join_form(email_error=f'An account with this email already exists. <a class="link" href="{href("sign-in")}">Sign in instead?</a>'))
 
 
 JOIN_FIELD_ERRORS = {"name": "Enter your name.", "email": "Enter an email address like name@example.com",
@@ -484,7 +484,7 @@ def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
         # L2-004 AC3. The button stays enabled: the pause is the server's, per email (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(
             "Sign-in paused for 15 minutes",
-            f'Too many attempts, so we paused sign-in to keep your account safe. <a class="inline-link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
+            f'Too many attempts, so we paused sign-in to keep your account safe. <a class="link" href="{href("forgot-password")}">Reset your password</a>') + "</div>"
     if suspended or google_suspended:
         # L2-004 AC4: shown only once the right password was given, or Google vouched for the account (ADR 0012).
         alert = '<div class="auth__alert">' + form_alert(

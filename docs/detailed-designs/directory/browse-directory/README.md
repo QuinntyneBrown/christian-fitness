@@ -60,7 +60,7 @@ Nothing on the screen reaches a person beyond what the listing publishes: rows c
 - **Kind names in the address.** [ADR 0071](../../../adr/0071-addresses-and-slugs.md) uses the singular kind's slug, for example `/directory?kind=church-ministry`. An unknown kind shows All, as Events does (`L2-009` AC9).
 - **Paging states.** `L2-054` AC7 applies `L2-009` AC5 and AC7 to the directory, including the 200-item cap and the "didn't load" message for a next page. The directory mocks draw `loading-more` ("Loading more listings…"), `more-error` ("More listings didn't load." with Try again) and `capped` ("Showing the first 100. Narrow your search.").
 - **Search behaviour.** Decided (`L2-054` AC4, ADR 0077): the API ignores `q` under 2 characters after trimming, refuses one over 100 with `query_too_long`, and matches through a nondeterministic ICU collation `und-u-ks-level1` on name with a trigram GIN index for `ILIKE`.
-- **Design-system pages.** The blocks `listing-row`, `listing-mark`, `verified-mark`, `follow` and `directory-group` are styled in `docs/design-system/assets/components.css` but have no page in `docs/design-system/components/`. `AGENTS.md` requires each component built from its design-system page; the pages need extracting before the components are built.
+- **Design-system pages (resolved).** The blocks `listing-row`, `listing-mark`, `verified-mark`, `follow` and `directory-group` now have pages in `docs/design-system/components/` (`listing-row`, `follow-button`); each component is built from its page, as `AGENTS.md` requires.
 
 ## Requirements
 

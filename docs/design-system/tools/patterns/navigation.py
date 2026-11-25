@@ -43,18 +43,14 @@ def _li(inner):
 
 GROUPED = ('<div class="admin__sidebar" style="position: static; height: auto; width: 100%; max-width: 16rem;">'
            '<nav class="admin-nav" aria-label="Admin (grouped example)">'
-           '<ul class="admin-nav__list">'
-           + _li(f'<a class="admin-nav__item" href="#">{icon("layout-dashboard", "icon--md")}Dashboard</a>') + '</ul>'
-           '<h2 class="admin-nav__group" id="nav-group-publish">Publish</h2>'
-           '<ul class="admin-nav__list" aria-labelledby="nav-group-publish">'
-           + _li(f'<a class="admin-nav__item" href="#"{CUR}>{icon("newspaper", "icon--md")}Stories<span class="admin-nav__count" aria-label="1 story to review">1</span></a>')
-           + _li(f'<a class="admin-nav__item" href="#">{icon("mail", "icon--md")}Newsletter</a>') + '</ul>'
-           '<h2 class="admin-nav__group" id="nav-group-gather">Gather</h2>'
-           '<ul class="admin-nav__list" aria-labelledby="nav-group-gather">'
-           + _li(f'<a class="admin-nav__item" href="#">{icon("calendar-days", "icon--md")}Events</a>') + '</ul>'
-           '<h2 class="admin-nav__group" id="nav-group-community">Community</h2>'
-           '<ul class="admin-nav__list" aria-labelledby="nav-group-community">'
-           + _li(f'<a class="admin-nav__item" href="#">{icon("message-square-text", "icon--md")}Feedback<span class="admin-nav__count" aria-label="2 new notes">2</span></a>') + '</ul>'
+           f'<ul class="admin-nav__list" aria-label="Overview"><li><a class="admin-nav__item" href="#">{icon("layout-dashboard", "icon--md")}Dashboard</a></li></ul>'
+           '<h2 class="admin-nav__group" id="pattern-nav-publish">Publish</h2>'
+           f'<ul class="admin-nav__list" aria-labelledby="pattern-nav-publish"><li><a class="admin-nav__item" href="#"{CUR}>{icon("newspaper", "icon--md")}Stories<span class="admin-nav__count" aria-label="1 story to review">1</span></a></li>'
+           f'<li><a class="admin-nav__item" href="#">{icon("mail", "icon--md")}Newsletter</a></li></ul>'
+           '<h2 class="admin-nav__group" id="pattern-nav-gather">Gather</h2>'
+           f'<ul class="admin-nav__list" aria-labelledby="pattern-nav-gather"><li><a class="admin-nav__item" href="#">{icon("calendar-days", "icon--md")}Events</a></li></ul>'
+           '<h2 class="admin-nav__group" id="pattern-nav-community">Community</h2>'
+           f'<ul class="admin-nav__list" aria-labelledby="pattern-nav-community"><li><a class="admin-nav__item" href="#">{icon("message-square-text", "icon--md")}Feedback<span class="admin-nav__count" aria-label="2 new notes">2</span></a></li></ul>'
            '</nav></div>')
 
 SPEC = {
@@ -98,7 +94,7 @@ SPEC = {
     "accessibility": f"""<ul>
 <li>Each navigation landmark has a distinct <code>aria-label</code> ("Main", "Admin", "Filter events", "Sections", "Preference sections", "Contents").</li>
 <li>Footer links are 44px tall targets; side navigation links scroll to sections that set <code>scroll-margin-top</code> so the sticky header never covers the heading.</li>
-<li>Console groups are an <code>&lt;h2 id&gt;</code> plus a <code>&lt;ul aria-labelledby&gt;</code> of links.</li>
+<li>Console groups are an <code>h2</code> naming a <code>ul aria-labelledby</code> of links.</li>
 <li>The skip link is first in tab order and jumps to <code>#main</code>.</li>
 <li>Tab order follows reading order; {kbd("Tab")} moves between items, {kbd("Enter")} follows a link, {kbd("Space")} toggles a chip.</li>
 <li>Icon-only items (profile button) have an accessible name; tab bar items always show their text label.</li>
