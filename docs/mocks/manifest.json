@@ -253,14 +253,19 @@
       "group": "Member app",
       "route": "/profile",
       "source": "Magic Patterns · prototype Christian Fitness · frame Profile (mcTAGhbYY6BhJ9YfwMksWP)",
-      "requirements": [],
+      "requirements": [
+        "L2-005",
+        "L2-033",
+        "L2-065"
+      ],
       "states": [
         "default",
         "cancelled",
         "member",
         "loading",
         "empty",
-        "error"
+        "error",
+        "public"
       ]
     },
     {

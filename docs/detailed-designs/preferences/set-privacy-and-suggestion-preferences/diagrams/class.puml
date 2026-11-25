@@ -32,7 +32,7 @@ class MemberPreferences {
   +bool ShowOnAttendeeLists
   +bool LetAnyoneMessage
   +SuggestionArea? Area
-  +AdmitsViewer(viewerId?: Guid, sharesGroup: bool): bool
+  +AdmitsViewer(viewerId: Guid, sharesGroup: bool): bool
 }
 class Member {
   +Guid Id
@@ -56,6 +56,11 @@ class PublicProfileDto {
   +string? HomeChurch
   +bool MessagesRestricted
 }
+class AnonymousProfileDto {
+  +string Name
+  +string? Bio
+  +string[] Interests
+}
 class JoinDirectHandler
 class SendDirectMessageHandler
 interface IRegistrationReader {
@@ -67,15 +72,15 @@ class GetHomeHandler {
 }
 interface ICurrentMember {
   +Guid Id
-  +Guid? IdIfSignedIn
 }
 MemberPreferences --> ProfileVisibility
 MemberPreferences --> SuggestionArea
 Member "1" -- "0..1" MemberPreferences
 GetPublicProfileHandler ..> MemberPreferences : visibility
 GetPublicProfileHandler ..> GroupMembership
-GetPublicProfileHandler ..> ICurrentMember : optional viewer
+GetPublicProfileHandler ..> ICurrentMember : signed-in viewer
 GetPublicProfileHandler ..> PublicProfileDto : returns
+GetPublicProfileHandler ..> AnonymousProfileDto : anonymous projection
 JoinDirectHandler ..> DirectChat
 SendDirectMessageHandler ..> DirectChat
 DirectChat ..> MemberPreferences : LetAnyoneMessage

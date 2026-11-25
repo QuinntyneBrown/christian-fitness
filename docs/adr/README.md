@@ -76,3 +76,4 @@ from the platform's best practice needs one (AGENTS.md, "Prefer best practice").
 | [0072](0072-public-reads-and-feed-delivery.md) | Public reads: 120 requests per minute per client IP; root feed proxy routes, 15-minute output caching and eviction, and no Pros feed | Accepted |
 | [0073](0073-story-link-previews-and-redirects.md) | Story previews and redirects: nginx proxies story addresses to an anonymous API endpoint serving the built SPA shell with encoded metadata, 301 for former slugs and 404 for unknown or unpublished stories | Accepted |
 | [0074](0074-retire-staff-password-and-two-step.md) | Retire the staff password and application-owned two-step verification | Accepted |
+| [0075](0075-public-profiles-and-privacy.md) | Public Anyone profiles, a separate anonymous projection, home-church sharing in Preferences, and shared event-chat membership | Accepted |
