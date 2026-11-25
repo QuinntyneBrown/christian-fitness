@@ -1413,6 +1413,7 @@ a.series-row:hover .series-row__title, .series-row[data-state="hover"] .series-r
 .series-card__date { border-radius: var(--radius-lg); background: var(--color-bg-surface); padding: var(--space-3) var(--space-4); }
 .series-card__when { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .series-card__topic { margin-top: var(--space-0-5); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+.series-card__date--cancelled .series-card__topic { text-decoration: line-through; }
 .host-card {
   margin-top: var(--space-4); display: flex; width: 100%; align-items: center; gap: var(--space-4); border-radius: var(--radius-xl);
   padding: var(--space-4); text-align: left; box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);

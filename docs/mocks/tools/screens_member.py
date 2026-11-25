@@ -826,11 +826,16 @@ def session_line(e: dict) -> str:
     return f'Session {e["session"]} of {len(sr["sessions"])} · {sr["cadence"]}'
 
 
+def part_of_line(e: dict) -> str:
+    """"Part of Couch to 5K Run Club": the Events list shows only a series' next session (ADR 0062)."""
+    return f'Part of {SR[e["series"]]["title"]}'
+
+
 def event_card(e: dict) -> str:
     left = e["capacity"] - e["going"]
     left_html = f'<span class="event-card__left"> · {left} spots left</span>' if left <= 10 else ""
     going = '<span class="going-pill">Going</span>' if e["registered"] else ""
-    series = (f'<p class="event-card__series">{icon("repeat", "icon--xs")}<span>{session_line(e)}</span></p>'
+    series = (f'<p class="event-card__series">{icon("repeat", "icon--xs")}<span>{part_of_line(e)} · {session_line(e)}</span></p>'
               if e.get("series") else "")
     return f"""<li><a class="event-card" href="{ev_link(e)}">
             <div class="event-card__media">
@@ -1038,9 +1043,12 @@ def series_card(e: dict) -> str:
     if not e.get("series"):
         return ""
     sr = SR[e["series"]]
-    later = [x for x in sr["sessions"] if x["status"] == "upcoming"][:3]
-    tiles = "".join(f'<li class="series-card__date"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]}</p>'
-                    f'<p class="series-card__topic">{x["topic"]}</p></li>' for x in later)
+    later = [x for x in sr["sessions"] if x["n"] > e["session"] and x["status"] in ("upcoming", "cancelled")][:3]
+    tiles = "".join(
+        (f'<li class="series-card__date series-card__date--cancelled"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]} · Cancelled</p>'
+         if x["status"] == "cancelled" else
+         f'<li class="series-card__date"><p class="series-card__when">{x["weekday"]} {x["month"]} {x["day"]}</p>')
+        + f'<p class="series-card__topic">{x["topic"]}</p></li>' for x in later)
     return f"""<section class="series-card" aria-labelledby="series-card-title">
             <div class="series-card__head">
               <div>
