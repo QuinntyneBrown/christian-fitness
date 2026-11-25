@@ -220,8 +220,7 @@ navigation, say) must be made in the generator and in those files.
    listing". That screen, and how a listing's owner edits it afterwards, are not drawn.
 10. **Buttons with nothing behind them.** New series, Edit details and Add a date (Event series),
     Edit (Listed), and Preview (story editor) have no screen or drawer in the frames.
-11. **Declining a suggestion.** Instant in the frame, with no reason; declining an application asks
-    for one (L2-025 AC3). Should this?
+11. **Declining a suggestion.** Decided: it asks for an optional reason, as declining an application does (L2-073 AC8). The frame still declines at once; the dialog is to be added.
 12. **What the legal pages promise.** They state things the system must then do: data stored in
     Canada and encrypted at rest, refunds for paid events (there is no online payment yet, L2-011
     AC5), cancelling up to 48 hours ahead (the event page says 24), a minimum age of 16, and

@@ -37,8 +37,8 @@ Telemetry records the route template `/api/directory/{id}/follow`, never the mem
 ### Open questions
 
 - **Home "Coming up".** `L2-007` names the next registered event and up to three suggested events; `L2-056` AC7 names a "Coming up" list that the Home mock draws. The design applies the order to whichever list Home serves as "Coming up"; the Home design owns that list. "Publishes a new event or series" does not say which events count as new; the design orders all upcoming events of followed hosts first. Both depend on events and series having a host listing (browse-directory design, Open questions).
-- **Presses while a request is in flight.** `L2-056` AC3 changes the button at once but does not say what a second press does before the first answers. Keeping one request per listing and sending the last state when it settles is proposed; `<TO SUPPLY>` in an ADR.
-- **Rate limit.** No limit on follow requests is specified (`L2-034` names messages, accounts and resets only).
+- **Presses while a request is in flight.** Decided (`L2-056` AC8): the button is `aria-disabled` while a request is in flight, so a second press does nothing.
+- **Rate limit.** Decided (`L2-056` AC9): 60 follows and unfollows an hour per member, refused with `too_many_attempts` (429).
 - **Notifications.** Telling followers about new dates (`L2-064` AC4) needs a notification channel the mocks do not draw (`docs/mocks/README.md` open question 1).
 
 ## Requirements

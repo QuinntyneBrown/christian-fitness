@@ -47,8 +47,8 @@ Every name, tagline, description, focus tag, relation and website is plain text,
 - **Who receives a listing's messages.** `L2-055` AC6 opens "the direct conversation with the listing" as for a professional, but a direct conversation is between two members (`DirectMessage`, ADR 0043). For an organization, company or ministry the recipient is not decided (`docs/mocks/README.md` open question 6). The design assumes an optional `MemberId` set when the listed party claims the listing (open question 9). What Message does for a listing with no member, and its refusal code, are `<TO SUPPLY>`; the mock always shows Message.
 - **Services and directory records.** Danielle Okafor's profile here (instructor, East York) and her Services listing (trainer, from $70) carry different copy. Whether Message from either opens the same conversation follows from the one-record-or-two decision raised in the browse-directory design.
 - **Hosts.** The Hosting section depends on a `HostListingId` on events and series and on the event series entity of the event series designs. Who sets a host is not specified (browse-directory design, Open questions).
-- **Website without https.** `L2-055` AC5 renders only an `https` address as a link. Whether an `http` or scheme-less website shows as text or not at all is `<TO SUPPLY>`; showing it as text is proposed.
-- **Connections.** No requirement or mock says how connections are created or edited. They are seed data until a staff screen is specified.
+- **Website without https.** Decided (`L2-055` AC5): it is not shown at all.
+- **Connections.** Decided (`L2-054` AC10): set by staff in the listing editor and by the owner; seed data is the stand-in until the editor is built.
 - **Error copy.** The mock's error says "We couldn't reach Christian Fitness" while the listing "Christian Fitness" is itself in the directory; the copy is kept as drawn.
 
 ## Requirements

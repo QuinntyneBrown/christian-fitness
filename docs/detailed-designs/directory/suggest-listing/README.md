@@ -44,11 +44,11 @@ The suggested party's email is used only to contact them about the listing (`L2-
 ### Open questions
 
 - **Sender of the outcome message.** A `DirectMessage` is between two members (ADR 0043). Christian Fitness as a sender needs a system account or a new kind of message; `<TO SUPPLY>` in an ADR. The message text is not drawn.
-- **Required fields.** `L2-062` AC4 names only the missing name. Whether the place and the reason are required, and the limits of place, website, church connection and email, are `<TO SUPPLY>`.
-- **The day of the limit.** "More than 5 suggestions from one member in a day" does not say whether the day is the last 24 hours or a calendar day in Toronto. The design proposes the last 24 hours, as `AttemptWindow` counts.
+- **Required fields.** Decided (`L2-062` AC2, AC4, AC7): name, kind and place are required; the reason is optional. Limits: name 120, place 120, website 200 (`https` only), church connection 200, email 254, reason 1,000.
+- **The day of the limit.** Decided (`L2-062` AC8): a rolling 24 hours, as `AttemptWindow` counts.
 - **Self-submission and the listing's owner.** For Myself the mock still says "Sent as Grace Thompson" while naming "Coach Marcus Delaney", and the console shows "Self-submitted". Whether a self-submitted listing becomes linked to the sender's account (and so receives its messages) is not specified; it bears on the profile's Message (view-listing-profile design).
 - **Who gets the claim link.** Approval sends the suggested party a link (`L2-073` AC6), but their email is optional and not asked for Myself. Who receives the link then is `<TO SUPPLY>` (`docs/mocks/README.md` open question 9).
-- **Retention.** How long a suggestion, and the email in it, is kept after it is decided is `<TO SUPPLY>`; `L2-033` AC3 erases a member's data on deletion but does not name suggestions.
+- **Retention.** Decided (`L2-073` AC9, ADR 0061): a decided suggestion is purged at 12 months, with the email in it.
 - **"How we vet every listing".** The mock links it to a story; which story is `<TO SUPPLY>`.
 
 ## Requirements
