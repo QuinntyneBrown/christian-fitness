@@ -64,6 +64,10 @@ export class WebHomePage {
   readonly errorHeading: Locator;
   readonly retryButton: Locator;
 
+  footerLink(name: string) {
+    return this.page.getByRole('contentinfo').getByRole('link', { name, exact: true });
+  }
+
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
     this.greeting = this.main.locator('.page-title--greeting');

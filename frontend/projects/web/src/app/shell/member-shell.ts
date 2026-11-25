@@ -1,3 +1,4 @@
+import { Footer } from '@cf/components';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -53,7 +54,7 @@ const DESTINATIONS: readonly MemberDestination[] = [
 @Component({
   selector: 'cf-member-shell',
   host: { '[attr.data-offline-ready]': 'offlineReady() ? "" : null' },
-  imports: [Banner, RouterOutlet, SkipLink, TabBar, TopBar],
+  imports: [Footer, Banner, RouterOutlet, SkipLink, TabBar, TopBar],
   providers: [
     { provide: CONVERSATIONS, useClass: HttpConversationsService },
     MemberInbox,

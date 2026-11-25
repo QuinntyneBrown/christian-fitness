@@ -25,6 +25,10 @@ export class WebLandingPage {
   readonly professionalsError: Locator;
   readonly professionalsTryAgain: Locator;
 
+  footerLink(name: string) {
+    return this.page.getByRole('contentinfo').getByRole('link', { name, exact: true });
+  }
+
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.joinFree = page.locator('.site-header').getByRole('link', { name: 'Join free' });

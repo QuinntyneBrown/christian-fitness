@@ -14,5 +14,6 @@ import { Component, input } from '@angular/core';
 })
 export class Footer {
   /** The copyright year; this year unless the screen says otherwise. */
+  readonly variant = input<'site' | 'member'>('site');
   readonly year = input(new Date().getFullYear());
 }
