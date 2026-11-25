@@ -35,7 +35,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 | Data stored in Canada | `docs/operations/deployment.md`: resource group `rg-christian-fitness` in Canada Central. The text adds that the email delivery provider may process email addresses outside Canada | True |
 | Encrypted in transit and at rest | HTTPS with HSTS (`L2-030` AC4); at rest by Azure's default encryption (managed PostgreSQL and Storage encryption) | True |
 | Staff access is logged | `AuditEntry` records staff changes, not staff reads | Text changed: the claim is removed; staff access is "limited to the team members who need it" |
-| Deletion and retention periods | [Download and delete data](../../preferences/download-and-delete-data/README.md) erases after 30 days; [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md) bounds the retention of shared records | Describe current retention until journey 36 verifies the scheduled jobs (ADR 0081) |
+| Deletion and retention periods | [Download and delete data](../../preferences/download-and-delete-data/README.md) erases after 30 days; [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md) bounds the retention of shared records | Describe current retention until journey 36 verifies the scheduled jobs (ADR 0082) |
 | Payment receipts kept seven years; refunds for cancelled paid events | No online payment (`L2-011` AC5) and no receipts | Text removed. Terms: any fee is paid to the host directly, under the host's own terms |
 | Cancellation cutoff | The cancellation handler refuses at the event start. Members can cancel before that instant. | Current Terms match the handler |
 | Minimum age 16 | Email Join requires an unticked confirmation and the API refuses missing or false values. It stores no date of birth. | Google profile completion adopts the same rule in journey 2 |
@@ -48,7 +48,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 ### Open questions
 
 - **Contact.** The legal contact is `privacy@christian.fitness`, at 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.
-- **Statements to build.** Publish current retention practices under [ADR 0081](../../../adr/0081-publish-current-retention-practices.md). Journey 36 owns AC9 and publishes the periods after verifying the scheduled jobs. Journey 1 supplies the age check and change notices.
+- **Statements to build.** Publish current retention practices under [ADR 0082](../../../adr/0082-publish-current-retention-practices.md). Journey 36 owns AC9 and publishes the periods after verifying the scheduled jobs. Journey 1 supplies the age check and change notices.
 - **Link ownership.** Both footers and email Join link here in journey 1. Preferences adds its Privacy link with that screen. Journey 2 owns the Google consent links, age confirmation and server-side acceptance record.
 - **Component anatomy.** The prose and side-navigation components use the existing design-system blocks `legal` and `side-nav`. The Home default mock supplies the member footer.
 - **Who writes the text.** The documents live in the app's source, so a change ships as a release; no console screen edits them.
