@@ -29,7 +29,7 @@ def staff(inner: str) -> str:
 
 
 def signin(mode: str = "") -> str:
-    """mode: "" | redirecting | wrong-domain | no-access | failed | session-expired"""
+    """mode: "" | redirecting | wrong-domain | no-access | failed | not-configured | limited | suspended | session-expired"""
     alert = ""
     notices = {
         # The account Google returned is named, so the person can see which one they picked (L2-018 AC2, AC3).
@@ -47,6 +47,15 @@ def signin(mode: str = "") -> str:
       </div>"""
     elif mode == "failed":
         alert = '<div class="auth__alert">' + form_alert("Google sign-in didn't finish", "You're not signed in. Try again in a moment.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
+    elif mode == "not-configured":
+        # L2-018 AC10: the team's domain or the Google client is not set, so the start is refused and nothing leaves for Google.
+        alert = '<div class="auth__alert">' + form_alert("Sign-in isn't set up yet", "Ask the person who runs Christian Fitness.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
+    elif mode == "limited":
+        # L2-049 AC7: more than 20 Google starts from one network in 15 minutes (429 too_many_attempts).
+        alert = '<div class="auth__alert">' + form_alert("Too many attempts", "Too many attempts. Try again in a few minutes.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
+    elif mode == "suspended":
+        # account_suspended (403): a suspended staff member's own Google account is refused, as in the member app.
+        alert = '<div class="auth__alert">' + form_alert("Your account is suspended", "This account can't open the console.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
     elif mode == "session-expired":
         # L2-018 AC6: the staff session ended after 30 idle minutes (ADR 0016).
         alert = '<div class="auth__alert">' + form_alert("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on.") + "</div>"
@@ -87,6 +96,21 @@ def _():
 @s("error", "Derived: Google did not finish (an error on Google's side, or its answer could not be checked): a message above the button (focused); nobody is signed in.")
 def _():
     return signin("failed")
+
+
+@s("not-configured", "The team's domain or the Google client is not set (L2-018 AC10): the start is refused before anything leaves for Google; a focused message says sign-in isn't set up and who to ask.")
+def _():
+    return signin("not-configured")
+
+
+@s("limited", "More than 20 Google sign-ins started from one network in 15 minutes (L2-049 AC7, 429 too_many_attempts): a focused message above the button; pressing it again after a few minutes works.")
+def _():
+    return signin("limited")
+
+
+@s("suspended", "Back from Google with a suspended staff account (account_suspended, 403; L2-018 AC9): a focused message that the account can't open the console; no session.")
+def _():
+    return signin("suspended")
 
 
 @s("session-expired", "The staff session ended after 30 minutes without a request: sign in again (L2-018 AC6).")

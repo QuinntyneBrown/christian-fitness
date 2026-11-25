@@ -135,8 +135,10 @@ route first asked for ([ADR 0012](../../../adr/0012-sign-in-protections.md)).
   layout page draws it. The `invalid` message gains the Google hint. The next slices change each.
 - **"Use another account".** It starts a new attempt; whether that attempt asks Google to show the
   chooser (`prompt=select_account`) is open in [sign in with Google](../sign-in-with-google/README.md).
-- **Too many Google attempts.** No mock state shows a 429 from the Google start (`L2-049` AC7); a
-  mock state or an ADR stand-in is needed before that slice.
+- **Google start refusals and a deleting account.** Mock states `google-limited` (a 429 from the Google
+  start, `L2-049` AC7), `google-unverified` ("Your Google account's email isn't verified. Verify it with
+  Google, or join with email.", `L2-049` AC3) and `deleting` ("Your account is set to be deleted on
+  {date}." with "Restore my account" and "Keep it deleted", `L2-066` AC8) show each one.
 
 ## Requirements
 

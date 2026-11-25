@@ -183,14 +183,12 @@ choices below marked `<TO SUPPLY>` are its open points.
   codes for "no Google identity or unverified email", "no member account on this Google account" and
   "Google not configured", the status of the no-account answer and how long `__Host-cf-google`
   lives are `<TO SUPPLY>`, for the ADR of the first slice.
-- **Unverified email on screen.** `L2-049` AC3 refuses an unverified Google email, but no mock state
-  shows it. The screens show the "didn't finish" message (`L2-004` AC11, `L2-003` AC11, `L2-018` AC8)
-  until a mock says otherwise.
-- **Too many attempts on screen.** No mock state shows a 429 from a Google start in any of the three
-  screens. A mock state, or a stand-in recorded in an ADR, is needed before that slice.
-- **Not configured on screen.** `L2-018` AC10 says the admin app refuses to start sign-in while a
-  setting is missing; no mock state shows what Staff sign in then says, and the spec is silent on the
-  member app.
+- **Unverified email on screen.** Mock states `google-unverified` on Join and Sign in say "Your Google
+  account's email isn't verified. Verify it with Google, or join with email." (`L2-049` AC3).
+- **Too many attempts on screen.** Mock states `google-limited` (Join, Sign in) and `limited` (Staff
+  sign in) say "Too many attempts. Try again in a few minutes." (`L2-049` AC7).
+- **Not configured on screen.** Staff sign in's mock state `not-configured` says "Sign-in isn't set up
+  yet. Ask the person who runs Christian Fitness." (`L2-018` AC10); the spec is silent on the member app.
 - **The Google picture.** `L2-049` AC2 lets sign-in use the picture, and the no-account notice says
   "we'll bring over your name and photo", but `Member` has no photo, and `L2-049` AC9 forbids loading
   an image from Google in either app. Copying the picture into `IImageStore` on the server, or not
