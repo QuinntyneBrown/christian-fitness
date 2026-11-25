@@ -6,6 +6,7 @@ using ChristianFitness.Api.Tests.Admin;
 using ChristianFitness.Api.Tests.Chat;
 using ChristianFitness.Api.Tests.Events;
 using ChristianFitness.Api.Tests.Profiles;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,17 @@ internal sealed class ReviewSuggestions(RegisterForEventFactory factory)
 
     public static async Task<JsonElement> JsonAsync(HttpResponseMessage response) =>
         await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+    /// <summary>Marks the suggestion decided as <paramref name="status"/> now, as a decision made elsewhere would.</summary>
+    public async Task DecideAsync(Guid id, SuggestionStatus status)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var suggestion = await db.ListingSuggestions.SingleAsync(s => s.Id == id, TestContext.Current.CancellationToken);
+        db.Entry(suggestion).Property(s => s.Status).CurrentValue = status;
+        db.Entry(suggestion).Property(s => s.DecidedAt).CurrentValue = factory.Time.GetUtcNow();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     public async Task<T> InDbAsync<T>(Func<AppDbContext, Task<T>> read)
     {

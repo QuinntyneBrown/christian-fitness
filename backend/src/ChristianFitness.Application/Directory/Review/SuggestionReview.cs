@@ -61,11 +61,15 @@ public static class SuggestionReview
             ?? throw new RefusalException(RefusalCodes.SuggestionNotFound, RefusalKind.NotFound);
 
     /// <summary>The four checks in the panel's order, and whether each passed.</summary>
-    public static IReadOnlyList<SuggestionCheckDto> ChecksOf(ListingSuggestion suggestion)
+    public static IReadOnlyList<SuggestionCheckDto> ChecksOf(IEnumerable<SuggestionCheck> rows)
     {
-        ArgumentNullException.ThrowIfNull(suggestion);
-        return [.. Enum.GetValues<ListingCheck>().Select(check => new SuggestionCheckDto(CheckSlugOf(check), false))];
+        var passed = rows.Where(row => row.Passed).Select(row => row.Check).ToHashSet();
+        return [.. Enum.GetValues<ListingCheck>().Select(check => new SuggestionCheckDto(CheckSlugOf(check), passed.Contains(check)))];
     }
+
+    /// <summary>The checks set on the suggestion <paramref name="id"/>.</summary>
+    public static Task<List<SuggestionCheck>> RowsAsync(IAppDbContext db, Guid id, CancellationToken cancellationToken) =>
+        db.SuggestionChecks.Where(c => c.SuggestionId == id).ToListAsync(cancellationToken);
 
     private static readonly Dictionary<ListingCheck, string> CheckSlugs = new()
     {

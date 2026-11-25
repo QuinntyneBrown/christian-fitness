@@ -1,6 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { AdminDirectoryApi, SuggestionDetailDto, SuggestionListDto } from '@cf/api';
+import type {
+  AdminDirectoryApi,
+  ListingCheckSlug,
+  SuggestionChecksDto,
+  SuggestionDetailDto,
+  SuggestionListDto,
+} from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
@@ -25,6 +31,15 @@ export class HttpAdminDirectoryService implements AdminDirectoryApi {
   suggestion(id: string): Observable<SuggestionDetailDto> {
     return this.http
       .get<SuggestionDetailDto>(`${BASE}/suggestions/${encodeURIComponent(id)}`)
+      .pipe(catchError(asApiError));
+  }
+
+  setCheck(id: string, check: ListingCheckSlug, passed: boolean): Observable<SuggestionChecksDto> {
+    return this.http
+      .put<SuggestionChecksDto>(
+        `${BASE}/suggestions/${encodeURIComponent(id)}/checks/${encodeURIComponent(check)}`,
+        { passed },
+      )
       .pipe(catchError(asApiError));
   }
 }

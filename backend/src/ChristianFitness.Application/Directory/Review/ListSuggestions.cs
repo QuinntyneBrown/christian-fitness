@@ -79,6 +79,6 @@ internal sealed class GetListingSuggestionHandler(IAppDbContext db) : IRequestHa
             sender,
             suggestion.SubmittedAt,
             SuggestionReview.StatusSlugOf(suggestion.Status),
-            SuggestionReview.ChecksOf(suggestion));
+            SuggestionReview.ChecksOf(await SuggestionReview.RowsAsync(db, suggestion.Id, cancellationToken).ConfigureAwait(false)));
     }
 }

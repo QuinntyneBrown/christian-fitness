@@ -96,6 +96,7 @@
                   [passed]="shown.passed"
                   [canApprove]="shown.canApprove"
                   [hint]="approveHint"
+                  (checkChange)="setCheck($event)"
                 />
               }
             }
@@ -105,3 +106,10 @@
     }
   }
 }
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

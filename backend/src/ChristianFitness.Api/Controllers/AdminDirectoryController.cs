@@ -23,4 +23,15 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     [HttpGet("suggestions/{id:guid}")]
     public async Task<ActionResult<SuggestionDetailDto>> Suggestion(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetListingSuggestionQuery(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Ticks or unticks one check and answers the four.</summary>
+    [HttpPut("suggestions/{id:guid}/checks/{check}")]
+    public async Task<ActionResult<SuggestionChecksDto>> SetCheck(Guid id, string check, SetCheckBody body, CancellationToken cancellationToken) =>
+        await sender.Send(new SetSuggestionCheckCommand(id, check, body?.Passed ?? false), cancellationToken).ConfigureAwait(false);
+}
+
+/// <summary>What a tick sends.</summary>
+public sealed class SetCheckBody
+{
+    public bool Passed { get; init; }
 }

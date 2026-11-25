@@ -43,6 +43,8 @@ export class ManageListingsPage {
   readonly listedTable: Locator;
   readonly listedRows: Locator;
   readonly toast: Locator;
+  /** A toast announced at once, as a failure is. */
+  readonly alertToast: Locator;
   readonly toastTitle: Locator;
   readonly toastText: Locator;
 
@@ -83,6 +85,10 @@ export class ManageListingsPage {
     this.listedTable = this.main.getByRole('table', { name: 'Listed' });
     this.listedRows = this.listedTable.locator('tbody tr');
     this.toast = page.getByRole('region', { name: 'Notifications' }).locator('.toast');
+    this.alertToast = page
+      .getByRole('region', { name: 'Notifications' })
+      .getByRole('alert')
+      .locator('.toast');
     this.toastTitle = this.toast.locator('.toast__title');
     this.toastText = this.toast.locator('.toast__text');
   }

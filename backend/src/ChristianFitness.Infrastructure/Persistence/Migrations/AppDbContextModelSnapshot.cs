@@ -284,6 +284,29 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("ListingSuggestions", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.SuggestionCheck", b =>
+                {
+                    b.Property<Guid>("SuggestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Check")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ChangedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Passed")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("SuggestionId", "Check");
+
+                    b.ToTable("SuggestionChecks", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -934,6 +957,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithMany()
                         .HasForeignKey("SuggestedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.SuggestionCheck", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.ListingSuggestion", null)
+                        .WithMany()
+                        .HasForeignKey("SuggestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

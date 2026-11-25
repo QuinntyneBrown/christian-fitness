@@ -78,6 +78,9 @@ public interface IAppDbContext
     /// <summary>Which members follow which directory listings (L2-056; ADR 0088).</summary>
     DbSet<ListingFollow> ListingFollows { get; }
 
+    /// <summary>The checks staff set on a suggestion (L2-073 AC4; ADR 0087).</summary>
+    DbSet<SuggestionCheck> SuggestionChecks { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

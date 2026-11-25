@@ -1,9 +1,17 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ADMIN_DIRECTORY_SERVICE, type SuggestionDetailDto, type SuggestionListDto } from '@cf/api';
+import {
+  ADMIN_DIRECTORY_SERVICE,
+  type ListingCheckSlug,
+  type SuggestionCheckDto,
+  type SuggestionDetailDto,
+  type SuggestionListDto,
+  TOASTS_SERVICE,
+} from '@cf/api';
 import {
   Button,
+  type CheckRowChange,
   type CheckRowItem,
   EmptyState,
   type PickCardItem,
@@ -14,6 +22,8 @@ import {
   Suggestion,
   type TabItem,
   Tabs,
+  type ToastData,
+  ToastRegion,
 } from '@cf/components';
 import {
   APPROVE_HINT,
@@ -24,6 +34,7 @@ import {
   suggestionByLine,
   suggestionFromLine,
   suggestionKindAndArea,
+  ToastStore,
   websiteLabel,
 } from '@cf/domain';
 import { catchError, distinctUntilChanged, map, of, startWith, Subject, switchMap } from 'rxjs';
@@ -40,6 +51,9 @@ type DetailState =
 const SUGGESTIONS_HREF = '/listings';
 const LISTED_HREF = '/listings?tab=listed';
 
+/** The toast of a tick that did not save (mock `admin-listings/tick-failed`). */
+const TICK_FAILED = "We couldn't save that check";
+
 /**
  * Listings (mock docs/mocks/pages/admin-listings/; L2-073; journey 18; ADR 0087). Suggestions lists
  * every suggestion oldest first as pick cards, with who sent it and when, and shows the chosen one
@@ -50,14 +64,29 @@ const LISTED_HREF = '/listings?tab=listed';
  */
 @Component({
   selector: 'cf-manage-listings-page',
-  imports: [Button, EmptyState, PickCards, Skeleton, SkeletonRegion, Split, Suggestion, Tabs],
+  imports: [
+    Button,
+    EmptyState,
+    PickCards,
+    Skeleton,
+    SkeletonRegion,
+    Split,
+    Suggestion,
+    Tabs,
+    ToastRegion,
+  ],
   templateUrl: './manage-listings-page.html',
   styleUrl: './manage-listings-page.scss',
-  providers: [{ provide: ADMIN_DIRECTORY_SERVICE, useClass: HttpAdminDirectoryService }],
+  providers: [
+    { provide: ADMIN_DIRECTORY_SERVICE, useClass: HttpAdminDirectoryService },
+    { provide: TOASTS_SERVICE, useClass: ToastStore },
+  ],
 })
 export default class ManageListingsPage {
   private readonly directory = inject(ADMIN_DIRECTORY_SERVICE);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly toasts = inject(TOASTS_SERVICE);
   private readonly reload = new Subject<void>();
   /** The suggestion to show, each time the list or the address may have changed it. */
   private readonly shown = new Subject<string | null>();
@@ -119,6 +148,14 @@ export default class ManageListingsPage {
     };
   });
   protected readonly approveHint = APPROVE_HINT;
+  protected readonly toastViews = computed<ToastData[]>(() =>
+    this.toasts.toasts().map(({ id, title, text }) => ({
+      id: String(id),
+      tone: title === TICK_FAILED ? 'danger' : 'success',
+      heading: title,
+      text,
+    })),
+  );
 
   constructor() {
     const route = inject(ActivatedRoute);
@@ -174,4 +211,54 @@ export default class ManageListingsPage {
   protected tryAgain(): void {
     this.reload.next();
   }
+
+  protected dismissToast(id: string): void {
+    this.toasts.dismiss(Number(id));
+  }
+
+  /**
+   * Saves a tick or untick at once (L2-073 AC4): the box shows the change while it is sent and
+   * the answer's checks after; one that does not save goes back as it was and a toast says so.
+   */
+  protected setCheck({ check, passed }: CheckRowChange): void {
+    const state = this.detailState();
+    if (state.kind !== 'ready') return;
+    const id = state.detail.id;
+    const slug = check as ListingCheckSlug;
+    const before = state.detail.checks;
+    this.setChecks(id, withCheck(before, slug, passed));
+    this.directory
+      .setCheck(id, slug, passed)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (answer) => this.setChecks(id, answer.checks),
+        error: () => {
+          this.setChecks(id, withCheck(this.checksOf(id) ?? before, slug, !passed));
+          this.toasts.show(TICK_FAILED, 'The box is back as it was. Try again in a moment.');
+        },
+      });
+  }
+
+  private checksOf(id: string): SuggestionCheckDto[] | null {
+    const state = this.detailState();
+    return state.kind === 'ready' && state.detail.id === id ? state.detail.checks : null;
+  }
+
+  /** Shows `checks` on the suggestion `id` when it is still the one showing. */
+  private setChecks(id: string, checks: SuggestionCheckDto[]): void {
+    this.detailState.update((state) =>
+      state.kind === 'ready' && state.detail.id === id
+        ? { kind: 'ready', detail: { ...state.detail, checks } }
+        : state,
+    );
+  }
+}
+
+/** `checks` with `check` set to `passed`. */
+function withCheck(
+  checks: readonly SuggestionCheckDto[],
+  check: ListingCheckSlug,
+  passed: boolean,
+): SuggestionCheckDto[] {
+  return [...checks.filter((row) => row.check !== check), { check, passed }];
 }

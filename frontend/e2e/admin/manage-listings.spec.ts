@@ -1,5 +1,6 @@
 import {
   CAST_SUGGESTIONS,
+  checks,
   LISTINGS_NOW,
   NO_SUGGESTIONS,
   suggestionList,
@@ -198,6 +199,91 @@ test.describe('Admin app, listing suggestions', () => {
     fail = false;
     await listings.tryAgainButton.click();
     await expect(listings.cards).toHaveCount(3);
+  });
+});
+
+const CHECK = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/checks\/([^/]+)$/;
+
+// L2-073 AC4 and AC5 (ADR 0087): each check is saved as it is ticked; Approve waits for all four.
+test.describe('Admin app, the four checks', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // Mock admin-listings/ready.
+  test('ticking the last check saves it at once and makes Approve listing available', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, CAST_SUGGESTIONS);
+    const sent: { path: string; body: unknown }[] = [];
+    api.on('PUT', CHECK, (request) => {
+      sent.push({ path: new URL(request.url()).pathname, body: request.postDataJSON() });
+      return {
+        json: { checks: checks('credentials', 'insurance', 'two-references', 'conversation') },
+      };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open(`?selected=${CAST_SUGGESTIONS[1].id}`);
+    await expect(listings.checksPassed).toHaveText('3 of 4 passed');
+
+    await listings.check('Conversation').check();
+
+    await expect(listings.checksPassed).toHaveText('4 of 4 passed');
+    await expect(listings.approveButton).toBeEnabled();
+    await expect(listings.hint).toHaveCount(0);
+    expect(sent).toEqual([
+      {
+        path: `/api/admin/directory/suggestions/${CAST_SUGGESTIONS[1].id}/checks/conversation`,
+        body: { passed: true },
+      },
+    ]);
+  });
+
+  test('unticking a check saves it and Approve listing waits again', async ({ page, api }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const ready = {
+      ...CAST_SUGGESTIONS[1],
+      checks: checks('credentials', 'insurance', 'two-references', 'conversation'),
+    };
+    answer(api, [ready]);
+    const bodies: unknown[] = [];
+    api.on('PUT', CHECK, (request) => {
+      bodies.push(request.postDataJSON());
+      return { json: { checks: checks('credentials', 'two-references', 'conversation') } };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+    await expect(listings.approveButton).toBeEnabled();
+
+    await listings.check('Insurance').uncheck();
+
+    await expect(listings.checksPassed).toHaveText('3 of 4 passed');
+    await expect(listings.approveButton).toBeDisabled();
+    await expect(listings.hint).toHaveText('Approve unlocks when all four checks pass.');
+    expect(bodies).toEqual([{ passed: false }]);
+  });
+
+  // Mock admin-listings/tick-failed.
+  test('a tick that does not save goes back as it was and a toast says so', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, CAST_SUGGESTIONS);
+    api.on('PUT', CHECK, () => ({ abort: true }));
+    const listings = new ManageListingsPage(page);
+    await listings.open(`?selected=${CAST_SUGGESTIONS[1].id}`);
+
+    await listings.check('Conversation').check();
+
+    await expect(listings.toastTitle).toHaveText("We couldn't save that check");
+    await expect(listings.toastText).toHaveText(
+      'The box is back as it was. Try again in a moment.',
+    );
+    await expect(listings.alertToast).toHaveCount(1);
+    await expect(listings.check('Conversation')).not.toBeChecked();
+    await expect(listings.checksPassed).toHaveText('3 of 4 passed');
+    await expect(listings.approveButton).toBeDisabled();
   });
 });
 

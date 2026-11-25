@@ -57,6 +57,11 @@ export interface SuggestionDetailDto {
   checks: SuggestionCheckDto[];
 }
 
+/** `PUT …/checks/{check}`: the four checks after the change. */
+export interface SuggestionChecksDto {
+  checks: SuggestionCheckDto[];
+}
+
 /** Staff review listing suggestions (L2-073; journey 18; ADR 0087). */
 export interface AdminDirectoryApi {
   /** The suggestions after `after`, or from the oldest. A failure errors with an `ApiError`. */
@@ -64,6 +69,13 @@ export interface AdminDirectoryApi {
 
   /** One suggestion; `suggestion_not_found` (404) for an unknown id. */
   suggestion(id: string): Observable<SuggestionDetailDto>;
+
+  /**
+   * Ticks or unticks `check` of the suggestion `id` and answers the four checks (L2-073 AC4).
+   * Refusals: `suggestion_not_found` (404), `not_found` (404) for an unknown check,
+   * `suggestion_decided` (409).
+   */
+  setCheck(id: string, check: ListingCheckSlug, passed: boolean): Observable<SuggestionChecksDto>;
 }
 
 /** Binds {@link AdminDirectoryApi}; the Listings page provides it on its routed component. */
