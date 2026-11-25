@@ -35,7 +35,7 @@ The page binds its service on its own providers, so the request and the series a
 
 ### Open questions
 
-- Attendance is recorded by staff in the console (`L2-075`, design `admin-events/record-attendance`). `SessionDto.Attended` is `true`, `false` or `null` (not recorded); `null` reads "Not recorded" in the row, never "Missed" (`L2-051` AC3). Self check-in is deferred.
+- Attendance is recorded by staff in the console (`L2-080`, design `admin-events/record-attendance`). `SessionDto.Attended` is `true`, `false` or `null` (not recorded); `null` reads "Not recorded" in the row, never "Missed" (`L2-051` AC3). Self check-in is deferred.
 - The mocks show "Details" only on the next session, while `L2-051` AC5 gives it to every session still to come that has an event page. The design stores every session as an `Event`, so every session to come shows "Details"; see `browse-event-series` for the open rule on which sessions have event pages.
 - "Spots left" is defined here as the smallest number of places left among the remaining sessions. The mocks' numbers (12 of 50 for Saturday Park Bootcamp, 38 going) agree with this and with "capacity minus enrolments" alike. The rule needs an ADR.
 - The route `/events/series/:id` sits beside `/events/:id`; both are lazy children of the member shell, and the extra segment keeps them apart.

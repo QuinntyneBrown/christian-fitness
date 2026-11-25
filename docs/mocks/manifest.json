@@ -456,7 +456,7 @@
       "route": "/admin/events/:id/attendance",
       "source": "Issue 88: composed from the event registrations page and design-system components",
       "requirements": [
-        "L2-075"
+        "L2-080"
       ],
       "states": [
         "default",

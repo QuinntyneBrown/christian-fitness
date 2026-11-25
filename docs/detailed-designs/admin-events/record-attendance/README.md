@@ -21,7 +21,7 @@ The feature is a vertical slice from the Attendance tab of an Admin event to the
 - **`AdminEventsController`** — `GET /api/admin/events/{id}/attendance` and `PUT /api/admin/events/{id}/attendance/{memberId}`. Both use a new staff policy `AttendanceStaff` that admits Admin and Moderator (`L2-019` AC1 and AC5 as amended); every other Events endpoint stays `AdminOnly`.
 - **`GetEventAttendanceQuery`** / handler — returns `AttendancePageDto` (`Started`, `Registered`, `Came`, `Items` of `MemberId`, `MemberName`, `Came`) for the registered members, ordered by name. An unknown event is refused with `event_not_found`.
 - **`SetAttendanceCommand`** / handler — refuses an event that has not started with `event_not_started` (409) and a member with no registration at the event with `not_registered` (404); otherwise it upserts an `Attendance` row (`EventId`, `MemberId`, `Came`, `RecordedBy`, `RecordedAt`) and writes an audit entry of who, which event and how many members were marked (`L2-019` AC3). The rule "started" is `AttendanceRules.HasStarted(event, now)` over `TimeProvider`.
-- **Registration is the roster** — whoever holds a `Registration` at the event is listed, whether they joined the series or dropped in. Enrolment and going counts do not change when attendance does (`L2-075` AC8).
+- **Registration is the roster** — whoever holds a `Registration` at the event is listed, whether they joined the series or dropped in. Enrolment and going counts do not change when attendance does (`L2-080` AC8).
 - **`GetSeriesHandler`** — adds `SessionDto.Attended` as `true`, `false` or `null`. `null` means no `Attendance` row for that member at that session.
 - **`sessionRowViewOf`** — for a past session where the member held a place, gives "You came" for `true`, "Missed" for `false` and "Not recorded" for `null`; "Done" where they held none (`view-event-series`).
 - **"Came to <attended> of <recorded>"** — `seriesProgressOf` counts `Attended === true` over past sessions where `Attended !== null`; when none is recorded the panel reads "Attendance not recorded yet" (`join-and-leave-series`).
@@ -37,7 +37,7 @@ The feature is a vertical slice from the Attendance tab of an Admin event to the
 
 | L2 ID    | Refines (L1) | Requirement |
 | -------- | ------------ | ----------- |
-| `L2-075` | `L1-010`     | Staff (Admin or Moderator) shall record attendance on an event that has started, from its Attendance tab: everyone registered is listed with a "Came" checkbox, a change saves at once with "Saving <name>…", and a failed tick is put back with a toast. An event that has not started shall show "Attendance opens when the event starts" and refuse a change with `event_not_started`; an empty list, loading and error states shall be shown. A past session with no attendance recorded shall read "Not recorded" on the member's series page, never "Missed". |
+| `L2-080` | `L1-010`     | Staff (Admin or Moderator) shall record attendance on an event that has started, from its Attendance tab: everyone registered is listed with a "Came" checkbox, a change saves at once with "Saving <name>…", and a failed tick is put back with a toast. An event that has not started shall show "Attendance opens when the event starts" and refuse a change with `event_not_started`; an empty list, loading and error states shall be shown. A past session with no attendance recorded shall read "Not recorded" on the member's series page, never "Missed". |
 | `L2-051` | `L1-005`     | A past session shall read "You came" or "Missed" where staff recorded attendance and "Not recorded" where none is recorded (AC3). |
 | `L2-052` | `L1-005`     | "Came to <attended> of <recorded>" shall count only past sessions with attendance recorded; sessions recorded as attended stay in the history after leaving (AC3, AC9). |
 | `L2-019` | `L1-014`     | A Moderator may use the attendance endpoints and no other Events endpoint (AC1, AC5). |
@@ -70,12 +70,12 @@ One command saves a tick under the started rule and audits it; the series query 
 
 ### Behaviour — tick Came
 
-A tick saves at once, or is put back with a toast when refused or failed (`L2-075` AC2, AC3, AC5).
+A tick saves at once, or is put back with a toast when refused or failed (`L2-080` AC2, AC3, AC5).
 
 ![Sequence diagram for ticking Came](diagrams/sequence-tick.png)
 
 ### Behaviour — member reads attendance
 
-A past session reads "You came", "Missed" or "Not recorded" (`L2-075` AC7).
+A past session reads "You came", "Missed" or "Not recorded" (`L2-080` AC7).
 
 ![Sequence diagram for a member reading attendance on the series page](diagrams/sequence-series-page.png)

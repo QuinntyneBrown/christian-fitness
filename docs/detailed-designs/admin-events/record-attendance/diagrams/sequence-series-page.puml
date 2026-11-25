@@ -28,5 +28,5 @@ handler --> ctrl : SeriesDetailDto, Attended true, false or null per session
 ctrl --> page : 200 JSON
 page -> view : Row end for each past session
 view --> page : You came, Missed, Not recorded or Done
-page --> actor : Rows and "Came to n of m" over recorded sessions (L2-075 AC7)
+page --> actor : Rows and "Came to n of m" over recorded sessions (L2-080 AC7)
 @enduml

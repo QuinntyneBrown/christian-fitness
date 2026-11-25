@@ -28,18 +28,18 @@ alt event has not started
   handler --> ctrl : Refusal event_not_started
   ctrl --> client : 409 ProblemDetails with code
   client --> page : Refused
-  page --> actor : Box put back, toast (L2-075 AC3, AC5)
+  page --> actor : Box put back, toast (L2-080 AC3, AC5)
 else member not registered
   handler --> ctrl : Refusal not_registered
   ctrl --> client : 404 ProblemDetails with code
   client --> page : Refused
-  page --> actor : Box put back, toast (L2-075 AC3)
+  page --> actor : Box put back, toast (L2-080 AC3)
 else saved
   handler -> db : Upsert Attendance and write audit entry
   db --> handler : Saved
   handler --> ctrl : Ok
   ctrl --> client : 204
   client --> page : Saved
-  page --> actor : Count updates (L2-075 AC2)
+  page --> actor : Count updates (L2-080 AC2)
 end
 @enduml
