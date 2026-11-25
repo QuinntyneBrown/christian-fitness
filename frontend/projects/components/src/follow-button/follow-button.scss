@@ -66,6 +66,23 @@
   }
 }
 
+// Touch: the row button's target extends to 44 × 44 px without changing its look (L2-054 AC9).
+@media (pointer: coarse) {
+  .follow {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .follow {
     transition: none;

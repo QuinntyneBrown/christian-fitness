@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
+import { type FollowButtonView, readFollow } from '../shared/follow-button';
 
 /** One directory row as the member reads it. */
 export interface ListingRowView {
@@ -137,6 +138,60 @@ export class WebDirectoryPage {
       .filter({ has: this.page.locator('.listing-row__name', { hasText: name }) })
       .locator('a.listing-row__link')
       .click();
+  }
+
+  /** The Follow button of the row that names `name` (L2-054 AC2, L2-056). */
+  followButton(name: string): Locator {
+    return this.main.getByRole('button', { name: `Follow ${name}`, exact: true });
+  }
+
+  async followView(name: string): Promise<FollowButtonView> {
+    return readFollow(this.followButton(name));
+  }
+
+  /** Each row's Follow button, in order: its accessible name and whether it is pressed. */
+  async followViews(): Promise<[string, string | null][]> {
+    return this.rows.evaluateAll((rows) =>
+      rows.map((row) => {
+        const button = row.querySelector('button.follow');
+        return [
+          (button?.textContent ?? '').replace(/\s+/g, ' ').trim(),
+          button?.getAttribute('aria-pressed') ?? null,
+        ];
+      }),
+    );
+  }
+
+  /**
+   * The Follow button's drawn size and its touch target, which under a coarse pointer an invisible
+   * extension (its `::after`) widens to at least 44 × 44 px (L2-054 AC9).
+   */
+  async followTarget(
+    name: string,
+  ): Promise<{ width: number; height: number; targetWidth: number; targetHeight: number }> {
+    return this.followButton(name).evaluate((button) => {
+      const box = button.getBoundingClientRect();
+      const after = getComputedStyle(button, '::after');
+      const size = (value: string): number => (value.endsWith('px') ? parseFloat(value) : 0);
+      return {
+        width: Math.round(box.width),
+        height: Math.round(box.height),
+        targetWidth: Math.max(Math.round(box.width), Math.round(size(after.width))),
+        targetHeight: Math.max(Math.round(box.height), Math.round(size(after.height))),
+      };
+    });
+  }
+
+  /** Each danger toast's title and text, in order. */
+  async failureToastViews(): Promise<[string, string][]> {
+    return this.page
+      .locator('.toast-region [role="alert"] .toast')
+      .evaluateAll((toasts) =>
+        toasts.map((toast) => [
+          (toast.querySelector('.toast__title')?.textContent ?? '').trim(),
+          (toast.querySelector('.toast__text')?.textContent ?? '').trim(),
+        ]),
+      );
   }
 
   /** Types one key at a time, as a member does. */

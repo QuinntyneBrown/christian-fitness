@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { ErrorScreen } from '../shared/error-screen';
+import { type FollowButtonView, readFollow } from '../shared/follow-button';
 
 /** The head of a listing's profile as the member reads it. */
 export interface ListingHeadView {
@@ -13,34 +14,6 @@ export interface ListingHeadView {
   verified: string | null;
   name: string;
   tagline: string;
-}
-
-/** A Follow button as the member reads it (L2-056 AC1). */
-export interface FollowButtonView {
-  /** The visible label. */
-  label: string;
-  /** Its accessible name, with the listing's name. */
-  name: string;
-  pressed: string | null;
-  /** Whether the check mark shows. */
-  check: boolean;
-  /** `aria-disabled`, set while its request is in flight (L2-056 AC8). */
-  disabled: string | null;
-}
-
-/** Reads a Follow button: its label, accessible name, pressed state, check mark and `aria-disabled`. */
-export async function readFollow(button: Locator): Promise<FollowButtonView> {
-  return button.evaluate((element) => ({
-    label: Array.from(element.childNodes)
-      .filter((node) => node.nodeType === Node.TEXT_NODE)
-      .map((node) => node.textContent ?? '')
-      .join('')
-      .trim(),
-    name: (element.textContent ?? '').replace(/\s+/g, ' ').trim(),
-    pressed: element.getAttribute('aria-pressed'),
-    check: element.querySelector('svg.icon') !== null,
-    disabled: element.getAttribute('aria-disabled'),
-  }));
 }
 
 /** One hosting row as the member reads it. */

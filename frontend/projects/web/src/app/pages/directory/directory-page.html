@@ -112,9 +112,17 @@
     [photoSrc]="row.photoSrc"
     [hosting]="row.hosting"
     [hostingSome]="row.hostingSome"
+    [following]="followStates().get(row.id)?.following ?? false"
+    [followBusy]="followStates().get(row.id)?.busy ?? false"
     (navigate)="navigate($event)"
+    (followToggled)="toggleFollow(row)"
   />
 </ng-template>
 <ng-template #skeletonRow>
   <cf-listing-row loading />
 </ng-template>
+<cf-toast-region
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

@@ -54,7 +54,7 @@ test.describe('Member app, browse the directory', () => {
     ]);
   });
 
-  test('Each row shows its mark, name, Verified mark, tagline, area and what it hosts, and no Follow button yet', async ({
+  test('Each row shows its mark, name, Verified mark, tagline, area and what it hosts, and a Follow button', async ({
     page,
     api,
   }) => {
@@ -106,7 +106,7 @@ test.describe('Member app, browse the directory', () => {
     expect(rows[11]).toEqual(
       expect.objectContaining({ initials: 'SP', hosting: '3 hosting', hostingSome: true }),
     );
-    await expect(directory.followButtons).toHaveCount(0);
+    await expect(directory.followButtons).toHaveCount(CAST.length);
   });
 
   test('A kind with no listing shows no group, and a name is shown as text, never as markup', async ({

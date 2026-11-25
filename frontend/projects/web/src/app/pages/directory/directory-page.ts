@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DIRECTORY_SERVICE, type ListingKind } from '@cf/api';
+import { DIRECTORY_SERVICE, LISTING_FOLLOWS, type ListingKind, TOASTS_SERVICE } from '@cf/api';
 import {
   Button,
   Chip,
@@ -16,6 +16,8 @@ import {
   SearchField,
   SkeletonRegion,
   Spinner,
+  type ToastData,
+  ToastRegion,
 } from '@cf/components';
 import {
   appendDirectoryPage,
@@ -28,10 +30,12 @@ import {
   type DirectoryFeed,
   EMPTY_DIRECTORY_FEED,
   listingKindInfo,
+  ListingFollowStore,
   listingKindOf,
   type ListingRowView,
   listingRowViewOf,
   noDirectoryMatchText,
+  ToastStore,
 } from '@cf/domain';
 import { debounceTime, Subject, type Subscription } from 'rxjs';
 import { HttpDirectoryService } from '../../services/http-directory.service';
@@ -53,8 +57,9 @@ const SKELETON_GROUPS = [
  * screen does, and the request, the debounce, the observer and the rows go with it. While the
  * first page loads, skeleton rows show under the heading, search and chips; with nobody listed it
  * points to Events; a 4xx or no answer shows "The directory didn't load" with Try again (a 5xx is
- * the server-error screen's). Each row leads to the listing's profile (ADR 0087); the Follow
- * button arrives with journey 8.
+ * the server-error screen's). Each row leads to the listing's profile (ADR 0087) and ends with
+ * Follow, which follows or unfollows the listing at once and, if the request fails, goes back with
+ * a toast naming it (L2-056; ADR 0088); the follows and the toasts end with the visit.
  */
 @Component({
   selector: 'cf-directory-page',
@@ -73,13 +78,20 @@ const SKELETON_GROUPS = [
     SearchField,
     SkeletonRegion,
     Spinner,
+    ToastRegion,
   ],
-  providers: [{ provide: DIRECTORY_SERVICE, useClass: HttpDirectoryService }],
+  providers: [
+    { provide: DIRECTORY_SERVICE, useClass: HttpDirectoryService },
+    { provide: LISTING_FOLLOWS, useClass: ListingFollowStore },
+    { provide: TOASTS_SERVICE, useClass: ToastStore },
+  ],
   templateUrl: './directory-page.html',
   styleUrl: './directory-page.scss',
 })
 export default class DirectoryPage {
   private readonly directory = inject(DIRECTORY_SERVICE);
+  private readonly follows = inject(LISTING_FOLLOWS);
+  protected readonly toasts = inject(TOASTS_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly typed = new Subject<string>();
@@ -98,6 +110,17 @@ export default class DirectoryPage {
   protected readonly more = signal<'idle' | 'loading' | 'failed'>('idle');
   private readonly feed = signal<DirectoryFeed>(EMPTY_DIRECTORY_FEED);
 
+  /** Each shown listing's follow, changed at a press (L2-056). */
+  protected readonly followStates = this.follows.follows;
+  /** A failed follow or unfollow, as a danger toast (L2-056 AC3; mock `directory/follow-failed`). */
+  protected readonly toastViews = computed<ToastData[]>(() =>
+    this.toasts.toasts().map(({ id, title, text }) => ({
+      id: String(id),
+      tone: 'danger',
+      heading: title,
+      text,
+    })),
+  );
   protected readonly chips = computed(() =>
     directoryKindChips(this.kind(), this.feed().counts, this.q()),
   );
@@ -150,6 +173,15 @@ export default class DirectoryPage {
     this.typed.next(text);
   }
 
+  /** Follows or unfollows a row's listing at once (L2-056 AC1 to AC3). */
+  protected toggleFollow(row: ListingRowView): void {
+    this.follows.toggle(row.id, row.name);
+  }
+
+  protected dismissToast(id: string): void {
+    this.toasts.dismiss(Number(id));
+  }
+
   /** Clears the search and the kind (L2-054 AC5). */
   protected clearSearch(): void {
     this.searchText.set('');
@@ -174,6 +206,7 @@ export default class DirectoryPage {
       .subscribe({
         next: (page) => {
           this.feed.update((feed) => appendDirectoryPage(feed, page));
+          this.follows.track(this.feed().listings);
           this.more.set('idle');
         },
         error: () => this.more.set('failed'),
@@ -191,6 +224,7 @@ export default class DirectoryPage {
       .subscribe({
         next: (page) => {
           this.feed.set(appendDirectoryPage(EMPTY_DIRECTORY_FEED, page));
+          this.follows.track(this.feed().listings);
           this.state.set('loaded');
         },
         // A 5xx has already opened the server-error screen; anything else shows the failed state.
