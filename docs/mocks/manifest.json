@@ -230,6 +230,7 @@
         "draft",
         "send-failed",
         "cancelled",
+        "history",
         "loading",
         "empty",
         "error"
@@ -535,7 +536,10 @@
         "failed",
         "refused",
         "success"
-      ]
+      ],
+      "not_applicable": {
+        "invalid": "The only field is an optional reason capped by maxlength=500, so no input can be invalid."
+      }
     },
     {
       "id": "apply-to-be-listed",
@@ -657,7 +661,10 @@
         "default",
         "busy",
         "failed"
-      ]
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input."
+      }
     },
     {
       "id": "cancel-event",
@@ -671,7 +678,10 @@
         "default",
         "busy",
         "failed"
-      ]
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input."
+      }
     },
     {
       "id": "remove-listing",
@@ -685,7 +695,10 @@
         "default",
         "busy",
         "failed"
-      ]
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input."
+      }
     },
     {
       "id": "moderate-member",
@@ -882,6 +895,7 @@
         "default",
         "link-copied",
         "plain",
+        "vetting",
         "loading",
         "error"
       ],
@@ -918,6 +932,7 @@
       "requirements": [],
       "states": [
         "default",
+        "vetting-unavailable",
         "self",
         "invalid",
         "submitting",

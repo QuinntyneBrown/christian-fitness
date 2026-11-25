@@ -140,9 +140,9 @@ CONVERSATIONS = [
 ]
 CV = {c["id"]: c for c in CONVERSATIONS}
 
-ADMIN = {"name": "Dana Reyes", "first": "Dana", "initials": "DR", "role": "Community director", "email": "dana@christianfitness.ca"}
+ADMIN = {"name": "Dana Reyes", "first": "Dana", "initials": "DR", "role": "Community director", "email": "dana@christian.fitness"}
 # A Moderator (L2-019; ADR 0020): Dashboard and Members only.
-MODERATOR = {"name": "Joel Mensah", "first": "Joel", "initials": "JM", "role": "Moderator", "email": "joel@christianfitness.ca"}
+MODERATOR = {"name": "Joel Mensah", "first": "Joel", "initials": "JM", "role": "Moderator", "email": "joel@christian.fitness"}
 
 MEMBERS = [
     {"id": "gt", "name": "Grace Thompson", "initials": "GT", "email": "grace.thompson@gmail.com", "church": "Grace Fellowship, Scarborough", "joined": "Jan 12, 2026", "events": 9, "status": "Active"},
@@ -253,7 +253,7 @@ LISTINGS = [
     _listing("cf-team", "Christian Fitness", "Organization", "Faith-first fitness community for the GTA",
              "We run free community events across Toronto and keep this directory honest: every listing is checked by our team before it goes live.",
              "Toronto-wide", "CF", 2140, "Since 2024", ["Community runs", "Workshops", "Retreats"],
-             [("chen", "Ambassador"), ("nair", "Ambassador"), ("kingdom-fuel", "Sponsor")], website="christianfitness.ca"),
+             [("chen", "Ambassador"), ("nair", "Ambassador"), ("kingdom-fuel", "Sponsor")], website="www.christian.fitness"),
     _listing("lakeshore-runners", "Lakeshore Runners Fellowship", "Organization",
              "Beginner-friendly running club with a prayer at every finish",
              "A west-end run club started by three neighbours in 2019. Our Couch to 5K program has graduated over 400 runners, most of whom swore they could never run.",
@@ -333,13 +333,17 @@ STORIES = [
     {"id": "park-bootcamp-guide", "related": ("event", "park-bootcamp", "Join Saturday’s bootcamp at Trillium Park"), "section": "Training", "author": "Marcus Bell", "ago": "2 days ago", "image": "bootcamp",
      "title": "A beginner’s guide to your first outdoor bootcamp, from what to bring to how sore you’ll be",
      "dek": "Coach Danielle answers the eight questions she hears most at Trillium Park."},
-    {"id": "trainer-vetting", "section": "Pros", "author": "CF Team", "ago": "3 days ago", "image": "trainer",
+    {"id": "how-we-vet-every-listing", "section": "Pros", "author": "CF Team", "ago": "3 days ago", "image": "trainer",
      "title": "How we vet every professional in the Christian Fitness directory",
      "dek": "Credentials, references and a conversation about faith: the four checks every listing passes."},
 ]
 ST = {x["id"]: x for x in STORIES}
 # Story bodies. A paragraph starting with "> " is a pull quote.
 STORY_BODY = {
+    "how-we-vet-every-listing": [
+        "A real person on our team reads each suggestion. We check credentials, insurance where it applies, two references, and a conversation about faith and practice.",
+        "Nothing goes live without the listed person or group saying yes. We message the person who suggested the listing when it is approved, or tell them why not.",
+    ],
     "basement-gym": [
         "On a Tuesday night in March, the basement of St. Anne’s Anglican on Gladstone Avenue smells like rubber flooring and coffee. Eleven rowers hum along one wall. A woman in her seventies is deadlifting a kettlebell under the eye of a volunteer coach, and a teenager is filming his first pull-up for his mother.",
         "Two years ago this room held stacked chairs and a broken ping-pong table. Then Rev. Thomas Mbeki asked his congregation a question he says he was half-embarrassed to ask: what would it look like if the church cared about bodies as much as it said it did?",
@@ -378,19 +382,19 @@ ADD_ONS = [
     ("devotion", "Morning devotion", "Two minutes of scripture for body and spirit, weekdays"),
 ]
 FEEDS = [
-    ("all", "All stories", "https://christianfitness.ca/feed", "~20 a week"),
-    ("events", "Events", "https://christianfitness.ca/events/feed", "~6 a week"),
-    ("training", "Training", "https://christianfitness.ca/training/feed", "~4 a week"),
-    ("nutrition", "Nutrition", "https://christianfitness.ca/nutrition/feed", "~3 a week"),
-    ("faith", "Faith & Body", "https://christianfitness.ca/faith-body/feed", "~3 a week"),
-    ("community", "Community", "https://christianfitness.ca/community/feed", "~4 a week"),
+    ("all", "All stories", "https://www.christian.fitness/feed", "~20 a week"),
+    ("events", "Events", "https://www.christian.fitness/events/feed", "~6 a week"),
+    ("training", "Training", "https://www.christian.fitness/training/feed", "~4 a week"),
+    ("nutrition", "Nutrition", "https://www.christian.fitness/nutrition/feed", "~3 a week"),
+    ("faith", "Faith & Body", "https://www.christian.fitness/faith-body/feed", "~3 a week"),
+    ("community", "Community", "https://www.christian.fitness/community/feed", "~4 a week"),
 ]
 
 # Google accounts the account chooser offers (prototype: the chooser frame's args and the admin prototype).
 GOOGLE_MEMBER = [("Grace Thompson", "grace.thompson@gmail.com"), ("Grace Thompson", "grace@gracefellowship.ca")]
-GOOGLE_STAFF = [("Dana Reyes", "dana@christianfitness.ca"), ("Dana Reyes", "dana.reyes@gmail.com"),
-                ("CF Events Inbox", "events@christianfitness.ca")]
-STAFF_DOMAIN = "christianfitness.ca"
+GOOGLE_STAFF = [("Dana Reyes", "dana@christian.fitness"), ("Dana Reyes", "dana.reyes@gmail.com"),
+                ("CF Events Inbox", "events@christian.fitness")]
+STAFF_DOMAIN = "christian.fitness"
 
 # ---------------------------------------------------------------------------
 # Admin console: stories, newsletter issues, listing suggestions, feedback (prototype shared/cf/admin/data.ts)
