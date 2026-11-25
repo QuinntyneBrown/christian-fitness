@@ -2,7 +2,7 @@ namespace ChristianFitness.Domain.Directory;
 
 /// <summary>
 /// A member's proposal that a person or group be listed in the directory, stored for staff to
-/// check (L2-062; L2-073; ADR 0085). It is created <see cref="SuggestionStatus.Waiting"/>. Every
+/// check (L2-062; L2-073; ADR 0086). It is created <see cref="SuggestionStatus.Waiting"/>. Every
 /// text is plain text, never rendered as HTML, and is never logged: the name, the reason, the
 /// church connection (a faith detail) and the contact email are personal data (L2-033).
 /// </summary>
@@ -56,7 +56,7 @@ public sealed class ListingSuggestion
 
     /// <summary>
     /// A Waiting suggestion sent by <paramref name="suggestedById"/> at <paramref name="submittedAt"/>
-    /// (ADR 0085). Texts are trimmed and a blank optional one is none; the website is read by
+    /// (ADR 0086). Texts are trimmed and a blank optional one is none; the website is read by
     /// <see cref="TryReadWebsite"/> and must already be valid. For Myself the contact email and the
     /// permission are dropped.
     /// </summary>
@@ -100,7 +100,7 @@ public sealed class ListingSuggestion
     }
 
     /// <summary>
-    /// Reads a website as ADR 0085 does: blank is none (<c>null</c>); a value without <c>://</c> gets
+    /// Reads a website as ADR 0086 does: blank is none (<c>null</c>); a value without <c>://</c> gets
     /// <c>https://</c> in front; the result must be an absolute https address whose host has a dot,
     /// with no user name or password, at most <see cref="WebsiteMaxLength"/> characters. False when
     /// it is not one.

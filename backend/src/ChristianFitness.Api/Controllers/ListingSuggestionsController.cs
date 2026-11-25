@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// A member suggests someone, or themselves, for the directory (L2-062; journey 17; ADR 0085). A
+/// A member suggests someone, or themselves, for the directory (L2-062; journey 17; ADR 0086). A
 /// visitor is refused 401 by the fallback policy; the validator and the handler refuse the rest.
 /// </summary>
 [ApiController]

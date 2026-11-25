@@ -5,7 +5,7 @@ import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link ListingSuggestionsApi} over HTTP: `POST /api/directory/suggestions` (ADR 0085). A failed
+ * {@link ListingSuggestionsApi} over HTTP: `POST /api/directory/suggestions` (ADR 0086). A failed
  * send errors with an `ApiError`. It holds no state, and is provided on the Suggest a listing
  * screen, so it lives only while the screen does.
  */

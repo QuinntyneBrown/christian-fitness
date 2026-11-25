@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261125101710_AddListingSuggestions")]
+    [Migration("20261125104916_AddListingSuggestions")]
     partial class AddListingSuggestions
     {
         /// <inheritdoc />
@@ -415,6 +415,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("AcceptedLegalAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly?>("AcceptedPrivacyVersion")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("AcceptedTermsVersion")
+                        .HasColumnType("date");
 
                     b.Property<string>("Bio")
                         .HasMaxLength(300)

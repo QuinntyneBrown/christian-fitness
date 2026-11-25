@@ -106,7 +106,7 @@ export function suggestionFormOf(relation: SuggestionRelation): SuggestionFormVi
 }
 
 /**
- * The fields to mark before sending (L2-062 AC4; ADR 0085): a blank name or place. Every other
+ * The fields to mark before sending (L2-062 AC4; ADR 0086): a blank name or place. Every other
  * rule is the API's; a form with no key here is sent.
  */
 export function checkSuggestion(form: SuggestionForm): SuggestionFieldErrors {
@@ -138,7 +138,7 @@ const optional = (text: string): string | null => {
 };
 
 /**
- * The request the form sends (ADR 0085): every text trimmed and a blank optional one as `null`;
+ * The request the form sends (ADR 0086): every text trimmed and a blank optional one as `null`;
  * for Myself, the hidden email and permission are left out whatever they held.
  */
 export function suggestionRequestOf(form: SuggestionForm): SuggestListingDto {
@@ -162,7 +162,7 @@ export function thanksOf(name: string | null): string {
   return first ? `Thanks, ${first}` : 'Thanks';
 }
 
-/** Each field code the API refuses a suggestion with, and the sentence its field shows (ADR 0085). */
+/** Each field code the API refuses a suggestion with, and the sentence its field shows (ADR 0086). */
 const FIELD_CODE_MESSAGES: Record<string, { field: SuggestionField; message: string }> = {
   name_required: { field: 'name', message: SUGGESTION_NAME_REQUIRED },
   name_too_long: { field: 'name', message: 'Use 120 characters or fewer.' },
@@ -183,7 +183,7 @@ const FIELD_CODE_MESSAGES: Record<string, { field: SuggestionField; message: str
 };
 
 /**
- * What the API's answer to a send means for the screen (L2-062 AC6 to AC8, AC11; ADR 0085): the
+ * What the API's answer to a send means for the screen (L2-062 AC6 to AC8, AC11; ADR 0086): the
  * fields a 400 names, with their sentences; the daily limit; a suspended account; or a failure,
  * which is anything else, a field code the screen does not know included.
  */

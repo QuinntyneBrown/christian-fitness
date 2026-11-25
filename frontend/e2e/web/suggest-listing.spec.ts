@@ -24,7 +24,7 @@ const STEPS = [
   },
 ];
 
-// L2-062 AC2 to AC4 (ADR 0085; mock `suggest-listing/vetting-unavailable`, `self`, `invalid`): the
+// L2-062 AC2 to AC4 (ADR 0086; mock `suggest-listing/vetting-unavailable`, `self`, `invalid`): the
 // form asks who and what kind, the details and the permission, beside "What happens next"; Myself
 // changes the labels and drops the email and the permission; a missing name or place sends nothing.
 test.describe('Member app, suggest a listing: the form', () => {
@@ -80,7 +80,7 @@ test.describe('Member app, suggest a listing: the form', () => {
     await expect(suggest.sentAs).toHaveText('Sent as Grace Thompson');
     await expect(suggest.asideHeading).toHaveText('What happens next');
     expect(await suggest.stepViews()).toEqual(STEPS);
-    // No story can be published before the publishing journeys (ADR 0085): `vetting-unavailable`.
+    // No story can be published before the publishing journeys (ADR 0086): `vetting-unavailable`.
     await expect(suggest.vettingLink).toHaveCount(0);
   });
 
@@ -169,7 +169,7 @@ const MOCK_SENT = {
 
 const STORED = { id: '0193b1c0-0000-7000-8000-00000000e001', name: 'Eastside Ladies Who Lift' };
 
-// L2-062 AC5 and AC6 (ADR 0085; mock `submitting`, `success`, `error`): a valid suggestion is sent,
+// L2-062 AC5 and AC6 (ADR 0086; mock `submitting`, `success`, `error`): a valid suggestion is sent,
 // the button reads "Sending…" meanwhile, and the thanks replaces the form; a failure keeps it all.
 test.describe('Member app, suggest a listing: sending', () => {
   test('while it is on its way the button reads Sending… and the form holds still, then the thanks replaces it', async ({
@@ -305,7 +305,7 @@ function problem(status: number, code: string, fieldCodes?: Record<string, strin
   };
 }
 
-// L2-062 AC7, AC8 and AC11 (ADR 0085's stand-in copy): the API's refusals keep everything typed;
+// L2-062 AC7, AC8 and AC11 (ADR 0086's stand-in copy): the API's refusals keep everything typed;
 // a refused field is marked with its code's sentence, and the limits say why in the alert.
 test.describe('Member app, suggest a listing: refusals', () => {
   test('a field the API refuses is marked with its sentence and focus moves to the first', async ({

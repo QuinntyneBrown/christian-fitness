@@ -4,7 +4,7 @@ using static ChristianFitness.Api.Tests.DirectoryListings.SuggestListingTests;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-062 AC4, AC7, AC8 and AC11 (journey 17; ADR 0085): a field the rules refuse answers 400
+/// L2-062 AC4, AC7, AC8 and AC11 (journey 17; ADR 0086): a field the rules refuse answers 400
 /// <c>validation_failed</c> with the field's own code in <c>fieldCodes</c>; a suspended member is
 /// refused 403 <c>account_suspended</c>; a sixth suggestion within a rolling 24 hours is refused 429
 /// <c>too_many_attempts</c>, and one again once the oldest is a day old. Nothing is stored for a
@@ -19,7 +19,7 @@ public sealed class SuggestListingRefusalTests(SuggestListingFactory factory) : 
         return body;
     }
 
-    /// <summary>ADR 0085's table, one case per row: the field, the value sent and its code.</summary>
+    /// <summary>ADR 0086's table, one case per row: the field, the value sent and its code.</summary>
     public static TheoryData<string, string, object?, string> Invalid() => new()
     {
         { "relation unknown", "relation", "a-friend", "relation_invalid" },

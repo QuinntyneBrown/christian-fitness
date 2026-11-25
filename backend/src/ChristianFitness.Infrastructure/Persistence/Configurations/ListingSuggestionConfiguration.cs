@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// A listing suggestion (ADR 0085). Relation, kind and status are stored by name. The daily limit
+/// A listing suggestion (ADR 0086). Relation, kind and status are stored by name. The daily limit
 /// counts a member's suggestions since a time; staff's review reads them by status.
 /// </summary>
 internal sealed class ListingSuggestionConfiguration : IEntityTypeConfiguration<ListingSuggestion>

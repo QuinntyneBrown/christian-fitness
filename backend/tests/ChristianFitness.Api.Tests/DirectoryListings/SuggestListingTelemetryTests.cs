@@ -8,7 +8,7 @@ using ChristianFitness.Api.Tests.Telemetry;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-062 AC10 and L2-033 (ADR 0085): suggesting a listing leaves neither the suggested person's
+/// L2-062 AC10 and L2-033 (ADR 0086): suggesting a listing leaves neither the suggested person's
 /// email, their name, the reason nor the church connection in any span or log; the span records the
 /// route template, the method and the status only. A refused suggestion records none of them either.
 /// </summary>

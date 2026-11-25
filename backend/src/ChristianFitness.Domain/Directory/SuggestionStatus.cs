@@ -1,6 +1,6 @@
 namespace ChristianFitness.Domain.Directory;
 
-/// <summary>Where a listing suggestion is in staff's review (L2-073; ADR 0085).</summary>
+/// <summary>Where a listing suggestion is in staff's review (L2-073; ADR 0086).</summary>
 public enum SuggestionStatus
 {
     /// <summary>Sent by a member; staff have not decided it.</summary>

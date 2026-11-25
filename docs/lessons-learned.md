@@ -2440,7 +2440,8 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **What slowed it**
 
-- The ADR was written as 0084 while the member-header fix took 0084 on main. It became 0085 with every reference renamed before the push. `docs/adr/README.md` is outside Prettier's reach and main's table is no longer column-aligned, so each rebase conflict was settled by taking main's file and appending the one row.
+- The ADR was written as 0084, then the member-header fix took 0084 and journey 1 took 0085 on main, so it is 0086, renamed everywhere twice. `docs/adr/README.md` is outside Prettier's reach and main's table is no longer column-aligned, so each rebase conflict was settled by taking main's file and appending the one row.
+- Journey 1 moved the member routes from `app.routes.ts` into a lazy `member-app.routes.ts` and added a migration timestamped after this branch's. On rebase the route went to the new file, and the migration was removed and generated again from main's snapshot, so it sorts after `AddLegalAcceptance`.
 - The validator, the suspension check and the daily limit were written with slice 2's handler, so slice 3's API tests passed at once. Each rule was then broken alone by a script (suspension, the limit of 5, the host's dot, Myself's email, the church limit, https only), each failed exactly its own case, and each was restored from the copy the script held.
 - The thanks panel could not take focus in `ngAfterViewInit`: its content is projected into an `@if` branch of `cf-form-page`, which is not attached until the next render. `afterNextRender` focuses it, and the initial total did not move.
 - Playwright's `check()` on a choice chip's visually hidden radio is intercepted by its label, so the page object clicks the label, as a person does.
@@ -2456,6 +2457,6 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **How earlier lessons worked**
 
-- "Never bind `[class.x]`" (5): no class or style bindings were added, and web's initial total is 280.13 kB. That is main's 280.10 kB plus 0.03 kB for the new route entry; the screen, the service and `afterNextRender` all stayed lazy (checked by grepping `main-*.js`). It is still 0.13 kB over the 280 kB warning, as main already was.
+- "Never bind `[class.x]`" (5): no class or style bindings were added. Before the last rebase web's initial total was 280.13 kB, main's 280.10 kB plus 0.03 kB for the new route entry; the screen, the service and `afterNextRender` all stayed lazy (checked by grepping `main-*.js`). On journey 1's base it is 278.15 kB, under the warning.
 - "Break each rule alone" (5): applied to every backend rule of slice 3 and to the screen's failed and sending states in slice 2.
 - "The worktree-isolation guard refuses long shell commands" (4, 5): edits went through script files and `git` ran alone from the worktree root.

@@ -62,7 +62,7 @@ and it would not cover tagline, area or focus either.
   own stable id, so a second run changes nothing.
 - **Not yet built.** The Follow button (journey 8) is left out of each row rather than shown
   inert (the "Suggest a listing" links of the page head and the no-results state, once waiting,
-  arrived with that screen in journey 17; ADR 0085), and a row is not a link until the listing profile exists (journey 6): its head renders
+  arrived with that screen in journey 17; ADR 0086), and a row is not a link until the listing profile exists (journey 6): its head renders
   as the mock's non-link `div.listing-row__link`. A photo is shown when `photoKey` is set, served
   by the listing editor's image endpoint (journey 20); until then no listing has one.
 - **A chosen kind with nobody listed.** The mocks have no state for `?kind=` naming a kind with

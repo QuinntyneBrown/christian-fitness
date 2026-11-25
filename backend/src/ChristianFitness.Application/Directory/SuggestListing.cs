@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Directory;
 
-/// <summary>The stored suggestion as the API answers it: its id and whom it names (ADR 0085).</summary>
+/// <summary>The stored suggestion as the API answers it: its id and whom it names (ADR 0086).</summary>
 public sealed record ListingSuggestionDto(Guid Id, string Name);
 
 /// <summary>
-/// The signed-in member's suggestion for the directory (L2-062; ADR 0085), the body of
+/// The signed-in member's suggestion for the directory (L2-062; ADR 0086), the body of
 /// <c>POST /api/directory/suggestions</c>. A class, not a record, so no generated <c>ToString</c>
 /// can print the values if one is logged.
 /// </summary>
@@ -43,7 +43,7 @@ public sealed class SuggestListingCommand : IRequest<ListingSuggestionDto>
     public bool MayTellWhoSuggested { get; init; }
 }
 
-/// <summary>The relation slugs and the field codes a suggestion is refused with (ADR 0085).</summary>
+/// <summary>The relation slugs and the field codes a suggestion is refused with (ADR 0086).</summary>
 public static class SuggestListingRules
 {
     public const string RelationInvalid = "relation_invalid";
@@ -76,7 +76,7 @@ public static class SuggestListingRules
         slug is not null && Relations.TryGetValue(slug, out var relation) ? relation : null;
 }
 
-/// <summary>The suggestion's field rules (L2-062 AC7; ADR 0085); the sentences never repeat a value.</summary>
+/// <summary>The suggestion's field rules (L2-062 AC7; ADR 0086); the sentences never repeat a value.</summary>
 internal sealed class SuggestListingValidator : AbstractValidator<SuggestListingCommand>
 {
     public SuggestListingValidator()
@@ -116,7 +116,7 @@ internal sealed class SuggestListingValidator : AbstractValidator<SuggestListing
 }
 
 /// <summary>
-/// Stores a Waiting suggestion with the signed-in member and the time (L2-062 AC5; ADR 0085). A
+/// Stores a Waiting suggestion with the signed-in member and the time (L2-062 AC5; ADR 0086). A
 /// suspended member is refused 403 <c>account_suspended</c> (AC11); a sixth suggestion within a
 /// rolling 24 hours is refused 429 <c>too_many_attempts</c> (AC8). It logs nothing (AC10, L2-033).
 /// </summary>

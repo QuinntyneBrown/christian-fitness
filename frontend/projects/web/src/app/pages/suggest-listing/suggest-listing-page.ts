@@ -50,12 +50,12 @@ const STEPS: readonly StepItem[] = [
 ];
 
 /**
- * Suggest a listing at `/directory/suggest` (L2-062; ADR 0085; mock
+ * Suggest a listing at `/directory/suggest` (L2-062; ADR 0086; mock
  * `docs/mocks/pages/suggest-listing/`): who is suggested as three choice cards, the kind as six
  * choice chips, the details, and "What happens next" beside the form. Myself changes the name and
  * reason labels and drops their email and the permission (`suggestionFormOf`). A blank name or
  * place is marked before anything is sent and focus moves to the first (`checkSuggestion`). The
- * "How we vet every listing" link waits for the publishing journeys (ADR 0085:
+ * "How we vet every listing" link waits for the publishing journeys (ADR 0086:
  * `vetting-unavailable`).
  */
 @Component({

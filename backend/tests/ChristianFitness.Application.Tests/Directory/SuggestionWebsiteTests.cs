@@ -3,7 +3,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Application.Tests.Directory;
 
 /// <summary>
-/// L2-062 AC7 (ADR 0085): how a suggested website is read. Blank is none; a value with no scheme
+/// L2-062 AC7 (ADR 0086): how a suggested website is read. Blank is none; a value with no scheme
 /// gets <c>https://</c> in front; only an https address whose host has a dot, with no user name and
 /// no space, at most 200 characters once read, is one. One case per row.
 /// </summary>
