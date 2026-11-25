@@ -31,6 +31,7 @@ public sealed class DirectoryFactory : ApiFactory
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.ListingFollows.RemoveRange(db.ListingFollows);
         db.ListingConnections.RemoveRange(db.ListingConnections);
         db.DirectoryListings.RemoveRange(db.DirectoryListings);
         db.Events.RemoveRange(db.Events);

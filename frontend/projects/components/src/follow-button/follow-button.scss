@@ -1,0 +1,90 @@
+// The design system's follow button (docs/design-system/assets/components.css, "Directory and
+// listing profile": follow). The host adds no box, so the button is the row's or head's flex item.
+:host {
+  display: contents;
+}
+
+.follow {
+  display: inline-flex;
+  width: var(--size-column-follow);
+  min-height: var(--control-height-sm);
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  background: transparent;
+  color: var(--color-fg-default);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    border-color: var(--color-border-strong);
+  }
+
+  // Followed: tinted, with the check mark (L2-056 AC1).
+  &[aria-pressed='true'] {
+    border-color: transparent;
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+
+  // Its request is on its way: it ignores presses until it settles (L2-056 AC8; ADR 0088).
+  &[aria-disabled='true'] {
+    cursor: progress;
+  }
+}
+
+// The profile head's size: the primary when not followed, tinted when followed.
+.follow--lg {
+  width: auto;
+  min-height: var(--control-height-md);
+  flex: 1 1 0%;
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-md);
+  border-color: transparent;
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+
+  &:hover {
+    border-color: transparent;
+    background: var(--color-accent-hover);
+  }
+
+  &[aria-pressed='true']:hover {
+    background: var(--color-accent-subtle-hover);
+  }
+
+  @media (min-width: 48rem) {
+    flex: none;
+  }
+}
+
+// Touch: the row button's target extends to 44 × 44 px without changing its look (L2-054 AC9).
+@media (pointer: coarse) {
+  .follow {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .follow {
+    transition: none;
+  }
+}

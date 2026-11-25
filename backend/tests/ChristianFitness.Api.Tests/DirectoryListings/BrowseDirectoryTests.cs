@@ -66,7 +66,7 @@ public sealed class BrowseDirectoryTests(DirectoryFactory factory)
         var rows = (await ReadAsync(factory)).GetProperty("listings").EnumerateArray().ToArray();
 
         Assert.All(rows, row => Assert.Equal(
-            ["area", "hosting", "id", "isVerified", "kind", "name", "photoKey", "tagline"],
+            ["area", "following", "hosting", "id", "isVerified", "kind", "name", "photoKey", "tagline"],
             row.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)));
         var danielle = rows[0];
         Assert.Equal("Danielle <b>Okafor</b>", danielle.GetProperty("name").GetString());

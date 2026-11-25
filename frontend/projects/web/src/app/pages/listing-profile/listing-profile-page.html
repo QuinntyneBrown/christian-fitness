@@ -60,6 +60,16 @@
             [initials]="shown.initials"
             [photoSrc]="shown.photoSrc"
           >
+            @if (follow(); as followed) {
+              <cf-follow-button
+                slot="actions"
+                large
+                [following]="followed.following"
+                [busy]="followed.busy"
+                [name]="listing.name"
+                (toggled)="toggleFollow(listing)"
+              />
+            }
             @if (listing.hasOwner) {
               <cf-button slot="actions" variant="secondary" size="md" (click)="message()"
                 >Message</cf-button
@@ -98,7 +108,7 @@
               <cf-description-list variant="spec" [items]="facts()" />
               @if (shown.servicesHref; as services) {
                 <p>
-                  <cf-link variant="text" [href]="services" (click)="follow($event, services)"
+                  <cf-link variant="text" [href]="services" (click)="route($event, services)"
                     >Also offers services</cf-link
                   >
                 </p>
@@ -136,3 +146,8 @@
     />
   </cf-mini-row>
 </ng-template>
+<cf-toast-region
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

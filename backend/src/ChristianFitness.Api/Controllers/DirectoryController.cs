@@ -10,7 +10,7 @@ namespace ChristianFitness.Api.Controllers;
 /// <summary>
 /// The directory (L2-054, L2-055; ADR 0082, ADR 0087). Anyone may read the list and a profile, since
 /// they answer only what published listings publish, and an anonymous caller is held to the
-/// public-reads limit (ADR 0072). Messaging a listing needs a session.
+/// public-reads limit (ADR 0072). Messaging, following and unfollowing a listing need a session.
 /// </summary>
 [ApiController]
 [Route("api/directory")]
@@ -34,4 +34,14 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
     [HttpPost("{id:guid}/conversation")]
     public async Task<ActionResult<ListingConversationDto>> StartConversation(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new StartListingConversationCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>The signed-in member follows a listing; a repeat changes nothing (L2-056; ADR 0088).</summary>
+    [HttpPut("{id:guid}/follow")]
+    public async Task<ActionResult<ListingFollowDto>> Follow(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new FollowListingCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>The signed-in member stops following a listing; a repeat changes nothing (L2-056; ADR 0088).</summary>
+    [HttpDelete("{id:guid}/follow")]
+    public async Task<ActionResult<ListingFollowDto>> Unfollow(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new UnfollowListingCommand(id), cancellationToken).ConfigureAwait(false);
 }

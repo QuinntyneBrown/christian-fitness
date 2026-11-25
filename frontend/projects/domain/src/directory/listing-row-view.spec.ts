@@ -10,6 +10,7 @@ const row = (over: Partial<DirectoryListingRowDto>): DirectoryListingRowDto => (
   isVerified: true,
   photoKey: null,
   hosting: 0,
+  following: false,
   ...over,
 });
 

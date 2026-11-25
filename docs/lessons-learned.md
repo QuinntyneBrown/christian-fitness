@@ -2485,3 +2485,28 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Check `origin/main` and open PRs for the next ADR number right before each commit that adds one" (17): it was checked, and still overtaken by two merges before the push. Checking again at the final rebase caught it.
 - "Never bind `[class.x]`" (5): no class or style bindings; `[attr.class]` strings throughout. After the rebase web's initial total is 278.18 kB, main's 278.15 kB plus the 0.03 kB token; `main-*.js` is byte-for-byte the same size, since the route now sits in the lazy `member-app.routes.ts`.
 - "Break each rule alone" (5, 17): the Toronto listed year, the published filters on the profile, on connections and on Services' directory link, http websites, the owner check on Message and the routing guards each failed exactly their own tests when broken, and were restored.
+
+## Journey 8: Follow a listing
+
+**What slowed it**
+
+- The requirement, design and design system disagreed on three points: the design's table said the button reads "Following" while `L2-056` AC1 keeps "Follow"; the design system said "Busy: none" while AC8 asks for `aria-disabled`; and its row button fell short of 44 px. ADR 0088 settled them, and how "60 an hour" is counted when an unfollow deletes its row, before any code.
+- The screens could not know whether the member already follows a listing: the anonymous directory and profile reads carry no caller. `ICurrentMember` gained `SignedInId`, so one read serves both, and both DTOs gained `following`.
+- A new `DbSet` again broke the four hand-written `IAppDbContext` doubles, and this journey's own race double made five. A small script that inserts the set after a known line in each kept the two additions mechanical.
+- The worktree guard refused every command that wrote a script with a heredoc and ran it in one go, even with no git in it. Scripts went into the scratchpad through the Write tool and ran as a separate plain command.
+- Slice 2 built the rollback for every failure, so slice 3's refusal rows (403 and 429) passed at once in the browser. Making the store skip its rollback for 403 and 429 turned exactly those two rows red; restored.
+
+**New lessons**
+
+- A rolling-hour limit on an action that deletes its own row needs a log of its own: `ListingFollowChanges` holds one row per accepted change, the refusal is not logged, and each accepted change deletes the member's rows older than the hour, so the log never holds more than the limit and needs no scheduler.
+- A class that moves a `FakeTimeProvider` takes its own `IClassFixture<DirectoryFactory>` rather than the collection's shared clock, so the other directory classes keep their fixed "now".
+- A toggle that is `aria-disabled` while in flight is pressed in a spec by focus and key (`pressFollowByKey`), since Playwright's click waits on `aria-disabled`; asserting the request count after Enter and Space proves the second press did nothing.
+- `hasTouch` with `isMobile` makes `(pointer: coarse)` match in Chromium, so a coarse-pointer target can be measured from `getComputedStyle(button, '::after')`; without it the same spec reads the drawn 36 px and fails, which is the honest red.
+- A page object helper two screens share (`readFollow`) belongs in `page-objects/shared/`, not imported from one screen's page object into another's.
+
+**How earlier lessons worked**
+
+- "Never bind `[class.x]`" (5) and "an `@let` or an object literal in a template grows `main`" (6): the button composes its class with `[attr.class]` and the rows read the store's map with `?.` and `??`; web's initial total stayed 278.21 kB through all four slices (main's 278.18 kB plus the 0.03 kB `--size-column-follow` token), admin 279.98 kB.
+- "Break each rule alone" (5, 17): the race catch, the pruning, the window's `>`, the limit of 60, the suspension check, the in-flight guard and the refusal rollback each failed exactly their own tests when broken, and were restored from a scratchpad copy.
+- "Run `npm test` after every contract change" (6): the three domain fixtures that build a row or profile DTO were updated in slice 1, when `following` joined the contracts.
+- "Check `origin/main` and open PRs for the next ADR number right before each commit" (17): checked before the first commit and again at the rebase.

@@ -15,6 +15,7 @@ const row = (id: string, kind: ListingKind = 'organization'): DirectoryListingRo
   isVerified: false,
   photoKey: null,
   hosting: 0,
+  following: false,
 });
 
 const COUNTS = [{ kind: 'organization' as const, count: 3 }];

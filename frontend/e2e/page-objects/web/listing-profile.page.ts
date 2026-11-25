@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { ErrorScreen } from '../shared/error-screen';
+import { type FollowButtonView, readFollow } from '../shared/follow-button';
 
 /** The head of a listing's profile as the member reads it. */
 export interface ListingHeadView {
@@ -50,6 +51,9 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly backLink: Locator;
   readonly head: Locator;
   readonly messageButton: Locator;
+  readonly followButton: Locator;
+  /** The danger toasts: each `role="alert"` in the toast region. */
+  readonly failureToasts: Locator;
   readonly messageAlert: Locator;
   readonly alsoOffersServices: Locator;
   readonly name: Locator;
@@ -76,6 +80,8 @@ export class WebListingProfilePage extends ErrorScreen {
     this.backLink = this.main.getByRole('link', { name: 'Directory', exact: true }).first();
     this.head = this.main.locator('.listing-head');
     this.messageButton = this.head.getByRole('button', { name: 'Message' });
+    this.followButton = this.head.locator('button.follow');
+    this.failureToasts = page.locator('.toast-region [role="alert"] .toast');
     this.messageAlert = this.main.getByRole('alert');
     this.alsoOffersServices = this.main.getByRole('link', { name: 'Also offers services' });
     this.name = this.head.getByRole('heading', { level: 1 });
@@ -123,6 +129,35 @@ export class WebListingProfilePage extends ErrorScreen {
         tagline: text('.subtitle'),
       };
     });
+  }
+
+  /** The head's Follow button. */
+  async followView(): Promise<FollowButtonView> {
+    return readFollow(this.followButton);
+  }
+
+  /**
+   * Presses Follow from the keyboard. Playwright's click waits while a control is `aria-disabled`,
+   * so a press during a request in flight is made by focus and key, as a keyboard user makes it.
+   */
+  async pressFollowByKey(key: 'Enter' | ' ' = 'Enter'): Promise<void> {
+    await this.followButton.focus();
+    await this.page.keyboard.press(key === ' ' ? 'Space' : key);
+  }
+
+  /** Each danger toast's title and text, in order. */
+  async failureToastViews(): Promise<[string, string][]> {
+    return this.failureToasts.evaluateAll((toasts) =>
+      toasts.map((toast) => [
+        (toast.querySelector('.toast__title')?.textContent ?? '').trim(),
+        (toast.querySelector('.toast__text')?.textContent ?? '').trim(),
+      ]),
+    );
+  }
+
+  /** The facts' follower count, as the member reads it. */
+  async followers(): Promise<string> {
+    return (await this.factViews()).find(([term]) => term === 'Followers')?.[1] ?? '';
   }
 
   /** Each hosting row, in order. */

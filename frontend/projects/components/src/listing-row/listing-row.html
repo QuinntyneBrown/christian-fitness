@@ -19,6 +19,12 @@
         <ng-container [ngTemplateOutlet]="head" />
       </div>
     }
+    <cf-follow-button
+      [following]="following()"
+      [busy]="followBusy()"
+      [name]="name()"
+      (toggled)="followToggled.emit()"
+    />
   </div>
 }
 <ng-template #head>

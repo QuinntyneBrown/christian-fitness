@@ -50,6 +50,8 @@ export interface ListingProfileFixture {
   connections: ConnectionFixture[];
   /** The Services listing of the same owner, or that staff linked, for "Also offers services". */
   serviceListingId: string | null;
+  /** Whether the signed-in member follows it (ADR 0088). */
+  following: boolean;
 }
 
 const idOf = (name: string): string => {
@@ -93,6 +95,7 @@ export const LAKESHORE: ListingProfileFixture = {
     },
   ],
   serviceListingId: null,
+  following: false,
 };
 
 /** Danielle Okafor, an instructor with a photo (mock `listing-profile/person`). */
@@ -115,6 +118,7 @@ export const OKAFOR: ListingProfileFixture = {
   hosting: [],
   connections: [],
   serviceListingId: null,
+  following: false,
 };
 
 /** Christian Fitness, the team's own listing (mock `listing-profile/one-off`). */
@@ -137,6 +141,7 @@ export const TEAM: ListingProfileFixture = {
   hosting: [SUNRISE_RUN],
   connections: [],
   serviceListingId: null,
+  following: false,
 };
 
 /** Northline Athletic, an unverified company (mock `listing-profile/unverified`). */
@@ -159,6 +164,7 @@ export const NORTHLINE: ListingProfileFixture = {
   hosting: [],
   connections: [],
   serviceListingId: null,
+  following: false,
 };
 
 export const PROFILES: ListingProfileFixture[] = [LAKESHORE, OKAFOR, TEAM, NORTHLINE];
