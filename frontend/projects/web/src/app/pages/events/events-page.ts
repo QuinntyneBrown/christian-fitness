@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EVENTS_SERVICE } from '@cf/api';
@@ -28,9 +28,9 @@ import {
   type EventListQuery,
   eventListQueryOf,
   eventSearchOf,
+  eventsNoResults,
   EVENT_SEARCH_DELAY_MS,
   hasMore,
-  noCategoryEventsText,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpEventsService } from '../../services/http-events.service';
@@ -77,9 +77,9 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 export default class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
-  /** The selection the address holds: category and search (ADR 0081). */
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  /** The selection the address holds: category, search and going (ADR 0081). */
   protected readonly query = signal<EventListQuery>({ category: null, q: '', going: false });
-  protected readonly category = computed(() => this.query().category);
   /**
    * The search field's text. It is the member's while they type (a trailing space stays) and the
    * address's when the address names another search: on arrival, on Back and after clearing.
@@ -91,10 +91,8 @@ export default class EventsPage {
    */
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
   protected readonly chips = computed(() => eventCategoryChips(this.query()));
-  protected readonly noResultsText = computed(() => {
-    const current = this.category();
-    return current === null ? '' : noCategoryEventsText(current);
-  });
+  /** What an empty answer says for this selection; none with nothing chosen (ADR 0081). */
+  protected readonly noResults = computed(() => eventsNoResults(this.query()));
   private readonly destroyRef = inject(DestroyRef);
   private request: Subscription | null = null;
 
@@ -123,6 +121,16 @@ export default class EventsPage {
         this.loadFirst();
       });
     this.destroyRef.onDestroy(() => clearTimeout(this.searchTimer));
+  }
+
+  /**
+   * Clear filter, or Clear search and filters: back to the unfiltered date list, which empties the
+   * field through the address, with focus in the field so the next search can be typed.
+   */
+  protected clear(): void {
+    clearTimeout(this.searchTimer);
+    this.navigate('/events');
+    this.host.nativeElement.querySelector<HTMLElement>('.search__input')?.focus();
   }
 
   /** "Only events I'm going to" was ticked or cleared: a new place in history, as a chip is. */

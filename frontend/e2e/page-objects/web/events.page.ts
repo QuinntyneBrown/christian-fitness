@@ -81,6 +81,16 @@ export class WebEventsPage {
     return this.page.getByRole('button', { name: 'Clear filter' });
   }
 
+  /** The no-results state of a search or of "Only events I'm going to", by its heading (ADR 0081). */
+  noResultsHeading(name: string): Locator {
+    return this.page.getByRole('heading', { name, exact: true });
+  }
+
+  /** The no-results action that clears the search and filters (L2-075 AC3, L2-076 AC2). */
+  get clearSearchAndFilters(): Locator {
+    return this.page.getByRole('button', { name: 'Clear search and filters' });
+  }
+
   async open(category?: string): Promise<void> {
     await this.page.goto(category ? `/events?category=${encodeURIComponent(category)}` : '/events');
   }
@@ -93,6 +103,11 @@ export class WebEventsPage {
   /** The "Search events" field (L2-075; ADR 0081). */
   get search(): Locator {
     return this.page.getByRole('searchbox', { name: 'Search events' });
+  }
+
+  /** The "Only events I'm going to" checkbox (L2-076; ADR 0081). */
+  get goingFilter(): Locator {
+    return this.page.getByRole('checkbox', { name: "Only events I'm going to" });
   }
 
   /** Types `text` into the search a key at a time, as a member does. */
