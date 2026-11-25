@@ -142,6 +142,20 @@ public sealed class DirectoryListing
         SearchText = SearchFold.Of(string.Join('\n', [Name, Tagline, Area, .. Focus]));
     }
 
+    /// <summary>
+    /// The owner's changes that go live at once (L2-079 AC4; ADR 0093): about, website, focus tags
+    /// and contact email, trimmed, with the search keys rebuilt. The caller has checked every limit.
+    /// </summary>
+    public void EditByOwner(string description, string? websiteUrl, IEnumerable<string> focus, string? contactEmail)
+    {
+        Describe(Kind, Name, Tagline, Area, focus, description, websiteUrl);
+        SetContact(contactEmail);
+    }
+
+    /// <summary>Sets the contact email, or clears it with none.</summary>
+    public void SetContact(string? contactEmail) =>
+        ContactEmail = string.IsNullOrWhiteSpace(contactEmail) ? null : contactEmail.Trim();
+
     /// <summary>Staff checked it: it is in the directory from <paramref name="at"/>.</summary>
     public void Publish(DateTimeOffset at)
     {

@@ -1,5 +1,10 @@
 import { expect, test } from '../fixtures/test';
-import { answerListingProfile, EASTSIDE_OWNED, LAKESHORE } from '../fixtures/listing-profile';
+import {
+  answerListingProfile,
+  answerOwnListingSave,
+  EASTSIDE_OWNED,
+  LAKESHORE,
+} from '../fixtures/listing-profile';
 import { OwnerListingEditorDialog } from '../page-objects/web/owner-listing-editor.dialog';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
@@ -68,4 +73,59 @@ test.describe('Member app, edit my listing', () => {
     await expect(profile.followButton).toBeVisible();
     await expect(profile.editListingButton).toHaveCount(0);
   });
+
+  test(
+    'Saving the about, website, focus and contact reads Saving…, goes live at once on the page and says so in a toast',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerListingProfile(api, [EASTSIDE_OWNED]);
+      let answer!: () => void;
+      const held = new Promise<void>((resolve) => (answer = resolve));
+      const saved = {
+        ...EASTSIDE_OWNED,
+        description: 'Thirty women now, still coached by a CSEP trainer.',
+        websiteUrl: 'https://eastsidestrength.ca',
+        focus: ['Strength', 'Women', 'Prayer'],
+        owner: { contactEmail: 'hello@eastside.example', pendingName: null, pendingKind: null },
+      };
+      const sent = answerOwnListingSave(api, () => ({ listing: saved, hold: held }));
+      const profile = new WebListingProfilePage(page);
+      const editor = new OwnerListingEditorDialog(page);
+      await profile.open(EASTSIDE_OWNED.id);
+      await profile.editListingButton.click();
+
+      await editor.about.fill('Thirty women now, still coached by a CSEP trainer.');
+      await editor.website.fill('eastsidestrength.ca');
+      await editor.focus.fill('Strength,  Women, , Prayer ');
+      await editor.contact.fill('hello@eastside.example');
+      await editor.saveButton.click();
+
+      await expect(editor.saveButton).toHaveText('Saving…');
+      await expect(editor.saveButton).toHaveAttribute('aria-busy', 'true');
+      await expect(editor.saveButton).toBeDisabled();
+      await expect(editor.textInputs.first()).toHaveAttribute('readonly', '');
+      answer();
+
+      await expect(editor.dialog).toHaveCount(0);
+      expect(sent).toEqual([
+        {
+          name: 'Eastside Ladies Who Lift',
+          kind: 'organization',
+          about: 'Thirty women now, still coached by a CSEP trainer.',
+          website: 'eastsidestrength.ca',
+          photoKey: null,
+          focus: ['Strength', 'Women', 'Prayer'],
+          contactEmail: 'hello@eastside.example',
+        },
+      ]);
+      await expect(profile.aboutText).toHaveText(
+        'Thirty women now, still coached by a CSEP trainer.',
+      );
+      await expect(profile.focusTags).toHaveText(['Strength', 'Women', 'Prayer']);
+      await expect
+        .poll(() => profile.successToastViews())
+        .toEqual([['Your listing is updated', 'Your changes are live in the directory.']]);
+      await expect(profile.editListingButton).toBeFocused();
+    },
+  );
 });

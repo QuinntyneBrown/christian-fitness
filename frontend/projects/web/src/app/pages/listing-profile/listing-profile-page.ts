@@ -48,6 +48,9 @@ import type {
 } from '../../dialogs/owner-listing-editor/owner-listing-editor-dialog';
 import { HttpDirectoryService } from '../../services/http-directory.service';
 
+/** The success toast's title once the owner saved (L2-079 AC4). */
+const LISTING_UPDATED = 'Your listing is updated';
+
 /**
  * A listing's profile at `/directory/:id` (L2-055; ADR 0087; mock `listing-profile/`): the back
  * link to the directory, the listing head, Hosting (its one-off events still to come, each leading
@@ -119,11 +122,14 @@ export default class ListingProfilePage {
     if (!profile || profile.isOwner) return null;
     return this.follows.follows().get(profile.id) ?? null;
   });
-  /** A failed follow or unfollow, as a danger toast (L2-056 AC3; mock `directory/follow-failed`). */
+  /**
+   * A failed follow or unfollow as a danger toast (L2-056 AC3; mock `directory/follow-failed`), and
+   * a saved listing as a success toast (L2-079 AC4; mock `owner-listing-editor/saved`).
+   */
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
       id: String(id),
-      tone: 'danger',
+      tone: title === LISTING_UPDATED ? 'success' : 'danger',
       heading: title,
       text,
     })),
@@ -176,8 +182,12 @@ export default class ListingProfilePage {
     if (this.destroyRef.destroyed) return;
     const editor = openOwnerListingEditor(this.injector, listing);
     this.editor = editor;
-    editor.closed.subscribe(() => {
+    editor.closed.subscribe((result) => {
       this.editor = null;
+      if (!result) return;
+      // Shown in place, so the button that opened the dialog stays and takes focus back.
+      this.profile.set(result.saved);
+      this.toasts.show(LISTING_UPDATED, 'Your changes are live in the directory.');
     });
   }
 

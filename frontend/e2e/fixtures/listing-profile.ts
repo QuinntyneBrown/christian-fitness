@@ -288,3 +288,58 @@ export function answerListingConversation(api: ApiHandlers, reply: ConversationR
   });
   return asked;
 }
+
+/** What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0093). */
+export interface OwnListingUpdateBody {
+  name: string;
+  kind: KindFixture;
+  about: string;
+  website: string | null;
+  photoKey: string | null;
+  focus: string[];
+  contactEmail: string | null;
+}
+
+/** The answer to one owner's save: the listing as saved, a refusal, or no answer. */
+export type OwnListingSaveReply =
+  | { listing: ListingProfileFixture; nameChangePending?: boolean; hold?: Promise<void> }
+  | {
+      status: number;
+      code?: string;
+      fieldCodes?: Record<string, string>;
+      abort?: boolean;
+      hold?: Promise<void>;
+    };
+
+/**
+ * Answers `PUT /api/directory/{id}` (ADR 0093) with `reply(n)` for the `n`th save, zero-based, and
+ * returns the bodies sent, in order. A reply may hold its answer until a promise settles.
+ */
+export function answerOwnListingSave(
+  api: ApiHandlers,
+  reply: (requestNumber: number, body: OwnListingUpdateBody) => OwnListingSaveReply,
+): OwnListingUpdateBody[] {
+  const sent: OwnListingUpdateBody[] = [];
+  api.on('PUT', /^\/api\/directory\/[0-9a-f-]{36}$/, async (request): Promise<ApiReply> => {
+    const body = request.postDataJSON() as OwnListingUpdateBody;
+    const answer = reply(sent.length, body);
+    sent.push(body);
+    if (answer.hold) await answer.hold;
+    if ('listing' in answer) {
+      return {
+        json: { nameChangePending: answer.nameChangePending ?? false, listing: answer.listing },
+      };
+    }
+    if (answer.abort) return { abort: true };
+    return {
+      status: answer.status,
+      headers: { 'content-type': 'application/problem+json' },
+      json: {
+        status: answer.status,
+        code: answer.code ?? 'error',
+        ...(answer.fieldCodes ? { fieldCodes: answer.fieldCodes } : {}),
+      },
+    };
+  });
+  return sent;
+}

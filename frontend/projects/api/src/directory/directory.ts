@@ -129,6 +129,27 @@ export interface ListingFollowDto {
   followers: number;
 }
 
+/**
+ * What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0093): the name and kind (a new one
+ * waits for staff), the about, the website as typed or none, the photo's key, the focus tags and
+ * the contact email or none.
+ */
+export interface OwnListingUpdateDto {
+  name: string;
+  kind: ListingKind;
+  about: string;
+  website: string | null;
+  photoKey: string | null;
+  focus: string[];
+  contactEmail: string | null;
+}
+
+/** What the owner's save answers: the listing as saved, and whether a name or kind waits for staff. */
+export interface OwnListingSavedDto {
+  nameChangePending: boolean;
+  listing: ListingProfileDto;
+}
+
 /** Who receives a listing's messages: the member whose direct conversation Message opens. */
 export interface ListingConversationDto {
   memberId: string;
@@ -165,6 +186,12 @@ export interface DirectoryApi {
 
   /** Stops following a published listing; a repeat changes nothing (L2-056 AC2, AC4). Errors as {@link follow}. */
   unfollow(id: string): Observable<ListingFollowDto>;
+
+  /**
+   * The owner saves their listing (L2-079; ADR 0093). A refusal errors with an `ApiError`:
+   * 400 `validation_failed` with `fieldCodes`, 403 `not_listing_owner`, 404 `listing_not_found`.
+   */
+  updateOwn(id: string, update: OwnListingUpdateDto): Observable<OwnListingSavedDto>;
 }
 
 /** One listing's follow as a screen shows it: the member's state, the count where known, and whether a change is in flight. */

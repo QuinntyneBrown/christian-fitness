@@ -161,6 +161,16 @@ export class WebListingProfilePage extends ErrorScreen {
     );
   }
 
+  /** Each success toast's title and text, in order. */
+  async successToastViews(): Promise<[string, string][]> {
+    return this.successToasts.evaluateAll((toasts) =>
+      toasts.map((toast) => [
+        (toast.querySelector('.toast__title')?.textContent ?? '').trim(),
+        (toast.querySelector('.toast__text')?.textContent ?? '').trim(),
+      ]),
+    );
+  }
+
   /** The facts' follower count, as the member reads it. */
   async followers(): Promise<string> {
     return (await this.factViews()).find(([term]) => term === 'Followers')?.[1] ?? '';

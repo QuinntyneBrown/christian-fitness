@@ -11,6 +11,7 @@
     name="name"
     hint="Changing the name or the kind sends the listing back to staff to check"
     [value]="values().name"
+    [readonly]="saving()"
     (valueChange)="set('name', $event)"
   />
   <cf-textarea
@@ -19,6 +20,7 @@
     name="about"
     [rows]="4"
     [value]="values().about"
+    [readonly]="saving()"
     (valueChange)="set('about', $event)"
   />
   <cf-text-field
@@ -28,6 +30,7 @@
     inputmode="url"
     optional
     [value]="values().website"
+    [readonly]="saving()"
     (valueChange)="set('website', $event)"
   />
   <cf-file-field
@@ -40,7 +43,8 @@
     emptyText="No photo yet"
     hint="JPEG, PNG or WebP, up to 5 MB"
     [accept]="imageTypes"
-    [fileName]="values().photoName ?? (values().photoKey === null ? null : 'Current photo')"
+    [fileName]="photoName()"
+    [disabled]="saving()"
   />
   <cf-text-field
     fieldId="f-focus"
@@ -48,6 +52,7 @@
     name="focus"
     hint="Up to 6, separated by commas"
     [value]="values().focus"
+    [readonly]="saving()"
     (valueChange)="set('focus', $event)"
   />
   <cf-text-field
@@ -59,8 +64,17 @@
     optional
     hint="Shown to members who message you"
     [value]="values().contact"
+    [readonly]="saving()"
     (valueChange)="set('contact', $event)"
   />
-  <cf-button slot="foot" variant="secondary" grow (click)="close()">Cancel</cf-button>
-  <cf-button slot="foot" grow>Save changes</cf-button>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button slot="foot" grow [busy]="saving()" [disabled]="saving()" (click)="save()">
+    @if (saving()) {
+      Saving…
+    } @else {
+      Save changes
+    }
+  </cf-button>
 </cf-dialog>
