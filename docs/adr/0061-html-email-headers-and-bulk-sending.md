@@ -21,7 +21,7 @@ relay sends as `no-reply@christian.fitness` (ADR 0047).
   or `Headers` is sent exactly as before.
 - **Bulk sending.** `IssueDelivery` rows are the durable queue: one per recipient, with a status
   and an attempt count. A drain job of the scheduler (#77) takes pending rows in batches and sends
-  them within `Email:MaxPerMinute` and `Email:MaxPerDay` (#64), records the outcome on each row, and
+  them within `Email:MaxPerMinute` and `Email:MaxPerDay` (documented in settings), records the outcome on each row, and
   resumes from the rows after a restart. A failed row is retried up to a fixed number of attempts,
   then marked failed. The newsletter never goes through `QueuedEmailSender`.
 - **Transactional mail.** `QueuedEmailSender` and its 500-message bound stay for transactional

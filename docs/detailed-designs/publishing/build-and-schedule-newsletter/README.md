@@ -113,8 +113,9 @@ share of opens and clicks.
 - **Bulk sending and the email queue.** `QueuedEmailSender` holds at most 500 messages and drops
   the newest when full (ADR 0010). An issue to 6,800 addresses through it would lose mail; the
   `IssueDelivery` table is this design's durable queue, and `IssueSender` needs back-pressure from
-  the transport (or a transport-level batch API) before it hands over more. The SMTP relay's
-  sending limits are the `Email:MaxPerMinute` and `Email:MaxPerDay` settings. Decided in [ADR 0061](../../../adr/0061-html-email-headers-and-bulk-sending.md).
+  the transport (or a transport-level batch API) before it hands over more. The required
+  `Email:MaxPerMinute` and `Email:MaxPerDay` settings size and rate-limit the sender to the
+  relay's limits; neither has a hard-coded value. Decided in [ADR 0061](../../../adr/0061-html-email-headers-and-bulk-sending.md).
 - **Saving a draft issue.** The mock has no Save button and no saved indicator, and `L2-070` says
   nothing of keeping a draft between visits. The design saves fields with `SaveIssueCommand` after
   a pause, as the story editor does; that behaviour, and its interval, need confirming and a mock
