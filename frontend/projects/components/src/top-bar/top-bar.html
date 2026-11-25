@@ -2,10 +2,14 @@
   <header class="site-header">
     <cf-brand-lockup [href]="homeHref()" />
     <div class="site-header__actions">
-      <span class="site-header__signin">
-        <cf-button variant="ghost" [href]="signInHref()">Sign in</cf-button>
-      </span>
-      <cf-button [href]="joinHref()">Join free</cf-button>
+      @if (documentHref(); as href) {
+        <cf-button variant="ghost" [href]="href">{{ documentLabel() }}</cf-button>
+      } @else {
+        <span class="site-header__signin">
+          <cf-button variant="ghost" [href]="signInHref()">Sign in</cf-button>
+        </span>
+        <cf-button [href]="joinHref()">Join free</cf-button>
+      }
     </div>
   </header>
 } @else {

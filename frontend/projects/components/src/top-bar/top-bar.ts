@@ -54,6 +54,8 @@ export class TopBar {
   /** The site header's ghost "Sign in" and primary "Join free". */
   readonly signInHref = input('/sign-in');
   readonly joinHref = input('/join');
+  readonly documentHref = input<string>();
+  readonly documentLabel = input<string>();
 
   /** A plain click on a link or the profile button, with its `href`. */
   readonly navigate = output<string>();

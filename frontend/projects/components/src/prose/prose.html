@@ -1,0 +1,42 @@
+<article class="legal">
+  <cf-link href="/" variant="back">Christian Fitness</cf-link>
+  <h1 class="display detail-title legal__title">{{ title() }}</h1>
+  <p class="subtitle legal__effective">Effective {{ effective() }}</p>
+  <div class="legal__grid">
+    <ng-content select="[slot=contents]" />
+    <div class="legal__body">
+      <ng-content select="[slot=change]" />
+      <section class="legal__summary" aria-labelledby="short-title">
+        <h2 class="display legal__summary-title" id="short-title">The short version</h2>
+        <ul class="legal__points">
+          @for (point of points(); track point) {
+            <li>{{ point }}</li>
+          }
+        </ul>
+        <p class="legal__summary-note">
+          The full text below is what applies. This summary is here so you don’t have to read it all
+          to know where you stand.
+        </p>
+      </section>
+      @for (section of sections(); track section.id) {
+        <section class="legal__section" [id]="section.id">
+          <h2 class="legal__heading">
+            <span class="legal__n">{{ $index + 1 }}.</span>&ngsp;{{ section.title }}
+          </h2>
+          @for (paragraph of section.paragraphs; track paragraph) {
+            <p>{{ paragraph }}</p>
+          }
+        </section>
+      }
+      <div class="legal__questions">
+        <h2 class="legal__questions-title">Questions?</h2>
+        <p>
+          Email
+          <cf-link href="mailto:privacy@christian.fitness">privacy&#64;christian.fitness</cf-link>
+          or <cf-link href="/feedback">Send feedback</cf-link>. Christian Fitness, 2091 Hurontario
+          Street, Mississauga, Ontario, L5A 4E6.
+        </p>
+      </div>
+    </div>
+  </div>
+</article>
