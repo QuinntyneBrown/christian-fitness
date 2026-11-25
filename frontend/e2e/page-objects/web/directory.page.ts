@@ -194,11 +194,28 @@ export class WebDirectoryPage {
     );
   }
 
-  /** Whether the page itself scrolls sideways, and whether the chip bar does. */
+  /**
+   * Whether the directory's own content would scroll the page sideways (any element of the main
+   * region reaching past the viewport that no scroller of its own clips), and whether the chip
+   * bar scrolls within itself. The app header is the shell's, not this screen's.
+   */
   async sidewaysScroll(): Promise<{ page: boolean; chips: boolean }> {
-    const page = await this.page.evaluate(
-      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
-    );
+    const page = await this.main.evaluate((main) => {
+      const edge = window.innerWidth + 0.5;
+      const clipped = (el: Element): boolean => {
+        for (let up = el.parentElement; up && up !== main.parentElement; up = up.parentElement) {
+          if (
+            getComputedStyle(up).overflowX !== 'visible' &&
+            up.getBoundingClientRect().right <= edge
+          )
+            return true;
+        }
+        return false;
+      };
+      return Array.from(main.querySelectorAll('*')).some(
+        (el) => el.getBoundingClientRect().right > edge && !clipped(el),
+      );
+    });
     const chips = await this.chipBar.evaluate((bar) => {
       const scroller = bar.querySelector('.chip-bar') ?? bar;
       return scroller.scrollWidth > scroller.clientWidth;
