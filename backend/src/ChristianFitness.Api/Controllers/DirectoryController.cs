@@ -19,6 +19,6 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
 {
     /// <summary>One page of the published listings in kind and name order, or of one kind, matching a search, with each kind's count.</summary>
     [HttpGet]
-    public async Task<IActionResult> List([FromQuery] string? kind, [FromQuery] string? q, CancellationToken cancellationToken) =>
-        Ok(await sender.Send(new ListDirectoryQuery(kind, q), cancellationToken).ConfigureAwait(false));
+    public async Task<IActionResult> List([FromQuery] string? kind, [FromQuery] string? q, [FromQuery] string? cursor, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new ListDirectoryQuery(kind, q, cursor), cancellationToken).ConfigureAwait(false));
 }

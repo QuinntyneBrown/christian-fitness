@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
@@ -23,9 +25,10 @@ public sealed record DirectoryPageDto(IReadOnlyList<DirectoryListingRowDto> List
 /// <summary>
 /// The published listings in kind order, each kind in name order (L2-054 AC1, AC8), or those of
 /// the one kind <paramref name="Kind"/> names by its slug (L2-054 AC3), narrowed to those whose
-/// name, tagline, area or focus contain the search <paramref name="Q"/> (L2-054 AC4).
+/// name, tagline, area or focus contain the search <paramref name="Q"/> (L2-054 AC4), 50 to a page
+/// after the opaque <paramref name="Cursor"/> (L2-054 AC7).
 /// </summary>
-public sealed record ListDirectoryQuery(string? Kind = null, string? Q = null) : IRequest<DirectoryPageDto>
+public sealed record ListDirectoryQuery(string? Kind = null, string? Q = null, string? Cursor = null) : IRequest<DirectoryPageDto>
 {
     public const int PageSize = 50;
 }
@@ -35,6 +38,7 @@ public static class ListDirectoryRules
 {
     public const string KindInvalid = "kind_invalid";
     public const string QueryTooLong = "query_too_long";
+    public const string CursorInvalid = "cursor_invalid";
 
     /// <summary>The shortest search, in characters (code points) after trimming; a shorter one is none.</summary>
     public const int SearchMin = 2;
@@ -42,7 +46,7 @@ public static class ListDirectoryRules
     /// <summary>The longest search, in UTF-16 units after trimming, as the field's <c>maxlength</c> counts.</summary>
     public const int SearchMax = 100;
 
-    public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal) { KindInvalid };
+    public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal) { KindInvalid, CursorInvalid };
 
     /// <summary>The escape character of the search's LIKE pattern.</summary>
     public const string LikeEscape = "\\";
@@ -75,6 +79,48 @@ public sealed class ListDirectoryValidator : AbstractValidator<ListDirectoryQuer
             .Must(q => q is null || q.Trim().Length <= ListDirectoryRules.SearchMax)
             .WithMessage("Search with 100 characters or fewer")
             .WithErrorCode(ListDirectoryRules.QueryTooLong);
+        RuleFor(q => q.Cursor)
+            .Must(cursor => cursor is null || DirectoryCursor.TryParse(cursor, out _))
+            .WithMessage("The list could not continue")
+            .WithErrorCode(ListDirectoryRules.CursorInvalid);
+    }
+}
+
+/// <summary>
+/// The kind order, id and folded name of the last listing of a page, as an opaque URL-safe text:
+/// the next page starts after it in kind, name and id order (ADR 0082).
+/// </summary>
+internal static class DirectoryCursor
+{
+    public static string Of(DirectoryListing last) =>
+        Convert.ToBase64String(Encoding.UTF8.GetBytes(
+                $"{last.KindOrder.ToString(CultureInfo.InvariantCulture)}|{last.Id:N}|{last.NameKey}"))
+            .Replace("+", "-", StringComparison.Ordinal).Replace("/", "_", StringComparison.Ordinal).TrimEnd('=');
+
+    public static bool TryParse(string cursor, out (int KindOrder, Guid Id, string NameKey) value)
+    {
+        value = default;
+        var padded = cursor.Replace("-", "+", StringComparison.Ordinal).Replace("_", "/", StringComparison.Ordinal);
+        padded = padded.PadRight(padded.Length + ((4 - (padded.Length % 4)) % 4), '=');
+        var bytes = new byte[padded.Length];
+        if (!Convert.TryFromBase64String(padded, bytes, out var written))
+        {
+            return false;
+        }
+
+        // The name comes last, so a '|' in it stays part of it.
+        var parts = Encoding.UTF8.GetString(bytes, 0, written).Split('|', 3);
+        if (parts.Length != 3
+            || !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var kindOrder)
+            || !Enum.IsDefined((ListingKind)kindOrder)
+            || !Guid.TryParseExact(parts[1], "N", out var id)
+            || parts[2].Length > DirectoryListing.NameMaxLength)
+        {
+            return false;
+        }
+
+        value = (kindOrder, id, parts[2]);
+        return true;
     }
 }
 
@@ -97,13 +143,22 @@ internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) 
             listed = listed.Where(l => EF.Functions.Like(l.SearchText, pattern, ListDirectoryRules.LikeEscape));
         }
 
-        var page = await listed
+        if (request.Cursor is not null && DirectoryCursor.TryParse(request.Cursor, out var after))
+        {
+            listed = listed.Where(l =>
+                l.KindOrder > after.KindOrder
+                || (l.KindOrder == after.KindOrder && l.NameKey.CompareTo(after.NameKey) > 0)
+                || (l.KindOrder == after.KindOrder && l.NameKey == after.NameKey && l.Id.CompareTo(after.Id) > 0));
+        }
+
+        var found = await listed
             .OrderBy(l => l.KindOrder)
             .ThenBy(l => l.NameKey)
             .ThenBy(l => l.Id)
-            .Take(ListDirectoryQuery.PageSize)
+            .Take(ListDirectoryQuery.PageSize + 1)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+        var page = found.Take(ListDirectoryQuery.PageSize).ToList();
 
         var hosting = await HostingAsync([.. page.Select(l => l.Id)], cancellationToken).ConfigureAwait(false);
         var rows = page
@@ -111,7 +166,8 @@ internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) 
                 l.Id, ListingKinds.SlugOf(l.Kind), l.Name, l.Tagline, l.Area, l.IsVerified, l.PhotoKey, hosting.GetValueOrDefault(l.Id)))
             .ToList();
         var counts = ListingKinds.InOrder.Select(kind => new DirectoryKindCountDto(ListingKinds.SlugOf(kind), counted.GetValueOrDefault(kind))).ToList();
-        return new DirectoryPageDto(rows, counts, null);
+        var next = found.Count > ListDirectoryQuery.PageSize ? DirectoryCursor.Of(page[^1]) : null;
+        return new DirectoryPageDto(rows, counts, next);
     }
 
     /// <summary>
