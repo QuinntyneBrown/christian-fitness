@@ -55,6 +55,12 @@ const routes: Routes = [
         loadComponent: () => import('../pages/series/series-page'),
       },
       {
+        // A published event made into branded posts for four platforms (journey 32; ADR 0098).
+        path: 'community-pick',
+        title: titled('Community Pick'),
+        loadComponent: () => import('../pages/community-pick/community-pick-page'),
+      },
+      {
         // Listing suggestions and what is listed (journey 18; ADR 0090), for Admins and Moderators.
         path: 'listings',
         title: titled('Listings'),

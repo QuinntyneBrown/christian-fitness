@@ -43,6 +43,7 @@ internal static class AuthenticationSetup
         ["directory"] = StaffArea.Directory,
         ["series"] = StaffArea.Series,
         ["stories"] = StaffArea.Publishing,
+        ["community-pick"] = StaffArea.CommunityPick,
     };
 
     /// <summary>A member session lasts 14 days from the last request (ADR 0007).</summary>

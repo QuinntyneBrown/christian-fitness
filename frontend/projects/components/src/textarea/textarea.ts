@@ -21,7 +21,8 @@ export const COUNTER_ANNOUNCE_DELAY_MS = 1000;
  * a form field, `rows` tall (4 by default), with no resize handle. Enter inserts a new line and Tab
  * is never captured. With `maxLength`, the hint carries the characters left ("A sentence or two.
  * 106 characters left."); past the limit the counter becomes the field's error ("12 characters
- * over") and nothing is truncated, so no `maxlength` attribute is set. The count is announced in a
+ * over") and nothing is truncated, so no `maxlength` attribute is set (unless a hard `limit` asks
+ * for one). The count is announced in a
  * separate polite live region once typing pauses, not on every key; the pending announcement is
  * dropped when the field is destroyed. Every text is rendered as text.
  */
@@ -39,6 +40,11 @@ export class Textarea {
   readonly rows = input(4, { transform: numberAttribute });
   /** The counter's limit; none for no counter. */
   readonly maxLength = input<number>();
+  /**
+   * A hard limit the field never goes past (the native `maxlength`), for text that must fit
+   * somewhere fixed, such as a Community Pick note on its graphics (ADR 0098); none by default.
+   */
+  readonly limit = input<number>();
   readonly optional = input(false, { transform: booleanAttribute });
   readonly hint = input<string>();
   readonly value = input('');

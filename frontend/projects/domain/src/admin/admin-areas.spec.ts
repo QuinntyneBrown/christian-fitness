@@ -16,6 +16,7 @@ describe('ADMIN_AREAS', () => {
       ['Stories', '/stories'],
       ['Events', '/events'],
       ['Event series', '/series'],
+      ['Community Pick', '/community-pick'],
       ['Listings', '/listings'],
       ['Services', '/services'],
       ['Members', '/members'],
@@ -46,6 +47,11 @@ describe('currentAdminArea', () => {
     { why: 'an empty URL', url: '', expected: 'dashboard' },
     { why: 'an area', url: '/events', expected: 'events' },
     { why: 'event series, not events', url: '/series?id=c5', expected: 'series' },
+    {
+      why: 'Community Pick with an event chosen',
+      url: '/community-pick?event=e1',
+      expected: 'community-pick',
+    },
     { why: 'bylines, under stories', url: '/stories/bylines', expected: 'stories' },
     { why: 'an area with a trailing slash', url: '/services/', expected: 'services' },
     { why: 'a screen under an area', url: '/members/0190c0de', expected: 'members' },
@@ -92,6 +98,13 @@ describe('canManage', () => {
     { role: 'Moderator', area: 'members', allowed: true, why: 'a Moderator moderates members' },
     { role: 'Admin', area: 'series', allowed: true, why: 'an Admin manages event series' },
     { role: 'Moderator', area: 'series', allowed: true, why: 'a Moderator manages event series' },
+    { role: 'Admin', area: 'community-pick', allowed: true, why: 'an Admin makes Community Picks' },
+    {
+      role: 'Moderator',
+      area: 'community-pick',
+      allowed: true,
+      why: 'a Moderator makes Community Picks (ADR 0098)',
+    },
     { role: 'Admin', area: 'stories', allowed: true, why: 'an Admin manages stories and bylines' },
     {
       role: 'Moderator',
@@ -115,16 +128,18 @@ describe('areasFor', () => {
       'stories',
       'events',
       'series',
+      'community-pick',
       'listings',
       'services',
       'members',
     ]);
   });
 
-  it('lists the Dashboard, Event series, Listings and Members for a Moderator', () => {
+  it('lists the Dashboard, Event series, Community Pick, Listings and Members for a Moderator', () => {
     expect(areasFor('Moderator').map((area) => area.key)).toEqual([
       'dashboard',
       'series',
+      'community-pick',
       'listings',
       'members',
     ]);

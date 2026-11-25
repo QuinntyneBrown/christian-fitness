@@ -91,6 +91,8 @@ public interface IAppDbContext
 
     /// <summary>The exclusive, expiring rights to run scheduled work (ADR 0069, ADR 0104).</summary>
     DbSet<SchedulerLease> SchedulerLeases { get; }
+    /// <summary>The events staff picked to promote, with the note and who and when (L2-072 AC13; ADR 0098).</summary>
+    DbSet<CommunityPick> CommunityPicks { get; }
 
     /// <summary>Each Published story's reads per Toronto day (L2-061 AC12; ADR 0105).</summary>
     DbSet<StoryReadTally> StoryReadTallies { get; }

@@ -3,7 +3,14 @@ import { pathOf } from '../errors/server-error';
 
 /** The areas of the admin app, in the order the navigation lists them (L2-021 AC1). */
 export type AdminAreaKey =
-  'dashboard' | 'stories' | 'events' | 'series' | 'listings' | 'services' | 'members';
+  | 'dashboard'
+  | 'stories'
+  | 'events'
+  | 'series'
+  | 'community-pick'
+  | 'listings'
+  | 'services'
+  | 'members';
 
 /** One area: its key, the navigation's label and the path it opens. */
 export interface AdminArea {
@@ -12,12 +19,13 @@ export interface AdminArea {
   path: string;
 }
 
-/** Dashboard, Stories, Events, Event series, Listings, Services and Members (mock `admin-nav`; ADR 0011, ADR 0090, ADR 0094). */
+/** Dashboard, Stories, Events, Event series, Community Pick, Listings, Services and Members (mock `admin-nav`; ADR 0011, ADR 0090, ADR 0094, ADR 0098). */
 export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/' },
   { key: 'stories', label: 'Stories', path: '/stories' },
   { key: 'events', label: 'Events', path: '/events' },
   { key: 'series', label: 'Event series', path: '/series' },
+  { key: 'community-pick', label: 'Community Pick', path: '/community-pick' },
   { key: 'listings', label: 'Listings', path: '/listings' },
   { key: 'services', label: 'Services', path: '/services' },
   { key: 'members', label: 'Members', path: '/members' },
@@ -48,12 +56,18 @@ export function adminPageIsFlush(url: string): boolean {
   return /^\/stories\/[^/]+$/.test(path) && path !== '/stories/bylines';
 }
 
-/** The areas a Moderator opens (L2-019 AC1; ADR 0020, ADR 0064, ADR 0091): they moderate members, review listings and run event series. */
-const MODERATOR_AREAS: readonly AdminAreaKey[] = ['dashboard', 'series', 'listings', 'members'];
+/** The areas a Moderator opens (L2-019 AC1; ADR 0020, ADR 0064, ADR 0091, ADR 0098): they moderate members, review listings, run event series and make Community Picks. */
+const MODERATOR_AREAS: readonly AdminAreaKey[] = [
+  'dashboard',
+  'series',
+  'community-pick',
+  'listings',
+  'members',
+];
 
 /**
  * Whether `role` may use `area` (L2-019 AC1, AC2; ADR 0020): an Admin every area, a Moderator the
- * Dashboard, Event series, Listings and Members. The API decides each request with the same table (`StaffAccess`); this
+ * Dashboard, Event series, Community Pick, Listings and Members. The API decides each request with the same table (`StaffAccess`); this
  * only adapts what the admin app shows. A role it does not know opens nothing.
  */
 export function canManage(role: StaffRoleName, area: AdminAreaKey): boolean {

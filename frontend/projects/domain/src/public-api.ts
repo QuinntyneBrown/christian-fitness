@@ -98,6 +98,7 @@ export * from './directory/suggestion-review';
 export * from './directory/listing-claim';
 export * from './directory/listed-listings';
 export * from './news/bylines';
+export * from './community-pick/pick-view';
 export * from './directory/own-listing';
 export * from './news/story-list';
 export * from './news/story-editor';

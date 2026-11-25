@@ -1,0 +1,35 @@
+// The design system's pick empty preview (docs/design-system/assets/components.css, "Pick list":
+// pick-empty). Its 26rem height and 12rem graphic are the design system's size-pick-empty-h and
+// size-pick-art, which the app tokens do not carry.
+:host {
+  display: block;
+}
+
+.pick-empty {
+  display: flex;
+  min-height: 26rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  border: var(--border-width-thick) dashed var(--color-border-default);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.pick-empty__art {
+  width: 12rem;
+  text-align: start;
+}
+
+.pick-empty__title {
+  margin: var(--space-6) 0 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pick-empty__text {
+  margin: var(--space-1) 0 0;
+  max-width: var(--layout-measure-tight);
+  color: var(--color-fg-muted);
+}

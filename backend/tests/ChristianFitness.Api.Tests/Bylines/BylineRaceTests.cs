@@ -83,6 +83,7 @@ public sealed class BylineRaceTests(BylineRaceTests.Factory factory) : IClassFix
         public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
 
         public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
+        public DbSet<ChristianFitness.Domain.Events.CommunityPick> CommunityPicks => db.CommunityPicks;
 
         public DbSet<ChristianFitness.Domain.News.StoryReadTally> StoryReadTallies => db.StoryReadTallies;
 

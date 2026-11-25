@@ -31,6 +31,15 @@ describe('Textarea', () => {
     expect(edits).toEqual(['Runner, early riser.']);
   });
 
+  // ADR 0098: a hard limit is the native maxlength, with no counter; none by default.
+  it('sets a hard limit as maxlength only when given one', () => {
+    expect(render({}).textarea.hasAttribute('maxlength')).toBe(false);
+    const { element, textarea } = render({ limit: 70, hint: 'One line.' });
+
+    expect(textarea.getAttribute('maxlength')).toBe('70');
+    expect(element.querySelector('.field__hint')?.textContent?.trim()).toBe('One line.');
+  });
+
   it('starts at the rows it is given, 4 by default', () => {
     expect(render({}).textarea.getAttribute('rows')).toBe('4');
     expect(render({ rows: 3 }).textarea.getAttribute('rows')).toBe('3');

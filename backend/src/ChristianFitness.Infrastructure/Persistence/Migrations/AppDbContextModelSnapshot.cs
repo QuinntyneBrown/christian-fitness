@@ -404,6 +404,34 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("ChatReadMarkers", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.CommunityPick", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("character varying(70)");
+
+                    b.Property<DateTimeOffset>("PickedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PickedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PickedById");
+
+                    b.HasIndex("EventId", "PickedAt");
+
+                    b.ToTable("CommunityPicks", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.DirectMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1258,6 +1286,21 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("SuggestionId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.CommunityPick", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("PickedById")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
