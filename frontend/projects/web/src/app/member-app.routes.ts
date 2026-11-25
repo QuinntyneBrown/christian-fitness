@@ -63,6 +63,12 @@ const routes: Routes = [
         loadComponent: () => import('./pages/event-detail/event-detail-page'),
       },
       {
+        // The directory: published listings by kind, with kind chips and a search (L2-054; ADR 0082).
+        path: 'directory',
+        title: titled('Directory'),
+        loadComponent: () => import('./pages/directory/directory-page'),
+      },
+      {
         // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0000); the list is slice 16.1.
         path: 'services',
         title: titled('Services'),
@@ -98,6 +104,12 @@ const routes: Routes = [
         path: 'members/:id',
         title: titled('Member'),
         loadComponent: () => import('./pages/member-profile/member-profile-page'),
+      },
+      {
+        // The member's in-app inbox, opened from the bell (ADR 0068, ADR 0083).
+        path: 'notifications',
+        title: titled('Notifications'),
+        loadComponent: () => import('./pages/notifications/notifications-page'),
       },
       {
         // The signed-in member's own profile (L2-005; ADR 0015).
