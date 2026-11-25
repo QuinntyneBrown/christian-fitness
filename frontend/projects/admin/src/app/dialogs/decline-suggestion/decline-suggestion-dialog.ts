@@ -141,3 +141,7 @@ export function openDeclineSuggestion(
       },
     );
 }
+
+// Re-exported so the Listings page imports both of its dialogs from one lazy module: each separate
+// dynamic import in a page grows the initial bundle (slice 23.2; docs/lessons-learned.md).
+export { openDirectoryListingEditor } from '../directory-listing-editor/directory-listing-editor-dialog';

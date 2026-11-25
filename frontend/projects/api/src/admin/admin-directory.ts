@@ -99,6 +99,57 @@ export interface AdminDirectoryApi {
    * (409), `suggestion_not_found` (404).
    */
   decline(id: string, reason: string | null): Observable<SuggestionDecisionDto>;
+
+  /** `GET listings?after={id}`: the published listings in name order, 50 at a time (L2-073 AC10). */
+  listings(after?: string): Observable<ListedListingsDto>;
+
+  /**
+   * `PUT listings/{id}`: saves the staff editor's fields (L2-073 AC13). Refusals: 400
+   * `validation_failed` with `fieldCodes`, 404 `not_found`.
+   */
+  updateListing(id: string, update: DirectoryListingUpdateDto): Observable<ListedListingDto>;
+
+  /** `POST photos`: keeps one photo; 400 with `fieldCodes.photo` `photo_invalid` when it is not one. */
+  uploadPhoto(file: File): Observable<ListingPhotoDto>;
+}
+
+/** A published listing as Listed shows it and its editor starts from (ADR 0087). */
+export interface ListedListingDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+  area: string;
+  tagline: string;
+  about: string;
+  website: string | null;
+  /** The key of its photo (`GET /api/directory/photos/{key}`), or none. */
+  photoKey: string | null;
+  verified: boolean;
+  /** How many members follow it: 0 until members can follow (journey 8). */
+  followers: number;
+}
+
+/** A page of Listed: how many are published, up to 50 in name order, and the id to read on from. */
+export interface ListedListingsDto {
+  total: number;
+  listings: ListedListingDto[];
+  next: string | null;
+}
+
+/** What the staff editor sends; never the Verified mark. */
+export interface DirectoryListingUpdateDto {
+  name: string;
+  kind: ListingKind;
+  area: string;
+  tagline: string;
+  about: string;
+  website: string | null;
+  photoKey: string | null;
+}
+
+/** `POST photos`: the key a photo is kept under. */
+export interface ListingPhotoDto {
+  photoKey: string;
 }
 
 /** Binds {@link AdminDirectoryApi}; the Listings page provides it on its routed component. */

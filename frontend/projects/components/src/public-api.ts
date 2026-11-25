@@ -99,6 +99,7 @@ export * from './steps/steps';
 export * from './switch/switch';
 export * from './tab-bar/tab-bar';
 export * from './table/table';
+export * from './suggestion/listed-cell';
 export * from './suggestion/suggestion';
 export * from './tabs/tabs';
 export * from './text-field/search-field';

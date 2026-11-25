@@ -112,6 +112,63 @@
   }
 }
 
+@if (tab() === 'listed') {
+  @switch (listedState().kind) {
+    @case ('loading') {
+      <cf-table
+        caption="Listed"
+        [columns]="listedColumns"
+        [rows]="[]"
+        actionLabel="Edit"
+        [loading]="true"
+      />
+    }
+    @case ('failed') {
+      <cf-empty-state
+        variant="error"
+        heading="Listings didn't load"
+        text="We couldn't reach Christian Fitness. Check your connection and try again."
+      >
+        <cf-button slot="actions" size="sm" (click)="tryListedAgain()">Try again</cf-button>
+      </cf-empty-state>
+    }
+    @default {
+      <cf-table
+        caption="Listed"
+        [columns]="listedColumns"
+        [rows]="listedRows()"
+        actionLabel="Edit"
+        [cell]="listedCell"
+        (action)="edit($event)"
+      />
+      <ng-template #listedCell let-row>
+        @if (listedViews().get(row.id); as view) {
+          <cf-listed-cell
+            [name]="view.name"
+            [initials]="view.initials"
+            [photoSrc]="view.photoSrc"
+            [person]="view.person"
+            [verified]="view.verified"
+          />
+        }
+      </ng-template>
+      @if (listedState(); as listed) {
+        @if (listed.kind === 'ready' && listed.next !== null) {
+          <div class="listings__more">
+            <cf-button
+              variant="secondary"
+              [busy]="listed.more"
+              [disabled]="listed.more"
+              (click)="loadMoreListed()"
+              >Load more</cf-button
+            >
+          </div>
+        }
+      }
+    }
+  }
+}
+
 <cf-toast-region
   admin
   [toasts]="toastViews()"

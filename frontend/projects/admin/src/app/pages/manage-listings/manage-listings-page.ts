@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ADMIN_DIRECTORY_SERVICE,
+  type ListedListingDto,
   type ListingCheckSlug,
   type SuggestionCheckDto,
   type SuggestionDetailDto,
@@ -14,12 +15,16 @@ import {
   type CheckRowChange,
   type CheckRowItem,
   EmptyState,
+  ListedCell,
   type PickCardItem,
   PickCards,
   Skeleton,
   SkeletonRegion,
   Split,
   Suggestion,
+  Table,
+  type TableColumn,
+  type TableRow,
   type TabItem,
   Tabs,
   type ToastData,
@@ -31,6 +36,8 @@ import {
   decisionTag,
   kindLabel,
   LISTING_CHECKS,
+  listedRowViewOf,
+  type ListedRowView,
   passedCount,
   passedLine,
   suggestionByLine,
@@ -52,6 +59,20 @@ type ListState =
 type DetailState =
   { kind: 'loading' } | { kind: 'ready'; detail: SuggestionDetailDto } | { kind: 'failed' };
 
+/** Listed: skeletons, the rows shown so far and where to read on, or the error state. */
+type ListedState =
+  | { kind: 'loading' }
+  | { kind: 'ready'; listings: ListedListingDto[]; next: string | null; more: boolean }
+  | { kind: 'failed' };
+
+/** Listed's columns (mock `admin-listings/listed`). */
+const LISTED_COLUMNS: readonly TableColumn[] = [
+  { key: 'listing', label: 'Listing', kind: 'custom' },
+  { key: 'kind', label: 'Kind', kind: 'nowrap' },
+  { key: 'area', label: 'Area', kind: 'muted' },
+  { key: 'followers', label: 'Followers', kind: 'num' },
+];
+
 const SUGGESTIONS_HREF = '/listings';
 const LISTED_HREF = '/listings?tab=listed';
 
@@ -62,7 +83,9 @@ const APPROVE_FAILED = "We couldn't approve the suggestion";
 /** The toast when another member of staff decided it first. */
 const ALREADY_DECIDED = 'This suggestion was already decided';
 /** The toasts announced at once, as failures. */
-const FAILURES = new Set([TICK_FAILED, APPROVE_FAILED, ALREADY_DECIDED]);
+/** The toast when the next page of Listed did not load. */
+const LISTED_MORE_FAILED = "More listings didn't load";
+const FAILURES = new Set([TICK_FAILED, APPROVE_FAILED, ALREADY_DECIDED, LISTED_MORE_FAILED]);
 
 /** A decision made on this visit. */
 interface Decision {
@@ -87,7 +110,9 @@ interface Decision {
     Skeleton,
     SkeletonRegion,
     Split,
+    ListedCell,
     Suggestion,
+    Table,
     Tabs,
     ToastRegion,
   ],
@@ -119,6 +144,28 @@ export default class ManageListingsPage {
   private readonly decisions = signal<Readonly<Partial<Record<string, Decision>>>>({});
   /** An approval of the suggestion showing is on its way. */
   protected readonly approving = signal(false);
+  protected readonly listedState = signal<ListedState>({ kind: 'loading' });
+  private readonly listedReload = new Subject<void>();
+  private listedAsked = false;
+  protected readonly listedColumns = LISTED_COLUMNS;
+  /** Each Listed row's cell view, by listing id. */
+  protected readonly listedViews = computed<ReadonlyMap<string, ListedRowView>>(() => {
+    const state = this.listedState();
+    const listings = state.kind === 'ready' ? state.listings : [];
+    return new Map(listings.map((listing) => [listing.id, listedRowViewOf(listing)]));
+  });
+  protected readonly listedRows = computed<TableRow[]>(() =>
+    Array.from(this.listedViews().values(), (view) => ({
+      id: view.id,
+      name: view.name,
+      cells: {
+        listing: { text: view.name },
+        kind: { text: view.kind },
+        area: { text: view.area },
+        followers: { text: view.followers },
+      },
+    })),
+  );
 
   protected readonly tabs = computed<TabItem[]>(() => {
     const state = this.state();
@@ -194,11 +241,33 @@ export default class ManageListingsPage {
   );
 
   constructor() {
+    // Subscribed before the address is read, which emits at once and may ask for Listed.
+    this.listedReload
+      .pipe(
+        switchMap(() => {
+          this.listedState.set({ kind: 'loading' });
+          return this.directory.listings().pipe(
+            map(
+              ({ listings, next }) =>
+                ({ kind: 'ready', listings, next, more: false }) satisfies ListedState,
+            ),
+            catchError(() => of({ kind: 'failed' } satisfies ListedState)),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((state) => this.listedState.set(state));
+
     const route = inject(ActivatedRoute);
     route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.tab.set(params.get('tab') === 'listed' ? 'listed' : 'suggestions');
       this.selected.set(params.get('selected'));
       this.shown.next(this.currentId());
+      // Listed is read the first time its tab shows.
+      if (this.tab() === 'listed' && !this.listedAsked) {
+        this.listedAsked = true;
+        this.listedReload.next();
+      }
     });
 
     this.reload
@@ -324,6 +393,58 @@ export default class ManageListingsPage {
         this.dialogOpen = false;
         if (result === 'declined') this.decide(id, { status: 'declined', claim: null });
         if (result === 'stale') this.reload.next();
+      });
+  }
+
+  protected tryListedAgain(): void {
+    this.listedReload.next();
+  }
+
+  /** Reads the next page of Listed after the last shown and adds it below (ADR 0087). */
+  protected loadMoreListed(): void {
+    const state = this.listedState();
+    if (state.kind !== 'ready' || state.next === null || state.more) return;
+    this.listedState.set({ ...state, more: true });
+    this.directory
+      .listings(state.next)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (page) =>
+          this.listedState.set({
+            kind: 'ready',
+            listings: [...state.listings, ...page.listings],
+            next: page.next,
+            more: false,
+          }),
+        error: () => {
+          this.listedState.set({ ...state, more: false });
+          this.toasts.show(LISTED_MORE_FAILED, 'Try again in a moment.');
+        },
+      });
+  }
+
+  /**
+   * Opens the staff listing editor on the listing `id` (L2-073 AC13; mock
+   * `directory-listing-editor`), imported on the first Edit. A save reads Listed again and a toast
+   * says so (mock `admin-listings/listing-saved`); a listing found gone reads Listed again.
+   */
+  protected async edit(id: string): Promise<void> {
+    const state = this.listedState();
+    const listing = state.kind === 'ready' ? state.listings.find((l) => l.id === id) : undefined;
+    if (!listing || this.dialogOpen) return;
+    this.dialogOpen = true;
+    const { openDirectoryListingEditor } =
+      await import('../../dialogs/decline-suggestion/decline-suggestion-dialog');
+    if (this.destroyRef.destroyed) return;
+    openDirectoryListingEditor(this.injector, listing)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        this.dialogOpen = false;
+        if (!result) return;
+        if ('saved' in result) {
+          this.toasts.show(`${result.saved.name} updated`, 'The directory shows the changes now.');
+        }
+        this.listedReload.next();
       });
   }
 

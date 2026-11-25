@@ -1,15 +1,19 @@
 import {
+  CAST_LISTED,
   CAST_SUGGESTIONS,
   checks,
+  listedPage,
   LISTINGS_NOW,
   NO_SUGGESTIONS,
   suggestionList,
   type SuggestionDetailFixture,
 } from '../fixtures/admin-directory';
 import type { ApiHandlers } from '../fixtures/api-handlers';
+import { answerPhotos } from '../fixtures/directory';
 import { expect, MODERATOR_SIGNED_IN, test } from '../fixtures/test';
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
 import { DeclineSuggestionDialog } from '../page-objects/admin/decline-suggestion.dialog';
+import { DirectoryListingEditorDialog } from '../page-objects/admin/directory-listing-editor.dialog';
 import { ManageListingsPage } from '../page-objects/admin/manage-listings.page';
 
 const LIST = '/api/admin/directory/suggestions';
@@ -547,6 +551,256 @@ test.describe('Admin app, declining a suggestion', () => {
     await expect(dialog.dialog).toHaveCount(0);
     await expect(listings.cardTag('Coach Marcus Delaney')).toHaveText('Approved');
     await expect(listings.result).toHaveText('Approved.');
+  });
+});
+
+const LISTED = '/api/admin/directory/listings';
+const LISTING = /^\/api\/admin\/directory\/listings\/([^/]+)$/;
+const PHOTOS = '/api/admin/directory/photos';
+const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00]);
+
+// L2-073 AC10 and AC13 (ADR 0087): Listed, and staff's Edit.
+test.describe('Admin app, Listed', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // Mock admin-listings/listed.
+  test('shows each published listing with its mark, name, Verified mark, kind, area and followers', async ({
+    page,
+    api,
+  }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    api.on('GET', LISTED, () => ({ json: listedPage(CAST_LISTED, { total: 12 }) }));
+    const listings = new ManageListingsPage(page);
+
+    await listings.open('?tab=listed');
+
+    await expect(listings.currentTab).toHaveText('Listed 12');
+    await expect(listings.listedRows).toHaveCount(4);
+    expect(await listings.listedTexts()).toEqual([
+      ['Christian Fitness', 'Organization', 'Toronto-wide', '2,140'],
+      ['Danielle Okafor', 'Instructor', 'East York', '935'],
+      ['Lakeshore Runners Fellowship', 'Organization', 'Etobicoke', '612'],
+      ['Northline Athletic', 'Company', 'Roncesvalles', '256'],
+    ]);
+    await expect(listings.listedMark('Christian Fitness')).toHaveText('CF');
+    await expect(listings.listedPhoto('Danielle Okafor')).toHaveAttribute(
+      'src',
+      '/api/directory/photos/0123456789abcdef0123456789abcdef.jpg',
+    );
+    await expect(listings.listedVerified('Christian Fitness')).toHaveAttribute(
+      'aria-label',
+      'Verified',
+    );
+    await expect(listings.listedVerified('Northline Athletic')).toHaveCount(0);
+    await expect(listings.editButton('Lakeshore Runners Fellowship')).toBeVisible();
+    await expect(listings.picker).toHaveCount(0);
+  });
+
+  // Mocks directory-listing-editor/default and busy, admin-listings/listing-saved.
+  test('Edit opens the editor on the listing; Save changes saves it and a toast says so', async ({
+    page,
+    api,
+  }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    const lakeshore = CAST_LISTED[2];
+    let listed = CAST_LISTED;
+    api.on('GET', LISTED, () => ({ json: listedPage(listed, { total: 12 }) }));
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const sent: { path: string; body: unknown }[] = [];
+    api.on('PUT', LISTING, async (request) => {
+      const body = request.postDataJSON() as Record<string, unknown>;
+      sent.push({ path: new URL(request.url()).pathname, body });
+      await held;
+      const saved = { ...lakeshore, ...body, website: 'https://lakeshorerunners.ca' };
+      listed = listed.map((l) => (l.id === lakeshore.id ? (saved as typeof lakeshore) : l));
+      return { json: saved };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open('?tab=listed');
+
+    await listings.editButton('Lakeshore Runners Fellowship').click();
+    const editor = new DirectoryListingEditorDialog(page);
+
+    await expect(editor.title).toHaveText('Edit listing');
+    await expect(editor.subtitle).toHaveText(
+      'Lakeshore Runners Fellowship · changes show in the directory at once',
+    );
+    await expect(editor.name).toBeFocused();
+    await expect(editor.name).toHaveValue('Lakeshore Runners Fellowship');
+    await expect(editor.kind.locator('option:checked')).toHaveText('Organization');
+    await expect(editor.area).toHaveValue('Etobicoke');
+    await expect(editor.tagline).toHaveValue(
+      'Beginner-friendly running club with a prayer at every finish',
+    );
+    await expect(editor.about).toHaveValue(lakeshore.about);
+    await expect(editor.website).toHaveValue('https://lakeshorerunners.ca');
+    await expect(editor.photoName).toHaveText('No image chosen');
+    await expect(editor.verifiedNote).toHaveText(
+      'The Verified mark comes from the four checks and cannot be changed here.',
+    );
+    await editor.name.fill('Lakeshore Runners');
+    await editor.kind.selectOption({ label: 'Church Ministry' });
+    await editor.saveButton.click();
+
+    await expect(editor.saveButton).toHaveText('Saving…');
+    await expect(editor.cancelButton).toBeDisabled();
+    await expect(editor.name).toHaveAttribute('readonly', '');
+    release();
+    await expect(editor.dialog).toHaveCount(0);
+    await expect(listings.toastTitle).toHaveText('Lakeshore Runners updated');
+    await expect(listings.toastText).toHaveText('The directory shows the changes now.');
+    await expect(listings.listedRow('Lakeshore Runners')).toContainText('Church Ministry');
+    expect(sent).toEqual([
+      {
+        path: `/api/admin/directory/listings/${lakeshore.id}`,
+        body: {
+          name: 'Lakeshore Runners',
+          kind: 'church-ministry',
+          area: 'Etobicoke',
+          tagline: lakeshore.tagline,
+          about: lakeshore.about,
+          website: 'https://lakeshorerunners.ca',
+          photoKey: null,
+        },
+      },
+    ]);
+  });
+
+  test('a chosen photo is uploaded at once and saved with the listing', async ({ page, api }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    api.on('GET', LISTED, () => ({ json: listedPage(CAST_LISTED) }));
+    const uploads: string[] = [];
+    api.on('POST', PHOTOS, (request) => {
+      uploads.push(request.headers()['content-type'] ?? '');
+      return { status: 201, json: { photoKey: 'fedcba9876543210fedcba9876543210.png' } };
+    });
+    const saved: unknown[] = [];
+    api.on('PUT', LISTING, (request) => {
+      const body = request.postDataJSON() as { photoKey: string | null };
+      saved.push(body.photoKey);
+      return { json: { ...CAST_LISTED[3], ...body } };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open('?tab=listed');
+    await listings.editButton('Northline Athletic').click();
+    const editor = new DirectoryListingEditorDialog(page);
+
+    await editor.choosePhoto('northline.png', PNG);
+
+    await expect(editor.photoName).toHaveText('northline.png');
+    expect(uploads).toHaveLength(1);
+    expect(uploads[0]).toContain('multipart/form-data');
+    await editor.saveButton.click();
+    await expect(editor.dialog).toHaveCount(0);
+    expect(saved).toEqual(['fedcba9876543210fedcba9876543210.png']);
+  });
+
+  // Mock directory-listing-editor/invalid.
+  test('a refused save names each field in a summary and beside it, and keeps what was typed', async ({
+    page,
+    api,
+  }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    api.on('GET', LISTED, () => ({ json: listedPage(CAST_LISTED) }));
+    api.on('PUT', LISTING, () => ({
+      status: 400,
+      json: {
+        status: 400,
+        code: 'validation_failed',
+        fieldCodes: { name: 'name_required', website: 'website_invalid' },
+      },
+    }));
+    const listings = new ManageListingsPage(page);
+    await listings.open('?tab=listed');
+    await listings.editButton('Lakeshore Runners Fellowship').click();
+    const editor = new DirectoryListingEditorDialog(page);
+
+    await editor.name.fill('');
+    await editor.website.fill('lakeshore runners');
+    await editor.saveButton.click();
+
+    await expect(editor.alertTitle).toHaveText('2 things to fix before saving');
+    await expect(editor.alertLinks).toHaveText([
+      'Give the listing a name members will recognize',
+      'Enter a web address like lakeshorerunners.ca',
+    ]);
+    await expect(editor.name).toHaveAttribute('aria-invalid', 'true');
+    await expect(editor.website).toHaveAttribute('aria-invalid', 'true');
+    await expect(editor.website).toHaveValue('lakeshore runners');
+    await expect(editor.saveButton).toHaveText('Save changes');
+  });
+
+  // Mock directory-listing-editor/failed.
+  test('a save that does not go through says so and keeps what was typed', async ({
+    page,
+    api,
+  }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    api.on('GET', LISTED, () => ({ json: listedPage(CAST_LISTED) }));
+    api.on('PUT', LISTING, () => ({ abort: true }));
+    const listings = new ManageListingsPage(page);
+    await listings.open('?tab=listed');
+    await listings.editButton('Lakeshore Runners Fellowship').click();
+    const editor = new DirectoryListingEditorDialog(page);
+
+    await editor.area.fill('Mimico');
+    await editor.saveButton.click();
+
+    await expect(editor.alertTitle).toHaveText("Couldn't save the changes");
+    await expect(editor.alertText).toHaveText(
+      "The server didn't respond. The listing is unchanged and what you typed is still here; try again.",
+    );
+    await expect(editor.area).toHaveValue('Mimico');
+    await editor.cancelButton.click();
+    await expect(editor.dialog).toHaveCount(0);
+    await expect(listings.editButton('Lakeshore Runners Fellowship')).toBeFocused();
+  });
+
+  // ADR 0087: Listed pages 50 at a time.
+  test('Load more reads the next page of Listed after the last shown', async ({ page, api }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    const asked: (string | null)[] = [];
+    api.on('GET', LISTED, (request) => {
+      const after = new URL(request.url()).searchParams.get('after');
+      asked.push(after);
+      return {
+        json:
+          after === null
+            ? listedPage(CAST_LISTED.slice(0, 2), { total: 4, next: CAST_LISTED[1].id })
+            : listedPage(CAST_LISTED.slice(2), { total: 4 }),
+      };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open('?tab=listed');
+    await expect(listings.listedRows).toHaveCount(2);
+
+    await listings.loadMoreButton.click();
+
+    await expect(listings.listedRows).toHaveCount(4);
+    await expect(listings.loadMoreButton).toHaveCount(0);
+    expect(asked).toEqual([null, CAST_LISTED[1].id]);
+  });
+
+  test('Listed that does not load offers Try again', async ({ page, api }) => {
+    answer(api, CAST_SUGGESTIONS);
+    answerPhotos(api);
+    let fail = true;
+    api.on('GET', LISTED, () => (fail ? { abort: true } : { json: listedPage(CAST_LISTED) }));
+    const listings = new ManageListingsPage(page);
+    await listings.open('?tab=listed');
+
+    await expect(listings.errorTitle).toHaveText("Listings didn't load");
+    fail = false;
+    await listings.tryAgainButton.click();
+
+    await expect(listings.listedRows).toHaveCount(4);
   });
 });
 

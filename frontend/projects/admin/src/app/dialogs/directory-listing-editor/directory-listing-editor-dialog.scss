@@ -1,0 +1,11 @@
+// The staff listing editor composes the library's dialog and fields; its own look is the note that
+// the Verified mark cannot be changed, a field hint's size and colour.
+:host {
+  display: contents;
+}
+
+.directory-listing-editor__note {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

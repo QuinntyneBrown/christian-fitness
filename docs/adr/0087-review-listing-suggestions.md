@@ -81,7 +81,12 @@ yet (journeys 8, 9, 30 and ADR 0069).
   couldn't approve the suggestion", "Nothing changed. Try again in a moment.") in the style of
   `admin-listings/tick-failed`; one already decided elsewhere toasts "This suggestion was already
   decided" and reads the list again. A decline's failures are the dialog's own (mocks
-  `decline-suggestion/failed` and `refused`).
+  `decline-suggestion/failed` and `refused`). Listed that does not load reads "Listings didn't
+  load" with Try again; a next page that does not load toasts "More listings didn't load". The
+  editor's photo field reads "Current image" for a photo the listing already has. The listed
+  cell's name is `listed-cell__name` and the editor's note `directory-listing-editor__note`, each
+  in its own block, rather than the mock's `table__strong` and `field__hint`, which belong to the
+  table and field blocks.
 - **Decline.** A dialog (mock `decline-suggestion`) asks for an optional reason of at most 500
   characters, kept as `DeclineReason` for staff; the sender gets "Thanks for suggesting {Listing}.
   We won't be adding it this time."; the suggested party is not contacted. Audited

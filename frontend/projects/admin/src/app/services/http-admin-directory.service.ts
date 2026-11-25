@@ -2,7 +2,11 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type {
   AdminDirectoryApi,
+  DirectoryListingUpdateDto,
+  ListedListingDto,
+  ListedListingsDto,
   ListingCheckSlug,
+  ListingPhotoDto,
   SuggestionChecksDto,
   SuggestionDecisionDto,
   SuggestionDetailDto,
@@ -27,6 +31,25 @@ export class HttpAdminDirectoryService implements AdminDirectoryApi {
     return this.http
       .get<SuggestionListDto>(`${BASE}/suggestions`, { params })
       .pipe(catchError(asApiError));
+  }
+
+  listings(after?: string): Observable<ListedListingsDto> {
+    const params: Record<string, string> = after ? { after } : {};
+    return this.http
+      .get<ListedListingsDto>(`${BASE}/listings`, { params })
+      .pipe(catchError(asApiError));
+  }
+
+  updateListing(id: string, update: DirectoryListingUpdateDto): Observable<ListedListingDto> {
+    return this.http
+      .put<ListedListingDto>(`${BASE}/listings/${encodeURIComponent(id)}`, update)
+      .pipe(catchError(asApiError));
+  }
+
+  uploadPhoto(file: File): Observable<ListingPhotoDto> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.post<ListingPhotoDto>(`${BASE}/photos`, body).pipe(catchError(asApiError));
   }
 
   suggestion(id: string): Observable<SuggestionDetailDto> {

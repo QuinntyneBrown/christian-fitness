@@ -111,3 +111,78 @@ export const NO_SUGGESTIONS = { waiting: 0, listed: 0, suggestions: [], next: nu
 
 /** `GET /api/admin/counts` with nothing waiting: the fixture's default answer (ADR 0087). */
 export const NO_COUNTS = { suggestions: 0 };
+
+/** A published listing as `GET /api/admin/directory/listings` answers it (ADR 0087). */
+export interface ListedListingFixture {
+  id: string;
+  kind: string;
+  name: string;
+  area: string;
+  tagline: string;
+  about: string;
+  website: string | null;
+  photoKey: string | null;
+  verified: boolean;
+  followers: number;
+}
+
+/** Listed in name order (mock `admin-listings/listed`: some of its rows, and the unverified one). */
+export const CAST_LISTED: ListedListingFixture[] = [
+  {
+    id: '0193a9c0-1000-7000-8000-000000000001',
+    kind: 'organization',
+    name: 'Christian Fitness',
+    area: 'Toronto-wide',
+    tagline: 'A Christian community for health in body and spirit',
+    about: 'Runs, workouts and retreats across the GTA.',
+    website: 'https://christianfitness.ca',
+    photoKey: null,
+    verified: true,
+    followers: 2140,
+  },
+  {
+    id: '0193a9c0-1000-7000-8000-000000000002',
+    kind: 'instructor',
+    name: 'Danielle Okafor',
+    area: 'East York',
+    tagline: 'Strength coach for women',
+    about: 'Certified strength coach.',
+    website: null,
+    photoKey: '0123456789abcdef0123456789abcdef.jpg',
+    verified: true,
+    followers: 935,
+  },
+  {
+    id: '0193a9c0-1000-7000-8000-000000000003',
+    kind: 'organization',
+    name: 'Lakeshore Runners Fellowship',
+    area: 'Etobicoke',
+    tagline: 'Beginner-friendly running club with a prayer at every finish',
+    about:
+      'A west-end run club started by three neighbours in 2019. Our Couch to 5K program has graduated over 400 runners, most of whom swore they could never run.',
+    website: 'https://lakeshorerunners.ca',
+    photoKey: null,
+    verified: true,
+    followers: 612,
+  },
+  {
+    id: '0193a9c0-1000-7000-8000-000000000004',
+    kind: 'company',
+    name: 'Northline Athletic',
+    area: 'Roncesvalles',
+    tagline: 'Running shoes fitted by people who run',
+    about: 'A neighbourhood running shop.',
+    website: null,
+    photoKey: null,
+    verified: false,
+    followers: 256,
+  },
+];
+
+/** A page of Listed with `listings`, of `total`, reading on from `next`. */
+export function listedPage(
+  listings: ListedListingFixture[],
+  { total = listings.length, next = null }: { total?: number; next?: string | null } = {},
+) {
+  return { total, listings, next };
+}

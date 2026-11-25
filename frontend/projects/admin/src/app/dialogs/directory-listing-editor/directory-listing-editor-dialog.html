@@ -1,0 +1,109 @@
+<cf-dialog
+  heading="Edit listing"
+  [subtitle]="subtitle"
+  [titleId]="headingId"
+  [descriptionId]="descriptionId"
+  (closed)="close()"
+>
+  @if (errorItems().length > 0) {
+    <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+  } @else if (failed()) {
+    <cf-alert heading="Couldn't save the changes">
+      The server didn't respond. The listing is unchanged and what you typed is still here; try
+      again.
+    </cf-alert>
+  }
+  <cf-text-field
+    fieldId="f-name"
+    label="Name"
+    name="name"
+    [value]="values().name"
+    [error]="errors().name"
+    [readonly]="saving()"
+    (valueChange)="set('name', $event)"
+  />
+  <cf-select
+    fieldId="f-kind"
+    label="Kind"
+    name="kind"
+    [options]="kinds"
+    [value]="values().kind"
+    [error]="errors().kind"
+    [disabled]="saving()"
+    (valueChange)="setKind($event)"
+  />
+  <cf-text-field
+    fieldId="f-area"
+    label="Area"
+    name="area"
+    hint="Neighbourhood or city"
+    [value]="values().area"
+    [error]="errors().area"
+    [readonly]="saving()"
+    (valueChange)="set('area', $event)"
+  />
+  <cf-text-field
+    fieldId="f-tagline"
+    label="Tagline"
+    name="tagline"
+    hint="One line, up to 100 characters"
+    [value]="values().tagline"
+    [error]="errors().tagline"
+    [readonly]="saving()"
+    (valueChange)="set('tagline', $event)"
+  />
+  <cf-textarea
+    fieldId="f-about"
+    label="About"
+    name="about"
+    hint="Up to 1,000 characters"
+    [rows]="4"
+    [value]="values().about"
+    [error]="errors().about"
+    [readonly]="saving()"
+    (valueChange)="set('about', $event)"
+  />
+  <cf-text-field
+    fieldId="f-website"
+    label="Website"
+    name="website"
+    inputmode="url"
+    optional
+    [value]="values().website"
+    [error]="errors().website"
+    [readonly]="saving()"
+    (valueChange)="set('website', $event)"
+  />
+  <cf-file-field
+    fieldId="f-image"
+    label="Logo or photo"
+    name="image"
+    optional
+    hint="JPEG, PNG or WebP, up to 5 MB"
+    [accept]="imageTypes"
+    [fileName]="photoName()"
+    [error]="errors().photo"
+    [disabled]="saving() || uploading()"
+    (fileChosen)="choosePhoto($event)"
+    (removed)="removePhoto()"
+  />
+  <p class="directory-listing-editor__note">
+    The Verified mark comes from the four checks and cannot be changed here.
+  </p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button
+    slot="foot"
+    grow
+    [busy]="saving()"
+    [disabled]="saving() || uploading()"
+    (click)="save()"
+  >
+    @if (saving()) {
+      Saving…
+    } @else {
+      Save changes
+    }
+  </cf-button>
+</cf-dialog>

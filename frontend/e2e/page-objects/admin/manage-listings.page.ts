@@ -160,12 +160,27 @@ export class ManageListingsPage {
           .slice(0, 4)
           .map(
             (cell) =>
-              cell.querySelector('.table__strong')?.textContent?.trim() ??
+              cell.querySelector('.listed-cell__name, .table__strong')?.textContent?.trim() ??
               cell.textContent?.trim() ??
               '',
           ),
       ),
     );
+  }
+
+  /** A listed row's mark: its initials. */
+  listedMark(name: string): Locator {
+    return this.listedRow(name).locator('.listing-mark');
+  }
+
+  /** A listed row's photo. */
+  listedPhoto(name: string): Locator {
+    return this.listedRow(name).locator('img.listing-mark');
+  }
+
+  /** A listed row's Verified mark. */
+  listedVerified(name: string): Locator {
+    return this.listedRow(name).locator('.verified-mark');
   }
 
   editButton(name: string): Locator {

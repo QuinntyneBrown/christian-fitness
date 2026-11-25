@@ -1,5 +1,6 @@
 using ChristianFitness.Application.Directory.Review;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
@@ -38,6 +39,53 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     [HttpPost("suggestions/{id:guid}/decline")]
     public async Task<ActionResult<SuggestionDecisionDto>> Decline(Guid id, [FromBody] DeclineSuggestionBody? body, CancellationToken cancellationToken) =>
         await sender.Send(new DeclineSuggestionCommand(id, body?.Reason), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>The published listings in name order, 50 after <paramref name="after"/>.</summary>
+    [HttpGet("listings")]
+    public async Task<ActionResult<ListedListingsDto>> Listings([FromQuery] Guid? after, CancellationToken cancellationToken) =>
+        await sender.Send(new ListListedListingsQuery(after), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Saves the staff editor's fields and answers the listing as saved.</summary>
+    [HttpPut("listings/{id:guid}")]
+    public async Task<ActionResult<ListedListingDto>> UpdateListing(Guid id, DirectoryListingBody body, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        return await sender.Send(
+            new UpdateDirectoryListingCommand(id, body.Name, body.Kind, body.Area, body.Tagline, body.About, body.Website, body.PhotoKey),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Stores one listing photo and answers 201 with its key. Larger bodies than the limit are refused before this runs.</summary>
+    [HttpPost("photos")]
+    [RequestSizeLimit(PhotoBodyLimit)]
+    [RequestFormLimits(MultipartBodyLengthLimit = PhotoBodyLimit)]
+    public async Task<IActionResult> UploadPhoto(IFormFile file, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        await using var content = file.OpenReadStream();
+        return StatusCode(StatusCodes.Status201Created, await sender.Send(new UploadListingPhotoCommand(content, file.Length), cancellationToken).ConfigureAwait(false));
+    }
+
+    /// <summary>Room above the 5 MB photo limit, so a larger photo is refused by the rule with its code, not by the server.</summary>
+    private const int PhotoBodyLimit = 10 * 1024 * 1024;
+}
+
+/// <summary>What the staff listing editor sends.</summary>
+public sealed class DirectoryListingBody
+{
+    public string? Name { get; init; }
+
+    public string? Kind { get; init; }
+
+    public string? Area { get; init; }
+
+    public string? Tagline { get; init; }
+
+    public string? About { get; init; }
+
+    public string? Website { get; init; }
+
+    public string? PhotoKey { get; init; }
 }
 
 /// <summary>What a tick sends.</summary>
