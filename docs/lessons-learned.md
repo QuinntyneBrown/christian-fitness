@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 7% (3 of 36 journeys; 8 of 113 days)
+**% complete:** 10% (4 of 36 journeys; 11 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2418,3 +2418,20 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Prove a rule red by breaking it alone" (1.1 on): each backend rule (status filter, hosting `>`, seed publish, escape, signed-in exemption, minimum length) failed exactly its tests; restored.
 - "A fixture default for a new call" (15.1 on): `GET /api/directory` answers nobody listed by default, and the six-item navigation changed three older specs and the tab-bar unit test, found by grepping for the five-item lists.
 - "Measure bundle changes on both apps" (bundle follow-up) and "the first use of an `@angular/core` API can grow `main`" (AGENTS.md): applied too late. Admin's growth with no admin code was the signal; comparing CI's totals with main's run of the same base caught it before merge.
+
+## Journey 1: Read the Privacy Policy and Terms
+
+**What slowed it**
+
+- The mocks described newsletter preferences, followed listings and a scheduled deletion process before those journeys shipped. Checking the cancellation handler also found that a member may cancel until the event starts.
+- A class binding on the contents links brought Angular styling code into the initial member bundle. Comparing the source maps located it in the styling instructions.
+
+**New lessons**
+
+- Publish only practices supported by the current release. Preserve the first edition at its permanent address and read it with JavaScript disabled to verify archival hosting.
+- Service notice mail from a short-lived CLI must await SMTP delivery. Test the full 30-day interval against the UTC instant a new version takes effect.
+
+**How earlier lessons worked**
+
+- Native links with the complete path and fragment kept the keyboard contents test green. Binding the class attribute and lazy-loading the other member routes reduced the initial build from 279.67 kB to 277.81 kB without changing budgets.
+- A fake clock and different effective dates for the two documents proved that the server chooses both versions at Join, independently of values submitted by the browser.
