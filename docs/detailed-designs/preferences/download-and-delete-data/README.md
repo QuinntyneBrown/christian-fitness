@@ -65,7 +65,7 @@ The table lists every store of member data in the code today, then the stores th
 | Series places and drop-ins (`L2-052`, `L2-053`) | Yes | Sessions not started go back; series chat left | Deleted |
 | Listing follows (`L2-056`) | Yes | `<TO SUPPLY>` | Deleted |
 | Listing suggestions (`L2-062`), including the suggested person's email | Yes | Kept for staff review | Erased |
-| Feedback notes and screenshots (`L2-063`) | Yes | Kept | Erased, screenshot files too |
+| Feedback notes, replies kept with them and screenshots (`L2-063`, `L2-074`) | Yes | Kept; replies to a deleting member refused with `member_deleting` | Erased, screenshot files too |
 | Legal acceptance versions (`L2-067` AC5) | Yes | Kept | Deleted |
 | `DataExportRequest` and archives | — | Archives deleted; links stop working | Rows deleted |
 
