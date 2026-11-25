@@ -17,19 +17,37 @@ host's secret store. No setting is logged.
 | `ASPNETCORE_FORWARDEDHEADERS_ENABLED` | Yes, behind the reverse proxy | `true` makes the API read the client's address from the `X-Forwarded-For` the proxy appends (and the scheme from `X-Forwarded-Proto`). The limit of 5 account creations per address per hour counts by that address (L2-034 AC2, ADR 0012); unset behind a proxy, every visitor shares the proxy's address. It trusts whichever peer sends the header, so set it only when the proxy alone can reach the API. | `true` |
 | `DataProtection__KeysPath`   | Yes, with more than one instance or across restarts | The folder that keeps the ASP.NET Core Data Protection keys protecting the member and staff session cookies (ADR 0007, ADR 0011). Shared, persistent storage, readable and writable by every API instance. The same keys protect the antiforgery tokens (ADR 0009). Unset, the keys live in memory and every restart signs every member and staff member out. | `/var/lib/christian-fitness/keys` |
 | `Images__Directory`           | Yes, with more than one instance or across restarts | The folder that keeps event images, one file per image named by its key (ADR 0025). Shared, persistent storage, readable and writable by every API instance. Unset, images live in `images` next to the application and are lost with it. Images are public by key: `GET /api/events/images/{key}` serves them to anyone. | `/var/lib/christian-fitness/images` |
-| `MemberApp__BaseUrl`         | Yes, outside Development | The member app's public address. Every link in an email starts with it (the reset link is `{MemberApp__BaseUrl}/reset-password#token=…`); it is never taken from a request's `Host` header (ADR 0010). Defaults to `http://localhost:4200` in Development. | `https://members.christianfitness.ca` |
+| `MemberApp__BaseUrl`         | Yes, outside Development | The member app's public address. Every link in an email starts with it (the reset link is `{MemberApp__BaseUrl}/reset-password#token=…`); it is never taken from a request's `Host` header (ADR 0010). Defaults to `http://localhost:4200` in Development. | `https://www.christian.fitness` |
 | `Email__Smtp__Host`           | Yes, outside Development | The SMTP relay that delivers email (ADR 0010). Mail is queued in the API and delivered after the answer. Unset in Development, no mail is sent: messages are kept in memory only. To see them locally, run a mail catcher such as Mailpit and point this at it. | `smtp.sendgrid.net` |
 | `Email__Smtp__Port`           | No       | The relay's port. Defaults to `587` (STARTTLS); `465` uses TLS from the start.                             | `587`                                                                       |
 | `Email__Smtp__UseTls`         | No       | Whether TLS is required. Defaults to `true`; set `false` only for a local mail catcher.                    | `true`                                                                      |
 | `Email__Smtp__UserName`       | If the relay asks | The relay's user name. Unset, the API sends without authenticating.                                | `apikey`                                                                    |
 | `Email__Smtp__Password`       | If the relay asks | The relay's password or API key, from the secret store.                                           | from the secret store                                                       |
-| `Email__From`                 | Yes, outside Development | The sender of every email, a mailbox the relay may send as.                                      | `Christian Fitness <hello@christianfitness.ca>`                             |
+| `Email__From`                 | Yes, outside Development | The sender of every email, a mailbox the relay may send as.                                      | `Christian Fitness <no-reply@christian.fitness>`                             |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | No       | The OpenTelemetry collector. When set, traces, metrics and logs are exported to it by OTLP; when unset, nothing leaves the process and logs go to the console only. | `http://otel-collector:4317`                                                |
 | `OTEL_SERVICE_NAME`           | No       | The service name on every span, metric and log. Defaults to `christian-fitness-api`.                      | `christian-fitness-api`                                                     |
 | `Logging__LogLevel__Default`  | No       | The lowest log level written. Defaults to `Information`. `Microsoft.AspNetCore` stays at `Warning` whatever this says, because its request logs carry query strings. | `Warning`                                                                   |
 
 Outside Development the API refuses to start, naming each one, while `Email__Smtp__Host`,
 `Email__From` or `MemberApp__BaseUrl` is missing, so a deployed system never drops mail silently.
+
+## Settings for the new designs
+
+These settings are required by the designs and are not yet implemented. Set them when those
+features are deployed; values are not hard-coded.
+
+| Setting | Required | Purpose |
+| --- | --- | --- |
+| `Organisation__PostalAddress` | For newsletter and marketing email | The postal address in every footer. Its production value is `2091 Hurontario Street, Mississauga, Ontario, L5A 4E6`. |
+| `Email__MaxPerMinute` | For the newsletter sender | The SMTP relay's sending limit per minute; the operator supplies the relay's limit. |
+| `Email__MaxPerDay` | For the newsletter sender | The SMTP relay's sending limit per day; the operator supplies the relay's limit. |
+| `Seed__AdminEmail` | For `cf seed` with Google Workspace staff sign-in | The first Admin's Google Workspace email at `@christian.fitness`. No value is hard-coded; if missing, `cf seed` refuses with a clear error before writing. |
+| `publicSiteOrigin` | For Community Pick | The public member site origin, `https://www.christian.fitness`, used for absolute links. |
+
+The relay limits govern the newsletter sender's rate and capacity; neither has a default. The
+staff Google Workspace domain is `christian.fitness`; legal enquiries go to
+`privacy@christian.fitness`. Every newsletter and marketing email footer names Christian Fitness
+and uses `Organisation:PostalAddress`.
 
 ## CLI (`ChristianFitness.Cli`, built as `cf`)
 

@@ -38,7 +38,7 @@ The feature is a vertical slice from the Community Pick screen to the database, 
 - **`AdminCommunityPickController`** — new controller at `api/admin/community-pick`. `AuthenticationSetup.AreaSegments` maps `community-pick` to a new `StaffArea.CommunityPick`, open to Admins and Moderators in `StaffAccess` (`L2-019` AC1, ADR 0061). It sends one `ListPickableEventsQuery`.
 - **`ListPickableEventsQuery / ListPickableEventsHandler`** — the published events with `StartsAt > now` (from `TimeProvider`), soonest first, at most 100, with going counted in one query through `IRegistrationReader.GoingForAsync`.
 - **Short link `/e/:id`** — new route in `projects/web/src/app/app.routes.ts` that redirects to `/events/:id`. The member shell's `memberAuthGuard` sends a visitor to sign in with the return address and back after signing in (`L2-004` AC6); a signed-in member lands on the event; an event that is not published shows the existing not-found view (`L2-072` AC9).
-- **Link origin** — captions need an absolute link. The public origin of the Member web app is a new setting of the Admin web app (`publicSiteOrigin`), documented with the deployment settings in the same change (AGENTS.md, Backend). Its production value is `<TO SUPPLY>`; the mocks show `https://christianfitness.ca`.
+- **Link origin** — captions need an absolute link. The public origin of the Member web app is the Admin web app setting `publicSiteOrigin`, with production value `https://www.christian.fitness` (see `docs/operations/settings.md`).
 
 ### Open questions
 
