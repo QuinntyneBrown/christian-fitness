@@ -289,6 +289,7 @@
   --layout-sticky-offset: 6rem;
   --size-column-area: 9rem;           /* listing row area */
   --size-column-hosting: 7rem;        /* listing row hosting; feed copy button */
+  --size-column-follow: 6.75rem;      /* listing row follow button */
   --size-column-date: 5.5rem;         /* feed row leading column; hosting row picture below 640px */
 
   /* ---------- Semantic: sizes ------------------------------------------ */

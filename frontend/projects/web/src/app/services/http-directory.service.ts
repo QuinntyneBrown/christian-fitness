@@ -5,13 +5,15 @@ import type {
   DirectoryPageDto,
   DirectoryQuery,
   ListingConversationDto,
+  ListingFollowDto,
   ListingProfileDto,
 } from '@cf/api';
 import type { Observable } from 'rxjs';
 
 /**
  * {@link DirectoryApi} over HTTP: `GET /api/directory?kind=&q=&cursor=` (ADR 0082) and
- * `GET /api/directory/{id}` and `POST /api/directory/{id}/conversation` (ADR 0087). A 5xx opens
+ * `GET /api/directory/{id}` and `POST /api/directory/{id}/conversation` (ADR 0087) and
+ * `PUT` and `DELETE /api/directory/{id}/follow` (ADR 0088). A 5xx opens
  * the server-error screen through the interceptor; every failure passes on to the screen. It holds
  * no state, and is provided on the Directory screen, so it lives only while the screen does.
  */
@@ -36,5 +38,13 @@ export class HttpDirectoryService implements DirectoryApi {
       `/api/directory/${encodeURIComponent(id)}/conversation`,
       null,
     );
+  }
+
+  follow(id: string): Observable<ListingFollowDto> {
+    return this.http.put<ListingFollowDto>(`/api/directory/${encodeURIComponent(id)}/follow`, null);
+  }
+
+  unfollow(id: string): Observable<ListingFollowDto> {
+    return this.http.delete<ListingFollowDto>(`/api/directory/${encodeURIComponent(id)}/follow`);
   }
 }

@@ -11,10 +11,11 @@ namespace ChristianFitness.Application.Directory;
 
 /// <summary>
 /// One directory row (L2-054 AC2; ADR 0082): what a published listing publishes and how many events
-/// it hosts that are still to come. The kind is its slug; no contact detail or member id is carried.
+/// it hosts that are still to come, and whether the signed-in caller follows it (<c>false</c> for an
+/// anonymous caller, ADR 0088). The kind is its slug; no contact detail or member id is carried.
 /// </summary>
 public sealed record DirectoryListingRowDto(
-    Guid Id, string Kind, string Name, string Tagline, string Area, bool IsVerified, string? PhotoKey, int Hosting);
+    Guid Id, string Kind, string Name, string Tagline, string Area, bool IsVerified, string? PhotoKey, int Hosting, bool Following);
 
 /// <summary>How many published listings one kind has, whatever the search (L2-054 AC3).</summary>
 public sealed record DirectoryKindCountDto(string Kind, int Count);
@@ -124,7 +125,7 @@ internal static class DirectoryCursor
     }
 }
 
-internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListDirectoryQuery, DirectoryPageDto>
+internal sealed class ListDirectoryHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<ListDirectoryQuery, DirectoryPageDto>
 {
     public async Task<DirectoryPageDto> Handle(ListDirectoryQuery request, CancellationToken cancellationToken)
     {
@@ -160,14 +161,32 @@ internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) 
             .ConfigureAwait(false);
         var page = found.Take(ListDirectoryQuery.PageSize).ToList();
 
-        var hosting = await HostingAsync([.. page.Select(l => l.Id)], cancellationToken).ConfigureAwait(false);
+        var ids = page.Select(l => l.Id).ToList();
+        var hosting = await HostingAsync(ids, cancellationToken).ConfigureAwait(false);
+        var followed = await FollowedAsync(ids, cancellationToken).ConfigureAwait(false);
         var rows = page
             .Select(l => new DirectoryListingRowDto(
-                l.Id, ListingKinds.SlugOf(l.Kind), l.Name, l.Tagline, l.Area, l.IsVerified, l.PhotoKey, hosting.GetValueOrDefault(l.Id)))
+                l.Id, ListingKinds.SlugOf(l.Kind), l.Name, l.Tagline, l.Area, l.IsVerified, l.PhotoKey, hosting.GetValueOrDefault(l.Id), followed.Contains(l.Id)))
             .ToList();
         var counts = ListingKinds.InOrder.Select(kind => new DirectoryKindCountDto(ListingKinds.SlugOf(kind), counted.GetValueOrDefault(kind))).ToList();
         var next = found.Count > ListDirectoryQuery.PageSize ? DirectoryCursor.Of(page[^1]) : null;
         return new DirectoryPageDto(rows, counts, next);
+    }
+
+    /// <summary>The listings of the page the signed-in caller follows; none for an anonymous caller (ADR 0088).</summary>
+    private async Task<HashSet<Guid>> FollowedAsync(IReadOnlyCollection<Guid> listingIds, CancellationToken cancellationToken)
+    {
+        if (current.SignedInId is not { } memberId)
+        {
+            return [];
+        }
+
+        var followed = await db.ListingFollows.AsNoTracking()
+            .Where(f => f.MemberId == memberId && listingIds.Contains(f.ListingId))
+            .Select(f => f.ListingId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return [.. followed];
     }
 
     /// <summary>

@@ -1,0 +1,12 @@
+<button
+  [attr.class]="large() ? 'follow follow--lg' : 'follow'"
+  type="button"
+  [attr.aria-pressed]="following() ? 'true' : 'false'"
+  [attr.aria-disabled]="busy() ? 'true' : null"
+  (click)="press()"
+>
+  @if (following()) {
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+  }
+  Follow<span class="visually-hidden"> {{ name() }}</span>
+</button>

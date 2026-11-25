@@ -21,6 +21,8 @@ export interface DirectoryListingFixture {
   isVerified: boolean;
   photoKey: string | null;
   hosting: number;
+  /** Whether the signed-in member follows it (ADR 0088). */
+  following: boolean;
   /** Searched with the rest but never served (the API answers only the fields above). */
   focus?: string[];
 }
@@ -49,6 +51,7 @@ const listing = (
   isVerified: true,
   photoKey: null,
   hosting,
+  following: false,
   ...extra,
 });
 
@@ -217,6 +220,7 @@ function served(row: DirectoryListingFixture): Omit<DirectoryListingFixture, 'fo
     isVerified: row.isVerified,
     photoKey: row.photoKey,
     hosting: row.hosting,
+    following: row.following,
   };
 }
 

@@ -40,7 +40,7 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
 
         Assert.Equal(HttpStatusCode.OK, status);
         Assert.Equal(
-            ["area", "connections", "description", "focus", "followers", "hasOwner", "hosting", "hostingCount", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "serviceListingId", "tagline", "websiteUrl"],
+            ["area", "connections", "description", "focus", "followers", "following", "hasOwner", "hosting", "hostingCount", "id", "isVerified", "kind", "listedYear", "name", "photoKey", "serviceListingId", "tagline", "websiteUrl"],
             profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(id, profile.GetProperty("id").GetGuid());
         Assert.Equal("organization", profile.GetProperty("kind").GetString());

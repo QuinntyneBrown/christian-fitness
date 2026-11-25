@@ -15,6 +15,34 @@ export interface ListingHeadView {
   tagline: string;
 }
 
+/** A Follow button as the member reads it (L2-056 AC1). */
+export interface FollowButtonView {
+  /** The visible label. */
+  label: string;
+  /** Its accessible name, with the listing's name. */
+  name: string;
+  pressed: string | null;
+  /** Whether the check mark shows. */
+  check: boolean;
+  /** `aria-disabled`, set while its request is in flight (L2-056 AC8). */
+  disabled: string | null;
+}
+
+/** Reads a Follow button: its label, accessible name, pressed state, check mark and `aria-disabled`. */
+export async function readFollow(button: Locator): Promise<FollowButtonView> {
+  return button.evaluate((element) => ({
+    label: Array.from(element.childNodes)
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent ?? '')
+      .join('')
+      .trim(),
+    name: (element.textContent ?? '').replace(/\s+/g, ' ').trim(),
+    pressed: element.getAttribute('aria-pressed'),
+    check: element.querySelector('svg.icon') !== null,
+    disabled: element.getAttribute('aria-disabled'),
+  }));
+}
+
 /** One hosting row as the member reads it. */
 export interface HostingRowView {
   href: string;
@@ -50,6 +78,9 @@ export class WebListingProfilePage extends ErrorScreen {
   readonly backLink: Locator;
   readonly head: Locator;
   readonly messageButton: Locator;
+  readonly followButton: Locator;
+  /** The danger toasts: each `role="alert"` in the toast region. */
+  readonly failureToasts: Locator;
   readonly messageAlert: Locator;
   readonly alsoOffersServices: Locator;
   readonly name: Locator;
@@ -76,6 +107,8 @@ export class WebListingProfilePage extends ErrorScreen {
     this.backLink = this.main.getByRole('link', { name: 'Directory', exact: true }).first();
     this.head = this.main.locator('.listing-head');
     this.messageButton = this.head.getByRole('button', { name: 'Message' });
+    this.followButton = this.head.locator('button.follow');
+    this.failureToasts = page.locator('.toast-region [role="alert"] .toast');
     this.messageAlert = this.main.getByRole('alert');
     this.alsoOffersServices = this.main.getByRole('link', { name: 'Also offers services' });
     this.name = this.head.getByRole('heading', { level: 1 });
@@ -123,6 +156,16 @@ export class WebListingProfilePage extends ErrorScreen {
         tagline: text('.subtitle'),
       };
     });
+  }
+
+  /** The head's Follow button. */
+  async followView(): Promise<FollowButtonView> {
+    return readFollow(this.followButton);
+  }
+
+  /** The facts' follower count, as the member reads it. */
+  async followers(): Promise<string> {
+    return (await this.factViews()).find(([term]) => term === 'Followers')?.[1] ?? '';
   }
 
   /** Each hosting row, in order. */

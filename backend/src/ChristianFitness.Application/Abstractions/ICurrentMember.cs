@@ -5,4 +5,7 @@ public interface ICurrentMember
 {
     /// <summary>The signed-in member's id. Only endpoints that require a session ask for it.</summary>
     Guid Id { get; }
+
+    /// <summary>The signed-in member's id, or none for an anonymous caller: for reads that serve both (ADR 0088).</summary>
+    Guid? SignedInId { get; }
 }

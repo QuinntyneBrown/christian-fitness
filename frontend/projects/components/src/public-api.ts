@@ -62,6 +62,7 @@ export * from './list/going-item';
 export * from './list/list';
 export * from './list/mini-row';
 export * from './list/service-row';
+export * from './follow-button/follow-button';
 export * from './listing-row/directory-group';
 export * from './listing-row/listing-head';
 export * from './listing-row/listing-mark';

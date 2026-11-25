@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DIRECTORY_SERVICE, type ListingProfileDto } from '@cf/api';
+import { DIRECTORY_SERVICE, LISTING_FOLLOWS, type ListingProfileDto } from '@cf/api';
 import {
   Alert,
   Button,
@@ -11,6 +11,7 @@ import {
   DescriptionList,
   EmptyState,
   ErrorPage,
+  FollowButton,
   Hosting,
   isPlainClick,
   Link,
@@ -25,8 +26,10 @@ import {
 } from '@cf/components';
 import {
   connectionRowViewOf,
+  followerCountText,
   hostingEmptyText,
   hostingRowViewOf,
+  ListingFollowStore,
   listingProfileViewOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
@@ -53,6 +56,7 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
     DescriptionList,
     EmptyState,
     ErrorPage,
+    FollowButton,
     Hosting,
     Link,
     List,
@@ -64,12 +68,16 @@ import { HttpDirectoryService } from '../../services/http-directory.service';
     Split,
     TagList,
   ],
-  providers: [{ provide: DIRECTORY_SERVICE, useClass: HttpDirectoryService }],
+  providers: [
+    { provide: DIRECTORY_SERVICE, useClass: HttpDirectoryService },
+    { provide: LISTING_FOLLOWS, useClass: ListingFollowStore },
+  ],
   templateUrl: './listing-profile-page.html',
   styleUrl: './listing-profile-page.scss',
 })
 export default class ListingProfilePage {
   private readonly directory = inject(DIRECTORY_SERVICE);
+  private readonly follows = inject(LISTING_FOLLOWS);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private id = '';
@@ -83,6 +91,11 @@ export default class ListingProfilePage {
   protected readonly view = computed(() => {
     const profile = this.profile();
     return profile ? listingProfileViewOf(profile) : null;
+  });
+  /** The member's follow of the listing and its count, changed at a press (L2-056). */
+  protected readonly follow = computed(() => {
+    const id = this.profile()?.id;
+    return id === undefined ? null : (this.follows.follows().get(id) ?? null);
   });
   protected readonly hosting = computed(() => this.profile()?.hosting.map(hostingRowViewOf) ?? []);
   protected readonly hostingEmpty = computed(() => hostingEmptyText(this.profile()?.name ?? ''));
@@ -98,7 +111,10 @@ export default class ListingProfilePage {
       ...(view.website
         ? [{ term: 'Website', link: view.website, icon: 'globe' } satisfies DescriptionItem]
         : []),
-      { term: 'Followers', detail: view.followers },
+      {
+        term: 'Followers',
+        detail: followerCountText(this.follow()?.followers ?? profile.followers),
+      },
       { term: 'On Christian Fitness', detail: view.since },
     ];
   });
@@ -117,8 +133,13 @@ export default class ListingProfilePage {
     void this.router.navigateByUrl(href);
   }
 
+  /** Follows or unfollows the listing at once (L2-056 AC1 to AC3). */
+  protected toggleFollow(listing: ListingProfileDto): void {
+    this.follows.toggle(listing.id, listing.name);
+  }
+
   /** Routes a plain click on a link; any other click is the browser's. */
-  protected follow(event: MouseEvent, href: string): void {
+  protected route(event: MouseEvent, href: string): void {
     if (!isPlainClick(event)) return;
     event.preventDefault();
     this.navigate(href);
@@ -162,6 +183,7 @@ export default class ListingProfilePage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (profile) => {
+          this.follows.track([profile]);
           this.profile.set(profile);
           this.state.set('loaded');
         },

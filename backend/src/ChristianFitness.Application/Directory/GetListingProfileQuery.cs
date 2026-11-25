@@ -25,7 +25,8 @@ public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, str
 /// the year it was listed, in Toronto. The website is served as stored; the app shows only an
 /// https address (L2-055 AC5). <c>HasOwner</c> says whether Message can reach anyone (L2-055 AC6);
 /// <c>ServiceListingId</c> names the Services listing of the same owner, or that staff linked, for
-/// "Also offers services" (ADR 0061). It carries no member id, contact detail or owner's name.
+/// "Also offers services" (ADR 0061). <c>Following</c> says whether the signed-in caller follows it,
+/// <c>false</c> for an anonymous caller (ADR 0088). It carries no member id, contact detail or owner's name.
 /// </summary>
 public sealed record ListingProfileDto(
     Guid Id,
@@ -44,7 +45,8 @@ public sealed record ListingProfileDto(
     int HostingCount,
     IReadOnlyList<HostedEventDto> Hosting,
     IReadOnlyList<ListingConnectionDto> Connections,
-    Guid? ServiceListingId);
+    Guid? ServiceListingId,
+    bool Following);
 
 /// <summary>Opens one listing's profile; anything but a published listing is 404 <c>listing_not_found</c> (L2-055 AC7).</summary>
 public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>
@@ -53,7 +55,7 @@ public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDt
     public const int HostingLimit = 20;
 }
 
-internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetListingProfileQuery, ListingProfileDto>
+internal sealed class GetListingProfileHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<GetListingProfileQuery, ListingProfileDto>
 {
     public async Task<ListingProfileDto> Handle(GetListingProfileQuery request, CancellationToken cancellationToken)
     {
@@ -103,8 +105,10 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-        // Following arrives with journey 8; until then nobody follows a listing (ADR 0087).
-        const int followers = 0;
+        // Only the count of who follows it, and whether the caller does (L2-056 AC6; ADR 0088).
+        var followers = await ListingFollows.CountAsync(db, listing.Id, cancellationToken).ConfigureAwait(false);
+        var following = current.SignedInId is { } memberId
+            && await ListingFollows.FollowsAsync(db, memberId, listing.Id, cancellationToken).ConfigureAwait(false);
         return new ListingProfileDto(
             listing.Id,
             ListingKinds.SlugOf(listing.Kind),
@@ -122,6 +126,7 @@ internal sealed class GetListingProfileHandler(IAppDbContext db, TimeProvider ti
             hostingCount,
             hosting,
             connections,
-            serviceListingId);
+            serviceListingId,
+            following);
     }
 }

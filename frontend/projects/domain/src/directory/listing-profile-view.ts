@@ -53,6 +53,11 @@ export function websiteLinkOf(url: string | null): WebsiteLink | null {
 // Made once on first use, not at import: the formatter is costly to create.
 let thousands: Intl.NumberFormat | undefined;
 
+/** A follower count with thousands separated, such as "2,140". */
+export function followerCountText(count: number): string {
+  return (thousands ??= new Intl.NumberFormat('en-US')).format(count);
+}
+
 /** A profile as its head and key facts show it. */
 export function listingProfileViewOf(profile: ListingProfileDto): ListingProfileView {
   const kind = listingKindInfo(profile.kind);
@@ -65,7 +70,7 @@ export function listingProfileViewOf(profile: ListingProfileDto): ListingProfile
         ? null
         : `/api/directory/photos/${encodeURIComponent(profile.photoKey)}`,
     website: websiteLinkOf(profile.websiteUrl),
-    followers: (thousands ??= new Intl.NumberFormat('en-US')).format(profile.followers),
+    followers: followerCountText(profile.followers),
     since: `Since ${profile.listedYear}`,
     servicesHref:
       profile.serviceListingId === null ? null : listingHref(profile.serviceListingId, null),

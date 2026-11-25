@@ -169,6 +169,24 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("ListingConnections", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingFollow", b =>
+                {
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("FollowedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MemberId", "ListingId");
+
+                    b.HasIndex("ListingId");
+
+                    b.ToTable("ListingFollows", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingSuggestion", b =>
                 {
                     b.Property<Guid>("Id")
@@ -847,6 +865,21 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
                         .WithMany()
                         .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingFollow", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

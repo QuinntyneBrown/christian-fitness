@@ -1,4 +1,4 @@
-import { InjectionToken } from '@angular/core';
+import { InjectionToken, type Signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { EventCategory } from '../admin/admin-events';
 
@@ -24,6 +24,8 @@ export interface DirectoryListingRowDto {
   photoKey: string | null;
   /** Its published series and one-off events still to come. */
   hosting: number;
+  /** Whether the signed-in member follows it (ADR 0088). */
+  following: boolean;
 }
 
 /** How many published listings a kind has, whatever the search. */
@@ -100,6 +102,17 @@ export interface ListingProfileDto {
   connections: ListingConnectionDto[];
   /** The Services listing of the same owner, or that staff linked, for "Also offers services" (ADR 0061). */
   serviceListingId: string | null;
+  /** Whether the signed-in member follows it (ADR 0088). */
+  following: boolean;
+}
+
+/**
+ * The member's follow of a listing after a follow or unfollow, and its follower count
+ * (`ListingFollowDto`, ADR 0088): never who follows it (L2-056 AC6).
+ */
+export interface ListingFollowDto {
+  following: boolean;
+  followers: number;
 }
 
 /** Who receives a listing's messages: the member whose direct conversation Message opens. */
@@ -129,7 +142,48 @@ export interface DirectoryApi {
    * (`listing_not_found`).
    */
   startConversation(id: string): Observable<ListingConversationDto>;
+
+  /**
+   * Follows a published listing; a repeat changes nothing (L2-056 AC1, AC4). A refusal
+   * (`listing_not_found`, `account_suspended`, `too_many_attempts`) or no answer errors.
+   */
+  follow(id: string): Observable<ListingFollowDto>;
+
+  /** Stops following a published listing; a repeat changes nothing (L2-056 AC2, AC4). Errors as {@link follow}. */
+  unfollow(id: string): Observable<ListingFollowDto>;
 }
+
+/** One listing's follow as a screen shows it: the member's state, the count where known, and whether a change is in flight. */
+export interface ListingFollowState {
+  following: boolean;
+  /** The follower count, or none where the screen does not show it (a directory row). */
+  followers: number | null;
+  /** A follow or unfollow is on its way (L2-056 AC8). */
+  busy: boolean;
+}
+
+/** A listing a screen shows, as it was loaded: the member's state and, on a profile, the count. */
+export interface FollowableListing {
+  id: string;
+  following: boolean;
+  followers?: number;
+}
+
+/**
+ * The follows of the listings one screen shows (L2-056; ADR 0088): `track` takes them as loaded,
+ * `toggle` follows or unfollows one at once and settles it by the server's answer, or puts it back
+ * and shows a toast naming it.
+ */
+export interface ListingFollowsApi {
+  readonly follows: Signal<ReadonlyMap<string, ListingFollowState>>;
+  /** Takes the listings now shown, keeping any whose change is in flight. */
+  track(listings: readonly FollowableListing[]): void;
+  /** Follows or unfollows the listing `id`, named `name`; nothing while its change is in flight. */
+  toggle(id: string, name: string): void;
+}
+
+/** Binds {@link ListingFollowsApi}; the Directory and listing profile screens provide it. */
+export const LISTING_FOLLOWS = new InjectionToken<ListingFollowsApi>('LISTING_FOLLOWS');
 
 /** Binds {@link DirectoryApi}; the Directory screen provides it on its own route component. */
 export const DIRECTORY_SERVICE = new InjectionToken<DirectoryApi>('DIRECTORY_SERVICE');
