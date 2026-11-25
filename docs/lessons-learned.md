@@ -2771,11 +2771,12 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 **What slowed it**
 
 - Journey 19 merged ADR 0092 while this journey held it, so the bylines ADR became 0093 before
-  the first commit. A scratchpad script renumbered the 26 files that named it, and the ADR index
-  was merged by hand at the rebase. `AddBylines` was generated again after `AddClaimVoidedAt`.
+  the first commit; journey 10 then merged its own 0093 after the PR was open, so it became 0094.
+  A scratchpad script renumbered the files that named it each time, and the ADR index was merged
+  by hand at each rebase. `AddBylines` was generated again after `AddClaimVoidedAt`.
 - Stories do not exist yet, but L2-077 AC7 needs "a story uses this byline". A minimal `Story`
   (id, byline, headline) with a restricted key carries the count and the refusal; journey 22
-  extends it rather than adding a second table (ADR 0093).
+  extends it rather than adding a second table (ADR 0094).
 - The seed must not bring back bylines an Admin removed. "No bylines" alone would, so it also
   looks for any `Byline` audit entry.
 - Adding Stories to the navigation changed the Admin's nav lists, groups and hrefs asserted in
@@ -2800,7 +2801,8 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 **How earlier lessons worked**
 
 - "Check `origin/main` and open PRs for the next ADR number right before each commit": the check
-  caught 0092 before anything was pushed.
+  caught 0092 before anything was pushed, but not 0093, which journey 10 took while this PR was
+  open. Check again before every push, not only before the commit that adds the ADR.
 - "Regenerate a migration that sorts before main's": `AddBylines` was generated on main's model
   after the rebase, and `AppDbContextModelSnapshot.cs` was taken from main first.
 - "The worktree guard refuses compound git commands": git ran alone, and edits went through the

@@ -6,21 +6,21 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.News;
 
 /// <summary>
-/// One byline as Bylines shows it and its editor starts from (L2-077 AC1; ADR 0093): the name, the
+/// One byline as Bylines shows it and its editor starts from (L2-077 AC1; ADR 0094): the name, the
 /// short bio, the photo's key or none, and how many stories use it, as a number the app words.
 /// </summary>
 public sealed record BylineDto(Guid Id, string Name, string Bio, string? PhotoKey, int Stories);
 
-/// <summary>Every byline in name order, without regard to case (ADR 0093).</summary>
+/// <summary>Every byline in name order, without regard to case (ADR 0094).</summary>
 public sealed record BylineListDto(IReadOnlyList<BylineDto> Bylines);
 
-/// <summary>Bylines (L2-077 AC1): every byline. A staff-kept list of tens, so it is not paged (ADR 0093).</summary>
+/// <summary>Bylines (L2-077 AC1): every byline. A staff-kept list of tens, so it is not paged (ADR 0094).</summary>
 public sealed record ListBylinesQuery : IRequest<BylineListDto>;
 
 /// <summary>Reads a byline's answer: the byline and how many stories hold it.</summary>
 internal static class BylineAnswers
 {
-    /// <summary>The audit record type of a byline (ADR 0023, ADR 0093); the seed reads it too.</summary>
+    /// <summary>The audit record type of a byline (ADR 0023, ADR 0094); the seed reads it too.</summary>
     public const string RecordType = nameof(Byline);
 
     public static BylineDto Of(Byline byline, int stories) => new(byline.Id, byline.Name, byline.Bio, byline.PhotoKey, stories);

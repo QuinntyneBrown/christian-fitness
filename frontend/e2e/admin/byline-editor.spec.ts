@@ -37,7 +37,7 @@ async function openAdd(page: AdminBylinesPage): Promise<void> {
   await page.addButton.click();
 }
 
-// L2-077 AC3, AC4, AC5 (ADR 0093): Add byline and Edit open the byline editor; a save shows the
+// L2-077 AC3, AC4, AC5 (ADR 0094): Add byline and Edit open the byline editor; a save shows the
 // byline in the list at once with a toast, and a refusal names the field.
 test.describe('Admin app, the byline editor', () => {
   test(

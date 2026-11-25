@@ -4,7 +4,7 @@ namespace ChristianFitness.Domain.News;
 /// A story Admins write and publish (L1-022, L2-068). Journey 21 adds only what bylines need: the
 /// story's byline, which the database keeps (a story can never lose its byline, L2-077 AC7), and its
 /// headline. Writing and publishing (issue 172) extends this entity with the editor's fields
-/// (ADR 0093).
+/// (ADR 0094).
 /// </summary>
 public sealed class Story
 {

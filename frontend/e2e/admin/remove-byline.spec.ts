@@ -24,7 +24,7 @@ function answerBylines(api: ApiHandlers): { asked: number } {
   return seen;
 }
 
-// L2-077 AC6, AC7 (ADR 0093): a byline no story uses can be removed after a confirmation; one
+// L2-077 AC6, AC7 (ADR 0094): a byline no story uses can be removed after a confirmation; one
 // stories use says why it stays, with only Close.
 test.describe('Admin app, removing a byline', () => {
   test('a byline no story uses is removed after Remove byline, with a toast', async ({

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.News;
 
 /// <summary>
-/// Remove byline (L2-077 AC6, AC7; ADR 0093): a byline no story uses leaves the list. One a story
+/// Remove byline (L2-077 AC6, AC7; ADR 0094): a byline no story uses leaves the list. One a story
 /// uses is refused with 409 <c>byline_in_use</c>; an unknown one is 404 <c>not_found</c>. Audited
 /// <c>byline.removed</c> as <c>Byline</c>.
 /// </summary>

@@ -1,6 +1,6 @@
 import type { ApiReply } from './api-handlers';
 
-/** One byline as `GET /api/admin/stories/bylines` answers it (ADR 0093). */
+/** One byline as `GET /api/admin/stories/bylines` answers it (ADR 0094). */
 export interface BylineFixture {
   id: string;
   name: string;

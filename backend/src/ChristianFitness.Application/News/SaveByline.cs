@@ -21,7 +21,7 @@ public abstract class BylineFields
     public string? PhotoKey { get; set; }
 }
 
-/// <summary>Add byline (L2-077 AC3, AC4). Audited <c>byline.created</c> as <c>Byline</c> (ADR 0093).</summary>
+/// <summary>Add byline (L2-077 AC3, AC4). Audited <c>byline.created</c> as <c>Byline</c> (ADR 0094).</summary>
 public sealed class AddBylineCommand : BylineFields, IRequest<BylineDto>, IAuditableCommand
 {
     string IAuditableCommand.AuditAction => "byline.created";
@@ -36,7 +36,7 @@ public sealed class UpdateBylineCommand : BylineFields, IRequest<BylineDto>, IAu
     string IAuditableCommand.AuditAction => "byline.updated";
 }
 
-/// <summary>The key an uploaded byline photo is kept under (ADR 0093).</summary>
+/// <summary>The key an uploaded byline photo is kept under (ADR 0094).</summary>
 public sealed record BylinePhotoDto(string PhotoKey);
 
 /// <summary>
@@ -54,7 +54,7 @@ public sealed class UploadBylinePhotoCommand(Stream content, long length) : IReq
     public long Length { get; } = length;
 }
 
-/// <summary>The editor's field codes, named in the refusal's <c>fieldCodes</c> (ADR 0093).</summary>
+/// <summary>The editor's field codes, named in the refusal's <c>fieldCodes</c> (ADR 0094).</summary>
 public static class BylineRules
 {
     public const string PhotoInvalid = "photo_invalid";

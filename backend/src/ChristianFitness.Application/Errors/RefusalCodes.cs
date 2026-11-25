@@ -18,10 +18,10 @@ public static class RefusalCodes
     /// <summary>A series' capacity was set below the members who joined it (L2-071 AC13; ADR 0091).</summary>
     public const string CapacityBelowJoined = "capacity_below_joined";
 
-    /// <summary>Another byline has the name, compared without regard to case (L2-077 AC4; ADR 0093).</summary>
+    /// <summary>Another byline has the name, compared without regard to case (L2-077 AC4; ADR 0094).</summary>
     public const string BylineNameTaken = "byline_name_taken";
 
-    /// <summary>A story uses the byline, so it cannot be removed (L2-077 AC7; ADR 0093).</summary>
+    /// <summary>A story uses the byline, so it cannot be removed (L2-077 AC7; ADR 0094).</summary>
     public const string BylineInUse = "byline_in_use";
 
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>

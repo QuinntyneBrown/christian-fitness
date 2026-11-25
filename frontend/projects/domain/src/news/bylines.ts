@@ -2,7 +2,7 @@ import type { ApiError, BylineDraftDto, BylineDto } from '@cf/api';
 
 let countFormat: Intl.NumberFormat | undefined;
 
-/** How many stories use a byline, as Bylines' "Used by" reads it (L2-077 AC1; ADR 0093). */
+/** How many stories use a byline, as Bylines' "Used by" reads it (L2-077 AC1; ADR 0094). */
 export function bylineStoriesText(stories: number): string {
   if (stories === 0) return 'Not used yet';
   if (stories === 1) return '1 story';
@@ -32,7 +32,7 @@ const FIELD_IDS: readonly (readonly [BylineFieldKey, string])[] = [
   ['photo', 'f-photo'],
 ];
 
-/** What each field code says to Admins (ADR 0093); the sentences the server writes are never shown. */
+/** What each field code says to Admins (ADR 0094); the sentences the server writes are never shown. */
 const MESSAGES: Record<string, string> = {
   name_required: 'Add a name',
   name_too_long: 'Use 80 characters or fewer',
@@ -124,7 +124,7 @@ export function bylineInUse(error: unknown): boolean {
   return status === 409 && code === 'byline_in_use';
 }
 
-/** A byline's place in the list, as the API orders it: its name trimmed and lower-cased (ADR 0093). */
+/** A byline's place in the list, as the API orders it: its name trimmed and lower-cased (ADR 0094). */
 function keyOf(byline: BylineDto): string {
   return byline.name.trim().toLowerCase();
 }

@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ChristianFitness.Api.Tests.Bylines;
 
 /// <summary>
-/// L2-077 AC4 and AC7 (ADR 0093): the checks that a name is free and that no story uses a byline
+/// L2-077 AC4 and AC7 (ADR 0094): the checks that a name is free and that no story uses a byline
 /// run before the save, so another request can win between them. The store then refuses: the
 /// unique name key a second byline of one name, the restricted story key a removal a story now
 /// uses. Each is answered with its code, never a 500, and nothing is saved. InMemory has no such

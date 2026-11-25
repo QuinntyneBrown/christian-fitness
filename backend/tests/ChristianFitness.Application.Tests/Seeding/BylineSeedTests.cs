@@ -9,7 +9,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Seeding;
 
 /// <summary>
-/// L2-077 AC2 (ADR 0093): a new deployment's seed adds the five starting bylines once; running it
+/// L2-077 AC2 (ADR 0094): a new deployment's seed adds the five starting bylines once; running it
 /// again adds nothing and changes no byline an Admin has edited or removed, even when every byline
 /// was removed.
 /// </summary>

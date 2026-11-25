@@ -46,7 +46,7 @@ export type BylineEditorResult = { saved: BylineDto } | { gone: true };
 
 /**
  * The byline editor, "Add a byline" or "Edit byline" (mock docs/mocks/dialogs/byline-editor/;
- * L2-077 AC3 to AC5; ADR 0093): a CDK Dialog rendering the library's dialog with the name, the
+ * L2-077 AC3 to AC5; ADR 0094): a CDK Dialog rendering the library's dialog with the name, the
  * short bio with its counter and an optional photo. Focus starts on Name. A missing name or bio is
  * named before anything is sent. A chosen photo is uploaded at once and saved with the byline by
  * its key. While a save is on its way the button reads "Saving…", the fields hold still and the

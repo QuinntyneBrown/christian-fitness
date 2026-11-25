@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Seeding;
 
 /// <summary>
-/// The starting bylines (L2-077 AC2; ADR 0093): Naomi Clarke, Priya Raman, Marcus Bell, Pastor Ruth
+/// The starting bylines (L2-077 AC2; ADR 0094): Naomi Clarke, Priya Raman, Marcus Bell, Pastor Ruth
 /// Adeyemi and CF Team, with the mocks' bios, as one seed. It applies only on a deployment that has
 /// no byline and whose audit trail names no byline, so once an Admin has added, edited or removed
 /// any byline it never runs again: it restores nothing removed and overwrites nothing edited.

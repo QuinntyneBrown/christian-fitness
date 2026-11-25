@@ -5,7 +5,7 @@ using ChristianFitness.Domain.Members;
 namespace ChristianFitness.Api.Tests.Bylines;
 
 /// <summary>
-/// L2-077 AC1 and AC10 (ADR 0093): an Admin lists every byline in name order, without regard to
+/// L2-077 AC1 and AC10 (ADR 0094): an Admin lists every byline in name order, without regard to
 /// case, each with its name, short bio, photo key and how many stories use it; a Moderator is
 /// refused with 403 <c>forbidden_role</c>.
 /// </summary>

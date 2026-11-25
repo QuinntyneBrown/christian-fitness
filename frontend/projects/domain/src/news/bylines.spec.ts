@@ -26,7 +26,7 @@ function refused(status: number, code: string, fieldCodes?: Record<string, strin
   return fieldCodes ? { status, code, fieldCodes } : { status, code };
 }
 
-// L2-077 AC1 (ADR 0093): how many stories use a byline, as the "Used by" column reads it.
+// L2-077 AC1 (ADR 0094): how many stories use a byline, as the "Used by" column reads it.
 describe('bylineStoriesText', () => {
   it.each<{ stories: number; expected: string }>([
     { stories: 0, expected: 'Not used yet' },
@@ -73,7 +73,7 @@ describe('bylineMissing', () => {
   });
 });
 
-// L2-077 AC3, AC4 (ADR 0093): each refusal the API answers, as the dialog words it.
+// L2-077 AC3, AC4 (ADR 0094): each refusal the API answers, as the dialog words it.
 describe('bylineErrorsOf', () => {
   it.each<{ why: string; error: unknown; expected: Record<string, string> | null }>([
     {
@@ -150,7 +150,7 @@ describe('bylineGone, bylineInUse and bylineNameTaken', () => {
   });
 });
 
-// ADR 0093: a saved byline takes its place in the list as the API orders it, by the name without
+// ADR 0094: a saved byline takes its place in the list as the API orders it, by the name without
 // regard to case (ordinal, as `NameKey`), then by id; a removed one leaves it.
 describe('withByline and withoutByline', () => {
   const byline = (id: string, name: string): BylineDto => ({

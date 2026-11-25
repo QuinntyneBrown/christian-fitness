@@ -15,7 +15,7 @@ const HEADING_ID = 'remove-byline-title';
 export type RemoveBylineResult = 'removed' | 'gone' | 'stale' | null;
 
 /**
- * The Remove byline dialog (mock docs/mocks/dialogs/remove-byline/; L2-077 AC6, AC7; ADR 0093), a
+ * The Remove byline dialog (mock docs/mocks/dialogs/remove-byline/; L2-077 AC6, AC7; ADR 0094), a
  * CDK Dialog around the library's `cf-dialog`. For a byline no story uses, "Keep it", Close,
  * Escape and the scrim leave it on the list; "Remove byline" asks the page's
  * `ADMIN_BYLINES_SERVICE` and, while it is on its way, is busy and everything holds still. For a

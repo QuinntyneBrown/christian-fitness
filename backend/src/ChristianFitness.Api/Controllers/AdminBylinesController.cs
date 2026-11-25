@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Admins manage the bylines stories run under (L2-077; ADR 0093). Routed under
+/// Admins manage the bylines stories run under (L2-077; ADR 0094). Routed under
 /// <c>api/admin/stories/bylines</c>, the Publishing area, which refuses a Moderator with
 /// <c>forbidden_role</c>. Each action sends one MediatR request and checks nothing.
 /// </summary>

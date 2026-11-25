@@ -14,7 +14,7 @@ function answerBylines(api: ApiHandlers, bylines: BylineFixture[] = BYLINES): { 
   return seen;
 }
 
-// L2-077 AC1 (ADR 0093): Bylines lists every byline by name with its short bio, how many stories
+// L2-077 AC1 (ADR 0094): Bylines lists every byline by name with its short bio, how many stories
 // use it and Edit and Remove, under Stories in the Publish group.
 test.describe('Admin app, the Bylines page', () => {
   test('lists every byline with its bio and how many stories use it, as the default mock draws it', async ({
@@ -98,7 +98,7 @@ test.describe('Admin app, the Bylines page', () => {
     await expect(shell.navItem('Stories')).toHaveAttribute('href', '/stories');
   });
 
-  // ADR 0093: until the Stories list exists, Stories opens Bylines.
+  // ADR 0094: until the Stories list exists, Stories opens Bylines.
   test('Stories opens Bylines until the Stories list exists', async ({ page, api }) => {
     answerBylines(api);
     const shell = new AdminShell(page);
@@ -177,7 +177,7 @@ test.describe('Admin app, the Bylines page', () => {
   });
 });
 
-// L2-077 AC10 (L2-068 AC7; ADR 0093): a Moderator meets "Admins only" (`canManage` keeps Stories
+// L2-077 AC10 (L2-068 AC7; ADR 0094): a Moderator meets "Admins only" (`canManage` keeps Stories
 // out of their navigation).
 test.describe('Admin app, Bylines for a Moderator', () => {
   test('a Moderator opening Bylines sees "Admins only" at the address asked for', async ({

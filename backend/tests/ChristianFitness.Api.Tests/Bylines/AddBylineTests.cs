@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Bylines;
 
 /// <summary>
-/// L2-077 AC3, AC4, AC10 and AC11 (ADR 0093): Add byline saves a name, a short bio of at most 200
+/// L2-077 AC3, AC4, AC10 and AC11 (ADR 0094): Add byline saves a name, a short bio of at most 200
 /// characters and an optional photo, answers 201 with the byline and records <c>byline.created</c>
 /// as <c>Byline</c>. A field that fails is refused with 400 <c>validation_failed</c> naming it in
 /// <c>fieldCodes</c>; a name another byline has, in any case, with 409 <c>byline_name_taken</c>;

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// A byline (ADR 0093): its lower-cased name key is unique, so two bylines can never share a name
+/// A byline (ADR 0094): its lower-cased name key is unique, so two bylines can never share a name
 /// in any case, and orders the list.
 /// </summary>
 internal sealed class BylineConfiguration : IEntityTypeConfiguration<Byline>
@@ -25,7 +25,7 @@ internal sealed class BylineConfiguration : IEntityTypeConfiguration<Byline>
 }
 
 /// <summary>
-/// A story, as far as journey 21 needs one (ADR 0093): its byline is a required foreign key the
+/// A story, as far as journey 21 needs one (ADR 0094): its byline is a required foreign key the
 /// database will not let go, so no story ever loses its byline (L2-077 AC7).
 /// </summary>
 internal sealed class StoryConfiguration : IEntityTypeConfiguration<Story>

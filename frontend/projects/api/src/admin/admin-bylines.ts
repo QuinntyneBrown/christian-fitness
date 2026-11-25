@@ -2,7 +2,7 @@ import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 
 /**
- * One byline as Bylines shows it (`GET /api/admin/stories/bylines`, L2-077 AC1; ADR 0093): the
+ * One byline as Bylines shows it (`GET /api/admin/stories/bylines`, L2-077 AC1; ADR 0094): the
  * name, the short bio, the photo's key or none, and how many stories use it, as a number the app
  * words.
  */
@@ -31,7 +31,7 @@ export interface BylinePhotoDto {
   photoKey: string;
 }
 
-/** Admins manage the bylines stories run under (L2-077; ADR 0093). A Moderator is refused `forbidden_role`. */
+/** Admins manage the bylines stories run under (L2-077; ADR 0094). A Moderator is refused `forbidden_role`. */
 export interface AdminBylinesApi {
   /** Every byline in name order. A failure errors with an `ApiError`. */
   list(): Observable<BylineListDto>;

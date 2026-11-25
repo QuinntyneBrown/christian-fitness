@@ -157,8 +157,8 @@ AC7).
   Photos reuse `ImageKeys.Detect` and `IImageStore` (JPEG, PNG or WebP, at most 5 MB).
 - **Seed** — the CLI's idempotent seed adds Naomi Clarke, Priya Raman, Marcus Bell, Pastor Ruth
   Adeyemi and CF Team, and only when no byline exists and no audit entry names a `Byline`, so it
-  never restores one an Admin removed or overwrites one an Admin edited (`L2-077` AC2; ADR 0093).
-- **Built in journey 21 (ADR 0093)** — `StaffArea.Publishing` for the `stories` segment; the
+  never restores one an Admin removed or overwrites one an Admin edited (`L2-077` AC2; ADR 0094).
+- **Built in journey 21 (ADR 0094)** — `StaffArea.Publishing` for the `stories` segment; the
   Stories area in the Publish group, whose `/stories` redirects to Bylines until the Stories list
   exists; `api/admin/stories/bylines` with `GET`, `POST`, `PUT {id}`, `DELETE {id}` and
   `POST photos`; a name of at most 80 characters (`name_too_long`) and `bio_too_long`; a minimal

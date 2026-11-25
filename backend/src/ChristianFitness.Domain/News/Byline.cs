@@ -3,7 +3,7 @@ using System.Globalization;
 namespace ChristianFitness.Domain.News;
 
 /// <summary>
-/// A name a story runs under, with a short bio and an optional photo (L2-077; ADR 0093). Only
+/// A name a story runs under, with a short bio and an optional photo (L2-077; ADR 0094). Only
 /// Admins manage bylines; no byline is an account. A story holds its byline's id, so a change to
 /// the name shows on every story at once. The name is unique without regard to case, which
 /// <see cref="NameKey"/> stores.
@@ -31,7 +31,7 @@ public sealed class Byline
     /// <summary>One or two sentences about the writer, trimmed.</summary>
     public string Bio { get; private set; } = string.Empty;
 
-    /// <summary>The stored photo's key, or none, when the byline shows initials (ADR 0093).</summary>
+    /// <summary>The stored photo's key, or none, when the byline shows initials (ADR 0094).</summary>
     public string? PhotoKey { get; private set; }
 
     public DateTimeOffset CreatedAt { get; private set; }

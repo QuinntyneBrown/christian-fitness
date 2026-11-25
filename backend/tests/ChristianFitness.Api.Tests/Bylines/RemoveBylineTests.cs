@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Bylines;
 
 /// <summary>
-/// L2-077 AC6, AC7, AC10 and AC11 (ADR 0093): Remove byline takes a byline no story uses off the
+/// L2-077 AC6, AC7, AC10 and AC11 (ADR 0094): Remove byline takes a byline no story uses off the
 /// list, answers 204 and records <c>byline.removed</c>. A byline a story uses is refused with 409
 /// <c>byline_in_use</c> and stays; an unknown one is 404 <c>not_found</c>; a Moderator is refused.
 /// </summary>

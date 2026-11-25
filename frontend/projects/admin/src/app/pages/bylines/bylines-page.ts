@@ -26,7 +26,7 @@ const COLUMNS: readonly TableColumn[] = [
 ];
 
 /**
- * The Bylines page (mock docs/mocks/pages/admin-bylines/; L2-077 AC1, AC9; ADR 0093): every byline
+ * The Bylines page (mock docs/mocks/pages/admin-bylines/; L2-077 AC1, AC9; ADR 0094): every byline
  * by name with its short bio, how many stories use it, and Edit and Remove on each row, with Add
  * byline. While they load the table shows skeleton rows; with none, the empty state offers Add
  * byline; when they do not load, the error state with Try again, which asks again. Names and bios

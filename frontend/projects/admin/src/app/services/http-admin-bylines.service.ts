@@ -13,7 +13,7 @@ import { catchError, throwError, type Observable } from 'rxjs';
 const BASE = '/api/admin/stories/bylines';
 
 /**
- * {@link AdminBylinesApi} over HTTP: `/api/admin/stories/bylines` and its photos (ADR 0093). A
+ * {@link AdminBylinesApi} over HTTP: `/api/admin/stories/bylines` and its photos (ADR 0094). A
  * failure errors with an `ApiError` (`apiErrorOf`), so no screen handles an `HttpErrorResponse`.
  * It holds no state.
  */

@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Bylines;
 
 /// <summary>
-/// L2-077 AC4, AC5, AC10 and AC11 (ADR 0093): Save byline changes the name, bio and photo, keeps the
+/// L2-077 AC4, AC5, AC10 and AC11 (ADR 0094): Save byline changes the name, bio and photo, keeps the
 /// stories that use it (they hold its id, so they show the new name), answers 200 with it and
 /// records <c>byline.updated</c>. The byline's own name in another case is not taken; another
 /// byline's is refused with 409 <c>byline_name_taken</c>; an unknown byline is 404

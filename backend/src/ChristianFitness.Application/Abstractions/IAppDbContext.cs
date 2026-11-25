@@ -91,10 +91,10 @@ public interface IAppDbContext
     /// <summary>The members who joined each series (ADR 0091; joining comes with journey 12).</summary>
     DbSet<SeriesEnrolment> SeriesEnrolments { get; }
 
-    /// <summary>The names stories run under, which Admins manage (L2-077; ADR 0093).</summary>
+    /// <summary>The names stories run under, which Admins manage (L2-077; ADR 0094).</summary>
     DbSet<Byline> Bylines { get; }
 
-    /// <summary>The stories Admins write; for now only each one's byline (ADR 0093).</summary>
+    /// <summary>The stories Admins write; for now only each one's byline (ADR 0094).</summary>
     DbSet<Story> Stories { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>

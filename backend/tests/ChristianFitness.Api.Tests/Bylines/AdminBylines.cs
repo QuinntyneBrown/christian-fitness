@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Bylines;
 
 /// <summary>
-/// What the console's byline tests need (L2-077; ADR 0093): the API with the clock at the mocks'
+/// What the console's byline tests need (L2-077; ADR 0094): the API with the clock at the mocks'
 /// today, staff of either role signed in, and bylines and the stories that use them put straight in
 /// the store, as the seed and the story editor (issue 172) make them.
 /// </summary>
