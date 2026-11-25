@@ -3,7 +3,7 @@ import { answerListingFollows } from '../fixtures/listing-follows';
 import { answerListingProfile, LAKESHORE, OKAFOR } from '../fixtures/listing-profile';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-056 AC1 to AC4, AC8 and AC9 (journey 8; ADR 0088): a member follows a listing from its profile,
+// L2-056 AC1 to AC5, AC8 and AC9 (journey 8; ADR 0088): a member follows a listing from its profile,
 // and presses the pressed Follow to stop, with no confirmation (mocks `listing-profile/default` and
 // `one-off`). The Directory's rows are in `follow-directory.spec.ts`.
 test.describe('Member app, follow a listing', () => {
@@ -103,6 +103,18 @@ test.describe('Member app, follow a listing', () => {
       what: 'an unfollow with no connection',
       following: true,
       fault: { abort: true },
+      title: "We couldn't unfollow Lakeshore Runners Fellowship",
+    },
+    {
+      what: 'a follow refused to a suspended member (account_suspended)',
+      following: false,
+      fault: { status: 403, code: 'account_suspended' },
+      title: "We couldn't follow Lakeshore Runners Fellowship",
+    },
+    {
+      what: 'the 61st change in an hour (too_many_attempts)',
+      following: true,
+      fault: { status: 429, code: 'too_many_attempts' },
       title: "We couldn't unfollow Lakeshore Runners Fellowship",
     },
   ]) {

@@ -187,6 +187,24 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("ListingFollows", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingFollowChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId", "ChangedAt");
+
+                    b.ToTable("ListingFollowChanges", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingSuggestion", b =>
                 {
                     b.Property<Guid>("Id")
@@ -877,6 +895,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingFollowChange", b =>
+                {
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithMany()
                         .HasForeignKey("MemberId")

@@ -49,6 +49,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<ListingConnection> ListingConnections => Set<ListingConnection>();
 
+    public DbSet<ListingFollowChange> ListingFollowChanges => Set<ListingFollowChange>();
+
     public DbSet<ListingFollow> ListingFollows => Set<ListingFollow>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>

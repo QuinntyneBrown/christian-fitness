@@ -80,6 +80,8 @@ public sealed class LastPlaceRaceTests(LastPlaceRaceTests.Factory factory) : ICl
         public DbSet<ChristianFitness.Domain.Directory.ListingSuggestion> ListingSuggestions => db.ListingSuggestions;
         public DbSet<ChristianFitness.Domain.Directory.ListingConnection> ListingConnections => db.ListingConnections;
 
+        public DbSet<ChristianFitness.Domain.Directory.ListingFollowChange> ListingFollowChanges => db.ListingFollowChanges;
+
         public DbSet<ChristianFitness.Domain.Directory.ListingFollow> ListingFollows => db.ListingFollows;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 

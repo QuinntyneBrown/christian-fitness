@@ -72,6 +72,9 @@ public interface IAppDbContext
     /// <summary>Each listing's relation to another, worded from its side (L2-055 AC4; ADR 0087).</summary>
     DbSet<ListingConnection> ListingConnections { get; }
 
+    /// <summary>Each member's follows and unfollows of the last hour, counted against 60 (L2-056 AC9; ADR 0088).</summary>
+    DbSet<ListingFollowChange> ListingFollowChanges { get; }
+
     /// <summary>Which members follow which directory listings (L2-056; ADR 0088).</summary>
     DbSet<ListingFollow> ListingFollows { get; }
 
