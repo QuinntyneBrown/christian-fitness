@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 24 November 2026 (slice 28.2).
+Accepted, 24 November 2026 (slice 28.2). Amended by [ADR 0062](0062-console-counts-paths-and-dashboard-tiles.md): the navigation's counts, the stories in the queue, and relative times for the last 24 hours.
 
 ## Context
 
@@ -31,7 +31,9 @@ with relative times ("2 days ago") and Review buttons, and the Services area is 
   flagged members" text links follow the list. The mock's `queue` has no design-system component, so the
   rows are a page composite of library parts, with the page's own BEM block `attention`.
 - **Dates.** The line under an application shows the role and the UTC date ("Apr 13"), not "2 days ago":
-  an absolute day needs no clock and does not go stale while the page stays open.
+  an absolute day needs no clock and does not go stale while the page stays open. ADR 0062 keeps this
+  for anything older than 24 hours and shows the last 24 hours relative ("1 hour ago"), with the
+  absolute date in `<time datetime>` and a tooltip.
 - **Flagged wording.** The mock says "was reported"; the screen says "was flagged", the status staff
   see in Members, since a flag may come from staff and a report both. A flagged member with no note says
   "No note".
@@ -41,8 +43,11 @@ with relative times ("2 days ago") and Review buttons, and the Services area is 
   each with its own Try again. The mock has no state for this section's own error, so it is added as
   `attention-error`; the mock's `empty` note-card became the library `empty-state` (tight), as slice 28.1
   did for its empty state.
+- **Stories.** ADR 0062 adds the stories in review to the queue as the oldest three, with "All N stories
+  in review" when more wait, and counts items, not rows. The navigation no longer reads this answer: it
+  has `GET /api/admin/counts`.
 - **Not built.** The mock's Community hero and tiles, the upcoming-events list and the six totals of the
-  design (L2-020 AC1) are not part of this slice's acceptance; the design's `GetDashboardSummaryQuery` is
+  design (L2-020 AC1, amended by ADR 0062) are not part of this slice's acceptance; the design's `GetDashboardSummaryQuery` is
   superseded by these two small queries.
 
 ## Consequences

@@ -61,9 +61,9 @@ questions).
 
   | Row | Title | Line | Action |
   |-----|-------|------|--------|
-  | Story in review | "“<title>” is ready for review" | "<writer> · Submitted <date>" | Review → the story's editor |
+  | Story in review | "“<title>” is ready for review" | "<writer> · Submitted <time>" (relative within 24 hours, else the date) | Review → the story's editor |
   | Suggestions | "<n> listings suggested by members" | the names, comma-separated | Check → Listings |
-  | Feedback | "<n> new pieces of feedback" | `<TO SUPPLY>` | Read → Feedback |
+  | Feedback | "<n> new pieces of feedback" | "<kind> · <time>" of the newest note, no excerpt | Read → Feedback |
 
   The suggestions and feedback lines show only when their total is above zero. The story title,
   the writer and each suggested name are rendered as text, never as HTML.
@@ -110,34 +110,36 @@ questions).
   its own loading (skeleton), empty ("You're all caught up") and error ("Work waiting didn't load",
   Try again) states, apart from the activity section's. Its Try again asks for this answer alone
   (`L2-020` AC10).
-- **Navigation counts** — the admin side navigation reads the same totals for its waiting counts
-  ([navigate the admin app](../../admin-access/navigate-admin-app/README.md); `L2-021` AC3).
+- **Navigation counts** — the admin side navigation reads `GET /api/admin/counts`, not this answer
+  (ADR 0062; [navigate the admin app](../../admin-access/navigate-admin-app/README.md); `L2-021` AC3).
 
 ### Telemetry
 
 The handler logs nothing. A span records the route template only; no span, metric or log carries a
 story title, a suggested name, a member's name or a note (`L2-033` AC2).
 
+### Decisions (ADR 0062)
+
+- **Community tiles.** "Community" shows Members (total) with "+{n} in the last 7 days" for those who
+  joined, Registrations in the last 7 days and Live listings, all over the 7-day window (`L2-020` AC1).
+- **Upcoming events.** The next 5 published events by start, each with date, name, place and
+  registrations against capacity, and Manage opening Events (`L2-020` AC1). Its own failure is
+  "Upcoming events didn't load." with Try again, apart from the other sections.
+- **Queue count.** Items, not rows: the mock reads 10 for one story, three suggestions, two notes,
+  three applications and one flagged member (`L2-020` AC11).
+- **Stories.** The oldest three in review, then "All {n} stories in review" (amends ADR 0060).
+- **Feedback line.** Kind and age only ("Idea · 2 hours ago"); no excerpt of a note, and the handler
+  reads no note text.
+- **Times.** Within the last 24 hours relative ("1 hour ago") in `<time datetime>` with the absolute
+  date as its tooltip; older, the absolute UTC date ("Apr 13"), also in `<time datetime>`.
+- **Navigation counts.** Served by `GET /api/admin/counts`, not by this answer; the Dashboard keeps its
+  own query.
+
 ### Open questions
 
-- **The six totals and the Community tiles.** `L2-020` AC1–AC3 ask for six totals and a generic
-  error; the mock draws a "Community" block with Members, "+86 joined in April", "Registrations,
-  April" and "Live listings", which match neither the 7-day windows of AC1 nor its list. ADR 0060
-  left them unbuilt. Aligning the mock or the requirement, and the slice that builds the tiles, is
-  `<TO SUPPLY>`. The mock's "Upcoming events" list with its own error state ("Upcoming events
-  didn't load.") has no acceptance criterion.
-- **Queue count.** `L2-020` AC11 says the count is of all that wait. The mock shows 7 for one
-  story, three suggestions, two notes, three applications and one flagged member, which is 10
-  items or 7 rows. The design counts items, as AC11 states; the mock's number should change.
-- **How many stories.** AC11 lists "each story in review"; the design names the oldest three and
-  adds "All N stories in review", the bound ADR 0060 sets for the other lists. A new ADR, or an
-  amendment of ADR 0060, should record this.
-- **Feedback line.** The mock's feedback line adds "Including a broken “Add to calendar” on
-  iPhone", a phrase from a member's note. AC11 asks only for how many, and a note's words are
-  personal data that the Dashboard otherwise never reads. The design shows no excerpt; the line
-  under the title is `<TO SUPPLY>`.
-- **Relative times.** The mock's story row reads "Submitted 1 hour ago"; ADR 0060 shows absolute
-  UTC dates so the page needs no clock and does not go stale. The design keeps the absolute date.
+- Settled by ADR 0062; the code behind them lands in the slices that build the tiles, the stories,
+  suggestions and feedback.
+
 - **Code behind the requirement.** `WorkAwaitingStaffDto`, `GetWorkAwaitingStaffHandler` and the
   `work-awaiting` helpers know only applications and flagged members today. Each extension is work
   for the slice that lands stories, suggestions or feedback, and cannot be built before those

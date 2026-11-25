@@ -314,7 +314,7 @@ ADMIN_NAV = [
                 ("admin-community-pick", "Community Pick", "megaphone", 0, "")]),
     ("Community", [("admin-listings", "Listings", "book-user", 3, "suggestion to check|suggestions to check"),
                    ("admin-services", "Services", "heart-handshake", 3, "application waiting|applications waiting"),
-                   ("admin-members", "Members", "users", 1, "report to review|reports to review"),
+                   ("admin-members", "Members", "users", 1, "member to review|members to review"),
                    ("admin-feedback", "Feedback", "message-square-text", 2, "new note|new notes")]),
 ]
 
@@ -330,14 +330,19 @@ def admin_nav(active: str, *, counts: dict | None = None, moderator: bool = Fals
         entries = [e for e in entries if not moderator or e[0] in MODERATOR_AREAS]
         if not entries:
             continue
+        label = ""
         if group and not moderator:
-            out.append(f'<p class="admin-nav__group">{group}</p>')
-        for key, label, ic, n, what in entries:
+            gid = "nav-group-" + group.lower()
+            out.append(f'<h2 class="admin-nav__group" id="{gid}">{group}</h2>')
+            label = f' aria-labelledby="{gid}"'
+        lis = []
+        for key, label_text, ic, n, what in entries:
             n = counts.get(key, n)
             cur = ' aria-current="page"' if key == active else ""
             one, _, many = what.partition("|")
             badge = f'<span class="admin-nav__count" aria-label="{n} {one if n == 1 else many}">{n}</span>' if n else ""
-            out.append(f'<a class="admin-nav__item" href="{href(key)}"{cur}>{icon(ic, "icon--md")}{label}{badge}</a>')
+            lis.append(f'<li><a class="admin-nav__item" href="{href(key)}"{cur}>{icon(ic, "icon--md")}{label_text}{badge}</a></li>')
+        out.append(f'<ul class="admin-nav__list"{label}>{"".join(lis)}</ul>')
     return f"""<nav class="admin-nav" aria-label="Admin">
       {''.join(out)}
     </nav>"""

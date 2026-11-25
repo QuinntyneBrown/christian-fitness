@@ -50,8 +50,8 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   | `members` | Members | Community | `/members` |
   | `feedback` | Feedback | Community | `/feedback` |
 
-  The paths of the six new areas are `<TO SUPPLY>` by their own designs; `/series` is shown rather
-  than `/events/series` so that `currentAdminArea`'s prefix rule never marks Events for a series.
+  The paths are fixed by ADR 0062; `/series` is used rather than `/events/series` so that
+  `currentAdminArea`'s prefix rule never marks Events for a series.
 - **`currentAdminArea(url)`** — the area a URL is in: the Dashboard for `/` alone, any other area
   for its path and every path under it. A story's editor sits under `/stories/<id>`, so Stories
   stays current while a story is edited (`L2-021` AC1; mock `admin-story-editor/`).
@@ -69,7 +69,7 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   the band, without group names (`L2-021` AC2).
 - **`AdminNav`** — the `admin-nav` block. Inputs: `items`, `current` and `showGroups`. It renders
   each item as `admin-nav__item` with `aria-current="page"` on the current one, and, when
-  `showGroups` is true, an `admin-nav__group` heading before the first item of each group. A plain
+  `showGroups` is true, each group as an `admin-nav__group` `<h2 id>` followed by an `admin-nav__list` `<ul aria-labelledby>` of `<li>` links; Dashboard sits in an unlabelled list, and a Moderator's single list has no headings. A plain
   click (`isPlainClick`) emits `navigate`. The item's `count` shows as `admin-nav__count`, named by
   its `countLabel`, and is absent at zero (`L2-021` AC3). The icon switch gains the six new keys.
 - **`AdminNavItem`** — `key`, `label`, `href`, optional `group`, `count` and `countLabel`. The
@@ -83,18 +83,19 @@ of their own: [manage stories](../../publishing/manage-stories/README.md),
   | Stories | stories in review | "1 story to review" |
   | Listings | listing suggestions waiting | "3 suggestions to check" |
   | Services | pending applications | "3 applications waiting" |
-  | Members | reports | "1 report to review" |
+  | Members | members needing review | "1 member to review" |
   | Feedback | new notes | "2 new notes" |
 
   A pure helper in `domain`, `waitingCountsFor(totals)`, turns the totals into `count` and
-  `countLabel` per key, singular and plural, and leaves out a zero. The totals come from the
-  Dashboard's waiting-work answer ([view the dashboard](../../admin-dashboard/view-dashboard/README.md)),
-  `GET /api/admin/dashboard/awaiting`, which `L2-020` AC11 extends with stories in review,
-  suggestions and new feedback; the members' total is the answer's flagged-members total. A
-  Moderator's answer carries only flagged members, so a Moderator's Members link alone can carry a
-  count. The shell asks once on entry and again after each `NavigationEnd` that changes area, so a
-  count falls after staff resolve work; a failed request leaves the links without counts and shows
-  no error.
+  `countLabel` per key, singular and plural, and leaves out a zero. The totals come from
+  `GET /api/admin/counts` (ADR 0062), a totals-only answer in one MediatR query scoped to the
+  caller's role: an Admin gets `stories`, `suggestions`, `applications`, `members` and `feedback`; a
+  Moderator gets `members` only, the other keys absent. `members` is the open message reports
+  (ADR 0058) plus the flagged members, each member counted once. It shares its count queries with
+  the Dashboard's waiting-work handler, which keeps its own answer for its rows. The shell asks once
+  on entry and again after each `NavigationEnd` that changes area and each `countsChanged` the admin
+  hub pushes, so a count falls after staff resolve work; a failed request leaves the links without
+  counts and shows no error.
 - **`DataTable`** — presentation component for the `table` block inside `table-wrap`. Below LG a
   container style turns each row into a stacked card with `table__strong` as its heading, so the
   page never scrolls horizontally (`L2-021` AC2).
@@ -103,26 +104,21 @@ The design system's LG is 1024 px (`64rem`), which the components follow; `docs/
 992 px. The mocks place the sidebar as a column from 1024 px (`docs/mocks/README.md`, "Admin sidebar
 on desktop").
 
+### Decisions (ADR 0062)
+
+- **Count source.** A totals-only `GET /api/admin/counts`, scoped to the caller's role and read again
+  when the admin hub pushes `countsChanged`; the Dashboard keeps its own query.
+- **Members count.** One number: open message reports (ADR 0058) plus flagged members, each member
+  once.
+- **Area paths.** `/stories`, `/newsletter`, `/series`, `/community-pick`, `/listings` and `/feedback`.
+- **Group headings.** Each group is an `<h2 id>` and a `<ul aria-labelledby>`.
+
 ### Open questions
 
 - **Moderators and the new areas.** `L2-021` AC1 limits a Moderator to the areas the role opens,
   and the mocks give them none of the new ones. `docs/mocks/README.md` (open question 8) asks
   whether a Moderator opens Feedback. The answer changes `canManage`, the API's `StaffAccess` table
   and `L2-019`, and needs an ADR amending ADR 0020.
-- **Members count.** `L2-021` AC3 counts "reports" for Members and the mock names "1 report to
-  review"; the Dashboard counts flagged members (`L2-020` AC7). Whether a report of a message
-  (ADR 0058) and a flagged member are the same count is `<TO SUPPLY>`. The design uses the
-  flagged-members total until that is settled.
-- **Count source and freshness.** Reusing the Dashboard's waiting-work query makes each area
-  change read the oldest three of every queue as well as the totals. A totals-only query on the
-  same handler (`GET /api/admin/dashboard/awaiting?totals` or a separate endpoint) would be lighter;
-  the choice is `<TO SUPPLY>` and belongs in ADR 0060's successor.
-- **Group headings.** The mock draws each group name as a `<p class="admin-nav__group">` between
-  links. Assistive technology then reads the names as text, not as groups. A list per group,
-  labelled by its heading (`<ul aria-labelledby>`), is the platform's practice; the mock's class
-  names stay either way. This needs a decision in the design system's sidebar navigation page.
-- **Area paths.** The paths of Stories, Newsletter, Event series, Community Pick, Listings and
-  Feedback are `<TO SUPPLY>` by their designs.
 - **Code behind the requirement.** `ADMIN_AREAS` lists four areas with no groups, `AdminNav`
   renders no group headings and has no icons for the new keys, the shell fills no counts, and the
   sidebar does not yet scroll its links alone. The admin app also still routes `sign-in/verify`
