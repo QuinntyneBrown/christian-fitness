@@ -51,7 +51,7 @@ The suggested party's email is used only to contact them about the listing (`L2-
 - **The day of the limit.** Decided (`L2-062` AC8): a rolling 24 hours, as `AttemptWindow` counts.
 - **Self-submission and the listing's owner.** For Myself the mock still says "Sent as Grace Thompson" while naming "Coach Marcus Delaney", and the console shows "Self-submitted". Whether a self-submitted listing becomes linked to the sender's account (and so receives its messages) is not specified; it bears on the profile's Message (view-listing-profile design).
 - **Who gets the claim link.** Approval sends the suggested party a link (`L2-073` AC6), but their email is optional and not asked for Myself. Who receives the link then is `<TO SUPPLY>` (`docs/mocks/README.md` open question 9).
-- **Retention.** Decided (`L2-073` AC9, ADR 0062): a decided suggestion is purged at 12 months, with the email in it.
+- **Retention.** Decided (`L2-073` AC9, ADR 0077): a decided suggestion is purged at 12 months, with the email in it.
 
 ## Requirements
 
