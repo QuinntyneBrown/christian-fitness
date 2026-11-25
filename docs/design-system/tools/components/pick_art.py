@@ -97,7 +97,7 @@ SPEC = {
             ("Copy", '<button class="btn btn--neutral btn--xs" type="button"{a}>' + icon("copy") + 'Copy<span class="visually-hidden"> caption</span></button>', {}),
         ]) + "<h3>Before anything is made</h3><p>The right side shows the <a href=\"pick-list.html\">pick empty</a> preview; while assets are created the button reads \"Creating…\" and the event and note are read-only; if creating fails, an inline error sits above the button and nothing on the right changes.</p>",
         "themes": themes(SM.format(c=art("square")) + BOX.format(c=caption(WA_CAP, "Asterisks and underscores format as bold and italic in WhatsApp."))),
-        "notes": "<ul><li>The graphic does not change with the theme: it is brand artwork that is posted as an image.</li><li>Copied: the product confirms with a <a href=\"toast.html\">toast</a> (\"Caption copied\"); the mocks do not show it.</li></ul>",
+        "notes": "<ul><li>The graphic does not change with the theme: it is brand artwork that is posted as an image.</li><li>Copied: the Copy button reads \"Copied\" for about 2 seconds and a visually hidden <code>role=\"status\"</code> says \"Caption copied\" (L2-072 AC7; ADR 0098).</li></ul>",
     },
     "responsive": """<ul>
 <li>Below 640px every asset stacks full width; the story graphic is then very tall, so it follows the post.</li>
@@ -113,7 +113,7 @@ SPEC = {
             (kbd("Enter"), "Switches platform; downloads; copies."),
         ],
         "focus": "<p>The shared ring on every button and platform link.</p>",
-        "labelling": "<p>PNG buttons add the file name in visually hidden text (\"PNG: community-pick-sunrise-5k-instagram-post.png\"); Copy adds \"caption\".</p>",
+        "labelling": "<p>PNG buttons add the file name in visually hidden text (\"PNG: community-pick-easter-sunrise-5k-instagram-post.png\"); Copy adds \"caption\".</p>",
         "pairs": [
             ("Text on the graphic", "--color-fg-on-brand", "--color-bg-brand", 4.5),
             ("When line", "--color-fg-on-brand-highlight", "--color-bg-brand", 4.5),
@@ -161,7 +161,7 @@ SPEC = {
         <p class="pick-art__when">Sat Apr 18 · 6:45 AM · Waterfront</p><p class="pick-art__note">…</p></div>
     </div>
     <figcaption class="asset__caption"><span class="asset__label">Post · 1080 × 1080</span>
-      <button class="btn btn--secondary btn--xs" type="button">…PNG<span class="visually-hidden">: community-pick-sunrise-5k-instagram-post.png</span></button></figcaption>
+      <button class="btn btn--secondary btn--xs" type="button">…PNG<span class="visually-hidden">: community-pick-easter-sunrise-5k-instagram-post.png</span></button></figcaption>
   </figure>
 </div>
 <div class="caption">
