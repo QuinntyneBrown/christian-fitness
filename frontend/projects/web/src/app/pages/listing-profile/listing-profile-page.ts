@@ -170,7 +170,7 @@ export default class ListingProfilePage {
   }
 
   /**
-   * Opens the owner's editor on the listing (L2-079 AC1, AC2; ADR 0093). Its code and the CDK
+   * Opens the owner's editor on the listing (L2-079 AC1, AC2; ADR 0094). Its code and the CDK
    * Dialog are imported on first use; it opens with this screen's injector, so it uses the same
    * client.
    */

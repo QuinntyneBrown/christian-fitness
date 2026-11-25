@@ -1240,7 +1240,7 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
 
 
 def listed_change(l: dict, new_name: str) -> str:
-    """The waiting name under a Listed row's name, with Approve and Decline (ADR 0093)."""
+    """The waiting name under a Listed row's name, with Approve and Decline (ADR 0094)."""
     return (f'<span class="listed-cell__change"><span>New name waiting: <span class="listed-cell__new">{new_name}</span></span>'
             f'<button class="row-link" type="button" data-mock-href="{href("admin-listings", "change-approved")}">Approve<span class="visually-hidden"> the new name of {l["name"]}</span></button>'
             f'<button class="row-link" type="button" data-mock-href="{href("admin-listings", "listed")}">Decline<span class="visually-hidden"> the new name of {l["name"]}</span></button></span>')
@@ -1341,7 +1341,7 @@ def _():
     return admin_shell("admin-listings", listings_page(listed_table(), "Listed"))
 
 
-@s("change-waiting", "An owner asked for a new name (L2-079 AC5; ADR 0093): the row keeps the live name and shows the new one waiting, with Approve and Decline.")
+@s("change-waiting", "An owner asked for a new name (L2-079 AC5; ADR 0094): the row keeps the live name and shows the new one waiting, with Approve and Decline.")
 def _():
     return admin_shell("admin-listings", listings_page(listed_table(waiting=True), "Listed"))
 

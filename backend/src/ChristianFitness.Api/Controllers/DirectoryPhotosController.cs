@@ -11,7 +11,7 @@ namespace ChristianFitness.Api.Controllers;
 /// A listing's photo for anyone, since the directory shows it to visitors (ADR 0090, as ADR 0025
 /// serves event images). The key is unguessable; the photo is served as the type its key names,
 /// never sniffed, and kept for a year because a key's photo never changes. An owner stores one for
-/// their listing (ADR 0093).
+/// their listing (ADR 0094).
 /// </summary>
 [ApiController]
 [Route("api/directory/photos")]

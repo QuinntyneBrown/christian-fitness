@@ -30,7 +30,7 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
     public async Task<ActionResult<ListingProfileDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetListingProfileQuery(id), cancellationToken).ConfigureAwait(false);
 
-    /// <summary>The owner saves their listing; a new name or kind waits for staff (L2-079; ADR 0093).</summary>
+    /// <summary>The owner saves their listing; a new name or kind waits for staff (L2-079; ADR 0094).</summary>
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<OwnListingSavedDto>> Update(Guid id, OwnListingBody body, CancellationToken cancellationToken)
     {
@@ -56,7 +56,7 @@ public sealed class DirectoryController(ISender sender) : ControllerBase
         await sender.Send(new UnfollowListingCommand(id), cancellationToken).ConfigureAwait(false);
 }
 
-/// <summary>What the owner's listing editor sends (ADR 0093).</summary>
+/// <summary>What the owner's listing editor sends (ADR 0094).</summary>
 public sealed class OwnListingBody
 {
     public string? Name { get; init; }

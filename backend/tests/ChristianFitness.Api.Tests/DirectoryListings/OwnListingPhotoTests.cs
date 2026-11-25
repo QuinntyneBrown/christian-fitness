@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-079 AC1 (journey 20; ADR 0093): <c>POST /api/directory/photos</c> stores a photo for a member
+/// L2-079 AC1 (journey 20; ADR 0094): <c>POST /api/directory/photos</c> stores a photo for a member
 /// who owns a published listing, judged by its first bytes, and audits it
 /// <c>listing_photo.uploaded</c>; the owner's save then shows it. Anyone else is refused
 /// <c>not_listing_owner</c>.

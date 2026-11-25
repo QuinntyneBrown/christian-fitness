@@ -5,9 +5,9 @@
 Christian Fitness is a Christian community for health in body and spirit in the Greater Toronto Area. Once a listing is claimed (`docs/detailed-designs/directory/claim-listing/`), its owner keeps it accurate without asking staff (`L1-017`). Staff keep the listings no member owns from Listed's Edit, which journey 18 built (ADR 0090).
 
 - **owner** — the member linked to a listing when they claimed it (`DirectoryListing.MemberId`, ADR 0092)
-- **waiting change** — a new name or kind waiting for staff to approve (`PendingName`, `PendingKind`, `PendingSince` on the listing; ADR 0093)
+- **waiting change** — a new name or kind waiting for staff to approve (`PendingName`, `PendingKind`, `PendingSince` on the listing; ADR 0094)
 
-This feature covers the Edit listing button on the owner's listing page and the dialog it opens, at `/directory/:id` (mocks `docs/mocks/pages/listing-profile/owner.html` and `docs/mocks/dialogs/owner-listing-editor/`, states `default`, `invalid`, `busy`, `failed`, `review` and `saved`), the waiting change in Listed (`docs/mocks/pages/admin-listings/change-waiting.html`), the staff editor's focus and contact fields (`docs/mocks/dialogs/directory-listing-editor/`), and requirement `L2-079`. ADR 0093 records the decisions.
+This feature covers the Edit listing button on the owner's listing page and the dialog it opens, at `/directory/:id` (mocks `docs/mocks/pages/listing-profile/owner.html` and `docs/mocks/dialogs/owner-listing-editor/`, states `default`, `invalid`, `busy`, `failed`, `review` and `saved`), the waiting change in Listed (`docs/mocks/pages/admin-listings/change-waiting.html`), the staff editor's focus and contact fields (`docs/mocks/dialogs/directory-listing-editor/`), and requirement `L2-079`. ADR 0094 records the decisions.
 
 ## Description
 
@@ -38,7 +38,7 @@ The feature is a vertical slice from the dialog to the database.
 
 ### Open questions
 
-- **Showing the contact email.** The conversation answer carries it, but no mock shows it in Messages; the app shows it once one does (ADR 0093).
+- **Showing the contact email.** The conversation answer carries it, but no mock shows it in Messages; the app shows it once one does (ADR 0094).
 - **Telling the owner.** A notification for an approved or declined name waits for its kind.
 
 ## Requirements

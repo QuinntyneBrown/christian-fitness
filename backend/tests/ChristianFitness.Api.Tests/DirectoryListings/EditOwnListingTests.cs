@@ -8,7 +8,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-079 AC1 and AC2 (journey 20; ADR 0093): the profile tells the member who owns a listing that
+/// L2-079 AC1 and AC2 (journey 20; ADR 0094): the profile tells the member who owns a listing that
 /// they do, and gives only them the fields the owner's editor opens on.
 /// </summary>
 [Collection(DirectoryFixture.Name)]

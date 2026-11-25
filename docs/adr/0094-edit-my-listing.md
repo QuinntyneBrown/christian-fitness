@@ -1,4 +1,4 @@
-# 0093. Editing my listing: the owner's read and save, a waiting name or kind on the listing, approval from Listed, and the staff editor's same fields
+# 0094. Editing my listing: the owner's read and save, a waiting name or kind on the listing, approval from Listed, and the staff editor's same fields
 
 ## Status
 

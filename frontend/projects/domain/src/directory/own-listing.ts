@@ -1,6 +1,6 @@
 import type { ApiError, ListingKind, ListingProfileDto, OwnListingUpdateDto } from '@cf/api';
 
-/** What the owner's editor fields hold, as typed (mock `owner-listing-editor/default`; ADR 0093). */
+/** What the owner's editor fields hold, as typed (mock `owner-listing-editor/default`; ADR 0094). */
 export interface OwnListingEditorValues {
   name: string;
   /** The listing's kind, or the one waiting; the dialog has no control for it (L2-079 AC2). */
@@ -19,7 +19,7 @@ export interface OwnListingEditorValues {
 
 /**
  * The editor opens on the listing as it stands, but on the waiting name and kind when there are
- * any, so a save of something else does not withdraw them (ADR 0093).
+ * any, so a save of something else does not withdraw them (ADR 0094).
  */
 export function ownListingValuesOf(profile: ListingProfileDto): OwnListingEditorValues {
   return {
@@ -80,7 +80,7 @@ const FIELD_OF: Record<string, OwnListingFieldKey> = {
   contactEmail: 'contact',
 };
 
-/** What each field code says to the owner (ADR 0093); the sentences the server writes are never shown. */
+/** What each field code says to the owner (ADR 0094); the sentences the server writes are never shown. */
 const MESSAGES: Record<string, string> = {
   name_required: 'Give the listing a name members will recognize',
   name_too_long: 'Use 120 characters or fewer',

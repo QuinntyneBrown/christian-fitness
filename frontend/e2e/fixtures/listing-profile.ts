@@ -52,13 +52,13 @@ export interface ListingProfileFixture {
   serviceListingId: string | null;
   /** Whether the signed-in member follows it (ADR 0088). */
   following: boolean;
-  /** Whether the signed-in member owns it (ADR 0093). */
+  /** Whether the signed-in member owns it (ADR 0094). */
   isOwner: boolean;
-  /** What only the owner reads: the contact email and a waiting name or kind (ADR 0093). */
+  /** What only the owner reads: the contact email and a waiting name or kind (ADR 0094). */
   owner: OwnListingFixture | null;
 }
 
-/** What only the owner reads of their listing (`OwnListingDto`, ADR 0093). */
+/** What only the owner reads of their listing (`OwnListingDto`, ADR 0094). */
 export interface OwnListingFixture {
   contactEmail: string | null;
   pendingName: string | null;
@@ -187,7 +187,7 @@ export const NORTHLINE: ListingProfileFixture = {
 };
 
 /**
- * Eastside Ladies Who Lift as its owner reads it (mock `listing-profile/owner`; ADR 0093): claimed
+ * Eastside Ladies Who Lift as its owner reads it (mock `listing-profile/owner`; ADR 0094): claimed
  * from a suggestion, so it is not in the directory cast.
  */
 export const EASTSIDE_OWNED: ListingProfileFixture = {
@@ -289,7 +289,7 @@ export function answerListingConversation(api: ApiHandlers, reply: ConversationR
   return asked;
 }
 
-/** What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0093). */
+/** What the owner's editor sends (`PUT /api/directory/{id}`, ADR 0094). */
 export interface OwnListingUpdateBody {
   name: string;
   kind: KindFixture;
@@ -312,7 +312,7 @@ export type OwnListingSaveReply =
     };
 
 /**
- * Answers `PUT /api/directory/{id}` (ADR 0093) with `reply(n)` for the `n`th save, zero-based, and
+ * Answers `PUT /api/directory/{id}` (ADR 0094) with `reply(n)` for the `n`th save, zero-based, and
  * returns the bodies sent, in order. A reply may hold its answer until a promise settles.
  */
 export function answerOwnListingSave(
@@ -345,7 +345,7 @@ export function answerOwnListingSave(
 }
 
 /**
- * Answers the owner's `POST /api/directory/photos` (ADR 0093) with `reply(n)` for the `n`th upload:
+ * Answers the owner's `POST /api/directory/photos` (ADR 0094) with `reply(n)` for the `n`th upload:
  * a key, or a refusal. Returns how many were sent.
  */
 export function answerOwnListingPhoto(

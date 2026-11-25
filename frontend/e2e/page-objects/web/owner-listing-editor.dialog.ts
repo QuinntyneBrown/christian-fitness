@@ -12,7 +12,7 @@ export interface OwnerListingEditorValues {
 
 /**
  * The owner's listing editor, "Edit your listing" (mock `docs/mocks/dialogs/owner-listing-editor/`;
- * L2-079; ADR 0093): a CDK Dialog over the listing profile with the name, about, website, photo,
+ * L2-079; ADR 0094): a CDK Dialog over the listing profile with the name, about, website, photo,
  * focus and contact email, Cancel and Save changes, and an alert above the fields for a refusal, a
  * failure or a name waiting for staff. Owns the selectors of that dialog.
  */
