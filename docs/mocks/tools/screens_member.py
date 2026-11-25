@@ -343,6 +343,18 @@ def _():
         "Google sign-up didn't finish", "Nothing was created. Try again, or create your profile with your email below.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
 
 
+@s("google-limited", "More than 20 Google sign-ins started from one network in 15 minutes (L2-049 AC7, 429 too_many_attempts): a focused message above the form; the email form still works.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Too many attempts", "Too many attempts. Try again in a few minutes.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+
+
+@s("google-unverified", "Back from Google with an email Google has not verified (L2-049 AC3): nothing is created or signed in; a focused message says to verify it with Google or join with email.")
+def _():
+    return auth(join_form(alert='<div class="auth__alert">' + form_alert(
+        "Your Google email isn't verified", "Your Google account's email isn't verified. Verify it with Google, or join with email.") + "</div>").replace('tabindex="-1"', 'tabindex="-1" autofocus', 1))
+
+
 @s("invalid", "The email already has an account: inline error under Email with a way to sign in.")
 def _():
     return auth(join_form(email_error=f'An account with this email already exists. <a class="inline-link" href="{href("sign-in")}">Sign in instead?</a>'))
@@ -395,10 +407,19 @@ def _():
 
 
 # --- Sign in -----------------------------------------------------------------
+DELETION_DATE = "May 10, 2026"  # 30 days after the deletion was asked for on Apr 10 (L2-066 AC7)
+
+
 def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = False, failed: bool = False,
                 suspended: bool = False, redirecting: bool = False, no_account: bool = False, google_failed: bool = False,
-                google_suspended: bool = False) -> str:
+                google_suspended: bool = False, google_limited: bool = False, google_unverified: bool = False,
+                deleting: bool = False) -> str:
     alert = ""
+    if google_limited:
+        alert = '<div class="auth__alert">' + form_alert("Too many attempts", "Too many attempts. Try again in a few minutes.") + "</div>"
+    if google_unverified:
+        alert = '<div class="auth__alert">' + form_alert(
+            "Your Google email isn't verified", "Your Google account's email isn't verified. Verify it with Google, or join with email.") + "</div>"
     if invalid:
         # L2-004 AC2: one generic message that names neither field, so no field is marked invalid. The prototype's
         # "That password doesn't match" would reveal that the email has an account; the Google hint is kept instead.
@@ -433,16 +454,20 @@ def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
     submit = (f'<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit" disabled aria-busy="true">{busy_label("Signing in…")}</button>'
               if busy else '<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit">Sign in</button>')
     ro = " readonly" if busy else ""
-    return f"""<div class="signin">
-  <header class="signin__header">
-    {lockup(href("landing"))}
-  </header>
-  <main id="main" class="signin__main">
-    <div class="signin__card">
-      <h1 class="display auth__title">Welcome back</h1>
-      <p class="auth__lead">Sign in to see your events, groups and messages.</p>
-      {alert}
-      <div class="auth__sso">
+    if deleting:
+        # L2-066 AC8: the right credentials (or Google) for an account being deleted give no session; the screen offers Restore,
+        # which re-proves them from what was just sent, or leaving the deletion to run.
+        body = f"""<div class="sso-notice" role="alert" tabindex="-1" autofocus>
+        <p class="sso-notice__title">{icon("alert-circle")}Your account is set to be deleted on {DELETION_DATE}.</p>
+        <p class="sso-notice__account">{ME["email"]}</p>
+        <p class="sso-notice__text">Restore it to sign in again. Places you held at events went back to other members and aren't restored.</p>
+        <div class="sso-notice__actions">
+          <a class="btn btn--primary btn--sm" href="{href("home")}">Restore my account</a>
+          <a class="btn btn--ghost btn--sm" href="{href("landing")}">Keep it deleted</a>
+        </div>
+      </div>"""
+    else:
+        body = f"""<div class="auth__sso">
         {sso}
         {or_divider()}
       </div>
@@ -456,7 +481,17 @@ def signin_card(*, invalid: bool = False, busy: bool = False, locked: bool = Fal
           <input class="input" id="f-password" name="password" type="password" value="abundantlife" autocomplete="current-password"{ro}>
         </div>
         {submit}
-      </form>
+      </form>"""
+    return f"""<div class="signin">
+  <header class="signin__header">
+    {lockup(href("landing"))}
+  </header>
+  <main id="main" class="signin__main">
+    <div class="signin__card">
+      <h1 class="display auth__title">Welcome back</h1>
+      <p class="auth__lead">Sign in to see your events, groups and messages.</p>
+      {alert}
+      {body}
       <p class="auth__alt">New to Christian Fitness? <a href="{href("join")}">Create a profile</a></p>
     </div>
   </main>
@@ -505,6 +540,21 @@ def _():
 @s("error", "Too many attempts (L2-004 AC3): sign-in paused for 15 minutes, a message above the form (focused) with a reset link to get back in now.")
 def _():
     return focused(signin_card(locked=True))
+
+
+@s("google-limited", "More than 20 Google sign-ins started from one network in 15 minutes (L2-049 AC7, 429 too_many_attempts): a focused message above the form; the email form still works.")
+def _():
+    return focused(signin_card(google_limited=True))
+
+
+@s("google-unverified", "Back from Google with an email Google has not verified (L2-049 AC3): nobody is signed in and nothing is created; a focused message says to verify it with Google or join with email.")
+def _():
+    return focused(signin_card(google_unverified=True))
+
+
+@s("deleting", "Right credentials, or the Google account, for an account being deleted (L2-066 AC8, 409 account_deleting, no session): a focused notice with the erasure date, Restore my account and Keep it deleted.")
+def _():
+    return signin_card(deleting=True)
 
 
 @s("suspended", "A suspended member gave the right password or chose their Google account (L2-004 AC4): a message above the form (focused) to contact the team.")

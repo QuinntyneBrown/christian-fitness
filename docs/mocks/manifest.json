@@ -54,6 +54,8 @@
         "google-invalid",
         "google-submitting",
         "google-failed",
+        "google-limited",
+        "google-unverified",
         "invalid",
         "invalid-fields",
         "age-unconfirmed",
@@ -84,6 +86,9 @@
         "invalid",
         "submitting",
         "error",
+        "google-limited",
+        "google-unverified",
+        "deleting",
         "suspended",
         "failed"
       ],
@@ -334,6 +339,9 @@
         "wrong-domain",
         "no-access",
         "error",
+        "not-configured",
+        "limited",
+        "suspended",
         "session-expired"
       ],
       "not_applicable": {
@@ -1005,7 +1013,8 @@
         "default",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "staff-account"
       ]
     },
     {
@@ -1420,6 +1429,72 @@
         "busy",
         "failed"
       ]
+    },
+    {
+      "id": "download",
+      "kind": "page",
+      "title": "Download your data",
+      "group": "Member app",
+      "route": "/preferences/download/:id",
+      "source": "Derived: the emailed link of L2-066 (AC1, AC2); the prototype draws no download page.",
+      "requirements": [],
+      "states": [
+        "default",
+        "loading",
+        "expired",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "One archive, not a collection."
+      }
+    },
+    {
+      "id": "email-deletion-requested",
+      "kind": "page",
+      "title": "Email: account set to be deleted",
+      "group": "Emails",
+      "source": "Derived: sent when a member deletes their account (L2-066 AC6, AC8).",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "An email is sent whole.",
+        "empty": "An email is sent whole.",
+        "error": "A failed send is the sender's log, not a screen."
+      }
+    },
+    {
+      "id": "email-deletion-done",
+      "kind": "page",
+      "title": "Email: account deleted",
+      "group": "Emails",
+      "source": "Derived: sent when the 30 days have passed and the account is erased (L2-066 AC7, AC8).",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "An email is sent whole.",
+        "empty": "An email is sent whole.",
+        "error": "A failed send is the sender's log, not a screen."
+      }
+    },
+    {
+      "id": "email-download-ready",
+      "kind": "page",
+      "title": "Email: your download is ready",
+      "group": "Emails",
+      "source": "Derived: sent within 24 hours of Request download (L2-066 AC1, AC2).",
+      "requirements": [],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "An email is sent whole.",
+        "empty": "An email is sent whole.",
+        "error": "A failed send is the sender's log, not a screen."
+      }
     }
   ]
 }

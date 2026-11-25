@@ -8,7 +8,7 @@ from cf_ui import (busy_label, empty_block, error_block, error_summary, field, f
                    loading_region, lockup, member_shell, screen, textarea, toast, toast_region, verified_badge)
 from overlays import autofocus_first, dialog, over_member
 from screens_directory import profile_page
-from screens_member import SRC
+from screens_member import DELETION_DATE as DELETION_ERASED, SRC
 
 
 def choice_cards(legend: str, name: str, options: list, picked: str, *, cols: int, disabled: bool = False) -> str:
@@ -420,11 +420,13 @@ def _():
 
 
 # --- Delete your account (dialog) ----------------------------------------------
-def delete_account(*, busy: bool = False, failed: bool = False, invalid: bool = False) -> str:
+def delete_account(*, busy: bool = False, failed: bool = False, invalid: bool = False, staff: bool = False) -> str:
     alert = ('<div class="dialog__alert">' + form_alert("We couldn't delete your account", "Nothing was changed. Try again in a moment.") + "</div>"
-             if failed else "")
+             if failed else
+             '<div class="dialog__alert">' + form_alert("We can't delete this account", "Staff accounts can't be deleted here. Ask an Admin.") + "</div>"
+             if staff else "")
     body = f"""{alert}<p class="prose">If you delete your account, you'll be signed out immediately and your event places will go back to other members. Your profile, registrations and follows are removed after 30 days. Messages you sent will show as removed. Messages others sent you aren't affected. You can restore your account during the 30 days; after that, deletion can't be undone.</p>
-    <div class="dialog__field">{field('Type "delete" to confirm', "confirm", "delet" if invalid else ("delete" if busy or failed else ""), error="Type the word delete to confirm." if invalid else "", autocomplete="off", readonly=busy)}</div>"""
+    <div class="dialog__field">{field('Type "delete" to confirm', "confirm", "delet" if invalid else ("delete" if busy or failed or staff else ""), error="Type the word delete to confirm." if invalid else "", autocomplete="off", readonly=busy)}</div>"""
     keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("preferences")}"{" disabled" if busy else ""}>Keep my account</button>'
     go = (f'<button class="btn btn--danger btn--grow" type="submit" disabled aria-busy="true">{busy_label("Deleting…")}</button>' if busy
           else f'<button class="btn btn--danger btn--grow" type="submit" data-mock-href="{href("landing")}">Delete my account</button>')
@@ -453,6 +455,125 @@ def _():
 @s("failed", "Deleting failed: a message in the dialog; nothing was changed.")
 def _():
     return delete_account(failed=True)
+
+
+@s("staff-account", "The account holds a staff role (L2-066 AC9, 403 staff_account): a message in the dialog that staff accounts can't be deleted here and to ask an Admin; nothing was changed.")
+def _():
+    return delete_account(staff=True)
+
+
+# --- Download page (the emailed link) ------------------------------------------
+DOWNLOAD_EXPIRES = "April 22, 2026"  # 7 days after the archive was ready on Apr 15 (L2-066 AC2)
+NA_DOWNLOAD = {"empty": "One archive, not a collection."}
+
+
+def download_page(inner: str) -> str:
+    return member_shell("profile", f"""    <div class="container page">
+      <a class="back-link" href="{href("preferences")}">{icon("arrow-left")} Preferences</a>
+{inner}
+    </div>""")
+
+
+s = screen("download", "page", "Download your data", route="/preferences/download/:id", group="Member app",
+           source="Derived: the emailed link of L2-066 (AC1, AC2); the prototype draws no download page.", not_applicable=NA_DOWNLOAD)
+
+
+@s("default", "The emailed link, opened signed in as its member and within 7 days: \"Your download is ready\", the browser starts the .zip, and a link downloads it again.")
+def _():
+    return download_page(f"""      <section class="done" role="status" tabindex="-1" autofocus>
+        <span class="done__icon">{icon("check", "icon--lg")}</span>
+        <h1 class="display page-title done__title">Your download is ready</h1>
+        <p class="done__text">Your data is on its way to your device. If it doesn't start, download it again. The link works for 7 days, until {DOWNLOAD_EXPIRES}, and only while you're signed in.</p>
+        <div class="done__actions"><a class="btn btn--primary" href="default.html">{icon("download")}Download again</a><a class="btn btn--secondary" href="{href("preferences")}">Back to preferences</a></div>
+      </section>""")
+
+
+@s("loading", "The link opened: the heading is there while the archive is checked.")
+def _():
+    return download_page(f"""      <h1 class="display page-title page-title--after-back">Your download</h1>
+      {loading_region("Checking your download", '<div class="skeleton-stack"><span class="skeleton skeleton--text w-55"></span><span class="skeleton skeleton--text-sm w-80"></span></div>')}""")
+
+
+@s("expired", "The link is past its 7 days, or is another member's, or is unknown (L2-066 AC2, 404 not_found, all the same): \"This download has expired. Request a new one.\"")
+def _():
+    return download_page(f"""      <section class="done" role="status" tabindex="-1" autofocus>
+        <span class="done__icon">{icon("alert-circle", "icon--lg")}</span>
+        <h1 class="display page-title done__title">This download has expired</h1>
+        <p class="done__text">This download has expired. Request a new one.</p>
+        <div class="done__actions"><a class="btn btn--primary" href="{href("preferences")}">Request a new download</a></div>
+      </section>""")
+
+
+@s("error", "The archive could not be fetched: retry, or go back to preferences. Nothing is shown as downloaded.")
+def _():
+    return download_page(f"""      <h1 class="display page-title page-title--after-back">Your download</h1>
+      {error_block("Your download didn't start", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", back=("Back to preferences", href("preferences")), ref="CF-D4L2")}""")
+
+
+# --- Emails about the account and its data -----------------------------------
+NA_EMAIL = {"loading": "An email is sent whole.", "empty": "An email is sent whole.", "error": "A failed send is the sender's log, not a screen."}
+
+
+def email(subject: str, paras: list, *, action: tuple[str, str] | None = None, note: str = "") -> str:
+    """An email as a mail app shows it: sender, address and subject above a card that carries the message."""
+    body = "".join(f"<p>{p}</p>" for p in paras)
+    button = f'<p class="email__action"><a class="btn btn--primary" href="{action[1]}">{action[0]}</a></p>' if action else ""
+    foot = f'<p class="email__note">{note}</p>' if note else ""
+    return f"""<main id="main" class="email">
+  <header class="email__head">
+    <p class="email__meta"><span class="email__label">From</span> Christian Fitness &lt;hello@christianfitness.ca&gt;</p>
+    <p class="email__meta"><span class="email__label">To</span> {ME["name"]} &lt;{ME["email"]}&gt;</p>
+    <h1 class="email__subject">{subject}</h1>
+  </header>
+  <article class="email__card" aria-label="Message">
+    <p class="email__brand">{lockup(href("landing"))}</p>
+    <p>Hi {ME["first"]},</p>
+    {body}
+    {button}
+    <p>Christian Fitness</p>
+    {foot}
+  </article>
+</main>"""
+
+
+s = screen("email-deletion-requested", "page", "Email: account set to be deleted", group="Emails",
+           source="Derived: sent when a member deletes their account (L2-066 AC6, AC8).", not_applicable=NA_EMAIL)
+
+
+@s("default", "Sent to the account's address when the deletion is asked for: what happens now, the date it is erased and how to restore.")
+def _():
+    return email("Your Christian Fitness account is set to be deleted", [
+        f"You asked us to delete your account. Your profile is hidden from everyone now, and you're signed out everywhere. On {DELETION_ERASED} we'll erase your profile, preferences, follows, registrations, suggestions, feedback and the text of your messages.",
+        "Places you held at events have gone back to other members, and they aren't restored.",
+        f"Changed your mind? Sign in before {DELETION_ERASED} and choose Restore my account."],
+        action=("Restore my account", href("sign-in", "deleting")),
+        note="If you didn't ask for this, restore your account and change your password, or write to privacy@christianfitness.ca.")
+
+
+s = screen("email-deletion-done", "page", "Email: account deleted", group="Emails",
+           source="Derived: sent when the 30 days have passed and the account is erased (L2-066 AC7, AC8).", not_applicable=NA_EMAIL)
+
+
+@s("default", "Sent when the account is erased: what was erased, that the email is free to join again, and who to write to.")
+def _():
+    return email("Your Christian Fitness account has been deleted", [
+        "Your account is deleted. We've erased your profile, preferences, follows, registrations, suggestions, feedback and the text of your messages.",
+        "You're welcome back any time. You can join again with this email address as a new member.",
+        "This is the last email we'll send to this address about your account."],
+        note="Questions? Write to privacy@christianfitness.ca.")
+
+
+s = screen("email-download-ready", "page", "Email: your download is ready", group="Emails",
+           source="Derived: sent within 24 hours of Request download (L2-066 AC1, AC2).", not_applicable=NA_EMAIL)
+
+
+@s("default", "Sent within 24 hours of Request download: a button to the download page, the 7 days it works and that it opens only when signed in as this member.")
+def _():
+    return email("Your Christian Fitness data is ready", [
+        "You asked for a copy of your data. It's a .zip of your profile, preferences, registrations, follows, suggestions, feedback and the messages you sent.",
+        f"The link works for 7 days, until {DOWNLOAD_EXPIRES}, and only when you're signed in as you. After that you can request a new one in Preferences."],
+        action=("Download your data", href("download")),
+        note="If you didn't ask for this, you can ignore this email. Nobody can open the link without signing in as you.")
 
 
 # ===========================================================================
