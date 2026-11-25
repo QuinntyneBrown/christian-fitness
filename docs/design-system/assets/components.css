@@ -2062,6 +2062,7 @@ a.listing-row__link:hover .listing-row__name, .listing-row__link[data-state="hov
 .pick-cards--stack > li { width: auto; }
 @media (min-width: 64rem) { .pick-cards { flex-direction: column; overflow: visible; } .pick-cards > li { width: auto; } }
 .pick-card { display: block; border-radius: var(--radius-lg); background: var(--color-bg-surface); padding: var(--space-4); box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default); transition: box-shadow var(--duration-fast) var(--ease-standard); }
+button.pick-card { width: 100%; text-align: left; }
 .pick-card:hover, .pick-card[data-state="hover"] { box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-hover); }
 .pick-card[aria-current="page"] { background: var(--color-bg-inverse); color: var(--color-fg-inverse); box-shadow: none; }
 .pick-card--light[aria-current="page"] { background: var(--color-bg-surface); color: inherit; box-shadow: inset 0 0 0 var(--border-width-thick) var(--color-fg-accent); }

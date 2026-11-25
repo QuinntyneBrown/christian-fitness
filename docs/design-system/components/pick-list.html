@@ -30,7 +30,7 @@
 <p>Three ways to choose, each with the native control that matches the choice:</p>
 <ul>
 <li><b>Pick list</b> (<code>.pick-list</code> of <code>.pick-row</code>s): several of a few with checkboxes, in the newsletter <b>builder</b> (<code>.builder</code>): "Also this week · 3 of 3". When the limit is reached the rest are disabled.</li>
-<li><b>Pick cards</b> (<code>.pick-cards</code> of <code>.pick-card</code>s): links in a <code>&lt;nav&gt;</code> that choose which record the page shows; the shown one has <code>aria-current="page"</code>. Dark when current for series; <code>--light</code> (a bordeaux ring) for listing suggestions.</li>
+<li><b>Pick cards</b> (<code>.pick-cards</code> of <code>.pick-card</code>s): links in a <code>&lt;nav&gt;</code> that choose which record the page shows; the shown one has <code>aria-current="page"</code>. Dark when current for series; <code>--light</code> (a bordeaux ring) for listing suggestions. Inside a form, where a card chooses a value rather than a page, it is a <code>&lt;button type="button"&gt;</code> in a labelled, stacked list (the event editor&#x27;s "Matching hosts", ADR 0088).</li>
 <li><b>Event choices</b> (<code>.event-choices</code> of <code>.event-choice</code>s): one of a few with radio buttons and a photo, for the Community Pick. Followed by the <b>pick note</b> (<code>.pick-note</code>) and, before anything is made, the <b>pick empty</b> preview (<code>.pick-empty</code>).</li>
 </ul>
 <p>Use <a href="chip.html">interest toggles</a> for short labels (the issue's events), a <a href="select.html">select</a> for one of many (the big story), and a <a href="table.html">table</a> for comparing records.</p>
