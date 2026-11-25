@@ -159,18 +159,24 @@ AC7).
 - **Autosave and the `saving` mock.** The `saving` state makes every field read-only, which suits
   an action but not a save every 2 seconds while typing. The design keeps fields editable during
   autosave and uses the read-only state for actions.
-- **Audit of saves.** `L2-019` AC3 audits every staff change; `L2-069` AC14 names status changes.
-  Auditing each autosave would add an entry every few seconds; the design audits status changes and
-  image uploads only. This needs confirming.
-- **The previous lead.** Publishing a new Lead story "replaces the Lead story"; where the old lead
-  goes (Top headlines or The latest) is not specified.
-- **Cropping to 16:9.** `L2-069` AC9 crops the image to 16:9. The design stores the original and
-  crops in the browser with `aspect-ratio: 16 / 9` and `object-fit: cover`; server-side cropping
-  would need an image library and an ADR.
-- **Card wording and listings.** The next step card's words have no field in the editor, and
-  directory listings do not exist in the code yet (see `news/read-story`).
-- **Preview target.** The mock's Preview has nothing behind it (`docs/mocks/README.md`, open
-  question 10); `StoryPreviewPage` in the admin app is this design's answer and needs a mock state.
+- **Directory listings.** Directory listings do not exist in the code yet (see `news/read-story`).
+
+### Decisions (issue 91, owner, 2026-11-24)
+
+- **Audit of saves.** Only status changes, uploads and deletions are audited, not each autosave
+  (`L2-069` AC14).
+- **The previous lead.** Publishing a story as Lead turns the previous lead into an ordinary story
+  in its section at its original publish time; there is only one Lead (`L2-069` AC6).
+- **Cropping to 16:9.** In the browser with the CDK-based crop dialog. The original and the crop
+  rectangle are uploaded; the server stores the original and serves the crop through
+  `IImageStore`. No server image library, so no ADR (`L2-069` AC9).
+- **Body format.** A small Markdown subset: paragraphs, `>` quotes, `##`/`###` headings, bulleted
+  and numbered lists, `https` links, emphasis and strong. Raw HTML is never rendered; one
+  sanitising renderer serves Preview and the story page (`L2-069` AC10).
+- **Next step card.** The editor gains an optional "Next step" text (80 characters at most) and a
+  link (an internal route or `https`). With no text there is no card (`L2-069` AC1, `L2-061` AC4).
+- **Preview.** `StoryPreviewPage` at `/stories/:id/preview` in the admin app reuses the story
+  page's presentation components (`L2-069` AC13). Its mock state is issue 99.
 
 ## Requirements
 

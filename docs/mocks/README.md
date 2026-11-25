@@ -211,9 +211,9 @@ navigation, say) must be made in the generator and in those files.
    (`AGENTS.md`); the mocks work either way.
 4. **Home church.** Preferences sets who sees the whole profile; should home church have its own
    switch, since it is sensitive (L2-033)?
-5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
-   Services professional and a directory listing, with different copy, and the console has both
-   Services (applications) and Listings (suggestions). One record or two? One review or two?
+5. **Services and the directory.** Resolved (ADR 0061): two records and two reviews, cross-linked
+   through the owning member ("Also offers services" on the listing profile, `person.html`;
+   "Also in the directory" on Services), and Message reaches the same conversation from either.
 6. **Messaging an organization.** A listing's Message button opens a direct conversation. For an
    organization, company or ministry, who receives it?
 7. ~~**Who writes stories.**~~ Closed: no new role. Admins write, review and publish under any
@@ -224,7 +224,9 @@ navigation, say) must be made in the generator and in those files.
 9. **Claiming a listing.** Approving a suggestion "sends them a link to claim and publish their
    listing". That screen, and how a listing's owner edits it afterwards, are not drawn.
 10. **Buttons with nothing behind them.** New series, Edit details and Add a date (Event series),
-    Edit (Listed), and Preview (story editor) have no screen or drawer in the frames.
+    Edit (Listed) have no screen or drawer in the frames. Preview (story editor) is decided:
+    `StoryPreviewPage` at `/stories/:id/preview` in the admin app (L2-069 AC13); its mock state
+    is issue 99.
 11. **Declining a suggestion.** Instant in the frame, with no reason; declining an application asks
     for one (L2-025 AC3). Should this?
 12. **What the legal pages promise.** They state things the system must then do: data stored in
