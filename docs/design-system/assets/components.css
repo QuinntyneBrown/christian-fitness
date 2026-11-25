@@ -1560,6 +1560,7 @@ a.listing-row__link:hover .listing-row__name, .listing-row__link[data-state="hov
 .listing-head__actions { display: flex; flex-shrink: 0; gap: var(--space-2); }
 .listing-head__actions .btn { flex: 1 1 0%; }
 @media (min-width: 48rem) { .listing-head__actions .btn { flex: none; } }
+.listing-head--preview { margin-top: 0; border-bottom: 0; padding-bottom: 0; }
 .hosting { margin-top: var(--space-4); }
 .hosting > li + li { margin-top: var(--space-3); }
 .hosting__empty { margin-top: var(--space-3); max-width: var(--layout-lead-max); color: var(--color-fg-muted); }
