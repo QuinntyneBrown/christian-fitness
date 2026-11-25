@@ -1131,6 +1131,8 @@
         "facebook",
         "whatsapp",
         "slack",
+        "changed",
+        "no-image",
         "failed",
         "loading",
         "empty",

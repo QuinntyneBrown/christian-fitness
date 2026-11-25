@@ -39,7 +39,7 @@ The feature is a vertical slice from the session list's tick boxes to the databa
 ### Open questions
 
 - No mock draws the `event_full` refusal of a drop-in naming a date, or the confirmation the member gives when unticking dates (`L2-053` AC4 says "confirms"). The design treats the panel's button as the confirmation; a mock state is needed for both before implementation.
-- `docs/mocks/pages/event-series/booked.html` shows no mark on the booked sessions in the list. Whether held dates read "Registered" in the list is `<TO SUPPLY>`.
+- Resolved (#89): a joined member may untick single dates after the `L2-053` AC4 confirmation; dates still held read "Registered" in the list and unticked ones "Not going". The `booked` mock state needs these marks added.
 - Whether a joined member may also untick single dates, rather than leave the whole series, is not stated; the design does not allow it.
 - Payment copy for a priced drop-in follows the `booked` mock; the instructions themselves are `<TO SUPPLY>`, as for events (`register-for-event`).
 

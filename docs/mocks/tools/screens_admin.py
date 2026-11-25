@@ -48,8 +48,8 @@ def signin(mode: str = "") -> str:
     elif mode == "failed":
         alert = '<div class="auth__alert">' + form_alert("Google sign-in didn't finish", "You're not signed in. Try again in a moment.").replace('tabindex="-1"', 'tabindex="-1" autofocus') + "</div>"
     elif mode == "session-expired":
-        # L2-018 AC6: the staff session ended after 30 idle minutes (ADR 0016).
-        alert = '<div class="auth__alert">' + form_alert("Your session expired", "You were signed out after 30 minutes without activity. Sign in again to carry on.") + "</div>"
+        # L2-018 AC6: the staff session ended at the 12-hour maximum (ADR 0062); idle expiry is ADR 0016.
+        alert = '<div class="auth__alert">' + form_alert("Your session expired", "You were signed out after 12 hours. Sign in again to continue.") + "</div>"
     label = "Try another Google account" if mode in notices else "Sign in with Google"
     return staff(f"""    <h1 class="display staff__title">Staff sign in</h1>
     <p class="staff__lead">Use your <strong>@{STAFF_DOMAIN}</strong> Google Workspace account.</p>
@@ -89,7 +89,7 @@ def _():
     return signin("failed")
 
 
-@s("session-expired", "The staff session ended after 30 minutes without a request: sign in again (L2-018 AC6).")
+@s("session-expired", "The staff session ended after the 12-hour maximum: sign in again (L2-018 AC9, ADR 0062).")
 def _():
     return signin("session-expired")
 
