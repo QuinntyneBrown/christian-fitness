@@ -23,6 +23,9 @@
 <div class="member-shell__body">
   <router-outlet />
 </div>
+@if (current() !== 'messages') {
+  <cf-footer variant="member" />
+}
 <cf-tab-bar
   [destinations]="destinations"
   [current]="current()"
