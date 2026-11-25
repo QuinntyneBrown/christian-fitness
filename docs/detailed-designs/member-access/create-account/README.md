@@ -187,10 +187,11 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   password hash. The next slices add each.
 - **The Google photo.** The sign-in notice promises "we'll bring over your name and photo", and the
   `sso-account` line shows an avatar; `Member` has no photo, and `L2-049` AC9 forbids loading an
-  image from Google. The mock's avatar shows the account's initial until this is settled (see
-  [sign in with Google](../sign-in-with-google/README.md)).
-- **"Change".** The link returns to the email form. Whether it also deletes the kept Google
-  identity on the server, or lets it expire, is `<TO SUPPLY>`.
+  image from Google. Settled by [ADR 0061](../../../adr/0061-first-google-sign-in-slice.md): the
+  server copies the photo into `IImageStore` once, at join, if the member keeps it. The mock's avatar
+  shows the account's initial.
+- **"Change".** The link returns to the email form and deletes the kept Google identity
+  (`__Host-cf-google`) at once; otherwise it lasts 10 minutes (ADR 0061).
 - **The name field's label.** The email form says "Full name" and the Google form "Display name";
   both store `Member.Name`. The error wording for a blank display name is not drawn; "Enter your
   full name" is used until a mock state says otherwise.
