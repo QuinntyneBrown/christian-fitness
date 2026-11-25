@@ -96,7 +96,7 @@ public static class ProblemCodes
     }
 
     /// <summary>The specific refusal codes, the one a client most needs first.</summary>
-    private static readonly string[] Precedence = [RefusalCodes.FieldTooLong, RefusalCodes.TooManyGoals];
+    private static readonly string[] Precedence = [RefusalCodes.FieldTooLong, RefusalCodes.TooManyGoals, ListDirectoryRules.QueryTooLong];
 
     /// <summary>A body that could not be read at all: no field to name, nothing of it repeated.</summary>
     public static ValidationProblemDetails Unreadable() =>

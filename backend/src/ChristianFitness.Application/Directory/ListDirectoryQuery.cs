@@ -22,29 +22,60 @@ public sealed record DirectoryPageDto(IReadOnlyList<DirectoryListingRowDto> List
 
 /// <summary>
 /// The published listings in kind order, each kind in name order (L2-054 AC1, AC8), or those of
-/// the one kind <paramref name="Kind"/> names by its slug (L2-054 AC3).
+/// the one kind <paramref name="Kind"/> names by its slug (L2-054 AC3), narrowed to those whose
+/// name, tagline, area or focus contain the search <paramref name="Q"/> (L2-054 AC4).
 /// </summary>
-public sealed record ListDirectoryQuery(string? Kind = null) : IRequest<DirectoryPageDto>
+public sealed record ListDirectoryQuery(string? Kind = null, string? Q = null) : IRequest<DirectoryPageDto>
 {
     public const int PageSize = 50;
 }
 
-/// <summary>The codes a directory request is refused with (ADR 0082).</summary>
+/// <summary>The directory's search and the codes a directory request is refused with (ADR 0077, ADR 0082).</summary>
 public static class ListDirectoryRules
 {
     public const string KindInvalid = "kind_invalid";
+    public const string QueryTooLong = "query_too_long";
+
+    /// <summary>The shortest search, in characters (code points) after trimming; a shorter one is none.</summary>
+    public const int SearchMin = 2;
+
+    /// <summary>The longest search, in UTF-16 units after trimming, as the field's <c>maxlength</c> counts.</summary>
+    public const int SearchMax = 100;
 
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal) { KindInvalid };
+
+    /// <summary>The escape character of the search's LIKE pattern.</summary>
+    public const string LikeEscape = "\\";
+
+    /// <summary>The search with LIKE's wildcards and the escape character taken literally.</summary>
+    public static string EscapeLike(string term) =>
+        term.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("%", "\\%", StringComparison.Ordinal).Replace("_", "\\_", StringComparison.Ordinal);
+
+    /// <summary>The folded text a search matches, or none when it is under <see cref="SearchMin"/> characters.</summary>
+    public static string? SearchTermOf(string? q)
+    {
+        var trimmed = q?.Trim();
+        return trimmed is null || trimmed.EnumerateRunes().Count() < SearchMin ? null : SearchFold.Of(trimmed);
+    }
 }
 
-/// <summary>A kind this API does not know is refused with <c>kind_invalid</c>.</summary>
+/// <summary>
+/// A kind this API does not know is refused with <c>kind_invalid</c>; a search over 100 characters
+/// with <c>query_too_long</c> (ADR 0077).
+/// </summary>
 public sealed class ListDirectoryValidator : AbstractValidator<ListDirectoryQuery>
 {
-    public ListDirectoryValidator() =>
+    public ListDirectoryValidator()
+    {
         RuleFor(q => q.Kind)
             .Must(kind => kind is null || ListingKinds.KindOf(kind) is not null)
             .WithMessage("Choose one of the kinds")
             .WithErrorCode(ListDirectoryRules.KindInvalid);
+        RuleFor(q => q.Q)
+            .Must(q => q is null || q.Trim().Length <= ListDirectoryRules.SearchMax)
+            .WithMessage("Search with 100 characters or fewer")
+            .WithErrorCode(ListDirectoryRules.QueryTooLong);
+    }
 }
 
 internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListDirectoryQuery, DirectoryPageDto>
@@ -59,6 +90,13 @@ internal sealed class ListDirectoryHandler(IAppDbContext db, TimeProvider time) 
             .ConfigureAwait(false);
 
         var listed = ListingKinds.KindOf(request.Kind) is { } kind ? published.Where(l => l.Kind == kind) : published;
+        if (ListDirectoryRules.SearchTermOf(request.Q) is { } term)
+        {
+            // LIKE '%term%', which the trigram index on SearchText serves (ADR 0082); strpos would not.
+            var pattern = $"%{ListDirectoryRules.EscapeLike(term)}%";
+            listed = listed.Where(l => EF.Functions.Like(l.SearchText, pattern, ListDirectoryRules.LikeEscape));
+        }
+
         var page = await listed
             .OrderBy(l => l.KindOrder)
             .ThenBy(l => l.NameKey)

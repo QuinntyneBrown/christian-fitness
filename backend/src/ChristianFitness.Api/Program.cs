@@ -21,6 +21,7 @@ builder.Services.AddSessions();
 builder.Services.AddEmail(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddRequestAntiforgery();
 builder.Services.AddSecurityHeaders();
+builder.Services.AddPublicReads();
 // Missing fields reach the validators, which name them (L2-032 AC1); a body that cannot be read at
 // all is refused without repeating any of it.
 builder.Services.AddControllers(options =>
@@ -50,6 +51,7 @@ app.UseSecurityHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.UseAntiforgeryTokens();
 
