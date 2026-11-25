@@ -123,4 +123,21 @@ public sealed class BrowseDirectoryTests(DirectoryFactory factory)
             [("Lakeshore Runners Fellowship", 2), ("Rev. James Whitfield", 0)],
             rows.Select(r => (r.GetProperty("name").GetString()!, r.GetProperty("hosting").GetInt32())));
     }
+
+    [Fact]
+    public async Task Given_a_listing_hosting_series_When_the_directory_is_read_Then_its_row_counts_each_listed_series_once_and_its_one_off_events()
+    {
+        await factory.ClearAsync();
+        var club = await factory.AddListingAsync(ListingKind.Organization, "Lakeshore Runners Fellowship");
+        var later = DirectoryFactory.Now.AddDays(7);
+        await factory.AddSeriesAsync(club, "Couch to 5K Run Club", (DirectoryFactory.Now.AddDays(-7), false), (DirectoryFactory.Now.AddDays(1), false), (later, false));
+        await factory.AddSeriesAsync(club, "Finished Mobility", (DirectoryFactory.Now.AddDays(-7), false));
+        await factory.AddSeriesAsync(club, "Only cancelled to come", (later, true));
+        await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(2));
+
+        var rows = (await ReadAsync(factory)).GetProperty("listings").EnumerateArray().ToArray();
+
+        // One listed series (its two sessions to come count once) and one one-off event.
+        Assert.Equal([("Lakeshore Runners Fellowship", 2)], rows.Select(r => (r.GetProperty("name").GetString()!, r.GetProperty("hosting").GetInt32())));
+    }
 }

@@ -21,6 +21,31 @@ export const SUNRISE_RUN: HostedEventFixture = {
   imageKey: null,
 };
 
+/** A listed series a listing hosts (`HostedSeriesDto`, ADR 0096). */
+export interface HostedSeriesFixture {
+  id: string;
+  title: string;
+  category: HostedEventFixture['category'];
+  imageKey: string | null;
+  cadence: { weekday: number | null; dates: number };
+  startsAt: string;
+  sessionsLeft: number;
+}
+
+/**
+ * Couch to 5K Run Club under Hosting (mock `listing-profile/default`): every Tuesday, next
+ * Tuesday April 21 at 6:30 PM, 5 sessions left. Its id is the series fixtures' `COUCH_TO_5K`.
+ */
+export const COUCH_HOSTED: HostedSeriesFixture = {
+  id: '0190c0de-0000-7000-8000-0000000005e1',
+  title: 'Couch to 5K Run Club',
+  category: 'run',
+  imageKey: null,
+  cadence: { weekday: 2, dates: 7 },
+  startsAt: '2026-04-21T22:30:00Z',
+  sessionsLeft: 5,
+};
+
 /** A published listing a profile is connected to (`ListingConnectionDto`, ADR 0087). */
 export interface ConnectionFixture {
   id: string;
@@ -46,6 +71,8 @@ export interface ListingProfileFixture {
   listedYear: number;
   hasOwner: boolean;
   hostingCount: number;
+  /** Its listed series, first under Hosting (ADR 0096). */
+  series: HostedSeriesFixture[];
   hosting: HostedEventFixture[];
   connections: ConnectionFixture[];
   /** The Services listing of the same owner, or that staff linked, for "Also offers services". */
@@ -88,6 +115,7 @@ export const LAKESHORE: ListingProfileFixture = {
   listedYear: 2025,
   hasOwner: true,
   hostingCount: 0,
+  series: [],
   hosting: [],
   connections: [
     {
@@ -128,6 +156,7 @@ export const OKAFOR: ListingProfileFixture = {
   listedYear: 2024,
   hasOwner: true,
   hostingCount: 0,
+  series: [],
   hosting: [],
   connections: [],
   serviceListingId: null,
@@ -153,6 +182,7 @@ export const TEAM: ListingProfileFixture = {
   listedYear: 2024,
   hasOwner: false,
   hostingCount: 1,
+  series: [],
   hosting: [SUNRISE_RUN],
   connections: [],
   serviceListingId: null,
@@ -178,6 +208,7 @@ export const NORTHLINE: ListingProfileFixture = {
   listedYear: 2026,
   hasOwner: false,
   hostingCount: 0,
+  series: [],
   hosting: [],
   connections: [],
   serviceListingId: null,

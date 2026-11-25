@@ -16,6 +16,7 @@ const profile = (over: Partial<ListingProfileDto> = {}): ListingProfileDto => ({
   listedYear: 2025,
   hasOwner: false,
   hostingCount: 0,
+  series: [],
   hosting: [],
   connections: [],
   serviceListingId: null,

@@ -40,7 +40,7 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
 
         Assert.Equal(HttpStatusCode.OK, status);
         Assert.Equal(
-            ["area", "connections", "description", "focus", "followers", "following", "hasOwner", "hosting", "hostingCount", "id", "isOwner", "isVerified", "kind", "listedYear", "name", "owner", "photoKey", "serviceListingId", "tagline", "websiteUrl"],
+            ["area", "connections", "description", "focus", "followers", "following", "hasOwner", "hosting", "hostingCount", "id", "isOwner", "isVerified", "kind", "listedYear", "name", "owner", "photoKey", "series", "serviceListingId", "tagline", "websiteUrl"],
             profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(id, profile.GetProperty("id").GetGuid());
         Assert.Equal("organization", profile.GetProperty("kind").GetString());
@@ -98,6 +98,47 @@ public sealed class ListingProfileTests(DirectoryFactory factory)
         Assert.Equal(DirectoryFactory.Now.AddMinutes(1), rows[0].GetProperty("startsAt").GetDateTimeOffset());
         Assert.Equal(JsonValueKind.Null, rows[0].GetProperty("imageKey").ValueKind);
     }
+
+    [Fact]
+    public async Task Given_series_a_listing_hosts_When_its_profile_is_read_Then_its_listed_series_come_first_with_sessions_left_and_their_sessions_leave_the_events()
+    {
+        await factory.ClearAsync();
+        var club = await factory.AddListingAsync(ListingKind.Organization, "Lakeshore Runners Fellowship");
+        var other = await factory.AddListingAsync(ListingKind.Organization, "Faith & Footwork");
+        // Now is Wednesday, November 25, 10 AM in Toronto.
+        var couch = await factory.AddSeriesAsync(
+            club,
+            "Couch to 5K Run Club",
+            (At(11, 24), false),
+            (At(12, 1), false),
+            (At(12, 8), true),
+            (At(12, 15), false));
+        var hoops = await factory.AddSeriesAsync(club, "Thursday Hoops", (At(11, 26), false), (At(12, 10), false));
+        await factory.AddSeriesAsync(club, "Finished Mobility", (At(11, 17), false), (At(11, 24), false));
+        await factory.AddSeriesAsync(club, "Only cancelled to come", (At(11, 17), false), (At(12, 1), true));
+        await factory.AddSeriesAsync(other, "Someone else's series", (At(12, 1), false));
+        var oneOff = await factory.AddEventAsync(club, DirectoryFactory.Now.AddDays(1), title: "Harbourfront 10K");
+
+        var (_, profile) = await ReadAsync(factory, club);
+
+        // Two listed series and one one-off event.
+        Assert.Equal(3, profile.GetProperty("hostingCount").GetInt32());
+        Assert.Equal([oneOff], profile.GetProperty("hosting").EnumerateArray().Select(r => r.GetProperty("id").GetGuid()));
+        var series = profile.GetProperty("series").EnumerateArray().ToArray();
+        Assert.Equal([hoops, couch], series.Select(r => r.GetProperty("id").GetGuid()));
+        Assert.Equal(["id", "title", "category", "imageKey", "cadence", "startsAt", "sessionsLeft"], series[1].EnumerateObject().Select(p => p.Name));
+        Assert.Equal("Couch to 5K Run Club", series[1].GetProperty("title").GetString());
+        Assert.Equal("run", series[1].GetProperty("category").GetString());
+        Assert.Equal(JsonValueKind.Null, series[1].GetProperty("imageKey").ValueKind);
+        Assert.Equal(2, series[1].GetProperty("cadence").GetProperty("weekday").GetInt32());
+        Assert.Equal(At(12, 1), series[1].GetProperty("startsAt").GetDateTimeOffset());
+        // December 1 and 15 are to come; December 8 is cancelled.
+        Assert.Equal(2, series[1].GetProperty("sessionsLeft").GetInt32());
+    }
+
+    /// <summary>6:30 PM in Toronto on a day of 2026.</summary>
+    private static DateTimeOffset At(int month, int day) =>
+        EventSchedule.StartOf(new DateOnly(2026, month, day), new TimeOnly(18, 30));
 
     [Fact]
     public async Task Given_a_listing_hosting_more_than_20_events_When_its_profile_is_read_Then_the_first_20_show_and_the_count_covers_all()

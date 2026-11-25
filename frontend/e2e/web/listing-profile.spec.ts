@@ -6,6 +6,7 @@ import {
   answerEventImages,
   answerListingConversation,
   answerListingProfile,
+  COUCH_HOSTED,
   LAKESHORE,
   NORTHLINE,
   OKAFOR,
@@ -13,6 +14,7 @@ import {
   SUNRISE_RUN,
   TEAM,
 } from '../fixtures/listing-profile';
+import { answerSeriesDetail, COUCH_TO_5K_DETAIL } from '../fixtures/series';
 import { WebDirectoryPage } from '../page-objects/web/directory.page';
 import { WebEventChatPage } from '../page-objects/web/event-chat.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
@@ -20,8 +22,8 @@ import { WebListingProfilePage } from '../page-objects/web/listing-profile.page'
 // L2-055 AC1 to AC9 and L2-014 AC1 to AC2 (journey 6; ADR 0087): a member opens a listing's profile at
 // `/directory/<id>` and reads its head, About, area, https website, followers and the year listed
 // and what it hosts, and messages its owner (mocks `listing-profile/default`, `person`, `one-off`,
-// `unverified`, `no-owner`, `message-failed`, `loading`, `error`). Hosted series arrive with
-// journey 11.
+// `unverified`, `no-owner`, `message-failed`, `loading`, `error`); hosted series come first
+// (journey 11; ADR 0096).
 test.describe('Member app, listing profile', () => {
   test(
     'The profile shows the mark, kind, Verified, name, tagline, About with focus tags and the key facts',
@@ -132,6 +134,61 @@ test.describe('Member app, listing profile', () => {
       },
     ]);
     await expect(profile.hostingEmpty).toHaveCount(0);
+  });
+
+  test('Hosting lists the series first, counted once each, with their cadence, next date and sessions left, leading to the series page', async ({
+    page,
+    api,
+  }) => {
+    const hoops = {
+      ...COUCH_HOSTED,
+      id: '0190c0de-0000-7000-8000-0000000005e3',
+      title: 'Hoops & Devotion',
+      category: 'basketball' as const,
+      imageKey: 'a1b2c3d4e5f60718293a4b5c6d7e8f90.jpg',
+      cadence: { weekday: null, dates: 3 },
+      startsAt: '2026-04-23T23:00:00Z',
+      sessionsLeft: 1,
+    };
+    answerListingProfile(api, [
+      { ...LAKESHORE, hostingCount: 3, series: [COUCH_HOSTED, hoops], hosting: [SUNRISE_RUN] },
+    ]);
+    answerEventImages(api);
+    answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);
+    const profile = new WebListingProfilePage(page);
+
+    await profile.open(LAKESHORE.id);
+
+    await expect(profile.hostingHeading).toHaveText('Hosting 3');
+    expect(await profile.hostingViews()).toEqual([
+      {
+        href: `/events/series/${COUCH_HOSTED.id}`,
+        image: '/images/events/run.jpg',
+        meta: 'Series · Every Tuesday',
+        title: 'Couch to 5K Run Club',
+        sub: 'Next: Tue Apr 21, 6:30 PM · 5 sessions left',
+      },
+      {
+        href: `/events/series/${hoops.id}`,
+        image: `/api/events/images/${hoops.imageKey}`,
+        meta: 'Series · 3 dates',
+        title: 'Hoops & Devotion',
+        sub: 'Next: Thu Apr 23, 7:00 PM · 1 session left',
+      },
+      {
+        href: `/events/${SUNRISE_RUN.id}`,
+        image: '/images/events/run.jpg',
+        meta: 'Run · Sat Apr 18',
+        title: 'Easter Sunrise 5K',
+        sub: '6:45 AM · Martin Goodman Trail, Marilyn Bell Park',
+      },
+    ]);
+    await expect(profile.hostingRows.first().locator('svg').first()).toBeAttached();
+
+    await profile.hostingRows.first().click();
+
+    await expect(page).toHaveURL(`/events/series/${COUCH_HOSTED.id}`);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Couch to 5K Run Club');
   });
 
   test('A listing hosting nothing still to come says so, with no count', async ({ page, api }) => {

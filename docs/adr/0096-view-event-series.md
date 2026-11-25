@@ -85,8 +85,8 @@ disagreed:
   one link to the series: "View series" when the member joined it, "Join the series" when not.
   The read, register and cancel answers all carry it.
 - **Hosting.** The profile gains `series`, the listed series (ADR 0093's rule) the listing hosts,
-  by next session, then id, at most 20, each `{ id, title, imageKey, cadence, startsAt,
-  sessionsLeft }`; `hosting` keeps the one-off events and no longer holds a session event.
+  by next session, then id, at most 20, each `{ id, title, category, imageKey, cadence, startsAt,
+  sessionsLeft }` (the category gives the picture of a series with none); `hosting` keeps the one-off events and no longer holds a session event.
   `hostingCount` is the number of such series plus such one-off events, and the directory row's
   `hosting` count follows the same rule (`L2-054` AC2). A series row reads "Series · Every
   Tuesday", the title and "Next: Tue Apr 21, 6:30 PM · 5 sessions left" ("1 session left"), and

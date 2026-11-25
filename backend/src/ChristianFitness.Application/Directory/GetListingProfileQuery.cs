@@ -1,6 +1,7 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Application.Events;
+using ChristianFitness.Application.Series;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using MediatR;
@@ -15,6 +16,14 @@ namespace ChristianFitness.Application.Directory;
 public sealed record HostedEventDto(Guid Id, string Title, string Category, DateTimeOffset StartsAt, string Place, string? ImageKey);
 
 /// <summary>
+/// A listed series the listing hosts (L2-055 AC2; ADR 0096): the app shows its picture (its
+/// category's when it has none) and words its cadence ("Series ·
+/// Every Tuesday"), its next session's start and how many sessions are to come, and leads to the
+/// series page.
+/// </summary>
+public sealed record HostedSeriesDto(Guid Id, string Title, string Category, string? ImageKey, SeriesCadenceDto Cadence, DateTimeOffset StartsAt, int SessionsLeft);
+
+/// <summary>
 /// A published listing this one is connected to (L2-055 AC4), with the relation worded from this
 /// listing's side; the app shows its mark, name, relation and kind and leads to its profile.
 /// </summary>
@@ -25,10 +34,12 @@ public sealed record ListingConnectionDto(Guid Id, string Kind, string Name, str
 /// the year it was listed, in Toronto. The website is served as stored; the app shows only an
 /// https address (L2-055 AC5). <c>HasOwner</c> says whether Message can reach anyone (L2-055 AC6);
 /// <c>ServiceListingId</c> names the Services listing of the same owner, or that staff linked, for
-/// "Also offers services" (ADR 0061). <c>Following</c> says whether the signed-in caller follows it,
-/// <c>false</c> for an anonymous caller (ADR 0088). <c>IsOwner</c> says the signed-in caller owns it,
-/// and only then is <c>Owner</c> given, with what the owner's editor opens on (ADR 0095). It carries
-/// no member id or owner's name, and a contact detail only in <c>Owner</c>.
+/// "Also offers services" (ADR 0061). Under Hosting, <c>Series</c> holds the listed series it hosts
+/// (ADR 0093's rule) by next session, then id, and <c>Hosting</c> its one-off events still to come;
+/// <c>HostingCount</c> counts both (ADR 0096). <c>Following</c> says whether the signed-in caller
+/// follows it, <c>false</c> for an anonymous caller (ADR 0088). <c>IsOwner</c> says the signed-in
+/// caller owns it, and only then is <c>Owner</c> given, with what the owner's editor opens on
+/// (ADR 0095). It carries no member id or owner's name, and a contact detail only in <c>Owner</c>.
 /// </summary>
 public sealed record ListingProfileDto(
     Guid Id,
@@ -45,6 +56,7 @@ public sealed record ListingProfileDto(
     int ListedYear,
     bool HasOwner,
     int HostingCount,
+    IReadOnlyList<HostedSeriesDto> Series,
     IReadOnlyList<HostedEventDto> Hosting,
     IReadOnlyList<ListingConnectionDto> Connections,
     Guid? ServiceListingId,
@@ -61,7 +73,7 @@ public sealed record OwnListingDto(string? ContactEmail, string? PendingName, st
 /// <summary>Opens one listing's profile; anything but a published listing is 404 <c>listing_not_found</c> (L2-055 AC7).</summary>
 public sealed record GetListingProfileQuery(Guid Id) : IRequest<ListingProfileDto>
 {
-    /// <summary>The most hosting rows a profile shows; the count covers them all (ADR 0087).</summary>
+    /// <summary>The most rows of each kind Hosting shows; the count covers them all (ADR 0087, ADR 0096).</summary>
     public const int HostingLimit = 20;
 }
 
@@ -84,10 +96,11 @@ internal static class ListingProfile
     public static async Task<ListingProfileDto> OfAsync(IAppDbContext db, Guid? caller, DateTimeOffset now, DirectoryListing listing, CancellationToken cancellationToken)
     {
         // The published one-off events it hosts that have not started (the directory row's rule, ADR 0082);
-        // series join first with journey 11.
+        // a series' sessions show as their series, first (ADR 0096).
         var hosted = db.Events.AsNoTracking()
-            .Where(e => e.HostListingId == listing.Id && e.Status == EventStatus.Published && e.StartsAt > now);
-        var hostingCount = await hosted.CountAsync(cancellationToken).ConfigureAwait(false);
+            .Where(e => e.HostListingId == listing.Id && e.SeriesId == null && e.Status == EventStatus.Published && e.StartsAt > now);
+        var series = await HostedSeriesAsync(db, listing.Id, now, cancellationToken).ConfigureAwait(false);
+        var hostingCount = series.Count + await hosted.CountAsync(cancellationToken).ConfigureAwait(false);
         var hosting = (await hosted
                 .OrderBy(e => e.StartsAt)
                 .ThenBy(e => e.Id)
@@ -142,6 +155,7 @@ internal static class ListingProfile
             EventSchedule.TorontoOf(listing.ListedAt).Date.Year,
             listing.MemberId is not null,
             hostingCount,
+            [.. series.Take(GetListingProfileQuery.HostingLimit)],
             hosting,
             connections,
             serviceListingId,
@@ -151,5 +165,28 @@ internal static class ListingProfile
                 listing.ContactEmail,
                 listing.PendingName,
                 listing.PendingKind is { } kind ? ListingKinds.SlugOf(kind) : null) : null);
+    }
+
+    /// <summary>Every listed series the listing hosts, by next session, then id (ADR 0093, ADR 0096).</summary>
+    private static async Task<List<HostedSeriesDto>> HostedSeriesAsync(IAppDbContext db, Guid listingId, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var listed = ListedSeries.IdsAt(db, now);
+        var hosted = await db.EventSeries.AsNoTracking()
+            .Where(s => s.HostListingId == listingId && listed.Contains(s.Id))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var sessions = await SeriesReads.SessionsOfAsync(db, [.. hosted.Select(s => s.Id)], cancellationToken).ConfigureAwait(false);
+        return [.. hosted
+            .Select(s => (Series: s, Facts: SeriesFacts.Of([.. sessions[s.Id].Select(row => row.Times)], now)))
+            .OrderBy(row => row.Facts.Next)
+            .ThenBy(row => row.Series.Id)
+            .Select(row => new HostedSeriesDto(
+                row.Series.Id,
+                row.Series.Title,
+                EventNames.Of(row.Series.Category),
+                row.Series.ImageKey,
+                SeriesCadenceDto.Of(row.Facts.Cadence),
+                row.Facts.Next!.Value,
+                row.Facts.Left))];
     }
 }
