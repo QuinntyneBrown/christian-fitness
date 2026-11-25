@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Chat;
 
 /// <summary>
-/// The caller has opened an event's chat: its unread count becomes zero (L2-016 AC7; ADR 0042). Only a
-/// member registered for the event may; anyone else, and an unknown event, is refused
-/// <c>not_a_participant</c> (403).
+/// The caller has opened a group chat: its unread count becomes zero (L2-016 AC7; ADR 0042). The chat
+/// is named by its id: a standalone event's or a series' (ADR 0099). Only a member of the chat may;
+/// anyone else, and an unknown id, is refused <c>not_a_participant</c> (403).
 /// </summary>
-public sealed record MarkChatReadCommand(Guid EventId) : IRequest;
+public sealed record MarkChatReadCommand(Guid ChatId) : IRequest;
 
 internal sealed class MarkChatReadHandler(IAppDbContext db, ICurrentMember current, TimeProvider time)
     : IRequestHandler<MarkChatReadCommand>
@@ -19,19 +19,17 @@ internal sealed class MarkChatReadHandler(IAppDbContext db, ICurrentMember curre
     public async Task Handle(MarkChatReadCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var seat = await ChatMembership.SeatAsync(db, request.EventId, current.Id, cancellationToken).ConfigureAwait(false);
-        if (seat is null)
-        {
-            throw new RefusalException(RefusalCodes.NotAParticipant, RefusalKind.Forbidden);
-        }
-
         var now = time.GetUtcNow();
+        var seat = await ChatMembership.SeatAsync(db, request.ChatId, current.Id, now, cancellationToken).ConfigureAwait(false)
+            ?? throw new RefusalException(RefusalCodes.NotAParticipant, RefusalKind.Forbidden);
+
+        var scopeId = seat.Scope.Id;
         var marker = await db.ChatReadMarkers
-            .SingleOrDefaultAsync(k => k.MemberId == current.Id && k.EventId == request.EventId, cancellationToken)
+            .SingleOrDefaultAsync(k => k.MemberId == current.Id && k.ScopeId == scopeId, cancellationToken)
             .ConfigureAwait(false);
         if (marker is null)
         {
-            db.ChatReadMarkers.Add(ChatReadMarker.Of(current.Id, request.EventId, now));
+            db.ChatReadMarkers.Add(ChatReadMarker.Of(current.Id, scopeId, now));
         }
         else
         {

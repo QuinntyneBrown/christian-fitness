@@ -47,7 +47,7 @@ public sealed class ReportMessageTests(RegisterForEventFactory factory) : IClass
         }
 
         factory.Time.Advance(TimeSpan.FromSeconds(1));
-        var message = ChatMessage.Of(eventId, author.Id, "Group words", factory.Time.GetUtcNow());
+        var message = ChatMessage.Of(ChatScope.OfEvent(eventId), author.Id, "Group words", factory.Time.GetUtcNow());
         db.ChatMessages.Add(message);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return message.Id;

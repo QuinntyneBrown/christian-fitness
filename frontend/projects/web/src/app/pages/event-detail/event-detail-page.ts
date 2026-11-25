@@ -45,7 +45,8 @@ import { HttpEventsService } from '../../services/http-events.service';
  * usable. A full event says "This event is full" in place of Register, also when another member takes the
  * last place first (ADR 0033). "Can't make it" opens the Cancel registration dialog (L2-012; ADR 0034),
  * whose code and the CDK Dialog load on first use; confirming frees the place and the page shows
- * Register again. A registered member also sees a Group chat link to the event's chat (L2-010 AC3; ADR 0039).
+ * Register again. A registered member also sees a Group chat link to the event's chat (L2-010 AC3; ADR 0039),
+ * or for a session to its series' one chat (ADR 0099).
  * Under the registration card, "Hosted by" names the event's host and leads to its profile
  * (L2-010 AC4; ADR 0089). A session shows its series card under the facts: its number, the next
  * three dates and one link to the series page, View series or Join the series (L2-010 AC5, AC6;
@@ -110,7 +111,6 @@ export default class EventDetailPage {
       .paramMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
         this.id = params.get('id') ?? '';
-        this.chatHref.set(`/events/${this.id}/chat`);
         this.load();
       });
   }
@@ -170,6 +170,10 @@ export default class EventDetailPage {
     this.event.set(eventDetailViewOf(event));
     this.host.set(hostCardViewOf(event.host));
     this.series.set(event.series ? seriesCardViewOf(event.series) : null);
+    // A session's chat is its series' one chat (ADR 0099).
+    this.chatHref.set(
+      event.series ? `/events/series/${event.series.id}/chat` : `/events/${event.id}/chat`,
+    );
   }
 
   /** Opens the host's profile or the session's series page in the app. */

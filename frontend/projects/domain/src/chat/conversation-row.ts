@@ -56,7 +56,11 @@ export function groupMemberCount(count: number | null): string {
   return count === 1 ? '1 member' : `${count} members`;
 }
 
-/** Where a row goes: an event group opens that event's chat (ADR 0039). */
-export function conversationHref(kind: 'group' | 'direct', id: string): string {
-  return kind === 'group' ? `/events/${id}/chat` : `/messages/${id}`;
+/**
+ * Where a row goes: an event group opens that event's chat (ADR 0039), a series' one chat opens on
+ * the series (ADR 0099), and a direct conversation opens with the other member (ADR 0043).
+ */
+export function conversationHref(kind: 'group' | 'series' | 'direct', id: string): string {
+  if (kind === 'group') return `/events/${id}/chat`;
+  return kind === 'series' ? `/events/series/${id}/chat` : `/messages/${id}`;
 }

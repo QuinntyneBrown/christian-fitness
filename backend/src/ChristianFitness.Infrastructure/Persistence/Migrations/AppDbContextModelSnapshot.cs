@@ -365,8 +365,13 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("EventId")
+                    b.Property<Guid>("ScopeId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ScopeKind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<DateTimeOffset>("SentAt")
                         .HasColumnType("timestamp with time zone");
@@ -378,7 +383,7 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventId", "SentAt", "Id");
+                    b.HasIndex("ScopeId", "SentAt", "Id");
 
                     b.ToTable("ChatMessages", (string)null);
                 });
@@ -388,13 +393,13 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("EventId")
+                    b.Property<Guid>("ScopeId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ReadAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("MemberId", "EventId");
+                    b.HasKey("MemberId", "ScopeId");
 
                     b.ToTable("ChatReadMarkers", (string)null);
                 });
@@ -532,6 +537,10 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("DropInPriceCents")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EnrolmentVersion")
+                        .IsConcurrencyToken()
                         .HasColumnType("integer");
 
                     b.Property<Guid>("HostListingId")

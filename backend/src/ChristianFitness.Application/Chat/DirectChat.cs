@@ -148,7 +148,7 @@ internal sealed class MarkDirectReadHandler(IAppDbContext db, ICurrentMember cur
         // A direct conversation's marker is keyed by the other member's id in the conversation column (ADR 0043).
         var now = time.GetUtcNow();
         var marker = await db.ChatReadMarkers
-            .SingleOrDefaultAsync(k => k.MemberId == current.Id && k.EventId == request.OtherId, cancellationToken)
+            .SingleOrDefaultAsync(k => k.MemberId == current.Id && k.ScopeId == request.OtherId, cancellationToken)
             .ConfigureAwait(false);
         if (marker is null)
         {

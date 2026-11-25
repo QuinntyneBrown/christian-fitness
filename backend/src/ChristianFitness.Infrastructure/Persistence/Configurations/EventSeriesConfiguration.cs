@@ -24,6 +24,7 @@ internal sealed class EventSeriesConfiguration : IEntityTypeConfiguration<EventS
         builder.Property(s => s.Area).HasMaxLength(Event.AreaMaxLength).IsRequired();
         builder.HasOne<DirectoryListing>().WithMany().HasForeignKey(s => s.HostListingId).OnDelete(DeleteBehavior.Restrict);
         builder.Ignore(s => s.SessionPriceCents);
+        builder.Property(s => s.EnrolmentVersion).IsConcurrencyToken();
     }
 }
 

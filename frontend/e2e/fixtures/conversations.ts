@@ -2,7 +2,8 @@ import type { ApiHandlers } from './api-handlers';
 
 /** A row of the Messages list as `GET /api/conversations` answers it (ADR 0042). */
 export interface ConversationRow {
-  kind: 'group' | 'direct';
+  /** `series` is a series' one chat (ADR 0099). */
+  kind: 'group' | 'series' | 'direct';
   id: string;
   name: string;
   memberCount: number | null;

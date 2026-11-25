@@ -52,7 +52,12 @@ internal sealed class CancelEventHandler(IAppDbContext db, IRegistrationReader r
             }
         }
 
-        await chat.NotifyCancelledAsync(stored.Id, cancellationToken).ConfigureAwait(false);
+        // A session's chat is its series', which one cancelled date does not close (ADR 0099).
+        if (ChatScope.Of(stored) is { Kind: ChatScopeKind.Event } scope)
+        {
+            await chat.NotifyCancelledAsync(scope, cancellationToken).ConfigureAwait(false);
+        }
+
         var going = await registrations.GoingAsync(stored.Id, cancellationToken).ConfigureAwait(false);
         var series = await AdminEventSeriesDto.OfAsync(db, [stored], cancellationToken).ConfigureAwait(false);
         return AdminEventDto.Of(stored, going, series);

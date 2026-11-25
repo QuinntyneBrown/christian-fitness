@@ -1,3 +1,5 @@
+using ChristianFitness.Domain.Events;
+
 namespace ChristianFitness.Application.Chat;
 
 /// <summary>
@@ -19,26 +21,30 @@ public sealed record ChatAnswer(string? Code, string? Title, Guid? MemberId)
     public static ChatAnswer Refused(string code) => new(code, null, null);
 }
 
-/// <summary>One message as the chat's members receive it. The text is plain text, never markup.</summary>
+/// <summary>
+/// One message as the chat's members receive it. The text is plain text, never markup.
+/// <see cref="EventId"/> keeps its name on the wire and carries the conversation's id: the event's
+/// or the series' whose chat it is (ADR 0099), or for a direct message the other member's (ADR 0043).
+/// </summary>
 public sealed record ChatMessageDto(Guid Id, Guid EventId, Guid AuthorId, string Author, string Text, DateTimeOffset SentAt);
 
-/// <summary>Where a chat's connections and messages go; the API implements it over its hub (ADR 0039).</summary>
+/// <summary>Where a chat's connections and messages go; the API implements it over its hub (ADR 0039, ADR 0099).</summary>
 public interface IChatChannel
 {
-    /// <summary>Lets the connection receive the event's messages from now on.</summary>
-    Task JoinAsync(string connectionId, Guid memberId, Guid eventId, CancellationToken cancellationToken);
+    /// <summary>Lets the connection receive the chat's messages from now on.</summary>
+    Task JoinAsync(string connectionId, Guid memberId, ChatScope scope, CancellationToken cancellationToken);
 
-    /// <summary>Takes every connection of the member out of the event's chat (slice 12.3; ADR 0041).</summary>
-    Task LeaveAsync(Guid memberId, Guid eventId, CancellationToken cancellationToken);
+    /// <summary>Takes every connection of the member out of the chat (slice 12.3; ADR 0041).</summary>
+    Task LeaveAsync(Guid memberId, ChatScope scope, CancellationToken cancellationToken);
 
-    /// <summary>Tells every connection in the event's chat that the event was cancelled.</summary>
-    Task NotifyCancelledAsync(Guid eventId, CancellationToken cancellationToken);
+    /// <summary>Tells every connection in a standalone event's chat that the event was cancelled.</summary>
+    Task NotifyCancelledAsync(ChatScope scope, CancellationToken cancellationToken);
 
     /// <summary>Forgets a connection that closed.</summary>
     void Disconnected(string connectionId);
 
-    /// <summary>Delivers the message to every connection that joined its event's chat.</summary>
-    Task SendAsync(ChatMessageDto message, CancellationToken cancellationToken);
+    /// <summary>Delivers the message to every connection that joined the chat.</summary>
+    Task SendAsync(ChatScope scope, ChatMessageDto message, CancellationToken cancellationToken);
 
     /// <summary>
     /// Delivers a direct message to every connection of one member (slice 14.1; ADR 0043). Its

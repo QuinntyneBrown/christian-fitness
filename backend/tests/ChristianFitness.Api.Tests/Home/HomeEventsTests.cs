@@ -240,13 +240,13 @@ public sealed class HomeUnreadTests(HomeFactory factory) : IClassFixture<HomeFac
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var t0 = HomeFactory.Now.AddMinutes(-10);
-            db.ChatMessages.Add(ChatMessage.Of(eventOne, michaelId, "Early note", t0));
+            db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(eventOne), michaelId, "Early note", t0));
             db.ChatReadMarkers.Add(ChatReadMarker.Of(graceId, eventOne, t0.AddMinutes(1)));
-            db.ChatMessages.Add(ChatMessage.Of(eventOne, michaelId, "Parking fills at 6:30", t0.AddMinutes(2)));
-            db.ChatMessages.Add(ChatMessage.Of(eventOne, michaelId, "Meet at the arch", t0.AddMinutes(3)));
-            db.ChatMessages.Add(ChatMessage.Of(eventOne, graceId, "On my way", t0.AddMinutes(4)));
-            db.ChatMessages.Add(ChatMessage.Of(eventTwo, michaelId, "Who has pinnies?", t0.AddMinutes(5)));
-            db.ChatMessages.Add(ChatMessage.Of(otherEvent, michaelId, "Unjoined chat", t0.AddMinutes(5)));
+            db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(eventOne), michaelId, "Parking fills at 6:30", t0.AddMinutes(2)));
+            db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(eventOne), michaelId, "Meet at the arch", t0.AddMinutes(3)));
+            db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(eventOne), graceId, "On my way", t0.AddMinutes(4)));
+            db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(eventTwo), michaelId, "Who has pinnies?", t0.AddMinutes(5)));
+            db.ChatMessages.Add(ChatMessage.Of(ChatScope.OfEvent(otherEvent), michaelId, "Unjoined chat", t0.AddMinutes(5)));
             db.DirectMessages.Add(DirectMessage.Of(michaelId, graceId, "Yesterday note", t0));
             db.ChatReadMarkers.Add(ChatReadMarker.Of(graceId, michaelId, t0.AddMinutes(1)));
             db.DirectMessages.Add(DirectMessage.Of(michaelId, graceId, "See you Thursday!", t0.AddMinutes(2)));

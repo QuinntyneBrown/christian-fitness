@@ -51,7 +51,13 @@ internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember
             try
             {
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                await chat.LeaveAsync(memberId, e.Id, cancellationToken).ConfigureAwait(false);
+                // A session's chat is its series': the member stays while they joined it or hold another date (ADR 0099).
+                var scope = ChatScope.Of(e);
+                if (!await ChatMembership.InAsync(db, scope, memberId, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
+                {
+                    await chat.LeaveAsync(memberId, scope, cancellationToken).ConfigureAwait(false);
+                }
+
                 return EventDetailDto.Of(e, going - 1, null, host, series);
             }
             catch (DbUpdateConcurrencyException)

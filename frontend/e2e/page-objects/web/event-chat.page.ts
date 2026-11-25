@@ -8,6 +8,8 @@ export class WebEventChatPage {
   readonly chatTitle: Locator;
   readonly subtitle: Locator;
   readonly backLink: Locator;
+  /** A series' chat (ADR 0099): the way back to the series page. */
+  readonly seriesBackLink: Locator;
   readonly messages: Locator;
   readonly composerInput: Locator;
   readonly sendButton: Locator;
@@ -42,6 +44,7 @@ export class WebEventChatPage {
     this.chatTitle = page.locator('.chat-page__name');
     this.subtitle = page.locator('.chat-page__sub');
     this.backLink = page.getByRole('link', { name: 'Back to event' });
+    this.seriesBackLink = page.getByRole('link', { name: 'Back to series' });
     this.messages = page.locator('.thread__messages .message');
     this.composerInput = page.getByRole('textbox', { name: /^Message / });
     this.sendButton = page.getByRole('button', { name: 'Send' });
@@ -94,5 +97,10 @@ export class WebEventChatPage {
 
   async open(eventId: string): Promise<void> {
     await this.page.goto(`/events/${eventId}/chat`);
+  }
+
+  /** A series' one group chat (ADR 0099), at `/events/series/:id/chat`. */
+  async openSeries(seriesId: string): Promise<void> {
+    await this.page.goto(`/events/series/${seriesId}/chat`);
   }
 }
