@@ -68,6 +68,17 @@ export class WebHomePage {
     return this.page.getByRole('contentinfo').getByRole('link', { name, exact: true });
   }
 
+  get changeBanner() {
+    return this.page
+      .getByRole('status')
+      .filter({ hasText: "We're updating our Privacy Policy and Terms" });
+  }
+  get changeLink() {
+    return this.changeBanner.getByRole('link', { name: "Read what's changing." });
+  }
+  get dismissChange() {
+    return this.changeBanner.getByRole('button', { name: 'Dismiss' });
+  }
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
     this.greeting = this.main.locator('.page-title--greeting');

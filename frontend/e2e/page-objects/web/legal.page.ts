@@ -1,6 +1,17 @@
 import type { Page } from '@playwright/test';
 
 export class LegalPage {
+  get changeBanner() {
+    return this.page
+      .getByRole('status')
+      .filter({ hasText: "We're updating our Privacy Policy and Terms" });
+  }
+  get changeLink() {
+    return this.changeBanner.getByRole('link', { name: "Read what's changing." });
+  }
+  get dismissChange() {
+    return this.changeBanner.getByRole('button', { name: 'Dismiss' });
+  }
   constructor(private readonly page: Page) {}
   get heading() {
     return this.page.getByRole('heading', { level: 1 });
@@ -25,6 +36,9 @@ export class LegalPage {
   }
   async headerBottom() {
     return this.page.getByRole('banner').evaluate((el) => el.getBoundingClientRect().bottom);
+  }
+  get changeSummary() {
+    return this.page.locator('#whats-changing');
   }
   get sections() {
     return this.page.locator('.legal__section h2');

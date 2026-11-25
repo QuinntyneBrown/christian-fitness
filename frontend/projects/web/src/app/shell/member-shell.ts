@@ -1,3 +1,5 @@
+import { LegalChange } from '../legal/legal-change';
+import { LegalNotice } from '../legal/legal-notice';
 import { Footer } from '@cf/components';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -54,8 +56,9 @@ const DESTINATIONS: readonly MemberDestination[] = [
 @Component({
   selector: 'cf-member-shell',
   host: { '[attr.data-offline-ready]': 'offlineReady() ? "" : null' },
-  imports: [Footer, Banner, RouterOutlet, SkipLink, TabBar, TopBar],
+  imports: [LegalChange, Footer, Banner, RouterOutlet, SkipLink, TabBar, TopBar],
   providers: [
+    LegalNotice,
     { provide: CONVERSATIONS, useClass: HttpConversationsService },
     MemberInbox,
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
