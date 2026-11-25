@@ -22,6 +22,14 @@ class Event {
   +string? ImageKey
   +EventStatus Status
 }
+class CommunityPick {
+  +Guid Id
+  +Guid EventId
+  +string Note
+  +Guid PickedBy
+  +DateTimeOffset PickedAt
+}
+class RecordPickHandler
 class ListPickableEventsQuery
 class ListPickableEventsHandler {
   +Handle(q): Task<PickableEventDto[]>
@@ -34,10 +42,12 @@ class PickableEventDto {
   +string Area
   +int PriceCents
   +int SpotsLeft
+  +DateTimeOffset? LastPickedAt
   +string? ImageKey
 }
 interface CommunityPickApi {
   +events(): Observable<PickableEventDto[]>
+  +record(eventId, note): Observable<void>
 }
 class HttpCommunityPickService
 class CommunityPickPage {

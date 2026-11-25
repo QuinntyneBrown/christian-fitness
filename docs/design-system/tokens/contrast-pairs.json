@@ -146,6 +146,30 @@
       "note": "primary button label (active)"
     },
     {
+      "fg": "--color-accent",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "selected controls and indicators on cards (1.4.11)"
+    },
+    {
+      "fg": "--color-accent",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "selected controls and indicators in dialogs (1.4.11)"
+    },
+    {
+      "fg": "--color-accent-hover",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "checked switch on hover on cards (1.4.11)"
+    },
+    {
+      "fg": "--color-accent-hover",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "checked switch on hover in dialogs (1.4.11)"
+    },
+    {
       "fg": "--color-border-strong",
       "bg": "--color-bg-surface",
       "min": 3,
