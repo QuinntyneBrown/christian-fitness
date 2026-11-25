@@ -249,7 +249,8 @@ def interests(picked=("Running", "Strength"), disabled: bool = False) -> str:
 
 
 def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", errors: dict | None = None,
-              values: dict | None = None, google: bool = False, redirecting: bool = False) -> str:
+              values: dict | None = None, google: bool = False, redirecting: bool = False,
+              age_checked: bool = True, age_error: bool = False) -> str:
     ro = busy
     errors = errors or {}
     v = {"name": ME["name"], "email": ME["email"], "password": "abundantlife", "church": ME["church"], **(values or {})}
@@ -279,6 +280,15 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
         {field("Password", "password", v["password"], type_="password", autocomplete="new-password", hint="At least 8 characters", error=errors.get("password", ""), readonly=ro)}
         {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}"""
         title, lead = "Create your profile", "Free for everyone. Takes about a minute."
+    # L2-003 AC12: a required confirmation, never pre-ticked; no date of birth is asked or kept.
+    age_msg = "Confirm you're 16 or older to create a profile"
+    age_attrs = (" checked" if age_checked and not age_error else "") + (" disabled" if busy else "")
+    if age_error:
+        age_attrs += ' aria-invalid="true" aria-describedby="f-age-error"'
+    age = (f'<div class="field"><label class="check check--ui"><input class="check__box" id="f-age" name="age16" type="checkbox" required{age_attrs}> '
+           f"I'm 16 or older</label>" + (f'<span class="field__error" id="f-age-error">{age_msg}</span>' if age_error else "") + "</div>")
+    if age_error:
+        alert = '<div class="auth__alert">' + error_summary("1 thing to fix", [(age_msg, "f-age")]) + "</div>"
     return f"""    <form class="auth__form" action="{href("home")}" novalidate>
       <h1 class="display auth__title">{title}</h1>
       <p class="auth__lead">{lead}</p>
@@ -287,6 +297,7 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
       <div class="auth__fields{' auth__fields--after-sso' if not google else ''}">
         {fields}
         {interests(disabled=busy)}
+        {age}
       </div>
       {submit}
       <p class="auth__terms">By creating a profile you agree to our <a class="inline-link" href="{href("terms")}">Terms of Service</a> and <a class="inline-link" href="{href("privacy")}">Privacy Policy</a>.</p>
@@ -301,7 +312,7 @@ s = screen("join", "page", "Join", route="/join", source=SRC + "Join (owKTeNTEtw
 
 @s("default", "Create a profile: Sign up with Google, or name, email, password, optional home church and interests.")
 def _():
-    return auth(join_form())
+    return auth(join_form(age_checked=False))
 
 
 @s("redirecting", "Sign up with Google pressed: the button reads \"Opening Google…\" and is disabled until Google's page opens.")
@@ -311,7 +322,7 @@ def _():
 
 @s("google", "Back from Google with an account that has no profile: \"Finish your profile\" with the Google account shown, the name from Google, home church and interests; no email or password.")
 def _():
-    return auth(join_form(google=True))
+    return auth(join_form(google=True, age_checked=False))
 
 
 @s("google-invalid", "A blank name on the Google form: the summary and the field explain what to fix.")
@@ -348,6 +359,16 @@ def _():
         (JOIN_FIELD_ERRORS["password"], "f-password")]) + "</div>"
     return auth(join_form(alert=summary, errors=JOIN_FIELD_ERRORS,
                           values={"name": "", "email": "grace.thompson@gmail", "password": "abc"}))
+
+
+@s("age-unconfirmed", "Create profile pressed with \"I'm 16 or older\" unticked (L2-003 AC12): a summary above the form links to the checkbox, which is marked invalid. Nothing is sent and no date of birth is asked.")
+def _():
+    return auth(join_form(age_error=True))
+
+
+@s("age-unconfirmed-google", "The same on \"Finish your profile\" after Google (L2-003 AC12): the checkbox is required there too.")
+def _():
+    return auth(join_form(google=True, age_error=True))
 
 
 @s("refused", "The server refused the details (a field too long, say): a generic message above the form; everything typed is kept.")

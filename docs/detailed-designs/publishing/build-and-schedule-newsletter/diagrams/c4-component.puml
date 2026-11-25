@@ -16,10 +16,9 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(clock, "PublishingClock", "BackgroundService", "Sends SendDueIssueCommand every 30 s")
   Component(send, "SendDueIssueHandler", "MediatR handler", "Captures content, queues one delivery per recipient")
   Component(sender, "IssueSender", "BackgroundService", "Delivers queued deliveries in batches")
-  Component(track, "PublicIssueTrackingController", "ASP.NET Core controller, anonymous", "Open image and click redirect")
   Component(mailer, "NewsletterEmails, IEmailSender", "Application, Infrastructure", "Issue email, footer, headers")
 }
-ContainerDb(db, "Christian Fitness database", "PostgreSQL", "NewsletterIssues, IssueDeliveries, IssueRecipientMarks")
+ContainerDb(db, "Christian Fitness database", "PostgreSQL", "NewsletterIssues, IssueDeliveries")
 Rel(page, store, "Holds")
 Rel(page, client, "Calls")
 Rel(client, ctrl, "JSON/HTTPS")
@@ -30,6 +29,5 @@ Rel(clock, send, "Sends SendDueIssueCommand")
 Rel(send, db, "Writes deliveries", "IAppDbContext")
 Rel(sender, db, "Reads and marks deliveries", "IAppDbContext")
 Rel(sender, mailer, "Builds and sends")
-Rel(track, db, "Counts opens and clicks", "IAppDbContext")
 Rel(h, db, "Reads and writes", "IAppDbContext")
 @enduml

@@ -32,8 +32,6 @@ class NewsletterIssue <<entity>> {
   +DateTimeOffset? SentAt
   +bool MissedSend
   +int RecipientCount
-  +int OpenedCount
-  +int ClickedCount
   +IssueContent? Sent
   +Edit(fields): void
   +Schedule(by): void
@@ -45,14 +43,7 @@ class IssueDelivery <<entity>> {
   +Guid Id
   +int IssueNumber
   +Guid SubscriptionId
-  +string MarkToken
   +DateTimeOffset? SentAt
-}
-class IssueRecipientMark <<entity>> {
-  +int IssueNumber
-  +string MarkHash
-  +bool Opened
-  +bool Clicked
 }
 class NewsletterSubscription <<entity>> {
   +string Email
@@ -94,7 +85,6 @@ NewsletterIssue --> IssueStatus
 NewsletterIssue ..> Story : lead and up to 3 more
 NewsletterIssue ..> Event : events this week
 NewsletterIssue "1" *-- "*" IssueDelivery : while sending
-NewsletterIssue "1" *-- "*" IssueRecipientMark : no subscriber link
 IssueDelivery --> NewsletterSubscription
 SaveIssueCommand --|> IssueFields
 ScheduleIssueCommand --|> IssueFields

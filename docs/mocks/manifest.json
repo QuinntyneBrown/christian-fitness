@@ -56,6 +56,8 @@
         "google-failed",
         "invalid",
         "invalid-fields",
+        "age-unconfirmed",
+        "age-unconfirmed-google",
         "refused",
         "limited",
         "submitting",

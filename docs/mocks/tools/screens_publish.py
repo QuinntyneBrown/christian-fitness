@@ -309,7 +309,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
     test = (f'<button class="btn btn--secondary btn--sm btn--grow" type="button">{icon("check")}Test sent</button>' if tested
             else '<button class="btn btn--secondary btn--sm btn--grow" type="button" data-mock-href="test-sent.html">Send me a test</button>')
     past = "".join(f"""<tr><td class="table__nowrap"><span class="table__strong">#{n}</span> <span class="muted">· {date}</span></td><td>{subject}</td>
-                <td class="table__end table__strong">{opens}</td><td class="table__end muted">{clicks}</td></tr>""" for n, date, subject, opens, clicks in PAST_ISSUES)
+                <td class="table__end table__strong">{sent:,}</td></tr>""" for n, date, subject, sent in PAST_ISSUES)
     return f"""{admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}')}
       <form class="split split--builder" novalidate>
         <section class="card card--pad" aria-labelledby="issue-title">
@@ -343,7 +343,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         <h2 class="display section-title" id="sent-title">Sent</h2>
         <div class="table-wrap table-wrap--flush"><table class="table">
           <caption class="visually-hidden">Sent issues</caption>
-          <thead><tr><th scope="col">Issue</th><th scope="col">Subject</th><th scope="col" class="table__end">Opened</th><th scope="col" class="table__end">Clicked</th></tr></thead>
+          <thead><tr><th scope="col">Issue</th><th scope="col">Subject</th><th scope="col" class="table__end">Sent to</th></tr></thead>
           <tbody>{past}</tbody></table></div>
       </section>"""
 

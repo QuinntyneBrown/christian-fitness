@@ -159,6 +159,10 @@ choices below marked `<TO SUPPLY>` are its open points.
   as a wrong password: verified against the fixed hash, `invalid_credentials`, a failure recorded
   (`L2-004` AC2).
 
+Creating the account from "Finish your profile" also needs the required "I'm 16 or older"
+confirmation: the request carries `ageConfirmed` and is refused with code `age_not_confirmed` and
+HTTP 400 without it (`L2-003` AC12; [create a member account](../create-account/README.md)).
+
 ### Backend: finishing for staff
 
 `StaffSessionController.CompleteGoogle` (`POST /api/admin/session/google`) sends

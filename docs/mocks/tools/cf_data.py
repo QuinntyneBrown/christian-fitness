@@ -411,10 +411,10 @@ ADMIN_STORIES = [
 STORY_STATUSES = ["Draft", "In review", "Scheduled", "Published"]
 AUTHORS = ["Naomi Clarke", "Priya Raman", "Marcus Bell", "Pastor Ruth Adeyemi", "CF Team"]
 PAST_ISSUES = [
-    (48, "Apr 11", "A church basement, 200 neighbours, and a lot of kettlebells", "61%", "18%"),
-    (47, "Apr 4", "Holy Week on the move: five runs and one quiet walk", "58%", "15%"),
-    (46, "Mar 28", "Your rest day is not a cheat day", "64%", "21%"),
-    (45, "Mar 21", "Hoops & Devotion needs a second court", "55%", "12%"),
+    (48, "Apr 11", "A church basement, 200 neighbours, and a lot of kettlebells", 6812),
+    (47, "Apr 4", "Holy Week on the move: five runs and one quiet walk", 6790),
+    (46, "Mar 28", "Your rest day is not a cheat day", 6745),
+    (45, "Mar 21", "Hoops & Devotion needs a second court", 6701),
 ]
 # The four checks every listing passes before it goes live.
 CHECKS = [
