@@ -419,9 +419,9 @@
   --color-border-strong: var(--palette-stone-450);
   --color-border-hover: rgb(247 245 244 / 0.35);
   --color-border-inverse: var(--palette-stone-300);
-  --color-accent: var(--palette-bordeaux-600);
-  --color-accent-hover: var(--palette-bordeaux-500);
-  --color-accent-active: var(--palette-bordeaux-400);
+  --color-accent: #b54465;
+  --color-accent-hover: var(--palette-bordeaux-400);
+  --color-accent-active: #c34a71;
   --color-accent-subtle: var(--palette-wine-950);
   --color-accent-subtle-hover: var(--palette-wine-900);
   --color-accent-ring: rgb(240 168 191 / 0.25);
@@ -487,9 +487,9 @@
     --color-border-strong: var(--palette-stone-450);
     --color-border-hover: rgb(247 245 244 / 0.35);
     --color-border-inverse: var(--palette-stone-300);
-    --color-accent: var(--palette-bordeaux-600);
-    --color-accent-hover: var(--palette-bordeaux-500);
-    --color-accent-active: var(--palette-bordeaux-400);
+    --color-accent: #b54465;
+    --color-accent-hover: var(--palette-bordeaux-400);
+    --color-accent-active: #c34a71;
     --color-accent-subtle: var(--palette-wine-950);
     --color-accent-subtle-hover: var(--palette-wine-900);
     --color-accent-ring: rgb(240 168 191 / 0.25);
