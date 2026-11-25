@@ -41,6 +41,15 @@ public sealed class AdminSeriesController(ISender sender) : ControllerBase
     public async Task<ActionResult<AdminSeriesDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetAdminSeriesQuery(id), cancellationToken).ConfigureAwait(false);
 
+    /// <summary>Saves the series' details and answers 200 with it (L2-071 AC13).</summary>
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<AdminSeriesDto>> Update(Guid id, UpdateSeriesCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>Stores one image and answers 201 with its key, as the event editor's upload does (ADR 0025).</summary>
     [HttpPost("images")]
     [RequestSizeLimit(ImageBodyLimit)]

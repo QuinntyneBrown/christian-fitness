@@ -36,6 +36,7 @@ import {
   seriesDraftOf,
   seriesDraftProblemsOf,
   type SeriesEditorValues,
+  seriesEditorValuesOf,
   seriesErrorItems,
   type SeriesFieldErrors,
   seriesFieldErrorsOf,
@@ -59,15 +60,26 @@ type TextKey =
   'title' | 'description' | 'seriesPrice' | 'dropInPrice' | 'capacity' | 'location' | 'area';
 
 /**
+ * What the editor opens with: the values, and for a saved series its id, title and the members who
+ * joined, the lowest capacity it takes.
+ */
+export interface SeriesEditorData {
+  values: SeriesEditorValues;
+  series?: { id: string; title: string; joined: number };
+}
+
+/**
  * The series editor, "New series" (mock docs/mocks/dialogs/series-editor/, states `default`,
- * `searching`, `selected`, `no-results`, `invalid`, `busy` and `failed`; L2-071 AC10 to AC12,
- * AC15; ADR 0089, ADR 0091): a CDK Dialog rendering the library's dialog with Title, Category,
+ * `searching`, `selected`, `no-results`, `invalid`, `busy` and `failed`) or "Edit series details"
+ * (`edit`, `edit-invalid`, `edit-busy`, `edit-failed`; L2-071 AC10 to AC13, AC15; ADR 0089, ADR
+ * 0091): a CDK Dialog rendering the library's dialog with Title, Category,
  * Host, Description, Image, Series price, Drop-in price, Capacity, Location and Suggestion area.
- * Focus starts on Title; the host starts as the team listing and is searched among Listed
- * listings. What must change is named in an error summary that takes focus before anything is
- * sent; while the series is on its way the button reads "Creating…", Cancel is disabled and the
+ * Focus starts on Title; a new series' host starts as the team listing, a saved one's is its own,
+ * and either is searched among Listed listings. What must change, a capacity below the members who
+ * joined included, is named in an error summary that takes focus before anything is sent; while
+ * the series is on its way the button reads "Creating…" or "Saving…", Cancel is disabled and the
  * fields hold still; a field the API refuses is named the same way, and any other failure says so
- * in an alert, keeping what was typed. A created series closes the dialog with it.
+ * in an alert, keeping what was typed. A created or saved series closes the dialog with it.
  */
 @Component({
   selector: 'cf-series-editor-dialog',
@@ -99,7 +111,13 @@ export class SeriesEditorDialog {
   protected readonly descriptionId = DESCRIPTION_ID;
   protected readonly categories = CATEGORY_OPTIONS;
   protected readonly imageTypes = IMAGE_TYPES;
-  protected readonly values = signal<SeriesEditorValues>(inject<SeriesEditorValues>(DIALOG_DATA));
+  private readonly data = inject<SeriesEditorData>(DIALOG_DATA);
+  /** The saved series being edited, or none for a new one. */
+  protected readonly saved = this.data.series ?? null;
+  protected readonly subtitle = this.saved
+    ? `${this.saved.title} · changes show to members at once`
+    : 'Dates are added from the series itself, once it exists.';
+  protected readonly values = signal<SeriesEditorValues>(this.data.values);
   protected readonly saving = signal(false);
   protected readonly uploading = signal(false);
   protected readonly failed = signal(false);
@@ -114,7 +132,7 @@ export class SeriesEditorDialog {
   protected readonly hostStatus = signal('');
 
   constructor() {
-    this.askDefaultHost();
+    if (!this.saved) this.askDefaultHost();
     this.destroyRef.onDestroy(() => clearTimeout(this.hostTimer));
   }
 
@@ -202,20 +220,21 @@ export class SeriesEditorDialog {
     if (this.saving() || this.uploading()) return;
     this.failed.set(false);
     this.errors.set({});
-    const problems = seriesDraftProblemsOf(this.values());
+    const joined = this.saved?.joined ?? 0;
+    const problems = seriesDraftProblemsOf(this.values(), joined);
     if (Object.keys(problems).length > 0) {
       this.showErrors(problems);
       return;
     }
     this.saving.set(true);
     this.ref.disableClose = true;
-    this.series
-      .create(seriesDraftOf(this.values()))
+    const draft = seriesDraftOf(this.values());
+    (this.saved ? this.series.update(this.saved.id, draft) : this.series.create(draft))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (created) => this.ref.close(created),
+        next: (series) => this.ref.close(series),
         error: (error: ApiError) => {
-          const fields = seriesFieldErrorsOf(error);
+          const fields = seriesFieldErrorsOf(error, joined);
           if (fields) this.showErrors(fields);
           else this.failed.set(true);
           this.saving.set(false);
@@ -260,16 +279,35 @@ export class SeriesEditorDialog {
 /**
  * Opens the series editor for a new series, with `injector` (the Event series page's, which binds
  * {@link ADMIN_SERIES_SERVICE}); it closes with the created series, or nothing. The page imports
- * this file on the first New series, so CDK Dialog stays out of every bundle until then.
+ * this file on the first New series or Edit details, so CDK Dialog stays out of every bundle until
+ * then.
  */
 export function openSeriesEditor(
   injector: Injector,
 ): DialogRef<AdminSeriesDto, SeriesEditorDialog> {
+  return open(injector, { values: EMPTY_SERIES_EDITOR });
+}
+
+/** Opens the editor on a saved series; it closes with the saved series, or nothing. */
+export function openSeriesEditorFor(
+  injector: Injector,
+  series: AdminSeriesDto,
+): DialogRef<AdminSeriesDto, SeriesEditorDialog> {
+  return open(injector, {
+    values: seriesEditorValuesOf(series),
+    series: { id: series.id, title: series.title, joined: series.joined },
+  });
+}
+
+function open(
+  injector: Injector,
+  data: SeriesEditorData,
+): DialogRef<AdminSeriesDto, SeriesEditorDialog> {
   return injector
     .get(Dialog)
-    .open<AdminSeriesDto, SeriesEditorValues, SeriesEditorDialog>(SeriesEditorDialog, {
+    .open<AdminSeriesDto, SeriesEditorData, SeriesEditorDialog>(SeriesEditorDialog, {
       injector,
-      data: EMPTY_SERIES_EDITOR,
+      data,
       ariaLabelledBy: HEADING_ID,
       ariaDescribedBy: DESCRIPTION_ID,
       ariaModal: true,

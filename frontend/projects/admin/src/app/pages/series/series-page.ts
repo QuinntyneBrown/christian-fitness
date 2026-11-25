@@ -20,7 +20,7 @@ import {
   type ToastData,
   ToastRegion,
 } from '@cf/components';
-import { adminSeriesViewOf, seriesPickCardOf, ToastStore } from '@cf/domain';
+import { adminSeriesViewOf, seriesPickCardOf, seriesRowOf, ToastStore } from '@cf/domain';
 import {
   catchError,
   distinctUntilChanged,
@@ -166,6 +166,36 @@ export default class AdminSeriesPage {
         this.toasts.show(`${created.title} created`, 'Add its first date so members can join.');
         this.choose(created.id);
         this.reload.next();
+      });
+  }
+
+  /**
+   * Edit details (L2-071 AC13): opens the series editor on the series shown; a saved series is
+   * shown as saved and a toast says so.
+   */
+  protected async editDetails(): Promise<void> {
+    const chosen = this.chosen();
+    if (this.editorOpen || chosen.kind !== 'ready') return;
+    this.editorOpen = true;
+    const { openSeriesEditorFor } =
+      await import('../../dialogs/series-editor/series-editor-dialog');
+    if (this.destroyRef.destroyed) return;
+    openSeriesEditorFor(this.injector, chosen.series)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((saved) => {
+        this.editorOpen = false;
+        if (!saved) return;
+        this.toasts.show(`${saved.title} updated`, 'Members see the changes now.');
+        // Shown as saved in place, so the card and Edit details stay and focus returns to it.
+        this.list.update((list) =>
+          list.kind === 'ready'
+            ? {
+                kind: 'ready',
+                rows: list.rows.map((row) => (row.id === saved.id ? seriesRowOf(saved) : row)),
+              }
+            : list,
+        );
+        this.chosen.set({ kind: 'ready', series: saved });
       });
   }
 

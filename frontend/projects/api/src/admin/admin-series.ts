@@ -80,7 +80,7 @@ export interface SeriesDraftDto {
   area: string;
 }
 
-/** Staff list, open and create event series (L2-071; ADR 0091); Moderators use it as Admins do. */
+/** Staff list, open, create and edit event series (L2-071; ADR 0091); Moderators use it as Admins do. */
 export interface AdminSeriesApi {
   /** Every series, by its next session. A failure errors with an `ApiError`. */
   list(): Observable<AdminSeriesListDto>;
@@ -93,6 +93,13 @@ export interface AdminSeriesApi {
    * `validation_failed` (400) naming it in `fieldCodes`.
    */
   create(draft: SeriesDraftDto): Observable<AdminSeriesDto>;
+
+  /**
+   * Save changes (L2-071 AC13): the series as saved, its sessions still to come following it. A
+   * capacity below the members who joined errors with `capacity_below_joined` (409), a field with
+   * `validation_failed` (400) and an unknown series with `not_found` (404).
+   */
+  update(id: string, draft: SeriesDraftDto): Observable<AdminSeriesDto>;
 
   /** The host a new series starts with: the Christian Fitness team listing (L2-071 AC10). */
   defaultHost(): Observable<EventHostDto>;

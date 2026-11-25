@@ -15,6 +15,9 @@ public static class RefusalCodes
     /// <summary>An event's capacity was set below the members going (L2-022 AC3; ADR 0025).</summary>
     public const string CapacityBelowGoing = "capacity_below_going";
 
+    /// <summary>A series' capacity was set below the members who joined it (L2-071 AC13; ADR 0091).</summary>
+    public const string CapacityBelowJoined = "capacity_below_joined";
+
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
     public const string EventNotFound = "event_not_found";
 

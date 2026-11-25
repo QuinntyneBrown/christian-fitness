@@ -1,5 +1,10 @@
 import type { AdminSeriesDto, AdminSeriesRowDto, SeriesCadenceDto } from '@cf/api';
-import { adminSeriesViewOf, seriesCadenceText, seriesPickCardOf } from './admin-series-view';
+import {
+  adminSeriesViewOf,
+  seriesCadenceText,
+  seriesPickCardOf,
+  seriesRowOf,
+} from './admin-series-view';
 
 // ADR 0091: a cadence is numbers; the admin app words it, one row per case.
 describe('seriesCadenceText', () => {
@@ -166,5 +171,18 @@ describe('adminSeriesViewOf', () => {
     },
   ])('$why', ({ change, expected }) => {
     expect(adminSeriesViewOf({ ...COUCH, ...change })).toEqual(expect.objectContaining(expected));
+  });
+});
+
+describe('seriesRowOf', () => {
+  it('keeps exactly the fields of a list row', () => {
+    expect(seriesRowOf(COUCH)).toEqual({
+      id: COUCH.id,
+      title: COUCH.title,
+      cadence: COUCH.cadence,
+      startsAt: COUCH.startsAt,
+      joined: COUCH.joined,
+      capacity: COUCH.capacity,
+    });
   });
 });

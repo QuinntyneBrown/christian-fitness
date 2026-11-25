@@ -34,6 +34,12 @@ export class HttpAdminSeriesService implements AdminSeriesApi {
     return this.http.post<AdminSeriesDto>('/api/admin/series', draft).pipe(catchError(asApiError));
   }
 
+  update(id: string, draft: SeriesDraftDto): Observable<AdminSeriesDto> {
+    return this.http
+      .put<AdminSeriesDto>(`/api/admin/series/${encodeURIComponent(id)}`, draft)
+      .pipe(catchError(asApiError));
+  }
+
   defaultHost(): Observable<EventHostDto> {
     return this.http
       .get<EventHostDto>('/api/admin/series/hosts/default')

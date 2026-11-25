@@ -97,7 +97,11 @@
                   [price]="series.price"
                   [dropIn]="series.dropIn"
                   [left]="series.left"
-                />
+                >
+                  <cf-button slot="action" variant="secondary" size="sm" (click)="editDetails()">
+                    Edit details<span class="visually-hidden">: {{ series.title }}</span>
+                  </cf-button>
+                </cf-series-summary-card>
                 <div class="section-head mt-section">
                   <h3 class="section-title">Sessions</h3>
                 </div>

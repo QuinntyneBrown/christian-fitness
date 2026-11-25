@@ -1,6 +1,6 @@
 <cf-dialog
-  heading="New series"
-  subtitle="Dates are added from the series itself, once it exists."
+  [heading]="saved ? 'Edit series details' : 'New series'"
+  [subtitle]="subtitle"
   [titleId]="headingId"
   [descriptionId]="descriptionId"
   (closed)="close()"
@@ -10,7 +10,7 @@
       <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
     }
   } @else if (failed()) {
-    <cf-alert heading="Couldn't create the series">
+    <cf-alert [heading]="saved ? 'Couldn\'t save the changes' : 'Couldn\'t create the series'">
       The server didn't respond. Nothing was changed and what you typed is still here; try again.
     </cf-alert>
   }
@@ -141,9 +141,9 @@
     (click)="save()"
   >
     @if (saving()) {
-      Creating…
+      {{ saved ? 'Saving…' : 'Creating…' }}
     } @else {
-      Create series
+      {{ saved ? 'Save changes' : 'Create series' }}
     }
   </cf-button>
 </cf-dialog>

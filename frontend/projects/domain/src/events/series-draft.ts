@@ -1,5 +1,5 @@
-import type { ApiError, EventCategory, SeriesDraftDto } from '@cf/api';
-import { capacityOf, priceCentsOf } from './event-draft';
+import type { AdminSeriesDto, ApiError, EventCategory, SeriesDraftDto } from '@cf/api';
+import { capacityOf, KEPT_IMAGE_NAME, priceCentsOf, priceTextOf } from './event-draft';
 
 /** What the series editor's fields hold, as typed (mock `series-editor`). */
 export interface SeriesEditorValues {
@@ -89,6 +89,30 @@ export function dropInPriceCentsOf(text: string): number | null | undefined {
   return seriesPriceCentsOf(text) ?? undefined;
 }
 
+/** A price in cents as the editor shows it: 0 is "Free", 6400 is "$64"; no drop-in is blank. */
+export function seriesPriceTextOf(cents: number | null): string {
+  if (cents === null) return '';
+  return cents <= 0 ? 'Free' : priceTextOf(cents);
+}
+
+/** What the editor opens with for a saved series (L2-071 AC13; mock `series-editor/edit`). */
+export function seriesEditorValuesOf(series: AdminSeriesDto): SeriesEditorValues {
+  return {
+    title: series.title,
+    category: series.category,
+    hostListingId: series.host.id,
+    hostName: series.host.name,
+    description: series.summary,
+    imageKey: series.imageKey,
+    imageName: series.imageKey ? KEPT_IMAGE_NAME : null,
+    seriesPrice: seriesPriceTextOf(series.priceCents),
+    dropInPrice: seriesPriceTextOf(series.dropInPriceCents),
+    capacity: String(series.capacity),
+    location: series.place,
+    area: series.area,
+  };
+}
+
 /** What Create series and Save changes send for the editor's values: text as typed, numbers as numbers. */
 export function seriesDraftOf(values: SeriesEditorValues): SeriesDraftDto {
   return {
@@ -111,12 +135,19 @@ const HOST_MISSING = 'Choose a Listed host';
 const CAPACITY_TOO_LOW = 'Set a capacity of at least 1';
 const PRICE_INVALID = 'Use a price from $0 to $10,000';
 
+/** "31 members have joined. Set a capacity of at least 31", or the one-member form (mock `series-editor/edit-invalid`). */
+export function capacityBelowJoinedMessage(joined: number): string {
+  const have = joined === 1 ? '1 member has' : `${joined} members have`;
+  return `${have} joined. Set a capacity of at least ${joined}`;
+}
+
 /**
- * What must change before the editor sends (L2-071 AC15; mock `series-editor/invalid`): a blank
- * title, no chosen host, a capacity that is not a whole number of at least 1, and a price that is
- * not an amount. The API holds the other rules and names them by code ({@link seriesFieldErrorsOf}).
+ * What must change before the editor sends (L2-071 AC13, AC15; mocks `series-editor/invalid` and
+ * `edit-invalid`): a blank title, no chosen host, a capacity that is not a whole number of at least
+ * 1 or, for a saved series, below the `joined` members, and a price that is not an amount. The API
+ * holds the other rules and names them by code ({@link seriesFieldErrorsOf}).
  */
-export function seriesDraftProblemsOf(values: SeriesEditorValues): SeriesFieldErrors {
+export function seriesDraftProblemsOf(values: SeriesEditorValues, joined = 0): SeriesFieldErrors {
   const problems: SeriesFieldErrors = {};
   if (values.title.trim() === '') problems.title = TITLE_MISSING;
   if (values.hostListingId === null) problems.host = HOST_MISSING;
@@ -124,6 +155,7 @@ export function seriesDraftProblemsOf(values: SeriesEditorValues): SeriesFieldEr
   if (dropInPriceCentsOf(values.dropInPrice) === undefined) problems.dropInPrice = PRICE_INVALID;
   const capacity = capacityOf(values.capacity);
   if (capacity === null || capacity < 1) problems.capacity = CAPACITY_TOO_LOW;
+  else if (capacity < joined) problems.capacity = capacityBelowJoinedMessage(joined);
   return problems;
 }
 
@@ -164,11 +196,15 @@ const MESSAGES: Record<string, string> = {
 const UNKNOWN_CODE = 'Check this field';
 
 /**
- * The messages for the fields the API refused (L2-071 AC11, AC15), or `null` when the failure is not
- * a field's: a `validation_failed` body names each failed field's code in `fieldCodes`. The
+ * The messages for the fields the API refused (L2-071 AC11, AC13, AC15), or `null` when the failure
+ * is not a field's: a `validation_failed` body names each failed field's code in `fieldCodes`, and
+ * `capacity_below_joined` (409) is Capacity's, with `joined` the members the editor opened with. The
  * server's own sentences are never shown.
  */
-export function seriesFieldErrorsOf(error: ApiError): SeriesFieldErrors | null {
+export function seriesFieldErrorsOf(error: ApiError, joined = 0): SeriesFieldErrors | null {
+  if (error.code === 'capacity_below_joined') {
+    return { capacity: capacityBelowJoinedMessage(joined) };
+  }
   if (error.status !== 400 || !error.fieldCodes) return null;
   const errors: SeriesFieldErrors = {};
   for (const [key, code] of Object.entries(error.fieldCodes)) {

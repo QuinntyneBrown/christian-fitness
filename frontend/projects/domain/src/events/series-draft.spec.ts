@@ -1,13 +1,16 @@
-import type { ApiError } from '@cf/api';
+import type { AdminSeriesDto, ApiError } from '@cf/api';
 import {
+  capacityBelowJoinedMessage,
   dropInPriceCentsOf,
   EMPTY_SERIES_EDITOR,
   seriesDraftOf,
   seriesDraftProblemsOf,
   type SeriesEditorValues,
+  seriesEditorValuesOf,
   seriesErrorItems,
   seriesFieldErrorsOf,
   seriesPriceCentsOf,
+  seriesPriceTextOf,
 } from './series-draft';
 
 /** Sunday Stretch & Prayer as the series editor mock fills it, hosted by the team listing. */
@@ -175,5 +178,78 @@ describe('seriesErrorItems', () => {
       { text: 'c', target: 'f-capacity' },
       { text: 'l', target: 'f-place' },
     ]);
+  });
+});
+
+// L2-071 AC13 (mock series-editor/edit): a saved series opens with its values.
+describe('seriesEditorValuesOf', () => {
+  const couch = {
+    id: 'c5',
+    title: 'Couch to 5K Run Club',
+    category: 'run',
+    summary: 'Eight weeks from walking to running a full 5K.',
+    imageKey: 'abc.jpg',
+    host: { id: 'lakeshore', kind: 'organization', name: 'Lakeshore Runners Fellowship' },
+    place: 'Humber Bay Park East',
+    area: 'Etobicoke, Toronto',
+    priceCents: 6400,
+    dropInPriceCents: 1000,
+    capacity: 40,
+  } as AdminSeriesDto;
+
+  it('opens with the saved text, host, prices as typed and the image kept', () => {
+    expect(seriesEditorValuesOf(couch)).toEqual({
+      title: 'Couch to 5K Run Club',
+      category: 'run',
+      hostListingId: 'lakeshore',
+      hostName: 'Lakeshore Runners Fellowship',
+      description: 'Eight weeks from walking to running a full 5K.',
+      imageKey: 'abc.jpg',
+      imageName: 'Current image',
+      seriesPrice: '$64',
+      dropInPrice: '$10',
+      capacity: '40',
+      location: 'Humber Bay Park East',
+      area: 'Etobicoke, Toronto',
+    });
+  });
+
+  it.each([
+    { cents: 0, text: 'Free' },
+    { cents: 6400, text: '$64' },
+    { cents: 1050, text: '$10.50' },
+    { cents: null, text: '' },
+  ])('a price of $cents reads "$text"', ({ cents, text }) => {
+    expect(seriesPriceTextOf(cents)).toBe(text);
+  });
+});
+
+// L2-071 AC13 (mock series-editor/edit-invalid): a capacity below the members who joined.
+describe('a capacity below the joined', () => {
+  it.each([
+    {
+      capacity: '20',
+      joined: 31,
+      problem: '31 members have joined. Set a capacity of at least 31',
+    },
+    {
+      capacity: '30',
+      joined: 31,
+      problem: '31 members have joined. Set a capacity of at least 31',
+    },
+    { capacity: '31', joined: 31, problem: undefined },
+    { capacity: '0', joined: 31, problem: 'Set a capacity of at least 1' },
+  ])('$capacity with $joined joined: $problem', ({ capacity, joined, problem }) => {
+    expect(seriesDraftProblemsOf({ ...STRETCH, capacity }, joined).capacity).toBe(problem);
+  });
+
+  it('words one member as one', () => {
+    expect(capacityBelowJoinedMessage(1)).toBe('1 member has joined. Set a capacity of at least 1');
+  });
+
+  it('names the refusal capacity_below_joined with the joined the editor opened with', () => {
+    expect(seriesFieldErrorsOf({ status: 409, code: 'capacity_below_joined' }, 31)).toEqual({
+      capacity: '31 members have joined. Set a capacity of at least 31',
+    });
   });
 });

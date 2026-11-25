@@ -16,7 +16,8 @@ export interface SeriesEditorValues {
  * The series editor, "New series" (mock `docs/mocks/dialogs/series-editor/`): a CDK Dialog over
  * Event series with Title, Category, Host (a search over Listed directory listings), Description,
  * Image, Series price, Drop-in price, Capacity, Location and Suggestion area, its error summary or
- * failure alert, and Cancel and Create series. Owns the selectors of that dialog.
+ * failure alert, and Cancel and Create series; as "Edit series details", Save changes. Owns the
+ * selectors of that dialog.
  */
 export class SeriesEditorDialog {
   readonly dialog: Locator;
@@ -44,14 +45,19 @@ export class SeriesEditorDialog {
   readonly cancelButton: Locator;
   /** The foot's create button, whichever it reads: Create series or Creating…. */
   readonly createButton: Locator;
+  /** The foot's save button, whichever it reads: Save changes or Saving…. */
+  readonly saveButton: Locator;
   readonly alert: Locator;
   readonly alertTitle: Locator;
   readonly alertText: Locator;
   readonly alertLinks: Locator;
   readonly fieldErrors: Locator;
 
-  constructor(private readonly page: Page) {
-    this.dialog = page.getByRole('dialog', { name: 'New series' });
+  constructor(
+    private readonly page: Page,
+    name: 'New series' | 'Edit series details' = 'New series',
+  ) {
+    this.dialog = page.getByRole('dialog', { name });
     this.title = this.dialog.locator('.dialog__title');
     this.subtitle = this.dialog.locator('.dialog__sub');
     this.closeButton = this.dialog.getByRole('button', { name: 'Close' });
@@ -75,6 +81,9 @@ export class SeriesEditorDialog {
     this.cancelButton = this.dialog.locator('.dialog__foot .btn', { hasText: 'Cancel' });
     this.createButton = this.dialog.locator('.dialog__foot .btn', {
       hasText: /Create series|Creating/,
+    });
+    this.saveButton = this.dialog.locator('.dialog__foot .btn', {
+      hasText: /Save changes|Saving/,
     });
     this.alert = this.dialog.locator('.form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
@@ -108,6 +117,10 @@ export class SeriesEditorDialog {
   /** Chooses an image file with `bytes` named `name`. */
   async chooseImage(name: string, bytes: Buffer): Promise<void> {
     await this.imageInput.setInputFiles({ name, mimeType: 'image/png', buffer: bytes });
+  }
+
+  async save(): Promise<void> {
+    await this.saveButton.click();
   }
 
   async create(): Promise<void> {

@@ -117,6 +117,12 @@ export function seriesPickCardOf(row: AdminSeriesRowDto): SeriesPickCardView {
   };
 }
 
+/** A saved series as its list row, so the list shows a change without asking for it again (L2-071 AC13). */
+export function seriesRowOf(series: AdminSeriesDto): AdminSeriesRowDto {
+  const { id, title, cadence, startsAt, joined, capacity } = series;
+  return { id, title, cadence, startsAt, joined, capacity };
+}
+
 /** The series as its summary card and session list show it (L2-071 AC2, AC3). */
 export function adminSeriesViewOf(series: AdminSeriesDto): AdminSeriesView {
   const { startsAt, firstStartsAt, lastStartsAt } = series;
