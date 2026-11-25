@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — list and choose a series
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "SeriesPage" as page
+  participant "AdminSeriesApi (ADMIN_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminSeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListAdminSeriesHandler" as lh
+  participant "GetAdminSeriesHandler" as gh
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Event series (Gather group, L2-071 AC7)
+page --> actor : Skeletons (L2-071 AC8)
+page -> client : list()
+client -> ctrl : GET /api/admin/series
+ctrl -> ctrl : Staff:Series policy; a Moderator is refused 403 forbidden_role
+alt Moderator
+  ctrl --> client : 403 ProblemDetails
+  client --> page : Admins only screen (L2-071 AC8)
+else Admin
+  ctrl -> lh : Send ListAdminSeriesQuery
+  lh -> db : Every series; enrolments per series
+  db --> lh : Rows
+  lh --> ctrl : AdminSeriesRowDto[]
+  ctrl --> client : 200 JSON
+  alt none
+    page --> actor : "No series yet" with New series (L2-071 AC8)
+  else some
+    page -> client : get(first id)
+    client -> ctrl : GET /api/admin/series/{id}
+    ctrl -> gh : Send GetAdminSeriesQuery
+    gh -> db : Series, sessions, enrolment count, registrations per session
+    db --> gh : Rows
+    gh --> ctrl : AdminSeriesDetailDto
+    ctrl --> client : 200 JSON
+    page --> actor : pick-card list (first aria-current="page"), series-summary-card, admin-session list (L2-071 AC1 to AC3)
+  end
+end
+opt answer fails
+  page --> actor : "Series didn't load" with Try again
+end
+@enduml

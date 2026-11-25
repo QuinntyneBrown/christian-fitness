@@ -1,0 +1,129 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Manage event series
+
+enum StaffArea {
+  Console
+  Dashboard
+  Members
+  Events
+  Services
+  Series
+  CommunityPick
+  Unlisted
+}
+class EventSeries {
+  +Guid Id
+  +string Title
+  +string Cadence
+  +Guid HostListingId
+  +int PriceCents
+  +int DropInPriceCents
+  +int Capacity
+}
+class Event {
+  +Guid Id
+  +DateTimeOffset StartsAt
+  +EventStatus Status
+  +Guid? SeriesId
+  +int? SessionNumber
+  +string? Topic
+  +int RegistrationVersion
+  +Cancel(): void
+  +Restore(now): void
+}
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+}
+class SeriesEnrolment {
+  +Guid SeriesId
+  +Guid MemberId
+}
+class CancelSessionCommand <<IAuditableCommand>> {
+  +Guid SeriesId
+  +Guid SessionId
+  AuditAction = "series.session_cancelled"
+}
+class RestoreSessionCommand <<IAuditableCommand>> {
+  +Guid SeriesId
+  +Guid SessionId
+  AuditAction = "series.session_restored"
+}
+class CancelSessionHandler {
+  +Handle(c): Task<SessionChangeDto>
+}
+class RestoreSessionHandler {
+  +Handle(c): Task<SessionChangeDto>
+}
+class SessionChangeDto {
+  +AdminSeriesDetailDto Series
+  +int Told
+}
+class AdminSeriesDetailDto {
+  +Guid Id
+  +string Title
+  +string Host
+  +string Cadence
+  +string Place
+  +string? ImageKey
+  +int Joined
+  +int Capacity
+  +int PriceCents
+  +int DropInPriceCents
+  +int SessionsLeft
+  +int SessionCount
+  +AdminSessionDto[] Sessions
+}
+class AdminSessionDto {
+  +Guid Id
+  +int Number
+  +DateTimeOffset StartsAt
+  +string Topic
+  +bool Cancelled
+  +int Holding
+}
+interface AdminSeriesApi {
+  +list(): Observable<AdminSeriesRowDto[]>
+  +get(id): Observable<AdminSeriesDetailDto>
+  +cancelSession(id, sessionId): Observable<SessionChangeDto>
+  +restoreSession(id, sessionId): Observable<SessionChangeDto>
+}
+class SeriesPage {
+  +chosen: Signal<string | null>
+  +openCancel(session): void
+  +restore(session): void
+}
+class CancelSessionDialog {
+  +busy: Signal<boolean>
+  +failed: Signal<boolean>
+}
+class AdminSessionView <<domain>> {
+  +status: 'done' | 'live' | 'cancelled' | 'upcoming'
+  +canCancel: boolean
+  +canRestore: boolean
+}
+SeriesPage ..> AdminSeriesApi : ADMIN_SERIES_SERVICE
+SeriesPage ..> CancelSessionDialog : CDK Dialog
+CancelSessionDialog ..> AdminSeriesApi
+SeriesPage ..> AdminSessionView
+CancelSessionHandler ..> CancelSessionCommand : handles
+RestoreSessionHandler ..> RestoreSessionCommand : handles
+CancelSessionHandler ..> Event : Cancel()
+RestoreSessionHandler ..> Event : Restore(now)
+CancelSessionHandler ..> SessionChangeDto : returns
+SessionChangeDto *-- AdminSeriesDetailDto
+AdminSeriesDetailDto "1" *-- "1..*" AdminSessionDto
+EventSeries "1" o-- "1..*" Event : sessions
+Event "1" o-- "*" Registration
+EventSeries "1" o-- "*" SeriesEnrolment
+@enduml

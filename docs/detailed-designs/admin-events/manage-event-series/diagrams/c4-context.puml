@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage event series
+
+Person(member, "Member", "Signed-in member of the Christian community")
+Person(staff, "Admin", "Staff member with the Admin role")
+System(cf, "Christian Fitness", "Events, series, services and messages for members; admin console for staff")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+
+Rel(member, cf, "Joins series in", "HTTPS")
+Rel(staff, cf, "Manages series dates in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage event series
+
+Person(user, "Admin", "Staff member with the Admin role")
+System_Boundary(cf, "Christian Fitness") {
+  Container(app, "Admin web app", "Angular (standalone, signals, zoneless)", "SeriesPage and CancelSessionDialog; components, domain and api libraries")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "AdminSeriesController and its handlers under the Series staff area")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "EventSeries, Event sessions, Registrations, SeriesEnrolment, AuditEntry")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
+
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(user, app, "Uses", "HTTPS")
+Rel(app, api, "Calls", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+@enduml

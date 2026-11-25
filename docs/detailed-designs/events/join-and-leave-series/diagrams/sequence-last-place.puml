@@ -1,0 +1,32 @@
+@startuml
+title UML sequence behaviour — two members join for the last place
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+participant "Member A request" as a
+participant "Member B request" as b
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "JoinSeriesHandler (A)" as ha
+  participant "JoinSeriesHandler (B)" as hb
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+a -> ha : JoinSeriesCommand
+b -> hb : JoinSeriesCommand
+ha -> db : Read series and sessions (EnrolmentVersion n, RegistrationVersion v per session)
+hb -> db : Read series and sessions (same versions)
+ha -> ha : SpotsLeft = 1
+hb -> hb : SpotsLeft = 1
+ha -> db : Save: Enrol, TakePlace on each remaining session
+db --> ha : Committed; versions bumped
+hb -> db : Save: Enrol, TakePlace on each remaining session
+db --> hb : DbUpdateConcurrencyException (ADR 0033 token)
+hb -> hb : Detach new rows; reload series and sessions
+hb -> db : Read again
+db --> hb : SpotsLeft = 0
+hb --> b : series_full (L2-052 AC6)
+ha --> a : SeriesDetailDto, enrolled
+@enduml

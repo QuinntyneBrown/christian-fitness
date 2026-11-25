@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage event series
+
+Container(admin, "Admin web app", "Angular", "SeriesPage, CancelSessionDialog, PickList, SeriesCard, SessionList, adminSessionViewOf, HttpAdminSeriesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminSeriesController", "ASP.NET Core controller; Staff:Series policy", "api/admin/series")
+  Component(lh, "ListAdminSeriesHandler", "MediatR handler", "Every series with joined / capacity")
+  Component(gh, "GetAdminSeriesHandler", "MediatR handler", "One series with its sessions and counts")
+  Component(ch, "CancelSessionHandler", "MediatR handler", "Event.Cancel on a session; audited")
+  Component(rh, "RestoreSessionHandler", "MediatR handler", "Event.Restore on a session; audited")
+  Component(audit, "AuditTrail", "Application service", "series.session_cancelled, series.session_restored")
+  Component(chat, "IChatChannel", "Application abstraction", "Notice in the series' group chat")
+  Component(ctx, "IAppDbContext", "Application abstraction", "One unit of work")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Series, sessions, registrations, audit entries")
+Rel(admin, ctrl, "List, open, cancel and restore", "JSON/HTTPS, staff cookie")
+Rel(ctrl, lh, "Sends ListAdminSeriesQuery")
+Rel(ctrl, gh, "Sends GetAdminSeriesQuery")
+Rel(ctrl, ch, "Sends CancelSessionCommand")
+Rel(ctrl, rh, "Sends RestoreSessionCommand")
+Rel(ch, audit, "Records")
+Rel(rh, audit, "Records")
+Rel(ch, chat, "Notifies")
+Rel(rh, chat, "Notifies")
+Rel(lh, ctx, "Queries")
+Rel(gh, ctx, "Queries")
+Rel(ch, ctx, "Saves")
+Rel(rh, ctx, "Saves")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

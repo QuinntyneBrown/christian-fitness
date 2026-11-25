@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Join and leave a series
+
+Container(web, "Member web app", "Angular", "EventSeriesPage, PlanOption, LeaveSeriesDialog, seriesSignUpOf, seriesCalendarOf, HttpEventSeriesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "SeriesController", "ASP.NET Core controller", "POST and DELETE /api/events/series/{id}/enrolment")
+  Component(jh, "JoinSeriesHandler", "MediatR handler", "Enrolment and one Registration per remaining session")
+  Component(lh, "LeaveSeriesHandler", "MediatR handler", "Removes places at sessions not started")
+  Component(places, "SeriesPlaces", "Domain service", "Spots left; sessions to take")
+  Component(chat, "IChatChannel", "Application abstraction", "Leaves the series' group chat")
+  Component(ctx, "IAppDbContext", "Application abstraction", "One unit of work")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "RegistrationVersion and EnrolmentVersion tokens")
+Rel(web, ctrl, "Join or leave", "JSON/HTTPS")
+Rel(ctrl, jh, "Sends JoinSeriesCommand")
+Rel(ctrl, lh, "Sends LeaveSeriesCommand")
+Rel(jh, places, "Checks places with")
+Rel(jh, ctx, "Saves Enrolment and Registrations")
+Rel(lh, ctx, "Removes Registrations and Enrolment")
+Rel(lh, chat, "LeaveAsync")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

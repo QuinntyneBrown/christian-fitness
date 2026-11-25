@@ -1,0 +1,69 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Drop in on dates of a series
+
+class Event {
+  +Guid Id
+  +DateTimeOffset StartsAt
+  +int Capacity
+  +int PriceCents
+  +EventStatus Status
+  +Guid? SeriesId
+  +int? SessionNumber
+  +int RegistrationVersion
+  +TakePlace(): void
+  +ReleasePlace(): void
+}
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+  +RegistrationStatus Status
+  +{static} Of(eventId, memberId, priceCents, createdAt): Registration
+}
+class SetDropInDatesCommand {
+  +Guid SeriesId
+  +Guid[] SessionIds
+}
+class SetDropInDatesValidator
+class SetDropInDatesHandler {
+  +Handle(c: SetDropInDatesCommand): Task<SeriesDetailDto>
+}
+class SessionsFullRefusal {
+  +string Code = "event_full"
+  +int[] Sessions
+}
+interface EventSeriesApi {
+  +setDropIns(id, sessionIds): Observable<SeriesDetailDto>
+}
+class EventSeriesPage {
+  +plan: Signal<'every' | 'drop-in'>
+  +picked: Signal<ReadonlySet<string>>
+  +changingDates: Signal<boolean>
+  +toggle(sessionId): void
+  +register(): void
+  +changeDates(): void
+}
+class DropInPick <<domain>> {
+  +note: string
+  +buttonText: string
+  +disabled: boolean
+  +bookedText: string
+}
+EventSeriesPage ..> EventSeriesApi : EVENT_SERIES_SERVICE
+EventSeriesPage ..> DropInPick
+SetDropInDatesHandler ..> SetDropInDatesCommand : handles
+SetDropInDatesValidator ..> SetDropInDatesCommand : validates
+SetDropInDatesHandler ..> Registration : adds and removes
+SetDropInDatesHandler ..> Event : TakePlace / ReleasePlace
+SetDropInDatesHandler ..> SessionsFullRefusal : throws
+Event "1" o-- "*" Registration
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — cancel a series date
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "SeriesPage" as page
+  participant "CancelSessionDialog" as dlg
+  participant "AdminSeriesApi (ADMIN_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminSeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "CancelSessionHandler" as h
+  participant "Event (session)" as ent
+  participant "AuditTrail" as audit
+  participant "IChatChannel" as chat
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : "Cancel date" on session 5
+page -> dlg : Open (CDK Dialog, lazily loaded)
+dlg --> actor : "Cancel this date?" naming series, session and date, who is told; focus on "Keep the date" (L2-071 AC4)
+actor -> dlg : "Cancel date"
+dlg --> actor : "Cancelling…", both buttons disabled
+dlg -> client : cancelSession(id, sessionId)
+client -> ctrl : POST /api/admin/series/{id}/sessions/{sessionId}/cancel
+ctrl -> h : Send CancelSessionCommand
+h -> db : Session event of this series
+alt unknown
+  h --> ctrl : 404 not_found
+else started or not published
+  h --> ctrl : 409 session_started or event_not_published
+else upcoming
+  h -> audit : Record(admin, "Event", sessionId) (L2-071 AC9)
+  h -> ent : Cancel() - registrations kept, token bumped (ADR 0035)
+  h -> db : SaveChanges with AuditEntry
+  db --> h : Committed
+  h -> db : Count members holding a place at the session
+  h -> chat : Notice to the series' group chat (L2-052 AC10)
+  h --> ctrl : SessionChangeDto (told = 31)
+end
+ctrl --> client : 200 JSON or ProblemDetails
+alt 200
+  client --> dlg : SessionChangeDto
+  dlg --> page : Close by ref
+  page --> actor : Row reads "Cancelled"; Sessions left 4 of 8; toast "Tue May 5 cancelled · 31 members were told."
+else failure
+  dlg --> actor : "We couldn't cancel this date" (role=alert); nothing changed
+end
+@enduml

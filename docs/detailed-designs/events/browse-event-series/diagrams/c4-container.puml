@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Browse event series
+
+Person(user, "Member", "Signed-in member")
+System_Boundary(cf, "Christian Fitness") {
+  Container(app, "Member web app", "Angular (standalone, signals, zoneless)", "EventsPage with its Series view; components, domain and api libraries")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "SeriesController and ListSeriesHandler")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "EventSeries, Event sessions, SeriesEnrolment")
+  Container(cli, "Christian Fitness CLI", ".NET console", "Applies migrations and idempotent seed")
+
+}
+System_Ext(otel, "OpenTelemetry collector", "Traces and metrics")
+Rel(user, app, "Uses", "HTTPS")
+Rel(app, api, "Calls", "JSON/HTTPS, cookie session")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and seeds", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+@enduml

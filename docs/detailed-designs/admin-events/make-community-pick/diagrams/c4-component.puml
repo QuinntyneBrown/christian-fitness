@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Make a Community Pick
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "CommunityPickPage", "Routed page", "Event choice, note, platform switch, assets")
+  Component(render, "PickArtRenderer", "Lazily imported module", "Canvas drawing and PNG export")
+  Component(dom, "pickCaptionOf, pickFileNameOf, pickNoteOf, pickShadeFor", "Domain library", "Pure caption, name, counter and contrast rules")
+  Component(ui, "PickList, PickArt, SegmentedControl", "Components library", "event-choice, pick-art, asset, caption, slack-preview")
+  Component(client, "HttpCommunityPickService", "COMMUNITY_PICK_SERVICE", "GET pickable events")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminCommunityPickController", "ASP.NET Core controller; Staff:CommunityPick policy", "GET /api/admin/community-pick/events")
+  Component(h, "ListPickableEventsHandler", "MediatR handler", "Published upcoming events, soonest first")
+  Component(img, "EventImagesController", "ASP.NET Core controller", "GET /api/events/images/{key}")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Events, registrations")
+Rel(page, client, "Loads events")
+Rel(client, ctrl, "GET", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ListPickableEventsQuery")
+Rel(h, db, "Reads", "EF Core")
+Rel(page, render, "import() on Create assets")
+Rel(render, img, "Fetches the event photo", "HTTPS, same origin")
+Rel(page, dom, "Words captions and names")
+Rel(page, ui, "Renders")
+@enduml

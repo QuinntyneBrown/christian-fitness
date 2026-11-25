@@ -1,0 +1,108 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse event series
+
+enum EventStatus {
+  Draft
+  Published
+  Cancelled
+}
+class EventSeries {
+  +Guid Id
+  +string Title
+  +EventCategory Category
+  +string Cadence
+  +string Place
+  +string Area
+  +Guid HostListingId
+  +int PriceCents
+  +int DropInPriceCents
+  +int Capacity
+  +string? ImageKey
+  +EventStatus Status
+}
+class Event {
+  +Guid Id
+  +DateTimeOffset StartsAt
+  +EventStatus Status
+  +Guid? SeriesId
+  +int? SessionNumber
+  +string? Topic
+}
+class SeriesEnrolment {
+  +Guid SeriesId
+  +Guid MemberId
+}
+class ListSeriesQuery {
+  +string? Category
+  +bool JoinedOnly
+}
+class ListSeriesHandler {
+  +Handle(query: ListSeriesQuery): Task<SeriesListDto>
+}
+class CountSeriesQuery
+class SeriesListDto {
+  +SeriesRowDto[] Series
+}
+class SeriesRowDto {
+  +Guid Id
+  +string Title
+  +string Category
+  +string Cadence
+  +DateTimeOffset? NextStartsAt
+  +string Host
+  +string Area
+  +DateTimeOffset FirstStartsAt
+  +DateTimeOffset LastStartsAt
+  +string[] Sessions
+  +bool Joined
+  +int PriceCents
+  +int SessionCount
+  +string? ImageKey
+}
+interface EventSeriesApi {
+  +list(filter: SeriesFilter): Observable<SeriesListDto>
+  +count(): Observable<number>
+}
+class HttpEventSeriesService
+class EventsPage {
+  +view: Signal<'date' | 'series'>
+  +seriesCount: Signal<number | null>
+}
+class EventSeriesView {
+  +filter: Signal<SeriesFilter>
+  +state: Signal<'loading' | 'loaded' | 'failed'>
+  +retry(): void
+  +showAll(): void
+}
+class SeriesFilter <<domain>> {
+  +category: EventCategory | null
+  +joinedOnly: boolean
+}
+class SeriesMeter <<domain>> {
+  +bars: SessionBar[]
+  +doneText: string
+}
+HttpEventSeriesService ..|> EventSeriesApi
+EventsPage *-- EventSeriesView
+EventsPage ..> EventSeriesApi : EVENT_SERIES_SERVICE
+EventSeriesView ..> EventSeriesApi : EVENT_SERIES_SERVICE
+EventSeriesView ..> SeriesFilter
+EventSeriesView ..> SeriesMeter
+ListSeriesHandler ..> ListSeriesQuery : handles
+ListSeriesHandler ..> SeriesListDto : returns
+SeriesListDto "1" *-- "0..100" SeriesRowDto
+EventSeries "1" o-- "1..*" Event : sessions (SeriesId)
+EventSeries "1" o-- "*" SeriesEnrolment
+EventSeries --> EventStatus
+Event --> EventStatus
+@enduml

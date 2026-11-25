@@ -1,0 +1,102 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Join and leave a series
+
+enum RegistrationStatus {
+  Confirmed
+  Reserved
+}
+class EventSeries {
+  +Guid Id
+  +int PriceCents
+  +int Capacity
+  +int EnrolmentVersion
+  +Enrol(): void
+  +Withdraw(): void
+}
+class Event {
+  +Guid Id
+  +DateTimeOffset StartsAt
+  +int Capacity
+  +EventStatus Status
+  +Guid? SeriesId
+  +int RegistrationVersion
+  +TakePlace(): void
+  +ReleasePlace(): void
+}
+class Registration {
+  +Guid EventId
+  +Guid MemberId
+  +RegistrationStatus Status
+  +{static} Of(eventId, memberId, priceCents, createdAt): Registration
+}
+class SeriesEnrolment {
+  +Guid Id
+  +Guid SeriesId
+  +Guid MemberId
+  +RegistrationStatus Status
+  +DateTimeOffset CreatedAt
+  +{static} Of(seriesId, memberId, priceCents, createdAt): SeriesEnrolment
+}
+class SeriesPlaces <<domain service>> {
+  +SpotsLeft(series, sessions, going, now): int
+  +Remaining(sessions, now): Event[]
+}
+class JoinSeriesCommand {
+  +Guid SeriesId
+}
+class JoinSeriesHandler {
+  +Handle(c: JoinSeriesCommand): Task<SeriesDetailDto>
+}
+class LeaveSeriesCommand {
+  +Guid SeriesId
+}
+class LeaveSeriesHandler {
+  +Handle(c: LeaveSeriesCommand): Task<SeriesDetailDto>
+}
+interface EventSeriesApi {
+  +join(id): Observable<SeriesDetailDto>
+  +leave(id): Observable<SeriesDetailDto>
+}
+class EventSeriesPage {
+  +plan: Signal<'every' | 'drop-in'>
+  +joining: Signal<boolean>
+  +join(): void
+  +openLeave(): void
+  +downloadDates(): void
+}
+class LeaveSeriesDialog {
+  +busy: Signal<boolean>
+  +failed: Signal<boolean>
+  +leave(): void
+}
+class SeriesSignUp <<domain>> {
+  +spotsText: string
+  +everyDisabledReason: string | null
+  +buttonText: string
+}
+EventSeriesPage ..> EventSeriesApi : EVENT_SERIES_SERVICE
+EventSeriesPage ..> LeaveSeriesDialog : CDK Dialog
+LeaveSeriesDialog ..> EventSeriesApi
+EventSeriesPage ..> SeriesSignUp
+JoinSeriesHandler ..> JoinSeriesCommand : handles
+LeaveSeriesHandler ..> LeaveSeriesCommand : handles
+JoinSeriesHandler ..> SeriesPlaces
+JoinSeriesHandler ..> SeriesEnrolment : creates
+JoinSeriesHandler ..> Registration : creates one per remaining session
+LeaveSeriesHandler ..> Registration : removes not-started
+EventSeries "1" o-- "1..*" Event : sessions
+Event "1" o-- "*" Registration
+EventSeries "1" o-- "*" SeriesEnrolment
+Registration --> RegistrationStatus
+SeriesEnrolment --> RegistrationStatus
+@enduml

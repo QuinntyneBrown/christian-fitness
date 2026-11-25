@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View an event series
+
+Container(web, "Member web app", "Angular", "EventSeriesPage, SeriesCard, SessionList, HostCard, sessionRowViewOf, HttpEventSeriesService")
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "SeriesController", "ASP.NET Core controller", "GET /api/events/series/{id}")
+  Component(h, "GetSeriesHandler", "MediatR handler", "Series, ordered sessions and the caller's places")
+  Component(places, "SeriesPlaces", "Domain service", "Spots left and sessions to go")
+  Component(ctx, "IAppDbContext", "Application abstraction", "EventSeries, Events, Registrations, SeriesEnrolments")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Series, sessions, registrations, enrolments")
+Rel(web, ctrl, "GET /api/events/series/{id}", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetSeriesQuery")
+Rel(h, ctx, "Queries")
+Rel(h, places, "Counts places with")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

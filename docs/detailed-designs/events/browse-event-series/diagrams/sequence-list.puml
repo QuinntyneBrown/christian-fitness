@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — list and filter event series
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventsPage" as page
+  participant "EventSeriesView" as view
+  participant "EventSeriesApi (EVENT_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ListSeriesHandler" as h
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open Events
+page -> client : count()
+client -> ctrl : GET /api/events/series/count
+ctrl -> h : Send CountSeriesQuery (same filter, no category, no tick)
+h -> db : Count listed series
+db --> h : 3
+h --> ctrl : 3
+ctrl --> client : 200 { count: 3 }
+client --> page : 3
+page --> actor : View switch "By date" | "Series (3)" (L2-050 AC6)
+actor -> page : Choose "Series"
+page -> page : Address /events?view=series; "Series" has aria-current="page" (L2-050 AC1, AC7)
+page -> view : Create with filter from the address
+view --> actor : Skeleton rows (L2-050 AC4)
+view -> client : list({ category: null, joinedOnly: false })
+client -> ctrl : GET /api/events/series
+ctrl -> h : Send ListSeriesQuery
+h -> db : Published series with a session not cancelled and not started (L2-050 AC5)
+db --> h : Series, their sessions, the caller's enrolments
+h -> h : Order by next session start, then Id; take 100
+h --> ctrl : SeriesListDto
+ctrl --> client : 200 JSON
+client --> view : SeriesListDto
+view --> actor : series-row list: cadence and time, title, host, area, dates, session-meter, "Joined" or price, next date (L2-050 AC1)
+actor -> view : Choose category chip or tick "Only series I've joined"
+view -> page : Address /events?view=series&category=run (L2-050 AC2)
+view -> client : list({ category: "run", joinedOnly })
+client -> ctrl : GET /api/events/series?category=run&joined=true
+ctrl -> h : Send ListSeriesQuery
+h -> db : Same filter plus category and enrolment
+db --> h : Rows
+h --> ctrl : SeriesListDto
+ctrl --> client : 200 JSON
+alt no series matches
+  view --> actor : "No series here yet" with "Show all series" (L2-050 AC3)
+else answer fails
+  view --> actor : "Series didn't load" with Try again; switch and filters stay (L2-050 AC4)
+else matches
+  view --> actor : Filtered series-row list
+end
+@enduml

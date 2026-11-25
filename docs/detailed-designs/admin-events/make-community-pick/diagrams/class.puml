@@ -1,0 +1,100 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Make a Community Pick
+
+class Event {
+  +Guid Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +string Place
+  +string Area
+  +int PriceCents
+  +int Capacity
+  +string? ImageKey
+  +EventStatus Status
+}
+class ListPickableEventsQuery
+class ListPickableEventsHandler {
+  +Handle(q): Task<PickableEventDto[]>
+}
+class PickableEventDto {
+  +Guid Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +string Place
+  +string Area
+  +int PriceCents
+  +int SpotsLeft
+  +string? ImageKey
+}
+interface CommunityPickApi {
+  +events(): Observable<PickableEventDto[]>
+}
+class HttpCommunityPickService
+class CommunityPickPage {
+  +chosen: Signal<string | null>
+  +note: Signal<string>
+  +platform: Signal<PickPlatform>
+  +made: Signal<PickAssets | null>
+  +state: Signal<'idle' | 'creating' | 'failed'>
+  +stale: Signal<boolean>
+  +create(): void
+  +download(asset): void
+  +copy(platform): void
+}
+class PickArtRenderer {
+  +render(input: PickInput, sizes: PickSize[]): Promise<PickImage[]>
+}
+class PickAssets {
+  +input: PickInput
+  +images: PickImage[]
+}
+class PickImage {
+  +platform: PickPlatform
+  +kind: 'post' | 'story' | 'link' | 'image' | 'unfurl'
+  +width: number
+  +height: number
+  +objectUrl: string
+}
+enum PickPlatform {
+  instagram
+  facebook
+  whatsapp
+  slack
+}
+class PickCaption <<domain>> {
+  +pickCaptionOf(platform, input, link): string
+}
+class PickFileName <<domain>> {
+  +pickFileNameOf(title, platform, kind): string
+}
+class PickNote <<domain>> {
+  +MAX = 70
+  +pickNoteHintOf(note): string
+}
+class PickShade <<domain>> {
+  +pickShadeFor(luminances, text): number
+}
+HttpCommunityPickService ..|> CommunityPickApi
+CommunityPickPage ..> CommunityPickApi : COMMUNITY_PICK_SERVICE
+CommunityPickPage ..> PickArtRenderer : dynamic import
+CommunityPickPage *-- PickAssets
+PickAssets "1" *-- "5" PickImage
+PickImage --> PickPlatform
+CommunityPickPage ..> PickCaption
+CommunityPickPage ..> PickFileName
+CommunityPickPage ..> PickNote
+PickArtRenderer ..> PickShade
+ListPickableEventsHandler ..> ListPickableEventsQuery : handles
+ListPickableEventsHandler ..> Event : reads
+ListPickableEventsHandler ..> PickableEventDto : returns
+@enduml

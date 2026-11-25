@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — restore a cancelled series date
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as actor
+box "Frontend — Admin web app" #E0F2FE
+  participant "SeriesPage" as page
+  participant "AdminSeriesApi (ADMIN_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "AdminSeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "RestoreSessionHandler" as h
+  participant "Event (session)" as ent
+  participant "AuditTrail" as audit
+  participant "IChatChannel" as chat
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : "Restore" on a cancelled session
+page --> actor : Button busy
+page -> client : restoreSession(id, sessionId)
+client -> ctrl : POST /api/admin/series/{id}/sessions/{sessionId}/restore
+ctrl -> h : Send RestoreSessionCommand
+h -> db : Session event of this series
+alt not cancelled
+  h --> ctrl : 409 event_not_cancelled
+else start has passed
+  h --> ctrl : 409 session_started
+else cancelled and still to come
+  h -> audit : Record(admin, "Event", sessionId) (L2-071 AC9)
+  h -> ent : Restore(now) - Published again
+  h -> db : SaveChanges with AuditEntry
+  db --> h : Committed
+  h -> chat : Notice to the series' group chat: the date is on again (L2-071 AC5)
+  h --> ctrl : SessionChangeDto
+end
+ctrl --> client : 200 JSON or ProblemDetails
+client --> page : Result
+page --> actor : Row upcoming again; Sessions left rises by one; or a toast saying the restore failed
+note over db : Registrations were kept while cancelled, so members who held a place hold it again
+@enduml

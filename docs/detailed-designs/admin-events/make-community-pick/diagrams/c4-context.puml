@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Make a Community Pick
+
+Person(member, "Member", "Signed-in member of the Christian community")
+Person(staff, "Admin", "Staff member with the Admin role")
+System(cf, "Christian Fitness", "Events, series, services and messages for members; admin console for staff")
+System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics without personal data")
+System_Ext(social, "Instagram, Facebook, WhatsApp, Slack", "Where the Admin pastes; the system posts nothing")
+Rel(staff, social, "Pastes downloaded images and captions into")
+Rel(member, cf, "Opens shared event links in", "HTTPS")
+Rel(staff, cf, "Makes Community Picks in", "HTTPS")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

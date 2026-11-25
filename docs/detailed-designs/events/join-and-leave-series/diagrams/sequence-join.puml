@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — join a series for every session
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventSeriesPage" as page
+  participant "EventSeriesApi (EVENT_SERIES_SERVICE)" as client
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "JoinSeriesHandler" as h
+  participant "SeriesPlaces" as places
+  participant "EventSeries / Event" as ent
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : "Every session" chosen; press "Join the series"
+page --> actor : "Joining…", button and radios disabled (L2-052 AC2)
+page -> client : join(id)
+client -> ctrl : POST /api/events/series/{id}/enrolment
+ctrl -> h : Send JoinSeriesCommand
+h -> db : Load member
+alt member suspended
+  h --> ctrl : account_suspended (L2-052 AC7)
+else active
+  h -> db : Published series, its sessions, going per session, caller's places
+  alt already enrolled
+    h --> ctrl : SeriesDetailDto unchanged (L2-052 AC6)
+  else not enrolled
+    h -> places : SpotsLeft(series, sessions, going, now)
+    alt no place left
+      h --> ctrl : series_full (L2-052 AC5)
+    else places left
+      h -> ent : series.Enrol(); TakePlace() on each remaining session without the caller's place
+      h -> db : Add SeriesEnrolment and one Registration per remaining session (priced at the series price) and SaveChanges
+      db --> h : Committed
+      h --> ctrl : SeriesDetailDto (enrolment, spots left - 1)
+    end
+  end
+end
+ctrl --> client : 200 JSON or ProblemDetails with code
+alt 200
+  client --> page : SeriesDetailDto
+  page --> actor : "You're in for every session" (role=status), "Came to <attended> of <past>", All dates, Group chat, Leave the series (L2-052 AC3)
+  opt series has a price
+    page --> actor : Places reserved; how to pay (L2-052 AC4)
+  end
+else series_full
+  page --> actor : "Series full"; "Pick dates to drop in" chosen (L2-052 AC5)
+else other refusal or no answer
+  page --> actor : Generic message (role=alert) above a usable button (L2-052 AC8)
+end
+@enduml
