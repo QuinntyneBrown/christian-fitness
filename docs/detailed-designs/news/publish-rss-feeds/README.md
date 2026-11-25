@@ -95,8 +95,8 @@ so a reader finds them from the site's address (`L2-060` AC3).
 - **Pros has no feed.** Pros is a section on the landing page and in the editor (`L2-001` AC1), but
   `L2-060` AC1 names five section feeds; the mock lists the same five. A story in Pros is in the
   All stories feed only.
-- **Feed addresses.** The mock shows `https://christianfitness.ca/feed`; ADR 0047 serves the member
-  app at `www.christian.fitness`. The addresses follow `MemberApp:BaseUrl`, whichever it is.
+- **Feed addresses.** The production origin is `https://www.christian.fitness`, so the all-stories
+  feed is `https://www.christian.fitness/feed`. Addresses follow `MemberApp:BaseUrl`.
 
 ## Requirements
 

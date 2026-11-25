@@ -183,5 +183,5 @@ address kept (`L2-019` AC5).
 5. With staff signing in through Google Workspace (`L2-018`), a staff role still hangs on a
    `Member`. A Workspace account maps to that member by Google subject: a verified email in the
    team's domain is matched to the pre-created staff member on first sign-in and the subject is bound
-   ([ADR 0061](../../../adr/0061-first-google-sign-in-slice.md)); an Admin creates later staff;
+   ([ADR 0062](../../../adr/0062-first-google-sign-in-slice.md)); an Admin creates later staff;
    this feature reads the role by member id either way.
