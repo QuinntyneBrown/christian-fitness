@@ -30,7 +30,7 @@ public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<
             showHomeChurch = true,
             bio = " Mom of two, recovering couch-to-5K runner. ",
             goals = new List<string> { "Half marathon in the fall", "   ", " Sleep before 11 " },
-            interests = new List<string> { "running", "cycling", "running" },
+            interests = new List<string> { "running", "cycling", "pickleball", "running" },
         });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -50,7 +50,7 @@ public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<
             Assert.Equal("Mom of two, recovering couch-to-5K runner.", answer.GetProperty("bio").GetString());
             // A blank line is not a goal; each goal is trimmed.
             Assert.Equal(["Half marathon in the fall", "Sleep before 11"], answer.GetProperty("goals").EnumerateArray().Select(g => g.GetString()));
-            Assert.Equal(["running", "cycling"], answer.GetProperty("interests").EnumerateArray().Select(i => i.GetString()));
+            Assert.Equal(["running", "cycling", "pickleball"], answer.GetProperty("interests").EnumerateArray().Select(i => i.GetString()));
             Assert.Equal(factory.Time.GetUtcNow(), answer.GetProperty("joinedAt").GetDateTimeOffset());
         }
     }

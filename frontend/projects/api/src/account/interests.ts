@@ -7,7 +7,8 @@ export type InterestKey =
   | 'mobility'
   | 'nutrition'
   | 'cycling'
-  | 'retreats';
+  | 'retreats'
+  | 'pickleball';
 
 /** One interest: the key the API takes and the label a member reads. */
 export interface InterestOption {
@@ -28,4 +29,5 @@ export const INTERESTS: readonly InterestOption[] = [
   { key: 'nutrition', label: 'Nutrition' },
   { key: 'cycling', label: 'Cycling' },
   { key: 'retreats', label: 'Retreats' },
+  { key: 'pickleball', label: 'Pickleball' },
 ];

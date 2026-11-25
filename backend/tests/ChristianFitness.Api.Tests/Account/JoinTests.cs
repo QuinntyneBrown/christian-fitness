@@ -22,7 +22,7 @@ public sealed class JoinTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         using var client = CreateClient();
 
-        using var response = await JoinAsync(client, Details("grace.join@example.org"));
+        using var response = await JoinAsync(client, Details("grace.join@example.org") with { Interests = ["running", "strength", "pickleball"] });
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal("/api/session", response.Headers.Location?.OriginalString);
@@ -34,7 +34,7 @@ public sealed class JoinTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(member.Id.ToString(), session.GetProperty("memberId").GetString());
         Assert.Equal("Grace Thompson", member.Name);
         Assert.Equal("Grace Fellowship, Scarborough", member.HomeChurch);
-        Assert.Equal(["running", "strength"], member.Interests);
+        Assert.Equal(["running", "strength", "pickleball"], member.Interests);
         Assert.Equal("Active", member.Status.ToString());
     }
 

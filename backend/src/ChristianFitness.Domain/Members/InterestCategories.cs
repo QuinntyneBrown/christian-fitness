@@ -14,6 +14,7 @@ public static class InterestCategories
         ["walking-groups"] = EventCategory.Run,
         ["strength"] = EventCategory.Workout,
         ["cycling"] = EventCategory.Workout,
+        ["pickleball"] = EventCategory.Workout,
         ["basketball"] = EventCategory.Basketball,
         ["mobility"] = EventCategory.Mobility,
         ["nutrition"] = EventCategory.Workshop,

@@ -82,6 +82,7 @@ public sealed class UpdateProfileValidatorTests
 
     [Theory]
     [InlineData(new[] { "running", "retreats" }, true)]
+    [InlineData(new[] { "pickleball" }, true)]
     [InlineData(new string[0], true)]
     [InlineData(new[] { "running", "swimming" }, false)]
     [InlineData(new[] { "Running" }, false)]

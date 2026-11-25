@@ -33,7 +33,7 @@ test.describe('Member app, join with valid details', () => {
     await expect.poll(() => join.title()).toBe('Join · Christian Fitness');
     await expect(join.heading).toHaveText('Create your profile');
     await join.fill(GRACE);
-    await join.choose('Running', 'Strength');
+    await join.choose('Running', 'Strength', 'Pickleball');
     await expect(join.interest('Running')).toHaveAttribute('aria-pressed', 'true');
     await expect(join.interest('Basketball')).toHaveAttribute('aria-pressed', 'false');
     await join.submit();
@@ -48,7 +48,7 @@ test.describe('Member app, join with valid details', () => {
         email: 'grace.thompson@gmail.com',
         password: 'abundantlife',
         homeChurch: 'Grace Fellowship, Scarborough',
-        interests: ['running', 'strength'],
+        interests: ['running', 'strength', 'pickleball'],
       },
     ]);
   });
@@ -74,6 +74,7 @@ test.describe('Member app, join with valid details', () => {
       'Nutrition',
       'Cycling',
       'Retreats',
+      'Pickleball',
     ]);
     for (const interest of await join.interests.all()) {
       await expect(interest).toHaveAttribute('aria-pressed', 'false');

@@ -28,7 +28,7 @@ const SAVED = {
   showHomeChurch: true,
   bio: 'Mom of two. Training for my first half marathon.',
   goals: ['Half marathon in the fall', 'Sleep before 11', 'Run with the Sunrise 5K Crew'],
-  interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling'],
+  interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling', 'pickleball'],
 };
 
 // L2-006 AC1, AC2 and AC4 (ADR 0024): Edit profile opens a dialog with the current values, the
@@ -74,6 +74,7 @@ test.describe('Member app, edit my profile', () => {
       'Nutrition',
       'Cycling',
       'Retreats',
+      'Pickleball',
     ]);
     await expect(dialog.saveButton).toHaveText('Save changes');
     await expect(dialog.cancelButton).toHaveText('Cancel');
@@ -99,6 +100,7 @@ test.describe('Member app, edit my profile', () => {
       'Half marathon in the fall\n\n  Sleep before 11 \nRun with the Sunrise 5K Crew',
     );
     await dialog.interest('Cycling').click();
+    await dialog.interest('Pickleball').click();
     await expect(dialog.fieldHint('About')).toHaveText('A sentence or two. 252 characters left.');
     await dialog.saveAndAwaitAnswer();
 
@@ -110,7 +112,7 @@ test.describe('Member app, edit my profile', () => {
         showHomeChurch: true,
         bio: 'Mom of two. Training for my first half marathon.',
         goals: ['Half marathon in the fall', 'Sleep before 11', 'Run with the Sunrise 5K Crew'],
-        interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling'],
+        interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling', 'pickleball'],
       },
     ]);
     await expect(dialog.dialog).toHaveCount(0);
@@ -130,6 +132,7 @@ test.describe('Member app, edit my profile', () => {
       'Basketball',
       'Nutrition',
       'Cycling',
+      'Pickleball',
     ]);
     await expect(profile.editButton).toBeFocused();
   });

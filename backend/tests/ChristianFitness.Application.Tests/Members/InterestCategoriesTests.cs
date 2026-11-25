@@ -11,6 +11,7 @@ public sealed class InterestCategoriesTests
     [InlineData("walking-groups", EventCategory.Run)]
     [InlineData("strength", EventCategory.Workout)]
     [InlineData("cycling", EventCategory.Workout)]
+    [InlineData("pickleball", EventCategory.Workout)]
     [InlineData("basketball", EventCategory.Basketball)]
     [InlineData("mobility", EventCategory.Mobility)]
     [InlineData("nutrition", EventCategory.Workshop)]
