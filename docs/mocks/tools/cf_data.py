@@ -298,6 +298,13 @@ LISTINGS = [
 ]
 LS = {x["id"]: x for x in LISTINGS}
 
+# Approved from a member's suggestion and claimed by its owner (L2-078); not in LISTINGS so the directory's counts stay as drawn.
+EASTSIDE = _listing("eastside-ladies", "Eastside Ladies Who Lift", "Organization",
+                    "Saturday morning strength group out of Danforth Baptist",
+                    "About 25 women, coached by a CSEP trainer. We pray before and after and are so welcoming to beginners.",
+                    "East York", "EL", 0, "Just now", ["Strength", "Beginners", "Women"], [],
+                    verified=True, website="eastsideladies.ca")
+
 
 def hosted_by(listing_id: str) -> tuple[list, list]:
     """Everything a listing hosts: its series, and its one-off dates."""
@@ -409,12 +416,20 @@ ADMIN_STORIES = [
     ("park-bootcamp-guide", "A beginner’s guide to your first outdoor bootcamp", "Training", "Marcus Bell", "Published", "Apr 8", "4,340"),
 ]
 STORY_STATUSES = ["Draft", "In review", "Scheduled", "Published"]
-AUTHORS = ["Naomi Clarke", "Priya Raman", "Marcus Bell", "Pastor Ruth Adeyemi", "CF Team"]
+# Bylines are a list Admins manage under Stories > Bylines (L2-077); the editor's picker reads it.
+BYLINES = [
+    ("CF Team", "CF", "Notices and event news from the Christian Fitness team."),
+    ("Marcus Bell", "MB", "Personal trainer who writes beginner guides and profiles of our professionals."),
+    ("Naomi Clarke", "NC", "Writes about community, church sport and the people behind both."),
+    ("Pastor Ruth Adeyemi", "RA", "Pastor and writer on faith, rest and the body."),
+    ("Priya Raman", "PR", "Nutrition writer and meal-prep volunteer in Mississauga."),
+]
+AUTHORS = [b[0] for b in BYLINES]
 PAST_ISSUES = [
-    (48, "Apr 11", "A church basement, 200 neighbours, and a lot of kettlebells", "61%", "18%"),
-    (47, "Apr 4", "Holy Week on the move: five runs and one quiet walk", "58%", "15%"),
-    (46, "Mar 28", "Your rest day is not a cheat day", "64%", "21%"),
-    (45, "Mar 21", "Hoops & Devotion needs a second court", "55%", "12%"),
+    (48, "Apr 11", "A church basement, 200 neighbours, and a lot of kettlebells", 6812),
+    (47, "Apr 4", "Holy Week on the move: five runs and one quiet walk", 6790),
+    (46, "Mar 28", "Your rest day is not a cheat day", 6745),
+    (45, "Mar 21", "Hoops & Devotion needs a second court", 6701),
 ]
 # The four checks every listing passes before it goes live.
 CHECKS = [

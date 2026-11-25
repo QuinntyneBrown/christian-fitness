@@ -19,6 +19,8 @@ This feature covers the Event series screen of the Admin web app (mocks `docs/mo
 
 The feature is a vertical slice from the Event series screen to the database.
 
+The series editor has a required searchable Host picker (`L2-071` AC10–11): an Admin chooses a Listed directory listing, defaulting on creation to the Christian Fitness team listing and retaining the saved host on edit. No matches are explained; a missing or no-longer-Listed host is refused with `validation_failed`, a field error and an error summary without losing the other values. The `series-editor` mock shows these states. `EventSeries.HostListingId` is non-null and older series are backfilled as in ADR 0067.
+
 - **`SeriesPage`** — new routed page in `projects/admin/src/app/pages/series/`, at route `series` with `loadComponent`, the title "Event series" and `ADMIN_SERIES_SERVICE` bound to `HttpAdminSeriesService` on its own `providers`. It loads the list, chooses the first series, and loads the chosen one. Choosing another `pick-card` is a link to `/series?id=<id>` with `aria-current="page"` on the current one (`L2-071` AC1). It shows skeletons, the "No series yet" empty state with New series, and "Series didn't load" with Try again (`L2-071` AC8). A read refused with `forbidden_role` shows the existing Admins only screen (`/admins-only`, `L2-019` AC5).
 - **`PickList`** — presentation component of design-system page `pick-list`; this screen uses its `pick-card` form: title, cadence and time, "<joined> / <capacity> joined".
 - **`SeriesCard`** — its summary form renders `series-summary-card`: image, title, "Hosted by <host>", cadence, time, date range and place, the stats "Joined <n> of <capacity>" with a `meter` ("78% full"), the price and the drop-in price, and "Sessions left <left> of <total>" (`L2-071` AC2).
@@ -43,7 +45,7 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 - Resolved (#89): there is no online payment (`L2-011` AC5), so the dialog says "Everyone going to this date will be told. If anyone paid for it, the host will sort out refunds with them directly." and the system refunds nothing.
 - Resolved (#89): members are told in the series group chat and by an in-app notification (ADR for the notification channel, #76).
 - Resolved (#89): the dialog counts drop-ins too, "12 people are going to this date (9 joined, 3 dropped in)."; the mock reads "34 people ... (31 joined, 3 dropped in)".
-- New series, Edit details and Add a date have no screen in the mocks (`docs/mocks/README.md` open question 10). Until a requirement and mock exist, series and sessions come from the CLI's idempotent seed; `L2-071` AC6 for changed and added dates holds by construction once they exist, since sessions are events.
+- The series editor mock specifies the Host picker only; the other New series, Edit details and Add a date rules remain open (`docs/mocks/README.md` open question 10). Until those requirements exist, series and sessions come from the CLI's idempotent seed; `L2-071` AC6 for changed and added dates holds by construction once they exist, since sessions are events.
 - The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.
 - The list's order is not stated (`L2-071` AC1); the mock lists by first session date. `<TO SUPPLY>`.
 - The `loading` mock draws a table skeleton beside the cards, unlike the loaded list; the skeleton should mirror the `admin-sessions` list.

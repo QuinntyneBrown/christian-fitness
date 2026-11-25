@@ -28,11 +28,9 @@ db --> h : Suggestion
 h -> h : Record Approved or Declined (review design)
 h -> out : TellSender(suggestion, now)
 alt approved
-  out -> db : Add DirectMessage from Christian Fitness: approved (L2-062 AC9)
-else declined with a reason
-  out -> db : Add DirectMessage: declined, with staff's reason
-else declined without a reason
-  out -> db : Add DirectMessage: declined, no reason
+  out -> db : Add DirectMessage from the Christian Fitness system member: approved (L2-062 AC9, ADR 0061)
+else declined
+  out -> db : Add DirectMessage from the system member: declined, no reason (kept for staff)
 end
 h -> db : Save in one unit of work
 db --> h : Committed

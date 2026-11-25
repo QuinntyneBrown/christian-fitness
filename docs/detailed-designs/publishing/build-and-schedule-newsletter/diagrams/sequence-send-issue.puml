@@ -7,7 +7,6 @@ skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Subscriber" as actor
 box "Backend — Christian Fitness API" #D1FADF
-  participant "PublicIssueTrackingController" as track
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "PublishingClock" as clock
@@ -30,7 +29,7 @@ alt still a Draft
 else Scheduled
   h -> db : Subscriptions Subscribed with the Weekly on (L2-058 AC6)
   h -> issue : StartSending(content captured now, recipients, now): Sending
-  h -> db : One IssueDelivery and one IssueRecipientMark per recipient; audit newsletter_issue.sent (L2-070 AC13)
+  h -> db : One IssueDelivery per recipient; audit newsletter_issue.sent (L2-070 AC13)
   note right of h : Status Sending makes a second tick find nothing: sent once (L2-070 AC7)
 end
 loop until no delivery is left
@@ -41,7 +40,5 @@ loop until no delivery is left
 end
 sender -> db : No delivery left: Status Sent, SentAt, RecipientCount; deliveries deleted
 note over db : The issue now shows on the web (L2-059) and under Sent
-actor -> track : Email client loads the open image or follows a link
-track -> db : Opened or Clicked on the IssueRecipientMark by hash; never the subscriber (L2-070 AC10)
-track --> actor : Image, or redirect to the story or event the link names
+actor -> actor : Links in the email go straight to their target: no tracking image, no redirect (L2-067 AC8)
 @enduml

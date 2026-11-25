@@ -41,7 +41,7 @@ REQUIRED = {
 
 
 # Their committed HTML is ahead of this generator: never overwrite them.
-HAND_EDITED = {"messages", "profile", "admin-dashboard", "event-editor", "listing-editor", "decline-application", "admin-toast"}
+HAND_EDITED = {"messages", "profile", "admin-dashboard", "listing-editor", "decline-application", "admin-toast"}
 # Screens that no longer exist: their folders and manifest entries are removed.
 REMOVED = {"admin-two-step": "page"}
 

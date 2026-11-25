@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — claim a listing
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Suggested party or sender" as party
+box "Frontend — Member web app" #E0F2FE
+  participant "ClaimListingPage" as page
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "ClaimsController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "Claim handlers" as h
+  participant "ListingClaim" as claim
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+party -> page : Opens /claim/{token}
+alt signed out
+  page --> party : Sign in or Join, then back to the link
+end
+page -> ctrl : GET /api/claims/{token}
+ctrl -> h : GetClaimQuery
+h -> db : Find claim by hash of token
+alt unknown
+  h --> page : 404 claim_not_found
+else expired
+  h --> page : 410 claim_link_expired
+else used
+  h --> page : 409 claim_link_used
+else valid
+  h --> page : 200 listing preview
+end
+party -> page : Publish my listing
+page -> ctrl : POST /api/claims/{token}/publish
+ctrl -> h : PublishClaimCommand
+h -> claim : Publish(member, now)
+claim -> claim : Listing Listed, owner = member, link spent
+h -> db : Save and audit in one unit of work
+h --> page : 200
+page --> party : Your listing is live
+party -> page : This isn't me
+page -> ctrl : POST /api/claims/{token}/decline
+ctrl -> h : DeclineClaimCommand
+h -> claim : Decline(now)
+claim -> claim : Listing Declined, link spent
+h -> db : Save, audit, tell staff
+h --> page : 200
+@enduml

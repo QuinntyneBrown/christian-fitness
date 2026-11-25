@@ -3,10 +3,11 @@ Layout and copy follow the Magic Patterns prototype "Christian Fitness" frames S
 Manage Preferences, Privacy Policy and Terms of Service."""
 from __future__ import annotations
 
-from cf_data import ADD_ONS, LISTING_KINDS, ME, NEWSLETTER, PREF_AREAS, PREF_INTERESTS
-from cf_ui import (busy_label, error_block, field, file_field, form_alert, href, icon, loading_region, lockup, member_shell,
-                   screen, textarea)
-from overlays import dialog, over_member
+from cf_data import ADD_ONS, EASTSIDE, LISTING_KINDS, ME, NEWSLETTER, PREF_AREAS, PREF_INTERESTS
+from cf_ui import (busy_label, error_block, error_summary, field, file_field, form_alert, href, icon, listing_mark, loading_region, lockup,
+                   member_shell, screen, textarea, toast, toast_region, verified_badge)
+from overlays import autofocus_first, dialog, over_member
+from screens_directory import profile_page
 from screens_member import SRC
 
 
@@ -301,7 +302,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 busy: bool = False) -> str:
     emails = emails + (("plan",) if plan else ())
     n = len(emails)
-    email_sub = ("You won’t get any email from us except receipts and security notices." if n == 0 else f"{n} of 4 emails on.")
+    email_sub = ("You won’t get any email from us except security and service notices." if n == 0 else f"{n} of 4 emails on.")
     email_rows = "".join(switch(f"email-{i}", l, d, i in emails, busy) for i, l, d in EMAILS)
     off = ('<p class="pref__action"><button class="btn btn--link" type="button" data-mock-href="unsubscribed.html">Turn off all email</button></p>' if n else "")
     push_rows = "".join(switch(f"push-{i}", l, d, True, busy) for i, l, d in PUSH)
@@ -383,7 +384,7 @@ def _():
     return member_shell("profile", preferences(plan=True, bar="failed"))
 
 
-@s("unsubscribed", "\"Turn off all email\" pressed: all four email switches are off, the section says only receipts and security notices will come, and the change waits to be saved.")
+@s("unsubscribed", "\"Turn off all email\" pressed: all four email switches are off, the section says only security and service notices will come, and the change waits to be saved.")
 def _():
     return member_shell("profile", preferences(emails=(), bar="unsaved"))
 
@@ -500,7 +501,8 @@ PRIVACY_SUMMARY = [
     "We never sell your information, and we don’t run ads.",
     "Your church, faith details and health goals are only shown to the people you choose in Preferences.",
     "You can download everything or delete your account at any time.",
-    "Your data is stored in Canada and handled under PIPEDA.",
+    "Your data is stored in Canada and handled under PIPEDA. Our email provider may process email addresses outside Canada.",
+    "If we change this policy, we tell you at least 30 days ahead; carrying on after that date means you accept the new version.",
 ]
 PRIVACY_SECTIONS = [
     ("collect", "What we collect", [
@@ -509,31 +511,31 @@ PRIVACY_SECTIONS = [
         "Activity: events and series you join, listings you follow, messages you send, and feedback you share.",
         "Basic technical information: device type, browser and approximate location from your IP address, used to keep the service secure and working."]),
     ("use", "How we use it", [
-        "To run your account, register you for events, remind you about them and let hosts know who’s coming.",
+        "To run your account, register you for events, remind you about them and let the Christian Fitness team know who’s coming.",
         "To suggest events, stories and listings that fit your area and interests. You can change what we use in Preferences.",
         "To send the emails you’ve turned on, such as The Abundant Weekly. Every email has a one-click unsubscribe.",
         "To keep the community safe, including reviewing reports and removing spam."]),
     ("share", "Who we share it with", [
-        "Event hosts see the name and email of people registered for their events, so they can run them.",
+        "The Christian Fitness team runs events and sees who has registered.",
         "Service providers who help us run Christian Fitness, such as email delivery and hosting, under contracts that limit them to that work.",
         "Authorities, only when the law requires it. We will tell you when we are allowed to.",
         "We do not sell or rent your information to anyone, ever."]),
     ("sensitive", "Faith and health information", [
-        "Your church affiliation and health goals can reveal sensitive things about you. We treat them as sensitive information: they are never used for advertising and never shared with hosts unless you put them on your public profile."]),
+        "Your church affiliation and health goals can reveal sensitive things about you. We treat them as sensitive information: they are never used for advertising and never shared with other members unless you put them on your public profile."]),
     ("choices", "Your choices", [
         "In Preferences you can control who sees your profile, whether you appear on attendee lists, who can message you, and every email and notification we send.",
         "You can request a download of your data or delete your account from Preferences. Deletion is completed within 30 days."]),
     ("retention", "How long we keep it", [
-        "We keep your information while your account is open. After deletion we remove it within 30 days, except records we must keep by law, such as payment receipts, which we keep for seven years."]),
+        "We keep your information while your account is open. After deletion we remove it within 30 days, except records we must keep by law."]),
     ("security", "Security", [
-        "Your data is encrypted in transit and at rest and stored on servers in Canada. Staff access is limited to the team members who need it and is logged."]),
+        "Your data is encrypted in transit and at rest and stored on servers in Canada. Our email delivery provider may process email addresses outside Canada, only to send you the email you ask for. Staff access is limited to the team members who need it."]),
     ("children", "Young people", [
-        "You must be 16 or older to create an account. Youth under 16 can attend events with a parent or guardian who registers for them."]),
+        "You must be 16 or older to create an account. When you join we ask you to confirm that you are 16 or older. We do not ask for or keep your date of birth. Youth under 16 can attend events with a parent or guardian who registers for them."]),
     ("changes", "Changes to this policy", [
-        "If we make a meaningful change we will email you and show a notice in the app at least 30 days before it takes effect."]),
+        "If we make a meaningful change we will email you and show a notice in the app at least 30 days before it takes effect. That email is a service notice, so you get it even if you have turned off all other email. If you keep using Christian Fitness after the effective date, you accept the new version; we do not ask you to accept it again. Earlier versions stay readable at dated addresses such as /privacy/2026-11-01."]),
 ]
 TERMS_SUMMARY = [
-    "Christian Fitness is free to join. Some events and services cost money, and the price is always shown before you register.",
+    "Christian Fitness is free to join. Some events and services cost money, and the price is always shown before you register. Any fee is paid to the host directly.",
     "Treat people the way you’d want to be treated at church. No harassment, spam or selling in group chats.",
     "Exercise has risks. Know your limits and talk to a doctor before starting something new.",
     "Professionals in the directory are independent. We check them, but they are responsible for their own work.",
@@ -541,14 +543,14 @@ TERMS_SUMMARY = [
 ]
 TERMS_SECTIONS = [
     ("account", "Your account", [
-        "You must be 16 or older and give us accurate information. Keep your password to yourself; you’re responsible for what happens on your account."]),
+        "You must be 16 or older, which you confirm when you join, and give us accurate information. Keep your password to yourself; you’re responsible for what happens on your account."]),
     ("conduct", "Community standards", [
         "Christian Fitness is a faith community open to everyone who wants to take part respectfully, whatever their background or stage of faith.",
         "Don’t harass, shame or threaten anyone. Don’t post anything sexual, hateful or illegal. Don’t sell products, recruit for businesses or promote supplements in messages or group chats.",
         "Report anything that breaks these standards from the message or profile. Our team reviews every report."]),
     ("events", "Events and series", [
-        "Hosts set the details, capacity and price of their events. If a paid event is cancelled by its host you get a full refund.",
-        "You can cancel your registration up to 48 hours before a paid event for a full refund, unless the event page says otherwise."]),
+        "Hosts set the details, capacity and price of their events. Any fee for an event is paid to the host directly, under the host’s own terms; Christian Fitness takes no payment and gives no refunds.",
+        "You can cancel your registration up to 24 hours before an event starts."]),
     ("health", "Health and safety", [
         "Physical activity carries a risk of injury. You take part in events at your own risk and should only do what is safe for you.",
         "Nothing on Christian Fitness, including stories, training plans and devotions, is medical advice. Talk to a doctor before starting a new exercise program, especially if you are pregnant, injured or managing a health condition."]),
@@ -585,3 +587,206 @@ s = screen("terms", "page", "Terms of Service", route="/terms", source=SRC + "Te
 @s("default", "The Terms of Service, in the same layout: a plain-language summary, nine numbered sections with contents, and who to ask.")
 def _():
     return legal("Terms of Service", TERMS_SUMMARY, TERMS_SECTIONS, ("Privacy Policy", "privacy"))
+
+
+# ===========================================================================
+# Claim a listing (L2-078) and the owner's listing editor (L2-079)
+# ===========================================================================
+CLAIM_EXPIRY = "December 9"
+
+
+def claim_card(*, busy: bool = False, failed: bool = False, confirm: bool = False) -> str:
+    """The listing as it will appear, with the two ways to answer; the claim link is single-use and lasts 14 days."""
+    l = EASTSIDE
+    alert = ('<div class="form-section">' + form_alert(
+        "We couldn't publish your listing", "Something went wrong on our side. Nothing was published, so try again in a moment.").replace(
+        'tabindex="-1"', 'tabindex="-1" autofocus') + "</div>" if failed else "")
+    focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    d = " disabled" if busy else ""
+    publish = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Publishing…")}</button>' if busy
+               else '<button class="btn btn--primary btn--md" type="submit">Publish my listing</button>')
+    return f"""    <div class="container page">
+      <div class="form-page form-page--flush">
+        <form class="form-page__main" action="published.html" novalidate>
+          <h1 class="display page-title">Publish your listing</h1>
+          <p class="form-page__lead">Our team has checked it. It goes into the directory only when you say it is yours. Here is how it will look.</p>
+          {alert}
+          <section class="form-section" aria-labelledby="preview-title">
+            <h2 class="visually-hidden" id="preview-title">Your listing as members will see it</h2>
+            <div class="listing-head__who">
+              {listing_mark(l, "xl")}
+              <div class="listing-head__body">
+                <p class="eyebrow listing-head__kind">{l["kind"]} <span class="listing-head__verified">· {icon("badge-check")} Verified</span></p>
+                <p class="display detail-title listing-head__name">{l["name"]}</p>
+                <p class="subtitle">{l["tagline"]}</p>
+              </div>
+            </div>
+            <p class="prose lead">{l["about"]}</p>
+            <ul class="tag-list">{focus}</ul>
+            <dl class="key-facts">
+              <div class="key-facts__row"><dt>{icon("map-pin")}Area</dt><dd>{l["area"]}</dd></div>
+              <div class="key-facts__row"><dt>{icon("globe")}Website</dt><dd>{l["website"]}</dd></div>
+            </dl>
+          </section>
+          <p class="field__hint">Signed in as {ME["name"]}. Publishing makes you the owner, so you can edit it later. This link works once and expires on {CLAIM_EXPIRY}.</p>
+          <div class="form-page__foot">
+            {publish}
+            <button class="btn btn--secondary btn--md" type="button" data-mock-href="declined.html"{d}>This isn’t me</button>
+          </div>
+        </form>
+      </div>
+    </div>"""
+
+
+def claim_signed_out() -> str:
+    return f"""<div class="signin">
+  <header class="signin__header">
+    {lockup(href("landing"))}
+  </header>
+  <main id="main" class="signin__main">
+    <div class="signin__card">
+      <h1 class="display auth__title">Claim {EASTSIDE["name"]}</h1>
+      <p class="auth__lead">Sign in or join first, so the listing is yours and you can edit it later. We bring you straight back here.</p>
+      <div class="form-page__foot">
+        <a class="btn btn--primary btn--lg btn--block" href="{href("sign-in")}">Sign in</a>
+        <a class="btn btn--secondary btn--lg btn--block" href="{href("join")}">Join Christian Fitness</a>
+      </div>
+      <p class="auth__alt">This link works once and expires on {CLAIM_EXPIRY}.</p>
+    </div>
+  </main>
+</div>"""
+
+
+s = screen("claim-listing", "page", "Claim a listing", route="/claim/:token", group="Public",
+           source="Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-078.",
+           not_applicable={"empty": "One listing behind one link, not a collection."})
+
+
+@s("default", "A signed-in member opens the claim link: the listing as it will appear, with Publish my listing and This isn’t me, and the link’s single use and expiry stated.")
+def _():
+    return member_shell("", claim_card())
+
+
+@s("signed-out", "The link opened signed out: the listing is named, and Sign in or Join comes first; the visitor returns here afterwards.")
+def _():
+    return claim_signed_out()
+
+
+@s("loading", "The link is being checked: the listing as skeletons.")
+def _():
+    body = """    <div class="container page">
+      <div class="form-page form-page--flush"><div class="form-page__main skeleton-stack">
+        <h1 class="visually-hidden">Checking your link</h1>
+        <span class="skeleton skeleton--title-lg"></span><span class="skeleton skeleton--block skeleton--tile"></span>
+        <span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text w-80"></span></div></div>
+    </div>"""
+    return member_shell("", loading_region("Checking your link", body))
+
+
+@s("busy", "Publish my listing pressed: the button reads Publishing…, both answers disabled, no second submit.")
+def _():
+    return member_shell("", claim_card(busy=True))
+
+
+@s("published", "Published: the listing is in the directory and owned by the member, with ways to see it or edit it.")
+def _():
+    return member_shell("", """    <div class="container page">""" + done_panel(
+        "Your listing is live",
+        f"<strong>{EASTSIDE['name']}</strong> is in the directory and you own it. You can edit it any time from its page.",
+        f'<a class="btn btn--primary btn--md" href="{href("listing-profile", "owner")}">See your listing</a>'
+        f'<a class="btn btn--secondary btn--md" href="{href("directory")}">Back to the directory</a>') + "\n    </div>")
+
+
+@s("declined", "This isn’t me pressed: the listing stays unpublished and the team is told; no one is contacted.")
+def _():
+    return member_shell("", """    <div class="container page">""" + done_panel(
+        "Thanks for letting us know",
+        "We won’t publish this listing, and we’ve told the team. Nothing about you was shared.",
+        f'<a class="btn btn--primary btn--md" href="{href("directory")}">Back to the directory</a>') + "\n    </div>")
+
+
+@s("expired", "The link is past its 14 days: it reads \"This link has expired. Ask us for a new one.\"; staff can resend it.")
+def _():
+    return member_shell("", f"""    <div class="container page">{done_panel(
+        "This link has expired", "This link has expired. Ask us for a new one.",
+        f'<a class="btn btn--primary btn--md" href="{href("feedback")}">Ask us for a new one</a>'
+        f'<a class="btn btn--secondary btn--md" href="{href("directory")}">Back to the directory</a>').replace('role="status"', 'role="alert"').replace(icon("check", "icon--lg"), icon("clock", "icon--lg"))}
+    </div>""")
+
+
+@s("claimed", "The link was already used: the listing is not shown again and nothing can be changed from here.")
+def _():
+    return member_shell("", f"""    <div class="container page">{done_panel(
+        "This listing has already been claimed", "A link works once. If that was you, find your listing in the directory and use Edit listing.",
+        f'<a class="btn btn--primary btn--md" href="{href("directory")}">Back to the directory</a>')}
+    </div>""")
+
+
+@s("error", "Publishing failed: a message above the listing (focused); nothing was published and both answers stay available.")
+def _():
+    return member_shell("", claim_card(failed=True))
+
+
+def owner_editor(*, invalid: bool = False, busy: bool = False, failed: bool = False, review: bool = False) -> str:
+    l = EASTSIDE
+    ro = busy
+    d = " disabled" if ro else ""
+    alert = ""
+    if invalid:
+        alert = error_summary("1 thing to fix before saving", [("Add a website that starts with https://", "f-website")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("We couldn't save your listing", "Something went wrong on our side. Your changes are still here, so try again in a moment.")
+    if review:
+        alert = form_alert("Staff will check the new name", "A new name or kind goes back to our team before it shows. Until then the directory keeps the old one; your other changes are live.",
+                           kind="info", ic="info", role="status")
+    name = "Eastside Women’s Strength" if review else l["name"]
+    focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    body = f"""    {alert}
+    {field("Name", "name", name, readonly=ro, hint="Changing the name or the kind sends the listing back to staff to check" if not review else "")}
+    {textarea("About", "about", l["about"], rows=4, readonly=ro)}
+    {field("Website", "website", "eastsideladies" if invalid else l["website"], error="Add a website that starts with https://" if invalid else "", readonly=ro, optional=True)}
+    {file_field("Photo", "photo", optional=True, choose="Choose photo", empty="No photo yet", hint="JPEG, PNG or WebP, up to 5 MB", readonly=ro)}
+    <div class="field"><span class="field__label">Focus</span><ul class="tag-list">{focus}</ul></div>
+    {field("Contact email", "contact", "eastsideladies@example.org", type_="email", optional=True, hint="Shown to members who message you", readonly=ro)}"""
+    save = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
+            else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("listing-profile", "owner")}">Save changes</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("listing-profile", "owner")}">Cancel</button>\n    {save}'
+    html = dialog("Edit your listing", body, foot, sub=f"{l['name']} · Changes go live at once")
+    if not invalid and not failed and not review and not busy:
+        html = autofocus_first(html, 'id="f-name"')
+    return over_member("directory", profile_page(l, owner=True), html)
+
+
+s = screen("owner-listing-editor", "dialog", "Owner's listing editor", opens_from="listing-profile",
+           source="Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-079.")
+
+
+@s("default", "The owner edits their listing: name, about, website, photo, focus tags and contact; focus on the first field.")
+def _():
+    return owner_editor()
+
+
+@s("invalid", "A website without https://: summary focused, inline error; nothing is saved.")
+def _():
+    return owner_editor(invalid=True)
+
+
+@s("busy", "Save changes pressed: the button reads Saving…, fields read-only, no second submit.")
+def _():
+    return owner_editor(busy=True)
+
+
+@s("failed", "Saving failed: a message above the fields; everything typed is kept.")
+def _():
+    return owner_editor(failed=True)
+
+
+@s("review", "The name was changed: a notice says staff will check the new name while the other changes go live at once.")
+def _():
+    return owner_editor(review=True)
+
+
+@s("saved", "Saved: the dialog closes and a toast over the listing says the changes are live.")
+def _():
+    t = toast("success", "Your listing is updated", "Your changes are live in the directory.")
+    return member_shell("directory", profile_page(EASTSIDE, owner=True), after=toast_region(t))

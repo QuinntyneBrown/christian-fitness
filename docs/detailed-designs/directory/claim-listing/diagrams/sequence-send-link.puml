@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — send the claim link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Admin" as staff
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "ApproveSuggestionHandler" as h
+  participant "ClaimLinkSender" as send
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "IEmailSender" as mail
+  database "Christian Fitness database" as db
+end box
+staff -> h : Approve listing (four checks passed)
+h -> db : Draft listing, ListingClaim (token hash, expires in 14 days)
+h -> send : Send(suggestion, token)
+alt suggestion has an email
+  send -> mail : Email the link
+else self-submission, no email
+  send -> db : DirectMessage from Christian Fitness to the sender, with the link
+else no email, not a self-submission
+  send -> db : Listing is staff-managed: Listed, no owner, no claim
+end
+h -> db : Save in one unit of work
+staff -> h : Resend (link expired)
+h -> db : Void the old claim, add a new one
+h -> send : Send(suggestion, new token)
+@enduml

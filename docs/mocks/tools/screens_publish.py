@@ -3,11 +3,12 @@ Layout and copy follow the Magic Patterns prototype "Admin Console" frames Manag
 Newsletter, Manage Event Series, Community Pick, Manage Listings and Feedback Inbox."""
 from __future__ import annotations
 
-from cf_data import (ADMIN_STORIES, MODERATOR, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
+from cf_data import (ADMIN_STORIES, MODERATOR, AUTHORS, BYLINES, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
                      PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
-from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, field, form_alert, href, icon,
-                   image, listing_mark, loading_region, screen, select, textarea, toast, toast_region, verified_badge)
-from overlays import dialog, over_admin
+from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field, file_field,
+                   form_alert, href, icon, image, listing_mark, loading_region, screen, select, textarea, toast, toast_region,
+                   verified_badge)
+from overlays import autofocus_first, dialog, drawer, over_admin
 from screens_admin import G, SRC, table_skeleton
 
 N = NEWSLETTER
@@ -30,12 +31,17 @@ def tabs(label: str, items: list, active: str) -> str:
 EDITOR_STATE = {"In review": "default", "Draft": "draft", "Scheduled": "scheduled", "Published": "published"}
 
 
+def bylines_link() -> str:
+    return f'<a class="btn btn--secondary btn--md" href="{href("admin-bylines")}">{icon("users")}Bylines</a>'
+
+
 def stories_page(body: str, active: str = "All", *, review: bool = True, counts: bool = True) -> str:
     def count(k):
         if not counts:
             return ""
         return len(ADMIN_STORIES) if k == "All" else sum(1 for x in ADMIN_STORIES if x[4] == k)
     new = f'<a class="btn btn--primary btn--md" href="{href("admin-story-editor", "new")}">{icon("plus")}New story</a>'
+    bylines = f'<a class="btn btn--secondary btn--md" href="{href("admin-bylines")}">{icon("users")}Bylines</a>'
     banner = ""
     if review:
         for sid, title, section, author, status, when, _ in ADMIN_STORIES:
@@ -49,7 +55,7 @@ def stories_page(body: str, active: str = "All", *, review: bool = True, counts:
         <span class="btn btn--inverse btn--md review-card__action">Review {icon("arrow-right")}</span>
       </a>"""
     links = [("All", count("All"), href("admin-stories"))] + [(k, count(k), href("admin-stories", "filtered")) for k in STORY_STATUSES]
-    return (admin_header("Stories", "What members read on the front page, in RSS and in the Weekly.", new) + "\n" + banner + "\n"
+    return (admin_header("Stories", "What members read on the front page, in RSS and in the Weekly.", bylines + new) + "\n" + banner + "\n"
             + tabs("Filter stories", links, active) + "\n" + body)
 
 
@@ -92,7 +98,7 @@ def _():
 def _():
     body = empty_block("No stories yet", "Stories appear on the front page, in the RSS feeds and in the Weekly once they are published.",
                        f'<a class="btn btn--primary btn--sm" href="{href("admin-story-editor", "new")}">{icon("plus")}New story</a>')
-    return admin_shell("admin-stories", admin_header("Stories", "What members read on the front page, in RSS and in the Weekly.") + body,
+    return admin_shell("admin-stories", admin_header("Stories", "What members read on the front page, in RSS and in the Weekly.", bylines_link()) + body,
                        counts={"admin-stories": 0})
 
 
@@ -133,7 +139,7 @@ def editor_actions(status: str, *, busy: bool = False, schedule: bool = False) -
     if status == "Draft":
         return sec("Send for review") + pri("Schedule" if schedule else "Publish now")
     if status == "In review":
-        return sec("Request changes") + pri("Approve &amp; schedule" if schedule else "Approve &amp; publish", "approved.html")
+        return sec("Back to draft") + pri("Approve &amp; schedule" if schedule else "Approve &amp; publish", "approved.html")
     if status == "Scheduled":
         return sec("Unschedule") + pri("Publish now")
     return sec("Unpublish") + pri("Update")
@@ -142,9 +148,6 @@ def editor_actions(status: str, *, busy: bool = False, schedule: bool = False) -
 def editor(d: dict, status: str, *, schedule: bool = False, invalid: bool = False, busy: bool = False, failed: bool = False,
            saved: str = "Saved 2 min ago") -> str:
     ro = busy
-    note = (f"""<div class="editor-note">{icon("message-square", "icon--lg editor-note__icon")}
-            <div><p class="editor-note__title">Note from {d["author"]}</p><p class="editor-note__text">Dietitian quotes are checked with Lena. Could we run this before Lent ends on the 18th?</p></div>
-          </div>""" if status == "In review" else "")
     alert = ""
     if invalid:
         alert = '<div class="editor__alert">' + form_alert("Add a headline before publishing", "A story needs a headline and some text to go out.").replace(
@@ -181,7 +184,6 @@ def editor(d: dict, status: str, *, schedule: bool = False, invalid: bool = Fals
         <div class="editor__writing">
           <h1 class="visually-hidden">{'New story' if not d["title"] else 'Edit story'}</h1>
           {alert}
-          {note}
           {lead}
           <div class="editor__text">
             <label class="visually-hidden" for="f-headline">Headline</label>
@@ -223,7 +225,7 @@ s = screen("admin-story-editor", "page", "Story editor", route="/admin/stories/:
            not_applicable={"empty": "One story; a new one is the new state, and a missing one is the admin not-found page."})
 
 
-@s("default", "A story in review: the writer's note, the lead image, headline, summary and text; when it publishes, where it sits on the front page, whether it goes in the Weekly, its section, byline, what it points readers to and its link. The editor can request changes or approve and publish.")
+@s("default", "A story in review: the lead image, headline, summary and text; when it publishes, where it sits on the front page, whether it goes in the Weekly, its section, byline (chosen from the Bylines list), what it points readers to and its link. An Admin can send it back to draft or approve and publish.")
 def _():
     return editor_page(LENT, "In review")
 
@@ -287,6 +289,208 @@ def _():
 
 
 # ===========================================================================
+# Bylines (Stories > Bylines; L2-077)
+# ===========================================================================
+def byline_uses(name: str) -> int:
+    return sum(1 for x in ADMIN_STORIES if x[3] == name)
+
+
+def uses_text(n: int) -> str:
+    return "Not used yet" if n == 0 else f"{n} stor{'y' if n == 1 else 'ies'}"
+
+
+def bylines_head(action: bool = True) -> str:
+    add = f'<button class="btn btn--primary btn--md" type="button" data-mock-href="{href("byline-editor")}">{icon("plus")}Add byline</button>' if action else ""
+    return (f'<a class="back-link" href="{href("admin-stories")}">{icon("arrow-left")} Stories</a>'
+            + admin_header("Bylines", "The names a story can run under. Admins choose one in the story editor.", add))
+
+
+def bylines_table(rows=BYLINES) -> str:
+    trs = ""
+    for name, initials, bio in rows:
+        n = byline_uses(name)
+        dlg = href("remove-byline", "in-use" if n else "default")
+        trs += f"""<tr>
+                <td><div class="table__person">{avatar(initials, size="table")}<p class="table__strong">{name}</p></div></td>
+                <td class="table__wrap muted">{bio}</td>
+                <td class="table__nowrap">{uses_text(n)}</td>
+                <td class="table__end"><span class="row-actions"><button class="row-link" type="button" data-mock-href="{href("byline-editor", "edit")}">Edit<span class="visually-hidden"> {name}</span></button><button class="row-link row-link--quiet" type="button" data-mock-href="{dlg}">Remove<span class="visually-hidden"> {name}</span></button></span></td>
+              </tr>"""
+    return f"""<div class="table-wrap">
+          <table class="table table--wide">
+            <caption class="visually-hidden">Bylines</caption>
+            <thead><tr><th scope="col">Byline</th><th scope="col">Short bio</th><th scope="col">Used by</th><th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th></tr></thead>
+            <tbody>{trs}</tbody>
+          </table>
+        </div>"""
+
+
+def bylines_page(body: str, *, action: bool = True, after: str = "") -> str:
+    return admin_shell("admin-stories", bylines_head(action) + "\n" + body, after=after)
+
+
+s = screen("admin-bylines", "page", "Manage bylines", route="/admin/stories/bylines", group=G,
+           source="Derived: the story editor's Byline picker needs a list to read; the prototype draws a fixed one (L2-077).")
+
+
+@s("default", "Every byline with its short bio and how many stories use it; Add byline, and Edit and Remove on each row.")
+def _():
+    return bylines_page(bylines_table())
+
+
+@s("saved", "A byline was saved from the dialog: the list shows it and a toast confirms it.")
+def _():
+    return bylines_page(bylines_table(), after=toast_region(toast("info", "Byline saved", "Admins can choose Marcus Bell in the story editor."), admin=True))
+
+
+@s("removed", "A byline nobody uses was removed: it is gone from the list and a toast confirms it.")
+def _():
+    return bylines_page(bylines_table([b for b in BYLINES if b[0] != "CF Team"]), after=toast_region(toast("info", "Byline removed", "CF Team is no longer in the story editor's list."), admin=True))
+
+
+@s("loading", "Bylines loading: the heading and Add byline are there; the table shows skeleton rows.")
+def _():
+    return bylines_page(loading_region("Loading bylines", table_skeleton(4)))
+
+
+@s("empty", "No bylines yet: says a story cannot be published without one and offers Add byline.")
+def _():
+    body = empty_block("No bylines yet", "A story needs a byline before it can be published. Add the first one.",
+                       f'<a class="btn btn--primary btn--sm" href="{href("byline-editor")}">{icon("plus")}Add byline</a>')
+    return bylines_page(body, action=False)
+
+
+@s("error", "Bylines failed to load: retry in place.")
+def _():
+    return bylines_page(error_block("Bylines didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.",
+                                    retry="default.html", ref="CF-A7B1"))
+
+
+def bylines_behind() -> str:
+    return bylines_head() + "\n" + bylines_table()
+
+
+def byline_editor(*, edit: bool = False, invalid: bool = False, busy: bool = False, failed: bool = False, taken: bool = False) -> str:
+    """Add or edit a byline (L2-077): a name, a short bio and an optional photo. The name is unique."""
+    name, bio = ("Marcus Bell", next(b[2] for b in BYLINES if b[0] == "Marcus Bell")) if edit else ("", "")
+    if invalid:
+        name = bio = ""
+    if taken:
+        name, bio = "Priya Raman", "Nutrition writer."
+    name_err = "Add a name" if invalid else ("A byline called Priya Raman already exists" if taken else "")
+    bio_err = "Add a short bio" if invalid else ""
+    alert = ""
+    if invalid:
+        alert = error_summary("2 things to fix", [(name_err, "f-name"), (bio_err, "f-bio")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Couldn't save the byline", "The server didn't respond. Nothing was lost; try again.")
+    body = f"""    {alert}
+    {field("Name", "name", name, error=name_err, readonly=busy, hint="" if name_err else "As readers see it under a story.")}
+    {textarea("Short bio", "bio", bio, rows=3, error=bio_err, hint=f"One or two sentences. {200 - len(bio)} characters left.", readonly=busy)}
+    {file_field("Photo", "photo", optional=True, hint="JPEG, PNG or WebP, at most 5 MB. Initials show without one.", readonly=busy)}"""
+    d = " disabled" if busy else ""
+    label = "Save byline" if edit else "Add byline"
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-bylines", "saved")}">{label}</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-bylines")}">Cancel</button>\n    {go}'
+    html = dialog("Edit byline" if edit else "Add a byline", body, foot)
+    if not (invalid or failed or busy or taken):
+        html = autofocus_first(html, 'id="f-name"')
+    return over_admin("admin-stories", bylines_behind(), html)
+
+
+s = screen("byline-editor", "dialog", "Add or edit a byline", opens_from="admin-bylines", group=G,
+           source="Derived: the story editor's Byline picker and the Listing editor's form; the prototype draws no byline form (L2-077).")
+
+
+@s("default", "Add a byline: name, short bio and an optional photo; focus on the name.")
+def _():
+    return byline_editor()
+
+
+@s("edit", "Edit Marcus Bell: the fields hold his name and bio.")
+def _():
+    return byline_editor(edit=True)
+
+
+@s("invalid", "Add byline pressed with no name and no bio: summary focused, both named.")
+def _():
+    return byline_editor(invalid=True)
+
+
+@s("busy", "Save byline pressed: busy, the fields hold still, Cancel disabled.")
+def _():
+    return byline_editor(edit=True, busy=True)
+
+
+@s("failed", "Saving failed: message at the top, the fields kept.")
+def _():
+    return byline_editor(edit=True, failed=True)
+
+
+@s("refused", "The name is already a byline (code byline_name_taken): the dialog says so and marks the field.")
+def _():
+    return byline_editor(taken=True)
+
+
+def remove_byline(*, in_use: bool = False, busy: bool = False, failed: bool = False, refused: bool = False) -> str:
+    """Remove a byline (L2-077): one stories use cannot be removed, so the dialog says so and offers no Remove."""
+    name = "Marcus Bell" if in_use else "CF Team"
+    n = byline_uses(name)
+    alert = ""
+    if failed:
+        alert = form_alert("Couldn't remove the byline", "The server didn't respond. Nothing was lost; try again.")
+    if refused:
+        alert = form_alert("A story now uses this byline", "Someone chose it while this was open. Change those stories' byline first.")
+    if in_use:
+        body = (f'    {form_alert(f"{name} is on {n} stories", "Choose another byline on each of them, then remove this one.", kind="info", ic="info", role="status").replace(" tabindex=" + chr(34) + "-1" + chr(34), "")}')
+        foot = f'    <button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-bylines")}">Close</button>'
+        html = dialog(f"Can't remove {name}", body, foot, sub="A byline that stories use stays until they run under another.")
+        html = autofocus_first(html, 'type="button" data-mock-href')
+        return over_admin("admin-stories", bylines_behind(), html)
+    d = " disabled" if busy else ""
+    body = f"""    {alert}
+    <p>No story uses {name}. Admins will no longer see it in the story editor.</p>"""
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Removing…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-bylines", "removed")}">Remove byline</button>')
+    foot = f'    <button class="btn btn--secondary btn--grow" type="button"{d} data-mock-href="{href("admin-bylines")}">Keep it</button>\n    {go}'
+    html = dialog(f"Remove {name}?", body, foot)
+    if not (busy or failed or refused):
+        html = autofocus_first(html, 'type="button"{d} data-mock-href'.replace("{d}", d))
+    return over_admin("admin-stories", bylines_behind(), html)
+
+
+s = screen("remove-byline", "dialog", "Remove a byline", opens_from="admin-bylines", group=G,
+           source="Derived: the Remove a listing dialog; the prototype draws no byline list (L2-077).",
+           not_applicable={"invalid": "There is nothing to type: it asks one question."})
+
+
+@s("default", "Remove CF Team, which no story uses here: Keep it or Remove byline.")
+def _():
+    return remove_byline()
+
+
+@s("in-use", "Marcus Bell is on stories: the dialog says to change those stories first and offers only Close.")
+def _():
+    return remove_byline(in_use=True)
+
+
+@s("busy", "Remove byline pressed: busy, Keep it disabled.")
+def _():
+    return remove_byline(busy=True)
+
+
+@s("failed", "Removing failed: message at the top; nothing was removed.")
+def _():
+    return remove_byline(failed=True)
+
+
+@s("refused", "A story began using it while the dialog was open (code byline_in_use): the dialog says so.")
+def _():
+    return remove_byline(refused=True)
+
+
+# ===========================================================================
 # Newsletter
 # ===========================================================================
 def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False) -> str:
@@ -309,7 +513,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
     test = (f'<button class="btn btn--secondary btn--sm btn--grow" type="button">{icon("check")}Test sent</button>' if tested
             else '<button class="btn btn--secondary btn--sm btn--grow" type="button" data-mock-href="test-sent.html">Send me a test</button>')
     past = "".join(f"""<tr><td class="table__nowrap"><span class="table__strong">#{n}</span> <span class="muted">· {date}</span></td><td>{subject}</td>
-                <td class="table__end table__strong">{opens}</td><td class="table__end muted">{clicks}</td></tr>""" for n, date, subject, opens, clicks in PAST_ISSUES)
+                <td class="table__end table__strong">{sent:,}</td></tr>""" for n, date, subject, sent in PAST_ISSUES)
     return f"""{admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}')}
       <form class="split split--builder" novalidate>
         <section class="card card--pad" aria-labelledby="issue-title">
@@ -343,7 +547,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         <h2 class="display section-title" id="sent-title">Sent</h2>
         <div class="table-wrap table-wrap--flush"><table class="table">
           <caption class="visually-hidden">Sent issues</caption>
-          <thead><tr><th scope="col">Issue</th><th scope="col">Subject</th><th scope="col" class="table__end">Opened</th><th scope="col" class="table__end">Clicked</th></tr></thead>
+          <thead><tr><th scope="col">Issue</th><th scope="col">Subject</th><th scope="col" class="table__end">Sent to</th></tr></thead>
           <tbody>{past}</tbody></table></div>
       </section>"""
 
@@ -419,7 +623,7 @@ def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
                 <span class="admin-session__date">{x["weekday"]} {x["month"]} {x["day"]}</span>
                 <span class="admin-session__topic">{x["topic"]}</span><span class="admin-session__end">{end}</span></li>""")
     pct = round(sr["enrolled"] / sr["capacity"] * 100)
-    new = f'<button class="btn btn--primary btn--md" type="button">{icon("plus")}New series</button>'
+    new = f'<button class="btn btn--primary btn--md" type="button" data-mock-href="{href("series-editor")}">{icon("plus")}New series</button>'
     return f"""{admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.", new)}
       <div class="split split--picker">
         <nav aria-label="Series"><ul class="pick-cards">{picker}</ul></nav>
@@ -431,7 +635,7 @@ def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
               <p class="muted">Hosted by {LS[sr["host"]]["name"]}</p>
               <p class="series-summary-card__facts"><span>{icon("repeat")}{sr["cadence"]}, {sr["time"]} · {sr["range"]}</span><span>{icon("map-pin")}{sr["place"]}</span></p>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button">Edit details</button>
+            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("series-editor", "edit" if sr["id"] == "couch-to-5k" else "edit-bootcamp")}">Edit details</button>
             <dl class="series-summary-card__stats">
               <div><dt>Joined</dt><dd>{sr["enrolled"]} of {sr["capacity"]}</dd>
                 <dd><meter class="fill__meter" min="0" max="{sr["capacity"]}" value="{sr["enrolled"]}">{pct}% full</meter></dd></div>
@@ -484,13 +688,73 @@ def _():
 def _():
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + empty_block(
         "No series yet", "A series is a run of dated sessions members join once, such as eight Tuesdays of Couch to 5K.",
-        f'<button class="btn btn--primary btn--sm" type="button">{icon("plus")}New series</button>'))
+        f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("series-editor")}">{icon("plus")}New series</button>'))
 
 
 @s("error", "Series failed to load: retry in place.")
 def _():
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + error_block(
         "Series didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", ref="CF-A9R3"))
+
+
+def series_editor(state: str) -> str:
+    invalid = state == "invalid"
+    selected = state in ("edit", "edit-bootcamp", "selected")
+    value = "" if invalid else "Lakeshore" if state == "searching" else "Northside" if state == "no-results" else "Danielle Okafor" if state == "edit-bootcamp" else "Lakeshore Runners Fellowship" if selected else "Christian Fitness"
+    alert = error_summary("1 thing to fix", [("Choose a Listed host", "f-host")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') if invalid else ""
+    host = field("Host (required)", "host", value, required=True,
+                 error="Choose a Listed host" if invalid else "",
+                 hint="" if invalid else "Choose a Listed directory listing.")
+    if state == "searching":
+        results = '<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html"><span class="pick-card__title">Lakeshore Runners Fellowship</span><span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a>'
+    elif state == "no-results":
+        results = '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="searching.html">Search again</a>'
+    else:
+        results = '<a href="searching.html">Search hosts</a>'
+    body = f'{alert}{host}{results}<p class="field__hint">Other series fields are not yet specified.</p>'
+    foot = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>'
+    return over_admin("admin-series", series_admin(SR["park-bootcamp" if state == "edit-bootcamp" else "couch-to-5k"]),
+                      drawer("Edit series" if state in ("edit", "edit-bootcamp") else "New series", body, foot))
+
+
+s = screen("series-editor", "dialog", "Series editor", group=G, opens_from="admin-series",
+           source="Derived: host selection in the New series and Edit details drawers (ADR 0067).",
+           not_applicable={"busy": "Only the host picker is specified; the complete series save flow is not yet designed."})
+
+
+@s("default", "A new series defaults to the Christian Fitness team host.")
+def _():
+    return series_editor("default")
+
+
+@s("edit", "Edit a series with its saved host.")
+def _():
+    return series_editor("edit")
+
+
+@s("edit-bootcamp", "Edit Saturday Park Bootcamp with its saved host Danielle Okafor.")
+def _():
+    return series_editor("edit-bootcamp")
+
+
+@s("searching", "Search Listed hosts and choose a matching listing.")
+def _():
+    return series_editor("searching")
+
+
+@s("selected", "A matching Listed host has been selected.")
+def _():
+    return series_editor("selected")
+
+
+@s("no-results", "A host search with no matching Listed listings.")
+def _():
+    return series_editor("no-results")
+
+
+@s("invalid", "A missing host shows an error at the field and in the summary.")
+def _():
+    return series_editor("invalid")
 
 
 def cancel_session(*, busy: bool = False, failed: bool = False) -> str:

@@ -1,0 +1,31 @@
+@startuml
+title UML class structure — claim a listing
+!pragma layout smetana
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+class ClaimListingPage <<web>>
+interface ListingClaimsApi <<api>> {
+  get(token): ClaimPreview
+  publish(token)
+  decline(token)
+}
+class ListingClaim <<domain>> {
+  TokenHash
+  ExpiresAt
+  SpentAt
+  Publish(member, now)
+  Decline(now)
+}
+class DirectoryListing <<domain>> {
+  Status: Draft | Listed | Declined
+  OwnerId?
+  IsStaffManaged
+}
+class ClaimLinkSender <<application>>
+ClaimListingPage --> ListingClaimsApi
+ListingClaim --> DirectoryListing
+ClaimLinkSender ..> ListingClaim
+@enduml

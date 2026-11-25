@@ -9,6 +9,12 @@ Christian Fitness connects members with Christian professionals the team has vet
 
 This feature covers the contact action in a listing's detail (mock `docs/mocks/pages/services/selected.html`). When the listing is linked to a professional's account, Message opens a direct conversation with that professional in Messages. When it is not linked, Contact opens the professional's published contact link; the link is not sent to the browser until the member chooses Contact.
 
+ADR 0066 settles the intended listing behaviour: the recipient is the owner, Message on a published,
+claimed listing is exempt from the owner's messaging preference, and a listing with no owner hides
+Message and refuses a conversation attempt with `listing_unreachable`. Its website or contact is
+offered where available. The slice 17.1 behaviour described below is the existing implementation
+and must be reconciled with that decision in a later ATDD slice.
+
 - **linked professional account** — member account of the professional that a listing references through `ProfessionalMemberId`
 - **direct conversation** — `Conversation` of kind Direct with exactly two participants
 - **contact link** — URL the professional published for enquiries
@@ -41,7 +47,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 | L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                |
 | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `L2-014` | `L1-006`     | A member may request a booking from a listing; it is delivered as a direct message (AC3 to AC5). For a listing with a linked professional account, choosing Message shall open a direct conversation with that professional. For a listing without a linked account, choosing Contact shall open the professional's published contact link; no contact details shall be shown until the member chooses it. |
+| `L2-014` | `L1-006`     | A member may request a booking from a listing; it is delivered as a direct message (AC3 to AC5). For a published listing with an owner, choosing Message shall open a direct conversation with the owner even when "Let anyone message me" is off. An ownerless listing shall hide Message, offer its website or contact where available, and refuse an API conversation attempt with `listing_unreachable`; a contact link shall open when chosen without showing its details beforehand. |
 
 ## Diagrams
 
