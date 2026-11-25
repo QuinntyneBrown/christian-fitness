@@ -52,6 +52,11 @@
   }
 }
 
+// A text link that stands alone under a page title, at UI size.
+.text-link--ui {
+  font-size: var(--font-size-ui);
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;

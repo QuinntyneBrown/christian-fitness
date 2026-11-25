@@ -1,5 +1,7 @@
 import { expect, test } from '../fixtures/test';
 import { WebSuggestListingPage } from '../page-objects/web/suggest-listing.page';
+import { answerDirectory, CAST } from '../fixtures/directory';
+import { WebDirectoryPage } from '../page-objects/web/directory.page';
 
 const SUGGESTIONS = '/api/directory/suggestions';
 
@@ -387,4 +389,38 @@ test.describe('Member app, suggest a listing: refusals', () => {
       await expect(suggest.sendButton).toBeEnabled();
     });
   }
+});
+
+// L2-062 AC1 (mocks `directory/default`, `directory/no-results`): the directory leads to the form
+// from under its heading and from a search that finds no one.
+test.describe('Member app, suggest a listing: from the directory', () => {
+  test('"Know someone who belongs here? Suggest a listing" under the heading opens the form', async ({
+    page,
+    api,
+  }) => {
+    answerDirectory(api, CAST);
+    const directory = new WebDirectoryPage(page);
+    await directory.open();
+
+    await directory.suggestLink.click();
+
+    await expect(page).toHaveURL(/\/directory\/suggest$/);
+    await expect(new WebSuggestListingPage(page).heading).toHaveText('Suggest a listing');
+  });
+
+  test('a search with no match offers Suggest a listing beside Clear search', async ({
+    page,
+    api,
+  }) => {
+    answerDirectory(api, CAST);
+    const directory = new WebDirectoryPage(page);
+    await directory.open();
+    await directory.typeSearch('aquafit');
+    await expect(directory.noResultsHeading).toBeVisible();
+
+    await directory.noResultsSuggest.click();
+
+    await expect(page).toHaveURL(/\/directory\/suggest$/);
+    await expect(new WebSuggestListingPage(page).heading).toHaveText('Suggest a listing');
+  });
 });

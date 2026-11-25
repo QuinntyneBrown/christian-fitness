@@ -3,9 +3,10 @@ import { booleanAttribute, Component, input } from '@angular/core';
 /**
  * The design system's link variants: `inline` (`link`) inside running text, `text`
  * (`text-link`) beside a section heading, `quiet` (`text-link--quiet`) for a secondary escape,
- * and `back` (`back-link`) to the parent list with a leading arrow.
+ * `ui` (`text-link--ui`) standing alone under a page title, and `back` (`back-link`) to the parent
+ * list with a leading arrow.
  */
-export type LinkVariant = 'inline' | 'text' | 'quiet' | 'back';
+export type LinkVariant = 'inline' | 'text' | 'quiet' | 'ui' | 'back';
 
 /**
  * The design system's links (docs/design-system/components/link.html): a native `<a href>` that
@@ -31,6 +32,8 @@ export class Link {
         return 'text-link';
       case 'quiet':
         return 'text-link text-link--quiet';
+      case 'ui':
+        return 'text-link text-link--ui';
       case 'back':
         return 'back-link';
       default:
