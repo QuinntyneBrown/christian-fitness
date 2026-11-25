@@ -29,6 +29,7 @@ class NewsletterSubscription <<entity>> {
   +NewsletterExtras Extras
   +DateTimeOffset RequestedAt
   +DateTimeOffset? ConsentedAt
+  +string? ConsentSource
   +DateTimeOffset? UnsubscribedAt
   +{static} Request(email, extras, now): NewsletterSubscription
   +UpdateExtras(extras): void
@@ -44,7 +45,7 @@ class SubscriptionConfirmation <<entity>> {
 }
 class SubscribeCommand {
   +string Email
-  +NewsletterExtras Extras
+  +NewsletterExtras? Extras
 }
 class SubscribeHandler {
   +Handle(command): Task<SubscribeAnswerDto>
@@ -58,6 +59,7 @@ abstract class AddressRateLimiter {
 }
 class NewsletterEmails {
   +Confirmation(subscription, token): EmailMessage
+  +SettingsChanged(subscription, undoToken): EmailMessage
 }
 interface IEmailSender {
   +SendAsync(message, ct): Task
@@ -70,7 +72,6 @@ class NewsletterSummaryDto {
   +string Name
   +string About
   +string Cadence
-  +int Readers
   +IssuePreviewDto? Latest
 }
 class SubscribePage <<Angular page>>

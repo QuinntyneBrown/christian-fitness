@@ -31,12 +31,12 @@ page -> page : Fill the email field from navigation state; never from the URL
 page -> client : summary()
 client -> ctrl : GET /api/public/newsletter
 ctrl -> h : Send GetNewsletterSummaryQuery
-h -> db : Count Subscribed with Weekly on; latest Sent issue with lead and two more stories
+h -> db : Latest Sent issue with lead and two more stories
 db --> h : Rows
 h --> ctrl : NewsletterSummaryDto
 ctrl --> client : 200 JSON
 client --> page : NewsletterSummaryDto
-page --> actor : Name, what it holds, when it is sent, form with three extras (Event alerts ticked), readers, latest issue, feeds (L2-057 AC2)
+page --> actor : Name, contents, cadence, email form, latest issue and feeds; no extras or reader count (L2-057 AC2)
 opt opened at #rss
   page -> page : Scroll to the feeds and move focus to their heading
 end

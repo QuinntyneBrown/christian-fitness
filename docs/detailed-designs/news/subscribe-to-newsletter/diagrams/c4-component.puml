@@ -14,7 +14,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(val, "SubscribeValidator", "FluentValidation", "email_invalid")
   Component(h, "SubscribeHandler", "MediatR handler", "Same answer for every address")
   Component(lim, "SubscriptionLimiter", "AddressRateLimiter", "5 an hour per network")
-  Component(sub, "NewsletterSubscription", "Domain entity", "Pending, Subscribed, Unsubscribed and four extras")
+  Component(sub, "NewsletterSubscription", "Domain entity", "Pending, Subscribed, Unsubscribed and three deferred extras")
   Component(mailer, "NewsletterEmails", "Application service", "Composes the confirmation email")
   Component(sender, "IEmailSender", "QueuedEmailSender", "Queues and returns (ADR 0010)")
 }

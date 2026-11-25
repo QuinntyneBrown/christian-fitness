@@ -527,7 +527,7 @@ def _():
 # ===========================================================================
 # Newsletter
 # ===========================================================================
-def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False) -> str:
+def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False, missed: bool = False) -> str:
     d = " disabled" if scheduled or busy else ""
     ro = scheduled or busy
     picked = ("sabbath-rest", "meal-prep-ministry", "walking-seniors")
@@ -539,7 +539,7 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         also.append(f"""<li><label class="check check--ui pick-row"><input class="check__box" type="checkbox" name="also" value="{x["id"]}"{" checked" if on else ""}{off}>
                   <span><span class="pick-row__title">{x["title"]}</span><span class="pick-row__meta">{x["section"]} · {x["ago"]}</span></span></label></li>""")
     evs = "".join(f'<button class="interest" type="button" aria-pressed="{"true" if i < 3 else "false"}"{d}>{icon("check", "icon--xs") if i < 3 else ""}{e["title"]}</button>'
-                  for i, e in enumerate(MEMBER_EVENTS))
+                  for i, e in enumerate(MEMBER_EVENTS[:4]))
     opts = "".join(f'<option value="{x["id"]}"{" selected" if x["id"] == lead else ""}>{x["title"]}</option>' for x in STORIES)
     send = (f'<button class="btn btn--on-brand btn--md btn--block" type="button" data-mock-href="default.html">Unschedule to edit</button>' if scheduled
             else f'<button class="btn btn--inverse btn--md btn--block" type="submit" disabled aria-busy="true">{busy_label("Scheduling…")}</button>' if busy
@@ -551,14 +551,14 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
     return f"""{admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}')}
       <form class="split split--builder" novalidate>
         <section class="card card--pad" aria-labelledby="issue-title">
-          <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}</div>
+          <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}</div>{'<p role="status">Saved 10:42 AM</p>' if not scheduled and not busy and not invalid else ''}
           <div class="builder__fields stack-5">
             {field("Subject line", "subject", "" if invalid else "Shame is a terrible coach (and other things we learned this week)", error="Add a subject line before scheduling." if invalid else "", readonly=ro)}
             {textarea("Editor’s note", "note", "Morning, friends. This week Danielle Okafor tells us why shame is a terrible coach, and Pastor Ruth makes the case for doing nothing on purpose. See you at the 5K.", rows=3, readonly=ro)}
             <div class="field"><label class="field__label" for="f-lead">The big story</label><select class="select" id="f-lead" name="lead"{d}>{opts}</select></div>
             <fieldset><legend class="field__label">Also this week <span class="field__optional">· 3 of 3</span></legend>
               <ul class="card card--list pick-list">{''.join(also)}</ul></fieldset>
-            <fieldset><legend class="field__label">Events this week</legend><div class="interest-list">{evs}</div></fieldset>
+            <fieldset><legend class="field__label">Events this week</legend><p>Choose which of the next four events to feature. All four appear on the calendar.</p><div class="interest-list">{evs}</div></fieldset>
             <div class="field-grid field-grid--verse">
               {field("Verse to carry", "verse", "Come to me, all who are weary, and I will give you rest.", readonly=ro)}
               {field("Reference", "reference", "Matthew 11:28", readonly=ro)}
@@ -567,14 +567,14 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         </section>
         <aside class="aside-stack aside-stack--snug sticky-aside" aria-label="Send">
           <section class="send-card">
-            <p class="send-card__label">{'Scheduled for' if scheduled else 'Goes out'}</p>
+            <p class="send-card__label">{'Scheduled for' if scheduled else 'Missed send time' if missed else 'Goes out'}</p>
             <p class="send-card__date">Sat Apr 18</p>
-            <p class="send-card__meta">7:00 AM Eastern · {N["readers"]} people</p>
+            <p class="send-card__meta">7:00 AM Eastern · {N["readers"]} people</p>{'<label for="reschedule-time">Reschedule today (Toronto time)</label><input class="input" id="reschedule-time" name="reschedule-time" type="time" value="10:30"><p>Choose a later time today. After today, an unsent issue returns to Draft.</p>' if missed else ''}
             {send}
           </section>
           <div class="btn-row"><a class="btn btn--secondary btn--sm btn--grow" href="{href("newsletter")}">{icon("eye")}Preview</a>{test}</div>
           <p class="visually-hidden" role="status">{"Test sent to dana@christian.fitness" if tested else ""}</p>
-          <p class="builder__note">Add-on emails (event alerts, training plan, devotions) send on their own schedules.</p>
+          <p class="builder__note">Add-on emails (event alerts, training plan, devotions) are deferred until someone owns writing and scheduling them.</p>
         </aside>
       </form>
       <section class="mt-12" aria-labelledby="sent-title">
@@ -603,6 +603,11 @@ def _():
 @s("scheduled", "The issue is scheduled: its fields are locked and the card offers \"Unschedule to edit\".")
 def _():
     return admin_shell("admin-newsletter", newsletter_page(scheduled=True))
+
+
+@s("missed", "The issue missed its send time: choose a later time today in Toronto.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(missed=True))
 
 
 @s("test-sent", "Send me a test pressed: the button reads \"Test sent\" and a status message names the address.")

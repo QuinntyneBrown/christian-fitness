@@ -877,6 +877,7 @@
       "requirements": [],
       "states": [
         "default",
+        "unpublished",
         "loading",
         "error"
       ],
@@ -1094,6 +1095,7 @@
         "default",
         "moderator",
         "scheduled",
+        "missed",
         "test-sent",
         "invalid",
         "submitting",

@@ -11,6 +11,7 @@ unsubscribe").
 
 - **confirmation token** — 32 random bytes in base64url, single-use and valid for 7 days, of which the system stores only a SHA-256 hash
 - **consent time** — instant the owner followed a valid confirmation link, kept on the subscription
+- **consent source** — how consent was given; a signed-in Preferences change records "Preferences, signed in" with its consent time
 - **unsubscribe token** — random opaque token linked to one subscription by a stored hash, placed in every newsletter email
 - **one-click unsubscribe** — unsubscribe a mail client performs from the `List-Unsubscribe` and `List-Unsubscribe-Post` headers (RFC 8058)
 - **purge** — deletion of an unsubscribed address no later than 30 days after it unsubscribed
@@ -30,7 +31,7 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   a server in a URL or a `Referer` (`L2-058` AC7; the pattern of ADR 0014). It then calls
   `confirm(token)` or `unsubscribe(token)` on `NEWSLETTER_SERVICE` and shows:
   - `confirmed` — a `role="status"` region that takes focus: "You're subscribed", the address as
-    text, when the first issue arrives and the extras chosen ("with event alerts as they post"),
+    text and when the first issue arrives,
     and "Read last week's issue" (`L2-058` AC2);
   - `link-expired` — the library's `Alert` "That link has expired. Confirmation links last 7 days.
     Enter your email again and we'll send a new one." above the form (`L2-058` AC3);
@@ -102,8 +103,6 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
 - **Link scanners.** Mail security scanners that fetch links do not run the page's script, so
   they neither confirm nor unsubscribe. A scanner that runs scripts would confirm a subscription;
   no defence beyond the page's POST is specified.
-- **Members' preferences.** A member's email switches (`L2-064` AC8–AC9) read and write the
-  subscription of the account's address; that screen is designed with Preferences.
 
 ## Requirements
 
