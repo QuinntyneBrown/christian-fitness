@@ -21,6 +21,7 @@ export * from './security/member-auth-guard';
 export * from './security/redirect-signed-in-guard';
 export * from './security/staff-auth-guard';
 export * from './admin/admin-areas';
+export * from './admin/admin-nav';
 export * from './dashboard/community-activity';
 export * from './dashboard/work-awaiting';
 export * from './admin/initials';

@@ -105,8 +105,9 @@ yet (journeys 8, 9, 30 and ADR 0069).
   opened by both roles.
 - **Counts (ADR 0079).** `GET api/admin/counts` (the console area) answers `{ suggestions }` to
   both roles for now; `stories`, `applications`, `members` and `feedback` join the answer with the
-  journeys that give their links a count. The admin shell reads it on entry and again when a screen
-  asks through `ADMIN_COUNTS` after a decision; the admin hub's `countsChanged` comes with the
+  journeys that give their links a count. The admin shell reads it through `ADMIN_COUNTS_SERVICE`,
+  which it provides itself so the initial bundle does not carry it, on entry and again when a
+  screen asks through `ADMIN_COUNTS` after a decision; the admin hub's `countsChanged` comes with the
   journey that builds that hub. A failed read shows no count and no error.
 - **Dashboard (`L2-020` AC11).** The waiting-work answer gains `suggestions` (`total` and the oldest
   three names), for both roles; "Needs attention" shows one line, "{n} listings suggested by

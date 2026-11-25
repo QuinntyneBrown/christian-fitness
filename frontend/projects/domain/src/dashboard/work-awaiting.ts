@@ -7,6 +7,8 @@ export interface AwaitingRow {
   /** The line under the title: the role and when, or staff's note. */
   meta: string;
   href: string;
+  /** The action's word: Check for the suggestions, Review otherwise (mock admin-dashboard). */
+  action: 'Check' | 'Review';
 }
 
 /** A "see all" link, shown only when more wait than the Dashboard names. */
@@ -18,6 +20,8 @@ export interface AwaitingMore {
 /** Where a pending application is resolved, and the Members list a flagged member is in. */
 export const APPLICATIONS_HREF = '/services';
 export const FLAGGED_MEMBERS_HREF = '/members?status=flagged';
+/** Where the listing suggestions are checked (ADR 0090). */
+export const SUGGESTIONS_HREF = '/listings';
 
 const dayFormat = new Intl.DateTimeFormat('en-US', {
   timeZone: 'UTC',
@@ -31,7 +35,7 @@ function dayOf(iso: string): string {
 }
 
 /**
- * The waiting items as rows, the applications first and then the flagged members, each in the
+ * The waiting items as rows: the suggestions' one line (ADR 0090), the applications and then the flagged members, each in the
  * order the API gave (oldest first). A flagged member with no note says so. Names and notes stay
  * the text they are; the screen renders them as text. A Moderator's answer has no applications,
  * so it has no application rows.
@@ -44,6 +48,7 @@ export function awaitingRowsOf(awaiting: WorkAwaitingStaffDto): AwaitingRow[] {
       title: `${a.name} applied to list services`,
       meta: day ? `${a.role} · ${day}` : a.role,
       href: APPLICATIONS_HREF,
+      action: 'Review' as const,
     };
   });
   const flagged = awaiting.flaggedMembers.items.map((m) => ({
@@ -51,13 +56,32 @@ export function awaitingRowsOf(awaiting: WorkAwaitingStaffDto): AwaitingRow[] {
     title: `${m.name} was flagged`,
     meta: m.note?.trim() || 'No note',
     href: FLAGGED_MEMBERS_HREF,
+    action: 'Review' as const,
   }));
-  return [...applications, ...flagged];
+  return [...suggestionsRowOf(awaiting), ...applications, ...flagged];
+}
+
+/** The suggestions as one line naming the oldest few, or none when none waits (L2-020 AC11). */
+function suggestionsRowOf(awaiting: WorkAwaitingStaffDto): AwaitingRow[] {
+  const { total, items } = awaiting.suggestions;
+  if (total <= 0) return [];
+  return [
+    {
+      id: 'suggestions',
+      title:
+        total === 1 ? '1 listing suggested by a member' : `${total} listings suggested by members`,
+      meta: items.map((s) => s.name).join(', '),
+      href: SUGGESTIONS_HREF,
+      action: 'Check',
+    },
+  ];
 }
 
 /** Everything waiting, for the heading's count. */
 export function awaitingTotalOf(awaiting: WorkAwaitingStaffDto): number {
-  return (awaiting.applications?.total ?? 0) + awaiting.flaggedMembers.total;
+  return (
+    awaiting.suggestions.total + (awaiting.applications?.total ?? 0) + awaiting.flaggedMembers.total
+  );
 }
 
 /** The "All N ..." links for a list that holds more than the Dashboard names. */

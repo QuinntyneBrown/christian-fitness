@@ -8,6 +8,7 @@ import {
   type SuggestionCheckDto,
   type SuggestionDetailDto,
   type SuggestionListDto,
+  ADMIN_COUNTS,
   TOASTS_SERVICE,
 } from '@cf/api';
 import {
@@ -131,6 +132,8 @@ export default class ManageListingsPage {
   /** The decline dialog is open or on its way, so a second press does nothing. */
   private dialogOpen = false;
   protected readonly toasts = inject(TOASTS_SERVICE);
+  /** The shell's navigation counts, read again after each decision (ADR 0090). */
+  private readonly counts = inject(ADMIN_COUNTS, { optional: true });
   private readonly reload = new Subject<void>();
   /** The suggestion to show, each time the list or the address may have changed it. */
   private readonly shown = new Subject<string | null>();
@@ -450,6 +453,7 @@ export default class ManageListingsPage {
 
   private decide(id: string, decision: Decision): void {
     this.decisions.update((decisions) => ({ ...decisions, [id]: decision }));
+    this.counts?.refresh();
   }
 
   /** A decision that did not go through: a toast says why, and a stale list is read again. */
@@ -458,6 +462,7 @@ export default class ManageListingsPage {
     if (reviewRefusalOf(error) === 'decided') {
       this.toasts.show(ALREADY_DECIDED, 'The list shows where it stands now.');
       this.reload.next();
+      this.counts?.refresh();
       return;
     }
 

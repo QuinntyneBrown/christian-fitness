@@ -75,16 +75,40 @@ export interface AwaitingFlaggedFixture {
   note: string | null;
 }
 
-/** What waits for staff; `applications` is absent in a Moderator's answer. */
+/** One listing suggestion waiting for review, as the same answer names it (ADR 0090). */
+export interface AwaitingSuggestionFixture {
+  id: string;
+  name: string;
+}
+
+/**
+ * What waits for staff; `applications` is absent in a Moderator's answer. Both roles' answers
+ * carry `suggestions`; `answerAwaiting` sends none waiting when a fixture leaves it out.
+ */
 export interface AwaitingFixture {
   applications?: { total: number; items: AwaitingApplicationFixture[] };
   flaggedMembers: { total: number; items: AwaitingFlaggedFixture[] };
+  suggestions?: { total: number; items: AwaitingSuggestionFixture[] };
 }
+
+/** No suggestion waiting. */
+export const NO_SUGGESTIONS_AWAITING = { total: 0, items: [] as AwaitingSuggestionFixture[] };
 
 /** Nothing waiting, for an Admin: the fixture's default answer. */
 export const NOTHING_AWAITING: AwaitingFixture = {
   applications: { total: 0, items: [] },
   flaggedMembers: { total: 0, items: [] },
+  suggestions: NO_SUGGESTIONS_AWAITING,
+};
+
+/** The mock's three suggestions, oldest first (admin-dashboard/default). */
+export const THREE_SUGGESTIONS = {
+  total: 3,
+  items: [
+    { id: '0190c0de-0000-7000-8000-0000000000c1', name: 'Eastside Ladies Who Lift' },
+    { id: '0190c0de-0000-7000-8000-0000000000c2', name: 'Coach Marcus Delaney' },
+    { id: '0190c0de-0000-7000-8000-0000000000c3', name: 'Rooted Physio' },
+  ],
 };
 
 /** The mock's default: three applications and one flagged member. */
@@ -122,6 +146,7 @@ export const SOME_AWAITING: AwaitingFixture = {
       },
     ],
   },
+  suggestions: NO_SUGGESTIONS_AWAITING,
 };
 
 /** Answers every request for the waiting work with `awaiting` and counts them. */
@@ -132,7 +157,7 @@ export function answerAwaiting(
   const counter = { asked: 0 };
   api.on('GET', '/api/admin/dashboard/awaiting', () => {
     counter.asked += 1;
-    return { json: awaiting };
+    return { json: { suggestions: NO_SUGGESTIONS_AWAITING, ...awaiting } };
   });
   return counter;
 }

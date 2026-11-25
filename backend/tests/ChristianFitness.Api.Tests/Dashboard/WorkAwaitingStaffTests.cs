@@ -64,7 +64,7 @@ public sealed class WorkAwaitingStaffTests
 
         var awaiting = await AwaitingAsync(client, cookie);
 
-        Assert.Equal(["flaggedMembers"], awaiting.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["flaggedMembers", "suggestions"], awaiting.EnumerateObject().Select(p => p.Name));
         Assert.Equal(1, awaiting.GetProperty("flaggedMembers").GetProperty("total").GetInt32());
         Assert.Equal("Kevin Brooks", awaiting.GetProperty("flaggedMembers").GetProperty("items")[0].GetProperty("name").GetString());
     }

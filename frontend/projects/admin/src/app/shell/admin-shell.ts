@@ -1,10 +1,18 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, forwardRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { STAFF_SESSION_SERVICE, type StaffSessionDto } from '@cf/api';
+import {
+  ADMIN_COUNTS,
+  ADMIN_COUNTS_SERVICE,
+  type AdminCountsDto,
+  type AdminCountsRefresh,
+  STAFF_SESSION_SERVICE,
+  type StaffSessionDto,
+} from '@cf/api';
 import { AdminLayout, type AdminNavItem, Banner } from '@cf/components';
-import { areasFor, currentAdminArea, initialsOf, NetworkStatus } from '@cf/domain';
-import { filter } from 'rxjs';
+import { adminNavOf, currentAdminArea, initialsOf, NetworkStatus } from '@cf/domain';
+import { filter, type Subscription } from 'rxjs';
+import { HttpAdminCountsService } from '../services/http-admin-counts.service';
 
 /**
  * The routed layout around every staff route, behind `staffAuthGuard` (ADR 0011): the admin
@@ -13,6 +21,8 @@ import { filter } from 'rxjs';
  * No area is listed until the session has loaded, so a Moderator never sees Events or Services. A plain click on an area moves the router;
  * Sign out ends the session on the server and returns to Staff sign in, a session that had already
  * ended included (L2-018 AC6); any other failure keeps staff where they are with Sign out enabled.
+ * Beside each area it counts the work waiting (`GET /api/admin/counts`; ADR 0090), read on entry and
+ * again when a screen asks through `ADMIN_COUNTS`; a failed read shows no count and no error.
  */
 @Component({
   selector: 'cf-admin-shell',
@@ -20,14 +30,25 @@ import { filter } from 'rxjs';
   imports: [AdminLayout, Banner, RouterOutlet],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.scss',
+  providers: [
+    { provide: ADMIN_COUNTS_SERVICE, useClass: HttpAdminCountsService },
+    { provide: ADMIN_COUNTS, useExisting: forwardRef(() => AdminShell) },
+  ],
 })
-export default class AdminShell {
+export default class AdminShell implements AdminCountsRefresh {
   private readonly session = inject(STAFF_SESSION_SERVICE);
+  private readonly countsService = inject(ADMIN_COUNTS_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly network = inject(NetworkStatus);
 
-  protected readonly items = signal<readonly AdminNavItem[]>([]);
+  /** The counts read in flight; a newer read replaces it. */
+  private countsRead: Subscription | null = null;
+  private readonly counts = signal<AdminCountsDto | null>(null);
+  protected readonly items = computed<readonly AdminNavItem[]>(() => {
+    const staff = this.staff();
+    return staff ? adminNavOf(staff.role, this.counts()) : [];
+  });
   protected readonly current = signal(currentAdminArea(this.urlNow()));
   protected readonly staff = signal<StaffSessionDto | null>(null);
   protected readonly initials = signal('');
@@ -52,12 +73,22 @@ export default class AdminShell {
         next: (staff) => {
           this.staff.set(staff);
           this.initials.set(initialsOf(staff.name));
-          this.items.set(
-            areasFor(staff.role).map(({ key, label, path }) => ({ key, label, href: path })),
-          );
         },
         // The guard has just read the session; a failure now leaves the name out, nothing more.
         error: () => undefined,
+      });
+    this.refresh();
+  }
+
+  /** Reads the counts again, for a screen that has just changed one. */
+  refresh(): void {
+    this.countsRead?.unsubscribe();
+    this.countsRead = this.countsService
+      .counts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (counts) => this.counts.set(counts),
+        error: () => this.counts.set(null),
       });
   }
 

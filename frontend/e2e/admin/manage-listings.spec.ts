@@ -824,3 +824,73 @@ test.describe('Admin app, listing suggestions for a Moderator', () => {
     await expect(listings.name).toHaveText('Eastside Ladies Who Lift');
   });
 });
+
+// L2-073 AC1 (ADR 0090), mock admin-dashboard/default: Listings in the navigation counts the
+// suggestions waiting, read on entry and again after a decision; a failed read shows no count.
+test.describe('Admin app, the suggestions count in the navigation', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test('Listings counts the suggestions waiting, named for assistive technology', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/counts', () => ({ json: { suggestions: 3 } }));
+    const shell = new AdminShell(page);
+
+    await shell.open();
+
+    await expect(shell.navCount('Listings')).toHaveText('3');
+    await expect(shell.navCount('Listings')).toHaveAttribute(
+      'aria-label',
+      '3 suggestions to check',
+    );
+  });
+
+  test('one suggestion is counted as one', async ({ page, api }) => {
+    api.on('GET', '/api/admin/counts', () => ({ json: { suggestions: 1 } }));
+    const shell = new AdminShell(page);
+
+    await shell.open();
+
+    await expect(shell.navCount('Listings')).toHaveAttribute('aria-label', '1 suggestion to check');
+  });
+
+  test('after a suggestion is approved, the count is read again', async ({ page, api }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const ready = { ...CAST_SUGGESTIONS[1], checks: ALL_PASSED };
+    answer(api, [CAST_SUGGESTIONS[0], ready, CAST_SUGGESTIONS[2]]);
+    let waiting = 3;
+    api.on('GET', '/api/admin/counts', () => ({ json: { suggestions: waiting } }));
+    api.on('POST', APPROVE, () => {
+      waiting = 2;
+      return { json: { status: 'approved', listingId: 'l-1', claim: 'message' } };
+    });
+    const listings = new ManageListingsPage(page);
+    const shell = new AdminShell(page);
+    await listings.open(`?selected=${ready.id}`);
+    await expect(shell.navCount('Listings')).toHaveText('3');
+
+    await listings.approveButton.click();
+
+    await expect(shell.navCount('Listings')).toHaveText('2');
+  });
+
+  test('when the count does not load, no count shows and nothing else changes', async ({
+    page,
+    api,
+  }) => {
+    let asked = 0;
+    api.on('GET', '/api/admin/counts', () => {
+      asked += 1;
+      return { abort: true };
+    });
+    const shell = new AdminShell(page);
+
+    await shell.open();
+
+    await expect(shell.heading).toBeVisible();
+    await expect.poll(() => asked).toBe(1);
+    await expect(shell.navCount('Listings')).toHaveCount(0);
+    await expect(page).toHaveURL(/\/$/);
+  });
+});
