@@ -2,7 +2,7 @@
 Layout and copy follow the Magic Patterns prototype "Christian Fitness" frames Event Series, Directory and Listing Profile."""
 from __future__ import annotations
 
-from cf_data import EV, KIND_BLURB, KIND_PLURAL, LISTING_KINDS, LISTINGS, LS, SR, hosted_by
+from cf_data import EASTSIDE, EV, KIND_BLURB, KIND_PLURAL, LISTING_KINDS, LISTINGS, LS, SR, hosted_by
 from cf_ui import (CUR, busy_label, empty_block, error_block, form_alert, href, icon, image, listing_mark, loading_region,
                    member_shell, screen, verified_badge)
 from overlays import dialog, over_member
@@ -422,7 +422,7 @@ def hosting_rows(l: dict) -> str:
     return f'<ul class="hosting">{"".join(rows)}</ul>'
 
 
-def profile_page(l: dict) -> str:
+def profile_page(l: dict, *, owner: bool = False) -> str:
     sr_list, ev_list = hosted_by(l["id"])
     hosting = len(sr_list) + len(ev_list)
     verified = f'<span class="listing-head__verified">· {icon("badge-check")} Verified</span>' if l["verified"] else ""
@@ -437,6 +437,8 @@ def profile_page(l: dict) -> str:
             <ul class="mini-list">{links}</ul>
           </section>""" if links else "")
     focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
+    actions = (f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="{href("owner-listing-editor")}">Edit listing</button>' if owner
+               else f'{follow_button(l, big=True)}\n          <a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>')
     return f"""    <div class="container page--detail">
       <a class="back-link" href="{href("directory")}">{icon("arrow-left")} Directory</a>
       <header class="listing-head">
@@ -449,8 +451,7 @@ def profile_page(l: dict) -> str:
           </div>
         </div>
         <div class="listing-head__actions">
-          {follow_button(l, big=True)}
-          <a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>
+          {actions}
         </div>
       </header>
       <div class="split split--detail">
@@ -500,6 +501,11 @@ def _():
 @s("unverified", "Northline Athletic, a company that is not verified and hosts nothing: no Verified mark, and the Hosting section says so.")
 def _():
     return member_shell("directory", profile_page(LS["northline"]))
+
+
+@s("owner", "Eastside Ladies Who Lift, seen by the member who claimed it: Edit listing replaces Follow and Message and opens the listing editor.")
+def _():
+    return member_shell("directory", profile_page(EASTSIDE, owner=True))
 
 
 @s("loading", "Listing loading: the mark, name, hosting rows and facts as skeletons.")

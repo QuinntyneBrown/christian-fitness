@@ -1,0 +1,27 @@
+@startuml
+title UML class structure — edit my listing
+!pragma layout smetana
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+class OwnerListingEditorDialog <<web>>
+interface DirectoryListingsApi <<api>> {
+  updateOwn(id, dto): { nameChangePending }
+}
+class UpdateOwnListingHandler <<application>>
+class DirectoryListing <<domain>> {
+  OwnerId?
+  Name, Kind, About, Website, PhotoUrl, FocusTags, ContactEmail
+  ApplyEdit(edit, by, at)
+}
+class ListingChangeRequest <<domain>> {
+  NewName?
+  NewKind?
+  RequestedAt
+}
+OwnerListingEditorDialog --> DirectoryListingsApi
+UpdateOwnListingHandler --> DirectoryListing
+DirectoryListing --> "0..1" ListingChangeRequest
+@enduml

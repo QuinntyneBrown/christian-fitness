@@ -298,6 +298,13 @@ LISTINGS = [
 ]
 LS = {x["id"]: x for x in LISTINGS}
 
+# Approved from a member's suggestion and claimed by its owner (L2-075); not in LISTINGS so the directory's counts stay as drawn.
+EASTSIDE = _listing("eastside-ladies", "Eastside Ladies Who Lift", "Organization",
+                    "Saturday morning strength group out of Danforth Baptist",
+                    "About 25 women, coached by a CSEP trainer. We pray before and after and are so welcoming to beginners.",
+                    "East York", "EL", 0, "Just now", ["Strength", "Beginners", "Women"], [],
+                    verified=True, website="eastsideladies.ca")
+
 
 def hosted_by(listing_id: str) -> tuple[list, list]:
     """Everything a listing hosts: its series, and its one-off dates."""
