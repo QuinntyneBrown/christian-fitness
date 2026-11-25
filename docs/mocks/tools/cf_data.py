@@ -32,7 +32,7 @@ MICHAEL = {
 
 EVENTS = [
     {
-        "id": "sunrise-5k", "title": "Easter Sunrise 5K", "category": "Run", "day": "18", "month": "Apr", "weekday": "Sat",
+        "id": "sunrise-5k", "public_id": "018f0000-0000-7000-8000-000000000001", "title": "Easter Sunrise 5K", "category": "Run", "day": "18", "month": "Apr", "weekday": "Sat",
         "time": "6:45 AM", "place": "Martin Goodman Trail, Marilyn Bell Park", "area": "Waterfront", "price": "Free",
         "going": 142, "capacity": 200, "image": "run", "registered": True, "host": "cf-team",
         "summary": "An easy-paced run along the lake to watch the sun come up, with a short devotion at the turnaround and coffee at the finish.",
@@ -310,7 +310,7 @@ def hosted_by(listing_id: str) -> tuple[list, list]:
 # ---------------------------------------------------------------------------
 SECTIONS = ["Latest", "Events", "Training", "Nutrition", "Faith & Body", "Community", "Pros"]
 STORIES = [
-    {"id": "basement-gym", "related": ("listing", "st-pauls-sports", "Find church sports ministries near you"), "read": "6 min read", "section": "Community", "author": "Naomi Clarke", "ago": "2 hours ago", "image": "church-gym",
+    {"id": "basement-gym", "public_id": "018f0000-0000-7000-8000-000000000101", "related": ("listing", "st-pauls-sports", "Find church sports ministries near you"), "read": "6 min read", "section": "Community", "author": "Naomi Clarke", "ago": "2 hours ago", "image": "church-gym",
      "title": "A West End church turned its basement into a free gym. Two hundred neighbours now train there every week",
      "dek": "Rowers, kettlebells and a Thursday prayer circle: how St. Anne’s made fitness the front door to its parish."},
     {"id": "easter-5k-record", "related": ("event", "sunrise-5k", "Register for the Easter Sunrise 5K"), "section": "Events", "author": "CF Team", "ago": "4 hours ago", "image": "run",
@@ -319,7 +319,7 @@ STORIES = [
      "title": "Danielle Okafor on coaching strength without the shame"},
     {"id": "meal-prep-ministry", "section": "Nutrition", "author": "Priya Raman", "ago": "9 hours ago", "image": "meal-prep",
      "title": "Inside the Scarborough kitchen prepping 300 healthy meals a week for shift workers"},
-    {"id": "sabbath-rest", "read": "4 min read", "section": "Faith & Body", "author": "Pastor Ruth Adeyemi", "ago": "11 hours ago", "image": "stretch",
+    {"id": "sabbath-rest", "public_id": "018f0000-0000-7000-8000-000000000102", "read": "4 min read", "section": "Faith & Body", "author": "Pastor Ruth Adeyemi", "ago": "11 hours ago", "image": "stretch",
      "title": "Why your rest day might be the most spiritual part of your training plan"},
     {"id": "half-marathon-churches", "section": "Events", "author": "Naomi Clarke", "ago": "Yesterday", "image": "marathon",
      "title": "Twelve GTA churches will run the Toronto Half as one team this fall",

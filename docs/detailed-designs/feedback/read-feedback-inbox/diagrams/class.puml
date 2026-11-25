@@ -55,9 +55,9 @@ class FeedbackNoteDto {
   +string Text
   +string SenderName
   +string SenderEmail
-  +string? PagePath
+  +string? PageRouteTemplate
   +string? PageTitle
-  +string? StoryRef
+  +Guid? StoryId
   +string Device
   +string Browser
   +string? ScreenshotUrl

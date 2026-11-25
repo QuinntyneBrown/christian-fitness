@@ -16,8 +16,15 @@ reload and a story link change (`L2-061` AC8).
 
 - **Name slugs.** Each stack has one shared helper: lowercase the name, drop
   `&` and punctuation, and replace runs of spaces or hyphens with one `-`.
-  Both implementations use the same case table. For example, `Faith & Body`
-  becomes `faith-body` and `Church Ministry` becomes `church-ministry`.
+  Both implementations use the same case table:
+
+  | Name | Slug |
+  | --- | --- |
+  | Faith & Body | `faith-body` |
+  | Church Ministry | `church-ministry` |
+  | Strength -- Training | `strength-training` |
+  | Coach's Corner | `coachs-corner` |
+
 - **Sections.** `/?section=<section-slug>`, for example
   `/?section=faith-body`, uses the same slug as `/<section-slug>/feed`,
   for example `/faith-body/feed`. An unknown section shows all stories in
@@ -30,7 +37,10 @@ reload and a story link change (`L2-061` AC8).
 - **Feedback.** `/feedback?about=story:<id>` identifies a story by stable id;
   `/feedback?about=page:<route-template>` identifies a page by its route
   template, not a concrete path or a display title. Query values are URL
-  encoded when needed. A correction also selects its correction kind. The
+  encoded when needed, for example
+  `/feedback?about=page:%2Fevents%2F%3Aid` for `/events/:id`. A route
+  template identifies a page type, not a particular event; its display label
+  cannot recover an individual event's name. A correction also selects its correction kind. The
   query survives reload and is preserved in the return address through sign-in;
   a story link change does not change the story id. A page route template
   contains no personal values.

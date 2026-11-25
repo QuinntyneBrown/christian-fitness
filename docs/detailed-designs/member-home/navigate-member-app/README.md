@@ -75,8 +75,9 @@ has no footer (`L2-008` AC5).
   renders only the public `site-footer`. The design adds an `app` variant that renders the mock's
   `app-footer` block: the line "© <year> Christian Fitness · Toronto" and `app-footer__links` with
   four links, each a target of at least 44 px tall (`L2-008` AC5):
-  - **Send feedback** — `/feedback`, carrying the page it was chosen on as "About this page"
-    (`L2-063` AC1);
+  - **Send feedback** — `/feedback?about=page:<route-template>`, or
+    `/feedback?about=story:<id>` on a story, carrying "About this page" through reload and
+    sign-in ([ADR 0061](../../../adr/0061-addresses-and-slugs.md), `L2-063` AC1);
   - **Preferences** — `/preferences` (`L2-064` AC1);
   - **Privacy** — `/privacy` (`L2-067` AC4);
   - **Terms** — `/terms` (`L2-067` AC4).
@@ -102,10 +103,6 @@ has no footer (`L2-008` AC5).
   mock now draw an `app-footer`. The design system's footer page should gain the `app` variant
   (anatomy, the four links, the tab-bar offset) before the component is built, so the library
   keeps one `Footer` rather than a second component.
-- **"About this page".** The mock's footer link is a plain `/feedback`; how the page it was
-  chosen on reaches Send feedback (a query parameter or navigation state) is `<TO SUPPLY>` and
-  belongs to [send feedback](../../feedback/send-feedback/README.md). Navigation state does not
-  survive a reload or the sign-in round trip of `L2-063` AC1; a query parameter does.
 - **Event chat.** `messages/:id` and `events/:id/chat` show the same chat screen. `L2-008` AC5
   names only Messages; whether the event chat reached from an event also omits the footer is
   `<TO SUPPLY>`. The design treats every chat route as filling the window.

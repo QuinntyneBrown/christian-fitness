@@ -42,7 +42,7 @@ The feature is a vertical slice from the Community Pick screen to the database, 
 
 ### Open questions
 
-- The mocks' links read `/e/sunrise-5k`, a slug, while `L2-072` AC6 and AC9 state `/e/<id>`. Events have no slug; the design follows the requirement.
+- [ADR 0061](../../../adr/0061-addresses-and-slugs.md) confirms `/e/<event-id>` for Community Pick links; events have no slugs.
 - `L2-072` AC9 says a visitor is taken to Join; the existing guard and `L2-004` AC6 take them to sign in. Which one applies is `<TO SUPPLY>`.
 - `L2-072` AC6 puts the price in every caption; the Slack caption in `docs/mocks/pages/admin-community-pick/slack.html` has none, and the Instagram caption carries "link in bio" in place of the address. The Slack mock needs the price.
 - The `default`, `facebook`, `whatsapp` and `slack` mocks show "Recreate assets" with no change made, while `L2-072` AC8 gives that label only after a change. No mock draws the "You changed the event or note" state. A mock state is needed before implementation.

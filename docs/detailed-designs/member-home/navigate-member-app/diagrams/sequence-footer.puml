@@ -33,7 +33,7 @@ else Any other member page
   alt Send feedback
     actor -> foot : Choose "Send feedback"
     foot -> shell : navigate(feedbackHref)
-    shell -> router : /feedback with "About this page" (L2-063 AC1)
+    shell -> router : /feedback?about=page:route-template\nor story:id (L2-063 AC1)
   else Preferences
     actor -> foot : Choose Preferences
     foot -> shell : navigate('/preferences')

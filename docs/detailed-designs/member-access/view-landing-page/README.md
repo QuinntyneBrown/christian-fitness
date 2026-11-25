@@ -45,7 +45,7 @@ The slice runs from the landing route to the stories and events tables. The mock
   renders, in order: `Masthead`; for Latest the `top-stories` (`StoryLead` beside the
   `headline-list` of four `Headline`s) and the river under the ruled title "The latest"; for a
   section the river alone under the section's name as the page heading (`L2-001` AC2, AC3); the
-  `rail`; the `verse`; `Footer`. Choosing a section navigates to `/?section=<value>`; the page
+  `rail`; the `verse`; `Footer`. Choosing a section navigates to `/?section=<section-slug>`; the page
   reacts to the query parameter and asks for that section's stories again (`L2-001` AC3).
 - **States** — loading shows `Skeleton` rows for the top stories, the river and the events (mock
   `loading`). No stories at all reads "No stories yet. Check back soon." under "The latest"
@@ -156,9 +156,9 @@ The slice runs from the landing route to the stories and events tables. The mock
   `PublicServicesController` with `ListLandingProfessionalsQuery` in the API, serve a section the
   page no longer has (ADR 0057). `GetUpcomingEventsQuery.MaxTake` is 3. The next slices replace the
   layout, remove the professionals parts and supersede ADR 0057 and the layout parts of ADR 0037.
-- **Section in the address.** `L2-001` AC3 gives `/?section=<name>` but not the form of a name
-  with a space or `&` ("Faith & Body"). The feed paths of `L2-060` AC1 use `faith-body`; the same
-  lower-case slugs would keep the two aligned. This needs an ADR.
+- **Section in the address.** [ADR 0061](../../../adr/0061-addresses-and-slugs.md) uses the
+  feed slug: `/?section=faith-body` for Faith & Body. An unknown section shows all stories
+  in Latest, the landing page's all-stories view.
 - **Member count.** The join card shows "2,400+ members across the GTA". ADR 0037 left a member
   count out because no data backs it; `L2-001` AC5 does not name it. It stays out until a
   requirement states it.
