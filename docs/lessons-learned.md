@@ -2365,6 +2365,10 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - To make one real-time client serve two contracts, provide the class once and bind both tokens
   with `useExisting`. Bind it where its lifetime belongs (the shell), and a screen that only
   subscribes releases its own subscriptions with `takeUntilDestroyed`, never the connection.
+- A connection owned by the shell can be destroyed while it is still starting, for example when a
+  5xx sends the member to the server-error screen. Calling `stop()` then makes SignalR log "Failed
+  to start the HttpConnection before stop() was called", and the fixture counts that as a page
+  error. Stop the connection only once it is up; until then `start` stops it after it connects.
 - Give every page a default hub socket with `context.routeWebSocket`. A spec's own
   `page.routeWebSocket` (`FakeChatHub`) takes precedence, so existing chat specs needed no change.
   Answer pings in the default too, or a long spec can hit the client's server timeout.

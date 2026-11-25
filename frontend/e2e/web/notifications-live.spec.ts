@@ -65,10 +65,13 @@ test.describe('Member app, notifications in real time', () => {
   }) => {
     const hub = await FakeChatHub.install(page, api, JOINED);
     const shell = new WebMemberShell(page);
+    const notes = new WebNotificationsPage(page);
     await page.goto(`/events/${SUNRISE_ID}/chat`);
     await expect.poll(() => hub.joined).toEqual([SUNRISE_ID]);
 
     await shell.openNotifications();
+    // The screen's own load has answered, so it cannot replace what arrives next.
+    await expect(notes.emptyHeading).toBeVisible();
     hub.notify(pushed(1));
 
     await expect(shell.bellCount).toHaveText('1');
