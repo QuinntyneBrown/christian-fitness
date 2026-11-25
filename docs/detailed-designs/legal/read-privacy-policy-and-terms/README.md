@@ -21,7 +21,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 - **Contents list** — the design-system `side-navigation` component, numbered, shown only at LG and wider and sticky there; below LG it is hidden (AC2). Each entry is a `routerLink` to the page's own route with a `fragment`, since a bare `href="#id"` resolves against the base URL; the router's `anchorScrolling` moves to the section. Each section heading carries `scroll-margin-top` from the layout token for the header's height, so it is not hidden under the header (AC2).
 - **`LegalVersions`** — pure constants in the `domain` library (`domain/src/legal/legal-versions.ts`) with unit tests: each document's versions with their effective dates, `inForce(document, now)` and `upcoming(document, now)`. The pages, the banner and Join read them.
 - **Links** — the landing page's `site-footer` (`L2-001` AC9) and the member app's footer (`L2-008` AC5) link to both documents; Preferences links to the Privacy Policy ([download and delete data](../../preferences/download-and-delete-data/README.md)); Join states that creating a profile accepts the Terms of Service and the Privacy Policy, with both linked ([create an account](../../member-access/create-account/README.md)) (AC4, AC5). Google's consent screen links to both through the OAuth client's settings in Google Cloud, which shall be documented with the deployment (`L2-041`, `L2-049`) (AC4).
-- **Change banner** — the member shell shows the library's `banner` while `LegalVersions.upcoming` names a version taking effect within the next 30 days or more, with a link to it (AC6). The banner reads "We're updating our Privacy Policy and Terms on {date}. Read what's changing.", can be dismissed, and continued use after the effective date is acceptance, with no blocking screen and no per-member acceptance record (ADR 0063); the mocks draw it as `notifications/banner/legal-change` and the target as `pages/privacy/updating` and `pages/terms/updating`.
+- **Change banner** — the member shell shows the library's `banner` while `LegalVersions.upcoming` names a version taking effect within the next 30 days, including day 30, with a link to it (AC6). The banner reads "We're updating our Privacy Policy and Terms on {date}. Read what's changing.", can be dismissed, and continued use after the effective date is acceptance, with no blocking screen and no per-member acceptance record (ADR 0063); the mocks draw it as `notifications/banner/legal-change` and the target as `pages/privacy/updating` and `pages/terms/updating`.
 
 ### Christian Fitness API
 
@@ -35,7 +35,7 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 | Data stored in Canada | `docs/operations/deployment.md`: resource group `rg-christian-fitness` in Canada Central. The text adds that the email delivery provider may process email addresses outside Canada | True |
 | Encrypted in transit and at rest | HTTPS with HSTS (`L2-030` AC4); at rest by Azure's default encryption (SQL TDE, Storage SSE) | True |
 | Staff access is logged | `AuditEntry` records staff changes, not staff reads | Text changed: the claim is removed; staff access is "limited to the team members who need it" |
-| Deletion and retention periods | [Download and delete data](../../preferences/download-and-delete-data/README.md) erases after 30 days; [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md) bounds the retention of shared records | True once built and scheduled |
+| Deletion and retention periods | [Download and delete data](../../preferences/download-and-delete-data/README.md) erases after 30 days; [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md) bounds the retention of shared records | Describe current retention until journey 36 verifies the scheduled jobs (ADR 0081) |
 | Payment receipts kept seven years; refunds for cancelled paid events | No online payment (`L2-011` AC5) and no receipts | Text removed. Terms: any fee is paid to the host directly, under the host's own terms |
 | Cancel up to 48 hours before a paid event | The event page says 24 hours | Text changed to 24 hours before an event starts, with no mention of payment |
 | Minimum age 16 | Join and "Finish your profile" gain a required "I'm 16 or older" checkbox, no date of birth stored (`L2-003` AC12; [create a member account](../../member-access/create-account/README.md)) | True once built |
@@ -48,7 +48,9 @@ This feature covers the two documents' pages, `/privacy` and `/terms` (mocks `do
 ### Open questions
 
 - **Contact.** The legal contact is `privacy@christian.fitness`, at 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.
-- **Statements to build.** Rows marked "once built" are true when their slices ship (age confirmation, deletion, the notice command); the text shall not be published before them (AC8).
+- **Statements to build.** Publish current retention practices under [ADR 0081](../../../adr/0081-publish-current-retention-practices.md). Journey 36 owns AC9 and publishes the periods after verifying the scheduled jobs. Journey 1 supplies the age check and change notices.
+- **Link ownership.** Both footers and email Join link here in journey 1. Preferences adds its Privacy link with that screen. Journey 2 owns the Google consent links, age confirmation and server-side acceptance record.
+- **Component anatomy.** The prose and side-navigation components use the existing design-system blocks `legal` and `side-nav`. The Home default mock supplies the member footer.
 - **Who writes the text.** The documents live in the app's source, so a change ships as a release; no console screen edits them.
 
 ## Requirements
