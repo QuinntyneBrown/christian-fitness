@@ -65,15 +65,16 @@ SPEC = {
     + ex(chip("Story › A West End church turned its basement into a free gym"), "Long values truncate with an ellipsis (feedback/correction).", True, mod="block"),
     "sizes": "<p>One size each. Steps: 32px numbers, 16px gap, 24px between steps. Done: 48px icon circle (<code>--size-avatar-xl</code>), page-title heading, 18px text up to <code>--layout-lead-max</code>. Context chip: 12px × 16px padding.</p>",
     "states": {
-        "intro": "<p>Steps are static. Done has one state, shown once, focused on arrival (the ring sits 8px out). The context chip's only control is its remove button (hover, focus).</p>",
+        "intro": "<p>Steps are static. Done has one state in each variant, shown once, focused on arrival (the ring sits 8px out); the <code>alert</code> variant differs only in its icon and role. The context chip's only control is its remove button (hover, focus).</p>",
         "matrix": """<div class="ds-matrix"><table><thead><tr><th scope="col">Block</th><th scope="col">Default</th><th scope="col">Focus or hover</th></tr></thead><tbody>"""
         + f'<tr><th scope="row">Steps</th><td><div class="w-80">{steps(1)}</div></td><td>—</td></tr>'
         + f'<tr><th scope="row">Done</th><td>{done()}</td><td>{done(a=chr(32) + "data-state=" + chr(34) + "focus" + chr(34))}</td></tr>'
+        + f'<tr><th scope="row">Done, alert</th><td>{DONE_ALERT}</td><td>{DONE_ALERT.replace("tabindex=" + chr(34) + "-1" + chr(34), "tabindex=" + chr(34) + "-1" + chr(34) + " data-state=" + chr(34) + "focus" + chr(34))}</td></tr>'
         + f'<tr><th scope="row">Context chip</th><td>{chip()}</td><td>{chip().replace("icon-button--sm" + chr(34), "icon-button--sm" + chr(34) + " data-state=" + chr(34) + "focus" + chr(34))}</td></tr>'
         + "</tbody></table></div>"
         + "<p>While the form sends, the steps stay as they are; the form's button is busy (suggest-listing/submitting). On success the form becomes <b>Done</b> and the steps stay beside it.</p>",
-        "themes": themes(steps(2)) + themes(done() + chip(), mod="block"),
-        "notes": "<ul><li>Done uses <code>role=\"status\"</code> and receives focus (<code>tabindex=\"-1\"</code>, <code>autofocus</code> in the mock) so a screen reader reads the thanks and keyboard users start from it.</li><li>Removing the context chip sends the feedback without a page; the mocks do not draw that state.</li></ul>",
+        "themes": themes(steps(2)) + themes(done() + chip(), mod="block") + themes(DONE_ALERT, mod="block"),
+        "notes": "<ul><li>Done uses <code>role=\"status\"</code> and receives focus (<code>tabindex=\"-1\"</code>, <code>autofocus</code> in the mock) so a screen reader reads the thanks and keyboard users start from it.</li><li>Done's <code>alert</code> variant (claim-listing/expired; ADR 0092) is the same block for a way that ended: a clock in place of the check and <code>role=\"alert\"</code>, so it is announced at once. It still takes focus, and has one way on.</li><li>Removing the context chip sends the feedback without a page; the mocks do not draw that state.</li></ul>",
     },
     "responsive": """<ul>
 <li>Steps sit in the form page's aside: below the form on phones, a second column from 1024px, pushed down (<code>.form-page__aside--low</code>) to line up with the first field.</li>
@@ -82,7 +83,7 @@ SPEC = {
 </ul>""",
     "theming": "<p>Step numbers: <code>--color-bg-surface</code>, ring <code>--color-border-default</code>, figure <code>--color-fg-accent</code>; connector <code>--color-border-default</code>; text <code>--color-fg-muted</code>. Done's icon is <code>--color-accent</code>/<code>--color-fg-on-accent</code>. The context chip is a surface with a hairline ring and a muted label.</p>",
     "accessibility": {
-        "pattern": "<p>Steps: an <code>&lt;ol&gt;</code> under a heading; the visible numbers are <code>aria-hidden</code> because the list announces position. Done: a <code>&lt;section role=\"status\" tabindex=\"-1\"&gt;</code> with the page's <code>&lt;h1&gt;</code>, focused when shown. Context chip: text plus an icon button named \"Remove page\".</p>",
+        "pattern": "<p>Steps: an <code>&lt;ol&gt;</code> under a heading; the visible numbers are <code>aria-hidden</code> because the list announces position. Done: a <code>&lt;section role=\"status\" tabindex=\"-1\"&gt;</code> with the page's <code>&lt;h1&gt;</code>, focused when shown; its <code>alert</code> variant is <code>role=\"alert\"</code>, for an outcome the person did not expect (an expired link). The icon is <code>aria-hidden</code> in both: the heading says what happened. Context chip: text plus an icon button named \"Remove page\".</p>",
         "keys": [(kbd("Tab"), "From Done: Back to the directory, then Suggest another. On the chip: the Remove page button."), (kbd("Enter"), "Follows a Done action; removes the page.")],
         "focus": "<p>Done draws the shared ring 8px outside itself (<code>--space-2</code>) when it receives focus.</p>",
         "labelling": "<p>Steps read \"list, 4 items: We read it within 3 days. A real person on our team, not a filter.\" The chip's button name could say which page (\"Remove page: Couch to 5K Run Club\").</p>",
@@ -90,7 +91,7 @@ SPEC = {
             ("Step number", "--color-fg-accent", "--color-bg-surface", 3),
             ("Step title", "--color-fg-default", "--color-bg-canvas", 4.5),
             ("Step text", "--color-fg-muted", "--color-bg-canvas", 4.5),
-            ("Done icon (non-text)", "--color-fg-on-accent", "--color-accent", 3),
+            ("Done icon, check or clock (non-text)", "--color-fg-on-accent", "--color-accent", 3),
             ("Chip label", "--color-fg-muted", "--color-bg-surface", 4.5),
             ("Chip value", "--color-fg-default", "--color-bg-surface", 4.5),
         ],
@@ -100,6 +101,7 @@ SPEC = {
     "content": """<ul>
 <li>Step titles say who does what, in the present: \"We read it within 3 days\", \"You hear back\". Texts add the one detail that reassures.</li>
 <li>Done thanks by first name when there is one (\"Thanks, Grace\"), names what was sent in bold, says what happens next and when.</li>
+<li>Done, alert: the heading says what ended (\"This link has expired\"), the text the one thing to do (\"Ask us for a new one.\"), and one way on. No thanks, no blame.</li>
 <li>Chip: \"About this page\" + \"Section › Title\".</li>
 </ul>""",
     "dodont": [
@@ -113,11 +115,11 @@ SPEC = {
     "tokens": [
         ("Number fill / ring / figure", "--color-bg-surface / --color-border-default / --color-fg-accent", "color"),
         ("Step text", "--color-fg-muted", "color"),
-        ("Done icon", "--color-accent / --color-fg-on-accent", "color"),
+        ("Done icon, both variants", "--color-accent / --color-fg-on-accent", "color"),
         ("Chip surface / ring", "--color-bg-surface / --color-border-default", "color"),
         ("Number size", "--space-8", "value"),
         ("Step spacing", "--space-4 / --space-6", "value"),
-        ("Done icon size", "--size-avatar-xl", "value"),
+        ("Done icon circle / glyph", "--size-avatar-xl / --size-icon-lg", "value"),
         ("Done text width", "--layout-lead-max", "value"),
         ("Chip padding / radius", "--space-3 / --space-4 / --radius-md", "value"),
     ],
@@ -132,6 +134,14 @@ SPEC = {
   <h1 class="display page-title done__title">Thanks, Grace</h1>
   <p class="done__text">We’ve got your suggestion for <strong>Eastside Ladies Who Lift</strong>. …</p>
   <div class="done__actions"><a class="btn btn--primary btn--md" href="/directory">Back to the directory</a><a class="btn btn--secondary btn--md" href="/directory/suggest">Suggest another</a></div>
+</section>
+
+<!-- alert: a way that ended -->
+<section class="done" role="alert" tabindex="-1">
+  <span class="done__icon"><svg class="icon icon--lg" aria-hidden="true">…clock…</svg></span>
+  <h1 class="display page-title done__title">This link has expired</h1>
+  <p class="done__text">This link has expired. Ask us for a new one.</p>
+  <div class="done__actions"><a class="btn btn--primary btn--md" href="/directory">Back to the directory</a></div>
 </section>
 
 <div class="context-chip">
