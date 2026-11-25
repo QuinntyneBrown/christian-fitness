@@ -25,6 +25,13 @@ export class WebEventSeriesPage extends ErrorScreen {
   readonly content: Locator;
   /** The aside that holds the sign-up panel and the host card. */
   readonly aside: Locator;
+  /** The sign-up panel: "Sign up", the spots, the ways to come and the note, or the confirmation. */
+  readonly panel: Locator;
+  readonly panelTitle: Locator;
+  readonly spots: Locator;
+  readonly plans: Locator;
+  readonly panelNote: Locator;
+  readonly confirmed: Locator;
   readonly hostCard: Locator;
   readonly hostLabel: Locator;
   readonly hostName: Locator;
@@ -48,6 +55,12 @@ export class WebEventSeriesPage extends ErrorScreen {
     this.sessions = this.sessionList.locator('.session-row');
     this.content = page.locator('.event-series__content');
     this.aside = page.getByRole('complementary', { name: 'Sign up' });
+    this.panel = this.aside.locator('.series-panel');
+    this.panelTitle = this.panel.getByRole('heading', { level: 2 });
+    this.spots = this.panel.locator('.register__spots');
+    this.plans = this.panel.locator('.plan-option');
+    this.panelNote = this.panel.locator('.register__note');
+    this.confirmed = this.panel.getByRole('status');
     this.hostCard = this.aside.locator('a.host-card');
     this.hostLabel = this.hostCard.locator('.host-card__label');
     this.hostName = this.hostCard.locator('.host-card__name');

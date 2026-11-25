@@ -1,7 +1,13 @@
 import { expect, test } from '../fixtures/test';
+import { answerPhotos } from '../fixtures/directory';
 import { answerEvent, BOOTCAMP_DETAIL } from '../fixtures/events';
 import { answerListingProfile, LAKESHORE, PROFILES } from '../fixtures/listing-profile';
-import { answerSeriesDetail, COUCH_SESSIONS, COUCH_TO_5K_DETAIL } from '../fixtures/series';
+import {
+  answerSeriesDetail,
+  COUCH_SESSIONS,
+  COUCH_TO_5K_DETAIL,
+  PARK_BOOTCAMP_DETAIL,
+} from '../fixtures/series';
 import { WebEventDetailPage } from '../page-objects/web/event-detail.page';
 import { WebEventSeriesPage } from '../page-objects/web/event-series.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
@@ -191,5 +197,52 @@ test.describe('Member app, view an event series: the sessions', () => {
     await expect(series.sessionsNote).toHaveText('7 done · 0 to go');
     await expect(series.sessionList).not.toContainText('Next up');
     await expect(series.sessionList.getByRole('link')).toHaveCount(0);
+  });
+});
+
+// L2-051 AC1 (ADR 0080, ADR 0096): the sign-up panel, read-only until joining (journey 12).
+test.describe('Member app, view an event series: the sign-up panel', () => {
+  test('A series the member has not joined shows the spots left and both ways to come with their prices', async ({
+    page,
+    api,
+  }) => {
+    answerPhotos(api);
+    answerSeriesDetail(api, [PARK_BOOTCAMP_DETAIL]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(PARK_BOOTCAMP_DETAIL.id);
+
+    await expect(series.panelTitle).toHaveText('Sign up');
+    await expect(series.spots).toHaveText('12 of 50 spots left');
+    await expect(series.plans).toHaveText([
+      'Every session (5 left)Your spot is held each week$64 for all 8',
+      'Pick dates to drop inCome when you can$10 each',
+    ]);
+    await expect(series.panelNote).toHaveText('One group chat for the whole series.');
+    await expect(series.confirmed).toHaveCount(0);
+    // Read-only: nothing to press until joining comes (journey 12).
+    await expect(series.panel.getByRole('button')).toHaveCount(0);
+    await expect(series.panel.getByRole('radio')).toHaveCount(0);
+  });
+
+  test('A full series says so, and why every session cannot be had', async ({ page, api }) => {
+    answerPhotos(api);
+    answerSeriesDetail(api, [{ ...PARK_BOOTCAMP_DETAIL, spotsLeft: 0 }]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(PARK_BOOTCAMP_DETAIL.id);
+
+    await expect(series.spots).toHaveText('Series full');
+    await expect(series.plans.first()).toContainText('Every place in the series is taken');
+  });
+
+  test('A member who joined is told they are in for every session', async ({ page, api }) => {
+    answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(COUCH_TO_5K_DETAIL.id);
+
+    await expect(series.confirmed).toHaveText("You're in for every session");
+    await expect(series.plans).toHaveCount(0);
   });
 });

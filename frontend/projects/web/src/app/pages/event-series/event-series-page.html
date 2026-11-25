@@ -71,6 +71,14 @@
             </section>
           </div>
           <aside class="event-series__aside" aria-label="Sign up">
+            <cf-card variant="pad-sm">
+              <cf-series-panel
+                [joined]="panel().joined"
+                [spots]="panel().spots"
+                [plans]="panel().plans"
+                [note]="panel().note"
+              />
+            </cf-card>
             <cf-host-card
               [href]="series.host.href"
               [name]="series.host.name"

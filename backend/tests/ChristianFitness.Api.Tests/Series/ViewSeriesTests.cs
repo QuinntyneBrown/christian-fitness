@@ -30,7 +30,7 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         Assert.Equal(
             [
                 "id", "title", "category", "summary", "imageKey", "host", "cadence", "startsAt", "firstStartsAt", "lastStartsAt",
-                "place", "area", "joined", "sessions",
+                "place", "area", "priceCents", "dropInPriceCents", "capacity", "spotsLeft", "sessionsLeft", "joined", "sessions",
             ],
             AdminSeries.Keys(series));
         Assert.Equal(couch.Id.ToString(), series.GetProperty("id").GetString());
@@ -78,6 +78,46 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
             ["done", "done", "live", "upcoming", "upcoming", "cancelled", "upcoming", "upcoming"],
             sessions.Select(s => s.GetProperty("state").GetString()));
         Assert.Equal([true, false, false, true, false, false, false, false], sessions.Select(s => s.GetProperty("held").GetBoolean()));
+    }
+
+    [Fact]
+    public async Task Given_places_held_at_sessions_When_a_member_opens_the_series_Then_spots_left_are_the_fewest_left_among_sessions_to_come()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "mae.series.view@example.org");
+        var couch = AdminSeries.NewSeries("Couch to 5K Places", now, capacity: 40, priceCents: 6400, dropInPriceCents: 1000);
+        var ids = await factory.AddCouchTo5KAsync(couch);
+        // Ten held the past April 14, five the cancelled May 12 (neither counts); three hold April 28, one April 21.
+        await factory.AddRegistrationsAsync([
+            .. Enumerable.Range(0, 10).Select(_ => (ids[1], Guid.NewGuid())),
+            .. Enumerable.Range(0, 5).Select(_ => (ids[5], Guid.NewGuid())),
+            .. Enumerable.Range(0, 3).Select(_ => (ids[3], Guid.NewGuid())),
+            (ids[2], Guid.NewGuid()),
+        ]);
+
+        var series = await OpenAsync(client, cookie, couch.Id);
+
+        Assert.Equal(6400, series.GetProperty("priceCents").GetInt32());
+        Assert.Equal(1000, series.GetProperty("dropInPriceCents").GetInt32());
+        Assert.Equal(40, series.GetProperty("capacity").GetInt32());
+        Assert.Equal(37, series.GetProperty("spotsLeft").GetInt32());
+        // April 21, 28, May 5, 19 and 26 are to come; May 12 is cancelled.
+        Assert.Equal(5, series.GetProperty("sessionsLeft").GetInt32());
+    }
+
+    [Fact]
+    public async Task Given_a_finished_series_with_no_drop_in_When_a_member_opens_it_Then_it_has_no_spots_left_none_to_come_and_no_drop_in_price()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "noor.series.view@example.org");
+        var series = AdminSeries.NewSeries("Finished Hoops", now, dropInPriceCents: null);
+        await factory.AddSeriesAsync(series, [new(new DateOnly(2026, 3, 5)), new(new DateOnly(2026, 3, 12))]);
+
+        var answer = await OpenAsync(client, cookie, series.Id);
+
+        Assert.Equal(JsonValueKind.Null, answer.GetProperty("spotsLeft").ValueKind);
+        Assert.Equal(0, answer.GetProperty("sessionsLeft").GetInt32());
+        Assert.Equal(JsonValueKind.Null, answer.GetProperty("dropInPriceCents").ValueKind);
     }
 
     [Fact]

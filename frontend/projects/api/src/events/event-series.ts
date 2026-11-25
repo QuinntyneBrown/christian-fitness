@@ -73,6 +73,18 @@ export interface SeriesDetailDto {
   lastStartsAt: string;
   place: string;
   area: string;
+  /** The whole series' price in cents; 0 is free. */
+  priceCents: number;
+  /** One date's price in cents, or none when members cannot drop in. */
+  dropInPriceCents: number | null;
+  capacity: number;
+  /**
+   * The fewest places left among the sessions still to come (ADR 0080), or none when no session
+   * is to come.
+   */
+  spotsLeft: number | null;
+  /** How many sessions are still to come (neither cancelled nor started). */
+  sessionsLeft: number;
   /** The signed-in member has joined it. */
   joined: boolean;
   /** Every date in date order. */

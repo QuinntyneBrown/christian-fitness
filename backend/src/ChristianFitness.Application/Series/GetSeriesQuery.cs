@@ -10,7 +10,9 @@ namespace ChristianFitness.Application.Series;
 /// <summary>
 /// One series as the member's page shows it (L2-051 AC1; ADR 0096): what it is, who hosts it (as
 /// the event page's "Hosted by" card has it), its cadence as numbers, the next held session's start
-/// (else the last held one's), its first and last held dates, where it meets, and whether the
+/// (else the last held one's), its first and last held dates, where it meets, its prices in cents
+/// (no drop-in price when members cannot drop in), its capacity, the spots left (none when no
+/// session is to come; <see cref="SeriesPlaces"/>), how many sessions are to come, whether the
 /// signed-in member joined it, and every date in date order. The app words every number.
 /// </summary>
 public sealed record SeriesDetailDto(
@@ -26,6 +28,11 @@ public sealed record SeriesDetailDto(
     DateTimeOffset LastStartsAt,
     string Place,
     string Area,
+    int PriceCents,
+    int? DropInPriceCents,
+    int Capacity,
+    int? SpotsLeft,
+    int SessionsLeft,
     bool Joined,
     IReadOnlyList<SeriesSessionDto> Sessions);
 
@@ -43,7 +50,8 @@ public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset Starts
 /// </summary>
 public sealed record GetSeriesQuery(Guid Id) : IRequest<SeriesDetailDto>;
 
-internal sealed class GetSeriesHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<GetSeriesQuery, SeriesDetailDto>
+internal sealed class GetSeriesHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, TimeProvider time)
+    : IRequestHandler<GetSeriesQuery, SeriesDetailDto>
 {
     public async Task<SeriesDetailDto> Handle(GetSeriesQuery request, CancellationToken cancellationToken)
     {
@@ -76,6 +84,8 @@ internal sealed class GetSeriesHandler(IAppDbContext db, ICurrentMember current,
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         var states = SeriesSchedule.StatesOf([.. sessions.Select(s => s.Times)], now);
+        var going = await registrations.GoingForAsync(sessionIds, cancellationToken).ConfigureAwait(false);
+        var spotsLeft = SeriesPlaces.SpotsLeft(series.Capacity, sessions.Select(s => (s.Times, going.GetValueOrDefault(s.Id))), now);
 
         // A series that opens has a held date, so it has a time, a first and a last held date.
         return new SeriesDetailDto(
@@ -91,6 +101,11 @@ internal sealed class GetSeriesHandler(IAppDbContext db, ICurrentMember current,
             facts.Last!.Value,
             series.Place,
             series.Area,
+            series.PriceCents,
+            series.DropInPriceCents,
+            series.Capacity,
+            spotsLeft,
+            facts.Left,
             joined,
             [.. sessions.Select((s, n) => new SeriesSessionDto(s.Id, n + 1, s.StartsAt, s.Topic, SessionStateNames.Of(states[n]), held.Contains(s.Id)))]);
     }

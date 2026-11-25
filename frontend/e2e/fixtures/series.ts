@@ -1,6 +1,6 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
 import { type EventHostCard, hostCardOf } from './events';
-import { LAKESHORE } from './listing-profile';
+import { LAKESHORE, OKAFOR } from './listing-profile';
 
 /**
  * Answers `GET /api/events/series/count` with `count` (ADR 0093), or refuses it with `fail`.
@@ -155,6 +155,12 @@ export interface SeriesDetail {
   lastStartsAt: string;
   place: string;
   area: string;
+  priceCents: number;
+  dropInPriceCents: number | null;
+  capacity: number;
+  /** The fewest places left among the sessions to come, or none when none is to come. */
+  spotsLeft: number | null;
+  sessionsLeft: number;
   joined: boolean;
   /** Every date in date order (ADR 0096). */
   sessions: SeriesSession[];
@@ -212,8 +218,47 @@ export const COUCH_TO_5K_DETAIL: SeriesDetail = {
   lastStartsAt: '2026-05-26T22:30:00Z',
   place: 'Humber Bay Park East',
   area: 'Etobicoke, Toronto',
+  priceCents: 0,
+  dropInPriceCents: 0,
+  capacity: 40,
+  spotsLeft: 9,
+  sessionsLeft: 5,
   joined: true,
   sessions: COUCH_SESSIONS,
+};
+
+/**
+ * Saturday Park Bootcamp as the mock `event-series/not-joined` draws it: eight Saturdays at
+ * 8:00 AM from April 4, three done, next April 25, $64 for all or $10 a date, 12 of 50 spots left,
+ * hosted by Danielle Okafor, not joined.
+ */
+export const PARK_BOOTCAMP_DETAIL: SeriesDetail = {
+  id: PARK_BOOTCAMP.id,
+  title: 'Saturday Park Bootcamp',
+  category: 'workout',
+  summary: 'Forty-five minutes of full-body circuits in the park, every Saturday morning.',
+  imageKey: null,
+  host: hostCardOf(OKAFOR),
+  cadence: { weekday: 6, dates: 8 },
+  startsAt: '2026-04-25T12:00:00Z',
+  firstStartsAt: '2026-04-04T12:00:00Z',
+  lastStartsAt: '2026-05-23T12:00:00Z',
+  place: 'Trillium Park, Ontario Place',
+  area: 'Waterfront',
+  priceCents: 6400,
+  dropInPriceCents: 1000,
+  capacity: 50,
+  spotsLeft: 12,
+  sessionsLeft: 5,
+  joined: false,
+  sessions: ['04', '11', '18', '25', '02', '09', '16', '23'].map((day, n) => ({
+    id: `0190c0de-0000-7000-8000-00000000c60${n + 1}`,
+    number: n + 1,
+    startsAt: `2026-0${n < 4 ? 4 : 5}-${day}T12:00:00Z`,
+    topic: null,
+    state: n < 3 ? 'done' : n === 3 ? 'live' : 'upcoming',
+    held: false,
+  })),
 };
 
 /**

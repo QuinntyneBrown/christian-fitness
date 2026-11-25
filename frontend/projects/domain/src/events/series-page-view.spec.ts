@@ -21,6 +21,11 @@ const COUCH: SeriesDetailDto = {
   lastStartsAt: '2026-05-26T22:30:00Z',
   place: 'Humber Bay Park East',
   area: 'Etobicoke, Toronto',
+  priceCents: 0,
+  dropInPriceCents: 0,
+  capacity: 40,
+  spotsLeft: 9,
+  sessionsLeft: 5,
   joined: true,
   sessions: [
     'done',
