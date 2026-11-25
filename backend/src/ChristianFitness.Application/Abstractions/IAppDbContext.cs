@@ -1,5 +1,6 @@
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Audit;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
@@ -61,6 +62,9 @@ public interface IAppDbContext
 
     /// <summary>The members' in-app notifications (ADR 0068, ADR 0083).</summary>
     DbSet<Notification> Notifications { get; }
+
+    /// <summary>The directory's listings, published or waiting for staff's check (L2-054; ADR 0082).</summary>
+    DbSet<DirectoryListing> DirectoryListings { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

@@ -19,7 +19,8 @@ const string Usage = """
                         otpauth:// link once, for the staff member's app (ADR 0013).
 
     Settings (environment variables): ConnectionStrings__Default; for seed also
-    Seed__StaffEmail, Seed__StaffPassword and Seed__StaffName.
+    Seed__StaffEmail, Seed__StaffPassword and Seed__StaffName; Seed__DirectorySamples=true
+    adds the sample directory listings.
     """;
 
 var command = args.FirstOrDefault();
@@ -54,6 +55,16 @@ if (command == "seed")
 
     builder.Services.AddSingleton(staff);
     builder.Services.AddScoped<ISeed, StaffAccountSeed>();
+
+    // The team listing always; the mocks' sample listings only on a demonstration system (ADR 0082).
+    var listings = builder.Configuration.GetValue<bool>("Seed:DirectorySamples")
+        ? [DirectoryListingSeed.Team, .. DirectoryListingSeed.Samples]
+        : new[] { DirectoryListingSeed.Team };
+    foreach (var listing in listings)
+    {
+        builder.Services.AddScoped<ISeed>(services => new DirectoryListingSeed(listing, services.GetRequiredService<TimeProvider>()));
+    }
+
     builder.Services.AddScoped<SeedRunner>();
 }
 
