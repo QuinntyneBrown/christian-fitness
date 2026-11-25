@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EVENTS_SERVICE } from '@cf/api';
 import {
   Button,
+  Checkbox,
   Chip,
   ChipBar,
   Container,
@@ -40,7 +41,8 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 
 /**
  * Events at `/events` (L2-009 AC1, AC4 to AC7; ADR 0027): the published events that have not
- * started, soonest first, as cards. The address holds the category and the search (`q`), and every
+ * started, soonest first, as cards. The address holds the category, the search (`q`) and "Only
+ * events I'm going to" (`going`), and every
  * new address starts the list again (L2-075; ADR 0081); typing waits for a pause, then replaces it.
  * The first page loads on arrival and the next 20 when the end
  * of the list comes into view, until there is no more or 200 are shown, which ends the list with a
@@ -54,6 +56,7 @@ const SKELETON_CARDS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
   selector: 'cf-events-page',
   imports: [
     Button,
+    Checkbox,
     Chip,
     ChipBar,
     Container,
@@ -75,7 +78,7 @@ export default class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
   /** The selection the address holds: category and search (ADR 0081). */
-  protected readonly query = signal<EventListQuery>({ category: null, q: '' });
+  protected readonly query = signal<EventListQuery>({ category: null, q: '', going: false });
   protected readonly category = computed(() => this.query().category);
   /**
    * The search field's text. It is the member's while they type (a trailing space stays) and the
@@ -120,6 +123,11 @@ export default class EventsPage {
         this.loadFirst();
       });
     this.destroyRef.onDestroy(() => clearTimeout(this.searchTimer));
+  }
+
+  /** "Only events I'm going to" was ticked or cleared: a new place in history, as a chip is. */
+  protected onGoing(going: boolean): void {
+    this.navigate(eventListHref({ ...this.query(), going }));
   }
 
   /** The search field changed: show it at once, ask for it once typing pauses. */

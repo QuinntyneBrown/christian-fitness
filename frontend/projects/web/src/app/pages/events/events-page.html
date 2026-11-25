@@ -12,12 +12,19 @@
         (valueChange)="onSearch($event)"
       />
     </div>
-    <cf-chip-bar label="Filter events">
+    <cf-chip-bar label="Filter events" divided>
       @for (chip of chips(); track chip.href) {
         <cf-chip [href]="chip.href" [current]="chip.current" (navigate)="navigate($event)">{{
           chip.label
         }}</cf-chip>
       }
+      <cf-checkbox
+        slot="after"
+        variant="compact"
+        label="Only events I'm going to"
+        [checked]="query().going"
+        (checkedChange)="onGoing($event)"
+      />
     </cf-chip-bar>
     @if (state() === 'loading') {
       <cf-skeleton-region label="Loading events">

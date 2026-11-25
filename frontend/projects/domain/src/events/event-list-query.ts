@@ -18,19 +18,26 @@ export function eventSearchOf(raw: string | null): string {
   return (raw ?? '').trim();
 }
 
+/** Whether an address's `going` turns "Only events I'm going to" on: only exactly `true` (L2-076). */
+export function eventGoingOf(raw: string | null): boolean {
+  return raw === 'true';
+}
+
 /** Reads the list's selection from the address; anything the API would refuse reads as unset. */
 export function eventListQueryOf(params: QueryParams): EventListQuery {
   return {
     category: eventCategoryOf(params.get('category')),
     q: eventSearchOf(params.get('q')),
+    going: eventGoingOf(params.get('going')),
   };
 }
 
-/** The address of a selection, `category` then `q`, each left out when unset (ADR 0081). */
+/** The address of a selection, `category`, `q` then `going`, each left out when unset (ADR 0081). */
 export function eventListHref(query: EventListQuery): string {
   const parts: string[] = [];
   if (query.category !== null) parts.push(`category=${query.category}`);
   if (query.q) parts.push(`q=${encodeURIComponent(query.q)}`);
+  if (query.going) parts.push('going=true');
   return parts.length ? `/events?${parts.join('&')}` : '/events';
 }
 
@@ -43,7 +50,8 @@ export interface EventCategoryChipView {
 
 /**
  * All and the six categories, with their addresses and `current` marked (mock `events/filtered`).
- * Each address keeps the rest of the selection, so a chip never drops the search (ADR 0081).
+ * Each address keeps the rest of the selection, so a chip never drops the search or the going
+ * filter (ADR 0081).
  */
 export function eventCategoryChips(query: EventListQuery): EventCategoryChipView[] {
   return [

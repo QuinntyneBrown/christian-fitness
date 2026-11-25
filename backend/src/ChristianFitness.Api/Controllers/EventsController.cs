@@ -14,11 +14,12 @@ public sealed class EventsController(ISender sender) : ControllerBase
 {
     /// <summary>
     /// One page of the published events that have not started, after the cursor a page gave, of one
-    /// category when asked (ADR 0030), whose title contains <paramref name="q"/> (ADR 0081).
+    /// category when asked (ADR 0030), whose title contains <paramref name="q"/>, and only the
+    /// signed-in member's when <paramref name="going"/> is <c>true</c> (ADR 0081).
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> List([FromQuery] string? cursor, [FromQuery] string? category, [FromQuery] string? q, CancellationToken cancellationToken) =>
-        Ok(await sender.Send(new ListEventsQuery(cursor, category, q), cancellationToken).ConfigureAwait(false));
+    public async Task<IActionResult> List([FromQuery] string? cursor, [FromQuery] string? category, [FromQuery] string? q, [FromQuery] string? going, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new ListEventsQuery(cursor, category, q, going), cancellationToken).ConfigureAwait(false));
 
     /// <summary>One published event in full (L2-010; ADR 0031).</summary>
     [HttpGet("{id:guid}")]

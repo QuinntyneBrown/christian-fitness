@@ -37,11 +37,16 @@ export interface EventDetailDto extends EventSummaryDto {
   registration: 'confirmed' | 'reserved' | null;
 }
 
-/** Which events the list asks for (ADR 0030, ADR 0081): a category or All, and a trimmed search or none. */
+/**
+ * Which events the list asks for (ADR 0030, ADR 0081): a category or All, a trimmed search or none,
+ * and whether only the signed-in member's registrations (the server knows whose from the session).
+ */
 export interface EventSelection {
   category: EventCategory | null;
   /** Text the title must contain, in any case; empty for none. */
   q: string;
+  /** Only events the signed-in member is going to (L2-076). */
+  going: boolean;
 }
 
 /** The events a member browses (L2-009; ADR 0027). */

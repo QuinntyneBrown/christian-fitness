@@ -80,20 +80,24 @@ export interface EventsAsked {
   categories: (string | null)[];
   /** The `q` of each request, as sent; `null` when there was none (ADR 0081). */
   searches: (string | null)[];
+  /** The `going` of each request, as sent; `null` when there was none (ADR 0081). */
+  going: (string | null)[];
 }
 
 /**
  * Answers `GET /api/events` from `events`, 20 to a page, the cursor being the index of the next one
  * (opaque to the app). As the API does, `category` keeps one category and `q`, trimmed, keeps the
- * titles that contain it in any case, blank narrowing nothing (ADR 0081). `fail` may refuse a
+ * titles that contain it in any case, blank narrowing nothing, and `going=true` keeps the ids in
+ * `mine`, the events the signed-in member is registered for (ADR 0081). `fail` may refuse a
  * request, by its zero-based number, as a reply.
  */
 export function answerEvents(
   api: ApiHandlers,
   events: EventSummary[],
   fail: (requestNumber: number) => { status?: number; abort?: boolean } | null = () => null,
+  mine: string[] = [],
 ): EventsAsked {
-  const asked: EventsAsked = { cursors: [], categories: [], searches: [] };
+  const asked: EventsAsked = { cursors: [], categories: [], searches: [], going: [] };
   api.on('GET', '/api/events', (request) => {
     const number = asked.cursors.length;
     const params = new URL(request.url()).searchParams;
@@ -103,6 +107,8 @@ export function answerEvents(
     asked.categories.push(category);
     asked.cursors.push(cursor);
     asked.searches.push(search);
+    const going = params.get('going');
+    asked.going.push(going);
     const refusal = fail(number);
     if (refusal?.abort) return { abort: true };
     if (refusal) return { status: refusal.status ?? 400, json: { code: 'error' } };
@@ -111,7 +117,8 @@ export function answerEvents(
     const matches = events.filter(
       (event) =>
         (category === null || event.category === category) &&
-        event.title.toLowerCase().includes(term),
+        event.title.toLowerCase().includes(term) &&
+        (going !== 'true' || mine.includes(event.id)),
     );
     const page = matches.slice(from, from + 20);
     const next = from + 20 < matches.length ? String(from + 20) : null;

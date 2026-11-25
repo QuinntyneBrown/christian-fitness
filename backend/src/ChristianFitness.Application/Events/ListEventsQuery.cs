@@ -27,10 +27,12 @@ public sealed record EventPageDto(IReadOnlyList<EventSummaryDto> Events, string?
 /// <summary>
 /// The published events that have not started, soonest first, 20 to a page after the opaque
 /// <see cref="Cursor"/>, of one category when <see cref="Category"/> names it, whose title contains
-/// <see cref="Search"/> in any case (L2-009 AC1, AC2, AC4, AC5; L2-075; ADR 0027, ADR 0030,
-/// ADR 0081). A class, not a record, so no generated <c>ToString</c> can print what a member typed.
+/// <see cref="Search"/> in any case, and only those the signed-in member holds a place at when
+/// <see cref="Going"/> (L2-009 AC1, AC2, AC4, AC5; L2-075; L2-076; ADR 0027, ADR 0030, ADR 0081).
+/// The member is the session's, never the request's. A class, not a record, so no generated
+/// <c>ToString</c> can print what a member typed.
 /// </summary>
-public sealed class ListEventsQuery(string? cursor, string? category = null, string? search = null) : IRequest<EventPageDto>
+public sealed class ListEventsQuery(string? cursor, string? category = null, string? search = null, string? going = null) : IRequest<EventPageDto>
 {
     public const int PageSize = 20;
 
@@ -40,6 +42,9 @@ public sealed class ListEventsQuery(string? cursor, string? category = null, str
 
     /// <summary>What a title must contain, in any case, once trimmed; none or blank narrows nothing.</summary>
     public string? Search { get; } = search;
+
+    /// <summary>Whether to keep only the events the signed-in member is registered for: only for exactly <c>true</c>.</summary>
+    public bool Going { get; } = string.Equals(going, "true", StringComparison.Ordinal);
 }
 
 /// <summary>The search rule (L2-075 AC2, AC3; ADR 0081): trimmed, compared in lower case, blank is none.</summary>
@@ -102,7 +107,7 @@ internal static class EventCursor
 /// Reads one page: asks for 21 so it knows whether more remain, then counts who is going for the
 /// page's events in one question.
 /// </summary>
-internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader registrations, TimeProvider time)
+internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, TimeProvider time)
     : IRequestHandler<ListEventsQuery, EventPageDto>
 {
     public async Task<EventPageDto> Handle(ListEventsQuery request, CancellationToken cancellationToken)
@@ -119,6 +124,13 @@ internal sealed class ListEventsHandler(IAppDbContext db, IRegistrationReader re
 #pragma warning disable CA1304, CA1311, CA1862 // Translated by EF Core to the database's lower(); no culture is involved.
             events = events.Where(e => e.Title.ToLower().Contains(term));
 #pragma warning restore CA1304, CA1311, CA1862
+        }
+
+        if (request.Going)
+        {
+            var memberId = current.Id;
+            var mine = db.Registrations.Where(r => r.MemberId == memberId).Select(r => r.EventId);
+            events = events.Where(e => mine.Contains(e.Id));
         }
 
         if (request.Cursor is not null && EventCursor.TryParse(request.Cursor, out var after))
