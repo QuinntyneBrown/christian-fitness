@@ -20,12 +20,27 @@
           >
         </cf-done>
       }
-      @if (phase() === 'failed') {
+      @if (refusal() === 'failed') {
         <cf-alert slot="alert" heading="We couldn't send your suggestion"
           ><p>
             Something went wrong on our side. Everything you typed is still here, so try again in a
             moment.
           </p></cf-alert
+        >
+      }
+      @if (refusal() === 'invalid') {
+        <cf-alert slot="alert" heading="Check the highlighted fields" [focusOnShow]="false"
+          ><p>Everything you typed is still here.</p></cf-alert
+        >
+      }
+      @if (refusal() === 'limit') {
+        <cf-alert slot="alert" heading="You've sent 5 suggestions today"
+          ><p>You can suggest more tomorrow. Everything you typed is still here.</p></cf-alert
+        >
+      }
+      @if (refusal() === 'suspended') {
+        <cf-alert slot="alert" heading="Your account is suspended"
+          ><p>Suggestions can't be sent while your account is suspended.</p></cf-alert
         >
       }
       <cf-choice-card-group

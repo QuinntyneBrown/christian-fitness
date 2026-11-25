@@ -1,4 +1,4 @@
-import type { ListingKind, SuggestListingDto, SuggestionRelation } from '@cf/api';
+import type { ApiError, ListingKind, SuggestListingDto, SuggestionRelation } from '@cf/api';
 import { firstNameOf } from '../account/join';
 
 /** One card of "Who are you suggesting?": the value it sends, its label and its line. */
@@ -160,4 +160,50 @@ export function suggestionRequestOf(form: SuggestionForm): SuggestListingDto {
 export function thanksOf(name: string | null): string {
   const first = firstNameOf(name);
   return first ? `Thanks, ${first}` : 'Thanks';
+}
+
+/** Each field code the API refuses a suggestion with, and the sentence its field shows (ADR 0085). */
+const FIELD_CODE_MESSAGES: Record<string, { field: SuggestionField; message: string }> = {
+  name_required: { field: 'name', message: SUGGESTION_NAME_REQUIRED },
+  name_too_long: { field: 'name', message: 'Use 120 characters or fewer.' },
+  where_required: { field: 'where', message: SUGGESTION_WHERE_REQUIRED },
+  where_too_long: { field: 'where', message: 'Use 120 characters or fewer.' },
+  website_invalid: {
+    field: 'website',
+    message: 'Enter a web address that starts with https://, or leave it empty.',
+  },
+  website_too_long: { field: 'website', message: 'Use 200 characters or fewer.' },
+  church_connection_too_long: {
+    field: 'churchConnection',
+    message: 'Use 200 characters or fewer.',
+  },
+  reason_too_long: { field: 'reason', message: 'Keep it to 1,000 characters.' },
+  email_invalid: { field: 'email', message: 'Enter an email address like name@example.com' },
+  email_too_long: { field: 'email', message: 'Use 254 characters or fewer.' },
+};
+
+/**
+ * What the API's answer to a send means for the screen (L2-062 AC6 to AC8, AC11; ADR 0085): the
+ * fields a 400 names, with their sentences; the daily limit; a suspended account; or a failure,
+ * which is anything else, a field code the screen does not know included.
+ */
+export type SuggestionRefusal =
+  | { kind: 'invalid'; errors: SuggestionFieldErrors }
+  | { kind: 'limit' }
+  | { kind: 'suspended' }
+  | { kind: 'failed' };
+
+export function suggestionRefusalOf(error: unknown): SuggestionRefusal {
+  const api = typeof error === 'object' && error !== null ? (error as Partial<ApiError>) : {};
+  if (api.code === 'too_many_attempts') return { kind: 'limit' };
+  if (api.code === 'account_suspended') return { kind: 'suspended' };
+  if (api.status === 400 && api.fieldCodes) {
+    const errors: SuggestionFieldErrors = {};
+    for (const code of Object.values(api.fieldCodes)) {
+      const known = FIELD_CODE_MESSAGES[code];
+      if (known) errors[known.field] = known.message;
+    }
+    if (Object.keys(errors).length > 0) return { kind: 'invalid', errors };
+  }
+  return { kind: 'failed' };
 }

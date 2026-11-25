@@ -6,6 +6,7 @@ import {
   firstSuggestionFieldOf,
   type SuggestionForm,
   suggestionFormOf,
+  suggestionRefusalOf,
   suggestionRequestOf,
   thanksOf,
 } from './suggestion-form';
@@ -153,5 +154,88 @@ describe('thanksOf and firstNameOf', () => {
   ])('"$name"', ({ name, first, expected }) => {
     expect(firstNameOf(name)).toBe(first);
     expect(thanksOf(name)).toBe(expected);
+  });
+});
+
+// ADR 0085: what each answer means for the screen. One case per row.
+describe('suggestionRefusalOf', () => {
+  it.each([
+    {
+      why: 'the daily limit',
+      error: { status: 429, code: 'too_many_attempts' },
+      expected: { kind: 'limit' },
+    },
+    {
+      why: 'a suspended account',
+      error: { status: 403, code: 'account_suspended' },
+      expected: { kind: 'suspended' },
+    },
+    {
+      why: 'a server error',
+      error: { status: 500, code: 'server_error' },
+      expected: { kind: 'failed' },
+    },
+    { why: 'no answer', error: { status: 0, code: 'network' }, expected: { kind: 'failed' } },
+    { why: 'not an ApiError', error: new Error('x'), expected: { kind: 'failed' } },
+    {
+      why: 'a 400 without field codes',
+      error: { status: 400, code: 'validation_failed' },
+      expected: { kind: 'failed' },
+    },
+    {
+      why: 'a 400 with only unknown codes',
+      error: { status: 400, code: 'validation_failed', fieldCodes: { kind: 'kind_invalid' } },
+      expected: { kind: 'failed' },
+    },
+    {
+      why: 'every field code',
+      error: {
+        status: 400,
+        code: 'validation_failed',
+        fieldCodes: {
+          name: 'name_too_long',
+          where: 'where_required',
+          website: 'website_too_long',
+          churchConnection: 'church_connection_too_long',
+          reason: 'reason_too_long',
+          email: 'email_too_long',
+        },
+      },
+      expected: {
+        kind: 'invalid',
+        errors: {
+          name: 'Use 120 characters or fewer.',
+          where: 'Add where they meet or work.',
+          website: 'Use 200 characters or fewer.',
+          churchConnection: 'Use 200 characters or fewer.',
+          reason: 'Keep it to 1,000 characters.',
+          email: 'Use 254 characters or fewer.',
+        },
+      },
+    },
+    {
+      why: 'the other codes',
+      error: {
+        status: 400,
+        code: 'validation_failed',
+        fieldCodes: {
+          name: 'name_required',
+          where: 'where_too_long',
+          website: 'website_invalid',
+          email: 'email_invalid',
+        },
+      },
+      expected: {
+        kind: 'invalid',
+        errors: {
+          name: 'Add a name so we know who to look up.',
+          where: 'Use 120 characters or fewer.',
+          website: 'Enter a web address that starts with https://, or leave it empty.',
+          email: 'Enter an email address like name@example.com',
+        },
+      },
+    },
+  ])('$why', ({ error, expected }) => {
+    expect(suggestionRefusalOf(error)).toEqual(expected);
   });
 });

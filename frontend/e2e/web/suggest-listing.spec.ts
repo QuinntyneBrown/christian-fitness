@@ -294,3 +294,97 @@ test.describe('Member app, suggest a listing: sending', () => {
     });
   }
 });
+
+function problem(status: number, code: string, fieldCodes?: Record<string, string>) {
+  return {
+    status,
+    headers: { 'content-type': 'application/problem+json' },
+    json: { title: 'Refused', status, code, ...(fieldCodes ? { fieldCodes } : {}) },
+  };
+}
+
+// L2-062 AC7, AC8 and AC11 (ADR 0085's stand-in copy): the API's refusals keep everything typed;
+// a refused field is marked with its code's sentence, and the limits say why in the alert.
+test.describe('Member app, suggest a listing: refusals', () => {
+  test('a field the API refuses is marked with its sentence and focus moves to the first', async ({
+    page,
+    api,
+  }) => {
+    api.on('POST', SUGGESTIONS, () =>
+      problem(400, 'validation_failed', {
+        website: 'website_invalid',
+        email: 'email_invalid',
+        reason: 'reason_too_long',
+      }),
+    );
+    const suggest = new WebSuggestListingPage(page);
+    await suggest.open();
+    await suggest.fillMockSuggestion();
+    await suggest.website.fill('http://eastside.example');
+    await suggest.email.fill('lead at eastside');
+
+    await suggest.sendAndAwaitRequest();
+
+    await expect(suggest.alertTitle).toHaveText('Check the highlighted fields');
+    await expect(suggest.website).toBeFocused();
+    const fields = await suggest.fieldViews();
+    expect(fields.map(({ label, error, invalid }) => ({ label, error, invalid }))).toEqual([
+      { label: 'Their name', error: null, invalid: false },
+      { label: 'Where they meet or work', error: null, invalid: false },
+      {
+        label: 'Website or social (optional)',
+        error: 'Enter a web address that starts with https://, or leave it empty.',
+        invalid: true,
+      },
+      { label: 'Church connection (optional)', error: null, invalid: false },
+      {
+        label: 'Why should they be listed?',
+        error: 'Keep it to 1,000 characters.',
+        invalid: true,
+      },
+      {
+        label: 'Their email (optional)',
+        error: 'Enter an email address like name@example.com',
+        invalid: true,
+      },
+    ]);
+    await expect(suggest.website).toHaveValue('http://eastside.example');
+
+    await suggest.website.fill('https://eastside.example');
+    await expect(suggest.website).not.toHaveAttribute('aria-invalid', 'true');
+  });
+
+  for (const refusal of [
+    {
+      code: 'too_many_attempts',
+      status: 429,
+      title: "You've sent 5 suggestions today",
+      text: 'You can suggest more tomorrow. Everything you typed is still here.',
+    },
+    {
+      code: 'account_suspended',
+      status: 403,
+      title: 'Your account is suspended',
+      text: "Suggestions can't be sent while your account is suspended.",
+    },
+  ]) {
+    test(`${refusal.code} says why above the form and keeps everything typed`, async ({
+      page,
+      api,
+    }) => {
+      api.on('POST', SUGGESTIONS, () => problem(refusal.status, refusal.code));
+      const suggest = new WebSuggestListingPage(page);
+      await suggest.open();
+      await suggest.fillMockSuggestion();
+      const before = await suggest.fieldViews();
+
+      await suggest.sendAndAwaitRequest();
+
+      await expect(suggest.alert).toBeFocused();
+      await expect(suggest.alertTitle).toHaveText(refusal.title);
+      await expect(suggest.alertText).toHaveText(refusal.text);
+      expect(await suggest.fieldViews()).toEqual(before);
+      await expect(suggest.sendButton).toBeEnabled();
+    });
+  }
+});

@@ -28,6 +28,8 @@ import {
   type SuggestionFieldErrors,
   type SuggestionForm,
   suggestionFormOf,
+  type SuggestionRefusal,
+  suggestionRefusalOf,
   suggestionRequestOf,
   thanksOf,
 } from '@cf/domain';
@@ -93,6 +95,8 @@ export default class SuggestListingPage {
   private readonly memberName = signal<string | null>(null);
   /** Typing, on its way, refused or failed (the form stays), or sent (the thanks replaces it). */
   protected readonly phase = signal<'editing' | 'sending' | 'failed' | 'sent'>('editing');
+  /** Why the last send was refused or failed, until the next. */
+  protected readonly refusal = signal<SuggestionRefusal['kind'] | null>(null);
   protected readonly sending = computed(() => this.phase() === 'sending');
   /** Whom the stored suggestion names, as the API answered it. */
   protected readonly suggested = signal('');
@@ -141,6 +145,7 @@ export default class SuggestListingPage {
       return;
     }
     if (this.sending()) return;
+    this.refusal.set(null);
     this.phase.set('sending');
     this.suggestions
       .suggest(suggestionRequestOf(this.form()))
@@ -151,8 +156,21 @@ export default class SuggestListingPage {
           this.phase.set('sent');
         },
         // The form and everything typed stay, so the member can send again.
-        error: () => this.phase.set('failed'),
+        error: (error: unknown) => this.refuse(suggestionRefusalOf(error)),
       });
+  }
+
+  /**
+   * Shows why the send did not go through. A refused field is marked with its sentence and takes
+   * focus once rendered; every other answer is an alert above the form, which takes focus itself.
+   */
+  private refuse(refusal: SuggestionRefusal): void {
+    this.phase.set('failed');
+    this.refusal.set(refusal.kind);
+    if (refusal.kind !== 'invalid') return;
+    this.fieldErrors.set(refusal.errors);
+    const first = firstSuggestionFieldOf(refusal.errors);
+    if (first !== null) this.document.getElementById(first)?.focus();
   }
 
   /** Suggest another: a new, empty form. */
@@ -160,6 +178,7 @@ export default class SuggestListingPage {
     this.form.set(emptySuggestionForm());
     this.fieldErrors.set({});
     this.suggested.set('');
+    this.refusal.set(null);
     this.phase.set('editing');
   }
 }
