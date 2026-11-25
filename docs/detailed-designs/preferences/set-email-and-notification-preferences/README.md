@@ -63,7 +63,7 @@ before the switches, so until journey 33 every kind is allowed.
 - **`NotificationStore`** — shell-scoped store in the domain library with unit tests: the latest 50,
   newest first, the unread count, a pushed notification put first (a repeated id ignored, the 51st
   dropped), and mark all as read. `notificationTime` gives "Just now", "5 min ago", "2 hours ago",
-  "Yesterday" or "Apr 12" in Toronto.
+  "Yesterday", "Apr 12", or "Dec 30, 2025" in an earlier year, in Toronto time.
 - **`Bell`** and **`NotificationRow`** — presentation components under their design-system names
   (`components/src/bell/`, `components/src/notification-row/`). The top bar shows the bell before the
   profile button: no badge at zero, the count to 9, `9+` above, the accessible name "Notifications,

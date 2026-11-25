@@ -22,8 +22,11 @@ reminders, cancelled events and followed hosts. The scheduler of ADR 0069 is not
 - **One connection per member session, owned by the member shell.** `SignalRChatConnection` (the
   real-time client) moves from the chat screen's `providers` to the member shell's. It is bound to
   two tokens: `CHAT_CONNECTION` (join, send, messages, cancelled; unchanged) and
-  `NOTIFICATION_STREAM` (`received`). The shell starts it once it has rendered; the client library is
-  still imported dynamically, so it stays out of the initial bundle. It stops, and drops every
+  `NOTIFICATION_STREAM` (`received`, `connect`). The shell's `MemberNotifications` connects when the
+  shell opens; the client library is still imported dynamically, so it stays out of the initial
+  bundle and the connection is made after the first render. A connection that cannot be made is not
+  retried on its own; the list still loads on every visit to the screen, and a chat's join tries
+  again. It stops, and drops every
   handler, when the shell is destroyed (sign out, or leaving the member area). The chat screen injects
   the shell's client and no longer stops it on leaving.
 - **Chat groups after leaving a chat.** The connection stays in a chat's group until it closes, as a
