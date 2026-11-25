@@ -259,14 +259,14 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
     if google:
         # Came back from Google: the account is the identity, so there is no email or password to type.
         sso = f"""<div class="sso-account">
-        <span class="avatar" aria-hidden="true">{v["name"][0]}</span>
+        <span class="avatar" aria-hidden="true">{ME["name"][0]}</span>
         <div class="sso-account__body">
           <p class="sso-account__email">{v["email"]}</p>
           <p class="sso-account__via">{google_g("sm")} Signing in with Google</p>
         </div>
         <a class="sso-account__change" href="{href("join")}">Change<span class="visually-hidden"> how you sign in</span></a>
       </div>"""
-        fields = f"""{field("Display name", "name", v["name"], autocomplete="name", hint="From your Google account — change it if you like", error=errors.get("name", ""), readonly=ro)}
+        fields = f"""{field("Name", "name", v["name"], autocomplete="name", hint="From your Google account — change it if you like", error=errors.get("name", ""), readonly=ro)}
         {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}"""
         title, lead = "Finish your profile", "Google filled in the basics. Tell us a little more."
     else:
@@ -274,7 +274,7 @@ def join_form(*, email_error: str = "", busy: bool = False, alert: str = "", err
         {google_button("Sign up with Google", loading=redirecting, to=href("google-account-chooser", "join"), disabled=busy)}
         {or_divider()}
       </div>"""
-        fields = f"""{field("Full name", "name", v["name"], autocomplete="name", error=errors.get("name", ""), readonly=ro)}
+        fields = f"""{field("Name", "name", v["name"], autocomplete="name", error=errors.get("name", ""), readonly=ro)}
         {field("Email", "email", v["email"], type_="email", autocomplete="email", error=email_err, readonly=ro)}
         {field("Password", "password", v["password"], type_="password", autocomplete="new-password", hint="At least 8 characters", error=errors.get("password", ""), readonly=ro)}
         {field("Home church", "church", v["church"], hint="Optional — helps you find people nearby", error=errors.get("church", ""), readonly=ro)}"""
@@ -314,6 +314,13 @@ def _():
     return auth(join_form(google=True))
 
 
+@s("google-invalid", "A blank name on the Google form: the summary and the field explain what to fix.")
+def _():
+    error = "Enter your name."
+    summary = '<div class="auth__alert">' + error_summary("Check your details", [(error, "f-name")]) + "</div>"
+    return auth(join_form(google=True, alert=summary, errors={"name": error}, values={"name": ""}))
+
+
 @s("google-submitting", "Create profile pressed on the Google form: button busy, fields read-only.")
 def _():
     return auth(join_form(google=True, busy=True))
@@ -330,7 +337,7 @@ def _():
     return auth(join_form(email_error=f'An account with this email already exists. <a class="inline-link" href="{href("sign-in")}">Sign in instead?</a>'))
 
 
-JOIN_FIELD_ERRORS = {"name": "Enter your full name", "email": "Enter an email address like name@example.com",
+JOIN_FIELD_ERRORS = {"name": "Enter your name.", "email": "Enter an email address like name@example.com",
                      "password": "Use at least 8 characters"}
 
 
@@ -942,6 +949,14 @@ def _():
         active="Mobility", view="series"))
 
 
+@s("series-search-no-results", "Series view with a search that matches no series titles.")
+def _():
+    return member_shell("events", events_page(empty_block(
+        "No series here yet", "Series are weekly or monthly programs you can join once and come to every time.",
+        f'<a class="btn btn--primary btn--sm" href="{href("events", "series")}">Show all series</a>', tag="p"),
+        search="yoga", view="series")).replace("\n  \n", "\n\n")
+
+
 @s("series-loading", "Series view loading: three row skeletons.")
 def _():
     row = ('<li class="series-row"><span class="skeleton skeleton--block skeleton--image-16x9"></span><div class="series-row__body skeleton-stack">'
@@ -1006,6 +1021,13 @@ def _():
         '<a class="btn btn--primary btn--sm" href="default.html">Show all events</a>', tag="p"), active="Workshop"))
 
 
+@s("search-no-results", "A search for yoga has no matching event titles.")
+def _():
+    return member_shell("events", events_page(empty_block(
+        "No events match your search", "Try another search or clear the search and filters.",
+        '<a class="btn btn--primary btn--sm" href="default.html">Clear search and filters</a>', tag="p"), search="yoga")).replace("\n  \n", "\n\n")
+
+
 @s("filtered", "Run filter: the Easter Sunrise 5K and Couch to 5K: Week 3.")
 def _():
     return member_shell("events", events_page(grid([e for e in MEMBER_EVENTS if e["category"] == "Run"]), active="Run"))
@@ -1014,6 +1036,13 @@ def _():
 @s("going", "\"Only events I'm going to\" ticked: Grace's three registrations.")
 def _():
     return member_shell("events", events_page(grid([e for e in MEMBER_EVENTS if e["registered"]]), going=True))
+
+
+@s("going-empty", "The member has no matching registered events.")
+def _():
+    return member_shell("events", events_page(empty_block(
+        "No events you’re going to", "You have no upcoming registrations matching these filters.",
+        '<a class="btn btn--primary btn--sm" href="default.html">Clear search and filters</a>', tag="p"), going=True)).replace("\n  \n", "\n\n")
 
 
 # ===========================================================================
@@ -1064,7 +1093,7 @@ def register_panel(e: dict, mode: str) -> str:
                 <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("cancel-registration")}">Can't make it</button>"""
     if mode == "registered":
         action = f"""<div class="register__state">
-                <p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're registered</p>
+                <p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're going</p>
                 {after}
               </div>"""
     elif mode == "reserved":
@@ -1157,7 +1186,7 @@ def _():
 @s("registering", "Register pressed: button busy until the spot is confirmed.")
 def _():
     return member_shell("events", detail(EV["park-bootcamp"], "registering") + note(
-        "The panel swaps to \"You're registered\" with a 180 ms fade and 4 px rise (none under reduced motion), then the success toast appears.",
+        "The panel swaps to \"You're going\" with a 180 ms fade and 4 px rise (none under reduced motion), then the success toast appears.",
         "top: 30rem; right: 1rem;"))
 
 
