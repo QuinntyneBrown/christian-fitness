@@ -3,7 +3,7 @@ Layout and copy follow the Magic Patterns prototype "Admin Console" frames Manag
 Newsletter, Manage Event Series, Community Pick, Manage Listings and Feedback Inbox."""
 from __future__ import annotations
 
-from cf_data import (ADMIN_STORIES, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
+from cf_data import (ADMIN_STORIES, MODERATOR, AUTHORS, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
                      PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
 from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, field, form_alert, href, icon,
                    image, listing_mark, loading_region, screen, select, textarea, toast, toast_region, verified_badge)
@@ -357,6 +357,11 @@ def _():
     return admin_shell("admin-newsletter", newsletter_page())
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Newsletter: the navigation shows their areas, without group names, and the issue is built, scheduled and sent as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(), staff=MODERATOR)
+
+
 @s("scheduled", "The issue is scheduled: its fields are locked and the card offers \"Unschedule to edit\".")
 def _():
     return admin_shell("admin-newsletter", newsletter_page(scheduled=True))
@@ -450,6 +455,11 @@ s = screen("admin-series", "page", "Manage event series", route="/admin/series",
 @s("default", "Couch to 5K Run Club chosen from the three series: host, cadence, place, how many joined, prices, sessions left, and every session with Done, Live or Cancelled and a way to cancel or restore a date.")
 def _():
     return admin_shell("admin-series", series_admin(SR["couch-to-5k"]))
+
+
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Event series: the navigation shows their areas, without group names, and series and their dates are managed as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"]), staff=MODERATOR)
 
 
 @s("selected", "Saturday Park Bootcamp chosen: a paid series with a drop-in price.")
@@ -611,6 +621,11 @@ def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram")))
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Community Pick: the navigation shows their areas, without group names, and the assets are made and downloaded as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram")), staff=MODERATOR)
+
+
 @s("pick", "Before anything is made: choose an event, write one line on why it is a pick, and Create assets; the right side previews what will come.")
 def _():
     return admin_shell("admin-community-pick", pick_page(PICK_EMPTY))
@@ -738,6 +753,11 @@ def _():
     return admin_shell("admin-listings", listings_page(suggestion_view()))
 
 
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on Listings: the navigation shows their areas, without group names, and suggestions are checked, approved and declined as an Admin does; nothing on the screen differs.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view()), staff=MODERATOR)
+
+
 @s("unchecked", "Another suggestion chosen (Rooted Physio, from a member who knows them): no check passed yet.")
 def _():
     return admin_shell("admin-listings", listings_page(suggestion_view("s3")))
@@ -797,7 +817,8 @@ def _():
 FB_STATE = {"f1": "default", "f2": "correction", "f3": "default", "f4": "resolved"}
 
 
-def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False) -> str:
+def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False,
+                   moderator: bool = False) -> str:
     st = {x["id"]: x["status"] for x in FEEDBACK} | (status or {})
     f = next(x for x in FEEDBACK if x["id"] == sel)
     shown = [x for x in FEEDBACK if tab == "All" or st[x["id"]] == tab]
@@ -808,7 +829,7 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
     rows = rows or '<li class="feedback-row feedback-row--empty">Nothing here.</li>'
     counts = [("All", len(FEEDBACK), "default.html")] + [(k, sum(1 for v in st.values() if v == k), "default.html" if k != "Resolved" else "resolved.html") for k in ("New", "Replied", "Resolved")]
     story = (f'<p class="feedback__link"><a class="btn btn--secondary btn--sm" href="{href("admin-story-editor", "published")}">{icon("pen-line")}Open the story to correct it</a></p>'
-             if f["kind"] == "Content" else "")
+             if f["kind"] == "Content" and not moderator else "")
     first = f["from"].split()[0]
     send = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
             else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>')
@@ -856,6 +877,11 @@ def _():
 def _():
     return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}), counts={"admin-feedback": 1},
                        after=toast_region(toast("success", "Reply sent.", "Michael Chen gets it by email."), admin=True))
+
+
+@s("moderator", "A Moderator (L2-019 AC5; ADR 0064) on a correction to a story: the navigation shows their areas, and the note can be read, answered and resolved, but \"Open the story to correct it\" is not offered, since Stories is Admins only.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox("f2", moderator=True), staff=MODERATOR)
 
 
 @s("resolved", "A resolved note chosen: it can be reopened.")
