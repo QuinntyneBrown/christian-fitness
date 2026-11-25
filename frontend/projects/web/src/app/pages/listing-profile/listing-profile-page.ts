@@ -33,7 +33,7 @@ import type { Subscription } from 'rxjs';
 import { HttpDirectoryService } from '../../services/http-directory.service';
 
 /**
- * A listing's profile at `/directory/:id` (L2-055; ADR 0085; mock `listing-profile/`): the back
+ * A listing's profile at `/directory/:id` (L2-055; ADR 0087; mock `listing-profile/`): the back
  * link to the directory, the listing head, Hosting (its one-off events still to come, each leading
  * to the event, or a sentence when there are none), About with its focus tags, and beside it from LG the key
  * facts (area, an https website, followers and the year listed) and Connected (each published

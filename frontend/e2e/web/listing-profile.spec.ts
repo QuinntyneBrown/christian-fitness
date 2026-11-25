@@ -17,7 +17,7 @@ import { WebDirectoryPage } from '../page-objects/web/directory.page';
 import { WebEventChatPage } from '../page-objects/web/event-chat.page';
 import { WebListingProfilePage } from '../page-objects/web/listing-profile.page';
 
-// L2-055 AC1 to AC9 and L2-014 AC1 to AC2 (journey 6; ADR 0085): a member opens a listing's profile at
+// L2-055 AC1 to AC9 and L2-014 AC1 to AC2 (journey 6; ADR 0087): a member opens a listing's profile at
 // `/directory/<id>` and reads its head, About, area, https website, followers and the year listed
 // and what it hosts, and messages its owner (mocks `listing-profile/default`, `person`, `one-off`,
 // `unverified`, `no-owner`, `message-failed`, `loading`, `error`). Hosted series arrive with

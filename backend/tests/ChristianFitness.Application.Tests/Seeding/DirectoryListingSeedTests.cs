@@ -8,7 +8,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Seeding;
 
 /// <summary>
-/// L2-054 AC10 (ADR 0067, ADR 0082, ADR 0085): the seed adds the Listed Christian Fitness team listing
+/// L2-054 AC10 (ADR 0067, ADR 0082, ADR 0087): the seed adds the Listed Christian Fitness team listing
 /// by its stable id, the sample listings and their connections only when asked, and a second run
 /// changes nothing.
 /// </summary>

@@ -5,7 +5,7 @@ import { WebListingProfilePage } from '../page-objects/web/listing-profile.page'
 import { WebServiceDetailPage } from '../page-objects/web/service-detail.page';
 import { WebServicesPage } from '../page-objects/web/services.page';
 
-// ADR 0061 and ADR 0085 (journey 6): a directory listing and a Services listing of the same
+// ADR 0061 and ADR 0087 (journey 6): a directory listing and a Services listing of the same
 // professional lead to each other (mocks `listing-profile/person` and `services/default`).
 test.describe('Member app, listing and Services cross-links', () => {
   test('"Also offers services" on a profile leads to the professional\'s Services listing', async ({

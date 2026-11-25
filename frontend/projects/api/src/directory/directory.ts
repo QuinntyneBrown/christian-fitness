@@ -47,7 +47,7 @@ export interface DirectoryQuery {
 }
 
 /**
- * One event a listing hosts that is still to come (`HostedEventDto`, ADR 0085): the start as an
+ * One event a listing hosts that is still to come (`HostedEventDto`, ADR 0087): the start as an
  * ISO instant in UTC, which the screen words in Toronto.
  */
 export interface HostedEventDto {
@@ -61,7 +61,7 @@ export interface HostedEventDto {
 }
 
 /**
- * A published listing a profile is connected to (`ListingConnectionDto`, ADR 0085), with the
+ * A published listing a profile is connected to (`ListingConnectionDto`, ADR 0087), with the
  * relation worded from the profile's side, such as "Run leader".
  */
 export interface ListingConnectionDto {
@@ -73,7 +73,7 @@ export interface ListingConnectionDto {
 }
 
 /**
- * A published listing's profile (`ListingProfileDto`, ADR 0085): what it publishes, how many follow
+ * A published listing's profile (`ListingProfileDto`, ADR 0087): what it publishes, how many follow
  * it and the year it was listed. The website is as stored: the app shows only an https address
  * (L2-055 AC5). It carries no member id or contact detail.
  */
@@ -107,7 +107,7 @@ export interface ListingConversationDto {
   memberId: string;
 }
 
-/** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0085). */
+/** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0087). */
 export interface DirectoryApi {
   /**
    * One page of the published listings in kind and name order, 50 to a page. A refusal

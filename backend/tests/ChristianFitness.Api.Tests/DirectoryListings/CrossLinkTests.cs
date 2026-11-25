@@ -8,7 +8,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// ADR 0061 and ADR 0085 (journey 6): a directory listing and a Services listing of the same member,
+/// ADR 0061 and ADR 0087 (journey 6): a directory listing and a Services listing of the same member,
 /// or that staff linked, name each other. The profile's <c>serviceListingId</c> leads to "Also offers
 /// services"; a Services listing's <c>directoryListingId</c>, in the list and the detail, leads to
 /// "Also in the directory", naming only a published listing, the oldest when several match.

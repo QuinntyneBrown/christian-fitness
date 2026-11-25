@@ -24,7 +24,7 @@ export interface ListingRowView {
 const firstLetter = (word: string): string => Array.from(word)[0] ?? '';
 const isWord = (word: string): boolean => /\p{L}/u.test(firstLetter(word));
 
-/** A listing's profile address (ADR 0085). */
+/** A listing's profile address (ADR 0087). */
 export function directoryListingHref(id: string): string {
   return `/directory/${encodeURIComponent(id)}`;
 }

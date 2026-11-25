@@ -15,7 +15,7 @@ public sealed record ServiceListingDto(
 
 /// <summary>
 /// The published directory listing each Services listing names for "Also in the directory" (ADR 0061,
-/// ADR 0085): one owned by the same member or that staff linked to it, the oldest first.
+/// ADR 0087): one owned by the same member or that staff linked to it, the oldest first.
 /// </summary>
 internal static class DirectoryLinks
 {

@@ -13,7 +13,7 @@ export interface ServiceListingFixture {
   publishedAt: string;
   /** Whether the listing publishes a contact link instead of taking messages here (ADR 0053). */
   hasContactLink: boolean;
-  /** The published directory listing of the same professional, for "Also in the directory" (ADR 0085). */
+  /** The published directory listing of the same professional, for "Also in the directory" (ADR 0087). */
   directoryListingId: string | null;
 }
 

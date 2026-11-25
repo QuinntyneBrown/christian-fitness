@@ -53,7 +53,7 @@ const SKELETON_GROUPS = [
  * screen does, and the request, the debounce, the observer and the rows go with it. While the
  * first page loads, skeleton rows show under the heading, search and chips; with nobody listed it
  * points to Events; a 4xx or no answer shows "The directory didn't load" with Try again (a 5xx is
- * the server-error screen's). Each row leads to the listing's profile (ADR 0085); the Follow
+ * the server-error screen's). Each row leads to the listing's profile (ADR 0087); the Follow
  * button arrives with journey 8.
  */
 @Component({

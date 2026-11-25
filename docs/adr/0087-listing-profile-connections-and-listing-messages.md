@@ -1,4 +1,4 @@
-# 0085. Listing profile: one read, connections, listing messages and the services cross-links
+# 0087. Listing profile: one read, connections, listing messages and the services cross-links
 
 ## Status
 

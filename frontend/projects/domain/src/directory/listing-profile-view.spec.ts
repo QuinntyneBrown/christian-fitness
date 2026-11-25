@@ -22,7 +22,7 @@ const profile = (over: Partial<ListingProfileDto> = {}): ListingProfileDto => ({
   ...over,
 });
 
-// L2-055 AC5 (ADR 0077, ADR 0085): only an absolute https address with a host is ever shown, as a
+// L2-055 AC5 (ADR 0077, ADR 0087): only an absolute https address with a host is ever shown, as a
 // link whose text is the host without "www."; anything else is not shown at all.
 describe('websiteLinkOf', () => {
   it.each([

@@ -21,7 +21,7 @@ function click(link: HTMLAnchorElement, init: MouseEventInit = {}): boolean {
   return event.defaultPrevented;
 }
 
-// ADR 0061 and ADR 0085: "Also in the directory" leads to the professional's directory listing,
+// ADR 0061 and ADR 0087: "Also in the directory" leads to the professional's directory listing,
 // routed by the screen on a plain click, and is not there without one.
 describe('ServiceDetail, Also in the directory', () => {
   it('links to the directory listing and hands a plain click to the screen', async () => {

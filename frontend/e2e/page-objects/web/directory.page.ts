@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 /** One directory row as the member reads it. */
 export interface ListingRowView {
-  /** The row's link to the listing profile (ADR 0085), or none on a skeleton row. */
+  /** The row's link to the listing profile (ADR 0087), or none on a skeleton row. */
   href: string | null;
   /** The mark's initials, or none when it shows a photo. */
   initials: string;

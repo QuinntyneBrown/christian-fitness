@@ -75,7 +75,7 @@ const routes: Routes = [
         loadComponent: () => import('./pages/suggest-listing/suggest-listing-page'),
       },
       {
-        // One published listing's profile (L2-055; ADR 0085).
+        // One published listing's profile (L2-055; ADR 0087).
         path: 'directory/:id',
         title: titled('Listing'),
         loadComponent: () => import('./pages/listing-profile/listing-profile-page'),

@@ -9,7 +9,7 @@ public sealed record SeedConnection(Guid Id, Guid ListingId, Guid ConnectedListi
 
 /// <summary>
 /// One connection between two seeded listings, keyed by the pair: added when missing, never changed
-/// when present, so a second run changes nothing (ADR 0085). It stands in for the listing editors'
+/// when present, so a second run changes nothing (ADR 0087). It stands in for the listing editors'
 /// connections until they exist, and is seeded only beside the sample listings.
 /// </summary>
 public sealed class ListingConnectionSeed(SeedConnection connection) : ISeed

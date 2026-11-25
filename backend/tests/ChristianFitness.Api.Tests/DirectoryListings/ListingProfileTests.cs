@@ -7,7 +7,7 @@ using ChristianFitness.Domain.Events;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-055 AC1 to AC5, AC7 and AC9 (journey 6; ADR 0085): <c>GET /api/directory/{id}</c> answers a
+/// L2-055 AC1 to AC5, AC7 and AC9 (journey 6; ADR 0087): <c>GET /api/directory/{id}</c> answers a
 /// published listing's profile, with what it publishes and nothing else; a listing that is not
 /// published, or not there, is 404 <c>listing_not_found</c>.
 /// </summary>

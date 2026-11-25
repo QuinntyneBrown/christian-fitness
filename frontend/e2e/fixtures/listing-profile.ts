@@ -1,7 +1,7 @@
 import type { ApiHandlers, ApiReply } from './api-handlers';
 import { answerPhotos, CAST, type KindFixture } from './directory';
 
-/** One event a listing hosts that is still to come (`HostedEventDto`, ADR 0085). */
+/** One event a listing hosts that is still to come (`HostedEventDto`, ADR 0087). */
 export interface HostedEventFixture {
   id: string;
   title: string;
@@ -21,7 +21,7 @@ export const SUNRISE_RUN: HostedEventFixture = {
   imageKey: null,
 };
 
-/** A published listing a profile is connected to (`ListingConnectionDto`, ADR 0085). */
+/** A published listing a profile is connected to (`ListingConnectionDto`, ADR 0087). */
 export interface ConnectionFixture {
   id: string;
   kind: KindFixture;
@@ -30,7 +30,7 @@ export interface ConnectionFixture {
   relation: string;
 }
 
-/** A listing's profile as `GET /api/directory/{id}` answers it (ADR 0085). */
+/** A listing's profile as `GET /api/directory/{id}` answers it (ADR 0087). */
 export interface ListingProfileFixture {
   id: string;
   kind: KindFixture;
@@ -172,7 +172,7 @@ export type ProfileFault = {
 } | null;
 
 /**
- * Answers `GET /api/directory/{id}` from `profiles` as the API does (ADR 0085): an id not among
+ * Answers `GET /api/directory/{id}` from `profiles` as the API does (ADR 0087): an id not among
  * them is 404 `listing_not_found`. `fault` may refuse a request, by its zero-based number, or hold
  * it until a promise settles. A listing's photo is answered too. Returns the ids asked, in order.
  */
@@ -218,7 +218,7 @@ export type ConversationReply = { memberId: string } | ProfileFault;
 
 /**
  * Answers `POST /api/directory/{id}/conversation` with `reply`, and returns the ids asked for, in
- * order (ADR 0085).
+ * order (ADR 0087).
  */
 export function answerListingConversation(api: ApiHandlers, reply: ConversationReply): string[] {
   const asked: string[] = [];

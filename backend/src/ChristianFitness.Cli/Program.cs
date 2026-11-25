@@ -67,7 +67,7 @@ if (command == "seed")
     builder.Services.AddScoped<ISeed, StaffAccountSeed>();
 
     // The team listing always; the mocks' sample listings and their connections only on a
-    // demonstration system (ADR 0082, ADR 0085).
+    // demonstration system (ADR 0082, ADR 0087).
     var samples = builder.Configuration.GetValue<bool>("Seed:DirectorySamples");
     var listings = samples
         ? [DirectoryListingSeed.Team, .. DirectoryListingSeed.Samples]

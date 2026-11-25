@@ -29,7 +29,7 @@ export interface ListingProfileView {
 
 /**
  * The link a website is shown as, or `null` when it must not be shown at all (L2-055 AC5; ADR 0077,
- * ADR 0085): only an absolute `https` address with a host and no user name or password.
+ * ADR 0087): only an absolute `https` address with a host and no user name or password.
  */
 export function websiteLinkOf(url: string | null): WebsiteLink | null {
   if (url === null) return null;

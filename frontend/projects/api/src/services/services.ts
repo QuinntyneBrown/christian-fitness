@@ -24,7 +24,7 @@ export interface ServiceListingDto {
   hasContactLink: boolean;
   /**
    * The published directory listing of the same professional, or that staff linked, for "Also in
-   * the directory" (ADR 0061, ADR 0085); the oldest when several match.
+   * the directory" (ADR 0061, ADR 0087); the oldest when several match.
    */
   directoryListingId: string | null;
 }

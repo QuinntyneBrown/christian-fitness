@@ -1384,7 +1384,7 @@ def svc_list(items, current: str) -> str:
 
 def svc_detail(sv: dict) -> str:
     av = image(sv["image"], "avatar avatar--2xl avatar--photo-square") if sv.get("image") else avatar(sv["initials"], size="2xl")
-    # ADR 0061, ADR 0085: Danielle also owns a directory listing, so her card links to it.
+    # ADR 0061, ADR 0087: Danielle also owns a directory listing, so her card links to it.
     also = (f'\n            <p class="service-detail__also"><a class="text-link" href="{href("listing-profile", "person")}">Also in the directory</a></p>'
             if sv["id"] == "okafor" else "")
     return f"""<article class="card card--pad sticky-aside" aria-labelledby="svc-name">

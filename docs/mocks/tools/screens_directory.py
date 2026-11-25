@@ -499,7 +499,7 @@ def profile_page(l: dict, *, owner: bool = False, has_owner: bool = True, notice
             <ul class="mini-list">{links}</ul>
           </section>""" if links else "")
     focus = "".join(f'<li class="tag tag--outline">{f}</li>' for f in l["focus"])
-    # ADR 0061, ADR 0085: the same member owns a Services listing, so the profile links to it.
+    # ADR 0061, ADR 0087: the same member owns a Services listing, so the profile links to it.
     also = (f'\n          <p><a class="text-link" href="{href("services")}">Also offers services</a></p>'
             if l["id"] == "okafor" else "")
     message = f'<a class="btn btn--secondary btn--md" href="{href("messages", "direct")}">Message</a>' if has_owner else ""

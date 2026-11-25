@@ -15,7 +15,7 @@ import { Skeleton } from '../skeleton/skeleton';
  * contact actions: Request a booking and Message, or Contact alone when the listing publishes a
  * contact link (`hasContactLink`; L2-014; ADR 0000). It emits `requestBooking`, `startMessage` or `openContact` and holds no contact detail; while `busy` the action
  * ignores presses, and a `problem` shows as an alert above it. With a `directoryHref` it shows "Also
- * in the directory" (ADR 0061, ADR 0085), whose plain click is passed on as `navigate`. Sticky from LG. With `loading` it is the same card of `cf-skeleton`s. Every text is rendered as text.
+ * in the directory" (ADR 0061, ADR 0087), whose plain click is passed on as `navigate`. Sticky from LG. With `loading` it is the same card of `cf-skeleton`s. Every text is rendered as text.
  */
 @Component({
   selector: 'cf-service-detail',

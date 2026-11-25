@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// A listing's relation to another (ADR 0085): one row per direction and pair, read from the
+/// A listing's relation to another (ADR 0087): one row per direction and pair, read from the
 /// listing whose profile shows it. Both listings cascade, so removing a listing's row removes its
 /// connections either way.
 /// </summary>

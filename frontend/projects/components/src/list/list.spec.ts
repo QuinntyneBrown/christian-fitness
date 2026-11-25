@@ -120,7 +120,7 @@ describe('MiniRow meta line', () => {
   });
 });
 
-// L2-055 AC4 (ADR 0085): a Connected row is routed by the screen; the inbox's rows stay plain links.
+// L2-055 AC4 (ADR 0087): a Connected row is routed by the screen; the inbox's rows stay plain links.
 describe('MiniRow routing', () => {
   async function clicked(routed: boolean, init: MouseEventInit = {}) {
     const fixture = TestBed.createComponent(MiniRow);

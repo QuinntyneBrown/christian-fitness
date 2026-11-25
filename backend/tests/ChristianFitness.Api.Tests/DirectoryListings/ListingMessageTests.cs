@@ -8,7 +8,7 @@ using ChristianFitness.Domain.Directory;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-055 AC6 and L2-014 AC1 to AC2 (journey 6; ADR 0085): the profile says whether a listing has an
+/// L2-055 AC6 and L2-014 AC1 to AC2 (journey 6; ADR 0087): the profile says whether a listing has an
 /// owner, and <c>POST /api/directory/{id}/conversation</c> answers the owner's member id for the
 /// direct conversation. A listing with no owner is 409 <c>listing_unreachable</c>; a suspended owner
 /// and the caller's own listing are 403 <c>recipient_unavailable</c>; anything but a published listing

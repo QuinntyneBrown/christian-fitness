@@ -2,7 +2,7 @@ namespace ChristianFitness.Domain.Directory;
 
 /// <summary>
 /// One listing's relation to another, worded from the first listing's side, such as "Run leader"
-/// (L2-054 AC10, L2-055 AC4; ADR 0085). A relation is stored per direction, so the same pair may be
+/// (L2-054 AC10, L2-055 AC4; ADR 0087). A relation is stored per direction, so the same pair may be
 /// worded differently each way. Staff and the owner set them in the listing editors.
 /// </summary>
 public sealed class ListingConnection

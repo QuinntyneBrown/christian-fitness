@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// The directory (L2-054, L2-055; ADR 0082, ADR 0085). Anyone may read the list and a profile, since
+/// The directory (L2-054, L2-055; ADR 0082, ADR 0087). Anyone may read the list and a profile, since
 /// they answer only what published listings publish, and an anonymous caller is held to the
 /// public-reads limit (ADR 0072). Messaging a listing needs a session.
 /// </summary>

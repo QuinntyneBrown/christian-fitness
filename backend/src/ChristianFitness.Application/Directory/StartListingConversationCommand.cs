@@ -11,7 +11,7 @@ namespace ChristianFitness.Application.Directory;
 public sealed record ListingConversationDto(Guid MemberId);
 
 /// <summary>
-/// A member messages a listing (L2-055 AC6, L2-014 AC1 to AC2; ADR 0085): the answer is its owner,
+/// A member messages a listing (L2-055 AC6, L2-014 AC1 to AC2; ADR 0087): the answer is its owner,
 /// whose direct conversation the app opens. Anything but a published listing is 404
 /// <c>listing_not_found</c>; a listing with no owner is 409 <c>listing_unreachable</c>; a suspended
 /// owner and the caller's own listing are 403 <c>recipient_unavailable</c>, as for a direct
@@ -35,7 +35,7 @@ internal sealed class StartListingConversationHandler(IAppDbContext db, ICurrent
             ?? throw new RefusalException(RefusalCodes.ListingUnreachable, RefusalKind.Conflict);
 
         // The owner's "Let anyone message me" preference (L2-065) arrives with journey 34 and does not
-        // apply to a listing's Message; until then nothing else stands between them (ADR 0085).
+        // apply to a listing's Message; until then nothing else stands between them (ADR 0087).
         var name = await DirectChat.OtherNameAsync(db, current.Id, owner, cancellationToken).ConfigureAwait(false);
         return name is null ? throw DirectChat.Unavailable() : new ListingConversationDto(owner);
     }
