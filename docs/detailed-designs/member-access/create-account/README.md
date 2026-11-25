@@ -11,25 +11,25 @@ visitor becomes a member. It belongs to the member-access subsystem.
   personal data, never required and never logged
 - **interest** — activity category a member follows, such as runs or basketball
 
-The visitor gives full name, email, a password of at least 8 characters, an
+The visitor gives name, email, a password of at least 8 characters, an
 optional home church and optional interests. A valid submission creates the
 account, signs the visitor in and opens Home. A duplicate email (compared
 case-insensitively) or invalid fields create nothing and are named on the form.
 
 A visitor may instead sign up with Google ([sign in with Google](../sign-in-with-google/README.md)).
 A verified Google account with no member account opens "Finish your profile": the Google
-account's email is shown, the display name is filled from Google, and no email or password is
+account's email is shown, the name is filled from Google, and no email or password is
 asked. The account is created with that email and no password. A Google account that already has
 a member account is signed in to it instead, and no second account is created.
 
-- **Finish your profile** — Join's Google form: the Google account, a display name, optional home church and interests
+- **Finish your profile** — Join's Google form: the Google account, a name, optional home church and interests
 
 ## Description
 
 Slice 2.1 builds the happy path (L2-003 AC1, AC4, AC5); slice 2.2 adds the refusals (AC2, AC3,
 AC6) and the failed state. Signing up with Google (AC7 to AC11) is new; its parts are marked
 "Google" below. The mock is `docs/mocks/pages/join/` (states `default`, `submitting`, `invalid`,
-`invalid-fields`, `refused`, `limited`, `error`, `redirecting`, `google`, `google-submitting` and
+`invalid-fields`, `refused`, `limited`, `error`, `redirecting`, `google`, `google-invalid`, `google-submitting` and
 `google-failed`). Decisions are in [ADR 0007](../../../adr/0007-join-session-and-home-stand-in.md)
 and [ADR 0008](../../../adr/0008-join-refusals.md).
 
@@ -37,7 +37,7 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   Fitness". It holds one signal per field and renders the mock's blocks through presentation
   components: `AuthLayout` (`auth`, with the brand panel, the heading "Create your profile", the
   lead and "Already a member? Sign in"), `TextField` (`field`, `field__label`, `input`,
-  `field__hint`) for Full name, Email, Password ("At least 8 characters") and Home church
+  `field__hint`) for Name, Email, Password ("At least 8 characters") and Home church
   ("Optional — helps you find people nearby"), `InterestPicker` and `Button`. On submit it sends
   `joinRequestOf(form)` and navigates to `/home` when the answer arrives (L2-003 AC1); a failed
   request gives the form back as it was, and a 5xx to this write never opens the server-error
@@ -69,13 +69,14 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   `ACCOUNT_SERVICE.pendingGoogle()` for the Google account kept on the server and renders the
   heading "Finish your profile", the lead "Google filled in the basics. Tell us a little more.",
   the `sso-account` line (the account's email, "Signing in with Google" and the link "Change", with
-  "how you sign in" for assistive technology, back to the email form at `/join`), a "Display name"
+  "how you sign in" for assistive technology, back to the email form at `/join`), a "Name"
   `TextField` filled from Google with the hint "From your Google account — change it if you like",
   the home church, the interests and "Create profile"; there is no email or password field (mock
   `google`). No kept Google account (none, or expired) shows the `google-failed` alert over the
   email form. Submitting sends `joinWithGoogle(joinWithGoogleRequestOf(form))`; the button reads
-  "Creating your profile…" and is disabled while it waits (mock `google-submitting`). The display
-  name is validated as Full name is, by `validateJoin`'s name rule, and the refusals of AC2 to AC6
+  "Creating your profile…" and is disabled while it waits (mock `google-submitting`). The
+  name is validated as on the email form, by `validateJoin`'s name rule; a blank name shows
+  "Enter your name." in the focused summary and beside the field (mock `google-invalid`). The refusals of AC2 to AC6
   read through `joinRefusalOf` as on the email form (AC9).
 - **Terms** — under the button both forms say "By creating a profile you agree to our Terms of
   Service and Privacy Policy.", each linked (`L2-067` AC5). Recording the versions in force with the
@@ -191,9 +192,8 @@ and [ADR 0008](../../../adr/0008-join-refusals.md).
   [sign in with Google](../sign-in-with-google/README.md)).
 - **"Change".** The link returns to the email form. Whether it also deletes the kept Google
   identity on the server, or lets it expire, is `<TO SUPPLY>`.
-- **The name field's label.** The email form says "Full name" and the Google form "Display name";
-  both store `Member.Name`. The error wording for a blank display name is not drawn; "Enter your
-  full name" is used until a mock state says otherwise.
+- **The name field.** Both forms label it "Name" and store `Member.Name`. A blank name shows
+  "Enter your name." in the error summary and beside the field.
 
 ## Requirements
 
@@ -202,7 +202,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-003` | `L1-002` | A visitor joins with full name, email, password, optional home church and optional interests. Valid details with a password of at least 8 characters shall create the account, sign the visitor in and open Home. An email already registered (case-insensitively) shall create nothing and mark the email field with "An account with this email already exists. Sign in instead?" and `aria-invalid="true"`. A short password, missing name or malformed email shall be named on the form and create nothing. A blank home church shall be stored as none. While submitting, the button shall read "Creating your profile…" and be disabled. A name over 100 characters or a home church over 120 shall be refused `field_too_long`. "Sign up with Google" shall come first, above "or with email" and the email form; pressing it reads "Opening Google…", disables it and starts Google sign-in. A verified Google account with no member account shall show "Finish your profile" with the account's email as "Signing in with Google", a Change link back to the email form, a Display name filled from Google that can be changed, optional home church and interests, and no email or password field. Submitting it with a name shall create the account with the Google account's email and no password, sign the visitor in and open Home, under AC4 to AC6. A Google account that already has a member account shall be signed in to it and open Home, with no second account. A Google sign-in that does not finish shall show "Google sign-up didn't finish" and that nothing was created, and the email form shall still work. |
+| `L2-003` | `L1-002` | A visitor joins with name, email, password, optional home church and optional interests. Valid details with a password of at least 8 characters shall create the account, sign the visitor in and open Home. An email already registered (case-insensitively) shall create nothing and mark the email field with "An account with this email already exists. Sign in instead?" and `aria-invalid="true"`. A short password, blank name or malformed email shall be named on the form and create nothing; a blank name shall show "Enter your name." in the summary and beside the field on either form. A blank home church shall be stored as none. While submitting, the button shall read "Creating your profile…" and be disabled. A name over 100 characters or a home church over 120 shall be refused `field_too_long`. "Sign up with Google" shall come first, above "or with email" and the email form; pressing it reads "Opening Google…", disables it and starts Google sign-in. A verified Google account with no member account shall show "Finish your profile" with the account's email as "Signing in with Google", a Change link back to the email form, a Name filled from Google that can be changed, optional home church and interests, and no email or password field. Submitting it with a name shall create the account with the Google account's email and no password, sign the visitor in and open Home, under AC4 to AC6. A Google account that already has a member account shall be signed in to it and open Home, with no second account. A Google sign-in that does not finish shall show "Google sign-up didn't finish" and that nothing was created, and the email form shall still work. |
 | `L2-030` | `L1-013` | 1. Given any account, when its password is stored, then it is hashed with ASP.NET Core Identity's PBKDF2 hasher and never logged or returned. 2. Given session cookies, when set, then they are `Secure`, `HttpOnly`, `SameSite=Lax` or stricter, and use the `__Host-` prefix. |
 | `L2-032` | `L1-013` | 1. Given any request body, when it fails validation, then the API returns 400 ProblemDetails with a `code` and field errors, and the screen shows a generic message. 3. Given user-supplied text, when rendered anywhere, then it is shown as text, never as HTML. |
 | `L2-033` | `L1-013` | 1. Given home church and faith details, when a member joins, then they are optional. 2. Given any log, metric or span, when emitted, then it contains no email, name, home church, message text, token, query string or body. |

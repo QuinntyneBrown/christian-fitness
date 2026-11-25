@@ -51,6 +51,7 @@
         "default",
         "redirecting",
         "google",
+        "google-invalid",
         "google-submitting",
         "google-failed",
         "invalid",
@@ -162,6 +163,7 @@
         "series",
         "series-joined",
         "series-empty",
+        "series-search-no-results",
         "series-loading",
         "series-error",
         "loading",
@@ -171,8 +173,10 @@
         "more-error",
         "capped",
         "no-results",
+        "search-no-results",
         "filtered",
-        "going"
+        "going",
+        "going-empty"
       ]
     },
     {
