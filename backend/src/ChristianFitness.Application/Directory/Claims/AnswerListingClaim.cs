@@ -35,3 +35,33 @@ internal sealed class PublishListingClaimHandler(IAppDbContext db, ICurrentMembe
         return new ClaimAnswerDto(listing.Id);
     }
 }
+
+/// <summary>
+/// The signed-in member says the listing behind the link with <see cref="Token"/> isn't them
+/// (L2-078 AC7). Audited <c>listing.claim_declined</c>.
+/// </summary>
+public sealed record DeclineListingClaimCommand(string Token) : IRequest<ClaimAnswerDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "listing.claim_declined";
+}
+
+/// <summary>
+/// In one unit of work the draft becomes Declined, the link is spent and the entry is audited;
+/// nothing is published and no one is contacted. Staff read it on the approved suggestion (ADR 0091).
+/// Refusals are <see cref="ListingClaims.OpenAsync"/>'s. Logs nothing (L2-078 AC11).
+/// </summary>
+internal sealed class DeclineListingClaimHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit, TimeProvider time)
+    : IRequestHandler<DeclineListingClaimCommand, ClaimAnswerDto>
+{
+    public async Task<ClaimAnswerDto> Handle(DeclineListingClaimCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var now = time.GetUtcNow();
+        var (claim, listing) = await ListingClaims.OpenAsync(db, request.Token, now, tracked: true, cancellationToken).ConfigureAwait(false);
+        listing.Decline();
+        claim.Spend(now);
+        audit.Record(current.Id, ListingClaims.RecordType, listing.Id);
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return new ClaimAnswerDto(listing.Id);
+    }
+}

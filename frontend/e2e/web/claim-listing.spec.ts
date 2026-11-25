@@ -221,3 +221,58 @@ test.describe('Member app, claim a listing: publish', () => {
     await expect(claim.doneTitle).toHaveText('Your listing is live');
   });
 });
+
+// L2-078 AC7 (ADR 0091; mock `claim-listing/declined`): "This isn't me" disables both answers while
+// it waits, then thanks the member, says nothing is published and the team is told; a failure says
+// nothing changed and keeps both answers.
+test.describe('Member app, claim a listing: this isn’t me', () => {
+  test('saying it isn’t them thanks them and publishes nothing', async ({ page, api }) => {
+    api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_IN }));
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => (answer = resolve));
+    let published = 0;
+    api.on('POST', `${CLAIM_PATH}/publish`, () => {
+      published += 1;
+      return { json: { listingId: LISTING_ID } };
+    });
+    api.on('POST', `${CLAIM_PATH}/decline`, async () => {
+      await answered;
+      return { json: { listingId: LISTING_ID } };
+    });
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+    await claim.notMe();
+
+    await expect(claim.notMeButton).toBeDisabled();
+    await expect(claim.notMeButton).toHaveAttribute('aria-busy', 'true');
+    await expect(claim.publishButton).toBeDisabled();
+    answer();
+    await expect(claim.doneTitle).toHaveText('Thanks for letting us know');
+    await expect(claim.done).toBeFocused();
+    await expect(claim.doneText).toHaveText(
+      'We won’t publish this listing, and we’ve told the team. Nothing about you was shared.',
+    );
+    expect(await claim.doneLinks()).toEqual([
+      { name: 'Back to the directory', href: '/directory' },
+    ]);
+    expect(published).toBe(0);
+  });
+
+  test('a failed answer says nothing changed and keeps both answers', async ({ page, api }) => {
+    api.on('GET', CLAIM_PATH, () => ({ json: CLAIM_SIGNED_IN }));
+    api.on('POST', `${CLAIM_PATH}/decline`, () => refusal(503, 'error'));
+    const claim = new WebClaimListingPage(page);
+
+    await claim.open(CLAIM_TOKEN);
+    await claim.notMe();
+
+    await expect(claim.alertTitle).toHaveText("We couldn't send your answer");
+    await expect(claim.alertText).toHaveText(
+      'Something went wrong on our side. Nothing changed, so try again in a moment.',
+    );
+    await expect(claim.name).toHaveText('Eastside Ladies Who Lift');
+    await expect(claim.publishButton).toBeEnabled();
+    await expect(claim.notMeButton).toBeEnabled();
+  });
+});

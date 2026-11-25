@@ -36,6 +36,14 @@
         </cf-done>
       </cf-container>
     }
+    @case ('declined') {
+      <cf-container page="default">
+        <cf-done heading="Thanks for letting us know"
+          >We won’t publish this listing, and we’ve told the team. Nothing about you was shared.
+          <cf-button slot="actions" size="md" href="/directory">Back to the directory</cf-button>
+        </cf-done>
+      </cf-container>
+    }
     @case ('expired') {
       <cf-container page="default">
         <cf-done heading="This link has expired" alert
@@ -77,9 +85,14 @@
           lead="Our team has checked it. It goes into the directory only when you say it is yours. Here is how it will look."
           (send)="publish()"
         >
-          @if (failed()) {
+          @if (failed() === 'publish') {
             <cf-alert slot="alert" heading="We couldn't publish your listing"
               >Something went wrong on our side. Nothing was published, so try again in a
+              moment.</cf-alert
+            >
+          } @else if (failed() === 'decline') {
+            <cf-alert slot="alert" heading="We couldn't send your answer"
+              >Something went wrong on our side. Nothing changed, so try again in a
               moment.</cf-alert
             >
           }
@@ -112,10 +125,21 @@
             }
           }
           <p class="claim-listing-page__hint">{{ hint() }}</p>
-          <cf-button slot="actions" type="submit" size="md" [disabled]="busy()" [busy]="busy()">{{
-            busy() ? 'Publishing…' : 'Publish my listing'
-          }}</cf-button>
-          <cf-button slot="actions" variant="secondary" size="md" [disabled]="busy()"
+          <cf-button
+            slot="actions"
+            type="submit"
+            size="md"
+            [disabled]="busy()"
+            [busy]="publishing()"
+            >{{ publishing() ? 'Publishing…' : 'Publish my listing' }}</cf-button
+          >
+          <cf-button
+            slot="actions"
+            variant="secondary"
+            size="md"
+            [disabled]="busy()"
+            [busy]="declining()"
+            (click)="decline()"
             >This isn’t me</cf-button
           >
         </cf-form-page>

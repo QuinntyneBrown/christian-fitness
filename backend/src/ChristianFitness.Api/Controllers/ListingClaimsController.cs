@@ -28,4 +28,9 @@ public sealed class ListingClaimsController(ISender sender) : ControllerBase
     [HttpPost("publish")]
     public async Task<ActionResult<ClaimAnswerDto>> Publish(string token, CancellationToken cancellationToken) =>
         await sender.Send(new PublishListingClaimCommand(token), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Says the listing isn't the signed-in member's; nothing is published.</summary>
+    [HttpPost("decline")]
+    public async Task<ActionResult<ClaimAnswerDto>> Decline(string token, CancellationToken cancellationToken) =>
+        await sender.Send(new DeclineListingClaimCommand(token), cancellationToken).ConfigureAwait(false);
 }
