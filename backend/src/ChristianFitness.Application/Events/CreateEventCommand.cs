@@ -37,10 +37,7 @@ internal sealed class CreateEventHandler(IAppDbContext db, TimeProvider time, IC
             request.Summary,
             time.GetUtcNow(),
             request.ImageKey);
-        if (request.HostListingId is { } host)
-        {
-            created.HostedBy(host);
-        }
+        created.HostedBy(request.HostListingId ?? throw new InvalidOperationException("The validator lets no missing host through."));
 
         db.Events.Add(created);
         audit.Record(current.Id, nameof(Event), created.Id);

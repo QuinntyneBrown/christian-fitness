@@ -44,6 +44,7 @@
     autocomplete="off"
     hint="Choose a Listed directory listing."
     [value]="values().hostName"
+    [error]="errors().host"
     [readonly]="working()"
     (valueChange)="searchHost($event)"
   />

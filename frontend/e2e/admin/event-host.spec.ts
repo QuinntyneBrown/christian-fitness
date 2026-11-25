@@ -4,6 +4,7 @@ import {
   DANIELLE_HOST,
   LAKESHORE_HOST,
   eventList,
+  problem,
   PUBLISHED_EVENTS,
   RETREAT_DRAFT,
   TEAM_HOST,
@@ -163,5 +164,66 @@ test.describe('Admin app, an event host', () => {
 
     await expect(editor.hostStatus).toHaveText('');
     await expect(editor.hostChoices).toHaveCount(1);
+  });
+
+  // L2-022 AC12 (ADR 0088): a save with no Listed host is refused; the field and the summary say so.
+  test('a save with no host shows the Host error in the field and the summary and keeps the fields', async ({
+    page,
+    api,
+  }) => {
+    const sent = answerSaves(api);
+    api.on('POST', '/api/admin/events', (request) => {
+      sent.created.push(request.postDataJSON());
+      return problem(400, 'validation_failed', {
+        errors: { hostListingId: ['A sentence from the server the screen never shows'] },
+        fieldCodes: { hostListingId: 'host_required' },
+      });
+    });
+    const events = new AdminEventsPage(page);
+    const editor = new EventEditorDialog(page);
+    await events.open();
+    await events.openNewEvent();
+    await expect(editor.host).toHaveValue('Christian Fitness');
+    await editor.fill(RETREAT);
+    await editor.searchHost('');
+
+    await editor.saveDraft();
+
+    await expect(editor.alert).toContainText('1 thing to fix before saving');
+    await expect(editor.alertLinks).toHaveText(['Choose a Listed host']);
+    await expect(editor.alertLinks).toHaveAttribute('href', '#f-host');
+    await expect(editor.fieldError('f-host')).toHaveText('Choose a Listed host');
+    await expect(editor.host).toHaveAttribute('aria-invalid', 'true');
+    await expect(editor.host).toHaveAttribute('aria-describedby', 'f-host-error');
+    await expect(editor.dialog).not.toContainText('A sentence from the server');
+    await expect(editor.title).toHaveValue(RETREAT.title);
+    await expect(editor.summary).toHaveValue(RETREAT.summary);
+    expect(sent.created).toEqual([expect.objectContaining({ hostListingId: null })]);
+    await editor.alertLinks.click();
+    await expect.poll(() => editor.hostIsFocused()).toBe(true);
+  });
+
+  test('a host that is no longer Listed is refused the same way, and choosing again clears it', async ({
+    page,
+    api,
+  }) => {
+    answerSaves(api);
+    answerHostSearch(api, [LAKESHORE_HOST]);
+    api.on('PUT', DETAIL_PATH, () =>
+      problem(400, 'validation_failed', { fieldCodes: { hostListingId: 'host_not_listed' } }),
+    );
+    const events = new AdminEventsPage(page);
+    const editor = new EventEditorDialog(page, 'Edit event');
+    await events.open();
+    await events.editEvent(BOOTCAMP.title);
+    await expect(editor.host).toHaveValue('Danielle Okafor');
+
+    await editor.saveChanges();
+
+    await expect(editor.fieldError('f-host')).toHaveText('Choose a Listed host');
+    await editor.searchHost('Lake');
+    await editor.chooseHost('Lakeshore Runners Fellowship');
+    await expect(editor.host).not.toHaveAttribute('aria-invalid');
+    await expect(editor.hostHint).toHaveText('Choose a Listed directory listing.');
   });
 });

@@ -1,6 +1,8 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Events;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
@@ -28,13 +30,15 @@ public static class EventFieldCodes
     public const string ImageInvalid = "image_invalid";
     public const string CursorInvalid = "cursor_invalid";
     public const string CategoryInvalid = "category_invalid";
+    public const string HostRequired = "host_required";
+    public const string HostNotListed = "host_not_listed";
 
     /// <summary>Every code a field of an event can fail with.</summary>
     public static readonly IReadOnlySet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         TitleRequired, TitleTooLong, CategoryRequired, DateRequired, StartTimeRequired, StartInPast, PlaceRequired,
         PlaceTooLong, AreaRequired, AreaTooLong, PriceInvalid, CapacityRequired, CapacityOutOfRange,
-        SummaryRequired, SummaryTooLong, ImageInvalid, CursorInvalid, CategoryInvalid,
+        SummaryRequired, SummaryTooLong, ImageInvalid, CursorInvalid, CategoryInvalid, HostRequired, HostNotListed,
     };
 }
 
@@ -48,10 +52,11 @@ public static class EventFieldCodes
 public abstract class EventFieldsValidator<T> : AbstractValidator<T>
     where T : EventFields
 {
-    protected EventFieldsValidator(TimeProvider time, IImageStore images, bool refusePastStart)
+    protected EventFieldsValidator(TimeProvider time, IImageStore images, IAppDbContext db, bool refusePastStart)
     {
         ArgumentNullException.ThrowIfNull(time);
         ArgumentNullException.ThrowIfNull(images);
+        ArgumentNullException.ThrowIfNull(db);
         RuleLevelCascadeMode = CascadeMode.Stop;
 
         RuleFor(c => c.Title)
@@ -90,6 +95,12 @@ public abstract class EventFieldsValidator<T> : AbstractValidator<T>
             .Must(Present).WithErrorCode(EventFieldCodes.SummaryRequired).WithMessage("Give a summary")
             .Must(summary => summary.Trim().Length <= Event.SummaryMaxLength).WithErrorCode(EventFieldCodes.SummaryTooLong).WithMessage("Use 1,000 characters or fewer");
 
+        // A host is a Listed directory listing (L2-022 AC12; ADR 0067, ADR 0088).
+        RuleFor(c => c.HostListingId)
+            .Must(host => host is not null).WithErrorCode(EventFieldCodes.HostRequired).WithMessage("Choose a Listed host")
+            .MustAsync((host, cancellationToken) => db.DirectoryListings.AnyAsync(l => l.Id == host && l.Status == ListingStatus.Published, cancellationToken))
+            .WithErrorCode(EventFieldCodes.HostNotListed).WithMessage("Choose a Listed host");
+
         RuleFor(c => c.ImageKey)
             .MustAsync((key, cancellationToken) => images.ExistsAsync(key!, cancellationToken))
             .When(c => c.ImageKey is not null)
@@ -100,6 +111,6 @@ public abstract class EventFieldsValidator<T> : AbstractValidator<T>
 }
 
 /// <summary>A new event's rules (L2-022 AC2); the start must be after now.</summary>
-public sealed class CreateEventValidator(TimeProvider time, IImageStore images) : EventFieldsValidator<CreateEventCommand>(time, images, refusePastStart: true)
+public sealed class CreateEventValidator(TimeProvider time, IImageStore images, IAppDbContext db) : EventFieldsValidator<CreateEventCommand>(time, images, db, refusePastStart: true)
 {
 }

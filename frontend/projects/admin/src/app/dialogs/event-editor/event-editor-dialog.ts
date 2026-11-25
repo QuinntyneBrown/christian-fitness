@@ -173,6 +173,7 @@ export class EventEditorDialog {
    */
   protected searchHost(text: string): void {
     this.values.update((values) => ({ ...values, hostName: text, hostListingId: null }));
+    this.clearError('host');
     clearTimeout(this.hostTimer);
     this.hostSearch?.unsubscribe();
     this.hostChoices.set([]);
@@ -199,6 +200,7 @@ export class EventEditorDialog {
     const host = this.hostMatches.find((match) => match.id === id);
     if (!host || this.working()) return;
     this.values.update((values) => ({ ...values, hostListingId: host.id, hostName: host.name }));
+    this.clearError('host');
     this.hostChoices.set([]);
     this.document.getElementById('f-host')?.focus();
   }

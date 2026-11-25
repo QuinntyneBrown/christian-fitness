@@ -41,6 +41,13 @@ describe('eventFieldErrorsOf', () => {
       field: 'image',
       text: 'Use a JPEG, PNG or WebP image up to 5 MB',
     },
+    { key: 'hostListingId', code: 'host_required', field: 'host', text: 'Choose a Listed host' },
+    {
+      key: 'hostListingId',
+      code: 'host_not_listed',
+      field: 'host',
+      text: 'Choose a Listed host',
+    },
     { key: 'summary', code: 'a_code_not_known_yet', field: 'summary', text: 'Check this field' },
   ])('$key $code is $field "$text"', ({ key, code, field, text }) => {
     const error: ApiError = {
@@ -99,9 +106,15 @@ describe('capacityBelowGoingMessage', () => {
 describe('the error summary', () => {
   it('lists the refused fields in the form order, each linking to its control', () => {
     expect(
-      eventErrorItems({ image: 'Bad image', title: 'No title', capacity: 'No capacity' }),
+      eventErrorItems({
+        image: 'Bad image',
+        host: 'No host',
+        title: 'No title',
+        capacity: 'No capacity',
+      }),
     ).toEqual([
       { text: 'No title', target: 'f-title' },
+      { text: 'No host', target: 'f-host' },
       { text: 'No capacity', target: 'f-capacity' },
       { text: 'Bad image', target: 'f-image' },
     ]);
