@@ -185,13 +185,10 @@ export class WebSuggestListingPage {
     return sent;
   }
 
-  /** Whether the screen's own content would scroll the page sideways (the header is the shell's). */
+  /** Whether the page scrolls sideways; the header fits a small phone (ADR 0084), so all of it. */
   async sidewaysScroll(): Promise<boolean> {
-    return this.main.evaluate((main) => {
-      const edge = window.innerWidth + 0.5;
-      return Array.from(main.querySelectorAll('*')).some(
-        (el) => el.getBoundingClientRect().right > edge,
-      );
-    });
+    return this.page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
   }
 }

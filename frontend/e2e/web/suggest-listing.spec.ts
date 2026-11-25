@@ -424,3 +424,24 @@ test.describe('Member app, suggest a listing: from the directory', () => {
     await expect(new WebSuggestListingPage(page).heading).toHaveText('Suggest a listing');
   });
 });
+
+// The responsive rule of every member screen: at 360 px the form and its steps stack, and nothing
+// scrolls sideways, the thanks included.
+test.describe('Member app, suggest a listing: a small phone', () => {
+  test('at 360 px nothing scrolls sideways, filled in or sent', async ({ page, api }) => {
+    api.on('POST', SUGGESTIONS, () => ({
+      status: 201,
+      json: { id: '7f0c2b4e-1d3a-4c5b-9e8f-0a1b2c3d4e5f', name: 'Eastside Ladies Who Lift' },
+    }));
+    await page.setViewportSize({ width: 360, height: 760 });
+    const suggest = new WebSuggestListingPage(page);
+    await suggest.open();
+    await suggest.fillMockSuggestion();
+
+    expect(await suggest.sidewaysScroll()).toBe(false);
+
+    await suggest.sendAndAwaitRequest();
+    await expect(suggest.done).toBeFocused();
+    expect(await suggest.sidewaysScroll()).toBe(false);
+  });
+});
