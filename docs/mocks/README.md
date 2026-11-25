@@ -220,8 +220,9 @@ navigation, say) must be made in the generator and in those files.
 9. **Claiming a listing.** Approving a suggestion "sends them a link to claim and publish their
    listing". That screen, and how a listing's owner edits it afterwards, are not drawn.
 10. **Buttons with nothing behind them.** New series, Edit details and Add a date (Event series),
-    Edit (Listed) have no screen or drawer in the frames. Preview (story editor) is drawn
-    (`admin-story-editor/preview`).
+    Edit (Listed) have no screen or drawer in the frames. Preview (story editor) is decided:
+    `StoryPreviewPage` at `/stories/:id/preview` in the admin app (L2-069 AC13); its mock state
+    is `admin-story-editor/preview`.
 11. **Declining a suggestion.** Instant in the frame, with no reason; declining an application asks
     for one (L2-025 AC3). Should this?
 12. **What the legal pages promise.** They state things the system must then do: data stored in

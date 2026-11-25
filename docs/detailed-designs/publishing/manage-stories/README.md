@@ -75,11 +75,10 @@ it; a Moderator sees "Admins only" (`L2-019` AC5).
 
 ### Open questions
 
-- **Reads of an unpublished story.** A story published and later unpublished has reads; the
-  design keeps showing its count, since it was once published. `L2-068` AC1 says only that a story
-  never published shows none.
-- **Review cards over 50.** Every story In review is called out above the list; the number has no
-  bound in the specification. A cap is `<TO SUPPLY>` if the queue can grow long.
+- **Reads of an unpublished story.** Decided (issue 91): an unpublished story keeps its count
+  (`L2-068` AC1).
+- **Review cards.** Decided (issue 91): at most 3 above the list, then "All {n} in review"
+  (`L2-068` AC2).
 - **Moderators and Feedback.** Whether a Moderator opens any of the new areas is an open question
   of the mocks (`docs/mocks/README.md`, open question 8); for Stories `L2-068` AC7 settles it.
 
