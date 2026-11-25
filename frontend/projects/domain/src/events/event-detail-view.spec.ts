@@ -15,6 +15,13 @@ const BOOTCAMP: EventDetailDto = {
   summary: 'Circuits for every level.',
   imageKey: null,
   registration: null,
+  host: {
+    id: 'h1',
+    kind: 'organization',
+    name: 'Christian Fitness',
+    isVerified: true,
+    photoKey: null,
+  },
 };
 
 // ADR 0031: what the detail screen says of an event, read in Toronto whatever the browser's zone.

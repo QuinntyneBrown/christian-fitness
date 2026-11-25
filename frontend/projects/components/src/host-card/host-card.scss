@@ -1,0 +1,66 @@
+// The design system's host card (docs/design-system/assets/components.css, "Directory and listing
+// profile": host-card).
+:host {
+  display: block;
+}
+
+.host-card {
+  margin-top: var(--space-4);
+  display: flex;
+  width: 100%;
+  min-height: 5rem;
+  align-items: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  // The fill changes and the name takes the accent, so hover never relies on colour alone.
+  &:hover {
+    background: var(--color-bg-surface);
+  }
+
+  &:hover .host-card__name {
+    color: var(--color-fg-accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .host-card {
+    transition: none;
+  }
+}
+
+.host-card__body {
+  min-width: 0;
+  flex: 1 1 0%;
+  display: block;
+}
+
+.host-card__label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.host-card__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-weight: var(--font-weight-semibold);
+
+  > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.host-card__arrow {
+  flex-shrink: 0;
+  color: var(--color-fg-muted);
+}

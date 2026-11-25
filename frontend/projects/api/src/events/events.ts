@@ -1,6 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { EventCategory } from '../admin/admin-events';
+import type { ListingKind } from '../directory/directory';
 
 /**
  * An event as a member's list shows it (`EventSummaryDto`, ADR 0027): the start as an ISO instant
@@ -28,8 +29,23 @@ export interface EventPageDto {
 }
 
 /** One event in full (`EventDetailDto`, ADR 0031): the summary's fields and its summary text. */
+/**
+ * The directory listing that hosts an event (`EventHostCardDto`, ADR 0088), as the "Hosted by"
+ * card shows it; the app works out the initials.
+ */
+export interface EventHostCardDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+  isVerified: boolean;
+  /** The key of its photo (`GET /api/directory/photos/{key}`), or none: the mark shows initials. */
+  photoKey: string | null;
+}
+
 export interface EventDetailDto extends EventSummaryDto {
   summary: string;
+  /** Who hosts it (L2-010 AC4): every event has a host. */
+  host: EventHostCardDto;
   /**
    * The caller's own registration (ADR 0032): `confirmed` for a free event, `reserved` for a paid
    * one, or `null` when they are not registered.

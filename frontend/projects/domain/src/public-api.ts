@@ -70,6 +70,7 @@ export * from './directory/listing-row-view';
 export * from './directory/listing-profile-view';
 export * from './directory/listing-follow-store';
 export * from './directory/hosting-rows';
+export * from './directory/host-card-view';
 export * from './directory/listing-connections';
 export * from './directory/directory-filter';
 export * from './legal/legal-versions';

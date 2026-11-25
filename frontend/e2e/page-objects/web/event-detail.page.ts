@@ -31,6 +31,14 @@ export class WebEventDetailPage extends ErrorScreen {
   readonly loading: Locator;
   readonly errorHeading: Locator;
   readonly retryButton: Locator;
+  /** The "Hosted by" card under the registration card, one link to the host's profile (ADR 0088). */
+  readonly hostCard: Locator;
+  readonly hostLabel: Locator;
+  readonly hostName: Locator;
+  readonly hostMark: Locator;
+  readonly hostVerified: Locator;
+  /** The aside that holds the registration card and the host card. */
+  readonly aside: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -59,6 +67,12 @@ export class WebEventDetailPage extends ErrorScreen {
     this.loading = page.locator('[aria-busy="true"]');
     this.errorHeading = page.getByRole('heading', { name: "This event didn't load" });
     this.retryButton = page.getByRole('button', { name: 'Try again' });
+    this.aside = page.getByRole('complementary', { name: 'Registration' });
+    this.hostCard = this.aside.locator('a.host-card');
+    this.hostLabel = this.hostCard.locator('.host-card__label');
+    this.hostName = this.hostCard.locator('.host-card__name');
+    this.hostMark = this.hostCard.locator('.listing-mark');
+    this.hostVerified = this.hostCard.getByRole('img', { name: 'Verified' });
   }
 
   async open(id: string): Promise<void> {
