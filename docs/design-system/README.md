@@ -152,14 +152,14 @@ python3 .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks
 | assets/components.css (closed) | About 25 fixed widths in the new blocks (story measure, figure, picker and inbox columns, thumbnails, `.feed__copy`) were raw rem. | Closed: `--size-measure-*`, `--size-column-*`, `--size-thumb-*` and related size tokens. |
 | tokens (open) | `--color-accent` is 2.16:1 on the dark surface, so switch tracks, checked boxes and radios, the segmented current fill, spinners, progress bars and unread dots fall under 3:1 in dark (the label or a second cue carries the state). | Open: needs a brand decision on the dark accent (an L between about 0.13 and 0.18 would pass 3:1 on the surface and 4.5:1 under white text). |
 | mocks (closed) | Duplicates `.or-divider`, `.inline-link`, `.subtitle--measure` and `.key-facts`; a follow button that changed its label while toggling `aria-pressed`; skeleton ratios that differed from the loaded banner, date column and listing mark; Sign out with no rule; Most read titles that were not links; grouped console navigation with no heading or list semantics; the `signin` block with no page. | Closed: the existing names (`.divider--label`, `.link`, `.subtitle--narrow`, `.spec-list`) replaced them in the mocks; the follow button keeps the fixed label "Follow" with `aria-pressed`, fill and a check; skeletons match the loaded sizes; `.app-header__signout` shows at every width; Most read titles are links; each console group is an `<h2>` with a `<ul aria-labelledby>`; `signin` is on the layout page. |
-| mocks (open) | `pages/join/google` and `google-submitting` overflow 11px at 360px (`.auth__brand`, `.auth__main`). | Open: listed on the Layout page under Sources. |
+| mocks (closed) | `pages/join/google` and `google-submitting` overflowed 11px at 360px (`.auth__brand`, `.auth__main`). | `.auth__brand` and `.auth__main` take `min-width: 0` and wrap long text; the 360px sweep is clean. The `check_mocks.py` errors are fixed. |
 
 ## Verification
 Run on 2026-11-25, after adding the pages for the new mocks:
 
 - `check_contrast.py`: 174 pairs passed in light and dark, 0 failed.
 - `check_design_system.py`: 96 pages (75 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
-- `check_mocks.py docs/mocks`: no new errors; the 25 it reports came with the mocks (see Drift).
+- `check_mocks.py docs/mocks`: 0 errors (the 25 that came with the mocks are fixed).
 - Horizontal overflow (Playwright, all 96 pages and every page and dialog mock at 360 and 1280px): none, except the two Google join mocks listed under Drift.
 - Screenshots reviewed at 360 and 1280px in both themes for every new and changed component page.
 

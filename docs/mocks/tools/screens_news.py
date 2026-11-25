@@ -256,13 +256,13 @@ def issue() -> str:
         </section>
       </div>
       <footer class="issue__footer">
-        <p>You’re getting this because you subscribed at christianfitness.ca. Know someone who’d like it? Forward it on.</p>
+        <p>You’re getting this because you subscribed at www.christian.fitness. Know someone who’d like it? Forward it on.</p>
         <p class="issue__links">
           <a href="{href("subscribe")}">Manage preferences</a>
           <a href="{href("subscribe", "default", "rss")}">Follow by RSS</a>
           <a href="{href("subscribe", "unsubscribed")}">Unsubscribe</a>
         </p>
-        <p>Christian Fitness · Toronto, ON</p>
+        <p>Christian Fitness · 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6</p>
       </footer>
     </article>"""
 
@@ -390,6 +390,10 @@ def _():
 @s("plain", "A story with no summary and nothing to point to: no next-step card; the default reading time shows.")
 def _():
     return story_shell(story_page(dict(ST["sabbath-rest"], read="4 min read")))
+
+@s("vetting", "The published vetting story linked from Suggest a listing, at /news/how-we-vet-every-listing.")
+def _():
+    return story_shell(story_page(ST["how-we-vet-every-listing"]))
 
 
 @s("loading", "Story loading: the masthead is there; the headline, image and text show as skeletons.")

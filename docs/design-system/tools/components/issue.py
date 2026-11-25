@@ -23,9 +23,9 @@ CAL = (f'<section class="issue__section"><h3 class="display rule-title">On the c
 VERSE = ('<section class="issue__verse" aria-label="Scripture, example"><blockquote><p class="issue__quote">“Do you not know that your bodies are temples of the Holy Spirit?”</p>'
          '<cite class="issue__cite">1 Corinthians 6:19</cite></blockquote></section>')
 
-FOOT = ('<footer class="issue__footer"><p>You’re getting this because you subscribed at christianfitness.ca. Know someone who’d like it? Forward it on.</p>'
+FOOT = ('<footer class="issue__footer"><p>You’re getting this because you subscribed at www.christian.fitness. Know someone who’d like it? Forward it on.</p>'
         '<p class="issue__links"><a href="#top">Manage preferences</a><a href="#top">Follow by RSS</a><a href="#top">Unsubscribe</a></p>'
-        '<p>Christian Fitness · Toronto, ON</p></footer>')
+        '<p>Christian Fitness · 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6</p></footer>')
 
 
 def issue(body):
@@ -118,7 +118,7 @@ SPEC = {
 <li>Greet by first name: \"Morning, Grace.\" Sign off with the editor's name and role.</li>
 <li>Section titles, always these: \"The big story\", \"On the calendar\", \"Worth your time\".</li>
 <li>Number and date: \"No. 48 · Saturday, April 11, 2026\".</li>
-<li>The footer says why: \"You’re getting this because you subscribed at christianfitness.ca.\" Unsubscribe is always there and needs no sign-in.</li>
+<li>The footer says why: \"You’re getting this because you subscribed at www.christian.fitness.\" Unsubscribe is always there and needs no sign-in.</li>
 </ul>""",
     "dodont": [
         ("do", FOOT, "Unsubscribe, in words, beside the other footer links."),
@@ -155,7 +155,7 @@ SPEC = {
     </section>
   </div>
   <footer class="issue__footer">
-    <p>You’re getting this because you subscribed at christianfitness.ca…</p>
+    <p>You’re getting this because you subscribed at www.christian.fitness…</p>
     <p class="issue__links"><a href="/subscribe">Manage preferences</a><a href="/subscribe#rss">Follow by RSS</a><a href="/unsubscribe?t=…">Unsubscribe</a></p>
   </footer>
 </article>''',

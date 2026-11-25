@@ -26,7 +26,7 @@ def sections(items=SECTIONS):
 
 
 QUESTIONS = ('<div class="legal__questions"><p class="legal__questions-title">Questions?</p>'
-             '<p>Email privacy@christianfitness.ca, or <a class="link" href="#top">send us a note</a>. Christian Fitness, 401 Richmond St W, Toronto, ON M5V 3A8.</p></div>')
+             '<p>Email privacy@christian.fitness, or <a class="link" href="#top">send us a note</a>. Christian Fitness, 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6.</p></div>')
 
 TOC = ('<nav class="side-nav" aria-label="Contents, example"><p class="side-nav__title">Contents</p><ol class="side-nav__list">'
        + "".join(f'<li><a class="side-nav__link side-nav__link--numbered" href="#top"><span class="side-nav__n">{i}.</span>{t}</a></li>' for i, (_, t, _p) in enumerate(SECTIONS, 1))

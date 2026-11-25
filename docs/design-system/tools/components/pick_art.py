@@ -34,8 +34,8 @@ def platforms(cur="Instagram", label="Platform"):
 INSTA_CAP = ("Community Pick: Easter Sunrise 5K\n\n" + NOTE + "\n\nSat, Apr 18 at 6:45 AM\nMartin Goodman Trail, Marilyn Bell Park\n"
              "Free. Register at the link in bio.\n\n#ChristianFitness #CommunityPick #TorontoFitness #FaithAndFitness")
 WA_CAP = ("*Community Pick: Easter Sunrise 5K*\n_" + NOTE + "_\n\nSat, Apr 18 at 6:45 AM\nMartin Goodman Trail, Marilyn Bell Park\nFree\n\n"
-          "Register: https://christianfitness.ca/e/sunrise-5k")
-SLACK_CAP = ("*Community Pick:* &lt;https://christianfitness.ca/e/sunrise-5k|Easter Sunrise 5K&gt;\n" + NOTE
+          "Register: https://www.christian.fitness/e/sunrise-5k")
+SLACK_CAP = ("*Community Pick:* &lt;https://www.christian.fitness/e/sunrise-5k|Easter Sunrise 5K&gt;\n" + NOTE
              + "\nSat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park")
 F = "community-pick-sunrise-5k"
 
@@ -44,7 +44,7 @@ INSTA = (platforms() + '<div class="pick-assets"><div class="assets assets--inst
          + "</div>" + caption(INSTA_CAP) + "</div>")
 FACEBOOK = (platforms("Facebook", "Platform (Facebook)") + '<div class="pick-assets">' + asset("Link image · 1200 × 630", f"{F}-facebook.png", "landscape")
             + caption("This week’s Community Pick: Easter Sunrise 5K.\n\n" + NOTE + "\n\nSat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park\n"
-                      "Free, 58 spots left.\n\nRegister: https://christianfitness.ca/e/sunrise-5k") + "</div>")
+                      "Free, 58 spots left.\n\nRegister: https://www.christian.fitness/e/sunrise-5k") + "</div>")
 WHATSAPP = (platforms("WhatsApp", "Platform (WhatsApp)") + '<div class="pick-assets"><div class="assets assets--pair">'
             + asset("Image · 1080 × 1080", f"{F}-whatsapp.png", "square")
             + caption(WA_CAP, "Asterisks and underscores format as bold and italic in WhatsApp.") + "</div></div>")
@@ -53,7 +53,7 @@ SLACK_PREVIEW = ('<div class="card card--pad-sm slack-preview" aria-label="How t
                  '<p><strong>Christian Fitness</strong> <span class="muted">9:02 AM</span></p>'
                  '<p><strong>Community Pick:</strong> <span class="slack-preview__link">Easter Sunrise 5K</span></p>'
                  f'<p>{NOTE}</p><p>Sat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park</p>'
-                 f'<div class="slack-preview__unfurl"><p class="slack-preview__site">christianfitness.ca</p>{art("landscape")}</div></div></div>')
+                 f'<div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{art("landscape")}</div></div></div>')
 SLACK = (platforms("Slack", "Platform (Slack)") + '<div class="pick-assets">' + SLACK_PREVIEW + '<div class="assets assets--pair">'
          + asset("Unfurl image · 1200 × 630", f"{F}-slack.png", "landscape")
          + caption(SLACK_CAP, "Slack formatting: the title becomes a link.") + "</div></div>")
