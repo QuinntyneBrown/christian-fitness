@@ -27,7 +27,7 @@ az containerapp revision list -g rg-christian-fitness -n ca-christian-fitness -o
 az containerapp revision activate -g rg-christian-fitness -n ca-christian-fitness --revision <name>
 ```
 
-## Story shell (planned, ADR 0063)
+## Story shell (planned, ADR 0073)
 
 The story-preview slice will configure the member nginx host to proxy `/stories/*` to the
 anonymous API shell endpoint before the SPA fallback. The API container must have the built

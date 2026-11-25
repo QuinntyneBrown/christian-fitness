@@ -80,7 +80,7 @@ published stories.
 ### Christian Fitness API
 
 - **Story shell endpoint** — nginx proxies direct member-origin requests for `/stories/*` to an
-  `[AllowAnonymous]` API endpoint before the SPA fallback (ADR 0063). It resolves the slug and
+  `[AllowAnonymous]` API endpoint before the SPA fallback (ADR 0073). It resolves the slug and
   checks publication before responding. For a current Published story it fills the built member
   shell's title, description, Open Graph and Twitter title, description and lead-image tags, and
   canonical link using HTML-encoded values; absolute image and canonical URLs use the configured
@@ -191,7 +191,7 @@ API reads the database and the image store.
 ### Behaviour — open a story
 
 For a direct request, the story shell endpoint first returns preview metadata, a server redirect,
-or a 404 shell as described above (ADR 0063). The diagram below shows the subsequent SPA flow:
+or a 404 shell as described above (ADR 0073). The diagram below shows the subsequent SPA flow:
 the page shows skeletons, asks for the story and shows either the story, with a former slug
 replaced for in-app navigation, or the not-found view; a shown story then counts one read
 (`L2-061` AC1, AC2, AC4, AC6–AC11).
