@@ -49,7 +49,7 @@ Every name, tagline, description, focus tag, relation and website is plain text,
 - **Hosts.** The Hosting section depends on a `HostListingId` on events and series and on the event series entity of the event series designs. Who sets a host is not specified (browse-directory design, Open questions).
 - **Website without https.** `L2-055` AC5 renders only an `https` address as a link. Whether an `http` or scheme-less website shows as text or not at all is `<TO SUPPLY>`; showing it as text is proposed.
 - **Connections.** No requirement or mock says how connections are created or edited. They are seed data until a staff screen is specified.
-- **Error copy.** The mock's error says "We couldn't reach Christian Fitness" while the listing "Christian Fitness" is itself in the directory; the copy is kept as drawn.
+- **Error copy.** A load failure says "We couldn't load this profile. Check your connection and try again."
 
 ## Requirements
 

@@ -52,7 +52,7 @@ else No member account
   actrl -> reader : via GetPendingGoogleAccountQuery
   reader --> actrl : email, name
   actrl --> acc : 200 PendingGoogleAccountDto
-  page --> actor : "Finish your profile": email "Signing in with Google", Change,\nDisplay name filled from Google, home church, interests (AC8)
+  page --> actor : "Finish your profile": email "Signing in with Google", Change,\nName filled from Google, home church, interests (AC8)
   actor -> page : Create profile
   page -> page : validateJoin name rule; nothing sent when invalid
   page --> actor : "Creating your profile…", disabled

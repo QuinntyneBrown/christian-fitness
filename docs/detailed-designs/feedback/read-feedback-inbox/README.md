@@ -42,7 +42,7 @@ This feature covers the staff side: the Feedback screen of the admin console (mo
 - **Christian Fitness sender (resolved, ADR 0065).** Direct messages "from Christian Fitness" come from a seeded system member, idempotent in `cf seed`, that cannot sign in and cannot be replied to (`system_account`). The reply text is "Reply to your feedback:" and, after a line break, the Admin's text, rendered as text.
 - **Replies kept.** No requirement says whether a reply's text is kept with the note or shown later. A direct-message reply exists in the conversation; an email reply exists only in the mailbox. `<TO SUPPLY>`.
 - **Email reply.** The From and Reply-To of a reply email (the relay sends as `no-reply@christian.fitness`, ADR 0047) and whether the member can answer it are `<TO SUPPLY>`.
-- **Toast wording.** The `replied` mock's toast reads "He gets it by email."; the system records no gender, so the copy should name the member or the channel only ("Michael gets it by email.").
+- **Toast wording.** For an email reply, the toast says "Reply sent. {Name} gets it by email.", rendering the member's name as text; for a direct message it confirms the reply without claiming an email was sent.
 - **Kind names.** The inbox mock's Something's broken, Content and Praise differ from the member form's names (see [send feedback](../send-feedback/README.md)).
 - **Screenshot.** No state of the mock shows a screenshot; a mock state is `<TO SUPPLY>`.
 - **Deleted members.** A note's sender may be deleting or erased ([download and delete data](../../preferences/download-and-delete-data/README.md)); the list shows "A former member" until erasure removes the note, and a reply to a deleting member is refused (code `<TO SUPPLY>`).
