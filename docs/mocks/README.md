@@ -216,13 +216,13 @@ navigation, say) must be made in the generator and in those files.
    Moderator. Do writers get accounts and a role, or do Admins write under any byline?
 8. **Moderators.** Which of the new areas may a Moderator open? The mocks give them none; Feedback
    is the likely one.
-9. **Claiming a listing.** Resolved (L2-075): `/claim/{token}`, single-use, 14 days, signed in first, with
+9. **Claiming a listing.** Resolved (L2-078): `/claim/{token}`, single-use, 14 days, signed in first, with
    Publish my listing and This isn't me (mock `claim-listing`). A suggestion with no email goes to the
    sender by direct message when it is a self-submission, otherwise it becomes a staff-managed listing.
    Staff resending an expired link has no admin mock yet.
 10. **Buttons with nothing behind them.** New series, Edit details and Add a date (Event series),
     and Preview (story editor) have no screen or drawer in the frames. The owner's Edit listing is now
-    drawn (L2-076, mock `owner-listing-editor`); staff's Edit in Listed still opens no screen.
+    drawn (L2-079, mock `owner-listing-editor`); staff's Edit in Listed still opens no screen.
 11. **Declining a suggestion.** Instant in the frame, with no reason; declining an application asks
     for one (L2-025 AC3). Should this?
 12. **What the legal pages promise.** They state things the system must then do: data stored in

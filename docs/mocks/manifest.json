@@ -1025,7 +1025,7 @@
       "title": "Claim a listing",
       "group": "Public",
       "route": "/claim/:token",
-      "source": "Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-075.",
+      "source": "Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-078.",
       "requirements": [],
       "states": [
         "default",
@@ -1048,7 +1048,7 @@
       "title": "Owner's listing editor",
       "group": "Member app",
       "opens_from": "listing-profile",
-      "source": "Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-076.",
+      "source": "Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-079.",
       "requirements": [],
       "states": [
         "default",

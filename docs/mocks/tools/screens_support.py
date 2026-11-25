@@ -589,7 +589,7 @@ def _():
 
 
 # ===========================================================================
-# Claim a listing (L2-075) and the owner's listing editor (L2-076)
+# Claim a listing (L2-078) and the owner's listing editor (L2-079)
 # ===========================================================================
 CLAIM_EXPIRY = "December 9"
 
@@ -657,7 +657,7 @@ def claim_signed_out() -> str:
 
 
 s = screen("claim-listing", "page", "Claim a listing", route="/claim/:token", group="Public",
-           source="Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-075.",
+           source="Derived: approving a suggestion \"sends them a link to claim and publish their listing\" (L2-073 AC6); specified by L2-078.",
            not_applicable={"empty": "One listing behind one link, not a collection."})
 
 
@@ -757,7 +757,7 @@ def owner_editor(*, invalid: bool = False, busy: bool = False, failed: bool = Fa
 
 
 s = screen("owner-listing-editor", "dialog", "Owner's listing editor", opens_from="listing-profile",
-           source="Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-076.")
+           source="Derived: Listed's Edit button and the owner's Edit listing button (docs/mocks/README.md open question 10); specified by L2-079.")
 
 
 @s("default", "The owner edits their listing: name, about, website, photo, focus tags and contact; focus on the first field.")
