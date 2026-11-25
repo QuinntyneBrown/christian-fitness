@@ -52,7 +52,7 @@ client -> ctrl : POST /api/admin/directory/suggestions/{id}/decline
 ctrl -> h : Send DeclineSuggestionCommand (audited)
 h -> ent : Decline(reason?, admin, now)
 ent --> h : Declined, or 409 suggestion_decided
-h -> out : TellSender, reason only where written
+h -> out : TellSender, never the reason
 out -> db : Add DirectMessage to the sender
 h -> db : Save; audit entry suggestion.declined; suggested party not contacted (L2-073 AC8)
 db --> h : Committed

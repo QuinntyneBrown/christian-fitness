@@ -239,7 +239,11 @@
         "history",
         "loading",
         "empty",
-        "error"
+        "error",
+        "system",
+        "system-refused",
+        "system-loading",
+        "system-error"
       ]
     },
     {

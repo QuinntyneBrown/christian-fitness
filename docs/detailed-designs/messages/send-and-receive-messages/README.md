@@ -128,3 +128,15 @@ history by the other member's id. The same page, thread and composer serve it. `
 other member's id. History is `GET /api/messages/{memberId}/messages?before=` and the read marker
 `POST /api/messages/{memberId}/read` (a `ChatReadMarkers` row keyed by the other member). The profile's
 Message button starts it; the list's `direct` rows open it. A member who is both a Services professional and a directory listing's owner has one conversation per other member, so Message from either profile opens the same thread (ADR 0061).
+
+## The Christian Fitness system account (ADR 0065)
+
+Suggestion outcomes, claim links and feedback replies reach members as ordinary `DirectMessage`s
+from a seeded system member, "Christian Fitness" (`SystemMembers.ChristianFitnessId`, created
+idempotently by `cf seed`, `IsSystem`, no credentials, refused by every sign-in path, absent from
+member search and lists, seal as its avatar). Only application services send as it, through
+`SendDirectMessageCommand`. `SendDirect` and the REST send answer `system_account` (hub answer; 403
+ProblemDetails) when a member targets it, so the thread (`ChatPage`, direct route) shows the
+`composer--note` "This account doesn't read replies. To reach the team, use Send feedback." in place of
+the composer, with a link to `/feedback`. Mock states: `messages/system`, `system-refused`,
+`system-loading`, `system-error`.
