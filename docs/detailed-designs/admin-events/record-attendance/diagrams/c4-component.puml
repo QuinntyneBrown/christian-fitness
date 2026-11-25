@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record event attendance
+
+Container_Boundary(admin, "Admin web app") {
+  Component(page, "EventAttendancePage", "Angular page", "Tabs, Came boxes, status line, toast")
+  Component(store, "AttendanceTracker", "Helper with unit tests", "Optimistic tick, revert on failure")
+  Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "attendance, setAttendance")
+}
+Container_Boundary(api, "Christian Fitness API") {
+  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AttendanceStaff policy")
+  Component(list, "GetEventAttendanceHandler", "MediatR handler", "Registered members and Came")
+  Component(set, "SetAttendanceHandler", "MediatR handler", "Started rule, saves, audits")
+  Component(rule, "AttendanceRules", "Domain service", "Started rule, session counts")
+  Component(series, "GetSeriesHandler", "MediatR handler", "SessionDto.Attended: true, false or null")
+}
+ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Persistent state")
+
+Rel(page, store, "Uses")
+Rel(store, svc, "Calls")
+Rel(svc, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, list, "Sends GetEventAttendanceQuery")
+Rel(ctrl, set, "Sends SetAttendanceCommand")
+Rel(set, rule, "Checks")
+Rel(list, db, "Reads", "EF Core")
+Rel(set, db, "Writes attendance and audit entry", "EF Core")
+Rel(series, db, "Reads attendance", "EF Core")
+@enduml

@@ -1,4 +1,19 @@
-from dslib import ex, kbd, mock, na
+from dslib import cf_ui, ex, icon, kbd, mock, na, seal
+
+SIGNIN = (f'<div class="signin" style="min-height: auto;"><header class="signin__header">{cf_ui.lockup("#")}</header>'
+          '<main class="signin__main" style="padding-bottom: var(--space-6);"><div class="signin__card"><p class="display auth__title">Welcome back</p>'
+          '<p class="auth__lead">Sign in to see your events, groups and messages.</p>'
+          f'<div class="auth__sso">{cf_ui.google_button(to="#")}{cf_ui.or_divider()}</div>'
+          '<form class="auth__fields auth__fields--after-sso" novalidate>'
+          + cf_ui.field("Email", "signin-email", "grace@example.com", type_="email", autocomplete="email")
+          + '<button class="btn btn--neutral btn--lg btn--block auth__submit" type="submit">Sign in</button></form>'
+          '<p class="auth__alt">New to Christian Fitness? <a href="#">Create a profile</a></p></div></main></div>')
+AUTH = ('<div class="auth" style="min-height: auto;"><aside class="auth__brand" aria-label="Christian Fitness">'
+        f'{cf_ui.lockup("#", light=True)}<ul class="auth__points"><li>{icon("check")}Chat with your event groups</li></ul></aside>'
+        '<main class="auth__main"><div class="auth__form"><p class="display auth__title">Create your profile</p></div></main></div>')
+STAFF = (f'<div class="staff" style="min-height: auto;"><div class="staff__card"><div class="staff__brand">{seal("signin", decorative=True)}<div>'
+         '<p class="staff__name">Christian Fitness</p><p class="admin-eyebrow">Admin console</p></div></div>'
+         '<p class="display staff__title">Staff sign in</p><p class="staff__lead">Use your Google Workspace account.</p></div></div>')
 
 BOX = '<div class="card card--pad-sm muted">{t}</div>'
 
@@ -12,6 +27,7 @@ SPEC = {
 <li><b>Grid</b> (<code>.grid</code>, <code>.grid--cards</code>): the column grid, and an auto-fill card grid.</li>
 <li><b>Stack</b> (<code>.stack</code>, <code>--sm</code>, <code>--lg</code>, <code>.stack-5</code>, <code>.aside-stack</code>): vertical rhythm. <code>.aside-stack</code> is 40px between panels; <code>--tight</code> 32px (listing profile), <code>--snug</code> 16px (the newsletter's send column, where the buttons belong to the card above).</li>
 <li><b>Cluster</b> (<code>.cluster</code>): a wrapping row with an 8px gap for chips, buttons and meta.</li>
+<li><b>Page shells</b>: the whole-screen layouts for signed-out pages. <code>.auth</code> (<code>AuthLayout</code>): a brand column and a form column (Join and the password screens). <code>.signin</code> (the sign-in card): a header with the lockup over one centred card on the canvas (member Sign in). <code>.staff</code> (<code>StaffLayout</code>): one centred card on the chrome colour (staff sign in).</li>
 </ul>
 <p>See the <a href="../foundations/layout.html">Layout foundation</a> for breakpoints, columns and gutters.</p>""",
     "anatomy": {
@@ -26,6 +42,10 @@ SPEC = {
     + ex('<div class="split split--flush split--picker" style="width: 100%;">' + BOX.format(t="Series (17.5rem)") + BOX.format(t="Chosen series (1fr)") + '</div>', "<code>.split--picker</code>; add <code>--picker-wide</code> for an 18.75rem list with a 24px gap and top margin.", True)
     + ex('<div class="split split--flush split--pick" style="width: 100%;">' + BOX.format(t="Event, note, Create (21.25rem)") + BOX.format(t="Assets (1fr)") + '</div>', "<code>.split--pick</code>: a form, then what it makes.", True)
     + ex('<div class="split split--flush split--inbox" style="width: 100%;">' + BOX.format(t="Feedback list (21.25rem)") + BOX.format(t="Open note (1fr)") + '</div>', "<code>.split--inbox</code>: list, then detail, 24px apart.", True)
+    + "<h3>Page shells</h3>"
+    + ex(AUTH, "<code>.auth</code>: brand column (from 1024px) beside the form column; AuthLayout.", True)
+    + ex(SIGNIN, "<code>.signin</code>: lockup header, then one <code>.signin__card</code> (<code>--layout-form-max</code>) centred on the canvas; the member sign-in card.", True, mod="canvas")
+    + ex(STAFF, "<code>.staff</code>: one <code>.staff__card</code> centred on the chrome colour; StaffLayout.", True)
     + "<h3>Aside stacks</h3>" + ex('<div class="aside-stack aside-stack--snug" style="width: 100%;">' + BOX.format(t="Send card") + BOX.format(t="Preview · Send me a test") + '</div>'
                                   '<div class="aside-stack aside-stack--tight" style="width: 100%;">' + BOX.format(t="Hosting") + BOX.format(t="Follow") + '</div>',
                                   "<code>--snug</code> (16px) and <code>--tight</code> (32px); the default is 40px.", True)
@@ -39,6 +59,7 @@ SPEC = {
 <li>Mobile first: every split is one column until <code>--layout-breakpoint-lg</code> (1024px).</li>
 <li>Console splits keep their gap at every width (32px for builder, picker and pick; 24px and a 24px top margin for picker-wide and inbox); their fixed first or last column only appears from 1024px. Below it the list comes first, so on a phone the picker, form or inbox list sits above the record.</li>
 <li>Container margins grow from 16px to 24px at 640px.</li>
+<li><code>.signin</code> is a column at every width: the header gains side padding at 640px, and the card is top-aligned on phones (so the keyboard does not hide the form) and centred vertically from 640px; the card's padding grows from 28px to 40px at 640px. <code>.auth</code> adds its brand column at 1024px.</li>
 <li><code>.grid--cards</code> adds columns as space allows, with no breakpoints.</li>
 <li>Children of splits and stacks set <code>min-width: 0</code> so tables and long words scroll or wrap inside them.</li>
 </ul>""",
@@ -47,7 +68,7 @@ SPEC = {
         "pattern": "<p>Layout never reorders content visually away from DOM order: the aside follows the main column on phones and sits to its right on desktop, matching reading and tab order.</p>",
         "keys": [(kbd("Tab"), "Follows DOM order, which matches the visual order.")],
         "focus": "<p>Not applicable; children own focus.</p>",
-        "labelling": "<p>Use landmarks (<code>&lt;main&gt;</code>, <code>&lt;aside aria-label&gt;</code>) on the elements, not the primitives.</p>",
+        "labelling": "<p>Use landmarks (<code>&lt;main&gt;</code>, <code>&lt;aside aria-label&gt;</code>) on the elements, not the primitives. Each page shell holds one <code>&lt;main id=\"main\"&gt;</code> and the card's <code>&lt;h1&gt;</code>; the sign-in header carries the lockup link only.</p>",
         "pairs": [],
         "motion": "<p>None.</p>",
         "touch": "<p>Cluster and stack gaps keep adjacent targets at least 8px apart.</p>",
@@ -68,6 +89,8 @@ SPEC = {
         ("Stack gaps", "--space-2 / --space-4 / --space-8", "value"),
         ("Cluster gap", "--space-2", "value"),
         ("Container margins", "--space-4 / --space-6", "value"),
+        ("Sign-in card width / radius / surface", "--layout-form-max / --radius-xl / --color-bg-surface", "value"),
+        ("Sign-in canvas / padding", "--color-bg-canvas / --space-7 / --space-10", "value"),
     ],
     "code": {
         "snippet": '''<main class="container page">
@@ -84,6 +107,8 @@ SPEC = {
             ("<code>.grid</code> <code>.grid--cards</code> <code>.grid__span-full</code>", "Column grid, auto card grid, full-width child."),
             ("<code>.stack</code> <code>--sm</code> <code>--lg</code> <code>.stack-5</code> <code>.aside-stack</code>", "Vertical rhythm."),
             ("<code>.cluster</code>", "Wrapping row."),
+            ("<code>.signin</code> <code>__header</code> <code>__main</code> <code>__card</code>", "Sign-in card shell: lockup header, centred main, card on the canvas; the card holds the <code>auth__*</code> title, lead, SSO, fields and alternative link."),
+            ("<code>.auth</code> <code>__brand</code> <code>__main</code> <code>__form</code>; <code>.staff</code> <code>__card</code> <code>__brand</code>", "AuthLayout and StaffLayout.")
         ],
     },
     "sources": {
@@ -98,6 +123,9 @@ SPEC = {
             mock("pages/admin-community-pick/default", "split--pick"),
             mock("pages/admin-feedback/default", "split--inbox"),
             mock("pages/listing-profile/default", "aside-stack--tight"),
+            mock("pages/sign-in/default", "signin card"),
+            mock("pages/join/default", "auth"),
+            mock("pages/admin-sign-in/default", "staff"),
         ],
         "drift": "<code>.stack</code>, <code>.grid</code> and <code>.grid--cards</code> are core primitives with no mock usage; mocks space with one-off margins (<code>.mt-3</code>, <code>.mt-section</code>). The console splits repeat their gap inside and outside the 1024px query (<code>.split--picker-wide</code> and <code>--inbox</code> twice); the declarations inside the query are redundant and can go.",
     },

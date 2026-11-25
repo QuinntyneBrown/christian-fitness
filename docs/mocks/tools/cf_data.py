@@ -2,6 +2,9 @@
 shared/cf/data.ts, shared/cf/news.ts and shared/cf/admin/data.ts). "Today" is Wednesday, April 15, 2026,
 8:45 AM, Toronto: Grace's next event, the Easter Sunrise 5K, is in 3 days."""
 
+import re
+from pathlib import Path
+
 TODAY = "Wednesday, April 15, 2026"
 
 ME = {
@@ -167,11 +170,12 @@ DRAFT_EVENT = {
 
 # ---------------------------------------------------------------------------
 # Event series (prototype shared/cf/data.ts `series`). A session is
-# (n, weekday, month, day, topic, status, attended, event id).
+# (n, weekday, month, day, topic, status, attended, event id). attended is True (came), False (did not)
+# or absent (attendance not recorded).
 # ---------------------------------------------------------------------------
 def _sessions(rows):
     return [{"n": i + 1, "weekday": r[0], "month": r[1], "day": r[2], "topic": r[3], "status": r[4],
-             "attended": len(r) > 5 and r[5] is True, "event": r[6] if len(r) > 6 else None} for i, r in enumerate(rows)]
+             "attended": r[5] if len(r) > 5 else None, "event": r[6] if len(r) > 6 else None} for i, r in enumerate(rows)]
 
 
 SERIES = [
@@ -183,7 +187,7 @@ SERIES = [
         "summary": "Eight weeks from walking to running a full 5K, together. Each week builds on the last, so the group stays together from week one to race day.",
         "sessions": _sessions([
             ("Tue", "Apr", "07", "Walk, run 60 seconds, repeat. Meet your pace group", "past", True),
-            ("Tue", "Apr", "14", "Run 90 seconds, walk 2 minutes", "past", True),
+            ("Tue", "Apr", "14", "Run 90 seconds, walk 2 minutes", "past", False),
             ("Tue", "Apr", "21", "Same intervals, six times through", "next", False, "c25k-week-3"),
             ("Tue", "Apr", "28", "First 5-minute run", "upcoming"),
             ("Tue", "May", "05", "Two 8-minute runs", "upcoming"),
@@ -383,9 +387,9 @@ MOST_READ = [
 NEWSLETTER = {"name": "The Abundant Weekly", "cadence": "Every Saturday, 7 AM", "readers": "6,800", "issue": 48,
               "date": "Saturday, April 11, 2026"}
 ADD_ONS = [
-    ("events", "Event alerts", "New runs, workouts and retreats the day they post"),
-    ("plan", "Training plan of the week", "One short session to do on your own, Mondays"),
-    ("devotion", "Morning devotion", "Two minutes of scripture for body and spirit, weekdays"),
+    ("events", "Event alerts", "New runs, workouts and retreats. Not sending yet."),
+    ("plan", "Training plan of the week", "A short session to do on your own. Not sending yet."),
+    ("devotion", "Morning devotion", "Scripture for body and spirit. Not sending yet."),
 ]
 FEEDS = [
     ("all", "All stories", "https://www.christian.fitness/feed", "~20 a week"),
@@ -452,31 +456,38 @@ SUGGESTIONS = [
      "note": "Physio clinic owned by a couple from The Meeting House. They gave our run club a free injury clinic last fall.",
      "passed": ()},
 ]
-FEEDBACK_KIND_ICON = {"Idea": "lightbulb", "Something’s broken": "bug", "Content": "pen-line", "Praise": "heart"}
+FEEDBACK_KIND_ICON = {"Idea": "lightbulb", "Something’s off": "bug", "Correction": "pen-line", "Thanks": "heart"}
 FEEDBACK = [
-    {"id": "f1", "kind": "Something’s broken", "from": "Michael Chen", "initials": "MC", "email": "mchen.runs@outlook.com",
-     "page": "Events › Easter Sunrise 5K", "device": "iPhone · Safari 18", "when": "35 min ago", "status": "New",
+    {"id": "f1", "kind": "Something’s off", "from": "Michael Chen", "initials": "MC", "email": "mchen.runs@outlook.com",
+     "page": "Events › Easter Sunrise 5K", "device": "iOS · Safari 18", "when": "35 min ago", "status": "New",
      "text": "The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.",
      "hint": "Let them know we can reproduce it and when to expect a fix"},
-    {"id": "f2", "kind": "Content", "from": "Adaeze Kalu", "initials": "AK", "email": "adaeze.k@yahoo.ca",
+    {"id": "f2", "kind": "Correction", "from": "Adaeze Kalu", "initials": "AK", "email": "adaeze.k@yahoo.ca",
      "page": "Story › Twelve GTA churches will run the Toronto Half", "device": "Android · Chrome 124", "when": "2 hours ago", "status": "New",
      "text": "Small correction: RCCG Jesus House is one of the twelve churches but isn’t in the list in the story. Pastor Femi confirmed last week.",
      "hint": "Thank them and say when the correction is live"},
     {"id": "f3", "kind": "Idea", "from": "Grace Thompson", "initials": "GT", "email": "grace.thompson@gmail.com",
-     "page": "Event series › Couch to 5K", "device": "Mac · Chrome 124", "when": "Yesterday", "status": "Replied",
+     "page": "Event series › Couch to 5K", "device": "macOS · Chrome 124", "when": "Yesterday", "status": "Replied",
      "text": "Could the series page show which week of the plan each session is? I missed week 3 and wasn’t sure where to pick back up.",
      "hint": "Thank them, and tell them honestly whether it’s on the list"},
-    {"id": "f4", "kind": "Praise", "from": "Priya Nair", "initials": "PN", "email": "priya.nair@gmail.com",
-     "page": "Newsletter", "device": "iPhone · Mail", "when": "2 days ago", "status": "Resolved",
+    {"id": "f4", "kind": "Thanks", "from": "Priya Nair", "initials": "PN", "email": "priya.nair@gmail.com",
+     "page": "Newsletter", "device": "iOS · Safari 18", "when": "2 days ago", "status": "Resolved",
      "text": "The verse at the end of the newsletter has become my Saturday long-run mantra. Thank you for that.",
      "hint": "Say thanks, and let them know who you passed it on to"},
 ]
 
 # Preferences (prototype frame Manage Preferences)
 PREF_AREAS = ["Toronto East", "Toronto West", "Downtown Toronto", "Scarborough", "North York", "Mississauga", "Brampton", "Durham"]
-PREF_INTERESTS = ["Running", "Strength", "Basketball", "Nutrition", "Mobility", "Walking", "Retreats", "Pickleball"]
 
-INTERESTS = ["Running", "Strength", "Basketball", "Walking groups", "Mobility", "Nutrition", "Cycling", "Retreats"]
+def _interest_labels():
+    """The interest labels, read from INTERESTS in frontend/projects/api/src/account/interests.ts,
+    the single source of the list (ADR 0076)."""
+    src = (Path(__file__).resolve().parents[3] / "frontend/projects/api/src/account/interests.ts").read_text()
+    return re.findall(r"\{ key: '[a-z-]+', label: '([^']+)' \}", src)
+
+
+INTERESTS = _interest_labels()
+PREF_INTERESTS = INTERESTS
 EVENT_CATEGORIES = ["All", "Run", "Workout", "Basketball", "Mobility", "Workshop", "Retreat"]
 SERVICE_CATEGORIES = ["All", "Training", "Nutrition", "Physio", "Coaching", "Counselling"]
 IMAGE_SIZES = {"run": (1376, 768), "bootcamp": (1200, 896), "hoops": (1200, 896), "stretch": (1200, 896), "trainer": (1024, 1024),

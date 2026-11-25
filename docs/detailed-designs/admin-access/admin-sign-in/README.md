@@ -149,9 +149,10 @@ for the team's domain in Google Workspace (`L2-046` AC2).
 - **Session-expired wording after 12 hours.** A session ended by the 12-hour maximum also answers
   `session_expired` and says "You were signed out after 12 hours. Sign in again to continue." (ADR 0062,
   mock `session-expired`).
-- **Not configured, too many attempts and suspended staff.** No mock state of Staff sign in shows
-  the start refused for a missing setting (`L2-018` AC10), a 429 (`L2-049` AC7) or a suspended staff
-  account; each needs a mock state, or a stand-in in an ADR, before its slice.
+- **Not configured, too many attempts and suspended staff.** Mock states `not-configured`
+  ("Sign-in isn't set up yet. Ask the person who runs Christian Fitness.", `L2-018` AC10), `limited`
+  ("Too many attempts. Try again in a few minutes.", `L2-049` AC7) and `suspended` ("This account can't
+  open the console.") show each refusal in a focused alert above the button.
 - **The sign-in pause.** `L2-018` no longer counts failed staff sign-ins with the member sign-in's
   window (`L2-004` AC3); with no staff password, staff sign-in records no `SignInFailure`.
 

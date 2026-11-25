@@ -46,7 +46,7 @@ The feature is a vertical slice from the Events screen to the database.
 - Search and the "Only events I'm going to" filter are future work under `L2-075` and `L2-076`; ADR 0027 and ADR 0030 describe the earlier category-only slices, not the expanded scope.
 - **Session number.** Whether "Session <n> of <total>" counts cancelled sessions, and whether `number` is stored on the event or derived from date order, is `<TO SUPPLY>` by [browse event series](../browse-event-series/README.md); this feature shows the numbers it is given.
 - **Host on the card.** `L2-009` asks for no host on the card and the mock draws none; the host shows on the event's detail ([view event detail](../view-event-detail/README.md)). `Event.HostListingId` is required; the migration backfills existing events to the Christian Fitness team listing (ADR 0067).
-- **View switch component.** The `segmented` block has no page in `docs/design-system/components/`. It is a navigation of two links, close to `tabs` but with `aria-current="page"` rather than tab semantics. A design-system page for it should come before the component is built, as `AGENTS.md` requires.
+- **View switch component (resolved).** The `segmented` block is the design-system page `segmented-control`: a navigation of two links that carry `aria-current="page"`, not tab semantics. The component is built from that page.
 - **Code behind the requirement.** The page's subtitle still reads "Posted by the Christian Fitness team. Free unless marked.", there is no view switch, `EventSummaryDto` carries no series fields, and `Event` has no host or series. Each is work for the next slices.
 
 ## Requirements

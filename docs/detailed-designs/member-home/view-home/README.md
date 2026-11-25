@@ -3,12 +3,16 @@
 ## Overview
 
 _Home_ is the first screen a member sees after signing in, at `/home`. It gathers
-what matters now: the next event the member is registered for, up to three suggested
-events and the unread message count. It belongs to the member-home subsystem.
+what matters now: the next event the member is registered for, "Coming up" (the next
+three registrations, with See all), up to three suggested events and the unread message count. It belongs to the member-home subsystem.
 
 - **next registered event** — earliest upcoming event the member is registered for
-- **suggested event** — upcoming published event whose category matches one of the
-  member's interests and for which the member is not registered
+- **coming up** — the member's own next three upcoming registrations, soonest first, with
+  See all (`L2-007` AC6); not ordered by area, interests or follows
+- **suggested event** — upcoming published event the member is not registered for, ordered
+  by ADR 0076: (1) the member's suggestion area or GTA-wide, then within those (2) events of
+  a followed listing (new ones published after the follow and not yet seen), (3) events whose
+  category matches an interest, (4) the rest, ties by date
 - **unread message count** — number of messages in the member's conversations they
   have not read
 
@@ -52,7 +56,7 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 
 | L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                             |
 | -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `L2-007` | `L1-004`     | Given a signed-in member, when they open Home, then it greets them by first name and shows their next registered event, up to three suggested events matching their interests and their unread message count; with no registered events the next-event area invites them to browse Events; when the home data request fails a generic error with Try again is shown and Try again reloads it (acceptance criteria 1–3). |
+| `L2-007` | `L1-004`     | Given a signed-in member, when they open Home, then it greets them by first name and shows their next registered event, up to three suggested events ordered as `L2-065` AC7 states and their unread message count; with no registered events the next-event area invites them to browse Events; when the home data request fails a generic error with Try again is shown and Try again reloads it (acceptance criteria 1–3). `L2-007` AC6 adds "Coming up". |
 
 ## Diagrams
 

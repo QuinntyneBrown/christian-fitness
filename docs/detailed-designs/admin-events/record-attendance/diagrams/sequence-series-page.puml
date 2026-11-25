@@ -1,0 +1,32 @@
+@startuml
+title UML sequence behaviour — Member reads attendance on the series page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Member web app" #E0F2FE
+  participant "EventSeriesPage" as page
+  participant "sessionRowViewOf" as view
+end box
+box "Backend — Christian Fitness API" #D1FADF
+  participant "SeriesController" as ctrl
+end box
+box "Backend — Christian Fitness Application and Domain" #ECFDF3
+  participant "GetSeriesHandler" as handler
+end box
+box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  database "Christian Fitness database" as db
+end box
+actor -> page : Open the series
+page -> ctrl : GET /api/events/series/{id}
+ctrl -> handler : Send GetSeriesQuery
+handler -> db : Read sessions, the caller's registrations and Attendance
+db --> handler : Rows
+handler --> ctrl : SeriesDetailDto, Attended true, false or null per session
+ctrl --> page : 200 JSON
+page -> view : Row end for each past session
+view --> page : You came, Missed, Not recorded or Done
+page --> actor : Rows and "Came to n of m" over recorded sessions (L2-080 AC7)
+@enduml

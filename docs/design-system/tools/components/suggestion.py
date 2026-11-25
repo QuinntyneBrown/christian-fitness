@@ -26,7 +26,7 @@ def view(uid="sg", passed=3, decided="", busy=False):
                 + ("" if ok else f'<p class="suggestion__hint" id="{uid}-hint">Approve unlocks when all four checks pass.</p>'))
     return (f'<form class="card card--pad suggestion" novalidate aria-label="Suggestion ({uid})" style="width: 100%;">'
             '<p class="eyebrow eyebrow--sm">Instructor</p><h3 class="suggestion__name">Coach Marcus Delaney</h3>'
-            '<p class="muted">Mississauga · <a class="inline-link inline-link--ink" href="https://delaneyperformance.ca" target="_blank" rel="noopener noreferrer">'
+            '<p class="muted">Mississauga · <a class="link link--ink" href="https://delaneyperformance.ca" target="_blank" rel="noopener noreferrer">'
             f'delaneyperformance.ca {icon("external-link", "icon--xs")}<span class="visually-hidden"> (opens in a new tab)</span></a></p>'
             '<blockquote class="suggestion__note"><p>I run speed and agility for youth athletes and lead a men’s Bible study at Hope Church. Looking to list my Saturday clinics.</p></blockquote>'
             '<p class="suggestion__by">Submitted by the listing themselves</p>'
@@ -154,7 +154,7 @@ SPEC = {
         "snippet": '''<form class="card card--pad suggestion" novalidate>
   <p class="eyebrow eyebrow--sm">Instructor</p>
   <h2 class="suggestion__name">Coach Marcus Delaney</h2>
-  <p class="muted">Mississauga · <a class="inline-link inline-link--ink" href="https://delaneyperformance.ca" target="_blank" rel="noopener noreferrer">delaneyperformance.ca …<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+  <p class="muted">Mississauga · <a class="link link--ink" href="https://delaneyperformance.ca" target="_blank" rel="noopener noreferrer">delaneyperformance.ca …<span class="visually-hidden"> (opens in a new tab)</span></a></p>
   <blockquote class="suggestion__note"><p>I run speed and agility for youth athletes …</p></blockquote>
   <p class="suggestion__by">Submitted by the listing themselves</p>
   <fieldset class="suggestion__checks">

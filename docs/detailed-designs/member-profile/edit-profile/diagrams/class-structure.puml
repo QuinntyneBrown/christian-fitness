@@ -30,7 +30,6 @@ class UpdateProfileDto {
   +name: string
   +city: string|null
   +homeChurch: string|null
-  +showHomeChurch: boolean
   +bio: string|null
   +goals: string[]
   +interests: string[]
@@ -48,7 +47,6 @@ class UpdateProfileCommand {
   +string Name
   +string? City
   +string? HomeChurch
-  +bool ShowHomeChurch
   +string? Bio
   +IReadOnlyList<string> Goals
   +IReadOnlyList<string> Interests

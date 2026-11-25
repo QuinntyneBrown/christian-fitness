@@ -22,7 +22,7 @@ A visitor sees the masthead with "Sign in", "Join free" and the sections, Latest
 shows the lead story, the four headlines and the river; another section shows only its own stories
 under its name. The rail holds "Life to the full.", "Join the community", the next four upcoming
 events, the newsletter box and "Most read", above the John 10:10 verse and the footer. The stories
-and the events load and fail independently. A signed-in member who opens `/` is sent to Home. At
+and the events load and fail independently. A signed-in member who opens `/` is sent to Home. The landing page is for visitors and orders by date only; the area, follow and interest ordering is Home's (`L2-065` AC7; ADR 0076). At
 viewport XS everything stacks in one column; at LG and wider the lead sits beside the headlines and
 the river beside a rail that stays in view (`L2-002`).
 
@@ -128,7 +128,7 @@ The slice runs from the landing route to the stories and events tables. The mock
 - **`ListFrontPageStoriesQuery` / `ListFrontPageStoriesHandler`** — reads Published stories only,
   newest `PublishedAt` first, then `Id`. Without a section it answers the newest as the lead, the
   next four as headlines and the following ones as the river; with a section it answers only that
-  section's stories as the river. The river is bounded at `<TO SUPPLY>` stories (`L2-037`). An
+  section's stories as the river. The river is bounded at 60 stories, 12 at a time (`L2-037`). An
   unknown section is refused by `ListFrontPageStoriesValidator` with 400 `validation_failed`; the
   page never sends one, since `newsSectionOf` maps it to Latest. Drafts, stories in review,
   scheduled and unpublished stories never appear.
@@ -163,10 +163,12 @@ The slice runs from the landing route to the stories and events tables. The mock
   count out because no data backs it; `L2-001` AC5 does not name it. It stays out until a
   requirement states it.
 - **Most read states.** The mock shows "Most read" filled in every state, `loading` and `error`
-  included; `L2-001` states no loading, empty or failed state for it, and whether it loads with
-  the stories or on its own is open.
-- **River length.** `L2-001` AC2 says "the rest follow"; no count or paging is stated. A bound is
-  needed (`L2-037`).
+  included; `L2-001` states no loading, empty or failed state for it, and the mocks now draw
+  `loading` (skeleton), `most-read-empty` and `most-read-failed` (the section is hidden, nothing
+  else breaks). It loads with the stories request, not separately.
+- **River length.** `L2-001` AC2 says "the rest follow"; no count or paging is stated. The mocks show 12 stories, then
+  "More stories" loads 12 at a time, capped at 60 (`L2-037`): `more-stories`,
+  `more-stories-loading`, `more-stories-failed` and `river-capped`.
 - **Story links in the mock.** The mocks README records that stories do not open from the
   landing mock; `L2-001` AC2 makes every title lead to its page (`L2-061`), which this design
   follows.

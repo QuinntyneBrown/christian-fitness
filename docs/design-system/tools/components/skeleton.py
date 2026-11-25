@@ -83,8 +83,8 @@ SPEC = {
         "classes": [
             ("<code>.skeleton</code>", "Base block with shimmer."),
             ("<code>.skeleton--text</code> <code>--text-sm</code> <code>--title</code> <code>--title-lg</code>", "Lines."),
-            ("<code>.skeleton--avatar</code> <code>--avatar-xl</code> <code>--date</code> <code>--button</code> <code>--chip</code> <code>--bubble</code> <code>--tile</code> <code>--stat</code>", "Shapes."),
-            ("<code>.skeleton--block</code> <code>--image-16x8</code> <code>--image-16x9</code> <code>--image-banner</code>", "Images."),
+            ("<code>.skeleton--avatar</code> <code>--avatar-xl</code> <code>--avatar-profile</code> <code>--mark-xl</code> <code>--date</code> <code>--button</code> <code>--chip</code> <code>--bubble</code> <code>--tile</code> <code>--stat</code>", "Shapes."),
+            ("<code>.skeleton--block</code> <code>--image-16x8</code> <code>--image-16x9</code> <code>--image-banner</code> <code>--image-banner-wide</code>", "Images: the banner ratios are those of <code>.banner-image</code> and <code>.banner-image--wide</code> (16:9, 21:8 and 21:7 from 640px)."),
             ("<code>.skeleton-stack</code> <code>.w-40</code> … <code>.w-90</code>", "Line spacing and widths."),
             ('<code>aria-busy="true"</code>', "On the loading region."),
         ],
@@ -97,6 +97,6 @@ SPEC = {
             mock("pages/profile/loading", "profile hero"),
             mock("pages/admin-dashboard/loading", "stats, queue"),
         ],
-        "drift": "The shimmer used a raw <code>rgb()</code> per theme; it is now <code>--color-skeleton-shine</code>. Sizes were raw rem values; they are now multiples of <code>--space-1</code> and size tokens.",
+        "drift": "The shimmer used a raw <code>rgb()</code> per theme; it is now <code>--color-skeleton-shine</code>. Sizes were raw rem values; they are now multiples of <code>--space-1</code> and size tokens. Closed: the proportions now match the loaded parts: the date skeleton is the 52px height of <code>.date-tile</code>, the banner skeletons use the ratios of <code>.banner-image</code> and <code>--wide</code>, and the listing mark skeleton is the 112px <code>--avatar-profile</code> with the <code>.listing-mark--xl</code> radius.",
     },
 }

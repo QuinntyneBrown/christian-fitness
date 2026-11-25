@@ -41,7 +41,7 @@ else published
   ctrl --> client : 200 JSON
   client --> page : ListingProfileDto
   page -> page : websiteLinkOf(website): link only for https (L2-055 AC5)
-  page --> actor : listing-head, Hosting (series first, then events) or "isn't hosting anything right now", About, key-facts, Connected; all text, never HTML (L2-055 AC1-AC4, AC9)
+  page --> actor : listing-head, Hosting (series first, then events) or "isn't hosting anything right now", About, key facts (spec list), Connected; all text, never HTML (L2-055 AC1-AC4, AC9)
 end
 opt request fails
   page --> actor : error-state "This listing didn't load" with Try again and Directory (L2-055 AC8)

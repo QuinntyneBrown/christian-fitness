@@ -288,6 +288,29 @@
   --layout-meter-width: 14rem;
   --layout-schedule-time: 5.5rem;
   --layout-sticky-offset: 6rem;
+  --size-measure-story: 48rem;        /* story head */
+  --size-measure-figure: 64rem;       /* story figure */
+  --size-measure-chooser: 65rem;      /* Google account chooser card */
+  --size-column-builder: 20rem;       /* newsletter builder side column */
+  --size-column-picker: 17.5rem;
+  --size-column-picker-wide: 18.75rem;
+  --size-column-pick: 21.25rem;       /* pick list and inbox list columns */
+  --size-column-area: 9rem;           /* listing row area */
+  --size-column-hosting: 7rem;        /* listing row hosting; feed copy button */
+  --size-column-follow: 6.75rem;      /* listing row follow button */
+  --size-column-date: 5.5rem;         /* feed row leading column */
+  --size-column-session-date: 5rem;
+  --size-basis-topic: 12rem;
+  --size-thumb-sm: 5rem;              /* headline square */
+  --size-thumb-story: 7rem;           /* story row image */
+  --size-thumb-series-w: 8rem;
+  --size-thumb-series-h: 6rem;
+  --size-thumb-event-w: 4rem;
+  --size-thumb-event-h: 3.5rem;
+  --size-card-pick: 16rem;
+  --size-pick-empty-h: 26rem;
+  --size-pick-art: 12rem;
+  --layout-table-wrap-narrow: 22.5rem;
 
   /* ---------- Semantic: sizes ------------------------------------------ */
   --size-icon-xs: 0.875rem;  /* 14px */

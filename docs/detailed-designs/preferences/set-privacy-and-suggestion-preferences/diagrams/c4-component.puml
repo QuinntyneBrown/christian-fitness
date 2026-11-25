@@ -10,7 +10,7 @@ Container_Boundary(api, "Christian Fitness API") {
   Component(direct, "JoinDirectHandler / SendDirectMessageHandler", "MediatR handlers", "Apply DirectChat.MayStartAsync (AC5)")
   Component(attend, "IRegistrationReader", "Application abstraction", "Going counts; attendee names only when shown (AC4)")
   Component(home, "GetHomeHandler", "MediatR handler", "Area and interests first (AC7)")
-  Component(groups, "GroupMembership", "Application helper", "ShareAGroupAsync through registrations")
+  Component(groups, "GroupMembership", "Application helper", "ShareAGroupAsync through current chat membership")
   Component(prefs, "MemberPreferences", "Domain entity", "Visibility, ShowOnAttendeeLists, LetAnyoneMessage, Area")
   Component(adminq, "SearchMembersQuery", "MediatR handler", "Staff: unaffected by visibility")
 }
@@ -26,6 +26,6 @@ Rel(direct, prefs, "Reads LetAnyoneMessage")
 Rel(direct, groups, "Shares a group?")
 Rel(attend, prefs, "Reads ShowOnAttendeeLists")
 Rel(home, prefs, "Reads area")
-Rel(groups, db, "Registrations by event", "EF Core")
+Rel(groups, db, "Current membership by event chat", "EF Core")
 Rel(adminq, db, "Reads members", "EF Core")
 @enduml

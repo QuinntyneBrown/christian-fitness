@@ -64,6 +64,14 @@ allows.
   library's `StoryArticle` (`news/read-story`), so an Admin sees the story as readers will,
   whatever its status (`L2-069` AC13). The member app cannot show a draft: it serves published
   stories only and holds no staff session (ADR 0047 keeps the two apps on separate origins).
+  It is drawn as `docs/mocks/pages/admin-story-preview/` in states `default`, `loading` and
+  `error`: a warning `banner` above the story reads "Preview · <status>. Only Admins can see this
+  page. Readers see the story once it is published." with "Close preview" back to the editor, and
+  the failure state offers Try again and "Back to the editor". The editor's Preview is an `<a>`
+  with `target="_blank"` and `rel="noopener"` and a visually hidden "(opens in a new tab)"; it is
+  `disabled` while the editor saves and on a new story. A Moderator is refused 403 `forbidden_role`
+  and sees Admins only; an unknown id shows the admin not-found page. Nothing on the page is
+  indexed: it sends `X-Robots-Tag: noindex`.
 - **`AdminStoriesApi` / `ADMIN_STORIES_SERVICE`** — contract and token in the `api` library:
   `list` (`manage-stories`), `get`, `create`, `save`, `submit`, `returnToDraft`, `publish`,
   `unschedule`, `unpublish`, `uploadImage`, `preview` and `options` (the bylines, the published events
@@ -175,7 +183,7 @@ AC7).
 - **Next step card.** The editor gains an optional "Next step" text (80 characters at most) and a
   link (an internal route or `https`). With no text there is no card (`L2-069` AC1, `L2-061` AC4).
 - **Preview.** `StoryPreviewPage` at `/stories/:id/preview` in the admin app reuses the story
-  page's presentation components (`L2-069` AC13). Its mock state is issue 99.
+  page's presentation components (`L2-069` AC13). Its mock is `admin-story-preview`.
 
 ## Requirements
 

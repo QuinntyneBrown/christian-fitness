@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record event attendance
+
+Person(staff, "Staff member", "Admin or Moderator on the Christian Fitness team")
+Person(member, "Member", "Reads their series page in the member web app")
+System(cf, "Christian Fitness", "Christian community for health in body and spirit")
+System_Ext(otel, "OpenTelemetry collector", "Receives telemetry without personal data")
+
+Rel(staff, cf, "Records who came to an event in")
+Rel(member, cf, "Sees You came, Missed or Not recorded in")
+Rel(cf, otel, "Exports telemetry to", "OTLP")
+@enduml

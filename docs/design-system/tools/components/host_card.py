@@ -87,7 +87,7 @@ SPEC = {
                                   '<span class="skeleton skeleton--block skeleton--tile"></span></div>',
                                   "Hosting loads as a title line and a tile (listing-profile/loading).", True, mod="block"),
         "themes": themes(NARROW.format(c=PERSON) + NARROW.format(c=ONEOFF)) + themes(f'<ul class="hosting"><li>{SERIES}</li></ul>', mod="block"),
-        "notes": "<ul><li>Hover turns the name accent on both blocks, with the fill or the shadow; the matrix shows it through the <code>data-state="hover"</code> hook.</li><li><b>Verified</b> is announced (\"Verified\"), and an unverified listing simply has no mark, never a warning.</li></ul>",
+        "notes": "<ul><li>Hover turns the name accent on both blocks, with the fill or the shadow; the matrix shows it through the <code>data-state=\"hover\"</code> hook.</li><li><b>Verified</b> is announced (\"Verified\"), and an unverified listing simply has no mark, never a warning.</li></ul>",
     },
     "responsive": """<ul>
 <li><b>Host card</b>: fills the aside; the name truncates with an ellipsis and the verified mark never shrinks. Below 1024px the aside, and the card, sit under the content.</li>

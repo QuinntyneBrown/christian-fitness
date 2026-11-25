@@ -7,8 +7,8 @@ covers the Profile screen at `/profile`, which shows a member their own profile,
 the view of another member's profile. It belongs to the member-profile subsystem.
 
 - **own profile** — profile of the signed-in member, with every field
-- **public profile** — subset of another member's profile: name, initials, bio and
-  interests, plus home church only when that member chose to show it
+- **public profile** — name, initials, bio and interests; an admitted signed-in
+  viewer may also see home church when its owner chose to show it
 - **initials avatar** — avatar that shows a member's initials in place of a photo
 
 The own profile shows name, initials avatar, city, join date, bio, home church,
@@ -16,7 +16,8 @@ goals, interests and upcoming registered events, with two actions: "Edit profile
 which opens the edit dialog, and "Preferences", which opens the member's preferences
 at `/preferences` ([set email and notification preferences](../../preferences/set-email-and-notification-preferences/README.md);
 `L2-064`). With no registered events it shows an empty state that links to Events. The public profile never shows email, and shows
-home church only when its owner made it visible (L2-006).
+home church only to admitted signed-in members when its owner made it visible in Preferences
+(`L2-065` AC10); anonymous visitors never receive it (`L2-033` AC5).
 
 ## Description
 
@@ -92,28 +93,12 @@ The answer of `GET /api/profile/me` is
 
 The public profile (slice 19.1):
 
-- **`MemberProfilePage`** — routed page for another member, matching the mock
-  `pages/profile/member.html`. The route is `/members/:id`
-  ([ADR 0038](../../../adr/0038-view-a-members-profile.md)): hero (name, initials, home church
-  only when shown), About and Into. The mock's Message button, goals, events and Groups wait for
-  slices 14.1, 12.3 and later.
-- **`GetPublicProfileHandler`** — `GET /api/members/{id}/profile` returns `PublicProfileDto` with name, bio
-  and interests (the screen derives the initials); 404 `not_found` for an unknown or malformed id. It adds `homeChurch` only when `Member.ShowHomeChurch` is true, and
-  never includes email (L2-005 AC3). The DTO has no email field by construction.
+- **`MemberProfilePage`** — `/members/:id` no longer has a member guard. With a session it uses the member shell and `pages/profile/member.html`; without one it uses the public masthead and `pages/profile/public.html`, with "Join to message" linking to Join. Both show name, initials, About and Into; an admitted signed-in viewer can also see a shared home church.
+- **Authenticated read** — `GET /api/members/{id}/profile` enforces visibility, returns name, bio and interests, and adds `homeChurch` only when `Member.ShowHomeChurch` is true. Email is never included.
+- **Anonymous read** — `GET /api/public/members/{id}` is `[AllowAnonymous]`, under `public-reads` (issue #80). It returns only name, bio and interests for Anyone; a malformed, unknown or restricted id gets the same 404 `not_found`. Neither email nor home church is present ([ADR 0075](../../../adr/0075-public-profiles-and-privacy.md)).
 
 ### Open questions
 
-- **Who may see the public profile.** Preferences sets who sees the whole profile,
-  and a profile set to Anyone can be opened by a visitor who is not signed in,
-  showing only the public fields of `L2-005` AC3
-  ([set email and notification preferences](../../preferences/set-email-and-notification-preferences/README.md)).
-  `/members/:id` today sits behind `memberAuthGuard` and its endpoint behind the
-  fallback policy. Opening both to visitors, and refusing a profile its owner limits,
-  belongs to that design and changes `GetPublicProfileHandler`; the route and policy
-  change is work for its slices.
-- **Home church switch.** `docs/mocks/README.md` (open question 4) asks whether home
-  church gets its own switch in Preferences. `Member.ShowHomeChurch` already exists;
-  where a member sets it is `<TO SUPPLY>`.
 - **Code behind the requirement.** `ProfilePage` renders only Edit profile in the
   hero; the Preferences link is work for the next slice, and its route `/preferences`
   does not exist yet.
@@ -125,8 +110,10 @@ requirement refines a level-1 (L1) requirement, cited by identifier.
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-005` | `L1-003` | Given a signed-in member, when they open Profile, then it shall show their name, initials avatar, city, join date, bio, home church, goals, interests and their upcoming registered events, with "Edit profile" and "Preferences" (`L2-064`); with no registered events the events area shall show an empty state with a link to Events; another member's profile URL shall show only that member's public fields (name, initials, bio, interests) and never their email or home church unless that member chose to show it (acceptance criteria 1–3). |
+| `L2-005` | `L1-003` | Own profile shows the member's fields, actions and events; another visible profile shows name, initials, bio and interests, with home church only to admitted signed-in viewers when enabled. A visitor sees the public masthead and "Join to message", never email or home church (AC1–AC4). |
 | `L2-064` | `L1-019` | Given a signed-in member, when they choose Preferences on their own profile, then `/preferences` shall open (acceptance criterion 1). |
+| `L2-065` | `L1-019`, `L1-013` | Profile visibility, shared group membership, the anonymous endpoint and home church switch follow AC1–AC3 and AC10–AC13. |
+| `L2-033` | `L1-013` | Home church shall never be shown or returned anonymously (AC5). |
 
 ## Diagrams
 

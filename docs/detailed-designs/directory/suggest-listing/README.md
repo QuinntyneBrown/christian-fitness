@@ -21,7 +21,7 @@ The feature is a vertical slice from the form to the database. No part of it exi
 
 - **`SuggestListingPage`** — routed page component at `/directory/suggest`, loaded with `loadComponent` under the member shell and declared before `/directory/:id`. It renders the `back-link` to the directory and a `form-page` with the form in `form-page__main` and "What happens next" in `form-page__aside`. Its `providers` bind `LISTING_SUGGESTIONS_SERVICE` to `HttpListingSuggestionsService`. It holds the form as a signal-based model and its phase (`editing`, `sending`, `failed`, `sent`) as a signal.
 - **Form fields** — the "Who are you suggesting?" radio cards use the existing `RadioGroup` (`choice choice-card`, `docs/mocks/README.md` decision "Radio cards"). "What kind of listing?" is a radio group drawn as `chip chip--choice` chips with the six kinds and one chosen. The name, "Where they meet or work", "Website or social" (optional), "Church connection" (optional, hint "For example: meets at Danforth Baptist"), the reason, "Their email" (optional, hint "So we can reach them directly") and "It's fine to tell them you suggested them" (ticked by default) use the existing `FormField`, `TextField`, `Textarea` and `Checkbox` components. Below the form, "Send suggestion" and "Sent as <member's name>".
-- **`SuggestionSteps`** — the `steps` list of the aside: "We read it within 3 days", "We run four checks", "They approve their listing", "You hear back", each with its line from the mock. "How we vet every listing" opens `/news/how-we-vet-every-listing`; show the link only when that story is published. The `steps` and `done` blocks have no page in `docs/design-system/components/`; they need one before they are built.
+- **`SuggestionSteps`** — the `steps` list of the aside: "We read it within 3 days", "We run four checks", "They approve their listing", "You hear back", each with its line from the mock. "How we vet every listing" opens `/news/how-we-vet-every-listing`; show the link only when that story is published. The `steps` and `done` blocks are documented on the design-system page `steps`; the component is built from it.
 - **Vetting story** — `cf seed` creates the story with the fixed slug `how-we-vet-every-listing`
   idempotently, without overwriting an existing story. The API exposes whether it is published;
   when it is missing, unpublished or its availability cannot be established, the link is hidden.
@@ -47,11 +47,11 @@ The suggested party's email is used only to contact them about the listing (`L2-
 ### Open questions
 
 - **Sender of the outcome message (resolved, ADR 0065).** A seeded system member "Christian Fitness", idempotent in `cf seed`, that cannot sign in; members cannot reply (`system_account`) and its conversation shows a note linking to Send feedback instead of the composer. Mock: `messages/system`.
-- **Required fields.** `L2-062` AC4 names only the missing name. Whether the place and the reason are required, and the limits of place, website, church connection and email, are `<TO SUPPLY>`.
-- **The day of the limit.** "More than 5 suggestions from one member in a day" does not say whether the day is the last 24 hours or a calendar day in Toronto. The design proposes the last 24 hours, as `AttemptWindow` counts.
+- **Required fields.** Decided (`L2-062` AC2, AC4, AC7): name, kind and place are required; the reason is optional. Limits: name 120, place 120, website 200 (`https` only), church connection 200, email 254, reason 1,000.
+- **The day of the limit.** Decided (`L2-062` AC8): a rolling 24 hours, as `AttemptWindow` counts.
 - **Self-submission and the listing's owner.** For Myself the mock still says "Sent as Grace Thompson" while naming "Coach Marcus Delaney", and the console shows "Self-submitted". Whether a self-submitted listing becomes linked to the sender's account (and so receives its messages) is not specified; it bears on the profile's Message (view-listing-profile design).
 - **Who gets the claim link.** Approval sends the suggested party a link (`L2-073` AC6), but their email is optional and not asked for Myself. Resolved by `L2-078` (`docs/detailed-designs/directory/claim-listing/`): a self-submission's link goes to the sender as a direct message from Christian Fitness, and a suggestion with no other email becomes a staff-managed listing.
-- **Retention.** How long a suggestion, and the email in it, is kept after it is decided is `<TO SUPPLY>`; `L2-033` AC3 erases a member's data on deletion but does not name suggestions.
+- **Retention.** Decided (`L2-073` AC9, ADR 0077): scheduled work purges a decided suggestion and its contact email 12 months after `DecidedAt`, or earlier at the submitter's erasure (ADR 0078).
 
 ## Requirements
 

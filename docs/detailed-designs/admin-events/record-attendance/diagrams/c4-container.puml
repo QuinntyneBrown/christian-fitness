@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Record event attendance
+
+Person(staff, "Staff member", "Admin or Moderator")
+Person(member, "Member", "Reads their series page")
+System_Boundary(cf, "Christian Fitness") {
+  Container(admin, "Admin web app", "Angular (standalone, signals, zoneless), projects/admin", "Attendance tab of an event")
+  Container(web, "Member web app", "Angular, projects/web", "Event series page")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, staff policy, ProblemDetails with code")
+  ContainerDb(db, "Christian Fitness database", "EF Core, PostgreSQL", "Events, registrations, attendance, audit entries")
+}
+System_Ext(otel, "OpenTelemetry collector", "Telemetry sink")
+
+Rel(staff, admin, "Ticks Came in", "HTTPS")
+Rel(member, web, "Reads attendance in", "HTTPS")
+Rel(admin, api, "Calls", "JSON/HTTPS, session cookie")
+Rel(web, api, "Calls", "JSON/HTTPS, session cookie")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, otel, "Exports telemetry", "OTLP")
+@enduml

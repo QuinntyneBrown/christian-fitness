@@ -53,7 +53,7 @@ def entry_for(sid: str, s: dict, old: dict | None) -> dict:
     if s.get("opens_from"):
         entry["opens_from"] = s["opens_from"]
     entry["source"] = s.get("source") or ""
-    entry["requirements"] = (old or {}).get("requirements", [])
+    entry["requirements"] = s["requirements"] if s.get("requirements") is not None else (old or {}).get("requirements", [])
     entry["states"] = list(s["states"])
     if s["not_applicable"]:
         entry["not_applicable"] = s["not_applicable"]

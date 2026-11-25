@@ -3,13 +3,14 @@ Layout and copy follow the Magic Patterns prototype "Admin Console" frames Manag
 Newsletter, Manage Event Series, Community Pick, Manage Listings and Feedback Inbox."""
 from __future__ import annotations
 
-from cf_data import (ADMIN_STORIES, MODERATOR, AUTHORS, BYLINES, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS, MEMBER_EVENTS, NEWSLETTER,
-                     PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
-from cf_ui import (CUR, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field, file_field,
+from cf_data import (ADMIN_STORIES, MODERATOR, LISTING_KINDS, AUTHORS, BYLINES, CHECKS, EV, FEEDBACK, FEEDBACK_KIND_ICON, LISTINGS, LS,
+                     MEMBER_EVENTS, NEWSLETTER, PAST_ISSUES, SECTIONS, SERIES, SR, ST, STORIES, STORY_BODY, STORY_STATUSES, SUGGESTIONS)
+from cf_ui import (CUR, banner, admin_header, admin_shell, avatar, busy_label, empty_block, error_block, error_summary, field, file_field,
                    form_alert, href, icon, image, listing_mark, loading_region, screen, select, textarea, toast, toast_region,
                    verified_badge)
 from overlays import autofocus_first, dialog, drawer, over_admin
 from screens_admin import G, SRC, table_skeleton
+from screens_news import story_page, story_shell
 
 N = NEWSLETTER
 STATUS_CLASS = {"In review": "review", "New": "new", "Scheduled": "scheduled", "Replied": "replied", "Published": "published",
@@ -176,7 +177,7 @@ def editor(d: dict, status: str, *, schedule: bool = False, invalid: bool = Fals
         {pill(status)}
         <span class="editor__saved">{saved}</span>
         <div class="editor__actions">
-          <button class="btn btn--secondary btn--sm" type="button"{" disabled" if ro else ""}>{icon("eye")}Preview</button>
+          {f'<button class="btn btn--secondary btn--sm" type="button" disabled>{icon("eye")}Preview</button>' if ro or not d["title"] else f'<a class="btn btn--secondary btn--sm" href="{href("admin-story-preview")}" target="_blank" rel="noopener">{icon("eye")}Preview<span class="visually-hidden"> (opens in a new tab)</span></a>'}
           {editor_actions(status, busy=busy, schedule=schedule)}
         </div>
       </div>
@@ -286,6 +287,39 @@ def _():
     return admin_shell("admin-stories", f'<a class="back-link" href="{href("admin-stories")}">{icon("arrow-left")} Stories</a><h1 class="visually-hidden">Story</h1>' + error_block(
         "This story didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html",
         back=("Stories", href("admin-stories")), ref="CF-A2E6"))
+
+
+def preview_bar(status: str) -> str:
+    return banner("warning", "eye", f"Preview · {status}. Only Admins can see this page. Readers see the story once it is published.",
+                  action=("Close preview", href("admin-story-editor")), dismiss=False)
+
+
+s = screen("admin-story-preview", "page", "Story preview", route="/admin/stories/:id/preview", group=G, opens_from="admin-story-editor",
+           source="Derived: the Story Editor frame's \"Preview\" button, which has no screen in the prototype; the story as readers see it, opened in a new tab.",
+           not_applicable={"empty": "One story; a missing one is the admin not-found page, and a Moderator sees Admins only."})
+
+
+@s("default", "The story In review as readers will see it, under a bar saying it is a preview that only Admins can see.")
+def _():
+    return story_shell(preview_bar("In review") + story_page(ST["basement-gym"]))
+
+
+@s("loading", "Preview loading: the bar and masthead are there; the headline, image and text show as skeletons.")
+def _():
+    sk = ('<div class="story"><div class="story__head skeleton-stack"><h1 class="visually-hidden">Loading preview</h1>'
+          '<span class="skeleton skeleton--text-sm w-20"></span><span class="skeleton skeleton--title-lg"></span>'
+          '<span class="skeleton skeleton--title-lg w-80"></span><span class="skeleton skeleton--text w-40"></span></div>'
+          '<div class="story__figure"><span class="skeleton skeleton--block skeleton--image-16x9"></span></div>'
+          '<div class="story__body skeleton-stack"><span class="skeleton skeleton--text w-90"></span>'
+          '<span class="skeleton skeleton--text w-90"></span><span class="skeleton skeleton--text w-80"></span></div></div>')
+    return story_shell(preview_bar("loading") + loading_region("Loading preview", sk))
+
+
+@s("error", "Preview failed to load: retry, or close the preview and go back to the editor.")
+def _():
+    return story_shell(preview_bar("not loaded") + '<div class="story"><div class="story__head"><h1 class="visually-hidden">Story preview</h1>' + error_block(
+        "The preview didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html",
+        back=("Back to the editor", href("admin-story-editor")), ref="CF-A5P2") + "</div></div>")
 
 
 # ===========================================================================
@@ -493,7 +527,8 @@ def _():
 # ===========================================================================
 # Newsletter
 # ===========================================================================
-def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False) -> str:
+def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: bool = False, busy: bool = False, missed: bool = False,
+                    time_error: bool = False, saved: str = "Saved 8:42 AM") -> str:
     d = " disabled" if scheduled or busy else ""
     ro = scheduled or busy
     picked = ("sabbath-rest", "meal-prep-ministry", "walking-seniors")
@@ -505,26 +540,32 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         also.append(f"""<li><label class="check check--ui pick-row"><input class="check__box" type="checkbox" name="also" value="{x["id"]}"{" checked" if on else ""}{off}>
                   <span><span class="pick-row__title">{x["title"]}</span><span class="pick-row__meta">{x["section"]} · {x["ago"]}</span></span></label></li>""")
     evs = "".join(f'<button class="interest" type="button" aria-pressed="{"true" if i < 3 else "false"}"{d}>{icon("check", "icon--xs") if i < 3 else ""}{e["title"]}</button>'
-                  for i, e in enumerate(MEMBER_EVENTS))
+                  for i, e in enumerate(MEMBER_EVENTS[:4]))
     opts = "".join(f'<option value="{x["id"]}"{" selected" if x["id"] == lead else ""}>{x["title"]}</option>' for x in STORIES)
-    send = (f'<button class="btn btn--on-brand btn--md btn--block" type="button" data-mock-href="default.html">Unschedule to edit</button>' if scheduled
+    send = (f'<button class="btn btn--inverse btn--md btn--block" type="submit" data-mock-href="scheduled.html">{icon("send")}Reschedule</button>' if missed
+            else f'<button class="btn btn--on-brand btn--md btn--block" type="button" data-mock-href="default.html">Unschedule to edit</button>' if scheduled
             else f'<button class="btn btn--inverse btn--md btn--block" type="submit" disabled aria-busy="true">{busy_label("Scheduling…")}</button>' if busy
             else f'<button class="btn btn--inverse btn--md btn--block" type="submit" data-mock-href="scheduled.html">{icon("send")}Schedule issue</button>')
     test = (f'<button class="btn btn--secondary btn--sm btn--grow" type="button">{icon("check")}Test sent</button>' if tested
             else '<button class="btn btn--secondary btn--sm btn--grow" type="button" data-mock-href="test-sent.html">Send me a test</button>')
     past = "".join(f"""<tr><td class="table__nowrap"><span class="table__strong">#{n}</span> <span class="muted">· {date}</span></td><td>{subject}</td>
                 <td class="table__end table__strong">{sent:,}</td></tr>""" for n, date, subject, sent in PAST_ISSUES)
+    missed_alert = form_alert("This issue missed its send time", "Issue #%d was due at 7:00 AM and has not gone out. Choose a later time today and reschedule it." % (N["issue"] + 1))
+    when_missed = (f"""<div class="field send-card__reschedule"><label class="field__label" for="f-resend">Send later today at</label>
+              <input class="input input--sm" id="f-resend" name="resend" type="time" value="{"08:00" if time_error else "11:00"}"{' aria-invalid="true" aria-describedby="f-resend-error"' if time_error else ' aria-describedby="f-resend-hint"'}>
+              {'<span class="field__error" id="f-resend-error">Choose a time later than now (9:15 AM) and before midnight.</span>' if time_error else '<span class="field__hint" id="f-resend-hint">Today, Eastern time. It cannot be moved to another day.</span>'}</div>""" if missed else "")
     return f"""{admin_header("Newsletter", f'{N["name"]} · {N["readers"]} subscribers · {N["cadence"]}')}
       <form class="split split--builder" novalidate>
         <section class="card card--pad" aria-labelledby="issue-title">
-          <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}</div>
+          <div class="cluster"><h2 class="display builder__title" id="issue-title">Issue #{N["issue"] + 1}</h2>{pill("Scheduled" if scheduled else "Draft")}{f'<span class="editor__saved" role="status">{saved}</span>' if not scheduled and not busy and not invalid else ''}</div>
+          {missed_alert if missed else ""}
           <div class="builder__fields stack-5">
             {field("Subject line", "subject", "" if invalid else "Shame is a terrible coach (and other things we learned this week)", error="Add a subject line before scheduling." if invalid else "", readonly=ro)}
             {textarea("Editor’s note", "note", "Morning, friends. This week Danielle Okafor tells us why shame is a terrible coach, and Pastor Ruth makes the case for doing nothing on purpose. See you at the 5K.", rows=3, readonly=ro)}
             <div class="field"><label class="field__label" for="f-lead">The big story</label><select class="select" id="f-lead" name="lead"{d}>{opts}</select></div>
             <fieldset><legend class="field__label">Also this week <span class="field__optional">· 3 of 3</span></legend>
               <ul class="card card--list pick-list">{''.join(also)}</ul></fieldset>
-            <fieldset><legend class="field__label">Events this week</legend><div class="interest-list">{evs}</div></fieldset>
+            <fieldset><legend class="field__label">Events this week</legend><p>Choose which of the next four events to feature. All four appear on the calendar.</p><div class="interest-list">{evs}</div></fieldset>
             <div class="field-grid field-grid--verse">
               {field("Verse to carry", "verse", "Come to me, all who are weary, and I will give you rest.", readonly=ro)}
               {field("Reference", "reference", "Matthew 11:28", readonly=ro)}
@@ -533,14 +574,15 @@ def newsletter_page(*, scheduled: bool = False, tested: bool = False, invalid: b
         </section>
         <aside class="aside-stack aside-stack--snug sticky-aside" aria-label="Send">
           <section class="send-card">
-            <p class="send-card__label">{'Scheduled for' if scheduled else 'Goes out'}</p>
+            <p class="send-card__label">{'Was due' if missed else 'Scheduled for' if scheduled else 'Goes out'}</p>
             <p class="send-card__date">Sat Apr 18</p>
             <p class="send-card__meta">7:00 AM Eastern · {N["readers"]} people</p>
+            {when_missed}
             {send}
           </section>
           <div class="btn-row"><a class="btn btn--secondary btn--sm btn--grow" href="{href("newsletter")}">{icon("eye")}Preview</a>{test}</div>
           <p class="visually-hidden" role="status">{"Test sent to dana@christian.fitness" if tested else ""}</p>
-          <p class="builder__note">Add-on emails (event alerts, training plan, devotions) send on their own schedules.</p>
+          <p class="builder__note">Add-on emails (event alerts, training plan, devotions) are deferred until someone owns writing and scheduling them.</p>
         </aside>
       </form>
       <section class="mt-12" aria-labelledby="sent-title">
@@ -571,9 +613,29 @@ def _():
     return admin_shell("admin-newsletter", newsletter_page(scheduled=True))
 
 
+@s("missed", "The issue missed its send time: choose a later time today in Toronto.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(missed=True))
+
+
 @s("test-sent", "Send me a test pressed: the button reads \"Test sent\" and a status message names the address.")
 def _():
     return admin_shell("admin-newsletter", newsletter_page(tested=True))
+
+
+@s("autosaving", "The draft is saving as the editor types: the indicator beside the issue reads \"Saving…\"; once it lands it reads \"Saved\" and the time.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(saved="Saving…"))
+
+
+@s("missed", "A scheduled issue whose send time passed without it going out: a message says so, the fields are locked, and the card offers a time picker to send it later the same day, with Reschedule.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(missed=True))
+
+
+@s("missed-invalid", "Reschedule pressed with a time already past: the picker is marked and says to choose a later time today; nothing changes.")
+def _():
+    return admin_shell("admin-newsletter", newsletter_page(missed=True, time_error=True))
 
 
 @s("invalid", "Schedule pressed with no subject line: the field is marked and says what to add; nothing is scheduled.")
@@ -603,19 +665,27 @@ def _():
 # ===========================================================================
 # Event series
 # ===========================================================================
-def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
+NEW_DATE = {"n": 9, "weekday": "Tue", "month": "Jun", "day": "02", "topic": "Make-up run for Victoria Day week", "status": "upcoming"}
+NEW_SERIES = {"id": "sunday-stretch", "title": "Sunday Stretch & Prayer", "host": "faith-footwork", "cadence": "Every Sunday", "time": "4:00 PM",
+              "range": "No dates yet", "place": "St. Lawrence Community Rec Centre", "image": "hoops", "series_price": "Free", "drop_in": "Free",
+              "enrolled": 0, "capacity": 25, "sessions": []}
+
+
+def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks: tuple = (), restoring: tuple = ()) -> str:
     def status(x):
         return "cancelled" if x["n"] in cancelled else x["status"]
-    remaining = sum(1 for x in sr["sessions"] if status(x) in ("next", "upcoming"))
-    picker = "".join(f"""<li><a class="pick-card" href="{href("admin-series", "default" if x["id"] == "couch-to-5k" else "selected")}"{CUR if x["id"] == sr["id"] else ""}>
+    sessions = sr["sessions"] + ([NEW_DATE] if extra else [])
+    remaining = sum(1 for x in sessions if status(x) in ("next", "upcoming"))
+    picker = "".join(f"""<li><a class="pick-card" href="{href("admin-series", "default" if x["id"] == "couch-to-5k" else "series-created" if x["id"] == "sunday-stretch" else "selected")}"{CUR if x["id"] == sr["id"] else ""}>
               <span class="pick-card__title">{x["title"]}</span><span class="pick-card__meta">{x["cadence"]} · {x["time"]}</span>
-              <span class="pick-card__count">{x["enrolled"]} / {x["capacity"]} joined</span></a></li>""" for x in SERIES)
+              <span class="pick-card__count">{x["enrolled"]} / {x["capacity"]} joined</span></a></li>""" for x in list(picks) + SERIES)
     rows = []
-    for x in sr["sessions"]:
+    for x in sessions:
         st = status(x)
         past, gone = st == "past", st == "cancelled"
         name = f'session {x["n"]}, {x["weekday"]} {x["month"]} {x["day"]}'
         end = ('<span class="admin-session__done">Done</span>' if past
+               else f'{pill("Cancelled")}<button class="btn btn--link" type="button" disabled aria-busy="true">{busy_label("Restoring…")}<span class="visually-hidden"> {name}</span></button>' if gone and x["n"] in restoring
                else f'{pill("Cancelled")}<button class="btn btn--link" type="button">Restore<span class="visually-hidden"> {name}</span></button>' if gone
                else (pill("Live") if st == "next" else "") + f'<button class="btn btn--link btn--link-quiet" type="button" data-mock-href="{href("cancel-session")}">Cancel date<span class="visually-hidden">: {name}</span></button>')
         mod = " admin-session--past" if past else " admin-session--cancelled" if gone else ""
@@ -635,7 +705,7 @@ def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
               <p class="muted">Hosted by {LS[sr["host"]]["name"]}</p>
               <p class="series-summary-card__facts"><span>{icon("repeat")}{sr["cadence"]}, {sr["time"]} · {sr["range"]}</span><span>{icon("map-pin")}{sr["place"]}</span></p>
             </div>
-            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("series-editor", "edit" if sr["id"] == "couch-to-5k" else "edit-bootcamp")}">Edit details</button>
+            <button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("series-editor", "edit" if sr["id"] == "couch-to-5k" else "edit-bootcamp")}">Edit details<span class="visually-hidden">: {sr["title"]}</span></button>
             <dl class="series-summary-card__stats">
               <div><dt>Joined</dt><dd>{sr["enrolled"]} of {sr["capacity"]}</dd>
                 <dd><meter class="fill__meter" min="0" max="{sr["capacity"]}" value="{sr["enrolled"]}">{pct}% full</meter></dd></div>
@@ -645,9 +715,9 @@ def series_admin(sr: dict, *, cancelled: tuple = ()) -> str:
           </div>
           <div class="section-head mt-section">
             <h3 class="display section-title">Sessions</h3>
-            <button class="btn btn--link" type="button">{icon("plus")}Add a date</button>
+            <button class="btn btn--link" type="button" data-mock-href="{href("add-session")}">{icon("plus")}Add a date</button>
           </div>
-          <ol class="card card--list admin-sessions">{''.join(rows)}</ol>
+          {f'<ol class="card card--list admin-sessions">{"".join(rows)}</ol>' if rows else empty_block("No dates yet", "Members can join once the series has dates. Add the first one.", f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("add-session")}">{icon("plus")}Add a date</button>', tag="p", tight=True)}
           <p class="builder__note">Cancelling a date notifies everyone who joined the series and refunds drop-ins.</p>
         </section>
       </div>"""
@@ -677,10 +747,42 @@ def _():
                        after=toast_region(toast("success", "Tue May 5 cancelled", "31 members were told."), admin=True))
 
 
-@s("loading", "Series loading: the list and the chosen series show as skeletons.")
+@s("series-created", "A series was just created: the new series is chosen with no dates yet, and a toast says it was created.")
 def _():
+    return admin_shell("admin-series", series_admin(NEW_SERIES, picks=(NEW_SERIES,)),
+                       after=toast_region(toast("success", "Sunday Stretch & Prayer created", "Add its first date so members can join."), admin=True))
+
+
+@s("series-saved", "Edit details saved: the summary shows the changes and a toast says so.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"]),
+                       after=toast_region(toast("success", "Couch to 5K Run Club updated", "Members see the changes now."), admin=True))
+
+
+@s("date-added", "A date was just added (session 9): it joins the list as upcoming, Sessions left rises by one and a toast confirms it.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"], extra=True),
+                       after=toast_region(toast("success", "Tue Jun 2 added", "It is now listed under Events."), admin=True))
+
+
+@s("restoring", "Restore pressed on the cancelled date (session 6): its button is busy and disabled; the rest of the list stays.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"], restoring=(6,)))
+
+
+@s("restore-failed", "Restoring failed: the date stays Cancelled with Restore, and a toast says nothing was changed.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"]),
+                       after=toast_region(toast("danger", "We couldn't restore Tue May 12", "Nothing was changed. Try again in a moment.", role="alert"), admin=True))
+
+
+@s("loading", "Series loading: the series list, the chosen series' summary and its session rows show as skeletons.")
+def _():
+    row = ('<li class="admin-session"><span class="skeleton skeleton--text w-20"></span><span class="skeleton skeleton--text w-40"></span>'
+           '<span class="skeleton skeleton--text w-80"></span><span class="skeleton skeleton--button-sm"></span></li>')
     sk = ('<div class="split split--picker"><div class="skeleton-stack"><span class="skeleton skeleton--tile"></span><span class="skeleton skeleton--tile"></span>'
-          '<span class="skeleton skeleton--tile"></span></div><div class="skeleton-stack"><span class="skeleton skeleton--tile"></span>' + table_skeleton(4) + '</div></div>')
+          '<span class="skeleton skeleton--tile"></span></div><div class="skeleton-stack"><span class="skeleton skeleton--tile"></span>'
+          f'<ol class="card card--list admin-sessions">{row * 8}</ol></div></div>')
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + loading_region("Loading series", sk))
 
 
@@ -695,66 +797,6 @@ def _():
 def _():
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + error_block(
         "Series didn't load", "We couldn't reach Christian Fitness. Check your connection and try again.", retry="default.html", ref="CF-A9R3"))
-
-
-def series_editor(state: str) -> str:
-    invalid = state == "invalid"
-    selected = state in ("edit", "edit-bootcamp", "selected")
-    value = "" if invalid else "Lakeshore" if state == "searching" else "Northside" if state == "no-results" else "Danielle Okafor" if state == "edit-bootcamp" else "Lakeshore Runners Fellowship" if selected else "Christian Fitness"
-    alert = error_summary("1 thing to fix", [("Choose a Listed host", "f-host")]).replace('tabindex="-1"', 'tabindex="-1" autofocus') if invalid else ""
-    host = field("Host (required)", "host", value, required=True,
-                 error="Choose a Listed host" if invalid else "",
-                 hint="" if invalid else "Choose a Listed directory listing.")
-    if state == "searching":
-        results = '<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html"><span class="pick-card__title">Lakeshore Runners Fellowship</span><span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a>'
-    elif state == "no-results":
-        results = '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="searching.html">Search again</a>'
-    else:
-        results = '<a href="searching.html">Search hosts</a>'
-    body = f'{alert}{host}{results}<p class="field__hint">Other series fields are not yet specified.</p>'
-    foot = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}">Cancel</button><button class="btn btn--primary btn--grow" type="button" data-mock-href="invalid.html">Save</button>'
-    return over_admin("admin-series", series_admin(SR["park-bootcamp" if state == "edit-bootcamp" else "couch-to-5k"]),
-                      drawer("Edit series" if state in ("edit", "edit-bootcamp") else "New series", body, foot))
-
-
-s = screen("series-editor", "dialog", "Series editor", group=G, opens_from="admin-series",
-           source="Derived: host selection in the New series and Edit details drawers (ADR 0067).",
-           not_applicable={"busy": "Only the host picker is specified; the complete series save flow is not yet designed."})
-
-
-@s("default", "A new series defaults to the Christian Fitness team host.")
-def _():
-    return series_editor("default")
-
-
-@s("edit", "Edit a series with its saved host.")
-def _():
-    return series_editor("edit")
-
-
-@s("edit-bootcamp", "Edit Saturday Park Bootcamp with its saved host Danielle Okafor.")
-def _():
-    return series_editor("edit-bootcamp")
-
-
-@s("searching", "Search Listed hosts and choose a matching listing.")
-def _():
-    return series_editor("searching")
-
-
-@s("selected", "A matching Listed host has been selected.")
-def _():
-    return series_editor("selected")
-
-
-@s("no-results", "A host search with no matching Listed listings.")
-def _():
-    return series_editor("no-results")
-
-
-@s("invalid", "A missing host shows an error at the field and in the summary.")
-def _():
-    return series_editor("invalid")
 
 
 def cancel_session(*, busy: bool = False, failed: bool = False) -> str:
@@ -786,6 +828,193 @@ def _():
 @s("failed", "Cancelling failed: a message in the dialog; nothing was changed and nobody was told.")
 def _():
     return cancel_session(failed=True)
+
+
+def series_editor(*, edit: bool = False, invalid: bool = False, busy: bool = False, failed: bool = False, host: str = "",
+                  bootcamp: bool = False) -> str:
+    """The series dialog. host is "" (the saved or default host), "searching", "selected" or "no-results" (ADR 0067)."""
+    if edit:
+        sr = SR["park-bootcamp" if bootcamp else "couch-to-5k"]
+        v = dict(title=sr["title"], host="Danielle Okafor" if bootcamp else LS["lakeshore-runners"]["name"], price="Free", drop="Free",
+                 cap="30" if bootcamp else "40", place="Centennial Park, Etobicoke" if bootcamp else "Humber Bay Park East",
+                 area="Etobicoke", desc=sr["summary"])
+    else:
+        v = dict(title="Sunday Stretch & Prayer", host="Christian Fitness", price="Free", drop="Free", cap="25",
+                 place="St. Lawrence Community Rec Centre", area="Downtown",
+                 desc="Forty minutes of gentle stretching and mobility, then a short time of prayer. All levels, no equipment.")
+    if host == "searching":
+        v["host"] = "Lakeshore"
+    elif host == "no-results":
+        v["host"] = "Northside"
+    elif host == "selected":
+        v["host"] = LS["lakeshore-runners"]["name"]
+    title_err = cap_err = host_err = ""
+    alert = ""
+    if invalid:
+        if edit:
+            v.update(cap="20")
+            cap_err = "31 members have joined. Set a capacity of at least 31"
+            alert = error_summary("1 thing to fix before saving", [(cap_err, "f-capacity")])
+        else:
+            v.update(title="", host="", cap="0")
+            title_err = "Give the series a title members will recognize"
+            host_err = "Choose a Listed host"
+            cap_err = "Set a capacity of at least 1"
+            alert = error_summary("3 things to fix before saving",
+                                  [(title_err, "f-title"), (host_err, "f-host"), (cap_err, "f-capacity")])
+        alert = alert.replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Couldn't save the changes" if edit else "Couldn't create the series",
+                           "The server didn't respond. Nothing was changed and what you typed is still here; try again.")
+    ro = busy
+    if host == "searching":
+        results = ('<ul class="pick-cards" aria-label="Matching hosts"><li><a class="pick-card" href="selected.html">'
+                   f'<span class="pick-card__title">{LS["lakeshore-runners"]["name"]}</span>'
+                   '<span class="pick-card__meta">Group · Listed</span></a></li></ul><a href="no-results.html">See no results</a>')
+    elif host == "no-results":
+        results = '<p role="status">No Listed hosts match “Northside”. Try another search.</p><a href="searching.html">Search again</a>'
+    elif ro:
+        results = ""
+    else:
+        results = '<a href="searching.html">Search hosts</a>'
+    body = f"""{alert}
+    {field("Title", "title", v["title"], error=title_err, readonly=ro)}
+    {field("Host", "host", v["host"], required=True, error=host_err, hint="" if host_err else "Search Listed directory listings", readonly=ro)}{results}
+    {textarea("Description", "description", v["desc"], rows=3, hint="Up to 1,000 characters", readonly=ro)}
+    {file_field("Image", "image", filename="couch-to-5k.jpg" if edit and not bootcamp else "", hint="JPEG, PNG or WebP, up to 5 MB", optional=True, readonly=ro)}
+    <div class="field-grid">
+      {field("Series price", "series-price", v["price"], hint="Leave blank for free", readonly=ro)}
+      {field("Drop-in price", "drop-in-price", v["drop"], hint="Leave blank if there is no drop-in", readonly=ro)}
+    </div>
+    {field("Capacity", "capacity", v["cap"], type_="number", extra='min="1" inputmode="numeric"', error=cap_err, readonly=ro)}
+    {field("Location", "place", v["place"], readonly=ro)}
+    {field("Suggestion area", "area", v["area"], hint="Where members are told about it: neighbourhood and city", readonly=ro)}"""
+    verb = "Save changes" if edit else "Create series"
+    to = href("admin-series", "series-saved" if edit else "series-created")
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…" if edit else "Creating…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{to}">{verb}</button>')
+    cancel = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}"{" disabled" if busy else ""}>Cancel</button>'
+    sub = f"{v['title']} · changes show to members at once" if edit else "Dates are added from the series itself, once it exists."
+    html = dialog("Edit series details" if edit else "New series", body, cancel + go, did="dlg", sub=sub)
+    if not invalid and not busy and not host:
+        html = autofocus_first(html, 'id="f-title"')
+    return over_admin("admin-series", series_admin(SR["park-bootcamp" if bootcamp else "couch-to-5k"]), html)
+
+
+s = screen("series-editor", "dialog", "Series editor", group=G, opens_from="admin-series",
+           source="Derived: the Manage Event Series frame's \"New series\" and \"Edit details\" buttons, which have no screen in the prototype; a dialog, as AGENTS.md rules out inline forms. The Host picker follows ADR 0067.")
+
+
+@s("default", "New series: title, a Host defaulting to the Christian Fitness team listing, description, image, series and drop-in prices, capacity, location and suggestion area; Create series.")
+def _():
+    return series_editor()
+
+
+@s("searching", "Searching Listed hosts: matching listings show as choices.")
+def _():
+    return series_editor(host="searching")
+
+
+@s("selected", "A matching Listed host has been chosen.")
+def _():
+    return series_editor(host="selected")
+
+
+@s("no-results", "A host search with no matching Listed listings says so.")
+def _():
+    return series_editor(host="no-results")
+
+
+@s("invalid", "Create pressed with no title, no host and no capacity: each field marked, an error summary focused; nothing is saved.")
+def _():
+    return series_editor(invalid=True)
+
+
+@s("busy", "Create series pressed: button busy, the other disabled, fields read-only.")
+def _():
+    return series_editor(busy=True)
+
+
+@s("failed", "Creating failed: a message in the dialog; nothing was changed and what was typed stays.")
+def _():
+    return series_editor(failed=True)
+
+
+@s("edit", "Edit details on Couch to 5K Run Club: the same fields filled in with its saved host; Save changes.")
+def _():
+    return series_editor(edit=True)
+
+
+@s("edit-bootcamp", "Edit Saturday Park Bootcamp with its saved host Danielle Okafor.")
+def _():
+    return series_editor(edit=True, bootcamp=True)
+
+
+@s("edit-invalid", "Capacity set below the 31 who joined: the field is marked and says the lowest allowed; nothing is saved.")
+def _():
+    return series_editor(edit=True, invalid=True)
+
+
+@s("edit-busy", "Save changes pressed: button busy, fields read-only.")
+def _():
+    return series_editor(edit=True, busy=True)
+
+
+@s("edit-failed", "Saving failed: a message in the dialog; the series is unchanged and the edits stay.")
+def _():
+    return series_editor(edit=True, failed=True)
+
+
+def add_session(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
+    v = dict(date="2026-06-02", start="18:30", end="19:30", topic="Make-up run for Victoria Day week")
+    date_err = end_err = ""
+    alert = ""
+    if invalid:
+        v.update(date="2026-04-10", end="18:00")
+        date_err = "Pick a date after today, April 15"
+        end_err = "End the session after it starts, at 6:30 PM"
+        alert = error_summary("2 things to fix before adding", [(date_err, "f-date"), (end_err, "f-end")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("We couldn't add this date", "Nothing was changed and nobody was told. Try again in a moment.")
+    ro = busy
+    body = f"""{alert}
+    {field("Date", "date", v["date"], type_="date", error=date_err, readonly=ro)}
+    <div class="field-grid">
+      {field("Start time", "start", v["start"], type_="time", readonly=ro)}
+      {field("End time", "end", v["end"], type_="time", error=end_err, readonly=ro)}
+    </div>
+    {field("Topic", "topic", v["topic"], optional=True, hint="What this session covers", readonly=ro)}"""
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Adding…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-series", "date-added")}">Add date</button>')
+    cancel = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}"{" disabled" if busy else ""}>Cancel</button>'
+    html = dialog("Add a date", body, cancel + go, sub="Couch to 5K Run Club · becomes session 9")
+    if not invalid and not busy:
+        html = autofocus_first(html, 'id="f-date"')
+    return over_admin("admin-series", series_admin(SR["couch-to-5k"]), html)
+
+
+s = screen("add-session", "dialog", "Add a series date", group=G, opens_from="admin-series",
+           source="Derived: the Manage Event Series frame's \"Add a date\" button, which has no screen in the prototype; it makes the session event.")
+
+
+@s("default", "Add a date to the chosen series: date, start and end time and an optional topic; Add date.")
+def _():
+    return add_session()
+
+
+@s("invalid", "A past date and an end before the start: both fields marked, an error summary focused; nothing is added.")
+def _():
+    return add_session(invalid=True)
+
+
+@s("busy", "Add date pressed: button busy, the other disabled, fields read-only.")
+def _():
+    return add_session(busy=True)
+
+
+@s("failed", "Adding failed: a message in the dialog; nothing was changed and what was typed stays.")
+def _():
+    return add_session(failed=True)
 
 
 # ===========================================================================
@@ -852,7 +1081,8 @@ def pick_assets(e: dict, platform: str, photo: bool = True) -> str:
     return head + f'<div class="pick-assets">{body}</div>'
 
 
-def pick_page(right: str, *, creating: bool = False, changed: bool = False, events: list | None = None, failed: bool = False) -> str:
+def pick_page(right: str, *, creating: bool = False, changed: bool = False, events: list | None = None, failed: bool = False,
+              note: str = PICK_NOTE) -> str:
     events = MEMBER_EVENTS if events is None else events
     rows = "".join(f"""<li><label class="event-choice"><input class="event-choice__input" type="radio" name="event" value="{x["id"]}"{" checked" if i == 0 else ""}{" disabled" if creating else ""}>
               {image(x["image"], "event-choice__image")}
@@ -866,7 +1096,7 @@ def pick_page(right: str, *, creating: bool = False, changed: bool = False, even
       <div class="split split--pick">
         <form class="sticky-aside" novalidate>
           <fieldset><legend class="field__label field__label--md">Event</legend><ul class="event-choices">{rows}</ul></fieldset>
-          <div class="pick-note">{textarea("Why it’s a pick", "note", PICK_NOTE, rows=2, hint=f"One line. It goes on the graphics and in every caption. {len(PICK_NOTE)} of 70 characters.", readonly=creating)}</div>
+          <div class="pick-note">{textarea("Why it’s a pick", "note", note, rows=2, hint=f"One line. It goes on the graphics and in every caption. {len(note)} of 70 characters.", readonly=creating)}</div>
           {err}{stale}{btn}
         </form>
         <section aria-label="Assets">{right}</section>
@@ -915,9 +1145,10 @@ def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Slack")))
 
 
-@s("changed", "The event or note was changed after the assets were made: a notice and \"Recreate assets\"; the assets shown stay those last made.")
+@s("changed", "Assets were made, then the note was edited: \"You changed the event or note. Recreate to update.\" and the button reads \"Recreate assets\"; the assets shown stay those last made.")
 def _():
-    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram"), changed=True))
+    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram"), changed=True,
+                                                         note="Flat, stroller-friendly, and the sunrise is free."))
 
 
 @s("no-image", "An event with no image: the graphic is built from the brand pattern, with the title, date and place set in type.")
@@ -979,7 +1210,7 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
                    else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="approved.html"{"" if ok else " disabled aria-describedby=" + chr(34) + "approve-hint" + chr(34)}>Approve listing</button>')
         foot = (approve + f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="declined.html"{" disabled" if busy else ""}>Decline</button>'
                 + ("" if ok else '<p class="suggestion__hint" id="approve-hint">Approve unlocks when all four checks pass.</p>'))
-    site = (f' · <a class="inline-link inline-link--ink" href="https://{sg["website"]}" target="_blank" rel="noopener noreferrer">{sg["website"]} {icon("external-link", "icon--xs")}<span class="visually-hidden"> (opens in a new tab)</span></a>'
+    site = (f' · <a class="link link--ink" href="https://{sg["website"]}" target="_blank" rel="noopener noreferrer">{sg["website"]} {icon("external-link", "icon--xs")}<span class="visually-hidden"> (opens in a new tab)</span></a>'
             if sg["website"] else "")
     by = "Submitted by the listing themselves" if sg["relation"] == "Is them" else f'{sg["by"]} · {sg["relation"].lower()}'
     return f"""<div class="split split--picker split--picker-wide">
@@ -1002,7 +1233,7 @@ def suggestion_view(sel: str = "s2", *, passed: tuple | None = None, decided: st
 def listed_table() -> str:
     trs = "".join(f"""<tr><td><span class="listed-cell">{listing_mark(l, "sm")}<span class="table__strong">{l["name"]}</span>{verified_badge() if l["verified"] else ''}</span></td>
                 <td class="table__nowrap">{l["kind"]}</td><td class="table__nowrap muted">{l["area"]}</td><td class="table__end">{l["followers"]:,}</td>
-                <td class="table__end"><button class="row-link" type="button">Edit<span class="visually-hidden"> {l["name"]}</span></button></td></tr>""" for l in LISTINGS)
+                <td class="table__end"><button class="row-link" type="button" data-mock-href="{href("directory-listing-editor")}">Edit<span class="visually-hidden"> {l["name"]}</span></button></td></tr>""" for l in LISTINGS)
     return f"""<div class="table-wrap"><table class="table">
           <caption class="visually-hidden">Listed</caption>
           <thead><tr><th scope="col">Listing</th><th scope="col">Kind</th><th scope="col">Area</th><th scope="col" class="table__end">Followers</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
@@ -1048,9 +1279,21 @@ def _():
     return admin_shell("admin-listings", listings_page(suggestion_view(decided="declined"), pending=2), counts={"admin-listings": 2})
 
 
+@s("tick-failed", "A tick did not save (the fourth check): the box goes back to unticked and a toast says so, as a failed Follow does.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view()),
+                       after=toast_region(toast("danger", "We couldn't save that check", "The box is back as it was. Try again in a moment.", role="alert"), admin=True))
+
+
 @s("listed", "Listed: every listing in the directory with its kind, area and followers, and Edit.")
 def _():
     return admin_shell("admin-listings", listings_page(listed_table(), "Listed"))
+
+
+@s("listing-saved", "Edit saved: Listed shows the listing as changed and a toast says it is live in the directory.")
+def _():
+    return admin_shell("admin-listings", listings_page(listed_table(), "Listed"),
+                       after=toast_region(toast("success", "Lakeshore Runners Fellowship updated", "The directory shows the changes now."), admin=True))
 
 
 @s("loading", "Suggestions loading: the list and the chosen suggestion show as skeletons.")
@@ -1075,31 +1318,103 @@ def _():
         pending="", listed=""))
 
 
+def directory_listing_editor(*, invalid: bool = False, busy: bool = False, failed: bool = False) -> str:
+    lk = LS["lakeshore-runners"]
+    v = dict(name=lk["name"], kind=lk["kind"], area=lk["area"], tagline=lk["tagline"], about=lk["about"], website=lk["website"])
+    name_err = web_err = ""
+    alert = ""
+    if invalid:
+        v.update(name="", website="lakeshore runners")
+        name_err = "Give the listing a name members will recognize"
+        web_err = "Enter a web address like lakeshorerunners.ca"
+        alert = error_summary("2 things to fix before saving", [(name_err, "f-name"), (web_err, "f-website")]).replace('tabindex="-1"', 'tabindex="-1" autofocus')
+    if failed:
+        alert = form_alert("Couldn't save the changes", "The server didn't respond. The listing is unchanged and what you typed is still here; try again.")
+    ro = busy
+    body = f"""{alert}
+    {field("Name", "name", v["name"], error=name_err, readonly=ro)}
+    {select("Kind", "kind", LISTING_KINDS, v["kind"], disabled=ro)}
+    {field("Area", "area", v["area"], hint="Neighbourhood or city", readonly=ro)}
+    {field("Tagline", "tagline", v["tagline"], hint="One line, up to 100 characters", readonly=ro)}
+    {textarea("About", "about", v["about"], rows=4, hint="Up to 1,000 characters", readonly=ro)}
+    {field("Website", "website", v["website"], error=web_err, optional=True, readonly=ro)}
+    {file_field("Logo or photo", "image", hint="JPEG, PNG or WebP, up to 5 MB", optional=True, readonly=ro)}
+    <p class="field__hint">The Verified mark comes from the four checks and cannot be changed here.</p>"""
+    go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Saving…")}</button>' if busy
+          else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-listings", "listing-saved")}">Save changes</button>')
+    cancel = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-listings", "listed")}"{" disabled" if busy else ""}>Cancel</button>'
+    html = dialog("Edit listing", body, cancel + go, sub=f'{lk["name"]} · changes show in the directory at once')
+    if not invalid and not busy:
+        html = autofocus_first(html, 'id="f-name"')
+    return over_admin("admin-listings", listings_page(listed_table(), "Listed"), html)
+
+
+s = screen("directory-listing-editor", "dialog", "Directory listing editor", group=G, opens_from="admin-listings",
+           source="Derived: Listed's \"Edit\" button, which has no screen in the prototype; the same editor a listing's owner gets after claiming it, opened by staff from Listed.")
+
+
+@s("default", "Edit a listed directory listing: name, kind, area, tagline, about, website and image; the Verified mark is not editable here.")
+def _():
+    return directory_listing_editor()
+
+
+@s("invalid", "Saved with no name and a malformed website: both fields marked, an error summary focused; nothing is saved.")
+def _():
+    return directory_listing_editor(invalid=True)
+
+
+@s("busy", "Save changes pressed: button busy, the other disabled, fields read-only.")
+def _():
+    return directory_listing_editor(busy=True)
+
+
+@s("failed", "Saving failed: a message in the dialog; the listing is unchanged and the edits stay.")
+def _():
+    return directory_listing_editor(failed=True)
+
+
 # ===========================================================================
 # Feedback inbox
 # ===========================================================================
 FB_STATE = {"f1": "default", "f2": "correction", "f3": "default", "f4": "resolved"}
 
 
-def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None, busy: bool = False,
-                   moderator: bool = False) -> str:
-    st = {x["id"]: x["status"] for x in FEEDBACK} | (status or {})
-    f = next(x for x in FEEDBACK if x["id"] == sel)
-    shown = [x for x in FEEDBACK if tab == "All" or st[x["id"]] == tab]
-    rows = "".join(f"""<li><a class="feedback-row" href="{FB_STATE[x["id"]]}.html"{CUR if x["id"] == sel else ""}>
+def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status: dict | None = None,
+                   busy: bool = False, variant: str = "", sent_reply: str = "",
+                   moderator: bool = False, shot: bool = False) -> str:
+    notes = [x.copy() for x in FEEDBACK]
+    if variant == "suspended":
+        notes[0].update({"from": "Tyler Simmons", "initials": "TS", "email": "tsimmons22@gmail.com",
+                         "text": "Please review my suspension. I would like to appeal.",
+                         "hint": "Let them know what happens next"})
+    elif variant == "failed":
+        notes[0].update({"from": "A former member", "initials": "?", "email": "Account being deleted"})
+    st = {x["id"]: x["status"] for x in notes} | (status or {})
+    f = next(x for x in notes if x["id"] == sel)
+    shown = [x for x in notes if tab == "All" or st[x["id"]] == tab]
+    rows = "".join(f"""<li><a class="feedback-row" href="{variant if variant and x["id"] == "f1" else FB_STATE[x["id"]]}.html"{CUR if x["id"] == sel else ""}>
               {icon(FEEDBACK_KIND_ICON[x["kind"]], "feedback-row__icon")}
               <span class="feedback-row__body"><span class="feedback-row__top"><span class="feedback-row__from{' feedback-row__from--new' if st[x["id"]] == 'New' else ''}">{x["from"]}</span><span class="feedback-row__when">{x["when"]}</span></span>
               <span class="feedback-row__text">{x["text"]}</span><span class="visually-hidden">{x["kind"]}, {st[x["id"]]}</span></span></a></li>""" for x in shown)
     rows = rows or '<li class="feedback-row feedback-row--empty">Nothing here.</li>'
-    counts = [("All", len(FEEDBACK), "default.html")] + [(k, sum(1 for v in st.values() if v == k), "default.html" if k != "Resolved" else "resolved.html") for k in ("New", "Replied", "Resolved")]
+    counts = [("All", len(notes), "default.html")] + [(k, sum(1 for v in st.values() if v == k), "default.html" if k != "Resolved" else "resolved.html") for k in ("New", "Replied", "Resolved")]
     story = (f'<p class="feedback__link"><a class="btn btn--secondary btn--sm" href="{href("admin-story-editor", "published")}">{icon("pen-line")}Open the story to correct it</a></p>'
-             if f["kind"] == "Content" and not moderator else "")
-    first = f["from"].split()[0]
+             if f["kind"] == "Correction" and not moderator else "")
+    first = "the member" if variant == "failed" else f["from"].split()[0]
+    send_target = ' data-mock-href="failed.html"' if variant == "failed" else ""
+    resolve_target = "" if variant else ' data-mock-href="resolved.html"'
+    shot_html = (f'''<figure class="feedback-detail__shot"><a class="feedback-detail__thumb-link" href="screenshot-open.html" aria-label="Open the screenshot full size">{image("run", "feedback-detail__thumb", "Screenshot from Michael Chen's iPhone")}</a>
+            <figcaption>Screenshot from Michael · 1170 × 2532 · 412 KB · Open to see it full size</figcaption></figure>''')
     send = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>' if busy
-            else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>')
+            else (f'<button class="btn btn--primary btn--md" type="button"{send_target}>{icon("send")}Send reply</button>' if variant
+                  else f'<button class="btn btn--primary btn--md" type="submit" data-mock-href="replied.html">{icon("send")}Send reply</button>'))
     other = ('<button class="btn btn--secondary btn--md" type="button" data-mock-href="default.html">Reopen</button>' if st[sel] == "Resolved"
-             else f'<button class="btn btn--secondary btn--md" type="button" data-mock-href="resolved.html"{" disabled" if busy else ""}>Mark resolved</button>')
-    return f"""{admin_header("Feedback", "Ideas, bugs, corrections and thanks from members. Everyone hears back.")}
+             else f'<button class="btn btn--secondary btn--md" type="button"{resolve_target}{" disabled" if busy else ""}>Mark resolved</button>')
+    label = ' <span class="status status--suspended">Suspended</span>' if variant == "suspended" else ""
+    thread = f'<section aria-labelledby="thread-title"><h3 id="thread-title">Reply sent</h3><p>{sent_reply}</p></section>' if sent_reply else ""
+    refusal = '<div class="form-alert" role="alert"><div><p class="form-alert__title">We couldn’t send your reply</p><p>Nothing was changed. Your reply is still here.</p></div></div>' if variant == "failed" else ""
+    header = admin_header("Feedback", "Ideas, bugs, corrections and thanks from members. Everyone hears back.").replace("\n  \n", "\n\n")
+    return f"""{header}
       {tabs("Filter feedback", counts, tab)}
       <div class="split split--inbox">
         <nav aria-label="Feedback"><ul class="card card--list feedback-list">{rows}</ul></nav>
@@ -1107,19 +1422,20 @@ def feedback_inbox(sel: str = "f1", *, tab: str = "All", reply: str = "", status
           <div class="feedback-detail__head"><span class="kind-tag">{icon(FEEDBACK_KIND_ICON[f["kind"]])}{f["kind"]}</span>{pill(st[sel])}<span class="feedback-detail__when">{f["when"]}</span></div>
           <h2 class="visually-hidden">{f["kind"]} from {f["from"]}</h2>
           <p class="feedback-detail__text">{f["text"]}</p>
+          {shot_html if shot else ""}
           <dl class="feedback-detail__facts">
-            <div class="feedback-detail__from">{avatar(f["initials"], size="sm")}<div><dt class="visually-hidden">From</dt><dd class="feedback-detail__strong">{f["from"]}</dd><dd class="feedback-detail__sub">{f["email"]}</dd></div></div>
+            <div class="feedback-detail__from">{avatar(f["initials"], size="sm")}<div><dt class="visually-hidden">From</dt><dd class="feedback-detail__strong">{f["from"]}{label}</dd><dd class="feedback-detail__sub">{f["email"]}</dd></div></div>
             <div><dt>Sent from</dt><dd class="feedback-detail__strong">{f["page"]}</dd></div>
             <div><dt>Device</dt><dd class="feedback-detail__strong feedback-detail__device">{icon("monitor")}{f["device"]}</dd></div>
           </dl>
-          {story}
+{story}{thread}{refusal}
           <div class="feedback-detail__reply">{textarea(f"Reply to {first}", "reply", reply, hint="" if reply else f["hint"], readonly=busy)}</div>
           <div class="cluster">{send}{other}</div>
         </form>
       </div>"""
 
 
-s = screen("admin-feedback", "page", "Feedback inbox", route="/admin/feedback", group=G, source=SRC + "Feedback Inbox (p1eGpLPP99JReJ5WHBovdM)")
+s = screen("admin-feedback", "page", "Feedback inbox", route="/admin/feedback", group=G, source=SRC + "Feedback Inbox (p1eGpLPP99JReJ5WHBovdM)", requirements=["L2-074"])
 
 
 @s("default", "Every note from members, newest first, with its kind and status; the chosen one (a bug report) shows in full with who sent it, the page it was sent from, their device, a reply box and Mark resolved.")
@@ -1127,9 +1443,31 @@ def _():
     return admin_shell("admin-feedback", feedback_inbox())
 
 
+@s("screenshot", "A note with a screenshot: a thumbnail of what the member saw sits under their words and opens full size; staff see it before they reply.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox(shot=True))
+
+
+@s("screenshot-open", "The screenshot opened full size in a dialog over the inbox: Close returns to the note. It is shown as an image only, never as HTML.")
+def _():
+    body = f'<figure>{image("run", "feedback-detail__full", "Screenshot from Michael Chen\'s iPhone")}<figcaption class="visually-hidden">Sent with the note from Michael Chen</figcaption></figure>'
+    foot = '<button class="btn btn--secondary btn--grow" type="button" data-mock-href="screenshot.html">Close</button>'
+    return over_admin("admin-feedback", feedback_inbox(shot=True), dialog("Screenshot from Michael Chen", body, foot, sub="1170 × 2532 · 412 KB", did="shot"))
+
+
 @s("correction", "A correction to a story chosen: a button opens that story in the editor.")
 def _():
     return admin_shell("admin-feedback", feedback_inbox("f2"))
+
+
+@s("suspended", "A feedback note from a suspended member, labelled Suspended in the inbox.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox(variant="suspended"))
+
+
+@s("failed", "A reply to a deleting member is refused; the draft and note status are unchanged.")
+def _():
+    return admin_shell("admin-feedback", feedback_inbox(variant="failed", reply="Thanks for letting us know."))
 
 
 @s("replying", "Send reply pressed: button busy, the reply read-only.")
@@ -1139,7 +1477,7 @@ def _():
 
 @s("replied", "The reply was sent: the note is Replied, the reply box is empty again and a toast confirms it; one fewer note is new.")
 def _():
-    return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}), counts={"admin-feedback": 1},
+    return admin_shell("admin-feedback", feedback_inbox(status={"f1": "Replied"}, sent_reply="Thanks, Michael. We can reproduce it on iPhone and a fix goes out this week."), counts={"admin-feedback": 1},
                        after=toast_region(toast("success", "Reply sent.", "Michael Chen gets it by email."), admin=True))
 
 
