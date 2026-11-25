@@ -11,6 +11,16 @@ const offline = () => import('./pages/offline/offline-page');
 
 export const routes: Routes = [
   {
+    path: 'terms',
+    title: titled('Terms of Service'),
+    loadComponent: () => import('./pages/terms/terms-page'),
+  },
+  {
+    path: 'privacy',
+    title: titled('Privacy Policy'),
+    loadComponent: () => import('./pages/privacy/privacy-page'),
+  },
+  {
     path: '',
     pathMatch: 'full',
     title: 'Christian Fitness',

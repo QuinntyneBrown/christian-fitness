@@ -98,3 +98,4 @@ export * from './toast/toast-region';
 export * from './tooltip/tooltip';
 export * from './top-bar/member-destination';
 export * from './top-bar/top-bar';
+export * from './prose/prose';
