@@ -37,9 +37,42 @@ The feature is a vertical slice from the Preferences screen to the database. No 
 - **`SavePreferencesCommand` / `SavePreferencesValidator` / `SavePreferencesHandler`** — the command carries every setting on the page. The validator refuses an unknown area, visibility or interest with 400 `validation_failed` and a field code. The handler loads the caller's `MemberPreferences` (creating it from the defaults), applies every value, writes the account subscription (below) and the member's interests, and saves once, so every changed setting is saved together or none is (AC6). It answers the saved `PreferencesDto`.
 - **`MemberPreferences`** — new domain entity in `ChristianFitness.Domain/Members/`, one row per member, keyed by `MemberId` with a cascade from `Member`. It holds the four notification switches and the privacy and suggestion settings. `MemberPreferences.DefaultsFor(memberId)` gives every notification switch on (AC4), so existing members need no backfill: a member without a row has the defaults. `Allows(NotificationKind)` answers whether a notification of a kind may be shown or sent.
 - **Account subscription** — the email switches are not stored on `MemberPreferences`. They are the subscription record that the newsletter design introduces for `L2-057` (named `NewsletterSubscription` here until that design settles), found by the member's normalized email (AC2). Saving an email switch on subscribes the account's address to that email with the consent time recorded and no confirmation email, since the address is the account's own (AC8). Saving all four off unsubscribes the address as the Unsubscribe link of `L2-058` AC5 does (AC8). An unsubscribe from an email link therefore shows as switches off the next time Preferences opens (AC9, mock `unsubscribed` shows the same text after "Turn off all email").
-- **`NotificationKind`** — enum `EventReminder`, `Message`, `FollowedListingDate`, `EventChange`. Each sender of a notification shall read `MemberPreferences.Allows(kind)` for the recipient before showing or sending it (AC10). "Changes to your events" off still shows the change on the event itself, as `CancelEventHandler` does today through `IChatChannel.NotifyCancelledAsync` and the event page.
+- **`NotificationKind`** — enum `EventReminder`, `EventCancelled`, `SeriesDateCancelled`, `FollowedHostDates`, the four kinds of ADR 0068 (built by journey 14, ADR 0083). Each sender of a notification shall read `MemberPreferences.Allows(kind)` for the recipient before showing or sending it (AC10). "Changes to your events" off still shows the change on the event itself, as `CancelEventHandler` does today through `IChatChannel.NotifyCancelledAsync` and the event page.
 - **`IAppDbContext.MemberPreferences`** — new `DbSet`; migration `AddMemberPreferences` adds the table. The CLI applies it (`cf migrate`); the API does not migrate on startup.
 - **Telemetry** — spans record the route templates `api/preferences` only. No span, metric or log carries a setting's value, the member's name or the address (`L2-033` AC2, `L2-065` AC9).
+
+### Notification inbox (journey 14; ADR 0068, ADR 0083)
+
+The switches above decide which kinds notify; the inbox is where a notification shows. It is built
+before the switches, so until journey 33 every kind is allowed.
+
+- **`Notification`** — domain entity in `ChristianFitness.Domain/Notifications/`: `Id` (version 7),
+  `MemberId`, `Kind`, `Title` (plain text, at most 120), `Text` (plain text, at most 300), `Href` (an
+  app-relative path), `CreatedAt` and `ReadAt`. Migration `AddNotifications`, applied by `cf migrate`.
+- **`INotifier` / `Notifier`** — the only way to create one (Application `Notifications/`). It checks
+  the request, stores it, drops that member's notifications older than 30 days, saves once and pushes a
+  `NotificationDto` to the member's connections through `INotificationChannel` as
+  `NotificationReceived`. Journey 33 adds `MemberPreferences.Allows(kind)` here. Journey 15 is the first
+  sender; until then only the API tests call it.
+- **`NotificationsController`** — `GET /api/notifications` sends `ListNotificationsQuery` (the newest 50
+  of the last 30 days and the unread count of the same 30 days); `POST /api/notifications/read` sends
+  `MarkNotificationsReadCommand` (204). Member session by the fallback policy; a member sees and marks
+  only their own.
+- **Real-time client** — `SignalRChatConnection` is provided by the member shell, one per session, and
+  bound to `CHAT_CONNECTION` and `NOTIFICATION_STREAM`; the chat screen shares it (ADR 0083).
+- **`NotificationStore`** — shell-scoped store in the domain library with unit tests: the latest 50,
+  newest first, the unread count, a pushed notification put first (a repeated id ignored, the 51st
+  dropped), and mark all as read. `notificationTime` gives "Just now", "5 min ago", "2 hours ago",
+  "Yesterday" or "Apr 12" in Toronto.
+- **`Bell`** and **`NotificationRow`** — presentation components under their design-system names
+  (`components/src/bell/`, `components/src/notification-row/`). The top bar shows the bell before the
+  profile button: no badge at zero, the count to 9, `9+` above, the accessible name "Notifications,
+  12 unread", the badge `aria-hidden`, a 44 × 44 px target and `aria-current="page"` on the screen.
+- **`NotificationsPage`** — `/notifications`, a lazy child of the member shell titled "Notifications ·
+  Christian Fitness": newest first, "Mark all as read" while any is unread, "Notification settings"
+  linking to `/preferences#notifications`, and the states default, many, loading (skeleton rows),
+  empty ("No notifications yet" with Browse events) and error ("Notifications didn't load" with Try
+  again) of mock `pages/notifications`.
 
 ### Open questions
 

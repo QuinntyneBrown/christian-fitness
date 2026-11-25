@@ -43,6 +43,7 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Form layout](components/form-layout.html) | Inputs | Field stacks, two-column rows, error summary and submit states. |
 | [Top bar](components/top-bar.html) | Navigation | Member app header, public site header and their mobile forms. |
 | [Tab bar](components/tab-bar.html) | Navigation | Bottom navigation for the member app on phones. |
+| [Bell](components/bell.html) | Navigation | The member top bar's link to Notifications with the unread count. |
 | [Sidebar navigation](components/sidebar-navigation.html) | Navigation | The admin console sidebar with counts. |
 | [Masthead](components/masthead.html) | Navigation | The news front page's nameplate, date line and section navigation. |
 | [Side navigation](components/side-navigation.html) | Navigation | In-page section links for Preferences and the legal pages. |
@@ -86,6 +87,7 @@ The mocks now render with this system: `docs/mocks/assets/tokens.css` and `ui.cs
 | [Pick art](components/pick-art.html) | Data display | Community Pick artwork in each size, captions and the Slack preview. |
 | [Suggestion](components/suggestion.html) | Data display | A suggested listing with the four checks staff record. |
 | [Feedback row](components/feedback-row.html) | Data display | Feedback inbox rows, kinds, the detail and what was said. |
+| [Notification row](components/notification-row.html) | Data display | One notification in the inbox: kind, title, text, time and unread. |
 | [Toast](components/toast.html) | Feedback | Short-lived notices with optional action. |
 | [Alert](components/alert.html) | Feedback | Inline alerts and error summaries inside forms and pages. |
 | [Banner](components/banner.html) | Feedback | Page-level notices under the header. |
@@ -159,7 +161,7 @@ Run on 2026-11-25, after adding the pages for the new mocks:
 
 - `check_contrast.py`: 174 pairs passed in light and dark, 0 failed.
 - `check_design_system.py`: 96 pages (75 components, 8 patterns, 12 foundations, index), 0 errors, 0 warnings.
-- `check_mocks.py docs/mocks`: 0 errors (the 25 that came with the mocks are fixed).
+- `check_mocks.py docs/mocks`: no new errors; the 25 it reports came with the mocks (see Drift).
 - Horizontal overflow (Playwright, all 96 pages and every page and dialog mock at 360 and 1280px): none, except the two Google join mocks listed under Drift.
 - Screenshots reviewed at 360 and 1280px in both themes for every new and changed component page.
 

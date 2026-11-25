@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted, 23 November 2026 (slice 12.1).
+Accepted, 23 November 2026 (slice 12.1). Amended by ADR 0083: the connection is provided by the
+member shell, one per member session, and shared by chat and notifications.
 
 ## Context
 
