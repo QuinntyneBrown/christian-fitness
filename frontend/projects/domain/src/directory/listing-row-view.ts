@@ -4,6 +4,8 @@ import { listingKindInfo } from './listing-kinds';
 /** What a `listing-row` shows (L2-054 AC2): the screen passes these to the component as they are. */
 export interface ListingRowView {
   id: string;
+  /** The listing's profile (L2-055). */
+  href: string;
   name: string;
   tagline: string;
   area: string;
@@ -42,6 +44,7 @@ export function listingInitials(kind: ListingKind, name: string): string {
 export function listingRowViewOf(row: DirectoryListingRowDto): ListingRowView {
   return {
     id: row.id,
+    href: `/directory/${encodeURIComponent(row.id)}`,
     name: row.name,
     tagline: row.tagline,
     area: row.area,

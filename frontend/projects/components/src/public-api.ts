@@ -61,6 +61,7 @@ export * from './list/list';
 export * from './list/mini-row';
 export * from './list/service-row';
 export * from './listing-row/directory-group';
+export * from './listing-row/listing-head';
 export * from './listing-row/listing-mark';
 export * from './listing-row/listing-row';
 export * from './listing-row/verified-mark';

@@ -1,0 +1,110 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { DIRECTORY_SERVICE, type ListingProfileDto } from '@cf/api';
+import {
+  Button,
+  Container,
+  type DescriptionItem,
+  DescriptionList,
+  EmptyState,
+  ErrorPage,
+  Link,
+  ListingHead,
+  SkeletonRegion,
+  Skeleton,
+  Split,
+  TagList,
+} from '@cf/components';
+import { listingProfileViewOf } from '@cf/domain';
+import type { Subscription } from 'rxjs';
+import { HttpDirectoryService } from '../../services/http-directory.service';
+
+/**
+ * A listing's profile at `/directory/:id` (L2-055; ADR 0085; mock `listing-profile/`): the back
+ * link to the directory, the listing head, About with its focus tags, and beside it from LG the key
+ * facts (area, an https website, followers and the year listed). `DIRECTORY_SERVICE` is bound
+ * here, so the client and its request live only while the screen does. While it loads, the head
+ * and the columns are skeletons; an id that is not published (404) shows the not-found view; any
+ * other failure shows "This listing didn't load" with Try again and Directory (a 5xx is the
+ * server-error screen's). Every word the listing gives is rendered as text.
+ */
+@Component({
+  selector: 'cf-listing-profile-page',
+  imports: [
+    Button,
+    Container,
+    DescriptionList,
+    EmptyState,
+    ErrorPage,
+    Link,
+    ListingHead,
+    Skeleton,
+    SkeletonRegion,
+    Split,
+    TagList,
+  ],
+  providers: [{ provide: DIRECTORY_SERVICE, useClass: HttpDirectoryService }],
+  templateUrl: './listing-profile-page.html',
+  styleUrl: './listing-profile-page.scss',
+})
+export default class ListingProfilePage {
+  private readonly directory = inject(DIRECTORY_SERVICE);
+  private readonly destroyRef = inject(DestroyRef);
+  private id = '';
+  private request: Subscription | null = null;
+
+  protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
+  protected readonly profile = signal<ListingProfileDto | null>(null);
+  protected readonly view = computed(() => {
+    const profile = this.profile();
+    return profile ? listingProfileViewOf(profile) : null;
+  });
+  protected readonly facts = computed<readonly DescriptionItem[]>(() => {
+    const profile = this.profile();
+    const view = this.view();
+    if (!profile || !view) return [];
+    return [
+      { term: 'Area', detail: profile.area, icon: 'pin' },
+      ...(view.website
+        ? [{ term: 'Website', link: view.website, icon: 'globe' } satisfies DescriptionItem]
+        : []),
+      { term: 'Followers', detail: view.followers },
+      { term: 'On Christian Fitness', detail: view.since },
+    ];
+  });
+
+  constructor() {
+    inject(ActivatedRoute)
+      .paramMap.pipe(takeUntilDestroyed())
+      .subscribe((params) => {
+        this.id = params.get('id') ?? '';
+        this.load();
+      });
+  }
+
+  /** Asks for the profile again, in place. */
+  protected retry(): void {
+    this.load();
+  }
+
+  private load(): void {
+    this.request?.unsubscribe();
+    this.state.set('loading');
+    this.request = this.directory
+      .get(this.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => {
+          this.profile.set(profile);
+          this.state.set('loaded');
+        },
+        // A 5xx has already opened the server-error screen; a 404 is "not found", anything else "failed".
+        error: (error: unknown) =>
+          this.state.set(
+            error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'failed',
+          ),
+      });
+  }
+}

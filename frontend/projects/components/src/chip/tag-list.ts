@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 import { Tag } from './tag';
 
 /**
@@ -14,4 +14,6 @@ import { Tag } from './tag';
 })
 export class TagList {
   readonly tags = input.required<readonly string[]>();
+  /** Outlined tags, as a listing's focus shows them. */
+  readonly outline = input(false, { transform: booleanAttribute });
 }

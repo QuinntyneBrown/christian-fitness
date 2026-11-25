@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 /** One directory row as the member reads it. */
 export interface ListingRowView {
-  /** The row's link, or none while the listing profile does not exist (ADR 0082). */
+  /** The row's link to the listing profile (ADR 0085), or none on a skeleton row. */
   href: string | null;
   /** The mark's initials, or none when it shows a photo. */
   initials: string;
@@ -129,6 +129,14 @@ export class WebDirectoryPage {
 
   async typeSearch(text: string): Promise<void> {
     await this.search.fill(text);
+  }
+
+  /** Opens the listing a row names, through its link (L2-054 AC2). */
+  async openRow(name: string): Promise<void> {
+    await this.rows
+      .filter({ has: this.page.locator('.listing-row__name', { hasText: name }) })
+      .locator('a.listing-row__link')
+      .click();
   }
 
   /** Types one key at a time, as a member does. */

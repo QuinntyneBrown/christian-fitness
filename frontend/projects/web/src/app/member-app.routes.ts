@@ -75,6 +75,12 @@ const routes: Routes = [
         loadComponent: () => import('./pages/suggest-listing/suggest-listing-page'),
       },
       {
+        // One published listing's profile (L2-055; ADR 0085).
+        path: 'directory/:id',
+        title: titled('Listing'),
+        loadComponent: () => import('./pages/listing-profile/listing-profile-page'),
+      },
+      {
         // Services: so far the heading and "Apply to be listed" (L2-026; ADR 0000); the list is slice 16.1.
         path: 'services',
         title: titled('Services'),

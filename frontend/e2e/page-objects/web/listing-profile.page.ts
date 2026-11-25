@@ -1,0 +1,111 @@
+import type { Locator, Page } from '@playwright/test';
+import { ErrorScreen } from '../shared/error-screen';
+
+/** The head of a listing's profile as the member reads it. */
+export interface ListingHeadView {
+  /** The mark's initials, or none when it shows a photo. */
+  initials: string;
+  /** `round` for a Person, Instructor or Ambassador; `square` for the others. */
+  shape: 'round' | 'square';
+  photo: string | null;
+  kind: string;
+  /** "Verified" in words, or none. */
+  verified: string | null;
+  name: string;
+  tagline: string;
+}
+
+/** The website fact as the member reads it. */
+export interface WebsiteView {
+  text: string;
+  href: string;
+  target: string | null;
+  rel: string | null;
+}
+
+/**
+ * The member app's listing profile at `/directory/:id` (mock `docs/mocks/pages/listing-profile/`):
+ * the back link, the head, Hosting, About, the key facts and Connected, and the loading, error and
+ * not-found states. Owns the selectors of that screen; the not-found view is read through
+ * {@link ErrorScreen}.
+ */
+export class WebListingProfilePage extends ErrorScreen {
+  readonly backLink: Locator;
+  readonly head: Locator;
+  readonly name: Locator;
+  readonly about: Locator;
+  readonly aboutText: Locator;
+  readonly focusTags: Locator;
+  readonly facts: Locator;
+  readonly website: Locator;
+  readonly loading: Locator;
+  readonly loadingLabel: Locator;
+  readonly errorHeading: Locator;
+  readonly errorText: Locator;
+  readonly retryButton: Locator;
+  readonly directoryAction: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.backLink = this.main.getByRole('link', { name: 'Directory', exact: true }).first();
+    this.head = this.main.locator('.listing-head');
+    this.name = this.head.getByRole('heading', { level: 1 });
+    this.about = this.main.getByRole('region', { name: 'About', exact: true });
+    this.aboutText = this.about.locator('.lead');
+    this.focusTags = this.about.locator('.tag');
+    this.facts = this.main.getByRole('complementary', { name: 'About this listing' }).locator('dl');
+    this.website = this.facts.getByRole('link');
+    this.loading = this.main.locator('[aria-busy="true"]');
+    this.loadingLabel = this.main.getByText('Loading listing', { exact: true }).first();
+    this.errorHeading = this.main.getByRole('heading', { name: "This listing didn't load" });
+    this.errorText = this.main.locator('.empty-state__text');
+    this.retryButton = this.main.getByRole('button', { name: 'Try again' });
+    this.directoryAction = this.main.locator('.empty-state__actions').getByRole('link', {
+      name: 'Directory',
+    });
+  }
+
+  async open(id: string): Promise<void> {
+    await this.page.goto(`/directory/${id}`);
+  }
+
+  /** Reads the head once the listing has loaded (its skeleton head has no name). */
+  async headView(): Promise<ListingHeadView> {
+    await this.head.locator('.listing-head__name').waitFor();
+    return this.head.evaluate((head) => {
+      const text = (selector: string): string =>
+        (head.querySelector(selector)?.textContent ?? '').replace(/\s+/g, ' ').trim();
+      const mark = head.querySelector('.listing-mark');
+      const verified = head.querySelector('.listing-head__verified');
+      const kind = head.querySelector('.listing-head__kind');
+      return {
+        initials: mark?.tagName === 'IMG' ? '' : (mark?.textContent ?? '').trim(),
+        shape: mark?.classList.contains('listing-mark--person') ? 'round' : 'square',
+        photo: mark?.tagName === 'IMG' ? mark.getAttribute('src') : null,
+        kind: (kind?.firstChild?.textContent ?? '').trim(),
+        verified: verified ? (verified.textContent ?? '').replace(/[·\s]+/g, ' ').trim() : null,
+        name: text('h1'),
+        tagline: text('.subtitle'),
+      };
+    });
+  }
+
+  /** Each key fact, term to value, in order. */
+  async factViews(): Promise<[string, string][]> {
+    return this.facts.evaluate((list) =>
+      Array.from(list.querySelectorAll(':scope > div')).map((pair) => [
+        (pair.querySelector('dt')?.textContent ?? '').trim(),
+        (pair.querySelector('dd')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      ]),
+    );
+  }
+
+  async websiteView(): Promise<WebsiteView> {
+    return {
+      text: ((await this.website.textContent()) ?? '').replace(/\s+/g, ' ').trim(),
+      href: (await this.website.getAttribute('href')) ?? '',
+      target: await this.website.getAttribute('target'),
+      rel: await this.website.getAttribute('rel'),
+    };
+  }
+}

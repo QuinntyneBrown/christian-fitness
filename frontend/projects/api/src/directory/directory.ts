@@ -45,7 +45,27 @@ export interface DirectoryQuery {
   cursor: string | null;
 }
 
-/** The directory a member browses (L2-054; ADR 0082). */
+/**
+ * A published listing's profile (`ListingProfileDto`, ADR 0085): what it publishes, how many follow
+ * it and the year it was listed. The website is as stored: the app shows only an https address
+ * (L2-055 AC5). It carries no member id or contact detail.
+ */
+export interface ListingProfileDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+  tagline: string;
+  area: string;
+  description: string;
+  focus: string[];
+  websiteUrl: string | null;
+  isVerified: boolean;
+  photoKey: string | null;
+  followers: number;
+  listedYear: number;
+}
+
+/** The directory a member browses (L2-054, L2-055; ADR 0082, ADR 0085). */
 export interface DirectoryApi {
   /**
    * One page of the published listings in kind and name order, 50 to a page. A refusal
@@ -53,6 +73,12 @@ export interface DirectoryApi {
    * `HttpErrorResponse`; a 5xx opens the server-error screen.
    */
   list(query: DirectoryQuery): Observable<DirectoryPageDto>;
+
+  /**
+   * One published listing's profile. An unknown or unpublished id errors with a 404
+   * (`listing_not_found`); a 5xx opens the server-error screen.
+   */
+  get(id: string): Observable<ListingProfileDto>;
 }
 
 /** Binds {@link DirectoryApi}; the Directory screen provides it on its own route component. */

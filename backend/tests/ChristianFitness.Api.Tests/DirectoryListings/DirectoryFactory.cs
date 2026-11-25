@@ -43,16 +43,19 @@ public sealed class DirectoryFactory : ApiFactory
         string[]? focus = null,
         ListingStatus status = ListingStatus.Published,
         bool verified = false,
-        string? photoKey = null)
+        string? photoKey = null,
+        string description = "",
+        string? website = null,
+        DateTimeOffset? listedAt = null)
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var listing = DirectoryListing.CreateDraft(Guid.CreateVersion7(), kind, name, tagline, area, focus ?? [], Now, isVerified: verified);
+        var listing = DirectoryListing.CreateDraft(Guid.CreateVersion7(), kind, name, tagline, area, focus ?? [], Now, description, website, verified);
         listing.ShowPhoto(photoKey);
         switch (status)
         {
             case ListingStatus.Published:
-                listing.Publish(Now);
+                listing.Publish(listedAt ?? Now);
                 break;
             case ListingStatus.Declined:
                 listing.Decline();

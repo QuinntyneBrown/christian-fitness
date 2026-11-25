@@ -1,0 +1,79 @@
+<main id="main" class="listing-profile-page">
+  @if (state() === 'not-found') {
+    <cf-container page="detail">
+      <cf-error-page
+        code="404"
+        heading="Page not found"
+        text="That link may be old, or the page has moved. Everything else is right where you left it."
+      >
+        <cf-button slot="actions" href="/" size="sm">Go to home</cf-button>
+        <cf-button slot="actions" href="/directory" variant="secondary" size="sm"
+          >Directory</cf-button
+        >
+      </cf-error-page>
+    </cf-container>
+  } @else if (state() === 'loading') {
+    <cf-skeleton-region label="Loading listing">
+      <cf-container page="detail">
+        <cf-link href="/directory" variant="back">Directory</cf-link>
+        <cf-listing-head loading />
+        <cf-split variant="detail">
+          <div class="listing-profile-page__lines">
+            <cf-skeleton shape="title" width="20" />
+            <cf-skeleton shape="tile" />
+            <cf-skeleton width="90" />
+            <cf-skeleton width="80" />
+          </div>
+          <div class="listing-profile-page__lines">
+            <cf-skeleton width="80" />
+            <cf-skeleton width="80" />
+            <cf-skeleton width="80" />
+          </div>
+        </cf-split>
+      </cf-container>
+    </cf-skeleton-region>
+  } @else {
+    <cf-container page="detail">
+      <cf-link href="/directory" variant="back">Directory</cf-link>
+      @if (state() === 'failed') {
+        <h1 class="visually-hidden">Listing</h1>
+        <div class="listing-profile-page__error">
+          <cf-empty-state
+            variant="error"
+            heading="This listing didn't load"
+            text="We couldn't load this profile. Check your connection and try again."
+          >
+            <cf-button slot="actions" size="sm" (click)="retry()">Try again</cf-button>
+            <cf-button slot="actions" size="sm" variant="secondary" href="/directory"
+              >Directory</cf-button
+            >
+          </cf-empty-state>
+        </div>
+      } @else if (profile(); as listing) {
+        @if (view(); as shown) {
+          <cf-listing-head
+            [kind]="shown.kind"
+            [name]="listing.name"
+            [tagline]="listing.tagline"
+            [verified]="listing.isVerified"
+            [person]="shown.person"
+            [initials]="shown.initials"
+            [photoSrc]="shown.photoSrc"
+          />
+          <cf-split variant="detail">
+            <div>
+              <section aria-labelledby="about-title">
+                <h2 class="display section-title" id="about-title">About</h2>
+                <p class="prose lead">{{ listing.description }}</p>
+                <cf-tag-list [tags]="listing.focus" outline />
+              </section>
+            </div>
+            <aside class="listing-profile-page__aside" aria-label="About this listing">
+              <cf-description-list variant="spec" [items]="facts()" />
+            </aside>
+          </cf-split>
+        }
+      }
+    </cf-container>
+  }
+</main>

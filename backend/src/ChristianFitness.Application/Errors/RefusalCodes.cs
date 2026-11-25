@@ -21,6 +21,12 @@ public static class RefusalCodes
     /// <summary>The listing asked for does not exist (L2-013 AC4; ADR 0000).</summary>
     public const string ServiceNotFound = "service_not_found";
 
+    /// <summary>The directory listing asked for does not exist or is not published (L2-055 AC7; ADR 0085).</summary>
+    public const string ListingNotFound = "listing_not_found";
+
+    /// <summary>The published directory listing has no owner to message (L2-014 AC2, L2-055 AC6; ADR 0066, ADR 0085).</summary>
+    public const string ListingUnreachable = "listing_unreachable";
+
     /// <summary>The listing publishes a contact link, so Message is not offered (L2-014 AC2; ADR 0053).</summary>
     public const string ProfessionalNotLinked = "professional_not_linked";
 
