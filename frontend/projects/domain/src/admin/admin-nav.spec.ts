@@ -18,10 +18,11 @@ describe('adminNavOf', () => {
     ]);
   });
 
-  // L2-021 AC1 (ADR 0079, ADR 0091): Dashboard alone, then each area in its group.
-  it('gives an Admin Dashboard alone, then the Gather and Community areas', () => {
+  // L2-021 AC1 (ADR 0079, ADR 0091, ADR 0093): Dashboard alone, then each area in its group.
+  it('gives an Admin Dashboard alone, then the Publish, Gather and Community areas', () => {
     expect(adminNavOf('Admin', null).map((area) => [area.label, area.group, area.href])).toEqual([
       ['Dashboard', null, '/'],
+      ['Stories', 'Publish', '/stories'],
       ['Events', 'Gather', '/events'],
       ['Event series', 'Gather', '/series'],
       ['Listings', 'Community', '/listings'],

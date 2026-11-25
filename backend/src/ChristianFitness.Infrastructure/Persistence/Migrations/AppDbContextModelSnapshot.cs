@@ -833,6 +833,64 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("TwoStepFailures", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.News.Byline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("PhotoKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NameKey")
+                        .IsUnique();
+
+                    b.ToTable("Bylines", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.News.Story", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BylineId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Headline")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BylineId");
+
+                    b.ToTable("Stories", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1183,6 +1241,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.News.Story", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.News.Byline", null)
+                        .WithMany()
+                        .HasForeignKey("BylineId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

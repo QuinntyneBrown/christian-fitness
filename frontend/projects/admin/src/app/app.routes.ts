@@ -39,6 +39,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/dashboard/dashboard-page'),
       },
       {
+        // Stories and its screens, loaded with the area (journey 21; ADR 0093).
+        path: 'stories',
+        loadChildren: () => import('./pages/stories.routes'),
+      },
+      {
         // Every event under All, Published and Draft, and the event editor (slice 10.1; ADR 0021).
         path: 'events',
         title: titled('Events'),

@@ -87,3 +87,4 @@ export * from './directory/suggestion-form';
 export * from './directory/suggestion-review';
 export * from './directory/listing-claim';
 export * from './directory/listed-listings';
+export * from './news/bylines';

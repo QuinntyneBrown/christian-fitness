@@ -76,6 +76,10 @@ public sealed class FollowRaceTests(FollowRaceTests.Factory factory) : IClassFix
 
         public DbSet<ChristianFitness.Domain.Events.SeriesEnrolment> SeriesEnrolments => db.SeriesEnrolments;
 
+        public DbSet<ChristianFitness.Domain.News.Byline> Bylines => db.Bylines;
+
+        public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
+
         public DbSet<ChristianFitness.Domain.Directory.ListingFollowChange> ListingFollowChanges => db.ListingFollowChanges;
 
         public DbSet<ChristianFitness.Domain.Audit.AuditEntry> AuditEntries => db.AuditEntries;

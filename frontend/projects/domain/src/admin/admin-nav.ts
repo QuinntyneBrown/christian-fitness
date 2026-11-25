@@ -18,6 +18,7 @@ export interface AdminNavArea {
 /** Each area's group (ADR 0079); a group shows only once it holds an area (ADR 0091). */
 const AREA_GROUPS: Record<AdminAreaKey, AdminAreaGroup | null> = {
   dashboard: null,
+  stories: 'Publish',
   events: 'Gather',
   series: 'Gather',
   listings: 'Community',

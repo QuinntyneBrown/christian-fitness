@@ -156,8 +156,15 @@ AC7).
   ago is caught); 400 `validation_failed` with `fieldCodes` `name_required` and `bio_required`.
   Photos reuse `ImageKeys.Detect` and `IImageStore` (JPEG, PNG or WebP, at most 5 MB).
 - **Seed** — the CLI's idempotent seed adds Naomi Clarke, Priya Raman, Marcus Bell, Pastor Ruth
-  Adeyemi and CF Team, and only when the byline table is empty, so it never restores one an Admin
-  removed or overwrites one an Admin edited (`L2-077` AC2).
+  Adeyemi and CF Team, and only when no byline exists and no audit entry names a `Byline`, so it
+  never restores one an Admin removed or overwrites one an Admin edited (`L2-077` AC2; ADR 0093).
+- **Built in journey 21 (ADR 0093)** — `StaffArea.Publishing` for the `stories` segment; the
+  Stories area in the Publish group, whose `/stories` redirects to Bylines until the Stories list
+  exists; `api/admin/stories/bylines` with `GET`, `POST`, `PUT {id}`, `DELETE {id}` and
+  `POST photos`; a name of at most 80 characters (`name_too_long`) and `bio_too_long`; a minimal
+  `Story` (`Id`, `BylineId`, `Headline`, `CreatedAt`) whose byline is a restricted foreign key, so
+  the count is real and no story loses its byline; the editor's field and `L2-077` AC5 and AC8
+  come with the story editor.
 - **Audit** — `byline.created`, `byline.updated`, `byline.removed` as `IAuditableCommand`s
   (`L2-019` AC3). No log, span or metric carries a bio.
 

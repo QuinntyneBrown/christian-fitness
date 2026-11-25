@@ -422,10 +422,10 @@ ADMIN_STORIES = [
 STORY_STATUSES = ["Draft", "In review", "Scheduled", "Published"]
 # Bylines are a list Admins manage under Stories > Bylines (L2-077); the editor's picker reads it.
 BYLINES = [
-    ("CF Team", "CF", "Notices and event news from the Christian Fitness team."),
+    ("CF Team", "CT", "Notices and event news from the Christian Fitness team."),
     ("Marcus Bell", "MB", "Personal trainer who writes beginner guides and profiles of our professionals."),
     ("Naomi Clarke", "NC", "Writes about community, church sport and the people behind both."),
-    ("Pastor Ruth Adeyemi", "RA", "Pastor and writer on faith, rest and the body."),
+    ("Pastor Ruth Adeyemi", "PA", "Pastor and writer on faith, rest and the body."),
     ("Priya Raman", "PR", "Nutrition writer and meal-prep volunteer in Mississauga."),
 ]
 AUTHORS = [b[0] for b in BYLINES]

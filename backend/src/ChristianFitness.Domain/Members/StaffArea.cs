@@ -20,6 +20,9 @@ public enum StaffArea
     /// <summary>Event series (L2-071; ADR 0091): open to Moderators too.</summary>
     Series,
 
+    /// <summary>Stories and their bylines, <c>api/admin/stories</c> (L2-068 AC7; ADR 0093): Admins only.</summary>
+    Publishing,
+
     /// <summary>An admin endpoint in no area above yet: closed to Moderators until a slice names its area.</summary>
     Unlisted,
 }

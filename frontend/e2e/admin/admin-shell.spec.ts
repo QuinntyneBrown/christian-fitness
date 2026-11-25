@@ -38,6 +38,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
     await expect(shell.brandName).toHaveText('Christian Fitness');
     await expect(shell.navItems).toHaveText([
       'Dashboard',
+      'Stories',
       'Events',
       'Event series',
       'Listings',
@@ -46,7 +47,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
     ]);
     expect(
       await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
-    ).toEqual(['/', '/events', '/series', '/listings', '/services', '/members']);
+    ).toEqual(['/', '/stories', '/events', '/series', '/listings', '/services', '/members']);
     await expect(shell.currentItem).toHaveCount(1);
     await expect(shell.currentItem).toHaveText('Dashboard');
     expect(await shell.navIsOneRow()).toBe(false);
@@ -59,11 +60,12 @@ test.describe('Admin app, navigation at LG and wider', () => {
 
     await shell.open();
 
-    await expect(shell.navGroups).toHaveText(['Gather', 'Community']);
+    await expect(shell.navGroups).toHaveText(['Publish', 'Gather', 'Community']);
     await expect(shell.navGroups.first()).toBeVisible();
+    await expect(shell.navGroupLinks('Publish')).toHaveText(['Stories']);
     await expect(shell.navGroupLinks('Gather')).toHaveText(['Events', 'Event series']);
     await expect(shell.navGroupLinks('Community')).toHaveText(['Listings', 'Services', 'Members']);
-    expect(await shell.navListNames()).toEqual([null, 'Gather', 'Community']);
+    expect(await shell.navListNames()).toEqual([null, 'Publish', 'Gather', 'Community']);
   });
 
   test('choosing an area opens it in the app and moves aria-current to it', async ({ page }) => {
@@ -158,7 +160,7 @@ test.describe('Admin app, navigation below LG', () => {
     await shell.open();
 
     await expect(shell.heading).toHaveText('Dashboard');
-    await expect(shell.navGroups).toHaveCount(2);
+    await expect(shell.navGroups).toHaveCount(3);
     for (const group of await shell.navGroups.all()) await expect(group).toBeHidden();
     expect(await shell.navIsOneRow()).toBe(true);
   });

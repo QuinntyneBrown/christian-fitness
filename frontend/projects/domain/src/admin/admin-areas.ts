@@ -2,7 +2,8 @@ import type { StaffRoleName } from '@cf/api';
 import { pathOf } from '../errors/server-error';
 
 /** The areas of the admin app, in the order the navigation lists them (L2-021 AC1). */
-export type AdminAreaKey = 'dashboard' | 'events' | 'series' | 'listings' | 'services' | 'members';
+export type AdminAreaKey =
+  'dashboard' | 'stories' | 'events' | 'series' | 'listings' | 'services' | 'members';
 
 /** One area: its key, the navigation's label and the path it opens. */
 export interface AdminArea {
@@ -11,9 +12,10 @@ export interface AdminArea {
   path: string;
 }
 
-/** Dashboard, Events, Listings, Services and Members (mock `admin-nav`; ADR 0011, ADR 0090). */
+/** Dashboard, Stories, Events, Event series, Listings, Services and Members (mock `admin-nav`; ADR 0011, ADR 0090, ADR 0093). */
 export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/' },
+  { key: 'stories', label: 'Stories', path: '/stories' },
   { key: 'events', label: 'Events', path: '/events' },
   { key: 'series', label: 'Event series', path: '/series' },
   { key: 'listings', label: 'Listings', path: '/listings' },

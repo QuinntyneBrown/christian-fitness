@@ -5,6 +5,7 @@
 export * from './account/account';
 export * from './account/interests';
 export * from './account/session';
+export * from './admin/admin-bylines';
 export * from './admin/admin-counts';
 export * from './admin/admin-dashboard';
 export * from './admin/admin-directory';

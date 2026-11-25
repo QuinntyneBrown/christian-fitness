@@ -67,6 +67,8 @@ if (command == "seed")
     builder.Services.AddScoped<ISeed, StaffAccountSeed>();
     // The Christian Fitness account suggestion outcomes and claim links come from (ADR 0065, ADR 0090).
     builder.Services.AddScoped<ISeed, SystemAccountSeed>();
+    // The starting bylines, once per deployment (L2-077 AC2; ADR 0093).
+    builder.Services.AddScoped<ISeed, BylineSeed>();
 
     // The team listing always; the mocks' sample listings and their connections only on a
     // demonstration system (ADR 0082, ADR 0087).
