@@ -39,7 +39,7 @@ This feature covers the staff side: the Feedback screen of the admin console (mo
 ### Open questions
 
 - **Moderators.** `L2-074` names "staff"; `StaffAccess` gives Moderators only the console, Dashboard and Members, and the mocks README (open question 8) calls Feedback the likely next area. Until decided, `StaffArea.Feedback` is Admin only; AC4's "for an Admin" suggests Moderators may read feedback. An ADR is needed.
-- **Christian Fitness sender.** Direct messages "from Christian Fitness" need a sender account the code does not have: a seeded system member, idempotent in `cf seed`, that cannot sign in. The design is shared with `L2-062` AC9 and `L2-073`; an ADR is needed.
+- **Christian Fitness sender (resolved, ADR 0061).** Direct messages "from Christian Fitness" come from a seeded system member, idempotent in `cf seed`, that cannot sign in and cannot be replied to (`system_account`). The reply text is "Reply to your feedback:" and, after a line break, the Admin's text, rendered as text.
 - **Replies kept.** No requirement says whether a reply's text is kept with the note or shown later. A direct-message reply exists in the conversation; an email reply exists only in the mailbox. `<TO SUPPLY>`.
 - **Email reply.** The From and Reply-To of a reply email (the relay sends as `no-reply@christian.fitness`, ADR 0047) and whether the member can answer it are `<TO SUPPLY>`.
 - **Toast wording.** The `replied` mock's toast reads "He gets it by email."; the system records no gender, so the copy should name the member or the channel only ("Michael gets it by email.").

@@ -8,3 +8,8 @@
 /* Report on a received message (slice 25.1; ADR 0000). */
 .message__report { display: inline-flex; align-items: center; min-height: var(--target-min); margin-left: var(--space-1); padding: 0 var(--space-1); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-fg-muted); text-decoration: underline; text-underline-offset: var(--space-0-5); border-radius: var(--radius-xs); }
 .message__report:hover { color: var(--color-fg-default); }
+
+/* The Christian Fitness system account: no replies, so a note replaces the composer (ADR 0061). */
+.composer--note { justify-content: center; min-height: var(--target-min); }
+.composer__note { margin: 0; font-size: var(--font-size-sm); color: var(--color-fg-muted); text-align: center; }
+.composer__note a { color: var(--color-accent); text-decoration: underline; text-underline-offset: var(--space-0-5); }
