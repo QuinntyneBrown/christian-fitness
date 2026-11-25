@@ -952,7 +952,9 @@
       "group": "Member app",
       "route": "/feedback",
       "source": "Magic Patterns · prototype Christian Fitness · frame Feedback (2w1Xg2bpM7GARSTBwsgZWR)",
-      "requirements": [],
+      "requirements": [
+        "L2-063"
+      ],
       "states": [
         "default",
         "broken",
@@ -1190,10 +1192,14 @@
       "group": "Admin console",
       "route": "/admin/feedback",
       "source": "Magic Patterns · prototype Admin Console · frame Feedback Inbox (p1eGpLPP99JReJ5WHBovdM)",
-      "requirements": [],
+      "requirements": [
+        "L2-074"
+      ],
       "states": [
         "default",
         "correction",
+        "suspended",
+        "failed",
         "replying",
         "replied",
         "moderator",

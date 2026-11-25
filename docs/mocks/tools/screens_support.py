@@ -150,13 +150,13 @@ def _():
 # ===========================================================================
 # Send feedback
 # ===========================================================================
-KINDS = [("idea", "An idea", "", "lightbulb"), ("broken", "Something’s off", "", "bug"), ("content", "A correction", "", "pen-line"),
-         ("praise", "Thanks", "", "heart")]
+KINDS = [("idea", "Idea", "", "lightbulb"), ("problem", "Something’s off", "", "bug"), ("correction", "Correction", "", "pen-line"),
+         ("thanks", "Thanks", "", "heart")]
 PROMPTS = {
     "idea": ("What would make this better?", "For example: show which week of the plan each session is"),
-    "broken": ("What happened?", "What you tapped, what you expected, and what you saw instead"),
-    "content": ("What should it say?", "The detail that’s wrong, and the right one if you know it"),
-    "praise": ("What’s been good?", "A coach, an event, a moment. We pass these on."),
+    "problem": ("What happened?", "What you tapped, what you expected, and what you saw instead"),
+    "correction": ("What should it say?", "The detail that’s wrong, and the right one if you know it"),
+    "thanks": ("What’s been good?", "A coach, an event, a moment. We pass these on."),
 }
 SHIPPED = [
     ("I never know if an event got moved.", "Change alerts for every event you’re going to", "March 2026"),
@@ -177,7 +177,7 @@ def feedback_form(*, kind: str = "idea", context: str = "Event series › Couch 
           </div>""" if context else "")
     screenshot = ('<div class="form-section form-section--tight">' + file_field(
         "Screenshot", "screenshot", optional=True, filename=shot, choose="Add a screenshot", empty="None added",
-        hint="JPEG, PNG or WebP, up to 5 MB", readonly=busy) + "</div>" if kind == "broken" else "")
+        hint="JPEG, PNG or WebP, up to 5 MB", readonly=busy) + "</div>" if kind == "problem" else "")
     submit = (f'<button class="btn btn--primary btn--md" type="submit" disabled aria-busy="true">{busy_label("Sending…")}</button>'
               if busy else '<button class="btn btn--primary btn--md" type="submit">Send feedback</button>')
     return f"""<form class="form-page__main" action="success.html" novalidate>
@@ -209,7 +209,7 @@ def feedback_page(main: str) -> str:
     </div>"""
 
 
-s = screen("feedback", "page", "Send feedback", route="/feedback", source=SRC + "Feedback (2w1Xg2bpM7GARSTBwsgZWR)",
+s = screen("feedback", "page", "Send feedback", route="/feedback", source=SRC + "Feedback (2w1Xg2bpM7GARSTBwsgZWR)", requirements=["L2-063"],
            not_applicable={"loading": "A form; nothing loads before it renders.", "empty": "A form, not a collection."})
 
 
@@ -221,13 +221,13 @@ def _():
 @s("broken", "\"Something's off\" chosen: the question changes to \"What happened?\" and a screenshot can be added.")
 def _():
     return member_shell("", feedback_page(feedback_form(
-        kind="broken", context="Events › Easter Sunrise 5K", shot="add-to-calendar.png",
+        kind="problem", context="Events › Easter Sunrise 5K", shot="add-to-calendar.png",
         text="The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.")))
 
 
-@s("correction", "Opened from a story's \"Send a correction\": \"A correction\" is chosen and the story is the page it is about.")
+@s("correction", "Opened from a story's \"Send a correction\": \"Correction\" is chosen and the story is the page it is about.")
 def _():
-    return member_shell("", feedback_page(feedback_form(kind="content", context="Story › A West End church turned its basement into a free gym")))
+    return member_shell("", feedback_page(feedback_form(kind="correction", context="Story › A West End church turned its basement into a free gym")))
 
 
 @s("invalid", "Sent with nothing written: the note is marked and says what to add; nothing is sent.")

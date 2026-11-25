@@ -19,10 +19,11 @@ SCREENS: dict[str, dict] = {}
 
 def screen(sid: str, kind: str, title: str, *, route: str | None = None, opens_from: str | None = None,
            source: str | None = None, group: str = "Member app", not_applicable: dict | None = None,
-           description: str = ""):
+           description: str = "", requirements: list[str] | None = None):
     entry = SCREENS.setdefault(sid, {
         "id": sid, "kind": kind, "title": title, "route": route, "opens_from": opens_from, "source": source,
-        "group": group, "not_applicable": not_applicable or {}, "description": description, "states": {},
+        "group": group, "not_applicable": not_applicable or {}, "description": description,
+        "requirements": requirements, "states": {},
     })
 
     def state(name: str, desc: str):
@@ -59,6 +60,7 @@ def document(sid: str, state: str, body: str) -> str:
     st = s["states"][state]
     desc = st["description"]
     source = f'\n<meta name="mock:source" content="{escape(s["source"])}">' if s.get("source") else ""
+    requirements = f'\n<meta name="mock:requirements" content="{escape(", ".join(s["requirements"]))}">' if s.get("requirements") else ""
     links = "\n".join(
         f'    <li><a href="{name}.html"{CUR if name == state else ""}>{name}</a></li>'
         for name in s["states"]
@@ -71,7 +73,7 @@ def document(sid: str, state: str, body: str) -> str:
 <title>{escape(s["title"])} · {state} — {PROJECT} mocks</title>
 <meta name="mock:kind" content="{s["kind"]}">
 <meta name="mock:screen" content="{sid}">
-<meta name="mock:state" content="{state}">{source}
+<meta name="mock:state" content="{state}">{source}{requirements}
 <meta name="description" content="{escape(desc)}">
 <link rel="stylesheet" href="{ASSETS}/tokens.css">
 <link rel="stylesheet" href="{ASSETS}/ui.css">

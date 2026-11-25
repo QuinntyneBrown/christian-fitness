@@ -455,22 +455,22 @@ SUGGESTIONS = [
      "note": "Physio clinic owned by a couple from The Meeting House. They gave our run club a free injury clinic last fall.",
      "passed": ()},
 ]
-FEEDBACK_KIND_ICON = {"Idea": "lightbulb", "Something’s broken": "bug", "Content": "pen-line", "Praise": "heart"}
+FEEDBACK_KIND_ICON = {"Idea": "lightbulb", "Something’s off": "bug", "Correction": "pen-line", "Thanks": "heart"}
 FEEDBACK = [
-    {"id": "f1", "kind": "Something’s broken", "from": "Michael Chen", "initials": "MC", "email": "mchen.runs@outlook.com",
-     "page": "Events › Easter Sunrise 5K", "device": "iPhone · Safari 18", "when": "35 min ago", "status": "New",
+    {"id": "f1", "kind": "Something’s off", "from": "Michael Chen", "initials": "MC", "email": "mchen.runs@outlook.com",
+     "page": "Events › Easter Sunrise 5K", "device": "iOS · Safari 18", "when": "35 min ago", "status": "New",
      "text": "The “Add to calendar” button opens a blank page on my phone. Worked fine on my laptop. I tried twice.",
      "hint": "Let them know we can reproduce it and when to expect a fix"},
-    {"id": "f2", "kind": "Content", "from": "Adaeze Kalu", "initials": "AK", "email": "adaeze.k@yahoo.ca",
+    {"id": "f2", "kind": "Correction", "from": "Adaeze Kalu", "initials": "AK", "email": "adaeze.k@yahoo.ca",
      "page": "Story › Twelve GTA churches will run the Toronto Half", "device": "Android · Chrome 124", "when": "2 hours ago", "status": "New",
      "text": "Small correction: RCCG Jesus House is one of the twelve churches but isn’t in the list in the story. Pastor Femi confirmed last week.",
      "hint": "Thank them and say when the correction is live"},
     {"id": "f3", "kind": "Idea", "from": "Grace Thompson", "initials": "GT", "email": "grace.thompson@gmail.com",
-     "page": "Event series › Couch to 5K", "device": "Mac · Chrome 124", "when": "Yesterday", "status": "Replied",
+     "page": "Event series › Couch to 5K", "device": "macOS · Chrome 124", "when": "Yesterday", "status": "Replied",
      "text": "Could the series page show which week of the plan each session is? I missed week 3 and wasn’t sure where to pick back up.",
      "hint": "Thank them, and tell them honestly whether it’s on the list"},
-    {"id": "f4", "kind": "Praise", "from": "Priya Nair", "initials": "PN", "email": "priya.nair@gmail.com",
-     "page": "Newsletter", "device": "iPhone · Mail", "when": "2 days ago", "status": "Resolved",
+    {"id": "f4", "kind": "Thanks", "from": "Priya Nair", "initials": "PN", "email": "priya.nair@gmail.com",
+     "page": "Newsletter", "device": "iOS · Safari 18", "when": "2 days ago", "status": "Resolved",
      "text": "The verse at the end of the newsletter has become my Saturday long-run mantra. Thank you for that.",
      "hint": "Say thanks, and let them know who you passed it on to"},
 ]
