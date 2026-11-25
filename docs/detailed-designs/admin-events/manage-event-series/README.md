@@ -51,9 +51,9 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 - Resolved (#89): the dialog counts drop-ins too, "12 people are going to this date (9 joined, 3 dropped in)."; the mock reads "34 people ... (31 joined, 3 dropped in)".
 - Series and sessions come from the CLI's idempotent seed until the create and edit slices land; `L2-071` AC6 for changed and added dates holds by construction, since sessions are events.
 - The series editor has no category field, though a series carries one in the seed; whether the editor asks for it is `<TO SUPPLY>`.
-- The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.
+- Restore is drawn busy (`docs/mocks/pages/admin-series/restoring.html`) and failed, with a toast (`restore-failed.html`).
 - The list's order is not stated (`L2-071` AC1); the mock lists by first session date. `<TO SUPPLY>`.
-- The `loading` mock draws a table skeleton beside the cards, unlike the loaded list; the skeleton should mirror the `admin-sessions` list.
+- The `loading` mock's skeleton mirrors the `admin-sessions` list rows.
 - `docs/detailed-designs/admin-events/publish-and-cancel-events` described a `Conversation` entity and an `AdminOnly` policy that the code does not have; it now follows the code (`IChatChannel`, `AuthenticationSetup.StaffPolicy`), as does this design.
 
 ## Requirements

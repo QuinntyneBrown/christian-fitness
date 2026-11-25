@@ -55,8 +55,8 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
     came = f"Came to {attended} of {recorded}" if recorded else "Attendance not recorded yet"
     paid = sr["series_price"] != "Free"
     if mode == "joined":
-        pay = ('<p class="register__note">Your spot is reserved. Pay the host at your first session; online payment is not available yet.</p>'
-               if paid else "")
+        pay = (f'<p class="register__note register__note--start"><strong>How to pay.</strong> Pay {sr["series_price"].split(" for")[0]} to the host at your first session. '
+               'Your places are reserved; online payment is not available yet.</p>' if paid else "")
         return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're in for every session</p>
               {pay}
               <div class="series-progress">
@@ -75,7 +75,7 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
               <p class="register__note register__note--start">Sessions {", ".join(str(i) for i in sorted(picked))}. You can add more dates any time.{pay}</p>
               <a class="btn btn--quiet mt-3" href="{href("event-series", "drop-in")}">Change dates</a>"""
     full = mode == "full"
-    drop = mode in ("drop", "booking") or full
+    drop = mode in ("drop", "booking", "refused") or full
     n = len(picked)
     drop_note = (f"{n} picked below" if n else "Tick dates in the list") if drop else "Come when you can"
     if drop:
@@ -87,7 +87,8 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
     if busy:
         label = busy_label("Joining…" if mode == "joining" else "Registering…")
     disabled = ' disabled aria-busy="true"' if busy else " disabled" if drop and not n else ""
-    error = ('<p class="register__error" role="alert">We couldn\'t sign you up. Try again in a moment.</p>' if mode == "failed" else "")
+    error = ('<p class="register__error" role="alert">We couldn\'t sign you up. Try again in a moment.</p>' if mode == "failed"
+             else '<p class="register__error" role="alert">Sat May 9 is full. Untick it and try again.</p>' if mode == "refused" else "")
     spots = "Series full" if full else f'{sr["capacity"] - sr["enrolled"]} of {sr["capacity"]} spots left'
     every_note = "Every place in the series is taken" if full else "Your spot is held each week"
     return f"""<div class="register__head"><h2 class="series-panel__title">Sign up</h2><p class="register__spots">{spots}</p></div>
@@ -104,7 +105,7 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
 
 def series_page(sr: dict, mode: str, picked: tuple = ()) -> str:
     joined = mode == "joined"
-    pickable = mode in ("drop", "booking", "full")
+    pickable = mode in ("drop", "booking", "refused", "full")
     remaining = sum(1 for x in sr["sessions"] if x["status"] in ("next", "upcoming"))
     past = sum(1 for x in sr["sessions"] if x["status"] == "past")
     rows = "".join(session_row(x, joined=joined, pickable=pickable, picked=picked) for x in sr["sessions"])
@@ -179,6 +180,11 @@ def _():
     return member_shell("events", series_page(BOOTCAMP, "drop", (4, 6)))
 
 
+@s("drop-in-full", "Register pressed for sessions 4 and 6 but Sat May 9 filled meanwhile: the refusal names the date above the button, the ticks stay and nothing is registered.")
+def _():
+    return member_shell("events", series_page(BOOTCAMP, "refused", (4, 6)))
+
+
 @s("booked", "Registered for the two dates: which sessions, how to pay, and \"Change dates\".")
 def _():
     return member_shell("events", series_page(BOOTCAMP, "booked", (4, 6)))
@@ -251,6 +257,38 @@ def _():
 @s("failed", "Leaving failed: a message in the dialog; the member still has their place.")
 def _():
     return leave_series(failed=True)
+
+
+# --- Stop going to dates (dialog) -----------------------------------------------
+def stop_dates(*, busy: bool = False, failed: bool = False) -> str:
+    alert = ('<div class="dialog__alert">' + form_alert("We couldn't take you off those dates", "You still have your places. Try again in a moment.") + "</div>"
+             if failed else "")
+    keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("event-series", "drop-in")}"{" disabled" if busy else " autofocus"}>Keep my dates</button>'
+    stop = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Stopping…")}</button>' if busy
+            else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("event-series", "booked")}">Stop going</button>')
+    body = f'{alert}<p class="prose">Your place goes to someone else. You can register for these dates again while places are left.</p>'
+    return over_member("events", series_page(BOOTCAMP, "drop", (7,)),
+                       dialog("Stop going to 2 dates?", body, keep + stop, sub="Saturday Park Bootcamp · Sat Apr 25 and Sat May 9"))
+
+
+s = screen("stop-dates", "dialog", "Stop going to dates", opens_from="event-series",
+           source="Derived: unticking held drop-in dates and saving, confirmed in a dialog as cancelling a registration is (L2-053 AC4, ADR 0034).",
+           not_applicable={"invalid": "A confirmation with nothing to type."})
+
+
+@s("default", "Confirm stopping two held dates: \"Your place goes to someone else\"; focus starts on \"Keep my dates\".")
+def _():
+    return stop_dates()
+
+
+@s("busy", "Stop going pressed: button busy, the other disabled.")
+def _():
+    return stop_dates(busy=True)
+
+
+@s("failed", "Stopping failed: a message in the dialog; the member keeps the places.")
+def _():
+    return stop_dates(failed=True)
 
 
 # ===========================================================================
@@ -348,6 +386,27 @@ def _():
 def _():
     hits = [l for l in LISTINGS if any("running" in t.lower() for t in [l["name"], l["tagline"], l["area"], *l["focus"]])]
     return member_shell("directory", directory_page(groups(hits), search="running"))
+
+
+@s("loading-more", "The end of the list reached: the next 50 are on their way, a spinner under the groups.")
+def _():
+    more = ('<div class="feed-end"><span class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span>'
+            '<span>Loading more listings…</span></span></div>')
+    return member_shell("directory", directory_page(groups(LISTINGS) + more))
+
+
+@s("more-error", "The next 50 did not load: the groups stay, with Try again under them.")
+def _():
+    more = ('<div class="feed-end"><div class="inline-error" role="alert">' + icon("alert-circle") +
+            '<div class="inline-error__body"><p class="inline-error__title">More listings didn\'t load.</p>'
+            '<p>The ones above are still here.</p><button class="inline-error__retry" type="button">Try again</button></div></div></div>')
+    return member_shell("directory", directory_page(groups(LISTINGS) + more))
+
+
+@s("capped", "100 listings shown: the list stops with a note, since more would slow the page.")
+def _():
+    note = '<div class="feed-end"><p>Showing the first 100. Narrow your search.</p></div>'
+    return member_shell("directory", directory_page(groups(LISTINGS) + note))
 
 
 @s("no-results", "\"aquafit\" typed: nothing matches; Clear search and Suggest a listing.")

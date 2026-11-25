@@ -648,7 +648,7 @@ NEW_SERIES = {"id": "sunday-stretch", "title": "Sunday Stretch & Prayer", "host"
               "enrolled": 0, "capacity": 25, "sessions": []}
 
 
-def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks: tuple = ()) -> str:
+def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks: tuple = (), restoring: tuple = ()) -> str:
     def status(x):
         return "cancelled" if x["n"] in cancelled else x["status"]
     sessions = sr["sessions"] + ([NEW_DATE] if extra else [])
@@ -662,6 +662,7 @@ def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks:
         past, gone = st == "past", st == "cancelled"
         name = f'session {x["n"]}, {x["weekday"]} {x["month"]} {x["day"]}'
         end = ('<span class="admin-session__done">Done</span>' if past
+               else f'{pill("Cancelled")}<button class="btn btn--link" type="button" disabled aria-busy="true">{busy_label("Restoring…")}<span class="visually-hidden"> {name}</span></button>' if gone and x["n"] in restoring
                else f'{pill("Cancelled")}<button class="btn btn--link" type="button">Restore<span class="visually-hidden"> {name}</span></button>' if gone
                else (pill("Live") if st == "next" else "") + f'<button class="btn btn--link btn--link-quiet" type="button" data-mock-href="{href("cancel-session")}">Cancel date<span class="visually-hidden">: {name}</span></button>')
         mod = " admin-session--past" if past else " admin-session--cancelled" if gone else ""
@@ -741,10 +742,24 @@ def _():
                        after=toast_region(toast("success", "Tue Jun 2 added", "It is now listed under Events."), admin=True))
 
 
-@s("loading", "Series loading: the list and the chosen series show as skeletons.")
+@s("restoring", "Restore pressed on the cancelled date (session 6): its button is busy and disabled; the rest of the list stays.")
 def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"], restoring=(6,)))
+
+
+@s("restore-failed", "Restoring failed: the date stays Cancelled with Restore, and a toast says nothing was changed.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"]),
+                       after=toast_region(toast("danger", "We couldn't restore Tue May 12", "Nothing was changed. Try again in a moment.", role="alert"), admin=True))
+
+
+@s("loading", "Series loading: the series list, the chosen series' summary and its session rows show as skeletons.")
+def _():
+    row = ('<li class="admin-session"><span class="skeleton skeleton--text w-20"></span><span class="skeleton skeleton--text w-40"></span>'
+           '<span class="skeleton skeleton--text w-80"></span><span class="skeleton skeleton--button-sm"></span></li>')
     sk = ('<div class="split split--picker"><div class="skeleton-stack"><span class="skeleton skeleton--tile"></span><span class="skeleton skeleton--tile"></span>'
-          '<span class="skeleton skeleton--tile"></span></div><div class="skeleton-stack"><span class="skeleton skeleton--tile"></span>' + table_skeleton(4) + '</div></div>')
+          '<span class="skeleton skeleton--tile"></span></div><div class="skeleton-stack"><span class="skeleton skeleton--tile"></span>'
+          f'<ol class="card card--list admin-sessions">{row * 8}</ol></div></div>')
     return admin_shell("admin-series", admin_header("Event series", "Recurring programs. Members join the whole series or drop in to one date.") + loading_region("Loading series", sk))
 
 
@@ -1043,7 +1058,8 @@ def pick_assets(e: dict, platform: str, photo: bool = True) -> str:
     return head + f'<div class="pick-assets">{body}</div>'
 
 
-def pick_page(right: str, *, creating: bool = False, changed: bool = False, events: list | None = None, failed: bool = False) -> str:
+def pick_page(right: str, *, creating: bool = False, changed: bool = False, events: list | None = None, failed: bool = False,
+              note: str = PICK_NOTE) -> str:
     events = MEMBER_EVENTS if events is None else events
     rows = "".join(f"""<li><label class="event-choice"><input class="event-choice__input" type="radio" name="event" value="{x["id"]}"{" checked" if i == 0 else ""}{" disabled" if creating else ""}>
               {image(x["image"], "event-choice__image")}
@@ -1057,7 +1073,7 @@ def pick_page(right: str, *, creating: bool = False, changed: bool = False, even
       <div class="split split--pick">
         <form class="sticky-aside" novalidate>
           <fieldset><legend class="field__label field__label--md">Event</legend><ul class="event-choices">{rows}</ul></fieldset>
-          <div class="pick-note">{textarea("Why it’s a pick", "note", PICK_NOTE, rows=2, hint=f"One line. It goes on the graphics and in every caption. {len(PICK_NOTE)} of 70 characters.", readonly=creating)}</div>
+          <div class="pick-note">{textarea("Why it’s a pick", "note", note, rows=2, hint=f"One line. It goes on the graphics and in every caption. {len(note)} of 70 characters.", readonly=creating)}</div>
           {err}{stale}{btn}
         </form>
         <section aria-label="Assets">{right}</section>
@@ -1106,9 +1122,10 @@ def _():
     return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Slack")))
 
 
-@s("changed", "The event or note was changed after the assets were made: a notice and \"Recreate assets\"; the assets shown stay those last made.")
+@s("changed", "Assets were made, then the note was edited: \"You changed the event or note. Recreate to update.\" and the button reads \"Recreate assets\"; the assets shown stay those last made.")
 def _():
-    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram"), changed=True))
+    return admin_shell("admin-community-pick", pick_page(pick_assets(EV["sunrise-5k"], "Instagram"), changed=True,
+                                                         note="Flat, stroller-friendly, and the sunrise is free."))
 
 
 @s("no-image", "An event with no image: the graphic is built from the brand pattern, with the title, date and place set in type.")
@@ -1237,6 +1254,12 @@ def _():
 @s("declined", "Declined: the suggestion says the person who suggested it was told.")
 def _():
     return admin_shell("admin-listings", listings_page(suggestion_view(decided="declined"), pending=2), counts={"admin-listings": 2})
+
+
+@s("tick-failed", "A tick did not save (the fourth check): the box goes back to unticked and a toast says so, as a failed Follow does.")
+def _():
+    return admin_shell("admin-listings", listings_page(suggestion_view()),
+                       after=toast_region(toast("danger", "We couldn't save that check", "The box is back as it was. Try again in a moment.", role="alert"), admin=True))
 
 
 @s("listed", "Listed: every listing in the directory with its kind, area and followers, and Edit.")
