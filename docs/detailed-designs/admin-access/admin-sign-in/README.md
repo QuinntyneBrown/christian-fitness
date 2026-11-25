@@ -32,8 +32,8 @@ store. The Google part of the flow, shared with the member app, is designed in
 idle expiry and the forbidden screen are those of
 [ADR 0011](../../../adr/0011-staff-sign-in-and-admin-shell.md) and
 [ADR 0016](../../../adr/0016-staff-idle-expiry-sign-in-pause-and-forbidden-screen.md);
-[ADR 0013](../../../adr/0013-staff-two-step-verification.md) (two-step verification) no longer
-applies.
+[ADR 0013](../../../adr/0013-staff-two-step-verification.md) (two-step verification) is superseded
+by [ADR 0062](../../../adr/0062-retire-staff-password-and-two-step.md).
 
 - **`SignInPage`** — routed page `/sign-in` in `projects/admin`, loaded with `loadComponent`. It
   renders the `staff` card through `StaffLayout` (`components`): the brand, the heading "Staff sign
@@ -139,8 +139,9 @@ for the team's domain in Google Workspace (`L2-046` AC2).
   in the admin app `TwoStepPage` (`/sign-in/verify`), `twoStepRefusalOf`, `TwoStepRequestDto` and the
   password form of `SignInPage`. `docs/operations/settings.md` and `docs/operations/deployment.md`
   still describe `cf two-step` and the seeded staff password (`seed-staff-password`). The next
-  slices remove each of them, with a migration that drops the two-step tables, so that
-  `/sign-in/verify` is the admin not-found page (`L2-046` AC1), and supersede ADR 0013.
+  slices remove each of them, with a later migration that drops the two-step tables, so that
+  `/sign-in/verify` is the admin not-found page (`L2-046` AC1). ADR 0062 records the decision
+  and the deployment ordering needed to keep the running revision working.
 - **The first staff account.** `cf seed` creates the first staff account with a password. With
   Google, it needs only the account's email of the team's domain and the Admin role; how the seed
   names that email is `<TO SUPPLY>`.

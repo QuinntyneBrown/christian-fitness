@@ -126,7 +126,9 @@ on desktop").
 - **Code behind the requirement.** `ADMIN_AREAS` lists four areas with no groups, `AdminNav`
   renders no group headings and has no icons for the new keys, the shell fills no counts, and the
   sidebar does not yet scroll its links alone. The admin app also still routes `sign-in/verify`
-  to the two-step screen of the withdrawn `L2-046`. Each is work for the next slices.
+  to the two-step screen of the withdrawn `L2-046`; its retirement is decided in
+  [ADR 0062](../../../adr/0062-retire-staff-password-and-two-step.md). Each is work for the next
+  slices.
 
 ## Requirements
 
