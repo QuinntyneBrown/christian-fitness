@@ -28,8 +28,9 @@ and it would not cover tagline, area or focus either.
 - **Search key.** The listing keeps two derived columns, rebuilt whenever its text changes:
   `NameKey`, the name folded to lower case with accents removed, and `SearchText`, the folded
   name, tagline, area and focus tags joined by line breaks. A search folds `q` the same way and
-  matches `SearchText` containing it. PostgreSQL gets the `pg_trgm` extension and a trigram GIN
-  index on `SearchText`, so the "contains" stays fast. The fold is one helper in the domain
+  matches `SearchText` containing it, as an escaped `LIKE '%…%'` (`%`, `_` and `\` taken
+  literally) rather than `strpos`, which the index could not serve. PostgreSQL gets the
+  `pg_trgm` extension and a trigram GIN index on `SearchText`, so the "contains" stays fast. The fold is one helper in the domain
   (Unicode decomposition, combining marks dropped, invariant lower case), so tests on InMemory
   and production on PostgreSQL agree. This replaces ADR 0077's collation; its limits stand: `q`
   under 2 characters after trimming is absent and over 100 is refused with 400 `query_too_long`.
@@ -64,6 +65,10 @@ and it would not cover tagline, area or focus either.
   screen (journey 17), and a row is not a link until the listing profile exists (journey 6): its head renders
   as the mock's non-link `div.listing-row__link`. A photo is shown when `photoKey` is set, served
   by the listing editor's image endpoint (journey 20); until then no listing has one.
+- **A chosen kind with nobody listed.** The mocks have no state for `?kind=` naming a kind with
+  no published listing. Until one is drawn, the screen stands in the `no-results` form with
+  "Nothing here yet", "No <kind> are listed yet. Our team checks every suggestion." and a "Show
+  all" button that opens `/directory`; the kind's chip reads 0.
 
 ## Consequences
 

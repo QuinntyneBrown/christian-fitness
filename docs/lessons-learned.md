@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 2% (1 of 36 journeys; 2 of 113 days)
+**% complete:** 7% (3 of 36 journeys; 8 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2391,3 +2391,29 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   restored.
 - "The worktree-isolation guard refuses long shell commands" (4): plain commands and script files
   kept the rebase and the edits moving.
+
+## Journey 5: Browse the directory
+
+**What slowed it**
+
+- The requirement, design and mocks disagreed on five points (anonymous reads against the design's 401, a collation PostgreSQL cannot `LIKE` before 18, a cap of 100 against `L2-009`'s 200, a hosting count before events had hosts, sample people in production). Each was settled in ADR 0082 before any code; the mock was regenerated for the 200 cap.
+- A test folder named `Directory` put `ChristianFitness.Api.Tests.Directory` in scope of an older test that calls `System.IO.Directory`; the folder became `DirectoryListings`.
+- Ordering by an enum stored as a string sorts alphabetically on PostgreSQL but by value on InMemory, so the tests would have passed and production would not. A stored `KindOrder` integer orders both alike.
+- Npgsql may translate `string.Contains(parameter)` to `strpos`, which a trigram index cannot serve; the search is an explicit, escaped `EF.Functions.Like`, and an `r_n` case proves `_` is literal.
+- The worktree guard refused shell commands that `cd` to a computed path or mix git with other steps; honest-red breaks were made with small edit scripts and restored from a scratchpad copy, and git ran alone from the worktree root.
+- Other agents shared the machine: CPU stood at 100% and unrelated specs (event detail, admin server error) failed once each in full runs and passed 3 of 3 alone. Another agent's dev-server log also landed in a same-named scratchpad file, so logs got slice-specific names.
+- The local Windows build reports about 5 kB more initial bundle than CI's Linux build for the same commit (admin's untouched `main` measured the same 264 kB locally), so the budget was judged by the difference between the apps and by CI's number, not by the local total. Copying the design system's whole `tokens.css` would have added 0.62 kB of unused tokens; only the two listing-row tokens were added.
+
+**New lessons**
+
+- A screen built ahead of a slice's spec makes the spec pass at once: break the rule each test names (one break per test, or interacting breaks hide one another, as dropping the kind on search hid the Clear-search break) and watch each fail.
+- `fastForward` past a debounce after one keystroke, then type the second, proves a one-character search is never sent; asserting only the final request does not.
+- A rate-limit test pins its own client address (`ApiFactory.ClientAddressHeader`) while the shared fixture gives every other request a random one, so a limit test never starves its neighbours in the collection.
+- Let the status-code page write a limiter's 429: `OnRejected` sets `Retry-After` and overrides the ProblemDetails code, so the refusal has the same shape as every other.
+- A cursor over a name puts the name last and splits with a count, so a `|` in a name cannot break it.
+
+**How earlier lessons worked**
+
+- "Prove a rule red by breaking it alone" (1.1 on): each backend rule (status filter, hosting `>`, seed publish, escape, signed-in exemption, minimum length) failed exactly its tests; restored.
+- "A fixture default for a new call" (15.1 on): `GET /api/directory` answers nobody listed by default, and the six-item navigation changed three older specs and the tab-bar unit test, found by grepping for the five-item lists.
+- "Measure bundle changes on both apps" (bundle follow-up): admin, untouched, served as the baseline for web's 0.07 kB growth.
