@@ -1,0 +1,8 @@
+// The dialog's layout is the library's: `cf-dialog` draws the scrim and the panel.
+:host {
+  display: block;
+}
+
+.remove-byline__text {
+  margin: 0;
+}

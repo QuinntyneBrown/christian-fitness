@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ADMIN_BYLINES_SERVICE, type BylineDto, TOASTS_SERVICE } from '@cf/api';
 import {
@@ -10,7 +10,7 @@ import {
   type ToastData,
   ToastRegion,
 } from '@cf/components';
-import { bylineStoriesText, ToastStore } from '@cf/domain';
+import { bylineStoriesText, ToastStore, withByline, withoutByline } from '@cf/domain';
 import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { HttpAdminBylinesService } from '../../services/http-admin-bylines.service';
 
@@ -45,7 +45,12 @@ const COLUMNS: readonly TableColumn[] = [
 })
 export default class AdminBylinesPage {
   private readonly api = inject(ADMIN_BYLINES_SERVICE);
+  private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly toasts = inject(TOASTS_SERVICE);
+
+  /** One dialog at a time: a second press while one is opening does nothing. */
+  private dialogOpen = false;
 
   /** Asks for the list again. */
   private readonly reload = new Subject<void>();
@@ -83,6 +88,79 @@ export default class AdminBylinesPage {
 
   protected tryAgain(): void {
     this.reload.next();
+  }
+
+  /** Add byline: the editor opens blank. */
+  protected add(): void {
+    void this.openEditor(null);
+  }
+
+  /** Edit on a row: the editor opens on that byline. */
+  protected edit(id: string): void {
+    const list = this.list();
+    const byline = list.kind === 'ready' ? list.bylines.find((b) => b.id === id) : undefined;
+    if (byline) void this.openEditor(byline);
+  }
+
+  /**
+   * Remove on a row (mock `remove-byline`), imported on the first Remove: a byline no story uses
+   * leaves the list once removed, with a toast (mock `admin-bylines/removed`); one stories use
+   * says why it stays. A byline found gone, or one a story took meanwhile, reads the list again.
+   */
+  protected async remove(id: string): Promise<void> {
+    const list = this.list();
+    const byline = list.kind === 'ready' ? list.bylines.find((b) => b.id === id) : undefined;
+    if (!byline || this.dialogOpen) return;
+    this.dialogOpen = true;
+    const { openRemoveByline } = await import('../../dialogs/remove-byline/remove-byline-dialog');
+    if (this.destroyRef.destroyed) return;
+    openRemoveByline(this.injector, byline)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        this.dialogOpen = false;
+        if (result === 'removed') {
+          this.list.update((state) =>
+            state.kind === 'ready'
+              ? { kind: 'ready', bylines: withoutByline(state.bylines, byline.id) }
+              : state,
+          );
+          this.toasts.show(
+            'Byline removed',
+            `${byline.name} is no longer in the story editor's list.`,
+          );
+        } else if (result === 'gone' || result === 'stale') {
+          this.reload.next();
+        }
+      });
+  }
+
+  /**
+   * Opens the byline editor (mock `byline-editor`), imported on the first Add byline or Edit. A
+   * save shows the byline in its place in the list at once, with a toast (mock
+   * `admin-bylines/saved`); a byline found gone reads the list again.
+   */
+  private async openEditor(byline: BylineDto | null): Promise<void> {
+    if (this.dialogOpen) return;
+    this.dialogOpen = true;
+    const { openBylineEditor } = await import('../../dialogs/byline-editor/byline-editor-dialog');
+    if (this.destroyRef.destroyed) return;
+    openBylineEditor(this.injector, byline)
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        this.dialogOpen = false;
+        if (!result) return;
+        if ('gone' in result) {
+          this.reload.next();
+          return;
+        }
+        const { saved } = result;
+        this.list.update((list) =>
+          list.kind === 'ready'
+            ? { kind: 'ready', bylines: withByline(list.bylines, saved) }
+            : list,
+        );
+        this.toasts.show('Byline saved', `Admins can choose ${saved.name} in the story editor.`);
+      });
   }
 
   protected dismissToast(id: string): void {

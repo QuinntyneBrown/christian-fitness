@@ -5,7 +5,7 @@
   </div>
   @if (list(); as list) {
     @if (list.kind !== 'ready' || list.bylines.length > 0) {
-      <cf-button>
+      <cf-button (click)="add()">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M5 12h14" />
           <path d="M12 5v14" /></svg
@@ -50,13 +50,15 @@
         secondActionLabel="Remove"
         [columns]="columns"
         [rows]="rows()"
+        (action)="edit($event)"
+        (secondAction)="remove($event)"
       />
     } @else {
       <cf-empty-state
         heading="No bylines yet"
         text="A story needs a byline before it can be published. Add the first one."
       >
-        <cf-button slot="actions" size="sm">
+        <cf-button slot="actions" size="sm" (click)="add()">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M5 12h14" />
             <path d="M12 5v14" /></svg

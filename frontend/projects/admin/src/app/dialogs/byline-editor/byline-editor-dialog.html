@@ -1,0 +1,60 @@
+<cf-dialog [heading]="heading" [titleId]="headingId" (closed)="close()">
+  @if (errorItems().length > 0) {
+    <cf-alert [heading]="errorHeading()" [items]="errorItems()" />
+  } @else if (failed()) {
+    <cf-alert heading="Couldn't save the byline">
+      <p>The server didn't respond. Nothing was lost; try again.</p>
+    </cf-alert>
+  }
+  <cf-text-field
+    fieldId="f-name"
+    label="Name"
+    name="name"
+    hint="As readers see it under a story."
+    [value]="values().name"
+    [error]="errors().name"
+    [readonly]="saving()"
+    (valueChange)="set('name', $event)"
+  />
+  <cf-textarea
+    fieldId="f-bio"
+    label="Short bio"
+    name="bio"
+    hint="One or two sentences."
+    [rows]="3"
+    [maxLength]="bioMaxLength"
+    [value]="values().bio"
+    [error]="errors().bio"
+    [readonly]="saving()"
+    (valueChange)="set('bio', $event)"
+  />
+  <cf-file-field
+    fieldId="f-photo"
+    label="Photo"
+    name="photo"
+    optional
+    hint="JPEG, PNG or WebP, at most 5 MB. Initials show without one."
+    [accept]="imageTypes"
+    [fileName]="photoName()"
+    [error]="errors().photo"
+    [disabled]="saving() || uploading()"
+    (fileChosen)="choosePhoto($event)"
+    (removed)="removePhoto()"
+  />
+  <cf-button slot="foot" variant="secondary" grow [disabled]="saving()" (click)="close()">
+    Cancel
+  </cf-button>
+  <cf-button
+    slot="foot"
+    grow
+    [busy]="saving()"
+    [disabled]="saving() || uploading()"
+    (click)="save()"
+  >
+    @if (saving()) {
+      Saving…
+    } @else {
+      {{ saveLabel }}
+    }
+  </cf-button>
+</cf-dialog>

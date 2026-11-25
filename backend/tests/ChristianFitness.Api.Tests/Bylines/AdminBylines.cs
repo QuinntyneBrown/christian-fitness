@@ -49,7 +49,7 @@ internal static class AdminBylines
 }
 
 /// <summary>The API with a clock at the mocks' today, and a way to add bylines and stories.</summary>
-public sealed class BylinesFactory : AdminEventsFactory
+public class BylinesFactory : AdminEventsFactory
 {
     /// <summary>Puts a byline in the store with <paramref name="stories"/> stories using it; answers its id.</summary>
     internal async Task<Guid> AddBylineAsync(string name, string bio = "Writes for Christian Fitness.", int stories = 0, string? photoKey = null)
