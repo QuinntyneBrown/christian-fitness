@@ -143,7 +143,8 @@ choices below marked `<TO SUPPLY>` are its open points.
   3. `GoogleAccountMatch.FindAsync(identity)` finds the member account (`L2-049` AC4);
   4. none found: the refusal `<TO SUPPLY>` (code and status) with an `account` extension holding the
      Google account's email, and the identity is kept for "Finish your profile"
-     ([create a member account](../create-account/README.md));
+     ([create a member account](../create-account/README.md)), where the field is labelled
+     "Name" and a blank name shows "Enter your name." in the summary and beside the field;
   5. a `Suspended` member is refused `account_suspended` and HTTP 403, and the identity is forgotten
      (`L2-004` AC10);
   6. otherwise the identity is forgotten, the member is signed in through `ISessionSignIn`, and the
