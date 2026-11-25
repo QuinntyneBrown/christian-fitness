@@ -34,6 +34,9 @@ public abstract class EventFields
     /// <summary>The stored image's key (<c>POST /api/admin/events/images</c>), or none.</summary>
     public string? ImageKey { get; init; }
 
+    /// <summary>The directory listing that hosts the event, chosen in the Host picker (L2-022 AC11; ADR 0088).</summary>
+    public Guid? HostListingId { get; init; }
+
     /// <summary>The Toronto date, or none when it is missing or not a <see cref="DateFormat"/> date.</summary>
     public DateOnly? ParsedDate() =>
         DateOnly.TryParseExact(Date, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date : null;

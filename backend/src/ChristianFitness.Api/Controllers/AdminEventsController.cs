@@ -23,6 +23,11 @@ public sealed class AdminEventsController(ISender sender) : ControllerBase
     public async Task<IActionResult> Create(CreateEventCommand command, CancellationToken cancellationToken) =>
         StatusCode(StatusCodes.Status201Created, await sender.Send(command, cancellationToken).ConfigureAwait(false));
 
+    /// <summary>The host a new event starts with: the Christian Fitness team listing (ADR 0088).</summary>
+    [HttpGet("hosts/default")]
+    public async Task<ActionResult<EventHostDto>> DefaultHost(CancellationToken cancellationToken) =>
+        await sender.Send(new GetDefaultEventHostQuery(), cancellationToken).ConfigureAwait(false);
+
     /// <summary>One event as the editor shows it; 404 <c>not_found</c> when there is none.</summary>
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<AdminEventDetailDto>> Get(Guid id, CancellationToken cancellationToken) =>

@@ -27,7 +27,7 @@ public sealed class EditEventTests(AdminEventsFactory factory) : IClassFixture<A
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var detail = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal(
-            ["area", "capacity", "category", "date", "going", "id", "place", "priceCents", "startTime", "status", "summary", "title"],
+            ["area", "capacity", "category", "date", "going", "host", "id", "place", "priceCents", "startTime", "status", "summary", "title"],
             detail.EnumerateObject().Where(p => p.Name != "imageKey" || p.Value.ValueKind != JsonValueKind.Null).Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal(id.ToString(), detail.GetProperty("id").GetString());
         Assert.Equal("2026-05-22", detail.GetProperty("date").GetString());

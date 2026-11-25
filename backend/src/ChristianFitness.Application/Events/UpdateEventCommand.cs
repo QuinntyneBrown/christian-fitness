@@ -67,6 +67,11 @@ internal sealed class UpdateEventHandler(IAppDbContext db, TimeProvider time, IR
             capacity,
             request.Summary,
             request.ImageKey);
+        if (request.HostListingId is { } host)
+        {
+            stored.HostedBy(host);
+        }
+
         audit.Record(current.Id, nameof(Event), stored.Id);
         return AdminEventDto.Of(stored, going);
     }

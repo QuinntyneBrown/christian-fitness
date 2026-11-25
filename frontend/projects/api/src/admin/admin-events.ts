@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
+import type { ListingKind } from '../directory/directory';
 
 /** The kinds of event (L2-009 AC2), by the names the API reads and writes. */
 export type EventCategory = 'run' | 'workout' | 'basketball' | 'mobility' | 'workshop' | 'retreat';
@@ -40,6 +41,13 @@ export interface AdminEventListDto {
   events: AdminEventDto[];
 }
 
+/** A Listed directory listing as the editor's Host picker shows it (`EventHostDto`, ADR 0088). */
+export interface EventHostDto {
+  id: string;
+  kind: ListingKind;
+  name: string;
+}
+
 /**
  * `POST /api/admin/events`: the event editor's fields (L2-022 AC1). The start is the Toronto date
  * (`yyyy-MM-dd`) and time (`HH:mm`) staff typed; a price or capacity that is not a number is sent as
@@ -57,6 +65,8 @@ export interface CreateEventRequestDto {
   summary: string;
   /** The image `uploadImage` kept, or none (ADR 0025). */
   imageKey?: string | null;
+  /** The chosen host's listing, or none, which the API refuses with `host_required` (ADR 0088). */
+  hostListingId: string | null;
 }
 
 /** `PUT /api/admin/events/{id}` sends the same fields as `POST` (ADR 0025). */
@@ -81,6 +91,8 @@ export interface AdminEventDetailDto {
   imageKey?: string | null;
   going: number;
   status: EventStatus;
+  /** The saved host (ADR 0088). */
+  host: EventHostDto;
 }
 
 /** One registered member as staff see them: the name and when they registered, nothing else (ADR 0036). */
@@ -114,6 +126,9 @@ export interface AdminEventsApi {
    * slice 10.2's invalid state reads.
    */
   create(request: CreateEventRequestDto): Observable<AdminEventDto>;
+
+  /** The host a new event starts with: the Christian Fitness team listing (ADR 0088). */
+  defaultHost(): Observable<EventHostDto>;
 
   /** The event as the editor opens it. An unknown id errors with code `not_found` (404). */
   get(id: string): Observable<AdminEventDetailDto>;

@@ -48,7 +48,10 @@ const CATEGORY_OPTIONS: readonly SelectOption[] = EVENT_CATEGORIES.map((category
 const IMAGE_TYPES = 'image/jpeg,image/png,image/webp';
 
 /** The editor's fields typed as text. */
-type TextFieldKey = Exclude<keyof EventEditorValues, 'category' | 'imageKey' | 'imageName'>;
+type TextFieldKey = Exclude<
+  keyof EventEditorValues,
+  'category' | 'imageKey' | 'imageName' | 'hostListingId' | 'hostName'
+>;
 
 /**
  * What the editor opens with: the values, and for a saved event its id, status and the members
@@ -116,6 +119,7 @@ export class EventEditorDialog {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.close());
+    if (!this.editing) this.askDefaultHost();
   }
   protected readonly values = signal<EventEditorValues>(this.data.values);
   protected readonly saving = signal(false);
@@ -147,6 +151,27 @@ export class EventEditorDialog {
   protected close(): void {
     if (this.working()) return;
     this.ref.close(this.saved ? { event: this.saved, outcome: this.savedOutcome() } : undefined);
+  }
+
+  /**
+   * A new event's host starts as the team listing (ADR 0088), unless staff already typed in the
+   * field; a failure leaves the field for them to search.
+   */
+  private askDefaultHost(): void {
+    this.events
+      .defaultHost()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (host) => {
+          if (this.values().hostName !== '' || this.values().hostListingId !== null) return;
+          this.values.update((values) => ({
+            ...values,
+            hostListingId: host.id,
+            hostName: host.name,
+          }));
+        },
+        error: () => undefined,
+      });
   }
 
   /** The image field's file: uploaded at once, kept by its key until the event is saved. */

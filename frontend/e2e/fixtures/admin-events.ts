@@ -114,6 +114,34 @@ export function problem(
   };
 }
 
+/** A Listed directory listing as the Host picker shows it (`EventHostDto`, ADR 0088). */
+export interface EventHostFixture {
+  id: string;
+  kind: string;
+  name: string;
+}
+
+/** The Listed Christian Fitness team listing, every new event's host (ADR 0067). */
+export const TEAM_HOST: EventHostFixture = {
+  id: '0193a9c0-0000-7000-8000-00000000cf01',
+  kind: 'organization',
+  name: 'Christian Fitness',
+};
+
+/** The mocks' run club, a Listed organization. */
+export const LAKESHORE_HOST: EventHostFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000000a1',
+  kind: 'organization',
+  name: 'Lakeshore Runners Fellowship',
+};
+
+/** The mocks' strength coach, a Listed instructor, who hosts the Bootcamp. */
+export const DANIELLE_HOST: EventHostFixture = {
+  id: '0193a9c0-0000-7000-8000-0000000000a4',
+  kind: 'instructor',
+  name: 'Danielle Okafor',
+};
+
 /** An event as `GET /api/admin/events/{id}` opens it in the editor (ADR 0025). */
 export interface AdminEventDetailFixture {
   id: string;
@@ -131,6 +159,8 @@ export interface AdminEventDetailFixture {
   imageKey: string | null;
   going: number;
   status: 'draft' | 'published';
+  /** The saved host (ADR 0088). */
+  host: EventHostFixture;
 }
 
 /** Saturday Park Bootcamp as the editor opens it: the second published event, with an image. */
@@ -148,6 +178,7 @@ export const BOOTCAMP_DETAIL: AdminEventDetailFixture = {
   imageKey: '0123456789abcdef0123456789abcdef.jpg',
   going: 38,
   status: 'published',
+  host: DANIELLE_HOST,
 };
 
 /** Whole Life Retreat, the draft of the cast, as the editor opens it. */
@@ -166,4 +197,5 @@ export const RETREAT_DETAIL: AdminEventDetailFixture = {
   imageKey: null,
   going: 0,
   status: 'draft',
+  host: TEAM_HOST,
 };

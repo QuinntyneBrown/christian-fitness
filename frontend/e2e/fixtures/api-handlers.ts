@@ -1,6 +1,7 @@
 import type { Request, Route } from '@playwright/test';
 import { NOTHING_AWAITING, QUIET_WEEKS } from './admin-dashboard';
 import { NO_APPLICATIONS } from './admin-applications';
+import { TEAM_HOST } from './admin-events';
 import { NO_LISTINGS } from './admin-listings';
 import { NO_NOTIFICATIONS } from './notifications';
 import { NO_DIRECTORY } from './directory';
@@ -80,6 +81,7 @@ export const NO_ADMIN_MEMBERS = { total: 0, matches: 0, page: 1, pageSize: 25, m
  * `GET /api/session` answers a signed-in Grace, so `memberAuthGuard` lets a member route open, and
  * `GET /api/admin/session` answers a signed-in Dana, so `staffAuthGuard` lets an admin route open,
  * and `GET /api/admin/events` answers no events, so the Events page opens empty (ADR 0021), and
+ * `GET /api/admin/events/hosts/default` answers the team listing, a new event's host (ADR 0088), and
  * `GET /api/admin/members` answers no members, so the Members page opens empty (ADR 0022), and
  * `GET /api/admin/dashboard/activity` answers eight quiet weeks, so the Dashboard opens empty (ADR 0000), and
  * `GET /api/admin/dashboard/awaiting` answers nothing waiting (ADR 0060), and
@@ -103,6 +105,11 @@ export class ApiHandlers {
     { method: 'GET', path: '/api/session', handler: () => ({ json: SIGNED_IN }) },
     { method: 'GET', path: '/api/admin/session', handler: () => ({ json: STAFF_SIGNED_IN }) },
     { method: 'GET', path: '/api/admin/events', handler: () => ({ json: NO_ADMIN_EVENTS }) },
+    {
+      method: 'GET',
+      path: '/api/admin/events/hosts/default',
+      handler: () => ({ json: TEAM_HOST }),
+    },
     { method: 'GET', path: '/api/public/events/upcoming', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/public/services/featured', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },

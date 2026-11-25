@@ -1,4 +1,10 @@
-import { eventList, problem, PUBLISHED_EVENTS, RETREAT_DRAFT } from '../fixtures/admin-events';
+import {
+  eventList,
+  problem,
+  PUBLISHED_EVENTS,
+  RETREAT_DRAFT,
+  TEAM_HOST,
+} from '../fixtures/admin-events';
 import { expect, test, XSRF_TOKEN, type ApiHandlers, type ApiReply } from '../fixtures/test';
 import {
   EventEditorDialog,
@@ -32,6 +38,7 @@ const RETREAT_REQUEST = {
   capacity: 60,
   summary: RETREAT.summary,
   imageKey: null,
+  hostListingId: TEAM_HOST.id,
 };
 
 interface Sent {
@@ -84,6 +91,7 @@ test.describe('Admin app, creating a draft event', () => {
     await expect(editor.labels).toHaveText([
       'Title',
       'Category',
+      'Host (required)',
       'Date',
       'Start time',
       'Place',
