@@ -1,13 +1,3 @@
-import { provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
-import { SESSION_SERVICE } from '@cf/api';
-import {
-  ANTIFORGERY_COOKIE,
-  ANTIFORGERY_HEADER,
-  antiforgeryInterceptor,
-  offlineInterceptor,
-  serverErrorInterceptor,
-} from '@cf/domain';
-import { HttpSessionService } from './services/http-session.service';
 import type { Routes } from '@angular/router';
 import { memberAuthGuard, redirectSignedInGuard } from '@cf/domain';
 
@@ -19,7 +9,7 @@ const titled = (page: string) => `${page} · Christian Fitness`;
 const eventChat = () => import('./pages/event-chat/event-chat-page');
 const offline = () => import('./pages/offline/offline-page');
 
-const children: Routes = [
+const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
@@ -134,16 +124,4 @@ const children: Routes = [
   },
 ];
 
-export default [
-  {
-    path: '',
-    providers: [
-      provideHttpClient(
-        withXsrfConfiguration({ cookieName: ANTIFORGERY_COOKIE, headerName: ANTIFORGERY_HEADER }),
-        withInterceptors([offlineInterceptor, serverErrorInterceptor, antiforgeryInterceptor]),
-      ),
-      { provide: SESSION_SERVICE, useClass: HttpSessionService },
-    ],
-    children,
-  },
-] satisfies Routes;
+export default routes;

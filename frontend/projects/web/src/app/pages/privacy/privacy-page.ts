@@ -1,7 +1,6 @@
 import { LegalChange } from '../../legal/legal-change';
 import { LegalNotice } from '../../legal/legal-notice';
-import { Router } from '@angular/router';
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Container, SideNavigation, Prose, SkipLink, TopBar } from '@cf/components';
 import { LegalVersions } from '@cf/domain';
 @Component({
@@ -12,7 +11,6 @@ import { LegalVersions } from '@cf/domain';
   styleUrl: './privacy-page.scss',
 })
 export default class PrivacyPage {
-  protected readonly router = inject(Router);
   protected readonly effective = new Intl.DateTimeFormat('en-CA', {
     dateStyle: 'long',
     timeZone: 'UTC',

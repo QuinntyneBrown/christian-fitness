@@ -22,6 +22,9 @@ export class LegalPage {
   get note() {
     return this.page.locator('.legal__summary-note');
   }
+  get eventTerms() {
+    return this.page.locator('#events');
+  }
   get collection() {
     return this.page.locator('#collect');
   }

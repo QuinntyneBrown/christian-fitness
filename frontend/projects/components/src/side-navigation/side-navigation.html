@@ -7,7 +7,6 @@
           class="side-nav__link"
           [class.side-nav__link--numbered]="numbered()"
           [href]="route() + '#' + entry.id"
-          (click)="follow($event, entry.id)"
         >
           @if (numbered()) {
             <span class="side-nav__n">{{ $index + 1 }}.</span>
