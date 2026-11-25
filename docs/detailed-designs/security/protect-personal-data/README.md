@@ -18,7 +18,7 @@ across the accounts, profile, messages and telemetry parts of the system.
 - **Telemetry redaction** — logging uses structured templates with no personal fields; `TelemetryRedactionProcessor` drops request/response bodies, query strings and headers; the HTTP instrumentation records `http.route` (template) rather than the URL. See `operations/emit-telemetry-and-health`.
 - **`RequestDataExportCommand` / `RequestDataExportHandler`** — assembles `DataExportDto` (profile, registrations, authored messages) for the caller only and returns it as a JSON download. Delivery format beyond JSON is `<TO SUPPLY>`.
 - **`RequestAccountDeletionCommand` / `RequestAccountDeletionHandler`** — records `Member.DeletionRequestedAt`, ends every session of the member and signs them out.
-- **`AccountErasureService`** — runs daily from the shared scheduler ([ADR 0061](../../../adr/0061-scheduled-work.md)) or manually through `cf erase-accounts`. The newer [download and delete data](../../preferences/download-and-delete-data/README.md) design defines when and how erasure takes place.
+- **`AccountErasureService`** — runs daily from the shared scheduler ([ADR 0069](../../../adr/0069-scheduled-work.md)) or manually through `cf erase-accounts`. The newer [download and delete data](../../preferences/download-and-delete-data/README.md) design defines when and how erasure takes place.
 - **Member web app** — `ProfilePage` exposes "Download my data" and "Delete my account"; deletion confirms in a CDK Dialog. No mock shows these controls yet: `<TO SUPPLY: mock state in pages/profile and a confirm dialog>`.
 
 ## Requirements

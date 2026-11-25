@@ -33,7 +33,7 @@ so a reader finds them from the site's address (`L2-060` AC3).
 - **`GetStoryFeedHandler`** — takes a `PublicReadLimiter` lease (`news/read-story`); with none
   left it refuses with 429 `rate_limited`. An unknown section is 404 `not_found`. It reads the 30
   newest effectively Published stories (of the section, or all), including Scheduled stories
-  whose `PublishAt` has passed ([ADR 0061](../../../adr/0061-scheduled-work.md)), newest effective
+  whose `PublishAt` has passed ([ADR 0069](../../../adr/0069-scheduled-work.md)), newest effective
   publication time first
   (`L2-060` AC1, AC6). Its `ETag` is a strong hash of the items' ids and `EditedAt` values, so an
   edit, a new story or an unpublished one changes it; `Last-Modified` is the newest of those

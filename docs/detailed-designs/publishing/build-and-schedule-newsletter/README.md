@@ -84,7 +84,7 @@ share of opens and clicks.
   answering that address for the status message "Test sent to <address>" (`L2-070` AC9). No
   unsubscribe token or recipient mark is issued for a test.
 - **`SendDueIssueCommand`** / handler — sent by the shared, leased `PublishingClock` on its
-  30-second tick ([ADR 0061](../../../adr/0061-scheduled-work.md)). For the issue whose send time has passed:
+  30-second tick ([ADR 0069](../../../adr/0069-scheduled-work.md)). For the issue whose send time has passed:
   - still a Draft: `MarkMissed()` and nothing is sent; the Dashboard's "Needs attention" says the
     issue was not scheduled (`L2-070` AC8; `admin-dashboard/view-dashboard`), and the Admin may
     schedule it for a later time the same day;

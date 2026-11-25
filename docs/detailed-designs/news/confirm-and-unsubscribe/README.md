@@ -82,7 +82,7 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   kind switched on, so nothing reaches an unsubscribed address (`L2-058` AC6;
   `publishing/build-and-schedule-newsletter`).
 - **`NewsletterUpkeep`** — daily job of the shared, leased `PublishingClock` scheduler
-  ([ADR 0061](../../../adr/0061-scheduled-work.md)), not a separate hosted service. It sends
+  ([ADR 0069](../../../adr/0069-scheduled-work.md)), not a separate hosted service. It sends
   **`PurgeUnsubscribedCommand`**,
   whose handler deletes every subscription whose `UnsubscribedAt` is at least 29 days old, with its
   confirmations, allowing a day for the daily run before 30 days (`L2-058` AC6). After an outage

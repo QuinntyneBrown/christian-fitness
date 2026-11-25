@@ -112,7 +112,7 @@ allows.
   refused with `fieldCodes.image` = `image_invalid` (`L2-069` AC9). Audited as
   `story_image.uploaded`. A story may be published without an image.
 - **`PublishingClock`** — the shared API `BackgroundService` of
-  [ADR 0061](../../../adr/0061-scheduled-work.md). Every 30 seconds, after taking the database
+  [ADR 0069](../../../adr/0069-scheduled-work.md). Every 30 seconds, after taking the database
   lease, it sends **`PublishDueStoriesCommand`** in a new scope; its handler persists each due
   Scheduled story's Published status and audits `story.published` against the Admin who scheduled
   it. It also runs due newsletter and daily maintenance jobs.

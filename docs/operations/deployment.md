@@ -46,7 +46,7 @@ The secret settings are secrets of the container app (`db-connection`, `smtp-use
 
 ## Scheduled work (planned)
 
-[ADR 0061](../adr/0061-scheduled-work.md) chooses a hosted scheduler in the API container, not
+[ADR 0069](../adr/0069-scheduled-work.md) chooses a hosted scheduler in the API container, not
 another Container Apps job. It is not implemented yet: deploying the current release does not
 run these jobs. Once built, each API replica ticks every 30 seconds with `TimeProvider` and takes
 a short PostgreSQL lease before running due work. A replica without the lease skips the tick;
