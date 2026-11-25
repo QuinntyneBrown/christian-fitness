@@ -1,7 +1,7 @@
 namespace ChristianFitness.Domain.Directory;
 
 /// <summary>
-/// One of a suggestion's four checks once staff first set it (L2-073 AC4; ADR 0087): whether it
+/// One of a suggestion's four checks once staff first set it (L2-073 AC4; ADR 0090): whether it
 /// passed, who last changed it and when. A check with no row has not passed.
 /// </summary>
 public sealed class SuggestionCheck

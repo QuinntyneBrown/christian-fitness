@@ -17,7 +17,7 @@ export interface JoinAnswer {
   code: string | null;
   title: string | null;
   memberId: string | null;
-  /** True for the Christian Fitness account, which takes no replies (ADR 0065, ADR 0087). */
+  /** True for the Christian Fitness account, which takes no replies (ADR 0065, ADR 0090). */
   system?: boolean;
 }
 

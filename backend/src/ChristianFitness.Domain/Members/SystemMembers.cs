@@ -1,7 +1,7 @@
 namespace ChristianFitness.Domain.Members;
 
 /// <summary>
-/// The accounts the system itself owns (ADR 0065, ADR 0087). "Christian Fitness" sends suggestion
+/// The accounts the system itself owns (ADR 0065, ADR 0090). "Christian Fitness" sends suggestion
 /// outcomes, claim links and feedback replies as direct messages; it cannot sign in, is in no list
 /// and takes no replies.
 /// </summary>

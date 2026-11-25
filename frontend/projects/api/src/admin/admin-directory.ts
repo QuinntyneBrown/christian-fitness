@@ -2,7 +2,7 @@ import { InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { ListingKind } from '../directory/directory';
 
-/** Where a suggestion stands (ADR 0087). */
+/** Where a suggestion stands (ADR 0090). */
 export type SuggestionStatus = 'waiting' | 'approved' | 'declined';
 
 /** How the member who sent it knows the suggested party (ADR 0086). */
@@ -12,7 +12,7 @@ export type SuggestionRelationSlug = 'myself' | 'someone-i-know' | 'somewhere-iv
 export type ListingCheckSlug = 'credentials' | 'insurance' | 'two-references' | 'conversation';
 
 /**
- * One suggestion in the list (L2-073 AC2; ADR 0087): `from` is the member who sent it, none for a
+ * One suggestion in the list (L2-073 AC2; ADR 0090): `from` is the member who sent it, none for a
  * self-submission; `submittedAt` an ISO instant in UTC. Every text is rendered as text.
  */
 export interface SuggestionSummaryDto {
@@ -27,7 +27,7 @@ export interface SuggestionSummaryDto {
 
 /**
  * `GET /api/admin/directory/suggestions`: how many wait, how many listings are published, the page
- * of suggestions oldest first and, when more follow, the id to ask after (ADR 0087).
+ * of suggestions oldest first and, when more follow, the id to ask after (ADR 0090).
  */
 export interface SuggestionListDto {
   waiting: number;
@@ -42,7 +42,7 @@ export interface SuggestionCheckDto {
   passed: boolean;
 }
 
-/** The chosen suggestion as the panel shows it (L2-073 AC3; ADR 0087). */
+/** The chosen suggestion as the panel shows it (L2-073 AC3; ADR 0090). */
 export interface SuggestionDetailDto {
   id: string;
   kind: ListingKind;
@@ -58,7 +58,7 @@ export interface SuggestionDetailDto {
 }
 
 /**
- * What a decision answers (ADR 0087): the status, the draft listing an approval made and how the
+ * What a decision answers (ADR 0090): the status, the draft listing an approval made and how the
  * claim went; neither for a decline.
  */
 export interface SuggestionDecisionDto {
@@ -72,7 +72,7 @@ export interface SuggestionChecksDto {
   checks: SuggestionCheckDto[];
 }
 
-/** Staff review listing suggestions (L2-073; journey 18; ADR 0087). */
+/** Staff review listing suggestions (L2-073; journey 18; ADR 0090). */
 export interface AdminDirectoryApi {
   /** The suggestions after `after`, or from the oldest. A failure errors with an `ApiError`. */
   suggestions(after?: string): Observable<SuggestionListDto>;
@@ -113,7 +113,7 @@ export interface AdminDirectoryApi {
   uploadPhoto(file: File): Observable<ListingPhotoDto>;
 }
 
-/** A published listing as Listed shows it and its editor starts from (ADR 0087). */
+/** A published listing as Listed shows it and its editor starts from (ADR 0090). */
 export interface ListedListingDto {
   id: string;
   kind: ListingKind;

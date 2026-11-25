@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Directory.Review;
 
 /// <summary>
-/// A published listing as Listed shows it and its editor starts from (L2-073 AC10, AC13; ADR 0087):
-/// kind as ADR 0082's slug, about, website and photo key, the Verified mark and its followers (0
-/// until journey 8 lets members follow).
+/// A published listing as Listed shows it and its editor starts from (L2-073 AC10, AC13; ADR 0090):
+/// kind as ADR 0082's slug, about, website and photo key, the Verified mark and how many members
+/// follow it (ADR 0088).
 /// </summary>
 public sealed record ListedListingDto(
     Guid Id, string Kind, string Name, string Area, string Tagline, string About, string? Website, string? PhotoKey, bool Verified, int Followers);
@@ -35,7 +35,7 @@ public sealed record UpdateDirectoryListingCommand(
     string IAuditableCommand.AuditAction => "listing.updated";
 }
 
-/// <summary>The key an uploaded listing photo is kept under (ADR 0087).</summary>
+/// <summary>The key an uploaded listing photo is kept under (ADR 0090).</summary>
 public sealed record ListingPhotoDto(string PhotoKey);
 
 /// <summary>
@@ -56,7 +56,7 @@ public sealed class UploadListingPhotoCommand(Stream content, long length) : IRe
 /// <summary>A listing's photo, for anyone. A key that names nothing is 404 <c>not_found</c>.</summary>
 public sealed record GetListingPhotoQuery(string Key) : IRequest<StoredImage>;
 
-/// <summary>The staff listing editor's limits and field codes, named in the refusal's <c>fieldCodes</c> (ADR 0087).</summary>
+/// <summary>The staff listing editor's limits and field codes, named in the refusal's <c>fieldCodes</c> (ADR 0090).</summary>
 public static class DirectoryListingRules
 {
     public const int TaglineMaxLength = 100;
@@ -93,7 +93,13 @@ internal sealed class ListListedListingsHandler(IAppDbContext db) : IRequestHand
             .OrderBy(l => l.NameKey).ThenBy(l => l.Id)
             .Take(PageSize + 1)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
-        var rows = page.Take(PageSize).Select(ListedListing.Of).ToList();
+        var shownIds = page.Take(PageSize).Select(l => l.Id).ToList();
+        var followers = await db.ListingFollows.AsNoTracking()
+            .Where(f => shownIds.Contains(f.ListingId))
+            .GroupBy(f => f.ListingId)
+            .Select(g => new { ListingId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.ListingId, g => g.Count, cancellationToken).ConfigureAwait(false);
+        var rows = page.Take(PageSize).Select(l => ListedListing.Of(l, followers.GetValueOrDefault(l.Id))).ToList();
         return new ListedListingsDto(total, rows, page.Count > PageSize ? rows[^1].Id : null);
     }
 }
@@ -103,12 +109,12 @@ internal static class ListedListing
 {
     public const string RecordType = "DirectoryListing";
 
-    public static ListedListingDto Of(DirectoryListing listing) => new(
+    public static ListedListingDto Of(DirectoryListing listing, int followers) => new(
         listing.Id, ListingKinds.SlugOf(listing.Kind), listing.Name, listing.Area, listing.Tagline, listing.Description,
-        listing.WebsiteUrl, listing.PhotoKey, listing.IsVerified, 0);
+        listing.WebsiteUrl, listing.PhotoKey, listing.IsVerified, followers);
 }
 
-/// <summary>Each field's rule; the sentences never repeat a value (ADR 0087).</summary>
+/// <summary>Each field's rule; the sentences never repeat a value (ADR 0090).</summary>
 internal sealed class UpdateDirectoryListingValidator : AbstractValidator<UpdateDirectoryListingCommand>
 {
     public UpdateDirectoryListingValidator(IImageStore images)
@@ -154,7 +160,7 @@ internal sealed class UpdateDirectoryListingHandler(IAppDbContext db, ICurrentMe
         listing.ShowPhoto(request.PhotoKey);
         audit.Record(current.Id, ListedListing.RecordType, listing.Id);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return ListedListing.Of(listing);
+        return ListedListing.Of(listing, await ListingFollows.CountAsync(db, listing.Id, cancellationToken).ConfigureAwait(false));
     }
 }
 

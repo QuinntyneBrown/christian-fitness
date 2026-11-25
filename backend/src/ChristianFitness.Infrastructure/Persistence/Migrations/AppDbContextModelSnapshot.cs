@@ -143,6 +143,38 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("DirectoryListings", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingClaim", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListingId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("ListingClaims", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingConnection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -911,6 +943,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("Sessions", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingClaim", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Directory.ListingConnection", b =>

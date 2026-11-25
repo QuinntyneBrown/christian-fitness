@@ -1,4 +1,4 @@
-# 0087. Reviewing listing suggestions: the system account, the console's directory area, checks, decisions, Listed and its editor
+# 0090. Reviewing listing suggestions: the system account, the console's directory area, checks, decisions, Listed and its editor
 
 ## Status
 
@@ -96,7 +96,7 @@ yet (journeys 8, 9, 30 and ADR 0069).
   shown). With no scheduler (ADR 0069), each approval or decline deletes the suggestions decided
   more than 12 months before, with their checks, as ADR 0083 sweeps notifications on write.
 - **Listed.** Each published listing with its mark, name, Verified mark, kind, area and followers.
-  No follow exists until journey 8, so followers answer 0. Edit opens
+  Followers count its `ListingFollow`s (ADR 0088). Edit opens
   `DirectoryListingEditorDialog` with name, kind, area, tagline, about, website and photo, and no
   Verified control; "{name} updated" and "The directory shows the changes now." confirm it. Audited
   `listing.updated`; a photo upload is audited `listing_photo.uploaded`.

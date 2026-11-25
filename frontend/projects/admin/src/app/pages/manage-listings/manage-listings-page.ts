@@ -78,7 +78,7 @@ const LISTED_HREF = '/listings?tab=listed';
 
 /** The toast of a tick that did not save (mock `admin-listings/tick-failed`). */
 const TICK_FAILED = "We couldn't save that check";
-/** The toast of an approval that did not go through (ADR 0087's stand-in for a missing mock). */
+/** The toast of an approval that did not go through (ADR 0090's stand-in for a missing mock). */
 const APPROVE_FAILED = "We couldn't approve the suggestion";
 /** The toast when another member of staff decided it first. */
 const ALREADY_DECIDED = 'This suggestion was already decided';
@@ -94,7 +94,7 @@ interface Decision {
 }
 
 /**
- * Listings (mock docs/mocks/pages/admin-listings/; L2-073; journey 18; ADR 0087). Suggestions lists
+ * Listings (mock docs/mocks/pages/admin-listings/; L2-073; journey 18; ADR 0090). Suggestions lists
  * every suggestion oldest first as pick cards, with who sent it and when, and shows the chosen one
  * (`?selected={id}`, else the first) with its checks; Listed (`?tab=listed`) is the published
  * listings. While the list loads, skeletons; with none waiting, an empty state pointing to Listed;
@@ -400,7 +400,7 @@ export default class ManageListingsPage {
     this.listedReload.next();
   }
 
-  /** Reads the next page of Listed after the last shown and adds it below (ADR 0087). */
+  /** Reads the next page of Listed after the last shown and adds it below (ADR 0090). */
   protected loadMoreListed(): void {
     const state = this.listedState();
     if (state.kind !== 'ready' || state.next === null || state.more) return;

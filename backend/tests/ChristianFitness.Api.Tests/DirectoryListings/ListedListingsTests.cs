@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-073 AC10 and AC13 (journey 18; ADR 0087): Listed shows every published listing in name order,
-/// 50 at a time, with its kind, area, Verified mark and followers; staff Edit changes its name,
+/// L2-073 AC10 and AC13 (journey 18; ADR 0090): Listed shows every published listing in name order,
+/// 50 at a time, with its kind, area, Verified mark and followers (ADR 0088's follows); staff Edit changes its name,
 /// kind, area, tagline, about, website and photo, never the Verified mark, audited
 /// <c>listing.updated</c>. A photo is uploaded first (audited <c>listing_photo.uploaded</c>) and
 /// served to anyone at <c>/api/directory/photos/{key}</c>.
@@ -53,6 +53,14 @@ public sealed class ListedListingsTests(RegisterForEventFactory factory) : IClas
         var zebra = await ListingAsync("Listed Zebra Club", verified: false);
         var alpha = await ListingAsync("Listed Alpha Club", kind: ListingKind.Instructor);
         await ListingAsync("Listed Draft Club", ListingStatus.Draft);
+        var first = await _review.SuggestAsync("ada.follows1@example.org", "Ada Follows");
+        var second = await _review.SuggestAsync("ben.follows1@example.org", "Ben Follows");
+        await _review.InDbAsync(async db =>
+        {
+            db.ListingFollows.Add(ListingFollow.Of(first.MemberId, alpha, factory.Time.GetUtcNow()));
+            db.ListingFollows.Add(ListingFollow.Of(second.MemberId, alpha, factory.Time.GetUtcNow()));
+            return await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        });
         var (staff, cookie, _) = await _review.StaffAsync("dana.listed1@example.org", StaffRoleName.Moderator);
         using var _staff = staff;
         var published = await _review.InDbAsync(db => db.DirectoryListings.CountAsync(l => l.Status == ListingStatus.Published, TestContext.Current.CancellationToken));
@@ -67,14 +75,15 @@ public sealed class ListedListingsTests(RegisterForEventFactory factory) : IClas
         var names = rows.Select(r => r.GetProperty("name").GetString()).ToList();
         Assert.DoesNotContain("Listed Draft Club", names);
         Assert.True(names.IndexOf("Listed Alpha Club") < names.IndexOf("Listed Zebra Club"));
-        var first = rows.Single(r => r.GetProperty("id").GetGuid() == alpha);
+        var shown = rows.Single(r => r.GetProperty("id").GetGuid() == alpha);
         Assert.Equal(
             ["about", "area", "followers", "id", "kind", "name", "photoKey", "tagline", "verified", "website"],
-            first.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
-        Assert.Equal(("instructor", "Etobicoke", "A tagline", "About it.", "https://example.org", true, 0),
-            (first.GetProperty("kind").GetString(), first.GetProperty("area").GetString(), first.GetProperty("tagline").GetString(),
-             first.GetProperty("about").GetString(), first.GetProperty("website").GetString(), first.GetProperty("verified").GetBoolean(),
-             first.GetProperty("followers").GetInt32()));
+            shown.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(("instructor", "Etobicoke", "A tagline", "About it.", "https://example.org", true, 2),
+            (shown.GetProperty("kind").GetString(), shown.GetProperty("area").GetString(), shown.GetProperty("tagline").GetString(),
+             shown.GetProperty("about").GetString(), shown.GetProperty("website").GetString(), shown.GetProperty("verified").GetBoolean(),
+             shown.GetProperty("followers").GetInt32()));
+        Assert.Equal(0, rows.Single(r => r.GetProperty("id").GetGuid() == zebra).GetProperty("followers").GetInt32());
         Assert.False(rows.Single(r => r.GetProperty("id").GetGuid() == zebra).GetProperty("verified").GetBoolean());
         // The class shares one store, so another test may have listed more than a page already.
         Assert.Equal(published > 50 ? JsonValueKind.String : JsonValueKind.Null, answer.GetProperty("next").ValueKind);

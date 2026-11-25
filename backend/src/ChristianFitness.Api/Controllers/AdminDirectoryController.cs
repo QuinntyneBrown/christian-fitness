@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Staff review listing suggestions and edit what is listed (L2-073; journey 18; ADR 0087). Routed under
+/// Staff review listing suggestions and edit what is listed (L2-073; journey 18; ADR 0090). Routed under
 /// <c>api/admin/directory</c>, the Directory area an Admin and a Moderator open (ADR 0064). The name
 /// avoids <see cref="AdminListingsController"/>, which serves Services listings. Each action sends one
 /// MediatR request and checks nothing.

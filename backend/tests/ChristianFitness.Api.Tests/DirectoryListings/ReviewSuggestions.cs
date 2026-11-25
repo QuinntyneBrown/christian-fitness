@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// What the review tests share (journey 18; ADR 0087): a member who suggests, staff who review, and the
+/// What the review tests share (journey 18; ADR 0090): a member who suggests, staff who review, and the
 /// console's directory endpoints, on <see cref="RegisterForEventFactory"/>'s clock.
 /// </summary>
 internal sealed class ReviewSuggestions(RegisterForEventFactory factory)

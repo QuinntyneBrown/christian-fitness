@@ -1,4 +1,4 @@
-/** One suggestion in `GET /api/admin/directory/suggestions` (ADR 0087). */
+/** One suggestion in `GET /api/admin/directory/suggestions` (ADR 0090). */
 export interface SuggestionSummaryFixture {
   id: string;
   name: string;
@@ -9,7 +9,7 @@ export interface SuggestionSummaryFixture {
   status: 'waiting' | 'approved' | 'declined';
 }
 
-/** One suggestion as `GET /api/admin/directory/suggestions/{id}` answers it (ADR 0087). */
+/** One suggestion as `GET /api/admin/directory/suggestions/{id}` answers it (ADR 0090). */
 export interface SuggestionDetailFixture {
   id: string;
   kind: string;
@@ -109,10 +109,10 @@ export function suggestionList(
 /** Nothing waiting and nothing listed: the fixture's default answer. */
 export const NO_SUGGESTIONS = { waiting: 0, listed: 0, suggestions: [], next: null };
 
-/** `GET /api/admin/counts` with nothing waiting: the fixture's default answer (ADR 0087). */
+/** `GET /api/admin/counts` with nothing waiting: the fixture's default answer (ADR 0090). */
 export const NO_COUNTS = { suggestions: 0 };
 
-/** A published listing as `GET /api/admin/directory/listings` answers it (ADR 0087). */
+/** A published listing as `GET /api/admin/directory/listings` answers it (ADR 0090). */
 export interface ListedListingFixture {
   id: string;
   kind: string;

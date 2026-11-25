@@ -65,7 +65,7 @@ if (command == "seed")
 
     builder.Services.AddSingleton(staff);
     builder.Services.AddScoped<ISeed, StaffAccountSeed>();
-    // The Christian Fitness account suggestion outcomes and claim links come from (ADR 0065, ADR 0087).
+    // The Christian Fitness account suggestion outcomes and claim links come from (ADR 0065, ADR 0090).
     builder.Services.AddScoped<ISeed, SystemAccountSeed>();
 
     // The team listing always; the mocks' sample listings and their connections only on a

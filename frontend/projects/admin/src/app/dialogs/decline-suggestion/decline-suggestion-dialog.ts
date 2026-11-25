@@ -30,7 +30,7 @@ export interface DeclineSuggestionData {
 export type DeclineSuggestionResult = 'declined' | 'stale';
 
 /**
- * The decline dialog (mock docs/mocks/dialogs/decline-suggestion/; L2-073 AC8; ADR 0087): a CDK
+ * The decline dialog (mock docs/mocks/dialogs/decline-suggestion/; L2-073 AC8; ADR 0090): a CDK
  * Dialog rendering the library's dialog. The reason is optional; one over 500 characters is named
  * in an error summary and beside the field, and nothing is sent. While the decline is on its way
  * the field holds still and the dialog stays open. A decline closes it; a refusal shows its own

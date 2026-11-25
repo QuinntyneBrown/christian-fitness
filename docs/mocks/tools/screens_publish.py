@@ -1374,7 +1374,7 @@ def _():
 
 
 def decline_suggestion(*, invalid: bool = False, busy: bool = False, failed: bool = False, decided: bool = False) -> str:
-    """Decline a suggestion (L2-073 AC8; ADR 0087): an optional reason of at most 500 characters,
+    """Decline a suggestion (L2-073 AC8; ADR 0090): an optional reason of at most 500 characters,
     kept for staff and never sent to the member who suggested it or to the suggested party."""
     sg = next(x for x in SUGGESTIONS if x["id"] == "s2")
     typed = ""
@@ -1405,7 +1405,7 @@ def decline_suggestion(*, invalid: bool = False, busy: bool = False, failed: boo
 
 
 s = screen("decline-suggestion", "dialog", "Decline a suggestion", group=G, opens_from="admin-listings",
-           source="Derived: Listings' Decline button, which has no screen in the prototype; the decline-application dialog with an optional reason (L2-073 AC8; ADR 0087).")
+           source="Derived: Listings' Decline button, which has no screen in the prototype; the decline-application dialog with an optional reason (L2-073 AC8; ADR 0090).")
 
 
 @s("default", "Decline Coach Marcus Delaney: an optional reason; focus on the field.")

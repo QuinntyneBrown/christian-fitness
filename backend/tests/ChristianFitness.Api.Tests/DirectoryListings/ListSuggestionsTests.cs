@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-073 AC1 to AC3 and AC11 (journey 18; ADR 0087): staff list the suggestions oldest first with the
+/// L2-073 AC1 to AC3 and AC11 (journey 18; ADR 0090): staff list the suggestions oldest first with the
 /// waiting and listed counts, open one with its fields and four unpassed checks, and an unknown one is
 /// 404 <c>suggestion_not_found</c>. A Moderator uses it as an Admin does; a member is refused.
 /// </summary>

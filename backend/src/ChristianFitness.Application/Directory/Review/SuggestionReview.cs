@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Directory.Review;
 
-/// <summary>One suggestion in the console's list (L2-073 AC2; ADR 0087). <see cref="From"/> is none for a self-submission.</summary>
+/// <summary>One suggestion in the console's list (L2-073 AC2; ADR 0090). <see cref="From"/> is none for a self-submission.</summary>
 public sealed record SuggestionSummaryDto(Guid Id, string Name, string Kind, string Area, string? From, DateTimeOffset SubmittedAt, string Status);
 
 /// <summary>
 /// <c>GET api/admin/directory/suggestions</c>: how many wait, how many listings are published, one page of
-/// suggestions oldest first, and the id to ask <c>after</c> for the next page, or none (ADR 0087).
+/// suggestions oldest first, and the id to ask <c>after</c> for the next page, or none (ADR 0090).
 /// </summary>
 public sealed record SuggestionListDto(int Waiting, int Listed, IReadOnlyList<SuggestionSummaryDto> Suggestions, Guid? Next);
 
 /// <summary>One of the four checks and whether it passed (L2-073 AC3).</summary>
 public sealed record SuggestionCheckDto(string Check, bool Passed);
 
-/// <summary>The chosen suggestion as the panel shows it (L2-073 AC3; ADR 0087). The contact email and the church connection are not sent.</summary>
+/// <summary>The chosen suggestion as the panel shows it (L2-073 AC3; ADR 0090). The contact email and the church connection are not sent.</summary>
 public sealed record SuggestionDetailDto(
     Guid Id,
     string Kind,
@@ -31,7 +31,7 @@ public sealed record SuggestionDetailDto(
     string Status,
     IReadOnlyList<SuggestionCheckDto> Checks);
 
-/// <summary>The slugs and lookups the review shares (ADR 0087).</summary>
+/// <summary>The slugs and lookups the review shares (ADR 0090).</summary>
 public static class SuggestionReview
 {
     /// <summary>The record type an audit entry names a suggestion by.</summary>

@@ -5,7 +5,7 @@ using System.Text;
 namespace ChristianFitness.Domain.Directory;
 
 /// <summary>
-/// A link to claim and publish an approved listing (L2-078 AC1; ADR 0087). Only the SHA-256 hash
+/// A link to claim and publish an approved listing (L2-078 AC1; ADR 0090). Only the SHA-256 hash
 /// of its token is stored; the token exists only in the email or message that carries the link.
 /// </summary>
 public sealed class ListingClaim

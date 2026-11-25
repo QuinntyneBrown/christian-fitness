@@ -8,7 +8,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace ChristianFitness.Application.Tests.Seeding;
 
 /// <summary>
-/// ADR 0065 and ADR 0087: the seed adds the Christian Fitness account once, by its fixed id, with no
+/// ADR 0065 and ADR 0090: the seed adds the Christian Fitness account once, by its fixed id, with no
 /// password, and a second run changes nothing.
 /// </summary>
 public sealed class SystemAccountSeedTests : IDisposable

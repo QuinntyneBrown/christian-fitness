@@ -7,7 +7,7 @@ using Microsoft.Net.Http.Headers;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// A listing's photo for anyone, since the directory shows it to visitors (ADR 0087, as ADR 0025
+/// A listing's photo for anyone, since the directory shows it to visitors (ADR 0090, as ADR 0025
 /// serves event images). The key is unguessable; the photo is served as the type its key names,
 /// never sniffed, and kept for a year because a key's photo never changes.
 /// </summary>

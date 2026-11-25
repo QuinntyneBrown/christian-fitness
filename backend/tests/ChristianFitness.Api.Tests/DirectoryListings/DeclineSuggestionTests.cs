@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-073 AC8 and AC12, L2-062 AC9 (journey 18; ADR 0087): staff decline a suggestion, with or
+/// L2-073 AC8 and AC12, L2-062 AC9 (journey 18; ADR 0090): staff decline a suggestion, with or
 /// without a reason of at most 500 characters kept for staff. It becomes Declined with who and
 /// when, the sender gets a direct message from the Christian Fitness account, the suggested party
 /// is not contacted and no listing is made. Audited <c>suggestion.declined</c>.

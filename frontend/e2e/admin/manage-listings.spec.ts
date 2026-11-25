@@ -31,7 +31,7 @@ function answer(api: ApiHandlers, cast: SuggestionDetailFixture[], listed = 12):
   });
 }
 
-// L2-073 AC1 to AC3 and AC11 (journey 18; ADR 0087): staff review suggestions on Listings.
+// L2-073 AC1 to AC3 and AC11 (journey 18; ADR 0090): staff review suggestions on Listings.
 test.describe('Admin app, listing suggestions', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -209,7 +209,7 @@ test.describe('Admin app, listing suggestions', () => {
 
 const CHECK = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/checks\/([^/]+)$/;
 
-// L2-073 AC4 and AC5 (ADR 0087): each check is saved as it is ticked; Approve waits for all four.
+// L2-073 AC4 and AC5 (ADR 0090): each check is saved as it is ticked; Approve waits for all four.
 test.describe('Admin app, the four checks', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -295,7 +295,7 @@ test.describe('Admin app, the four checks', () => {
 const APPROVE = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/approve$/;
 const ALL_PASSED = checks('credentials', 'insurance', 'two-references', 'conversation');
 
-// L2-073 AC6 and AC9 (ADR 0087): approving a suggestion whose four checks passed.
+// L2-073 AC6 and AC9 (ADR 0090): approving a suggestion whose four checks passed.
 test.describe('Admin app, approving a suggestion', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -395,7 +395,7 @@ test.describe('Admin app, approving a suggestion', () => {
 const DECLINE = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/decline$/;
 const REASON = 'We couldn’t confirm his certification with the issuing body.';
 
-// L2-073 AC8 (ADR 0087): declining a suggestion, with an optional reason.
+// L2-073 AC8 (ADR 0090): declining a suggestion, with an optional reason.
 test.describe('Admin app, declining a suggestion', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -559,7 +559,7 @@ const LISTING = /^\/api\/admin\/directory\/listings\/([^/]+)$/;
 const PHOTOS = '/api/admin/directory/photos';
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00]);
 
-// L2-073 AC10 and AC13 (ADR 0087): Listed, and staff's Edit.
+// L2-073 AC10 and AC13 (ADR 0090): Listed, and staff's Edit.
 test.describe('Admin app, Listed', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -762,7 +762,7 @@ test.describe('Admin app, Listed', () => {
     await expect(listings.editButton('Lakeshore Runners Fellowship')).toBeFocused();
   });
 
-  // ADR 0087: Listed pages 50 at a time.
+  // ADR 0090: Listed pages 50 at a time.
   test('Load more reads the next page of Listed after the last shown', async ({ page, api }) => {
     answer(api, CAST_SUGGESTIONS);
     answerPhotos(api);

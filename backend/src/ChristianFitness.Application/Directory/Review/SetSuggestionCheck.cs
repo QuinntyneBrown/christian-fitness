@@ -6,12 +6,12 @@ using MediatR;
 
 namespace ChristianFitness.Application.Directory.Review;
 
-/// <summary>The four checks after a change (ADR 0087).</summary>
+/// <summary>The four checks after a change (ADR 0090).</summary>
 public sealed record SuggestionChecksDto(IReadOnlyList<SuggestionCheckDto> Checks);
 
 /// <summary>
 /// Staff tick or untick the check <see cref="Check"/> (a slug) of the suggestion <see cref="SuggestionId"/>
-/// (L2-073 AC4; ADR 0087). Audited <c>suggestion.check_set</c> when it changes something.
+/// (L2-073 AC4; ADR 0090). Audited <c>suggestion.check_set</c> when it changes something.
 /// </summary>
 public sealed record SetSuggestionCheckCommand(Guid SuggestionId, string Check, bool Passed) : IRequest<SuggestionChecksDto>, IAuditableCommand
 {

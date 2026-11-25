@@ -95,7 +95,7 @@ export function passedCount(checks: readonly SuggestionCheckDto[]): number {
   ).length;
 }
 
-/** How an approval's claim went (ADR 0087). */
+/** How an approval's claim went (ADR 0090). */
 export type SuggestionClaim = 'email' | 'message' | 'staff-managed';
 
 /**
@@ -125,7 +125,7 @@ export function reviewRefusalOf(error: unknown): 'decided' | 'failed' {
   return 'failed';
 }
 
-/** The longest decline reason staff may keep (L2-073 AC8; ADR 0087). */
+/** The longest decline reason staff may keep (L2-073 AC8; ADR 0090). */
 export const SUGGESTION_DECLINE_REASON_MAX = 500;
 
 /** The decline reason's hint (mock `decline-suggestion/default`); the field adds the characters left. */

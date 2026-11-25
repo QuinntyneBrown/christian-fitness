@@ -48,7 +48,7 @@ public sealed class AuditTrail(IAppDbContext db, TimeProvider time)
     }
 
     /// <summary>
-    /// Says the command changed nothing, such as setting a check to the value it has (ADR 0087), so
+    /// Says the command changed nothing, such as setting a check to the value it has (ADR 0090), so
     /// no entry is recorded and none is required.
     /// </summary>
     public void Unchanged()

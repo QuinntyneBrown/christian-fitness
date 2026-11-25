@@ -66,7 +66,7 @@ public sealed class ListingSuggestion
     /// <summary>The draft listing approval made from it.</summary>
     public Guid? ListingId { get; private set; }
 
-    /// <summary>The longest decline reason staff may keep (ADR 0087).</summary>
+    /// <summary>The longest decline reason staff may keep (ADR 0090).</summary>
     public const int DeclineReasonMaxLength = 500;
 
     /// <summary>A decided suggestion stays in the console's list this long after its decision (ADR 0077).</summary>

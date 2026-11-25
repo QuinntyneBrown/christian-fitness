@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-073 AC5, AC6 and AC12, L2-078 AC1 to AC3, L2-062 AC9 (journey 18; ADR 0087): staff approve a
+/// L2-073 AC5, AC6 and AC12, L2-078 AC1 to AC3, L2-062 AC9 (journey 18; ADR 0090): staff approve a
 /// suggestion whose four checks passed. It becomes Approved with who and when, a draft listing is
 /// made from it and linked both ways, the sender gets a direct message from the Christian Fitness
 /// account, and the claim follows: an email with <c>/claim/{token}</c> where there is a contact

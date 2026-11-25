@@ -19,7 +19,7 @@ const BASE = '/api/admin/directory';
 
 /**
  * {@link AdminDirectoryApi} over HTTP: the console's directory endpoints under
- * `/api/admin/directory` (ADR 0087). A failure errors with an `ApiError` (`apiErrorOf`), so no
+ * `/api/admin/directory` (ADR 0090). A failure errors with an `ApiError` (`apiErrorOf`), so no
  * screen handles an `HttpErrorResponse`. It holds no state.
  */
 @Injectable()

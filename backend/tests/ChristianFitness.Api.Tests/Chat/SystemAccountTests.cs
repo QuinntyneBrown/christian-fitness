@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ChristianFitness.Api.Tests.Chat;
 
-/// <summary>A hub answer with the system account's flag (ADR 0065, ADR 0087).</summary>
+/// <summary>A hub answer with the system account's flag (ADR 0065, ADR 0090).</summary>
 public sealed record SystemChatAnswerBody(string? Code, string? Title, Guid? MemberId, bool? System);
 
 /// <summary>Seeds the Christian Fitness system account into a fixture's store, as <c>cf seed</c> does.</summary>
@@ -31,7 +31,7 @@ public static class SystemAccount
 }
 
 /// <summary>
-/// L2-014 AC8 (ADR 0065, ADR 0087): the seeded Christian Fitness account cannot sign in or be sent a
+/// L2-014 AC8 (ADR 0065, ADR 0090): the seeded Christian Fitness account cannot sign in or be sent a
 /// password reset, is in no member list and has no profile; a member may open its conversation, which
 /// answers <c>system: true</c>, and a send to it is refused <c>system_account</c>.
 /// </summary>

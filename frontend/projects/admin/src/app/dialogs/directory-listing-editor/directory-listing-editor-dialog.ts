@@ -49,7 +49,7 @@ export type DirectoryListingEditorResult = { saved: ListedListingDto } | { gone:
 
 /**
  * The staff listing editor, "Edit listing" (mock docs/mocks/dialogs/directory-listing-editor/;
- * L2-073 AC13; ADR 0087): a CDK Dialog rendering the library's dialog with the listing's name,
+ * L2-073 AC13; ADR 0090): a CDK Dialog rendering the library's dialog with the listing's name,
  * kind, area, tagline, about, website and photo, and no control for the Verified mark. Focus
  * starts on Name. A chosen photo is uploaded at once and saved with the listing by its key. While
  * a save is on its way the button reads "Saving…", the fields hold still and the dialog stays open.

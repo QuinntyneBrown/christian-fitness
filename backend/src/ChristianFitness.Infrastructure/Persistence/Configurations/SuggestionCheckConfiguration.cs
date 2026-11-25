@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// A suggestion's check (ADR 0087): one row per suggestion and check, the check stored by name, and
+/// A suggestion's check (ADR 0090): one row per suggestion and check, the check stored by name, and
 /// deleted with its suggestion.
 /// </summary>
 internal sealed class SuggestionCheckConfiguration : IEntityTypeConfiguration<SuggestionCheck>

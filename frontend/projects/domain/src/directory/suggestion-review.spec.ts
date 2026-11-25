@@ -42,7 +42,7 @@ const DETAIL: SuggestionDetailDto = {
   checks: [],
 };
 
-// L2-073 AC2 (ADR 0087): each card says the kind, the area, who sent it and when.
+// L2-073 AC2 (ADR 0090): each card says the kind, the area, who sent it and when.
 describe('suggestion cards', () => {
   it.each<{ why: string; submittedAt: string; expected: string }>([
     { why: 'hours ago', submittedAt: '2026-11-25T11:00:00Z', expected: '4 hours ago' },
@@ -69,7 +69,7 @@ describe('suggestion cards', () => {
   });
 });
 
-// L2-073 AC6, AC8, AC9 (ADR 0087): what a decided suggestion says.
+// L2-073 AC6, AC8, AC9 (ADR 0090): what a decided suggestion says.
 describe('a decided suggestion', () => {
   it.each<{ status: 'approved' | 'declined'; claim: SuggestionClaim | null; expected: string }>([
     {
@@ -124,7 +124,7 @@ describe('a decided suggestion', () => {
   });
 });
 
-// L2-073 AC8 (ADR 0087; mocks decline-suggestion/invalid, failed and refused).
+// L2-073 AC8 (ADR 0090; mocks decline-suggestion/invalid, failed and refused).
 describe('declining a suggestion', () => {
   it.each<{ why: string; reason: string; expected: string | null }>([
     { why: 'none', reason: '', expected: null },

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Api.Tests.DirectoryListings;
 
 /// <summary>
-/// L2-073 AC4 and AC12 (journey 18; ADR 0087): staff tick or untick one of the four checks at
+/// L2-073 AC4 and AC12 (journey 18; ADR 0090): staff tick or untick one of the four checks at
 /// <c>PUT api/admin/directory/suggestions/{id}/checks/{check}</c>; it is saved at once with who and
 /// when, audited <c>suggestion.check_set</c>, and answered with the four checks. Setting a check to
 /// its value saves and audits nothing. An unknown check is 404 <c>not_found</c>, an unknown

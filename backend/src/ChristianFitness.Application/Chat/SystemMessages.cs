@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Chat;
 
 /// <summary>
-/// Sends direct messages as the Christian Fitness account (ADR 0065, ADR 0087), one per request
+/// Sends direct messages as the Christian Fitness account (ADR 0065, ADR 0090), one per request
 /// scope. <see cref="AddAsync"/> adds an ordinary <see cref="DirectMessage"/> in the caller's unit
 /// of work, unless the recipient is suspended; once the caller has saved, <see cref="PushAsync"/>
 /// delivers each to the recipient's open connections. Logs nothing: no text, no recipient.

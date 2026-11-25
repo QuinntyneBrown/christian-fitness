@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A claim link (ADR 0087): found by its token's hash, deleted with its listing.</summary>
+/// <summary>A claim link (ADR 0090): found by its token's hash, deleted with its listing.</summary>
 internal sealed class ListingClaimConfiguration : IEntityTypeConfiguration<ListingClaim>
 {
     public void Configure(EntityTypeBuilder<ListingClaim> builder)

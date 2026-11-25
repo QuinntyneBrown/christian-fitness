@@ -13,7 +13,7 @@ public sealed record GetListingSuggestionQuery(Guid Id) : IRequest<SuggestionDet
 
 /// <summary>
 /// The waiting suggestions and those decided in the last 90 days, oldest submitted first, 50 a page
-/// (ADR 0077, ADR 0087). An <c>after</c> that names nothing listed starts from the oldest. Reads
+/// (ADR 0077, ADR 0090). An <c>after</c> that names nothing listed starts from the oldest. Reads
 /// nothing it does not answer, and logs nothing (L2-073 AC12).
 /// </summary>
 internal sealed class ListListingSuggestionsHandler(IAppDbContext db, TimeProvider time)

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Directory.Review;
 
 /// <summary>
-/// What a decision answers (ADR 0087): the status, the draft listing approval made, and how the
+/// What a decision answers (ADR 0090): the status, the draft listing approval made, and how the
 /// claim went (<c>email</c>, <c>message</c> or <c>staff-managed</c>); none for a decline.
 /// </summary>
 public sealed record SuggestionDecisionDto(string Status, Guid? ListingId, string? Claim);
@@ -41,7 +41,7 @@ internal sealed class DeclineSuggestionValidator : AbstractValidator<DeclineSugg
             .WithErrorCode(DecideApplicationRules.ReasonTooLong).WithMessage("Use 500 characters or fewer");
 }
 
-/// <summary>The texts the Christian Fitness account and the claim email send (ADR 0065, ADR 0087).</summary>
+/// <summary>The texts the Christian Fitness account and the claim email send (ADR 0065, ADR 0090).</summary>
 public static class SuggestionOutcome
 {
     public const string ClaimSubject = "Claim your listing on Christian Fitness";

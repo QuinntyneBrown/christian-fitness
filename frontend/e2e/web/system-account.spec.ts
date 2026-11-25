@@ -4,7 +4,7 @@ import { MESSAGES_NOW } from '../fixtures/conversations';
 import { expect, test } from '../fixtures/test';
 import { WebEventChatPage } from '../page-objects/web/event-chat.page';
 
-/** The Christian Fitness account's fixed id (ADR 0087). */
+/** The Christian Fitness account's fixed id (ADR 0090). */
 const CHRISTIAN_FITNESS = '0193a9c0-0000-7000-8000-00000000cf00';
 const NOTE = "This account doesn't read replies. To reach the team, use Send feedback.";
 
@@ -19,7 +19,7 @@ const OUTCOMES = [
   },
 ];
 
-// L2-014 AC8 (ADR 0065, ADR 0087): the Christian Fitness account's messages can be read, never answered.
+// L2-014 AC8 (ADR 0065, ADR 0090): the Christian Fitness account's messages can be read, never answered.
 test.describe('Member app, the Christian Fitness account', () => {
   test.beforeEach(async ({ page }) => {
     await page.clock.setFixedTime(MESSAGES_NOW);

@@ -82,7 +82,7 @@ const FIELD_IDS: Record<DirectoryListingFieldKey, string> = {
   photo: 'f-image',
 };
 
-/** What each field code says to staff (ADR 0087); the sentences the server writes are never shown. */
+/** What each field code says to staff (ADR 0090); the sentences the server writes are never shown. */
 const MESSAGES: Record<string, string> = {
   name_required: 'Give the listing a name members will recognize',
   name_too_long: 'Use 120 characters or fewer',
