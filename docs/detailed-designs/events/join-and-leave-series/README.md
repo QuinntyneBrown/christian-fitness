@@ -38,7 +38,7 @@ Telemetry records the route templates only; no member id, name or price enters a
 ### Open questions
 
 - Keying the group chat by `SeriesId` changes `ChatMessage.EventId`, `ChatReadMarker`, `ChatMembership` and `IChatChannel` from an event id to a chat id. This needs an ADR before the slice.
-- "How to pay" copy for a joined paid series is `<TO SUPPLY>`; no mock draws a joined state with a price (the drop-in state `booked` reads "Pay $10 to the host at each session"). A mock state is needed before implementation.
+- The joined state of a paid series is drawn (`docs/mocks/pages/event-series/joined.html`): a "How to pay" note reading "Pay $64 to the host at your first session. Your places are reserved; online payment is not available yet."
 - The "spots left" rule (smallest places left among remaining sessions, or capacity minus enrolments) needs an ADR; see `view-event-series`.
 - `L2-052` AC9 keeps attended sessions in the history, which needs the attendance record that is `<TO SUPPLY>` (see `view-event-series`). "Came to <attended> of <past>" depends on it too.
 - Whether a member who drops in on a paid date and then joins pays the series price for every remaining session, or keeps the drop-in price for the dates already held, is `<TO SUPPLY>`.

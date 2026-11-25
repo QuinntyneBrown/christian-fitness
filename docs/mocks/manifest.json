@@ -743,6 +743,7 @@
         "failed",
         "drop-in-none",
         "drop-in",
+        "drop-in-full",
         "booked",
         "full",
         "loading",
@@ -770,6 +771,23 @@
       }
     },
     {
+      "id": "stop-dates",
+      "kind": "dialog",
+      "title": "Stop going to dates",
+      "group": "Member app",
+      "opens_from": "event-series",
+      "source": "Derived: unticking held drop-in dates and saving, confirmed in a dialog as cancelling a registration is (L2-053 AC4, ADR 0034).",
+      "requirements": [],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with nothing to type."
+      }
+    },
+    {
       "id": "directory",
       "kind": "page",
       "title": "Directory",
@@ -781,6 +799,9 @@
         "default",
         "filtered",
         "search",
+        "loading-more",
+        "more-error",
+        "capped",
         "no-results",
         "loading",
         "empty",
@@ -1077,6 +1098,8 @@
         "default",
         "selected",
         "date-cancelled",
+        "restoring",
+        "restore-failed",
         "loading",
         "empty",
         "error"
@@ -1114,6 +1137,7 @@
         "facebook",
         "whatsapp",
         "slack",
+        "changed",
         "failed",
         "loading",
         "empty",
@@ -1135,6 +1159,7 @@
         "approving",
         "approved",
         "declined",
+        "tick-failed",
         "listed",
         "loading",
         "empty",

@@ -44,9 +44,9 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 - "Told" is a notice in the series' group chat in this design. Whether members are also emailed or notified on their phone is `<TO SUPPLY>` (`docs/mocks/README.md` open question 1).
 - The dialog names only "The <n> members who joined the series"; drop-ins for that date are counted in the toast but not named in the dialog's count. The wording needs a decision.
 - New series, Edit details and Add a date have no screen in the mocks (`docs/mocks/README.md` open question 10). Until a requirement and mock exist, series and sessions come from the CLI's idempotent seed; `L2-071` AC6 for changed and added dates holds by construction once they exist, since sessions are events.
-- The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.
+- Restore is drawn busy (`docs/mocks/pages/admin-series/restoring.html`) and failed, with a toast (`restore-failed.html`).
 - The list's order is not stated (`L2-071` AC1); the mock lists by first session date. `<TO SUPPLY>`.
-- The `loading` mock draws a table skeleton beside the cards, unlike the loaded list; the skeleton should mirror the `admin-sessions` list.
+- The `loading` mock's skeleton mirrors the `admin-sessions` list rows.
 - `docs/detailed-designs/admin-events/publish-and-cancel-events` describes a `Conversation` entity and an `AdminOnly` policy that the code does not have; this design follows the code (`IChatChannel`, staff areas).
 
 ## Requirements

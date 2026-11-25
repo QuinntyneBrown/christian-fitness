@@ -44,8 +44,8 @@ The feature is a vertical slice from the Community Pick screen to the database, 
 
 - The mocks' links read `/e/sunrise-5k`, a slug, while `L2-072` AC6 and AC9 state `/e/<id>`. Events have no slug; the design follows the requirement.
 - `L2-072` AC9 says a visitor is taken to Join; the existing guard and `L2-004` AC6 take them to sign in. Which one applies is `<TO SUPPLY>`.
-- `L2-072` AC6 puts the price in every caption; the Slack caption in `docs/mocks/pages/admin-community-pick/slack.html` has none, and the Instagram caption carries "link in bio" in place of the address. The Slack mock needs the price.
-- The `default`, `facebook`, `whatsapp` and `slack` mocks show "Recreate assets" with no change made, while `L2-072` AC8 gives that label only after a change. No mock draws the "You changed the event or note" state. A mock state is needed before implementation.
+- `L2-072` AC6 puts the price in every caption; the Slack caption in `docs/mocks/pages/admin-community-pick/slack.html` now carries it, and the Instagram caption carries "link in bio" in place of the address.
+- The `default`, `facebook`, `whatsapp` and `slack` mocks read "Create assets"; the `changed` mock draws "You changed the event or note. Recreate to update." with "Recreate assets" (`L2-072` AC8).
 - The event image is optional (`L2-022` AC9), but `L2-072` AC5 draws the event's own photo. The graphic for an event with no image is `<TO SUPPLY>`.
 - The admin Events mocks show "Make it a pick" on four rows and do not list the Couch to 5K session that Community Pick offers; whether session events appear in admin Events is `<TO SUPPLY>` (see `events/browse-event-series`).
 - Creating fails only in the browser (the photo or a font does not load, or export fails); no API call is made, so "failed" never comes from the server.
