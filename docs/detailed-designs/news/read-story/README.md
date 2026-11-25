@@ -129,23 +129,22 @@ query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).
 - **Public read limit.** `L2-060` AC7 says public reads are rate limited "like other public reads
   (`L2-034`)", but `L2-034` defines no limit for public reads and the code has none. The numbers,
   and whether a story page counts, need a decision (ADR).
-- **Body format.** `L2-069` AC10 settles `>` for a pull quote and text-only storage. That
-  paragraphs are separated by a blank line follows the editor mock; headings, lists, links and
-  emphasis inside the text are not specified and are not supported by this design.
-- **Next step wording.** The card shows "the editor's words" (`L2-061` AC4), such as "Find church
-  sports ministries near you", but the story editor mock has only "Points readers to" with no
-  field for those words. The source of the words is `<TO SUPPLY>`.
+- **Body format.** Decided (issue 91): a small Markdown subset (paragraphs, `>` quotes, `##`/`###`
+  headings, lists, `https` links, emphasis, strong), rendered by one sanitising renderer shared
+  with Preview; raw HTML is never rendered (`L2-069` AC10, `L2-061` AC1).
+- **Next step wording.** Decided (issue 91): the editor has an optional "Next step" text (80
+  characters at most) and a link (internal route or `https`); with no text there is no card
+  (`L2-061` AC4).
 - **Directory listings.** A story may point to a listing (`L2-055`); no directory listing entity
   exists in the code yet. The pointer stores a kind and an id; the listing's lookup arrives with
   the directory slices.
 - **Pros has no feed.** Stories in Pros show on this page and on the landing page, but `L2-060`
   AC1 names no Pros feed.
-- **Signed-in members.** The page sits outside the member shell, so a signed-in member sees the
-  public masthead with Sign in and Join free. Whether a member sees the member navigation instead
-  is not drawn.
-- **Reads.** A read is counted when the page shows the story, so a reader who reloads counts
-  twice and a crawler that runs no JavaScript counts none. Whether that is the intended meaning of
-  "how many times it was read" (`L2-068` AC1) is `<TO SUPPLY>`.
+- **Signed-in members.** Decided (issue 91): a signed-in member sees the member navigation; a
+  visitor sees the public masthead (`L2-061` AC13).
+- **Reads.** Decided (issue 91): one read per browser per story per 24 hours, by a hashed id in
+  local storage (no cookie); known crawler user agents and Admin previews are excluded; an
+  unpublished story keeps its count (`L2-061` AC12, `L2-068` AC1).
 
 ## Requirements
 

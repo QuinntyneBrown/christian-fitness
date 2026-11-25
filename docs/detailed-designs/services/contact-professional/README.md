@@ -33,6 +33,8 @@ The feature is a vertical slice from the listing detail to the database.
 - Codes: `service_not_found` (404), `professional_not_linked` (409), `contact_link_not_found` (404), `recipient_unavailable` (403).
 - A listing is linked unless it has a `ContactUrl`; the conversation is the pair, so `startConversation` answers the professional's `memberId` and Messages opens `/messages/{memberId}`.
 
+A professional who also owns a directory listing keeps two records (ADR 0061). The Services detail shows "Also in the directory" to the published listing when the owning member matches or staff linked it (`L2-014` AC6); Message uses the professional's member id, so it opens the same direct conversation as the listing's Message (ADR 0043).
+
 ## Requirements
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. The L2 specification states its requirements as acceptance criteria; the text below condenses those criteria faithfully.

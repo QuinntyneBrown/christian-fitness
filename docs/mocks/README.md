@@ -206,9 +206,9 @@ navigation, say) must be made in the generator and in those files.
    (staff).
 4. **Home church.** Preferences sets who sees the whole profile; should home church have its own
    switch, since it is sensitive (L2-033)?
-5. **Services and the directory.** Danielle Okafor, Tasha Grant and Rev. James Whitfield are both a
-   Services professional and a directory listing, with different copy, and the console has both
-   Services (applications) and Listings (suggestions). One record or two? One review or two?
+5. **Services and the directory.** Resolved (ADR 0061): two records and two reviews, cross-linked
+   through the owning member ("Also offers services" on the listing profile, `person.html`;
+   "Also in the directory" on Services), and Message reaches the same conversation from either.
 6. **Messaging an organization.** A listing's Message button opens a direct conversation. For an
    organization, company or ministry, who receives it?
 7. **Who writes stories.** The editor shows a writer's note and "Sent back to Priya", but the
@@ -219,7 +219,9 @@ navigation, say) must be made in the generator and in those files.
 9. **Claiming a listing.** Approving a suggestion "sends them a link to claim and publish their
    listing". That screen, and how a listing's owner edits it afterwards, are not drawn.
 10. **Buttons with nothing behind them.** New series, Edit details and Add a date (Event series),
-    Edit (Listed), and Preview (story editor) have no screen or drawer in the frames.
+    Edit (Listed) have no screen or drawer in the frames. Preview (story editor) is decided:
+    `StoryPreviewPage` at `/stories/:id/preview` in the admin app (L2-069 AC13); its mock state
+    is issue 99.
 11. **Declining a suggestion.** Instant in the frame, with no reason; declining an application asks
     for one (L2-025 AC3). Should this?
 12. ~~**What the legal pages promise.**~~ Closed 2026-11-24: each statement is true or its text
@@ -228,7 +230,7 @@ navigation, say) must be made in the generator and in those files.
     are replaced by "the Christian Fitness team"; Join asks for a required "I'm 16 or older"
     checkbox (mock states `age-unconfirmed`, `age-unconfirmed-google`); the newsletter has no
     tracking; the legal-change email is a service notice; a new version is accepted by continued
-    use; earlier versions are static files at dated addresses (ADR 0061).
+    use; earlier versions are static files at dated addresses (ADR 0062).
 13. **Newsletter preferences without an account.** A subscriber who is not a member still has only
     Unsubscribe; Preferences is for members. Is that enough?
 14. **Add-on emails.** Event alerts, the training plan and the devotion "send on their own
