@@ -43,7 +43,7 @@ The list holds at most 100 rows and is replaced, never appended, on each filter 
 - The mock reads "2 of 7 sessions done" for Couch to 5K, which has 8 sessions with 1 cancelled: the total leaves cancelled sessions out, while `L2-071` AC6 counts cancelled sessions in "Session <n> of <total>". The design follows the mock for the meter text and `L2-071` AC6 for the session number; an ADR should record both counts.
 - `L2-050` states no paging. The design caps the answer at 100 rows; the cap needs an ADR or a requirement.
 - Cadence is stored as staff type it. Whether it is derived from the session dates is `<TO SUPPLY>` until a screen to create a series exists (`docs/mocks/README.md` open question 10).
-- The host is a directory listing (`L2-055`). `HostListingId` depends on the listing type the directory designs introduce; no listing entity exists in the code yet.
+- The required host is a directory listing (`L2-055`); Admins set it in the series editor and the migration backfills existing series to the Christian Fitness team listing (ADR 0062). The listing entity is not yet in the code.
 - The `search` field in the Events mock applies to no requirement and stays out of scope.
 - `L2-009` AC1 and AC11 (the "Session <n> of <total> · <cadence>" line and the switch on the By-date view) belong to `events/browse-events`; this design supplies the count and the series fields they read.
 
