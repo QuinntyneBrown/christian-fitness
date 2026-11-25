@@ -66,6 +66,16 @@ internal sealed class ReviewSuggestions(RegisterForEventFactory factory)
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
+    /// <summary>Suspends the member <paramref name="id"/>, as a moderation elsewhere would.</summary>
+    public async Task SuspendAsync(Guid id)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var member = await db.Members.SingleAsync(m => m.Id == id, TestContext.Current.CancellationToken);
+        db.Entry(member).Property(m => m.Status).CurrentValue = MemberStatus.Suspended;
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     public async Task<T> InDbAsync<T>(Func<AppDbContext, Task<T>> read)
     {
         using var scope = factory.Services.CreateScope();

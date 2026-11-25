@@ -161,4 +161,44 @@ public sealed class ListingSuggestion
     }
 
     private static string? Optional(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+
+    /// <summary>
+    /// Staff <paramref name="staffId"/> approve it at <paramref name="at"/>, with the draft listing
+    /// <paramref name="listingId"/> made from it; false when it was already decided.
+    /// </summary>
+    public bool TryApprove(Guid staffId, DateTimeOffset at, Guid listingId)
+    {
+        if (!Decide(SuggestionStatus.Approved, staffId, at))
+        {
+            return false;
+        }
+
+        ListingId = listingId;
+        return true;
+    }
+
+    /// <summary>Staff decline it with an optional reason kept for staff; false when it was already decided.</summary>
+    public bool TryDecline(Guid staffId, DateTimeOffset at, string? reason)
+    {
+        if (!Decide(SuggestionStatus.Declined, staffId, at))
+        {
+            return false;
+        }
+
+        DeclineReason = Optional(reason);
+        return true;
+    }
+
+    private bool Decide(SuggestionStatus status, Guid staffId, DateTimeOffset at)
+    {
+        if (Status != SuggestionStatus.Waiting)
+        {
+            return false;
+        }
+
+        Status = status;
+        DecidedById = staffId;
+        DecidedAt = at;
+        return true;
+    }
 }

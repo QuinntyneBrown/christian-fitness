@@ -32,6 +32,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<MemberCredentials>();
         services.AddScoped<ModerationTarget>();
         services.AddScoped<INotifier, Notifier>();
+        services.AddScoped<Chat.SystemMessages>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();

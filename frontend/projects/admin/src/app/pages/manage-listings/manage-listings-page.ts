@@ -27,6 +27,8 @@ import {
 } from '@cf/components';
 import {
   APPROVE_HINT,
+  decisionResult,
+  decisionTag,
   kindLabel,
   LISTING_CHECKS,
   passedCount,
@@ -34,6 +36,8 @@ import {
   suggestionByLine,
   suggestionFromLine,
   suggestionKindAndArea,
+  type SuggestionClaim,
+  reviewRefusalOf,
   ToastStore,
   websiteLabel,
 } from '@cf/domain';
@@ -53,6 +57,18 @@ const LISTED_HREF = '/listings?tab=listed';
 
 /** The toast of a tick that did not save (mock `admin-listings/tick-failed`). */
 const TICK_FAILED = "We couldn't save that check";
+/** The toast of an approval that did not go through (ADR 0087's stand-in for a missing mock). */
+const APPROVE_FAILED = "We couldn't approve the suggestion";
+/** The toast when another member of staff decided it first. */
+const ALREADY_DECIDED = 'This suggestion was already decided';
+/** The toasts announced at once, as failures. */
+const FAILURES = new Set([TICK_FAILED, APPROVE_FAILED, ALREADY_DECIDED]);
+
+/** A decision made on this visit. */
+interface Decision {
+  status: 'approved' | 'declined';
+  claim: SuggestionClaim | null;
+}
 
 /**
  * Listings (mock docs/mocks/pages/admin-listings/; L2-073; journey 18; ADR 0087). Suggestions lists
@@ -96,12 +112,23 @@ export default class ManageListingsPage {
   private readonly selected = signal<string | null>(null);
   protected readonly state = signal<ListState>({ kind: 'loading' });
   protected readonly detailState = signal<DetailState>({ kind: 'loading' });
+  /** The decisions made on this visit, by suggestion id. */
+  private readonly decisions = signal<Readonly<Partial<Record<string, Decision>>>>({});
+  /** An approval of the suggestion showing is on its way. */
+  protected readonly approving = signal(false);
 
   protected readonly tabs = computed<TabItem[]>(() => {
     const state = this.state();
     const list = state.kind === 'ready' ? state.list : null;
+    const decidedHere = list
+      ? list.suggestions.filter((s) => s.status === 'waiting' && this.decisions()[s.id]).length
+      : 0;
     return [
-      { label: 'Suggestions', href: SUGGESTIONS_HREF, count: list?.waiting },
+      {
+        label: 'Suggestions',
+        href: SUGGESTIONS_HREF,
+        count: list ? Math.max(list.waiting - decidedHere, 0) : undefined,
+      },
       { label: 'Listed', href: LISTED_HREF, count: list?.listed },
     ];
   });
@@ -111,11 +138,13 @@ export default class ManageListingsPage {
   protected readonly cards = computed<PickCardItem[]>(() => {
     const state = this.state();
     if (state.kind !== 'ready') return [];
+    const decisions = this.decisions();
     return state.list.suggestions.map((suggestion) => ({
       id: suggestion.id,
       href: `${SUGGESTIONS_HREF}?selected=${encodeURIComponent(suggestion.id)}`,
       title: suggestion.name,
       meta: [suggestionKindAndArea(suggestion), suggestionFromLine(suggestion, state.now)],
+      tag: decisionTag(decisions[suggestion.id]?.status ?? suggestion.status),
     }));
   });
   /** The suggestion showing: the one the address names when listed, else the first. */
@@ -128,6 +157,8 @@ export default class ManageListingsPage {
     const state = this.detailState();
     if (state.kind !== 'ready') return null;
     const detail = state.detail;
+    const decision = this.decisions()[detail.id];
+    const status = decision?.status ?? detail.status;
     const checks: CheckRowItem[] = LISTING_CHECKS.map((info) => ({
       check: info.check,
       label: info.label,
@@ -145,13 +176,15 @@ export default class ManageListingsPage {
       checks,
       passed: passedLine(detail.checks),
       canApprove: passedCount(detail.checks) === LISTING_CHECKS.length,
+      locked: status !== 'waiting' || this.approving(),
+      result: status === 'waiting' ? null : decisionResult(status, decision?.claim ?? null),
     };
   });
   protected readonly approveHint = APPROVE_HINT;
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
       id: String(id),
-      tone: title === TICK_FAILED ? 'danger' : 'success',
+      tone: FAILURES.has(title) ? 'danger' : 'success',
       heading: title,
       text,
     })),
@@ -170,6 +203,7 @@ export default class ManageListingsPage {
         startWith(undefined),
         switchMap(() => {
           this.state.set({ kind: 'loading' });
+          this.decisions.set({});
           return this.directory.suggestions().pipe(
             map((list) => ({ kind: 'ready', list, now: new Date() }) satisfies ListState),
             catchError(() => of({ kind: 'failed' } satisfies ListState)),
@@ -237,6 +271,45 @@ export default class ManageListingsPage {
           this.toasts.show(TICK_FAILED, 'The box is back as it was. Try again in a moment.');
         },
       });
+  }
+
+  /**
+   * Approves the suggestion showing (L2-073 AC6): the button reads "Approving…" and the checks are
+   * read-only while it is sent; then the panel says how the claim went, its card is tagged and the
+   * count falls. One that does not go through says so; one decided elsewhere first shows the list
+   * as it is now.
+   */
+  protected approve(): void {
+    const state = this.detailState();
+    if (state.kind !== 'ready' || this.approving()) return;
+    const id = state.detail.id;
+    this.approving.set(true);
+    this.directory
+      .approve(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (answer) => {
+          this.approving.set(false);
+          this.decide(id, { status: 'approved', claim: answer.claim });
+        },
+        error: (error: unknown) => this.refused(error, APPROVE_FAILED),
+      });
+  }
+
+  private decide(id: string, decision: Decision): void {
+    this.decisions.update((decisions) => ({ ...decisions, [id]: decision }));
+  }
+
+  /** A decision that did not go through: a toast says why, and a stale list is read again. */
+  private refused(error: unknown, failed: string): void {
+    this.approving.set(false);
+    if (reviewRefusalOf(error) === 'decided') {
+      this.toasts.show(ALREADY_DECIDED, 'The list shows where it stands now.');
+      this.reload.next();
+      return;
+    }
+
+    this.toasts.show(failed, 'Nothing changed. Try again in a moment.');
   }
 
   private checksOf(id: string): SuggestionCheckDto[] | null {

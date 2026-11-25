@@ -23,6 +23,10 @@ public sealed class MemberAppAddress
     /// The Reset password screen with <paramref name="token"/> in the fragment, which no browser
     /// sends to a server or in a <c>Referer</c>.
     /// </summary>
+    /// <summary>The claim screen for <paramref name="token"/> (L2-078 AC1; ADR 0087): <c>/claim/{token}</c>.</summary>
+    public string ClaimLink(string token) =>
+        $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/claim/{token}";
+
     public string ResetPasswordLink(string token) =>
         $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/reset-password#token={token}";
 }

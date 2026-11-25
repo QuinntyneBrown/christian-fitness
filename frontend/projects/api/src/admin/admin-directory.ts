@@ -57,6 +57,16 @@ export interface SuggestionDetailDto {
   checks: SuggestionCheckDto[];
 }
 
+/**
+ * What a decision answers (ADR 0087): the status, the draft listing an approval made and how the
+ * claim went; neither for a decline.
+ */
+export interface SuggestionDecisionDto {
+  status: 'approved' | 'declined';
+  listingId: string | null;
+  claim: 'email' | 'message' | 'staff-managed' | null;
+}
+
 /** `PUT …/checks/{check}`: the four checks after the change. */
 export interface SuggestionChecksDto {
   checks: SuggestionCheckDto[];
@@ -76,6 +86,12 @@ export interface AdminDirectoryApi {
    * `suggestion_decided` (409).
    */
   setCheck(id: string, check: ListingCheckSlug, passed: boolean): Observable<SuggestionChecksDto>;
+
+  /**
+   * Approves the suggestion `id` whose four checks passed (L2-073 AC6). Refusals:
+   * `checks_incomplete` (409), `suggestion_decided` (409), `suggestion_not_found` (404).
+   */
+  approve(id: string): Observable<SuggestionDecisionDto>;
 }
 
 /** Binds {@link AdminDirectoryApi}; the Listings page provides it on its routed component. */

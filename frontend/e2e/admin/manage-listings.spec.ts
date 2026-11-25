@@ -287,6 +287,106 @@ test.describe('Admin app, the four checks', () => {
   });
 });
 
+const APPROVE = /^\/api\/admin\/directory\/suggestions\/([^/]+)\/approve$/;
+const ALL_PASSED = checks('credentials', 'insurance', 'two-references', 'conversation');
+
+// L2-073 AC6 and AC9 (ADR 0087): approving a suggestion whose four checks passed.
+test.describe('Admin app, approving a suggestion', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // Mocks admin-listings/approving and approved.
+  test('Approve listing reads Approving…, then says the claim link was sent and the count falls', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const ready = { ...CAST_SUGGESTIONS[1], checks: ALL_PASSED };
+    answer(api, [CAST_SUGGESTIONS[0], ready, CAST_SUGGESTIONS[2]]);
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const approved: string[] = [];
+    api.on('POST', APPROVE, async (request) => {
+      approved.push(new URL(request.url()).pathname);
+      await held;
+      return { json: { status: 'approved', listingId: 'l-1', claim: 'message' } };
+    });
+    const listings = new ManageListingsPage(page);
+    await listings.open(`?selected=${ready.id}`);
+
+    await listings.approveButton.click();
+
+    await expect(listings.approveButton).toHaveText('Approving…');
+    await expect(listings.approveButton).toBeDisabled();
+    await expect(listings.declineButton).toBeDisabled();
+    await expect(listings.check('Credentials')).toBeDisabled();
+    release();
+    await expect(listings.result).toHaveText(
+      'Approved. We’ve sent them a link to claim and publish their listing.',
+    );
+    await expect(listings.result).toHaveAttribute('role', 'status');
+    await expect(listings.approveButton).toHaveCount(0);
+    await expect(listings.check('Conversation')).toBeDisabled();
+    await expect(listings.cardTag('Coach Marcus Delaney')).toHaveText('Approved');
+    await expect(listings.tab('Suggestions')).toHaveText('Suggestions 2');
+    expect(approved).toEqual([`/api/admin/directory/suggestions/${ready.id}/approve`]);
+  });
+
+  test('a staff-managed approval says the listing is in the directory', async ({ page, api }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, [{ ...CAST_SUGGESTIONS[2], checks: ALL_PASSED }]);
+    api.on('POST', APPROVE, () => ({
+      json: { status: 'approved', listingId: 'l-2', claim: 'staff-managed' },
+    }));
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+
+    await listings.approveButton.click();
+
+    await expect(listings.result).toHaveText(
+      'Approved. It’s in the directory now, managed by our team.',
+    );
+  });
+
+  test('an approval that does not go through says so and Approve listing stays', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    answer(api, [{ ...CAST_SUGGESTIONS[1], checks: ALL_PASSED }]);
+    api.on('POST', APPROVE, () => ({ abort: true }));
+    const listings = new ManageListingsPage(page);
+    await listings.open();
+
+    await listings.approveButton.click();
+
+    await expect(listings.toastTitle).toHaveText("We couldn't approve the suggestion");
+    await expect(listings.toastText).toHaveText('Nothing changed. Try again in a moment.');
+    await expect(listings.alertToast).toHaveCount(1);
+    await expect(listings.approveButton).toHaveText('Approve listing');
+    await expect(listings.approveButton).toBeEnabled();
+    await expect(listings.result).toHaveCount(0);
+  });
+
+  // L2-073 AC9: a suggestion decided before shows how, and its checks are read-only.
+  test('a decided suggestion is tagged and its checks are read-only', async ({ page, api }) => {
+    await page.clock.setFixedTime(LISTINGS_NOW);
+    const declined = { ...CAST_SUGGESTIONS[0], status: 'declined' as const };
+    answer(api, [declined, CAST_SUGGESTIONS[1]]);
+    const listings = new ManageListingsPage(page);
+
+    await listings.open();
+
+    await expect(listings.cardTag('Eastside Ladies Who Lift')).toHaveText('Declined');
+    await expect(listings.tab('Suggestions')).toHaveText('Suggestions 1');
+    await expect(listings.result).toHaveText(
+      'Declined. The person who suggested it has been told.',
+    );
+    await expect(listings.check('Credentials')).toBeDisabled();
+    await expect(listings.approveButton).toHaveCount(0);
+    await expect(listings.declineButton).toHaveCount(0);
+  });
+});
+
 // L2-073 AC11, L2-019 AC1 (ADR 0064): a Moderator opens Listings as an Admin does.
 test.describe('Admin app, listing suggestions for a Moderator', () => {
   test.use({ viewport: { width: 1440, height: 900 } });

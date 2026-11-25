@@ -161,5 +161,8 @@ public sealed class DirectoryListing
     }
 
     /// <summary>Sets the stored photo, or clears it with none.</summary>
+    /// <summary>The suggestion it was made from (ADR 0087).</summary>
+    public void MadeFrom(Guid suggestionId) => SuggestionId = suggestionId;
+
     public void ShowPhoto(string? photoKey) => PhotoKey = string.IsNullOrWhiteSpace(photoKey) ? null : photoKey;
 }

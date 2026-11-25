@@ -95,6 +95,43 @@ export function passedCount(checks: readonly SuggestionCheckDto[]): number {
   ).length;
 }
 
+/** How an approval's claim went (ADR 0087). */
+export type SuggestionClaim = 'email' | 'message' | 'staff-managed';
+
+/**
+ * What the panel says once a suggestion is decided (L2-073 AC6, AC8): the claim link was sent, or
+ * the listing is in the directory as staff-managed, or the sender was told of a decline. A
+ * suggestion decided before this visit says only how it was decided.
+ */
+export function decisionResult(
+  status: 'approved' | 'declined',
+  claim: SuggestionClaim | null = null,
+): string {
+  if (status === 'declined') return 'Declined. The person who suggested it has been told.';
+  if (claim === 'staff-managed') return 'Approved. It’s in the directory now, managed by our team.';
+  if (claim === null) return 'Approved.';
+  return 'Approved. We’ve sent them a link to claim and publish their listing.';
+}
+
+/**
+ * Why a check, an approval or a decline did not go through: `decided` when another member of
+ * staff decided the suggestion first (409 `suggestion_decided`) or it is gone (404
+ * `suggestion_not_found`), so the list is stale; otherwise `failed`.
+ */
+export function reviewRefusalOf(error: unknown): 'decided' | 'failed' {
+  const { status, code } = (error ?? {}) as { status?: unknown; code?: unknown };
+  if (status === 409 && code === 'suggestion_decided') return 'decided';
+  if (status === 404 && code === 'suggestion_not_found') return 'decided';
+  return 'failed';
+}
+
+/** A decided suggestion's tag on its card: "Approved" or "Declined"; none while it waits. */
+export function decisionTag(status: 'waiting' | 'approved' | 'declined'): string | undefined {
+  if (status === 'approved') return 'Approved';
+  if (status === 'declined') return 'Declined';
+  return undefined;
+}
+
 /** "3 of 4 passed". */
 export function passedLine(checks: readonly SuggestionCheckDto[]): string {
   return `${passedCount(checks)} of ${LISTING_CHECKS.length} passed`;

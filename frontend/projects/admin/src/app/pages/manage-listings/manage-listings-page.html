@@ -96,7 +96,11 @@
                   [passed]="shown.passed"
                   [canApprove]="shown.canApprove"
                   [hint]="approveHint"
+                  [locked]="shown.locked"
+                  [approving]="approving()"
+                  [result]="shown.result"
                   (checkChange)="setCheck($event)"
+                  (approve)="approve()"
                 />
               }
             }

@@ -81,6 +81,9 @@ public interface IAppDbContext
     /// <summary>The checks staff set on a suggestion (L2-073 AC4; ADR 0087).</summary>
     DbSet<SuggestionCheck> SuggestionChecks { get; }
 
+    /// <summary>The links to claim an approved listing (L2-078; ADR 0087).</summary>
+    DbSet<ListingClaim> ListingClaims { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

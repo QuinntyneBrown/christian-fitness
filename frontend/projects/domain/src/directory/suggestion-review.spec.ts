@@ -1,5 +1,7 @@
 import type { SuggestionDetailDto, SuggestionSummaryDto } from '@cf/api';
 import {
+  decisionResult,
+  decisionTag,
   kindLabel,
   passedCount,
   passedLine,
@@ -7,6 +9,8 @@ import {
   suggestionByLine,
   suggestionFromLine,
   suggestionKindAndArea,
+  type SuggestionClaim,
+  reviewRefusalOf,
   websiteLabel,
 } from './suggestion-review';
 
@@ -60,6 +64,61 @@ describe('suggestion cards', () => {
     expect(suggestionFromLine({ ...SUMMARY, from: null }, NOW)).toBe(
       'Self-submitted · 4 hours ago',
     );
+  });
+});
+
+// L2-073 AC6, AC8, AC9 (ADR 0087): what a decided suggestion says.
+describe('a decided suggestion', () => {
+  it.each<{ status: 'approved' | 'declined'; claim: SuggestionClaim | null; expected: string }>([
+    {
+      status: 'approved',
+      claim: 'email',
+      expected: 'Approved. We’ve sent them a link to claim and publish their listing.',
+    },
+    {
+      status: 'approved',
+      claim: 'message',
+      expected: 'Approved. We’ve sent them a link to claim and publish their listing.',
+    },
+    {
+      status: 'approved',
+      claim: 'staff-managed',
+      expected: 'Approved. It’s in the directory now, managed by our team.',
+    },
+    { status: 'approved', claim: null, expected: 'Approved.' },
+    {
+      status: 'declined',
+      claim: null,
+      expected: 'Declined. The person who suggested it has been told.',
+    },
+  ])('$status with claim $claim reads "$expected"', ({ status, claim, expected }) => {
+    expect(decisionResult(status, claim)).toBe(expected);
+  });
+
+  it.each<{ why: string; error: unknown; expected: 'decided' | 'failed' }>([
+    {
+      why: 'decided first',
+      error: { status: 409, code: 'suggestion_decided' },
+      expected: 'decided',
+    },
+    { why: 'gone', error: { status: 404, code: 'suggestion_not_found' }, expected: 'decided' },
+    {
+      why: 'too few checks',
+      error: { status: 409, code: 'checks_incomplete' },
+      expected: 'failed',
+    },
+    { why: 'no answer', error: { status: 0, code: 'network' }, expected: 'failed' },
+    { why: 'not an API error', error: new Error('x'), expected: 'failed' },
+  ])('a refusal $why is $expected', ({ error, expected }) => {
+    expect(reviewRefusalOf(error)).toBe(expected);
+  });
+
+  it.each([
+    ['waiting', undefined],
+    ['approved', 'Approved'],
+    ['declined', 'Declined'],
+  ] as const)('a %s card is tagged %s', (status, tag) => {
+    expect(decisionTag(status)).toBe(tag);
   });
 });
 

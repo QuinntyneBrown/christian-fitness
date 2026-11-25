@@ -60,6 +60,8 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<ChristianFitness.Domain.Directory.ListingFollow> ListingFollows => throw new InvalidOperationException(Secret);
 
         public DbSet<ChristianFitness.Domain.Directory.SuggestionCheck> SuggestionChecks => throw new InvalidOperationException(Secret);
+
+        public DbSet<ChristianFitness.Domain.Directory.ListingClaim> ListingClaims => throw new InvalidOperationException(Secret);
         public DbSet<AuditEntry> AuditEntries => throw new InvalidOperationException(Secret);
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>

@@ -4,6 +4,7 @@ import type {
   AdminDirectoryApi,
   ListingCheckSlug,
   SuggestionChecksDto,
+  SuggestionDecisionDto,
   SuggestionDetailDto,
   SuggestionListDto,
 } from '@cf/api';
@@ -40,6 +41,12 @@ export class HttpAdminDirectoryService implements AdminDirectoryApi {
         `${BASE}/suggestions/${encodeURIComponent(id)}/checks/${encodeURIComponent(check)}`,
         { passed },
       )
+      .pipe(catchError(asApiError));
+  }
+
+  approve(id: string): Observable<SuggestionDecisionDto> {
+    return this.http
+      .post<SuggestionDecisionDto>(`${BASE}/suggestions/${encodeURIComponent(id)}/approve`, null)
       .pipe(catchError(asApiError));
   }
 }

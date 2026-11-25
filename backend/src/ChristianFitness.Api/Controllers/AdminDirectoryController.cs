@@ -28,6 +28,11 @@ public sealed class AdminDirectoryController(ISender sender) : ControllerBase
     [HttpPut("suggestions/{id:guid}/checks/{check}")]
     public async Task<ActionResult<SuggestionChecksDto>> SetCheck(Guid id, string check, SetCheckBody body, CancellationToken cancellationToken) =>
         await sender.Send(new SetSuggestionCheckCommand(id, check, body?.Passed ?? false), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Approves a suggestion whose four checks passed.</summary>
+    [HttpPost("suggestions/{id:guid}/approve")]
+    public async Task<ActionResult<SuggestionDecisionDto>> Approve(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new ApproveSuggestionCommand(id), cancellationToken).ConfigureAwait(false);
 }
 
 /// <summary>What a tick sends.</summary>
