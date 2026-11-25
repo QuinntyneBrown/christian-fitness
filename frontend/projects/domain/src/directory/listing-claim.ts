@@ -35,10 +35,11 @@ export function claimHintOf(member: string, expiresAt: string): string {
   return `Signed in as ${member}. Publishing makes you the owner, so you can edit it later. This link works once and expires on ${claimExpiryText(expiresAt)}.`;
 }
 
-/** One key fact of the preview: its label and what it says. */
+/** One key fact of the preview: its label, what it says and its icon, as `cf-description-list` takes it. */
 export interface ClaimFact {
   term: string;
-  description: string;
+  detail: string;
+  icon: 'pin' | 'globe';
 }
 
 /** What the preview shows of a listing (L2-078 AC5): the head, and what it has of the rest. */
@@ -56,8 +57,8 @@ export function claimPreviewViewOf(listing: ClaimPreviewDto): ClaimPreviewView {
   const kind = listingKindInfo(listing.kind);
   const website = websiteLinkOf(listing.website);
   const facts: ClaimFact[] = [];
-  if (listing.area.trim() !== '') facts.push({ term: 'Area', description: listing.area });
-  if (website !== null) facts.push({ term: 'Website', description: website.text });
+  if (listing.area.trim() !== '') facts.push({ term: 'Area', detail: listing.area, icon: 'pin' });
+  if (website !== null) facts.push({ term: 'Website', detail: website.text, icon: 'globe' });
   return {
     kind: kind.singular,
     person: kind.person,

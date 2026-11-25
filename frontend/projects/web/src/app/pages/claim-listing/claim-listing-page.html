@@ -1,0 +1,70 @@
+<main id="main" class="claim-listing-page">
+  @switch (phase()) {
+    @case ('checking') {
+      <cf-skeleton-region label="Checking your link" heading>
+        <cf-container page="default">
+          <div class="claim-listing-page__lines">
+            <cf-skeleton shape="title-lg" />
+            <cf-skeleton shape="tile" />
+            <cf-skeleton width="90" />
+            <cf-skeleton width="80" />
+          </div>
+        </cf-container>
+      </cf-skeleton-region>
+    }
+    @case ('ready') {
+      <cf-container page="default">
+        <cf-form-page
+          heading="Publish your listing"
+          lead="Our team has checked it. It goes into the directory only when you say it is yours. Here is how it will look."
+        >
+          @if (listing(); as shown) {
+            @if (view(); as head) {
+              <section class="claim-listing-page__preview" aria-labelledby="preview-title">
+                <h2 class="visually-hidden" id="preview-title">
+                  Your listing as members will see it
+                </h2>
+                <cf-listing-head
+                  preview
+                  [kind]="head.kind"
+                  [name]="shown.name"
+                  [tagline]="shown.tagline"
+                  [verified]="shown.isVerified"
+                  [person]="head.person"
+                  [initials]="head.initials"
+                  [photoSrc]="head.photoSrc"
+                />
+                @if (shown.about) {
+                  <p class="prose lead">{{ shown.about }}</p>
+                }
+                @if (shown.focus.length > 0) {
+                  <cf-tag-list [tags]="shown.focus" outline />
+                }
+                @if (head.facts.length > 0) {
+                  <cf-description-list variant="spec" [items]="head.facts" />
+                }
+              </section>
+            }
+          }
+          <p class="claim-listing-page__hint">{{ hint() }}</p>
+          <cf-button slot="actions" type="submit" size="md">Publish my listing</cf-button>
+          <cf-button slot="actions" variant="secondary" size="md">This isn’t me</cf-button>
+        </cf-form-page>
+      </cf-container>
+    }
+    @default {
+      <cf-container page="default">
+        <cf-error-page
+          code="404"
+          heading="Page not found"
+          text="That link may be old, or the page has moved. Everything else is right where you left it."
+        >
+          <cf-button slot="actions" href="/home" size="sm">Go to home</cf-button>
+          <cf-button slot="actions" href="/directory" variant="secondary" size="sm"
+            >Directory</cf-button
+          >
+        </cf-error-page>
+      </cf-container>
+    }
+  }
+</main>

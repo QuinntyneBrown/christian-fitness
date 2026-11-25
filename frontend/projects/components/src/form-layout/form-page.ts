@@ -9,7 +9,8 @@ let nextId = 0;
  * default slot) and a foot with the actions (`slot="actions"`) and an optional "Sent as" line.
  * Once `done`, the form gives way to what is projected with `slot="done"`, the design system's
  * `done` block. The aside, named by its heading, holds what is projected with `slot="aside"`;
- * from 1024 px it sits beside the form, lowered to the fields. Submitting emits `send` and never
+ * from 1024 px it sits beside the form, lowered to the fields. Without `asideHeading` there is no
+ * aside and the page starts flush (`form-page--flush`). Submitting emits `send` and never
  * reloads the page. Every text is rendered as text.
  */
 @Component({
@@ -22,7 +23,8 @@ export class FormPage {
   readonly lead = input<string>();
   /** Who the form is sent as, such as "Sent as Grace Thompson"; none to leave the line out. */
   readonly sentAs = input<string | null>(null);
-  readonly asideHeading = input.required<string>();
+  /** The aside's heading; none leaves the aside out (the mock's `form-page--flush`, the claim screen). */
+  readonly asideHeading = input<string>();
   /** Replaces the form with the `done` slot. */
   readonly done = input(false, { transform: booleanAttribute });
 

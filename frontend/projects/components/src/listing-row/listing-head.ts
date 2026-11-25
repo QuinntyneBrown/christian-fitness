@@ -27,6 +27,11 @@ export class ListingHead {
   readonly initials = input('');
   readonly photoSrc = input<string | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });
+  /**
+   * The listing as it will appear, under a page's own `h1` (the claim screen; ADR 0091): the name is
+   * a paragraph, an empty tagline is left out, and the head has no rule or actions.
+   */
+  readonly preview = input(false, { transform: booleanAttribute });
   /** The hidden heading while it loads, such as "Loading listing". */
   readonly loadingLabel = input('Loading listing');
 }

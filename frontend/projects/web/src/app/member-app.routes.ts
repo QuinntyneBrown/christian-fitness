@@ -83,6 +83,12 @@ const routes: Routes = [
         loadComponent: () => import('./pages/suggest-listing/suggest-listing-page'),
       },
       {
+        // A claim link opened with a session: the listing as it will appear, Publish or This isn't me (L2-078; ADR 0091).
+        path: 'claim/:token',
+        title: titled('Claim a listing'),
+        loadComponent: () => import('./pages/claim-listing/claim-listing-page'),
+      },
+      {
         // One published listing's profile (L2-055; ADR 0087).
         path: 'directory/:id',
         title: titled('Listing'),

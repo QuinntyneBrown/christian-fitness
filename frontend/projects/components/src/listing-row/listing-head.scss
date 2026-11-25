@@ -13,6 +13,13 @@
   padding-bottom: var(--space-8);
 }
 
+// The claim screen's preview: no rule and no room above, as the form section spaces it.
+.listing-head--preview {
+  margin-top: 0;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
 @media (min-width: 48rem) {
   .listing-head {
     flex-direction: row;

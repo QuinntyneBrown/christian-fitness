@@ -61,8 +61,8 @@ export class WebClaimListingPage {
     this.tagline = this.preview.locator('.listing-head .subtitle');
     this.about = this.preview.locator('.prose');
     this.tags = this.preview.locator('.tag');
-    this.facts = this.preview.locator('.key-facts__row');
-    this.hint = this.main.locator('.claim-listing__hint');
+    this.facts = this.preview.locator('.spec-list > div');
+    this.hint = this.main.locator('.claim-listing-page__hint');
     this.publishButton = this.main.locator('.form-page__foot button').first();
     this.notMeButton = this.main.getByRole('button', { name: 'This isn’t me' });
     this.alert = this.main.locator('.form-alert');

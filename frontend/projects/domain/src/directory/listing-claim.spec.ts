@@ -54,8 +54,8 @@ describe('claimPreviewViewOf', () => {
       initials: 'EL',
       photoSrc: null,
       facts: [
-        { term: 'Area', description: 'East York' },
-        { term: 'Website', description: 'eastsideladies.ca' },
+        { term: 'Area', detail: 'East York', icon: 'pin' },
+        { term: 'Website', detail: 'eastsideladies.ca', icon: 'globe' },
       ],
     });
   });

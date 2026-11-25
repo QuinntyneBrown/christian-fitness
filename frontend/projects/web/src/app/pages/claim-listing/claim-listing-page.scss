@@ -1,0 +1,36 @@
+// The claim screen's own layout (mock `claim-listing/default`): the preview as a form section
+// (`form-section`), the about as `prose lead`, and the hint under it as the form's muted small line
+// (the mock's `field__hint`). The form page, the head, the tags, the facts and the outcomes are the
+// library's.
+.claim-listing-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.claim-listing-page__preview {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.claim-listing-page__lines {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.prose {
+  max-width: var(--layout-measure);
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.claim-listing-page__hint {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
