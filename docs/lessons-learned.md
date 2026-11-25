@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 25% (9 of 36 journeys; 25 of 113 days)
+**% complete:** 28% (10 of 36 journeys; 30 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2628,3 +2628,49 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 - "Count a slice's new specs against the CI budget" (24.1) is retired: new specs no longer cost
   CI time, only the one critical path does.
+
+
+## Journey 9: Manage event series
+
+**What slowed it**
+
+- Two journeys merged under it: #198 took ADR 0090 and rewrote the admin navigation (Listings with
+  a count, `adminNavOf`) and pick cards, and #199 re-indented 39 specs. The rebase needed the
+  series ADR renumbered to 0091 on every added line (but not the lines naming main's 0090), the
+  navigation merged into one `adminNavOf` with groups, and the migration regenerated after main's.
+- Measuring main's initial bundle meant checking out main's `frontend/projects` in the worktree
+  and deleting the branch's new files, then restoring with `git checkout HEAD -- frontend`.
+- Two dev servers outlived their task and held 4500 and 4501 until stopped by process id.
+
+**New lessons**
+
+- A dialog that saves a record the page shows should hand back the answer and the page should
+  show it in place (`showSaved`), not ask for the list again: a reload redraws the card, drops the
+  button that opened the dialog, and CDK's restored focus lands on `body`. The focus check in the
+  e2e test caught it.
+- A wall-clock check in the browser (a start after now) needs `page.clock.setFixedTime` at the
+  mocks' today; the mocks' dates are already past by the real clock, so the happy path fails
+  without it. `setFixedTime` leaves timers running, so zoneless rendering is unaffected.
+- Toronto date and time to an instant in TypeScript: take the wall clock as UTC, subtract the
+  offset `Intl` gives at that guess, then once more at the result, so a guess across a clock
+  change settles. Test both sides of each change.
+- A new nullable field on a shared DTO (`AdminEventDto.series`) breaks the exact-keys test of
+  every endpoint that answers it; add it there with a null assertion, which is the contract change,
+  not a weakening.
+- One editor dialog serves New series and Edit details by its data (`series` present or not):
+  heading, subtitle, button words, failure heading and the default-host request all branch on it,
+  and the page object takes the dialog's name.
+
+**How earlier lessons worked**
+
+- "Check `origin/main` and open PRs for the next ADR number right before each commit" (7): the
+  first check said 0090 was free; #198 merged it an hour later. Checking again at the rebase
+  caught it, and 0091 held.
+- "Regenerate a migration that sorts before main's" (8): `AddEventSeries` regenerated after
+  `AddSuggestionReview`, with identical content.
+- "Break each rule alone" (5, 17): the drop-in rule, the sessions-to-come filter, the capacity
+  floor, the past-start and end-after-start rules (API and app) each failed exactly their tests
+  and were restored.
+- "Read the initial total after each build" (5): admin's initial is 280.52 kB against main's
+  280.38 kB, +0.14 kB for the series route (116 B) and its area entry (82 B). The editor and Add
+  a date are lazy chunks loaded on first use; the budget was not raised.

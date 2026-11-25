@@ -92,6 +92,13 @@ these open or disagreed:
   the Events row reads "Part of <series> · <place>" under its title (the `admin-events` mock gains
   such a row). Member Events lists every session event until journey 10 applies ADR 0080's "next
   session only" rule.
+- **Add a date's defaults.** It opens on the week after the series' last date at that date's
+  Toronto start and end (the mock's June 2, 6:30 to 7:30 PM), with no topic, and blank for a
+  series with no dates; its subtitle names the number the date becomes. The app checks the start
+  against its own clock before sending; the API checks again against its own.
+- **After a save or an added date** the page shows the series as answered, in place, without
+  asking for the list again, so the summary card and the button pressed stay and focus returns to
+  it.
 - **Toasts.** "<title> created", "<title> updated" and "<Tue Jun 2> added", with the toast region
   every admin screen uses.
 - **Audit and telemetry.** `series.created`, `series.updated` and `series.session_added`, each
