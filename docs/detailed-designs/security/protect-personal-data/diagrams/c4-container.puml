@@ -6,7 +6,7 @@ title Containers — Protect personal data
 Person(member, "Member", "Registers for events, chats and books professionals")
 System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular (standalone, signals, zoneless)", "projects/web")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers and SignalR ChatHub")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Controllers, SignalR ChatHub and scheduled erasure")
   Container(cli, "Christian Fitness CLI", ".NET console", "Migrations and idempotent seed")
   ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, events, conversations, listings")
 }
@@ -15,6 +15,6 @@ System_Ext(otel, "OpenTelemetry collector", "Receives traces and metrics")
 Rel(member, web, "Uses", "HTTPS")
 Rel(web, api, "Calls", "JSON/HTTPS")
 Rel(api, db, "Reads and writes", "EF Core")
-Rel(cli, db, "Erases due accounts", "EF Core")
+Rel(cli, db, "Can erase due accounts manually", "EF Core")
 Rel(api, otel, "Exports redacted telemetry", "OTLP")
 @enduml

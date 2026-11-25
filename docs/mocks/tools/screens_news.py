@@ -352,8 +352,8 @@ def story_page(st: dict, *, copied: bool = False) -> str:
       <figure class="story__figure">{image(st["image"], "story__image")}</figure>
       <div class="story__body">
         {paras}
-        {related}
-        <p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="inline-link" href="{href("feedback", "correction")}">Send a correction</a></p>
+{f'        {related}' if related else ''}
+        <p class="story__correct">{icon("message-square-warning")} Spotted a mistake? <a class="inline-link" href="{href("feedback", "correction")}?about=story:{st["public_id"]}&amp;kind=correction">Send a correction</a></p>
       </div>
     </article>
     <section class="story-more" aria-labelledby="more-title">

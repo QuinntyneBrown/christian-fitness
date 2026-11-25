@@ -50,7 +50,7 @@ Resolved by the owner on 2026-11-24 (issue "Decide Community Pick's open rules")
 - **"Recreate assets"** appears only after the event or the note has changed since the assets were made (`L2-072` AC8). The `default`, `facebook`, `whatsapp` and `slack` mocks read "Create assets"; the new `changed` mock draws the notice and "Recreate assets".
 - **An event with no image** gets a graphic built from the brand pattern, with the event's title, date and place set in type (`no-image` mock).
 - **Picks are recorded and audited.** Each pick stores the event, the note, who made it and when (`CommunityPick`), so the list can show "Last picked" (`L2-072` AC13).
-- **Link form.** The mocks' links read `/e/sunrise-5k`, a slug; events have no slug, so the design follows `L2-072` AC6 and AC9, `/e/<id>`. The address form for events is settled by the addresses and slugs ADR.
+- [ADR 0071](../../../adr/0071-addresses-and-slugs.md) confirms `/e/<event-id>` for Community Pick links; events have no slugs.
 - **Session events.** The admin Events mocks do not list the Couch to 5K session that Community Pick offers; whether sessions appear in admin Events is decided with `events/browse-event-series`.
 - Creating fails only in the browser (the photo or a font does not load, or export fails), so "failed" never comes from the server; recording the pick is separate and never blocks the downloads.
 

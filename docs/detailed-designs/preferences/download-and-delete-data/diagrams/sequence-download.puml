@@ -15,10 +15,11 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "RequestDataExportHandler" as req
-  participant "DataExportBuilder (cf export-data)" as builder
+  participant "DataExportBuilder" as builder
   participant "GetDataExportArchiveHandler" as get
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "PublishingClock" as clock
   database "Christian Fitness database" as db
   participant "IArchiveStore" as store
   participant "IEmailSender" as mail
@@ -38,6 +39,8 @@ ctrl --> client : 200 JSON
 client --> page : Requested
 page --> actor : "Requested. We'll email you a link within 24 hours." (role=status, AC1)
 == Scheduled run, within 24 hours ==
+clock -> db : Take lease on TimeProvider tick
+clock -> builder : Run daily export job when due
 builder -> db : Requests without an archive; member's own data
 db --> builder : Profile, preferences, registrations, follows, suggestions, feedback, sent messages
 builder -> store : Save .zip (no other person's messages, email or profile, AC2)

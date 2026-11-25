@@ -17,15 +17,20 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
 loop every 30 s on a TimeProvider timer (FakeTimeProvider in tests)
-  clock -> h : Send PublishDueStoriesCommand in a new scope
-  h -> db : Stories with Status = Scheduled and PublishAt <= now
-  db --> h : Due stories
-  loop each due story
-    h -> story : Publish(now): Published, PublishedAt = now (L2-069 AC4)
-    h -> audit : story.published by ScheduledBy
-    h -> db : Save; a Version clash skips it until the next tick
+  clock -> db : Try to acquire short exclusive lease
+  alt lease acquired
+    clock -> h : Send PublishDueStoriesCommand in a new scope
+    h -> db : Stories with Status = Scheduled and PublishAt <= now
+    db --> h : Due stories
+    loop each due story
+      h -> story : Publish(now): Published (L2-069 AC4)
+      h -> audit : story.published by ScheduledBy
+      h -> db : Save; a Version clash skips it until the next tick
+    end
+    h --> clock : Count published; the log carries the count only
+  else lease held elsewhere
+    clock -> clock : Skip tick
   end
-  h --> clock : Count published; the log carries the count only
 end
-note over h : Published within a minute of its time. The front page, the feeds and the next issue read Status = Published, so the story appears there at once (L2-069 AC6)
+note over h : Reads treat a due Scheduled story as Published even before the tick persists it (L2-069 AC4, AC6)
 @enduml

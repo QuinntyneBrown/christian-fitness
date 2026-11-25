@@ -16,7 +16,7 @@ it.
 - **also this week** — up to three more published stories ("<n> of 3")
 - **confirmed subscriber** — Subscribed address with the Weekly on (`news/subscribe-to-newsletter`)
 - **missed issue** — issue still a Draft when its send time passed, so nothing was sent
-- **add-on emails** — event alerts, the training plan and devotions, which send on their own schedules and are not built here
+- **add-on emails** — event alerts, the training plan and devotions; their sending is deferred to [#90](https://github.com/QuinntyneBrown/christian-fitness/issues/90), with no trigger yet
 
 The screen shows the newsletter's name, confirmed subscribers and cadence; the next issue's
 number and status; its Subject line, Editor's note, The big story, Also this week, Events this
@@ -82,8 +82,8 @@ share of opens and clicks.
   sends it through `IEmailSender` to the signed-in Admin's own address only (`ICurrentMember`),
   answering that address for the status message "Test sent to <address>" (`L2-070` AC9). No
   unsubscribe token is issued for a test.
-- **`SendDueIssueCommand`** / handler — sent by `PublishingClock` every 30 seconds
-  (`write-review-publish-story`). For the issue whose send time has passed:
+- **`SendDueIssueCommand`** / handler — sent by the shared, leased `PublishingClock` on its
+  30-second tick ([ADR 0069](../../../adr/0069-scheduled-work.md)). For the issue whose send time has passed:
   - still a Draft: `MarkMissed()` and nothing is sent; the Dashboard's "Needs attention" says the
     issue was not scheduled (`L2-070` AC8; `admin-dashboard/view-dashboard`), and the Admin may
     schedule it for a later time the same day;
@@ -109,7 +109,7 @@ share of opens and clicks.
   `IssueDelivery` table is this design's durable queue, and `IssueSender` needs back-pressure from
   the transport (or a transport-level batch API) before it hands over more. The required
   `Email:MaxPerMinute` and `Email:MaxPerDay` settings size and rate-limit the sender to the
-  relay's limits; neither has a hard-coded value. The transport integration needs an ADR.
+  relay's limits; neither has a hard-coded value. Decided in [ADR 0070](../../../adr/0070-html-email-headers-and-bulk-sending.md).
 - **Saving a draft issue.** The mock has no Save button and no saved indicator, and `L2-070` says
   nothing of keeping a draft between visits. The design saves fields with `SaveIssueCommand` after
   a pause, as the story editor does; that behaviour, and its interval, need confirming and a mock
@@ -123,8 +123,9 @@ share of opens and clicks.
 - **Opens and clicks.** Resolved: none are measured. No tracking image and no click redirect (see Description).
 - **Who scheduled a sent issue.** The audit entry for `newsletter_issue.sent` names the Admin who
   scheduled it, since the clock has no member; whether that is the intended "who" is `<TO SUPPLY>`.
-- **Add-on emails.** They "send on their own schedules" (`L2-070` AC11), but nothing builds or
-  schedules them (`docs/mocks/README.md`, open question 14).
+- **Add-on emails.** `L2-070` AC11 describes their own schedules, but nothing builds, schedules
+  or triggers them yet; their design is deferred to
+  [#90](https://github.com/QuinntyneBrown/christian-fitness/issues/90).
 - **First name of a subscriber.** A subscriber is greeted by first name "where one is known"; the
   only source is a member account with the same address, which `L2-033` treats as personal data
   read only at sending.

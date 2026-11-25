@@ -28,6 +28,7 @@ box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "AccountErasureService" as er
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "PublishingClock" as clock
   database "Christian Fitness database" as db
 end box
 actor -> page : Choose "Delete my account"
@@ -40,7 +41,9 @@ h -> db : Set DeletionRequestedAt; end sessions
 h --> ctrl : done
 ctrl --> http : 204 and sign-out (L2-033 AC3)
 http --> page : Navigate to landing
-== Scheduled CLI run (cf erase-accounts) ==
+== Daily scheduled run ==
+clock -> db : Take lease on TimeProvider tick
+clock -> er : Run erasure job when due
 er -> db : Members with DeletionRequestedAt due
-er -> db : Delete profile and registrations; anonymise messages (within 30 days, L2-033 AC3)
+er -> db : Delete profile and registrations; anonymise messages
 @enduml

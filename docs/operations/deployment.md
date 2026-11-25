@@ -9,6 +9,22 @@ How Christian Fitness is released and where it runs (ADR 0047). Every setting is
 | `https://admin.christian.fitness`  | the admin app, and its `/api/`           |
 | `https://christian.fitness`        | a redirect to `www`                      |
 
+## Planned public feed routing
+
+ADR 0072 specifies a future change to the nginx configuration copied by `frontend/Dockerfile`
+from `frontend/deploy/`. It is not deployed yet. The member app's server will proxy exact
+`/feed` and regex `~ ^/[a-z0-9-]+/feed$` to the API before the `static.conf` include, its regex
+locations and the SPA fallback, preserving the request path and forwarding the client address
+and scheme as for `/api/`. Thus `/events/feed`
+reaches the API, not the SPA's `events/:id`; an unknown section receives the API's 404.
+
+The API will output-cache each rendered feed for 15 minutes, evict affected entries by tag on
+publication, unpublication or edits to published stories, and send
+`Cache-Control: public, max-age=900`. Reader and intermediary caches can retain a fresh response
+after API eviction until its 900-second lifetime ends. Requests reaching the API, including cache
+hits, count against the `public-reads` per-IP limit (L2-034); a shared cache does not guarantee
+that a shared IP stays below it. The API remains reachable only through the trusted proxy.
+
 ## A release
 
 A commit reaches `main`; `CI` runs; when it is green, `Deploy` (`.github/workflows/deploy.yml`):
@@ -27,6 +43,19 @@ az containerapp revision list -g rg-christian-fitness -n ca-christian-fitness -o
 az containerapp revision activate -g rg-christian-fitness -n ca-christian-fitness --revision <name>
 ```
 
+## Story shell (planned, ADR 0073)
+
+The story-preview slice will configure the member nginx host to proxy `/stories/*` to the
+anonymous API shell endpoint before the SPA fallback. The API container must have the built
+member `index.html`, copied into the image or mounted read-only, and read it once at startup.
+Release that shell and nginx's hashed frontend assets from the same build and revision; otherwise
+the shell can reference assets that are not present. The API must not silently serve a stale or
+mismatched shell if it is unavailable. The endpoint serves metadata for published stories, a
+301 for their former slugs, and a 404 shell for unknown or unpublished slugs. It uses
+`MemberApp__BaseUrl` for absolute preview URLs. Shell and redirect responses use
+`Cache-Control: no-store`, and nginx retains the member app's security headers. This routing
+and shell provisioning are not deployed yet.
+
 ## What runs where (resource group `rg-christian-fitness`, Canada Central)
 
 | Resource                                  | Purpose                                                                 |
@@ -43,6 +72,25 @@ az containerapp revision activate -g rg-christian-fitness -n ca-christian-fitnes
 The secret settings are secrets of the container app (`db-connection`, `smtp-username`,
 `smtp-password`) and of the job (`db-owner-connection`, `seed-staff-password`). To change one:
 `az containerapp secret set`, then run `Deploy` so a new revision reads it.
+
+## Scheduled work (planned)
+
+[ADR 0069](../adr/0069-scheduled-work.md) chooses a hosted scheduler in the API container, not
+another Container Apps job. It is not implemented yet: deploying the current release does not
+run these jobs. Once built, each API replica ticks every 30 seconds with `TimeProvider` and takes
+a short PostgreSQL lease before running due work. A replica without the lease skips the tick;
+after a restart or missed tick, due work is picked up again.
+
+The scheduler publishes due stories and starts scheduled newsletter issues; a past-due Scheduled
+story also reads as Published before the status write. Daily jobs run newsletter upkeep (purging
+unsubscribed addresses), data exports and account erasures. `cf export-data` and
+`cf erase-accounts` remain manual commands when implemented, coordinated with scheduled runs.
+The release job still runs only migrations and seed. Add-on emails have no trigger yet
+([#90](https://github.com/QuinntyneBrown/christian-fitness/issues/90)).
+
+The scheduler stops when the API or database is unavailable; an outage can delay maintenance,
+exports and email. The lease does not remove ADR 0047's other single-replica constraints. Document
+any scheduler settings and operational recovery procedures alongside their implementation.
 
 ## The first staff account
 

@@ -44,9 +44,9 @@ published stories.
   AC9). A 404 `not_found` shows the app's not-found view in place, keeping the address (`L2-043`
   AC1); a 5xx opens the server-error screen as every read does (`L2-043` AC4). When the answer's
   `slug` differs from the one opened, the page replaces the URL with the current address
-  (`L2-061` AC8). It sets the document title to the headline (`<headline> · Christian Fitness`)
-  and the `description` meta to the summary through Angular's `Title` and `Meta` services
-  (`L2-061` AC11; see Open questions on link previews). After the story shows it calls
+  for in-app navigation (`L2-061` AC8). It sets the document title to the headline and the
+  `description` meta to the summary through Angular's `Title` and `Meta` services for in-app
+  navigation (`L2-061` AC11). After the story shows it calls
   `countRead(id)` once.
 - **`StoryArticle`** — presentation component in the components library (block `story`, elements
   `story__head`, `story__section`, `story__title`, `story__dek`, `story__byline`, `story__meta`,
@@ -77,12 +77,23 @@ published stories.
 - **`storyAge`** — pure helper in the `domain` library: a publication instant and now to "2 hours
   ago", "Yesterday" or a date, in `America/Toronto`. The exact wording table is `<TO SUPPLY>`
   beyond the mock's examples; the landing page uses the same helper.
-- **Send a correction** — a link to Send feedback with "A correction" chosen and this story as the
-  page it is about (`L2-063` AC2). The query parameters are set by the feedback design
-  (`<TO SUPPLY>` until that design exists).
+- **Send a correction** — `/feedback?about=story:<id>&kind=correction`, with the stable story id,
+  opens Send feedback with "A correction" chosen and this story as the page it is about
+  (`L2-063` AC2, [ADR 0071](../../../adr/0071-addresses-and-slugs.md)).
 
 ### Christian Fitness API
 
+- **Story shell endpoint** — nginx proxies direct member-origin requests for `/stories/*` to an
+  `[AllowAnonymous]` API endpoint before the SPA fallback (ADR 0073). It resolves the slug and
+  checks publication before responding. For a current Published story it fills the built member
+  shell's title, description, Open Graph and Twitter title, description and lead-image tags, and
+  canonical link using HTML-encoded values; absolute image and canonical URLs use the configured
+  public member origin (`MemberApp__BaseUrl`). A missing summary gives an empty description. It
+  preserves the hashed asset links so the browser boots the SPA. A former slug of a Published
+  story receives a 301 to its current address; an unknown or unpublished slug receives the
+  unmodified shell with status 404 and no story metadata. The endpoint reads the shell once at
+  startup and derives each response independently; it is a public story read subject to the public-read policy.
+  Shell and redirect responses use `Cache-Control: no-store` so they do not outlive publication.
 - **`PublicStoriesController`** — `[AllowAnonymous]` under `api/public/stories`; each action sends
   one MediatR request. `GET {slug}` answers `PublishedStoryDto`; `POST {id:guid}/reads` answers 204;
   `GET images/{key}` serves a lead image from `IImageStore` (`GetStoryImageQuery`, the same store
@@ -94,9 +105,8 @@ published stories.
   `slug`, `section`, `headline`, `summary`, `byline`, `publishedAt` (UTC), `readingMinutes`,
   `imageUrl`, `paragraphs` (`text`, `isQuote`), `next` (`kind`, `targetId`, `words`) when the
   pointed event or listing is still published, and `keepReading` (three `StoryCardDto` of other
-  published stories, the same section first, then newest first). The request first takes a lease
-  from **`PublicReadLimiter`** (see Open questions); with none left it is refused with 429
-  `rate_limited`.
+  published stories, the same section first, then newest first). The `public-reads` policy applies
+  before the handler and counts opening the story as one read.
 - **`CountStoryReadCommand`** / handler — adds one to the `StoryReadTally` of the story and the
   current Toronto day (`TimeProvider`), only for a Published story; anything else is a silent
   no-op, so the answer reveals nothing. No member, address or cookie is recorded. The tallies feed
@@ -110,25 +120,16 @@ published stories.
 - **`StorySlugRedirect`** — entity written by the authoring slice when a published story's slug
   changes; `FormerSlug` is unique.
 - **`StoryReadTally`** — entity (`StoryId`, `Day`, `Count`), one row per story per Toronto day.
-- **`PublicReadLimiter`** — a subclass of the existing `AddressRateLimiter` (ADR 0012, ADR 0014)
-  keyed by `IClientAddress.PartitionKey`, shared by every anonymous news read (story, newsletter,
-  feeds). Its limit and window are `<TO SUPPLY>`.
+- **`public-reads`** — named ASP.NET Core rate-limiter policy for anonymous story, section,
+  directory and feed reads. It counts by client IP in a sliding window of 120 requests per minute
+  with six segments. A refusal is 429 ProblemDetails with code `too_many_requests` and
+  `Retry-After` (`L2-034` AC4–5, ADR 0072).
 
 Telemetry records the route template (`api/public/stories/{slug}`), never the slug value, the
 query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).
 
 ### Open questions
 
-- **Link previews (`L2-061` AC11).** The member app is a client-rendered SPA served as static files
-  by nginx (ADR 0047). Crawlers that build link previews mostly do not run JavaScript, so the
-  title and description set by `StoryPage` do not reach them. Options: server-side rendering or
-  prerendering for `/stories/*`, or an API endpoint that serves the shell with the story's
-  `<title>` and `<meta>` filled in. Either needs an ADR. The same limit applies to the redirect of
-  a former slug (`L2-061` AC8): the design replaces the URL in the browser; a 301 from the server
-  needs the same server-side step.
-- **Public read limit.** `L2-060` AC7 says public reads are rate limited "like other public reads
-  (`L2-034`)", but `L2-034` defines no limit for public reads and the code has none. The numbers,
-  and whether a story page counts, need a decision (ADR).
 - **Body format.** Decided (issue 91): a small Markdown subset (paragraphs, `>` quotes, `##`/`###`
   headings, lists, `https` links, emphasis, strong), rendered by one sanitising renderer shared
   with Preview; raw HTML is never rendered (`L2-069` AC10, `L2-061` AC1).
@@ -138,8 +139,6 @@ query string or the body (`TelemetryRedactionProcessor`; `L2-033` AC2).
 - **Directory listings.** A story may point to a listing (`L2-055`); no directory listing entity
   exists in the code yet. The pointer stores a kind and an id; the listing's lookup arrives with
   the directory slices.
-- **Pros has no feed.** Stories in Pros show on this page and on the landing page, but `L2-060`
-  AC1 names no Pros feed.
 - **Signed-in members.** Decided (issue 91): a signed-in member sees the member navigation; a
   visitor sees the public masthead (`L2-061` AC13).
 - **Reads.** Decided (issue 91): one read per browser per story per 24 hours, by a hashed id in
@@ -154,7 +153,7 @@ criteria; the text below condenses those criteria faithfully.
 
 | L2 ID    | Refines (L1) | Requirement |
 | -------- | ------------ | ----------- |
-| `L2-061` | `L1-018`     | A published story at `/stories/<slug>` shall show, with or without an account, its section, the headline as the one `h1`, the summary where it has one, the author, its age and reading time, its lead image and its text, with a paragraph marked as a pull quote shown as a quotation. Reading time shall be the word count at 220 words a minute, rounded up, never less than "1 min read". "Copy link" shall put the address on the clipboard, read "Link copied" for about 2 seconds with a `status` message, and show the address selected when the clipboard refuses. A story pointing to a published event or listing shall end with one card, "From this story" or "In the directory", with the editor's words, taking a visitor who is not signed in to sign in and back; a story pointing to nothing, or to an event or listing no longer published, shall show no card. "Spotted a mistake? Send a correction" shall open Send feedback as a correction about the story. "Keep reading" shall hold three other published stories, the same section first, newest first, each with image, section, title, author and age, followed by the newsletter's name and cadence leading to Subscribe. A slug matching no published story, or a story that is a draft, in review, scheduled or unpublished, shall show the not-found view and send nothing of the story. An earlier address of a story whose link changed after publication shall redirect to the current one. Loading shall show skeletons for headline, image and text; a failure shall offer Try again and a way back to all stories. Headline, summary, author and text shall be rendered as text, never HTML, in a column no wider than 42rem with no horizontal overflow at XS. The document's title and description shall be the story's headline and summary. |
+| `L2-061` | `L1-018`     | A published story at `/stories/<slug>` shall show, with or without an account, its section, the headline as the one `h1`, the summary where it has one, the author, its age and reading time, its lead image and its text, with a paragraph marked as a pull quote shown as a quotation. Reading time shall be the word count at 220 words a minute, rounded up, never less than "1 min read". "Copy link" shall put the address on the clipboard, read "Link copied" for about 2 seconds with a `status` message, and show the address selected when the clipboard refuses. A story pointing to a published event or listing shall end with one card, "From this story" or "In the directory", with the editor's words, taking a visitor who is not signed in to sign in and back; a story pointing to nothing, or to an event or listing no longer published, shall show no card. "Spotted a mistake? Send a correction" shall open Send feedback as a correction about the story. "Keep reading" shall hold three other published stories, the same section first, newest first, each with image, section, title, author and age, followed by the newsletter's name and cadence leading to Subscribe. A slug matching no published story, or a story that is a draft, in review, scheduled or unpublished, shall show the not-found view and send nothing of the story. A direct request for an earlier address of a Published story shall receive a 301 to the current address; in-app navigation shall replace the address. An unknown or unpublished slug shall return a 404 shell with no story metadata. Loading shall show skeletons for headline, image and text; a failure shall offer Try again and a way back to all stories. Headline, summary, author and text shall be rendered as text, never HTML, in a column no wider than 42rem with no horizontal overflow at XS. The server shall supply the story title, description, Open Graph and Twitter metadata and canonical link in the HTML shell without requiring JavaScript, encoding the values and preserving hashed asset links. |
 
 ## Diagrams
 
@@ -175,8 +174,8 @@ API reads the database and the image store.
 ### Components
 
 `StoryPage` calls `STORIES_SERVICE` and `CLIPBOARD_SERVICE`; `PublicStoriesController` sends
-`GetPublishedStoryQuery` and `CountStoryReadCommand`, whose handlers use `StoryText` and
-`PublicReadLimiter`.
+`GetPublishedStoryQuery` and `CountStoryReadCommand`. The `public-reads` policy limits story
+requests before the handler uses `StoryText`.
 
 ![C4 component view for reading a story](diagrams/c4-component.png)
 
@@ -189,9 +188,11 @@ API reads the database and the image store.
 
 ### Behaviour — open a story
 
-The page shows skeletons, asks for the story and shows either the story, with its former slug
-replaced, or the not-found view; a shown story then counts one read (`L2-061` AC1, AC2, AC4,
-AC6–AC11).
+For a direct request, the story shell endpoint first returns preview metadata, a server redirect,
+or a 404 shell as described above (ADR 0073). The diagram below shows the subsequent SPA flow:
+the page shows skeletons, asks for the story and shows either the story, with a former slug
+replaced for in-app navigation, or the not-found view; a shown story then counts one read
+(`L2-061` AC1, AC2, AC4, AC6–AC11).
 
 ![Sequence diagram for opening a story](diagrams/sequence-open-story.png)
 

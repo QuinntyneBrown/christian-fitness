@@ -826,7 +826,7 @@ def caption(text: str, hint: str = "") -> str:
 def pick_assets(e: dict, platform: str, photo: bool = True) -> str:
     slug = f'community-pick-{e["id"]}'
     art_of = lambda ev, shape: pick_art(ev, shape, photo)  # noqa: E731
-    link = f'www.christian.fitness/e/{e["id"]}'
+    link = f'www.christian.fitness/e/{e["public_id"]}'
     when = f'{e["weekday"]}, {e["month"]} {int(e["day"])} at {e["time"]}'
     left = e["capacity"] - e["going"]
     tabs_ = "".join(f'<a class="segmented__option segmented__option--ink" href="{"default" if p == "Instagram" else p.lower()}.html"{CUR if p == platform else ""}>{p}</a>' for p in PLATFORMS)

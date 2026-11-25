@@ -6,6 +6,7 @@ skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
+  participant "PublishingClock" as clock
   participant "NewsletterUpkeep" as upkeep
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
@@ -15,11 +16,12 @@ end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
 end box
-== Every issue and extra ==
+== Every issue ==
 send -> db : Recipients: Status = Subscribed and the kind switched on only
 db --> send : No unsubscribed address (L2-058 AC6)
 == Once a day ==
-upkeep -> upkeep : Timer from TimeProvider (FakeTimeProvider in tests)
+clock -> db : Take lease on TimeProvider tick
+clock -> upkeep : Run daily job when due
 upkeep -> h : Send PurgeUnsubscribedCommand
 h -> db : Delete subscriptions UnsubscribedAt at least 29 days ago, so none outlives 30 days, with their confirmations
 db --> h : Count deleted

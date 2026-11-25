@@ -43,7 +43,7 @@ The audit entry and telemetry carry ids only; no member name or contact detail i
 ### Open questions
 
 - Resolved (#89): there is no online payment (`L2-011` AC5), so the dialog says "Everyone going to this date will be told. If anyone paid for it, the host will sort out refunds with them directly." and the system refunds nothing.
-- Resolved (#89): members are told in the series group chat and by an in-app notification (ADR for the notification channel, #76).
+- Resolved (#89): members are told in the series group chat and in the inbox, a "Cancelled series date" notification with its own Preferences switch; there is no email or web push for it yet (ADR 0068).
 - Resolved (#89): the dialog counts drop-ins too, "12 people are going to this date (9 joined, 3 dropped in)."; the mock reads "34 people ... (31 joined, 3 dropped in)".
 - The series editor mock specifies the Host picker only; the other New series, Edit details and Add a date rules remain open (`docs/mocks/README.md` open question 10). Until those requirements exist, series and sessions come from the CLI's idempotent seed; `L2-071` AC6 for changed and added dates holds by construction once they exist, since sessions are events.
 - The mocks draw no state for a failed Restore or a busy Restore; the design shows a toast saying the restore failed, which needs a mock state.
