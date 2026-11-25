@@ -461,7 +461,7 @@ PREF_AREAS = ["Toronto East", "Toronto West", "Downtown Toronto", "Scarborough",
 
 def _interest_labels():
     """The interest labels, read from INTERESTS in frontend/projects/api/src/account/interests.ts,
-    the single source of the list (ADR 0061)."""
+    the single source of the list (ADR 0076)."""
     src = (Path(__file__).resolve().parents[3] / "frontend/projects/api/src/account/interests.ts").read_text()
     return re.findall(r"\{ key: '[a-z-]+', label: '([^']+)' \}", src)
 

@@ -44,15 +44,15 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 
 ### Enforcement: suggestions (AC6, AC7)
 
-- **`GetHomeHandler`** (existing) suggests the three soonest published events of the categories the member's interests name (`InterestCategories.For`). It orders events by the rule of ADR 0061: (1) the member's area or GTA-wide, then within those (2) events of a followed listing, (3) events matching an interest, (4) the rest, ties by date. Events gain a suggestion area (the eight areas or GTA-wide) chosen in the event editor; the free-text `Event.Area` stays for display, and existing events are mapped by staff review, unmapped ones becoming GTA-wide.
-- **Landing page** — the landing page is for visitors and orders by date only; `L2-001` AC8 sends a signed-in member to Home, where the ordering applies (ADR 0061).
+- **`GetHomeHandler`** (existing) suggests the three soonest published events of the categories the member's interests name (`InterestCategories.For`). It orders events by the rule of ADR 0076: (1) the member's area or GTA-wide, then within those (2) events of a followed listing, (3) events matching an interest, (4) the rest, ties by date. Events gain a suggestion area (the eight areas or GTA-wide) chosen in the event editor; the free-text `Event.Area` stays for display, and existing events are mapped by staff review, unmapped ones becoming GTA-wide.
+- **Landing page** — the landing page is for visitors and orders by date only; `L2-001` AC8 sends a signed-in member to Home, where the ordering applies (ADR 0076).
 
 ### Open questions
 
 - **Public profile route.** `Anyone` needs an anonymous endpoint and a page outside the member shell. An ADR should record the route (for example `/members/:id` served outside the shell with the guard removed) and how the page behaves with and without a session.
 - **Messaging a professional or listing.** With "Let anyone message me" off for every new member, `L2-014` and `L2-055` AC6 contact would be refused. An ADR should decide whether a conversation started from a published listing is exempt.
 - **"Just my groups" and past events.** A registration stays after its event, so members of a past event's chat still share a group. Whether a past or cancelled event's chat counts is `<TO SUPPLY>`.
-- ~~Area matching, landing order and interest list~~ — resolved by ADR 0061: events gain a suggestion area; the order is area, followed host, interest, then the rest; the landing page orders by date only; the interest list is the union, with `INTERESTS` in `@cf/api` as the single source.
+- ~~Area matching, landing order and interest list~~ — resolved by ADR 0076: events gain a suggestion area; the order is area, followed host, interest, then the rest; the landing page orders by date only; the interest list is the union, with `INTERESTS` in `@cf/api` as the single source.
 - **Home church.** Preferences sets who sees the whole profile; whether the home church deserves its own setting is open (mocks README open question 4). It stays under `ShowHomeChurch` from Edit profile.
 - **Privacy Policy wording.** The policy mock says hosts see the name and email of people registered; no host access exists in the code, and `L2-065` AC4 says only that hosts still see attendees (see [read the Privacy Policy and Terms](../../legal/read-privacy-policy-and-terms/README.md)).
 
@@ -106,6 +106,6 @@ Joining or sending to a member who accepts messages only from their groups is re
 
 ### Behaviour — attendee list and suggestions
 
-An attendee list names only the members who show themselves, while going counts everyone; Home suggests the member's area first, then followed hosts, then interests (ADR 0061).
+An attendee list names only the members who show themselves, while going counts everyone; Home suggests the member's area first, then followed hosts, then interests (ADR 0076).
 
 ![Sequence diagram: attendee list and suggestions](diagrams/sequence-attendees-and-suggestions.png)

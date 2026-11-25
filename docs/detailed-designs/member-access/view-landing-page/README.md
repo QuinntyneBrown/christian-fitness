@@ -22,7 +22,7 @@ A visitor sees the masthead with "Sign in", "Join free" and the sections, Latest
 shows the lead story, the four headlines and the river; another section shows only its own stories
 under its name. The rail holds "Life to the full.", "Join the community", the next four upcoming
 events, the newsletter box and "Most read", above the John 10:10 verse and the footer. The stories
-and the events load and fail independently. A signed-in member who opens `/` is sent to Home. The landing page is for visitors and orders by date only; the area, follow and interest ordering is Home's (`L2-065` AC7; ADR 0061). At
+and the events load and fail independently. A signed-in member who opens `/` is sent to Home. The landing page is for visitors and orders by date only; the area, follow and interest ordering is Home's (`L2-065` AC7; ADR 0076). At
 viewport XS everything stacks in one column; at LG and wider the lead sits beside the headlines and
 the river beside a rail that stays in view (`L2-002`).
 

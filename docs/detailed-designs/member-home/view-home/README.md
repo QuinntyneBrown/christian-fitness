@@ -10,7 +10,7 @@ three registrations, with See all), up to three suggested events and the unread 
 - **coming up** — the member's own next three upcoming registrations, soonest first, with
   See all (`L2-007` AC6); not ordered by area, interests or follows
 - **suggested event** — upcoming published event the member is not registered for, ordered
-  by ADR 0061: (1) the member's suggestion area or GTA-wide, then within those (2) events of
+  by ADR 0076: (1) the member's suggestion area or GTA-wide, then within those (2) events of
   a followed listing (new ones published after the follow and not yet seen), (3) events whose
   category matches an interest, (4) the rest, ties by date
 - **unread message count** — number of messages in the member's conversations they
