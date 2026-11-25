@@ -7,7 +7,7 @@ Person(admin, "Admin", "Staff session")
 System_Boundary(cf, "Christian Fitness") {
   Container(adminApp, "Admin web app", "Angular", "NewsletterDeskPage, IssuePreviewPage")
   Container(api, "Christian Fitness API", "ASP.NET Core", "AdminNewsletterController, PublishingClock, IssueSender")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Issues, deliveries, recipient marks, subscriptions, stories, events")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Issues, deliveries, subscriptions, stories, events")
   Container(web, "Member web app", "Angular", "Web version of sent issues")
 }
 System_Ext(mail, "Email delivery", "SMTP relay")

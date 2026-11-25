@@ -105,7 +105,7 @@ SPEC = {
         "notes": f"""<ul>
 <li><b>Unsaved</b>: a change shows the save bar (\"Unsaved changes\", Save); the summary updates at once (\"4 of 4 emails on.\").</li>
 <li><b>Saving</b>: every switch, radio, select and toggle is disabled until the answer comes back.</li>
-<li><b>Unsubscribed</b>: \"Turn off all email\" turns the four switches off and the summary reads \"You won't get any email from us except receipts and security notices.\"; the action goes away.</li>
+<li><b>Unsubscribed</b>: \"Turn off all email\" turns the four switches off and the summary reads \"You won't get any email from us except security and service notices.\"; the action goes away.</li>
 <li><b>Download requested</b>: <code>.pref__done</code> with <code>role=\"status\"</code> replaces the button.</li>
 <li><b>Loading</b>: each section shows skeleton rows inside <code>.pref__rows</code>.</li>
 </ul>""" + ex(email("-s", busy=True), "Saving: every switch disabled.", mod="stack"),

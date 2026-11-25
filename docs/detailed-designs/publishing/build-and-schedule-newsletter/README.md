@@ -16,7 +16,6 @@ it.
 - **also this week** — up to three more published stories ("<n> of 3")
 - **confirmed subscriber** — Subscribed address with the Weekly on (`news/subscribe-to-newsletter`)
 - **missed issue** — issue still a Draft when its send time passed, so nothing was sent
-- **recipient mark** — per-recipient random mark, stored only as a hash with no link to the subscriber, that counts an open or a click once
 - **add-on emails** — event alerts, the training plan and devotions, which send on their own schedules and are not built here
 
 The screen shows the newsletter's name, confirmed subscribers and cadence; the next issue's
@@ -65,7 +64,7 @@ share of opens and clicks.
   `news/subscribe-to-newsletter`), the number of confirmed subscribers (`L2-070` AC1), the next
   issue (number, status, send time, fields, `missedSend`), the published stories newest first
   with section, age and `includeInWeekly`, the published upcoming events of the issue's week, and
-  the sent issues newest first with number, date, subject and opened and clicked shares
+  the sent issues newest first with number, date, subject and recipient count
   (`L2-070` AC10). When no next issue exists it creates Draft number n + 1 with the next cadence
   time (Saturday 7:00 AM Toronto, through `EventSchedule`).
 - **`NewsletterIssue`** — entity in `ChristianFitness.Domain/Newsletter` (fields in the class
@@ -82,31 +81,26 @@ share of opens and clicks.
 - **`SendTestIssueCommand`** / handler — builds the issue email from the fields as they stand and
   sends it through `IEmailSender` to the signed-in Admin's own address only (`ICurrentMember`),
   answering that address for the status message "Test sent to <address>" (`L2-070` AC9). No
-  unsubscribe token or recipient mark is issued for a test.
+  unsubscribe token is issued for a test.
 - **`SendDueIssueCommand`** / handler — sent by `PublishingClock` every 30 seconds
   (`write-review-publish-story`). For the issue whose send time has passed:
   - still a Draft: `MarkMissed()` and nothing is sent; the Dashboard's "Needs attention" says the
     issue was not scheduled (`L2-070` AC8; `admin-dashboard/view-dashboard`), and the Admin may
     schedule it for a later time the same day;
   - Scheduled: `StartSending` captures the `IssueContent` (`news/read-newsletter-on-web`), sets
-    Sending, and writes one `IssueDelivery` (subscription, a fresh random mark token) and one
-    `IssueRecipientMark` (the mark's hash only) per confirmed subscriber, in one unit of work, so
+    Sending, and writes one `IssueDelivery` (subscription) per confirmed subscriber, in one unit of work, so
     a second tick finds nothing to send (`L2-070` AC7). Audited as `newsletter_issue.sent` against
     the Admin who scheduled it.
 - **`IssueSender`** — `BackgroundService` in Infrastructure that takes unsent `IssueDelivery` rows
   in batches, composes each email through `NewsletterEmails` (greeting by first name where a member
   account has that address, else none; the subscriber's own Unsubscribe link and `List-Unsubscribe`
-  headers, `L2-058` AC4; an open image and links carrying the mark), hands it to `IEmailSender` and
+  headers, `L2-058` AC4; links that go straight to their target, with no tracking image and no redirect), hands it to `IEmailSender` and
   marks the delivery sent. With none left it sets the issue Sent with `SentAt` and
-  `RecipientCount` and deletes the deliveries, which ends every link between a mark and a
-  subscriber. The issue then shows on the web (`L2-059`) and under Sent.
-- **`PublicIssueTrackingController`** — `[AllowAnonymous]`, no cookie:
-  `GET api/public/newsletter/o/{mark}` answers a 1 × 1 image and sets `Opened` on the matching
-  `IssueRecipientMark`; `GET api/public/newsletter/c/{mark}/{target}` sets `Clicked` (and `Opened`)
-  and redirects to the story or event the target id names, never to a URL from the request. The
-  issue's `OpenedCount` and `ClickedCount` count marks, so each recipient counts once and the
-  shares are counts over `RecipientCount`, with no record of which subscriber did either
-  (`L2-070` AC10). Routes are recorded as templates; no mark is logged.
+  `RecipientCount` and deletes the deliveries, which leaves no record of who was sent an issue. The issue then shows on the web (`L2-059`) and under Sent.
+- **No open or click tracking.** The email carries no tracking image and its links point straight at
+  the story or event, never through a redirect, so nothing records who opened or followed what
+  (decided with `L2-067` AC8: the Privacy Policy promises no tracking). The Sent table therefore
+  shows number, date, subject and recipient count only.
 
 ### Open questions
 
@@ -125,9 +119,7 @@ share of opens and clicks.
 - **Events this week and On the calendar.** The builder toggles events; the web version shows "the
   next four published events at the time of sending" (`L2-059` AC1). See
   `news/read-newsletter-on-web`.
-- **Opens and clicks.** An open image is blocked or prefetched by many mail clients, so open shares
-  are estimates. Whether tracking images and redirected links are acceptable under the Privacy
-  Policy (`L2-067`) is `<TO SUPPLY>`.
+- **Opens and clicks.** Resolved: none are measured. No tracking image and no click redirect (see Description).
 - **Who scheduled a sent issue.** The audit entry for `newsletter_issue.sent` names the Admin who
   scheduled it, since the clock has no member; whether that is the intended "who" is `<TO SUPPLY>`.
 - **Add-on emails.** They "send on their own schedules" (`L2-070` AC11), but nothing builds or
@@ -144,7 +136,7 @@ criteria; the text below condenses those criteria faithfully.
 
 | L2 ID    | Refines (L1)       | Requirement |
 | -------- | ------------------ | ----------- |
-| `L2-070` | `L1-022`, `L1-018` | Newsletter shall show the newsletter's name, how many subscribers are confirmed and when it is sent, and the next issue with its number and status (Draft or Scheduled). The issue shall have a Subject line, an Editor's note, "The big story" chosen from published stories, "Also this week" with up to three more published stories ticked ("<n> of 3", the rest unavailable once three are ticked), "Events this week" as toggles over published upcoming events, and a Verse to carry with its Reference. Stories marked "Include in the Weekly" shall be ticked under "Also this week" until three are, newest first. The send card shall show the date and time, the time zone, how many people it goes to, and "Schedule issue". An empty subject, no big story or an empty editor's note shall schedule nothing and mark the field with what to add. A complete issue shall become Scheduled with its fields locked, the card reading "Scheduled for" with "Unschedule to edit", which makes it a Draft again until sending starts. At its time a Scheduled issue shall be sent once to every confirmed subscriber with the newsletter on, greeting each by first name where known and carrying their own Unsubscribe link, and shall appear on the web and under "Sent". An issue still a Draft at its time shall send nothing, be named in the Dashboard's "Needs attention", and be schedulable for a later time the same day. "Send me a test" shall send the issue as it stands only to the Admin's own address, read "Test sent" and name the address in a `status` message; Preview shall open the web version in a new tab. "Sent" shall show each issue's number, date, subject and the shares who opened and clicked, counted without storing which subscriber did either. The screen shall say the add-on emails send on their own schedules. Loading shall show skeletons; a failure shall offer Try again; a Moderator shall see "Admins only". Scheduling, unscheduling and sending shall each record an audit entry of who and which issue. |
+| `L2-070` | `L1-022`, `L1-018` | Newsletter shall show the newsletter's name, how many subscribers are confirmed and when it is sent, and the next issue with its number and status (Draft or Scheduled). The issue shall have a Subject line, an Editor's note, "The big story" chosen from published stories, "Also this week" with up to three more published stories ticked ("<n> of 3", the rest unavailable once three are ticked), "Events this week" as toggles over published upcoming events, and a Verse to carry with its Reference. Stories marked "Include in the Weekly" shall be ticked under "Also this week" until three are, newest first. The send card shall show the date and time, the time zone, how many people it goes to, and "Schedule issue". An empty subject, no big story or an empty editor's note shall schedule nothing and mark the field with what to add. A complete issue shall become Scheduled with its fields locked, the card reading "Scheduled for" with "Unschedule to edit", which makes it a Draft again until sending starts. At its time a Scheduled issue shall be sent once to every confirmed subscriber with the newsletter on, greeting each by first name where known and carrying their own Unsubscribe link, and shall appear on the web and under "Sent". An issue still a Draft at its time shall send nothing, be named in the Dashboard's "Needs attention", and be schedulable for a later time the same day. "Send me a test" shall send the issue as it stands only to the Admin's own address, read "Test sent" and name the address in a `status` message; Preview shall open the web version in a new tab. "Sent" shall show each issue's number, date, subject and how many people it went to; no opens or clicks are measured, and the email has no tracking image and no redirected link. The screen shall say the add-on emails send on their own schedules. Loading shall show skeletons; a failure shall offer Try again; a Moderator shall see "Admins only". Scheduling, unscheduling and sending shall each record an audit entry of who and which issue. |
 
 ## Diagrams
 
@@ -165,15 +157,13 @@ database, sends through SMTP, and serves sent issues to the Member web app.
 ### Components
 
 `NewsletterDeskPage` drives `IssueBuilder` and calls `ADMIN_NEWSLETTER_SERVICE`;
-`PublishingClock` sends `SendDueIssueCommand`, `IssueSender` delivers each email, and
-`PublicIssueTrackingController` counts opens and clicks.
+`PublishingClock` sends `SendDueIssueCommand` and `IssueSender` delivers each email.
 
 ![C4 component view for building and scheduling the newsletter](diagrams/c4-component.png)
 
 ### Class structure
 
-A `NewsletterIssue` references its stories and events, owns its deliveries while sending and its
-recipient marks, which hold no subscriber link.
+A `NewsletterIssue` references its stories and events, owns its deliveries while sending.
 
 ![Class diagram for building and scheduling the newsletter](diagrams/class.png)
 
@@ -187,7 +177,7 @@ story or note, and otherwise locks the issue until it is unscheduled (`L2-070` A
 ### Behaviour — send an issue
 
 At its time a Scheduled issue is captured and queued once per confirmed subscriber and sent in
-batches; a Draft is marked missed (`L2-070` AC7, AC8, AC10, AC13).
+batches; a Draft is marked missed (`L2-070` AC7, AC8, AC13); its links go straight to their targets with no tracking.
 
 ![Sequence diagram for sending an issue](diagrams/sequence-send-issue.png)
 

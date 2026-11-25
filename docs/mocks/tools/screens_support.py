@@ -295,7 +295,7 @@ def preferences(*, emails: tuple = ("newsletter", "events", "devotion"), bar: st
                 busy: bool = False) -> str:
     emails = emails + (("plan",) if plan else ())
     n = len(emails)
-    email_sub = ("You won’t get any email from us except receipts and security notices." if n == 0 else f"{n} of 4 emails on.")
+    email_sub = ("You won’t get any email from us except security and service notices." if n == 0 else f"{n} of 4 emails on.")
     email_rows = "".join(switch(f"email-{i}", l, d, i in emails, busy) for i, l, d in EMAILS)
     off = ('<p class="pref__action"><button class="btn btn--link" type="button" data-mock-href="unsubscribed.html">Turn off all email</button></p>' if n else "")
     push_rows = "".join(switch(f"push-{i}", l, d, True, busy) for i, l, d in PUSH)
@@ -377,7 +377,7 @@ def _():
     return member_shell("profile", preferences(plan=True, bar="failed"))
 
 
-@s("unsubscribed", "\"Turn off all email\" pressed: all four email switches are off, the section says only receipts and security notices will come, and the change waits to be saved.")
+@s("unsubscribed", "\"Turn off all email\" pressed: all four email switches are off, the section says only security and service notices will come, and the change waits to be saved.")
 def _():
     return member_shell("profile", preferences(emails=(), bar="unsaved"))
 
@@ -481,7 +481,7 @@ def legal(title: str, summary: list, sections: list, other: tuple) -> str:
         {body}
         <div class="legal__questions">
           <p class="legal__questions-title">Questions?</p>
-          <p>Email privacy@christianfitness.ca, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 401 Richmond St W, Toronto, ON M5V 3A8.</p>
+          <p>Email privacy@christian.fitness, or <a class="inline-link" href="{href("feedback")}">send us a note</a>. Christian Fitness, 401 Richmond St W, Toronto, ON M5V 3A8.</p>
         </div>
       </div>
     </div>
@@ -494,7 +494,8 @@ PRIVACY_SUMMARY = [
     "We never sell your information, and we don’t run ads.",
     "Your church, faith details and health goals are only shown to the people you choose in Preferences.",
     "You can download everything or delete your account at any time.",
-    "Your data is stored in Canada and handled under PIPEDA.",
+    "Your data is stored in Canada and handled under PIPEDA. Our email provider may process email addresses outside Canada.",
+    "If we change this policy, we tell you at least 30 days ahead; carrying on after that date means you accept the new version.",
 ]
 PRIVACY_SECTIONS = [
     ("collect", "What we collect", [
@@ -503,31 +504,31 @@ PRIVACY_SECTIONS = [
         "Activity: events and series you join, listings you follow, messages you send, and feedback you share.",
         "Basic technical information: device type, browser and approximate location from your IP address, used to keep the service secure and working."]),
     ("use", "How we use it", [
-        "To run your account, register you for events, remind you about them and let hosts know who’s coming.",
+        "To run your account, register you for events, remind you about them and let the Christian Fitness team know who’s coming.",
         "To suggest events, stories and listings that fit your area and interests. You can change what we use in Preferences.",
         "To send the emails you’ve turned on, such as The Abundant Weekly. Every email has a one-click unsubscribe.",
         "To keep the community safe, including reviewing reports and removing spam."]),
     ("share", "Who we share it with", [
-        "Event hosts see the name and email of people registered for their events, so they can run them.",
+        "The Christian Fitness team runs events and sees who has registered.",
         "Service providers who help us run Christian Fitness, such as email delivery and hosting, under contracts that limit them to that work.",
         "Authorities, only when the law requires it. We will tell you when we are allowed to.",
         "We do not sell or rent your information to anyone, ever."]),
     ("sensitive", "Faith and health information", [
-        "Your church affiliation and health goals can reveal sensitive things about you. We treat them as sensitive information: they are never used for advertising and never shared with hosts unless you put them on your public profile."]),
+        "Your church affiliation and health goals can reveal sensitive things about you. We treat them as sensitive information: they are never used for advertising and never shared with other members unless you put them on your public profile."]),
     ("choices", "Your choices", [
         "In Preferences you can control who sees your profile, whether you appear on attendee lists, who can message you, and every email and notification we send.",
         "You can request a download of your data or delete your account from Preferences. Deletion is completed within 30 days."]),
     ("retention", "How long we keep it", [
-        "We keep your information while your account is open. After deletion we remove it within 30 days, except records we must keep by law, such as payment receipts, which we keep for seven years."]),
+        "We keep your information while your account is open. After deletion we remove it within 30 days, except records we must keep by law."]),
     ("security", "Security", [
-        "Your data is encrypted in transit and at rest and stored on servers in Canada. Staff access is limited to the team members who need it and is logged."]),
+        "Your data is encrypted in transit and at rest and stored on servers in Canada. Our email delivery provider may process email addresses outside Canada, only to send you the email you ask for. Staff access is limited to the team members who need it."]),
     ("children", "Young people", [
-        "You must be 16 or older to create an account. Youth under 16 can attend events with a parent or guardian who registers for them."]),
+        "You must be 16 or older to create an account. When you join we ask you to confirm that you are 16 or older. We do not ask for or keep your date of birth. Youth under 16 can attend events with a parent or guardian who registers for them."]),
     ("changes", "Changes to this policy", [
-        "If we make a meaningful change we will email you and show a notice in the app at least 30 days before it takes effect."]),
+        "If we make a meaningful change we will email you and show a notice in the app at least 30 days before it takes effect. That email is a service notice, so you get it even if you have turned off all other email. If you keep using Christian Fitness after the effective date, you accept the new version; we do not ask you to accept it again. Earlier versions stay readable at dated addresses such as /privacy/2026-11-01."]),
 ]
 TERMS_SUMMARY = [
-    "Christian Fitness is free to join. Some events and services cost money, and the price is always shown before you register.",
+    "Christian Fitness is free to join. Some events and services cost money, and the price is always shown before you register. Any fee is paid to the host directly.",
     "Treat people the way you’d want to be treated at church. No harassment, spam or selling in group chats.",
     "Exercise has risks. Know your limits and talk to a doctor before starting something new.",
     "Professionals in the directory are independent. We check them, but they are responsible for their own work.",
@@ -535,14 +536,14 @@ TERMS_SUMMARY = [
 ]
 TERMS_SECTIONS = [
     ("account", "Your account", [
-        "You must be 16 or older and give us accurate information. Keep your password to yourself; you’re responsible for what happens on your account."]),
+        "You must be 16 or older, which you confirm when you join, and give us accurate information. Keep your password to yourself; you’re responsible for what happens on your account."]),
     ("conduct", "Community standards", [
         "Christian Fitness is a faith community open to everyone who wants to take part respectfully, whatever their background or stage of faith.",
         "Don’t harass, shame or threaten anyone. Don’t post anything sexual, hateful or illegal. Don’t sell products, recruit for businesses or promote supplements in messages or group chats.",
         "Report anything that breaks these standards from the message or profile. Our team reviews every report."]),
     ("events", "Events and series", [
-        "Hosts set the details, capacity and price of their events. If a paid event is cancelled by its host you get a full refund.",
-        "You can cancel your registration up to 48 hours before a paid event for a full refund, unless the event page says otherwise."]),
+        "Hosts set the details, capacity and price of their events. Any fee for an event is paid to the host directly, under the host’s own terms; Christian Fitness takes no payment and gives no refunds.",
+        "You can cancel your registration up to 24 hours before an event starts."]),
     ("health", "Health and safety", [
         "Physical activity carries a risk of injury. You take part in events at your own risk and should only do what is safe for you.",
         "Nothing on Christian Fitness, including stories, training plans and devotions, is medical advice. Talk to a doctor before starting a new exercise program, especially if you are pregnant, injured or managing a health condition."]),
