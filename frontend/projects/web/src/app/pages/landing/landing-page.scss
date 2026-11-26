@@ -119,8 +119,8 @@
 }
 
 .verse {
-  background: var(--color-bg-brand);
-  color: var(--color-fg-on-brand);
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome);
 
   &__inner {
     max-width: var(--layout-container-max);
@@ -129,7 +129,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-8);
-    padding: var(--space-16) var(--space-4);
+    padding: var(--space-14) var(--space-4);
   }
 
   &__quote {
@@ -141,8 +141,8 @@
   }
 
   &__cite {
-    margin-top: var(--space-4);
-    color: var(--color-fg-on-brand-highlight);
+    margin-top: var(--space-3);
+    color: var(--color-highlight);
     font-style: normal;
     display: block;
   }
@@ -162,16 +162,6 @@
   .verse__inner {
     flex-direction: row;
     align-items: center;
-    gap: var(--space-14);
-  }
-}
-
-@media (min-width: 64rem) {
-  .verse__inner {
-    padding-block: var(--space-20);
-  }
-
-  .verse__quote {
-    font-size: var(--font-size-5xl);
+    gap: var(--space-12);
   }
 }
