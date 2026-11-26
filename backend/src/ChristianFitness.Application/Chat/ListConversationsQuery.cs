@@ -11,7 +11,7 @@ public sealed record LastMessageDto(string Author, string Text, DateTimeOffset S
 /// <summary>
 /// One row of the Messages list (L2-015 AC1; ADR 0042). <see cref="Kind"/> is <c>group</c> for a
 /// standalone event's chat, whose <see cref="Id"/> is the event's id, <c>series</c> for a series' one
-/// chat, whose id is the series' (ADR 0099), and <c>direct</c> for a direct conversation (slice
+/// chat, whose id is the series' (ADR 0101), and <c>direct</c> for a direct conversation (slice
 /// 14.1), whose id is the other member's. A group or series row's <see cref="MemberCount"/> is the
 /// members in its chat; a direct one has none. <see cref="ActivityAt"/> is what the list is ordered
 /// by: the last message's time, or since when the member is in the chat when nothing has been said.
@@ -30,7 +30,7 @@ public sealed record ConversationListDto(IReadOnlyList<ConversationSummaryDto> C
 
 /// <summary>
 /// The caller's own conversations, newest first (L2-015 AC1). A person sees only the groups they belong
-/// to (ADR 0041, ADR 0099).
+/// to (ADR 0041, ADR 0101).
 /// </summary>
 public sealed record ListConversationsQuery : IRequest<ConversationListDto>;
 

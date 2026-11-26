@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Series;
 
 /// <summary>
-/// L2-052 AC5 to AC7 (ADR 0099): a series with no place left, or no session to come, is refused
+/// L2-052 AC5 to AC7 (ADR 0101): a series with no place left, or no session to come, is refused
 /// <c>series_full</c> and nothing is held; joining again holds no second place; a suspended member
 /// is refused <c>account_suspended</c>; a series that does not open is <c>series_not_found</c>.
 /// Today is April 15, 2026.

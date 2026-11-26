@@ -97,7 +97,7 @@ export interface SeriesSessionDto {
   /** Its position among all the dates in date order, cancelled ones included (ADR 0080). */
   number: number;
   startsAt: string;
-  /** Its end, or none when it has none (ADR 0099), for the calendar file "All dates" writes. */
+  /** Its end, or none when it has none (ADR 0101), for the calendar file "All dates" writes. */
   endsAt: string | null;
   topic: string | null;
   /** By the API's clock (ADR 0091); `live` is the next one. */
@@ -129,7 +129,7 @@ export interface EventSeriesApi {
 
   /**
    * The signed-in member joins the series (`POST /api/events/series/{id}/enrolment`, L2-052 AC2;
-   * ADR 0099) and gets it back as they now see it; joining again changes nothing. Any failure
+   * ADR 0101) and gets it back as they now see it; joining again changes nothing. Any failure
    * errors with an `ApiError`: 409 `series_full`, 403 `account_suspended`, 404
    * `series_not_found`, or `network` (status 0).
    */
@@ -137,7 +137,7 @@ export interface EventSeriesApi {
 
   /**
    * The signed-in member leaves the series (`DELETE /api/events/series/{id}/enrolment/me`, L2-052
-   * AC9; ADR 0099) and gets it back as they now see it; leaving one not joined changes nothing.
+   * AC9; ADR 0101) and gets it back as they now see it; leaving one not joined changes nothing.
    * Any failure errors, and nothing changed.
    */
   leave(id: string): Observable<SeriesDetailDto>;

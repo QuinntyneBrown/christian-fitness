@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ChristianFitness.Api.Tests.Series;
 
 /// <summary>
-/// L2-052 AC6 (ADR 0033, ADR 0099): two joins at the same moment. Both read the series with a
+/// L2-052 AC6 (ADR 0033, ADR 0101): two joins at the same moment. Both read the series with a
 /// place left; the series' enrolment version refuses the second save, which forgets its rows,
 /// reads the series again and decides again: <c>series_full</c> when the other member took the
 /// last place, or the series unchanged when the same member's other press joined first. The store

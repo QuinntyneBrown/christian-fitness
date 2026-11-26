@@ -46,15 +46,15 @@ public sealed class EventSeries
     public DateTimeOffset CreatedAt { get; private set; }
 
     /// <summary>
-    /// A concurrency token that every join and leave moves (ADR 0099), so two changes to the
+    /// A concurrency token that every join and leave moves (ADR 0101), so two changes to the
     /// series' enrolments read at the same moment cannot both commit.
     /// </summary>
     public int EnrolmentVersion { get; private set; }
 
-    /// <summary>Marks a member joining (L2-052 AC2, AC6; ADR 0099).</summary>
+    /// <summary>Marks a member joining (L2-052 AC2, AC6; ADR 0101).</summary>
     public void Enrol() => EnrolmentVersion++;
 
-    /// <summary>Marks a member leaving (L2-052 AC9; ADR 0099).</summary>
+    /// <summary>Marks a member leaving (L2-052 AC9; ADR 0101).</summary>
     public void Withdraw() => EnrolmentVersion++;
 
     /// <summary>

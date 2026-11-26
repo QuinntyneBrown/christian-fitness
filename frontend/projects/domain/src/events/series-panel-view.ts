@@ -1,7 +1,7 @@
 import type { SeriesDetailDto } from '@cf/api';
 import { priceOf } from './event-card-view';
 
-/** A way to come: the whole series, or dates picked to drop in (ADR 0099). */
+/** A way to come: the whole series, or dates picked to drop in (ADR 0101). */
 export type SeriesPlan = 'all' | 'drop';
 
 /**
@@ -28,7 +28,7 @@ export interface SeriesPanelAction {
 export type SeriesMeterBar = 'done' | 'next' | 'upcoming' | 'cancelled';
 
 /**
- * "Your progress" once joined (L2-052 AC3; ADR 0099): "Attendance not recorded yet" until
+ * "Your progress" once joined (L2-052 AC3; ADR 0101): "Attendance not recorded yet" until
  * journey 16 records attendance, and the decorative session meter with the next date highlighted
  * and cancelled ones faded, whose hidden label names the next session.
  */
@@ -39,7 +39,7 @@ export interface SeriesProgressView {
 }
 
 /**
- * The sign-up panel (L2-051 AC1, L2-052 AC1 to AC5; ADR 0096, ADR 0099): whether the
+ * The sign-up panel (L2-051 AC1, L2-052 AC1 to AC5; ADR 0096, ADR 0101): whether the
  * member joined, with how to pay a paid series and their progress; else "<left> of <capacity> spots left" (or
  * "Series full", "No sessions left"), the ways to come in one radio group, the button and the
  * chat note.
@@ -70,7 +70,7 @@ export const SERIES_PAY_NOTE =
   "Pay the host at your first session, by cash or e-transfer. You won't be charged online.";
 
 /**
- * The panel's words for a series and what the member chose (ADR 0080, ADR 0096, ADR 0099). Every
+ * The panel's words for a series and what the member chose (ADR 0080, ADR 0096, ADR 0101). Every
  * session is chosen by default; a full series chooses drop-in instead and every session cannot be
  * chosen. Drop-in chosen reads "Tick dates in the list" and waits on "Pick a date first" until
  * journey 13 adds the tick boxes; a full series with no drop-in has no button. While a join
@@ -161,7 +161,7 @@ export function seriesPanelViewOf(
 }
 
 /**
- * What a refused join means for the panel (L2-052 AC5 to AC8; ADR 0099): `full` for the
+ * What a refused join means for the panel (L2-052 AC5 to AC8; ADR 0101): `full` for the
  * {@link ApiError} `series_full`, so the page shows the series as full without asking again;
  * `failed` for anything else (`account_suspended`, a 5xx, no answer), shown as the generic message.
  */
@@ -191,7 +191,7 @@ function progressOf(sessions: SeriesDetailDto['sessions']): SeriesProgressView {
 
 /**
  * The join confirmation for a member who had already dropped in on dates to come of a paid series
- * (L2-052 AC4, L2-053 AC5; ADR 0099), worked out from the series before and after the join: "You'd
+ * (L2-052 AC4, L2-053 AC5; ADR 0101), worked out from the series before and after the join: "You'd
  * already booked session 4, so it stays at the drop-in price ($10). Your other dates are at the
  * series price." None when the series is free, the member had joined already, or held no date to
  * come.

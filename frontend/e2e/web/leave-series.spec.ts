@@ -11,7 +11,7 @@ import { WebLeaveSeriesDialog } from '../page-objects/web/leave-series.dialog';
 /** Couch to 5K joined: a place at each of the five sessions to come and at the first, done. */
 const JOINED = joinedOf(COUCH_TO_5K_DETAIL);
 
-// L2-052 AC9 (ADR 0099): "Leave the series" confirms in a dialog that names the series and says how
+// L2-052 AC9 (ADR 0101): "Leave the series" confirms in a dialog that names the series and says how
 // many places go back; focus starts on "Stay in the series"; a failure says so and changes nothing.
 test.describe('Member app, leave a series', () => {
   test('Leave the series asks in a dialog that names the series and the places that go back', async ({

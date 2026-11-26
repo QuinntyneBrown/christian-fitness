@@ -42,7 +42,7 @@ import { HttpEventSeriesService } from '../../services/http-event-series.service
  * title, cadence and time over its date range, place over area and summary, its dates in order
  * ("<done> done · <to go> to go", Next up, Cancelled, Details to each session's event page), and
  * an aside with the sign-up panel and the "Hosted by" card leading to the host's profile. The
- * panel (L2-052; ADR 0099) offers the ways to come in one radio group, Every session chosen by
+ * panel (L2-052; ADR 0101) offers the ways to come in one radio group, Every session chosen by
  * default, and "Join the series", which holds a place at every session to come and shows the
  * series as the answer has it ("You're in for every session"). From LG the aside sits beside the content and
  * stays in view; below LG it follows in one column (a stylesheet rule). `EVENT_SERIES_SERVICE` is
@@ -142,7 +142,7 @@ export default class EventSeriesPage {
   }
 
   /**
-   * Joins the series with "Every session" chosen (L2-052 AC2; ADR 0099) and shows the answer in
+   * Joins the series with "Every session" chosen (L2-052 AC2; ADR 0101) and shows the answer in
    * place. A `series_full` refusal shows the series as full (AC5, AC6); any other refusal or no
    * answer shows the generic failure and leaves the button usable (AC7, AC8).
    */
@@ -175,7 +175,7 @@ export default class EventSeriesPage {
   }
 
   /**
-   * Saves one calendar file with every session still to come (L2-052 AC3; ADR 0099), through an
+   * Saves one calendar file with every session still to come (L2-052 AC3; ADR 0101), through an
    * object URL revoked as soon as the download starts.
    */
   protected downloadAllDates(): void {
@@ -194,7 +194,7 @@ export default class EventSeriesPage {
   }
 
   /**
-   * Asks, in a dialog loaded on first use, whether to leave the series (L2-052 AC9; ADR 0099);
+   * Asks, in a dialog loaded on first use, whether to leave the series (L2-052 AC9; ADR 0101);
    * confirming shows the series as the answer has it, in place.
    */
   protected async leave(): Promise<void> {

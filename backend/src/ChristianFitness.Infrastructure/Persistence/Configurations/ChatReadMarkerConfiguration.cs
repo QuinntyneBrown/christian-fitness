@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A member's read marker for one conversation (ADR 0042, ADR 0099): one row per member and conversation id.</summary>
+/// <summary>A member's read marker for one conversation (ADR 0042, ADR 0101): one row per member and conversation id.</summary>
 internal sealed class ChatReadMarkerConfiguration : IEntityTypeConfiguration<ChatReadMarker>
 {
     public void Configure(EntityTypeBuilder<ChatReadMarker> builder)

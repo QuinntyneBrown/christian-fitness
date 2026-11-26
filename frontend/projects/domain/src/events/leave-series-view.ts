@@ -2,7 +2,7 @@ import type { SeriesDetailDto } from '@cf/api';
 import { seriesDayOf } from './admin-series-view';
 import { seriesCadenceText } from './series-cadence';
 
-/** What the Leave the series dialog says (L2-052 AC9; ADR 0099). */
+/** What the Leave the series dialog says (L2-052 AC9; ADR 0101). */
 export interface LeaveSeriesWords {
   /** "Couch to 5K Run Club · every Tuesday to May 26", or "· 6 dates to Jun 25" without a weekly cadence. */
   subtitle: string;

@@ -48,7 +48,7 @@ def plan_option(value: str, title: str, note: str, price: str, *, on: bool, disa
 
 def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
     """mode: joined | join | joining | failed | drop | booking | booked | full; kept: the
-    sessions already dropped in on, which keep the drop-in price after a join (ADR 0099)."""
+    sessions already dropped in on, which keep the drop-in price after a join (ADR 0101)."""
     remaining = [x for x in sr["sessions"] if x["status"] in ("next", "upcoming")]
     past = sum(1 for x in sr["sessions"] if x["status"] == "past")
     attended = sum(1 for x in sr["sessions"] if x["attended"] is True)
@@ -173,7 +173,7 @@ def _():
     return member_shell("events", series_page(dict(BOOTCAMP, joined=True, enrolled=39), "joined"))
 
 
-@s("joined-drop-in", "A paid series just joined by a member who had dropped in on session 4: that date stays at the drop-in price, the others at the series price (L2-052 AC4; ADR 0099).")
+@s("joined-drop-in", "A paid series just joined by a member who had dropped in on session 4: that date stays at the drop-in price, the others at the series price (L2-052 AC4; ADR 0101).")
 def _():
     return member_shell("events", series_page(dict(BOOTCAMP, joined=True, enrolled=39), "joined", kept=(4,)))
 

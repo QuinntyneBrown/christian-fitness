@@ -43,7 +43,7 @@ interface Unsent {
  * `/messages/:id` it is a private conversation with that member (slice 14.1; ADR 0043): the same
  * thread and composer, joined and sent through the direct hub methods, and a member who cannot be
  * messaged (`recipient_unavailable`) is told so. At `/events/series/:id/chat` it is a series' one
- * group chat (ADR 0099), joined by the series' id, with "Back to series" and "Series group". A message from another member can be reported
+ * group chat (ADR 0101), joined by the series' id, with "Back to series" and "Series group". A message from another member can be reported
  * (slice 25.1; ADR 0000) from its Report button, which opens the dialog.
  */
 @Component({
@@ -64,7 +64,7 @@ export default class EventChatPage {
   private id = '';
   /** A private conversation with the member `id` (slice 14.1; ADR 0043), not an event's group chat. */
   protected readonly direct = inject(ActivatedRoute).snapshot.data['direct'] === true;
-  /** A series' one group chat (ADR 0099): `id` is the series', and the way back leads to it. */
+  /** A series' one group chat (ADR 0101): `id` is the series', and the way back leads to it. */
   protected readonly series = inject(ActivatedRoute).snapshot.data['series'] === true;
   protected readonly backLabel = this.direct
     ? 'Back to messages'

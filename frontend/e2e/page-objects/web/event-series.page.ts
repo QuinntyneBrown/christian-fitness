@@ -32,7 +32,7 @@ export class WebEventSeriesPage extends ErrorScreen {
   readonly plans: Locator;
   readonly panelNote: Locator;
   readonly confirmed: Locator;
-  /** The ways to come as one radio group, "How would you like to come?" (ADR 0099). */
+  /** The ways to come as one radio group, "How would you like to come?" (ADR 0101). */
   readonly planGroup: Locator;
   readonly everySession: Locator;
   readonly dropIn: Locator;

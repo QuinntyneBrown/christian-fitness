@@ -1,4 +1,4 @@
-# 0099. Join and leave a series: the conversation scope, the series chat's members, the enrolment endpoints, the plan options and the joined panel
+# 0101. Join and leave a series: the conversation scope, the series chat's members, the enrolment endpoints, the plan options and the joined panel
 
 ## Status
 

@@ -115,7 +115,7 @@ describe('seriesPanelViewOf', () => {
   });
 });
 
-// L2-052 AC1, AC2 and AC5 (ADR 0099): which way is chosen, what can be chosen and the button, one
+// L2-052 AC1, AC2 and AC5 (ADR 0101): which way is chosen, what can be chosen and the button, one
 // case per row: [checked, disabled] for each option, then the button's label, disabled and busy.
 describe('seriesPanelViewOf, the choice and the button', () => {
   it.each([
@@ -199,7 +199,7 @@ describe('seriesPanelViewOf, the choice and the button', () => {
   });
 });
 
-// L2-052 AC5 to AC8 (ADR 0099): what a refused join shows, one case per row.
+// L2-052 AC5 to AC8 (ADR 0101): what a refused join shows, one case per row.
 describe('seriesJoinRefusalOf', () => {
   it.each([
     { why: 'series_full', error: { status: 409, code: 'series_full' }, shows: 'full' },
@@ -218,7 +218,7 @@ describe('seriesJoinRefusalOf', () => {
   });
 });
 
-// L2-052 AC3 (ADR 0099): a joined member's progress, before attendance is recorded (journey 16).
+// L2-052 AC3 (ADR 0101): a joined member's progress, before attendance is recorded (journey 16).
 describe('seriesPanelViewOf, progress', () => {
   it('reads "Attendance not recorded yet" with the next date highlighted and cancelled ones faded', () => {
     const sessions = (['done', 'done', 'live', 'upcoming', 'cancelled'] as const).map(
@@ -243,7 +243,7 @@ describe('seriesPanelViewOf, progress', () => {
   });
 });
 
-// L2-052 AC4, L2-053 AC5 (ADR 0099): the join confirmation for dates already dropped in on, one
+// L2-052 AC4, L2-053 AC5 (ADR 0101): the join confirmation for dates already dropped in on, one
 // case per row: which sessions were held before the join, and the note.
 describe('seriesKeptNoteOf', () => {
   const states = ['done', 'done', 'done', 'live', 'upcoming', 'upcoming', 'cancelled'] as const;

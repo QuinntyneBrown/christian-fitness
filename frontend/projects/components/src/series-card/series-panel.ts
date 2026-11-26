@@ -31,7 +31,7 @@ export interface SeriesPanelButton {
 
 /**
  * The design system's series panel (docs/design-system/components/series-card.html, "Series
- * panel", block `series-panel` in a `card--pad-sm`; ADR 0099): "Sign up" with the spots left, the
+ * panel", block `series-panel` in a `card--pad-sm`; ADR 0101): "Sign up" with the spots left, the
  * ways to come as plan options in one radio group, "How would you like to come?", the one button,
  * a generic failure above it (`role="alert"`) and the chat note; or, once `joined`, "You're in
  * for every session" as a status, how to pay, the dates already booked that keep their price,

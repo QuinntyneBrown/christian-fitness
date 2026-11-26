@@ -24,11 +24,11 @@ public sealed record ChatAnswer(string? Code, string? Title, Guid? MemberId)
 /// <summary>
 /// One message as the chat's members receive it. The text is plain text, never markup.
 /// <see cref="EventId"/> keeps its name on the wire and carries the conversation's id: the event's
-/// or the series' whose chat it is (ADR 0099), or for a direct message the other member's (ADR 0043).
+/// or the series' whose chat it is (ADR 0101), or for a direct message the other member's (ADR 0043).
 /// </summary>
 public sealed record ChatMessageDto(Guid Id, Guid EventId, Guid AuthorId, string Author, string Text, DateTimeOffset SentAt);
 
-/// <summary>Where a chat's connections and messages go; the API implements it over its hub (ADR 0039, ADR 0099).</summary>
+/// <summary>Where a chat's connections and messages go; the API implements it over its hub (ADR 0039, ADR 0101).</summary>
 public interface IChatChannel
 {
     /// <summary>Lets the connection receive the chat's messages from now on.</summary>

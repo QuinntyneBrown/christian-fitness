@@ -52,7 +52,7 @@ internal sealed class CancelEventHandler(IAppDbContext db, IRegistrationReader r
             }
         }
 
-        // A session's chat is its series', which one cancelled date does not close (ADR 0099).
+        // A session's chat is its series', which one cancelled date does not close (ADR 0101).
         if (ChatScope.Of(stored) is { Kind: ChatScopeKind.Event } scope)
         {
             await chat.NotifyCancelledAsync(scope, cancellationToken).ConfigureAwait(false);

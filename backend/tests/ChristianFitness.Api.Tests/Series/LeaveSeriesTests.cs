@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Series;
 
 /// <summary>
-/// L2-052 AC9 (ADR 0099): a joined member leaves a series. Their places at sessions that have not
+/// L2-052 AC9 (ADR 0101): a joined member leaves a series. Their places at sessions that have not
 /// started (cancelled ones included) are removed, the enrolment and those sessions' going fall by
 /// one, they leave the series chat, and the places at started sessions and every message stay. A
 /// member who has not joined gets the series unchanged. Today is April 15, 2026: Couch to 5K's

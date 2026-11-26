@@ -13,7 +13,7 @@ export interface LastMessageDto {
 /**
  * One row of the Messages list (L2-015; ADR 0042). `kind` is `group` for a standalone event's chat,
  * whose `id` is the event's id, and `series` for a series' one chat, whose `id` is the series' (ADR
- * 0099); both carry a `memberCount`. A direct conversation (slice 14.1) is `direct`, with no member
+ * 0101); both carry a `memberCount`. A direct conversation (slice 14.1) is `direct`, with no member
  * count.
  */
 export interface ConversationSummaryDto {

@@ -17,7 +17,7 @@ const COUCH_NOT_JOINED: SeriesDetail = {
   sessions: COUCH_TO_5K_DETAIL.sessions.map((session) => ({ ...session, held: false })),
 };
 
-// L2-052 AC1, AC2 and AC4 (ADR 0099): "Every session" or "Pick dates to drop in" in one radio
+// L2-052 AC1, AC2 and AC4 (ADR 0101): "Every session" or "Pick dates to drop in" in one radio
 // group, and "Join the series" holds a place at every session to come.
 test.describe('Member app, join a series', () => {
   test(
@@ -110,7 +110,7 @@ test.describe('Member app, join a series', () => {
   });
 });
 
-// L2-052 AC5, AC7 and AC8 (ADR 0099): a full series, and joins that are refused.
+// L2-052 AC5, AC7 and AC8 (ADR 0101): a full series, and joins that are refused.
 test.describe('Member app, join a series: full and refused', () => {
   test('A full series reads "Series full", every session cannot be chosen and says why, and drop-in is chosen', async ({
     page,
@@ -188,7 +188,7 @@ async function textOf(download: Download): Promise<string> {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-// L2-052 AC3 and AC4 (ADR 0099): what a member who joined sees.
+// L2-052 AC3 and AC4 (ADR 0101): what a member who joined sees.
 test.describe('Member app, join a series: the joined panel', () => {
   test('A member who joined sees their progress, All dates, Group chat and Leave the series', async ({
     page,

@@ -27,7 +27,7 @@ const calendar = (sessions: Session[]) =>
     STAMP,
   );
 
-// L2-052 AC3 (ADR 0099): "All dates" writes one iCalendar file (RFC 5545).
+// L2-052 AC3 (ADR 0101): "All dates" writes one iCalendar file (RFC 5545).
 describe('seriesCalendarOf', () => {
   it('writes one event a session still to come, in UTC, with CRLF line ends', () => {
     expect(

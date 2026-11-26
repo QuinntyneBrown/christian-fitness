@@ -3,7 +3,7 @@ namespace ChristianFitness.Domain.Events;
 /// <summary>
 /// How far one member has read one conversation (L2-016 AC7; ADR 0042): the instant they last opened
 /// it. A message sent by someone else after <see cref="ReadAt"/> is unread. There is at most one per
-/// member and conversation, keyed by the conversation's id: an event's or a series' chat (ADR 0099),
+/// member and conversation, keyed by the conversation's id: an event's or a series' chat (ADR 0101),
 /// or the other member of a direct conversation (ADR 0043).
 /// </summary>
 public sealed class ChatReadMarker

@@ -1,6 +1,6 @@
 namespace ChristianFitness.Domain.Events;
 
-/// <summary>What a group chat belongs to (ADR 0080, ADR 0099).</summary>
+/// <summary>What a group chat belongs to (ADR 0080, ADR 0101).</summary>
 public enum ChatScopeKind
 {
     /// <summary>A standalone event's own chat.</summary>
@@ -11,7 +11,7 @@ public enum ChatScopeKind
 }
 
 /// <summary>
-/// A group chat's conversation scope (ADR 0080, ADR 0099): a kind and the id of the event or the
+/// A group chat's conversation scope (ADR 0080, ADR 0101): a kind and the id of the event or the
 /// series it belongs to. The scope of an event is its series when it has one, otherwise itself.
 /// </summary>
 public readonly record struct ChatScope(ChatScopeKind Kind, Guid Id)

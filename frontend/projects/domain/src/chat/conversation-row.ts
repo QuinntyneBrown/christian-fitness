@@ -58,7 +58,7 @@ export function groupMemberCount(count: number | null): string {
 
 /**
  * Where a row goes: an event group opens that event's chat (ADR 0039), a series' one chat opens on
- * the series (ADR 0099), and a direct conversation opens with the other member (ADR 0043).
+ * the series (ADR 0101), and a direct conversation opens with the other member (ADR 0043).
  */
 export function conversationHref(kind: 'group' | 'series' | 'direct', id: string): string {
   if (kind === 'group') return `/events/${id}/chat`;

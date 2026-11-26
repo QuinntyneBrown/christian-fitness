@@ -7,7 +7,7 @@ const encoder = new TextEncoder();
 
 /**
  * One iCalendar file (RFC 5545) with a `VEVENT` for every session of `series` still to come, the
- * next one included and cancelled or done ones left out (L2-052 AC3; ADR 0099): its start and,
+ * next one included and cancelled or done ones left out (L2-052 AC3; ADR 0101): its start and,
  * where known, its end in UTC, the series' title and session number, the topic and the place.
  * Text is escaped, lines end in CRLF and are folded at 75 octets. `stamp` is when it was written.
  */
