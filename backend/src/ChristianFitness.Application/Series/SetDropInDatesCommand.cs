@@ -14,7 +14,7 @@ namespace ChristianFitness.Application.Series;
 /// A newly ticked date takes a place as L2-011 states for an event: at the session's capacity, at
 /// the drop-in price (the series price for a joined member), reserved when it is above 0. A held
 /// date to come that is left out gives its place up as L2-012 states; a held date that has started
-/// is kept whatever the set says. Refusals: 404 <c>series_not_found</c>, 400
+/// or is cancelled (ADR 0103) is kept whatever the set says. Refusals: 404 <c>series_not_found</c>, 400
 /// <c>sessions_invalid</c>, 403 <c>account_suspended</c> when adding, and 409 <c>event_full</c>
 /// with a <c>sessions</c> extension of the full dates' numbers.
 /// </summary>
@@ -82,7 +82,10 @@ internal sealed class SetDropInDatesHandler(IAppDbContext db, IRegistrationReade
         }
 
         var added = sessions.Where(s => wanted.Contains(s.Id) && !held.Contains(s.Id)).ToList();
-        var removed = mine.Where(r => !wanted.Contains(r.EventId) && sessions.Single(s => s.Id == r.EventId).StartsAt > now).ToList();
+        // A started date is kept, and so is a cancelled one, which a restore holds again (ADR 0103).
+        var removed = mine
+            .Where(r => !wanted.Contains(r.EventId) && sessions.Single(s => s.Id == r.EventId) is { Status: EventStatus.Published } s && s.StartsAt > now)
+            .ToList();
         var joined = false;
         if (added.Count > 0)
         {

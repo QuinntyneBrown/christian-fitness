@@ -30,7 +30,8 @@ mocks left these open or disagreed:
   missing, in one unit of work, and answers the series as the member now sees it
   (`SeriesDetailDto`). A date that has started is outside the set's meaning: a place at it is kept
   whatever the set says (`L2-012`: a place cannot be given up once it starts), so a stale page that
-  "unticks" it changes nothing there and the answer shows it held.
+  "unticks" it changes nothing there and the answer shows it held. A place at a cancelled date is kept too,
+  so a restore holds it again (ADR 0103); the page never offers that date.
 - **Refusals.** 403 `account_suspended` when a suspended member adds a date (removing is allowed,
   as cancelling is); 404 `series_not_found` as the read; 400 `sessions_invalid` (a top-level code,
   no field codes: no screen can send it) for an id that repeats, is not a session of the series, is

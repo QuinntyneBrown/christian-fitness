@@ -80,6 +80,22 @@ public sealed class ChangeDropInDatesTests(AdminSeriesFactory factory) : IClassF
     }
 
     [Fact]
+    public async Task Given_a_member_whose_place_is_at_a_cancelled_date_When_they_change_their_dates_Then_that_place_is_kept_for_a_restore()
+    {
+        var series = AdminSeries.NewSeries("Change Cancelled Kept", factory.Time.GetUtcNow());
+        var sessions = await factory.AddCouchTo5KAsync(series);
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "mae.series.change@example.org");
+        var maeId = await MemberSeries.MemberIdAsync(factory, "mae.series.change@example.org");
+        // May 12 (session 6) was cancelled with Mae's place on it; a restore holds it again (ADR 0103).
+        await factory.AddRegistrationsAsync([(sessions[5], maeId)]);
+
+        using var response = await DropInDatesTests.SetDropInsAsync(client, cookie, series.Id, sessions[3]);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(new[] { sessions[3], sessions[5] }.Order(), (await HeldAsync(maeId)).Order());
+    }
+
+    [Fact]
     public async Task Given_a_suspended_member_who_holds_a_date_When_they_untick_it_Then_the_place_goes_back()
     {
         var series = AdminSeries.NewSeries("Change Suspended", factory.Time.GetUtcNow());
