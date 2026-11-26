@@ -112,6 +112,26 @@ test.describe('Member app, read a story', () => {
     await expect(story.article).toHaveCount(0);
   });
 
+  // L2-061 AC8 (ADR 0105): a link the story had before it changed keeps working.
+  test("A story's former link shows the story and puts its current link in the address bar", async ({
+    page,
+    api,
+  }) => {
+    answerAsVisitor(api, SIGNED_IN);
+    const asked = answerStories(api, [REST_DAY], (slug) =>
+      slug === 'rest-day-old-link' ? { json: REST_DAY } : undefined,
+    );
+    const story = new WebStoryPage(page);
+
+    await story.open('rest-day-old-link');
+
+    await expect(story.headlines).toHaveText(REST_DAY.headline);
+    await expect.poll(() => story.location()).toBe(`/stories/${REST_DAY.slug}`);
+    // The new tab's blank page and the story: the current link replaced the former one.
+    expect(await story.historyLength()).toBe(2);
+    expect(asked).toEqual(['rest-day-old-link']);
+  });
+
   test('While the story loads, skeletons show; when it fails, Try again loads it and All stories leads home', async ({
     page,
     api,

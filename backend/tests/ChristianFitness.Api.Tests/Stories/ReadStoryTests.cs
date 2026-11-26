@@ -96,6 +96,25 @@ public sealed class ReadStoryTests(StoriesFactory factory) : IClassFixture<Stori
         }
     }
 
+    [Theory]
+    [InlineData(false, HttpStatusCode.OK)]
+    [InlineData(true, HttpStatusCode.NotFound)]
+    public async Task Given_a_story_whose_link_changed_When_its_former_link_is_read_Then_a_Published_one_answers_with_its_current_link(bool unpublished, HttpStatusCode expected)
+    {
+        var current = $"renamed-current-{unpublished}".ToLowerInvariant();
+        var former = $"renamed-former-{unpublished}".ToLowerInvariant();
+        await factory.PutStoryAsync($"Renamed {unpublished}", StoryStatus.Published, slug: current, formerSlug: former, unpublished: unpublished);
+        using var client = Browser.CreateClient(factory);
+
+        using var response = await ReadAsync(client, former);
+
+        Assert.Equal(expected, response.StatusCode);
+        if (expected == HttpStatusCode.OK)
+        {
+            Assert.Equal(current, (await AdminStories.JsonAsync(response)).GetProperty("slug").GetString());
+        }
+    }
+
     [Fact]
     public async Task Given_a_slug_no_story_has_When_it_is_read_Then_it_is_not_found()
     {

@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -55,6 +55,7 @@ export default class StoryPage {
   private readonly clipboard = inject(CLIPBOARD_SERVICE);
   private readonly title = inject(Title);
   private readonly document = inject(DOCUMENT);
+  private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly copiedFlag = new CopiedFlag();
@@ -152,6 +153,16 @@ export default class StoryPage {
     meta.content = text;
   }
 
+  /**
+   * Read through a former link, the story's current one replaces it in the address bar and the
+   * tab's history, without asking for the story again (L2-061 AC8).
+   */
+  private showCurrentLink(slug: string): void {
+    if (slug === this.slug) return;
+    this.slug = slug;
+    this.location.replaceState(`/stories/${encodeURIComponent(slug)}`);
+  }
+
   private load(): void {
     this.request?.unsubscribe();
     this.state.set('loading');
@@ -163,6 +174,7 @@ export default class StoryPage {
         next: (story) => {
           this.now.set(new Date());
           this.story.set(story);
+          this.showCurrentLink(story.slug);
           this.state.set('loaded');
           this.title.setTitle(story.headline);
           this.describe(story.summary);

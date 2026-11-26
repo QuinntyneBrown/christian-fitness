@@ -54,7 +54,8 @@ public class StoriesFactory : BylinesFactory
         string? slug = null,
         DateTimeOffset? publishAt = null,
         Guid? scheduledBy = null,
-        Func<StoryContent, StoryContent>? content = null)
+        Func<StoryContent, StoryContent>? content = null,
+        string? formerSlug = null)
     {
         var when = at ?? Time.GetUtcNow();
         using var scope = Services.CreateScope();
@@ -62,7 +63,8 @@ public class StoriesFactory : BylinesFactory
         bylineId ??= await db.Bylines.Select(b => (Guid?)b.Id).FirstOrDefaultAsync(TestContext.Current.CancellationToken)
             ?? await AddBylineAsync($"Story Writer {Guid.NewGuid():N}"[..30]);
         var written = Story.Blank with { Headline = headline, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug };
-        var story = Story.Create(content is null ? written : content(written), when);
+        written = content is null ? written : content(written);
+        var story = Story.Create(formerSlug is null ? written : written with { Slug = formerSlug }, when);
         switch (status)
         {
             case StoryStatus.InReview:
@@ -74,6 +76,12 @@ public class StoriesFactory : BylinesFactory
             case StoryStatus.Scheduled:
                 story.Schedule(publishAt ?? when.AddDays(1), scheduledBy ?? Guid.NewGuid(), when.AddMinutes(1));
                 break;
+        }
+
+        if (formerSlug is not null)
+        {
+            // Published under the former link, then given its current one (L2-069 AC8).
+            story.UpdatePublished(written, when.AddMinutes(1));
         }
 
         if (unpublished)

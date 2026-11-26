@@ -115,6 +115,11 @@ export class WebStoryPage extends ErrorScreen {
     ]);
   }
 
+  /** How many entries the tab's history holds, so a replaced address is told from a new one. */
+  historyLength(): Promise<number> {
+    return this.page.evaluate(() => history.length);
+  }
+
   /** Marks the document, so a later check can tell whether a click reloaded it. */
   async markDocument(): Promise<void> {
     await this.page.evaluate(() => document.documentElement.setAttribute('data-e2e-mark', '1'));
