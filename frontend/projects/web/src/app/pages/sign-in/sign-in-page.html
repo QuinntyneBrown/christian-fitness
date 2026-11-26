@@ -8,7 +8,7 @@
 >
   @if (refusal() === 'invalid-credentials') {
     <cf-alert slot="alert" heading="Email or password is incorrect"
-      >Check both and try again.</cf-alert
+      >Check both and try again. If you joined with Google, use Continue with Google.</cf-alert
     >
   } @else if (refusal() === 'too-many-attempts') {
     <cf-alert slot="alert" heading="Sign-in paused for 15 minutes"

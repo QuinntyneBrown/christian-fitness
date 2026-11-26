@@ -16,7 +16,8 @@ namespace ChristianFitness.Application.Sessions;
 /// checked, and not recorded, so the pause cannot be lengthened by trying on;</item>
 /// <item>an unknown email or a wrong password is refused <c>invalid_credentials</c>, the same for
 /// both, and records a failure for the email. An unknown email is checked against a fixed hash, so
-/// it takes as long as a wrong password, and it is paused like a known one.</item>
+/// it takes as long as a wrong password, and it is paused like a known one; so is an account with
+/// no password, one joined with Google.</item>
 /// </list>
 /// Each sign-in calls <see cref="ForgetFailuresAsync"/> when it succeeds by its own rules.
 /// </summary>
@@ -51,8 +52,11 @@ internal sealed class MemberCredentials(IAppDbContext db, IPasswordHasherService
         var member = await db.Members
             .SingleOrDefaultAsync(m => m.NormalizedEmail == normalizedEmail && !m.IsSystem, cancellationToken)
             .ConfigureAwait(false);
-        var verified = hasher.Verify(member?.PasswordHash ?? (_unknownMemberHash ??= hasher.Hash(Guid.NewGuid().ToString("N"))), password);
-        if (member is null || !verified)
+        // An account with no password (joined with Google) is checked as an unknown email: it takes
+        // as long as a wrong password and answers as one (L2-004 AC2).
+        var hash = member is { PasswordHash.Length: > 0 } ? member.PasswordHash : null;
+        var verified = hasher.Verify(hash ?? (_unknownMemberHash ??= hasher.Hash(Guid.NewGuid().ToString("N"))), password);
+        if (member is null || hash is null || !verified)
         {
             await RecordFailureAsync(normalizedEmail, now, windowStart, cancellationToken).ConfigureAwait(false);
             throw Refused();
