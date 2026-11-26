@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, input } from '@angular/core';
 import { Skeleton } from '../skeleton/skeleton';
 
@@ -12,7 +11,7 @@ import { Skeleton } from '../skeleton/skeleton';
  */
 @Component({
   selector: 'cf-event-row',
-  imports: [NgTemplateOutlet, Skeleton],
+  imports: [Skeleton],
   templateUrl: './event-row.html',
   styleUrl: './event-row.scss',
 })

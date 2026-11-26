@@ -1,8 +1,3 @@
-<ng-template #link let-story>
-  <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
-    story.title
-  }}</a>
-</ng-template>
 <ul [attr.class]="plain() ? 'headline-list headline-list--plain' : 'headline-list'">
   @if (loading()) {
     @for (row of skeletons; track row) {
@@ -22,17 +17,15 @@
           <p class="story__section">{{ story.section }}</p>
           @if (level() === 3) {
             <h3 class="headline__title">
-              <ng-container
-                [ngTemplateOutlet]="link"
-                [ngTemplateOutletContext]="{ $implicit: story }"
-              />
+              <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
+                story.title
+              }}</a>
             </h3>
           } @else {
             <h2 class="headline__title">
-              <ng-container
-                [ngTemplateOutlet]="link"
-                [ngTemplateOutletContext]="{ $implicit: story }"
-              />
+              <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
+                story.title
+              }}</a>
             </h2>
           }
           <p class="story__meta">

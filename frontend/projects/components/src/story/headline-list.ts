@@ -1,5 +1,4 @@
 import { booleanAttribute, Component, input, output } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { Skeleton } from '../skeleton/skeleton';
 import { followInApp, type NewsStoryView } from './story-lead';
 
@@ -14,7 +13,7 @@ const SKELETON_ROWS = [1, 2, 3, 4];
  */
 @Component({
   selector: 'cf-headline-list',
-  imports: [NgTemplateOutlet, Skeleton],
+  imports: [Skeleton],
   templateUrl: './headline-list.html',
   styleUrl: './headline-list.scss',
 })

@@ -1,0 +1,60 @@
+// The Newsletter page (docs/design-system/assets/components.css: "issue-page", "issue-page__bar",
+// "back-link", and the loading and error mocks' sheet, the issue's surface at its reading width).
+:host {
+  display: block;
+}
+
+.issue-page {
+  min-height: 100dvh;
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-default);
+
+  @media (min-width: 40rem) {
+    padding: var(--space-10) var(--space-4);
+  }
+}
+
+.issue-page__bar {
+  max-width: 42rem;
+  margin: 0 auto var(--space-4);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  @media (min-width: 40rem) {
+    display: flex;
+  }
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-height: var(--target-comfortable);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+}
+
+.issue-page__sheet {
+  max-width: 42rem;
+  margin-inline: auto;
+  background: var(--color-bg-surface);
+  padding: var(--space-7) var(--space-6);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-10);
+  }
+}
+
+.issue-page__sheet--loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

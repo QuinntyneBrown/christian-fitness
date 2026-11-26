@@ -64,6 +64,18 @@ const routes: Routes = [
     loadComponent: () => import('./pages/subscribe/subscribe-page'),
   },
   {
+    // The latest sent issue of the newsletter, for anyone, outside the shell (journey 29; L2-059).
+    path: 'newsletter',
+    title: titled('The Abundant Weekly'),
+    loadComponent: () => import('./pages/newsletter/newsletter-page'),
+  },
+  {
+    // One sent issue by its number.
+    path: 'newsletter/:number',
+    title: titled('The Abundant Weekly'),
+    loadComponent: () => import('./pages/newsletter/newsletter-page'),
+  },
+  {
     // An event link from a Community Pick: a member goes on to the event, a visitor to Join and
     // back to it (L2-072 AC9; ADR 0098). It has no screen of its own.
     path: 'e/:id',

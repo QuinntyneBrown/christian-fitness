@@ -1,20 +1,19 @@
-@let view = issue();
 <article class="issue">
   <header class="issue__masthead">
     <p class="issue__brand">
       <cf-seal size="lockup" decorative light /><span>Christian Fitness</span>
     </p>
-    <h1 class="issue__title">{{ view.name }}</h1>
-    <p class="issue__date">{{ view.date }}</p>
+    <h1 class="issue__title">{{ issue().name }}</h1>
+    <p class="issue__date">{{ issue().date }}</p>
   </header>
   <div class="issue__body">
     <section class="issue__section">
-      @if (view.greeting; as greeting) {
+      @if (issue().greeting; as greeting) {
         <p class="issue__greeting">{{ greeting }}</p>
       }
-      <p class="issue__text">{{ view.editorsNote }}</p>
+      <p class="issue__text">{{ issue().editorsNote }}</p>
     </section>
-    @if (view.lead; as lead) {
+    @if (issue().lead; as lead) {
       <section class="issue__section" aria-labelledby="issue-lead">
         <p class="story__section">{{ lead.section }}</p>
         @if (lead.image; as image) {
@@ -31,11 +30,11 @@
         </div>
       </section>
     }
-    @if (view.events.length > 0) {
+    @if (issue().events.length > 0) {
       <section class="issue__section" aria-labelledby="issue-calendar">
         <h2 class="rule-title" id="issue-calendar">On the calendar</h2>
         <ul class="list-divided">
-          @for (event of view.events; track event.id) {
+          @for (event of issue().events; track event.id) {
             <li>
               <cf-event-row
                 wrap
@@ -52,23 +51,23 @@
         >
       </section>
     }
-    @if (view.briefs.length > 0) {
+    @if (issue().briefs.length > 0) {
       <section class="issue__section" aria-labelledby="issue-briefs">
         <h2 class="rule-title" id="issue-briefs">Worth your time</h2>
         <cf-headline-list
           plain
           [level]="3"
-          [stories]="view.briefs"
+          [stories]="issue().briefs"
           (navigate)="navigate.emit($event)"
         />
       </section>
     }
-    @if (view.verse) {
+    @if (issue().verse) {
       <section class="issue__verse" aria-label="Scripture">
         <blockquote>
-          <p class="issue__quote">“{{ view.verse }}”</p>
-          @if (view.verseReference) {
-            <cite class="issue__cite">{{ view.verseReference }}</cite>
+          <p class="issue__quote">“{{ issue().verse }}”</p>
+          @if (issue().verseReference) {
+            <cite class="issue__cite">{{ issue().verseReference }}</cite>
           }
         </blockquote>
       </section>

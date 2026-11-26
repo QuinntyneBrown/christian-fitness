@@ -7,8 +7,8 @@
     </div>
     <cf-skeleton shape="text-sm" />
   </div>
-} @else {
-  <ng-template #row>
+} @else if (href()) {
+  <a [attr.class]="large() ? 'event-row event-row--lg' : 'event-row'" [href]="href()">
     <div class="event-row__date">
       <p class="event-row__month">{{ month() }}</p>
       <p class="event-row__day">{{ day() }}</p>
@@ -24,14 +24,19 @@
         value
       }}</span>
     }
-  </ng-template>
-  @if (href()) {
-    <a [attr.class]="large() ? 'event-row event-row--lg' : 'event-row'" [href]="href()">
-      <ng-container [ngTemplateOutlet]="row" />
-    </a>
-  } @else {
-    <div [attr.class]="large() ? 'event-row event-row--lg' : 'event-row'">
-      <ng-container [ngTemplateOutlet]="row" />
+  </a>
+} @else {
+  <!-- Not a link: an issue's calendar (issue.html). It has no end value. -->
+  <div [attr.class]="large() ? 'event-row event-row--lg' : 'event-row'">
+    <div class="event-row__date">
+      <p class="event-row__month">{{ month() }}</p>
+      <p class="event-row__day">{{ day() }}</p>
     </div>
-  }
+    <div class="event-row__body">
+      <p [attr.class]="wrap() ? 'event-row__title event-row__title--wrap' : 'event-row__title'">
+        {{ heading() }}
+      </p>
+      <p class="event-row__meta">{{ meta() }}</p>
+    </div>
+  </div>
 }

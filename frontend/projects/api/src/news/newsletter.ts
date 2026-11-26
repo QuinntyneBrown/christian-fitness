@@ -84,3 +84,15 @@ export interface IssueDto {
   verse: string;
   verseReference: string;
 }
+
+/**
+ * The sent issues for anyone (L2-059; `GET /api/public/newsletter/issues/latest` and `/{number}`).
+ * `issue(null)` is the latest. Nothing sent, an unknown number or an issue not yet sent fails with
+ * `not_found`; every failure is an `ApiError`.
+ */
+export interface IssuesApi {
+  issue(number: number | null): Observable<IssueDto>;
+}
+
+/** Binds {@link IssuesApi}; the Newsletter page provides it on its own route component. */
+export const ISSUES_SERVICE = new InjectionToken<IssuesApi>('ISSUES_SERVICE');
