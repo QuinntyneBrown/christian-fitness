@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261126073734_AddFeedback")]
+    [Migration("20261126085712_AddFeedback")]
     partial class AddFeedback
     {
         /// <inheritdoc />
@@ -360,6 +360,36 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("SuggestionChecks", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Attendance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Came")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId", "MemberId")
+                        .IsUnique();
+
+                    b.HasIndex("MemberId", "EventId");
+
+                    b.ToTable("Attendances", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -405,6 +435,34 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasKey("MemberId", "ScopeId");
 
                     b.ToTable("ChatReadMarkers", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.CommunityPick", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("character varying(70)");
+
+                    b.Property<DateTimeOffset>("PickedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PickedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PickedById");
+
+                    b.HasIndex("EventId", "PickedAt");
+
+                    b.ToTable("CommunityPicks", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Events.DirectMessage", b =>
@@ -1324,6 +1382,30 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("SuggestionId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Attendance", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.CommunityPick", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("PickedById")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
