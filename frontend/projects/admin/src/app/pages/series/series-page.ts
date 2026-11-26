@@ -23,8 +23,12 @@ import {
 import {
   adminSeriesViewOf,
   sessionAddedTitleOf,
+  isRestoreFailedTitle,
+  restoreFailedTitleOf,
+  sessionChangeTitleOf,
   seriesPickCardOf,
   seriesRowOf,
+  toldTextOf,
   ToastStore,
 } from '@cf/domain';
 import {
@@ -90,6 +94,8 @@ export default class AdminSeriesPage {
 
   protected readonly list = signal<ListState>({ kind: 'loading' });
   protected readonly chosen = signal<SeriesState>({ kind: 'loading' });
+  /** The id of the date whose Restore is on its way, or none. */
+  protected readonly restoring = signal<string | null>(null);
   /** The id of the series shown, which its card marks current. */
   protected readonly currentId = signal<string | null>(null);
 
@@ -106,7 +112,7 @@ export default class AdminSeriesPage {
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
       id: String(id),
-      tone: 'success',
+      tone: isRestoreFailedTitle(title) ? 'danger' : 'success',
       heading: title,
       text,
     })),
@@ -226,6 +232,66 @@ export default class AdminSeriesPage {
         if (!added) return;
         this.toasts.show(sessionAddedTitleOf(added.date), 'It is now listed under Events.');
         this.showSaved(added.series);
+      });
+  }
+
+  /**
+   * Cancel date (L2-071 AC4; ADR 0103): asks in a dialog; a cancelled date is shown as answered,
+   * and a toast says how many were told.
+   */
+  protected async cancelDate(sessionId: string): Promise<void> {
+    const chosen = this.chosen();
+    if (this.editorOpen || chosen.kind !== 'ready') return;
+    const session = chosen.series.sessions.find((s) => s.id === sessionId);
+    if (!session) return;
+    this.editorOpen = true;
+    // The dialog and CDK Dialog load on the first Cancel date, not with the page.
+    const { openCancelSession } =
+      await import('../../dialogs/cancel-session/cancel-session-dialog');
+    if (this.destroyRef.destroyed) return;
+    openCancelSession(this.injector, { series: chosen.series, session })
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((change) => {
+        this.editorOpen = false;
+        if (!change) return;
+        this.toasts.show(
+          sessionChangeTitleOf(session.startsAt, 'cancelled'),
+          toldTextOf(change.told),
+        );
+        this.showSaved(change.series);
+      });
+  }
+
+  /**
+   * Restore (L2-071 AC5; ADR 0103): the row reads "Restoring…" while it waits; a restored date is
+   * shown as answered and a toast says how many were told; a failure says so in a toast and
+   * changes nothing.
+   */
+  protected restoreDate(sessionId: string): void {
+    const chosen = this.chosen();
+    if (this.restoring() !== null || chosen.kind !== 'ready') return;
+    const session = chosen.series.sessions.find((s) => s.id === sessionId);
+    if (!session) return;
+    this.restoring.set(sessionId);
+    this.api
+      .restoreSession(chosen.series.id, sessionId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (change) => {
+          this.restoring.set(null);
+          this.toasts.show(
+            sessionChangeTitleOf(session.startsAt, 'restored'),
+            toldTextOf(change.told),
+          );
+          this.showSaved(change.series);
+        },
+        error: () => {
+          this.restoring.set(null);
+          this.toasts.show(
+            restoreFailedTitleOf(session.startsAt),
+            'Nothing was changed. Try again in a moment.',
+          );
+        },
       });
   }
 

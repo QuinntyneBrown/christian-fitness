@@ -119,7 +119,7 @@ export class AdminSeriesPage {
     );
   }
 
-  /** Each session row's number, date, topic and end words, as read. */
+  /** Each session row's number, date, topic and state words ("Done", "Live", "Cancelled"), as read. */
   async sessionTexts(): Promise<string[][]> {
     return this.sessions.evaluateAll((rows) =>
       rows.map((row) =>
@@ -127,10 +127,27 @@ export class AdminSeriesPage {
           '.admin-session__n',
           '.admin-session__date',
           '.admin-session__topic',
-          '.admin-session__end',
+          '.admin-session__end :is(.admin-session__done, .status)',
         ].map((part) => row.querySelector(part)?.textContent?.trim() ?? ''),
       ),
     );
+  }
+
+  /** Each session row's action, by its accessible name, or '' for none. */
+  async sessionActions(): Promise<string[]> {
+    return this.sessions.evaluateAll((rows) =>
+      rows.map((row) => row.querySelector('.admin-session__end button')?.textContent?.trim() ?? ''),
+    );
+  }
+
+  /** The session row numbered `n`. */
+  session(n: number): Locator {
+    return this.sessions.nth(n - 1);
+  }
+
+  /** The action button of session `n`: "Cancel date" or "Restore". */
+  sessionAction(n: number): Locator {
+    return this.session(n).locator('.admin-session__end button');
   }
 
   /** The `class` of each session row: its state modifier (`--past`, `--cancelled`). */

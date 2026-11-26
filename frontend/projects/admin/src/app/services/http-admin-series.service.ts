@@ -9,6 +9,7 @@ import type {
   EventHostListDto,
   EventImageDto,
   SeriesDraftDto,
+  SessionChangeDto,
 } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
@@ -44,6 +45,24 @@ export class HttpAdminSeriesService implements AdminSeriesApi {
   addSession(id: string, session: AddSessionDto): Observable<AdminSeriesDto> {
     return this.http
       .post<AdminSeriesDto>(`/api/admin/series/${encodeURIComponent(id)}/sessions`, session)
+      .pipe(catchError(asApiError));
+  }
+
+  cancelSession(id: string, sessionId: string): Observable<SessionChangeDto> {
+    return this.http
+      .post<SessionChangeDto>(
+        `/api/admin/series/${encodeURIComponent(id)}/sessions/${encodeURIComponent(sessionId)}/cancel`,
+        null,
+      )
+      .pipe(catchError(asApiError));
+  }
+
+  restoreSession(id: string, sessionId: string): Observable<SessionChangeDto> {
+    return this.http
+      .post<SessionChangeDto>(
+        `/api/admin/series/${encodeURIComponent(id)}/sessions/${encodeURIComponent(sessionId)}/restore`,
+        null,
+      )
       .pipe(catchError(asApiError));
   }
 

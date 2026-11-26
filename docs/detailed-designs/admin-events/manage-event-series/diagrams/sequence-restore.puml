@@ -35,13 +35,13 @@ else start has passed
 else cancelled and still to come
   h -> audit : Record(admin, "Event", sessionId) (L2-071 AC9)
   h -> ent : Restore(now) - Published again
-  h -> db : SaveChanges with AuditEntry
+  h -> db : SaveChanges with AuditEntry and the chat notice from Christian Fitness
   db --> h : Committed
-  h -> chat : Notice to the series' group chat: the date is on again (L2-071 AC5)
-  h --> ctrl : SessionChangeDto
+  h -> chat : Push the notice: the date is back on (L2-071 AC5)
+  h --> ctrl : SessionChangeDto (series, told)
 end
 ctrl --> client : 200 JSON or ProblemDetails
 client --> page : Result
-page --> actor : Row upcoming again; Sessions left rises by one; or a toast saying the restore failed
+page --> actor : Row upcoming again; Sessions left rises by one; toast "Tue May 12 restored · <n> members were told."; or a toast saying the restore failed
 note over db : Registrations were kept while cancelled, so members who held a place hold it again
 @enduml

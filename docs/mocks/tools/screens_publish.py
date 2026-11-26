@@ -671,9 +671,9 @@ NEW_SERIES = {"id": "sunday-stretch", "title": "Sunday Stretch & Prayer", "host"
               "enrolled": 0, "capacity": 25, "sessions": []}
 
 
-def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks: tuple = (), restoring: tuple = ()) -> str:
+def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks: tuple = (), restoring: tuple = (), restored: tuple = ()) -> str:
     def status(x):
-        return "cancelled" if x["n"] in cancelled else x["status"]
+        return "cancelled" if x["n"] in cancelled else "upcoming" if x["n"] in restored else x["status"]
     sessions = sr["sessions"] + ([NEW_DATE] if extra else [])
     remaining = sum(1 for x in sessions if status(x) in ("next", "upcoming"))
     picker = "".join(f"""<li><a class="pick-card" href="{href("admin-series", "default" if x["id"] == "couch-to-5k" else "series-created" if x["id"] == "sunday-stretch" else "selected")}"{CUR if x["id"] == sr["id"] else ""}>
@@ -718,7 +718,7 @@ def series_admin(sr: dict, *, cancelled: tuple = (), extra: bool = False, picks:
             <button class="btn btn--link" type="button" data-mock-href="{href("add-session")}">{icon("plus")}Add a date</button>
           </div>
           {f'<ol class="card card--list admin-sessions">{"".join(rows)}</ol>' if rows else empty_block("No dates yet", "Members can join once the series has dates. Add the first one.", f'<button class="btn btn--primary btn--sm" type="button" data-mock-href="{href("add-session")}">{icon("plus")}Add a date</button>', tag="p", tight=True)}
-          <p class="builder__note">Cancelling a date notifies everyone who joined the series and refunds drop-ins.</p>
+          <p class="builder__note">Cancelling a date tells everyone going to it; any refunds are sorted out with the host directly.</p>
         </section>
       </div>"""
 
@@ -744,7 +744,7 @@ def _():
 @s("date-cancelled", "A date was just cancelled (session 5): it reads Cancelled with Restore, the sessions left fall by one and a toast confirms who was told.")
 def _():
     return admin_shell("admin-series", series_admin(SR["couch-to-5k"], cancelled=(5,)),
-                       after=toast_region(toast("success", "Tue May 5 cancelled", "31 members were told."), admin=True))
+                       after=toast_region(toast("success", "Tue May 5 cancelled", "34 members were told."), admin=True))
 
 
 @s("series-created", "A series was just created: the new series is chosen with no dates yet, and a toast says it was created.")
@@ -763,6 +763,12 @@ def _():
 def _():
     return admin_shell("admin-series", series_admin(SR["couch-to-5k"], extra=True),
                        after=toast_region(toast("success", "Tue Jun 2 added", "It is now listed under Events."), admin=True))
+
+
+@s("date-restored", "A cancelled date was just restored (session 6): it is upcoming again with Cancel date, the sessions left rise by one and a toast says how many were told.")
+def _():
+    return admin_shell("admin-series", series_admin(SR["couch-to-5k"], restored=(6,)),
+                       after=toast_region(toast("success", "Tue May 12 restored", "31 members were told."), admin=True))
 
 
 @s("restoring", "Restore pressed on the cancelled date (session 6): its button is busy and disabled; the rest of the list stays.")
@@ -802,7 +808,7 @@ def _():
 def cancel_session(*, busy: bool = False, failed: bool = False) -> str:
     alert = ('<div class="dialog__alert">' + form_alert("We couldn't cancel this date", "Nothing was changed and nobody was told. Try again in a moment.") + "</div>"
              if failed else "")
-    body = f'{alert}<p class="prose">The 31 members who joined the series are told, anyone who dropped in for this date is refunded, and the date shows as Cancelled on the series. You can restore it until it would have started.</p>'
+    body = f'{alert}<p class="prose">34 people are going to this date (31 joined, 3 dropped in). Everyone going is told in the series chat and in their notifications. If anyone paid for it, the host will sort out refunds with them directly.</p><p class="prose">You can restore the date until it would have started.</p>'
     keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("admin-series")}"{" disabled" if busy else " autofocus"}>Keep the date</button>'
     go = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Cancelling…")}</button>' if busy
           else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("admin-series", "date-cancelled")}">Cancel date</button>')
@@ -815,7 +821,7 @@ s = screen("cancel-session", "dialog", "Cancel a series date", group=G, opens_fr
            not_applicable={"invalid": "A confirmation with nothing to type."})
 
 
-@s("default", "Confirm cancelling one date: who is told, what is refunded and that it can be restored; focus starts on \"Keep the date\".")
+@s("default", "Confirm cancelling one date: how many are going (joined and dropped in), who is told, that refunds are sorted out with the host and that it can be restored; focus starts on \"Keep the date\".")
 def _():
     return cancel_session()
 

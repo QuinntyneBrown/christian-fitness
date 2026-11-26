@@ -63,6 +63,12 @@ public static class RefusalCodes
     /// <summary>Only a published event can be cancelled (L2-023 AC2; ADR 0035).</summary>
     public const string EventNotPublished = "event_not_published";
 
+    /// <summary>A series date that has started can be neither cancelled nor restored (L2-071 AC4, AC5; ADR 0103).</summary>
+    public const string SessionStarted = "session_started";
+
+    /// <summary>Only a cancelled series date can be restored (L2-071 AC5; ADR 0103).</summary>
+    public const string EventNotCancelled = "event_not_cancelled";
+
     /// <summary>Staff tried to flag or suspend their own account (L2-029 AC4; ADR 0028).</summary>
     public const string CannotModerateSelf = "cannot_moderate_self";
 

@@ -1,0 +1,15 @@
+<cf-dialog heading="Cancel this date?" titleId="dlg-title" [subtitle]="subtitle" (closed)="keep()">
+  @if (failed()) {
+    <cf-alert heading="We couldn't cancel this date"
+      ><p>Nothing was changed and nobody was told. Try again in a moment.</p></cf-alert
+    >
+  }
+  <p class="cancel-session__text">{{ text }}</p>
+  <p class="cancel-session__text">You can restore the date until it would have started.</p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="cancelling()" (click)="keep()"
+    >Keep the date</cf-button
+  >
+  <cf-button slot="foot" grow [disabled]="cancelling()" [busy]="cancelling()" (click)="cancel()">{{
+    cancelling() ? 'Cancelling…' : 'Cancel date'
+  }}</cf-button>
+</cf-dialog>

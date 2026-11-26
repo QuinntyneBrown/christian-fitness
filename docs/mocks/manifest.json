@@ -1148,6 +1148,7 @@
         "series-created",
         "series-saved",
         "date-added",
+        "date-restored",
         "restoring",
         "restore-failed",
         "loading",

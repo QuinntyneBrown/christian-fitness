@@ -89,6 +89,18 @@ describe('Button', () => {
     expect(element.querySelector('a.btn')?.getAttribute('href')).toBe('/events');
     expect(element.querySelector('button')).toBeNull();
   });
+
+  it.each<{ variant: 'link' | 'link-quiet' | 'quiet'; classes: string }>([
+    { variant: 'link', classes: 'btn btn--link' },
+    { variant: 'link-quiet', classes: 'btn btn--link btn--link-quiet' },
+    { variant: 'quiet', classes: 'btn btn--quiet' },
+  ])('the $variant variant is drawn as "$classes"', ({ variant, classes }) => {
+    const fixture = TestBed.createComponent(Button);
+    fixture.componentRef.setInput('variant', variant);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('button')!.className).toBe(classes);
+  });
 });
 
 describe('IconButton', () => {

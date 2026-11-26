@@ -16,6 +16,15 @@
             <cf-status variant="cancelled">Cancelled</cf-status>
           }
         }
+        @if (session.action) {
+          <cf-button
+            [variant]="session.action === 'cancel' ? 'link-quiet' : 'link'"
+            [busy]="session.id === restoring()"
+            (click)="act(session)"
+            >{{ wordsOf(session)
+            }}<span class="visually-hidden">{{ hiddenOf(session) }}</span></cf-button
+          >
+        }
       </span>
     </li>
   }
