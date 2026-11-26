@@ -39,7 +39,7 @@ public sealed record StoryShellAnswer(StoryShellOutcome Outcome, string? Html, U
 /// </summary>
 public sealed record GetStoryShellQuery(string Slug) : IRequest<StoryShellAnswer>;
 
-internal sealed class GetStoryShellHandler(IAppDbContext db, IStoryShell shell, MemberAppAddress app) : IRequestHandler<GetStoryShellQuery, StoryShellAnswer>
+internal sealed class GetStoryShellHandler(IAppDbContext db, IStoryShell shell, MemberAppAddress app, TimeProvider time) : IRequestHandler<GetStoryShellQuery, StoryShellAnswer>
 {
     private const string Title = "<title>Christian Fitness</title>";
 
@@ -52,7 +52,7 @@ internal sealed class GetStoryShellHandler(IAppDbContext db, IStoryShell shell, 
             return new(StoryShellOutcome.Unavailable, null, null);
         }
 
-        var story = await PublishedStories.FindAsync(db, request.Slug, cancellationToken).ConfigureAwait(false);
+        var story = await PublishedStories.FindAsync(db, request.Slug, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
         if (story is null)
         {
             return new(StoryShellOutcome.NotFound, html, null);

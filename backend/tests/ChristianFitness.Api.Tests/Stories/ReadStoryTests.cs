@@ -53,6 +53,7 @@ public sealed class ReadStoryTests(StoriesFactory factory) : IClassFixture<Stori
     [Theory]
     [InlineData(StoryStatus.Draft, false)]
     [InlineData(StoryStatus.InReview, false)]
+    [InlineData(StoryStatus.Scheduled, false)]
     [InlineData(StoryStatus.Published, true)]
     public async Task Given_a_story_that_is_not_Published_When_its_address_is_read_Then_it_is_not_found_and_nothing_of_it_is_sent(StoryStatus status, bool unpublished)
     {
@@ -113,6 +114,24 @@ public sealed class ReadStoryTests(StoriesFactory factory) : IClassFixture<Stori
         {
             Assert.Equal(current, (await AdminStories.JsonAsync(response)).GetProperty("slug").GetString());
         }
+    }
+
+    [Fact]
+    public async Task Given_a_Scheduled_story_whose_time_has_come_When_anyone_reads_it_Then_it_reads_as_Published_at_its_scheduled_time()
+    {
+        var publishAt = factory.Time.GetUtcNow().AddMinutes(-5);
+        await factory.PutStoryAsync("Due story", StoryStatus.Scheduled, at: publishAt.AddDays(-1), section: StorySection.Nutrition, slug: "due-story", publishAt: publishAt);
+        await factory.PutStoryAsync("Story beside the due one", StoryStatus.Published, section: StorySection.Nutrition, slug: "beside-due-story");
+        using var client = Browser.CreateClient(factory);
+
+        using var due = await ReadAsync(client, "due-story");
+        using var beside = await ReadAsync(client, "beside-due-story");
+
+        Assert.Equal(HttpStatusCode.OK, due.StatusCode);
+        Assert.Equal(publishAt, (await AdminStories.JsonAsync(due)).GetProperty("publishedAt").GetDateTimeOffset());
+        Assert.Contains(
+            (await AdminStories.JsonAsync(beside)).GetProperty("keepReading").EnumerateArray(),
+            card => card.GetProperty("slug").GetString() == "due-story" && card.GetProperty("publishedAt").GetDateTimeOffset() == publishAt);
     }
 
     [Fact]

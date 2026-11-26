@@ -42,12 +42,13 @@ internal sealed class GetPublishedStoryHandler(IAppDbContext db, TimeProvider ti
     public async Task<PublishedStoryDto> Handle(GetPublishedStoryQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = await PublishedStories.FindAsync(db, request.Slug, cancellationToken).ConfigureAwait(false)
+        var now = time.GetUtcNow();
+        var story = await PublishedStories.FindAsync(db, request.Slug, now, cancellationToken).ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
         var author = story.BylineId is { } bylineId
             ? await db.Bylines.AsNoTracking().Where(b => b.Id == bylineId).Select(b => b.Name).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             : null;
-        var answer = StoryAnswers.Of(story, time.GetUtcNow());
+        var answer = StoryAnswers.Of(story, now);
         return new PublishedStoryDto(
             story.Id,
             story.Slug!,
@@ -55,25 +56,26 @@ internal sealed class GetPublishedStoryHandler(IAppDbContext db, TimeProvider ti
             story.Headline,
             story.Summary,
             author,
-            story.PublishedAt!.Value,
+            story.EffectivePublishedAt(now)!.Value,
             story.Text,
             answer.Image,
             await StoryNext.OfAsync(db, story, cancellationToken).ConfigureAwait(false),
-            await KeepReadingAsync(story, cancellationToken).ConfigureAwait(false));
+            await KeepReadingAsync(story, now, cancellationToken).ConfigureAwait(false));
     }
 
     /// <summary>Three other Published stories: the same section first, then the rest, each newest first (L2-061 AC6).</summary>
-    private async Task<IReadOnlyList<StoryCardDto>> KeepReadingAsync(Story story, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<StoryCardDto>> KeepReadingAsync(Story story, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var bylines = db.Bylines.AsNoTracking();
-        var others = await db.Stories.AsNoTracking()
-            .Where(s => s.Status == StoryStatus.Published && s.Slug != null && s.Id != story.Id)
-            .OrderByDescending(s => s.Section == story.Section).ThenByDescending(s => s.PublishedAt).ThenByDescending(s => s.Id)
+        var others = await PublishedStories.At(db, now)
+            .Where(s => s.Id != story.Id)
+            .Select(s => new { Story = s, PublishedAt = s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt })
+            .OrderByDescending(s => s.Story.Section == story.Section).ThenByDescending(s => s.PublishedAt).ThenByDescending(s => s.Story.Id)
             .Take(PublishedStoryDto.KeepReadingCount)
             .Select(s => new
             {
-                s.Slug, s.Section, s.Headline, s.PublishedAt, s.ImageKey, s.ImageCrop,
-                Author = bylines.Where(b => b.Id == s.BylineId).Select(b => b.Name).FirstOrDefault(),
+                s.Story.Slug, s.Story.Section, s.Story.Headline, s.PublishedAt, s.Story.ImageKey, s.Story.ImageCrop,
+                Author = bylines.Where(b => b.Id == s.Story.BylineId).Select(b => b.Name).FirstOrDefault(),
             })
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         return [.. others.Select(s => new StoryCardDto(
@@ -86,19 +88,29 @@ internal sealed class GetPublishedStoryHandler(IAppDbContext db, TimeProvider ti
     }
 }
 
-/// <summary>Finds a Published story by its link; publication is checked before a former link is honoured (ADR 0073).</summary>
+/// <summary>
+/// The stories readers see at <c>now</c>: Published ones and Scheduled ones whose time has come
+/// (ADR 0069). Publication is checked before a former link is honoured (ADR 0073).
+/// </summary>
 public static class PublishedStories
 {
-    /// <summary>The Published story whose current or former link is <paramref name="slug"/>, or none.</summary>
-    public static async Task<Story?> FindAsync(IAppDbContext db, string slug, CancellationToken cancellationToken)
+    /// <summary>Every story readers see at <paramref name="now"/>, with a link.</summary>
+    public static IQueryable<Story> At(IAppDbContext db, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(db);
+        return db.Stories.AsNoTracking()
+            .Where(s => (s.Status == StoryStatus.Published || (s.Status == StoryStatus.Scheduled && s.PublishAt <= now)) && s.Slug != null);
+    }
+
+    /// <summary>The story readers see at <paramref name="now"/> whose current or former link is <paramref name="slug"/>, or none.</summary>
+    public static async Task<Story?> FindAsync(IAppDbContext db, string slug, DateTimeOffset now, CancellationToken cancellationToken)
+    {
         if (!StorySlug.IsValid(slug))
         {
             return null;
         }
 
-        var published = db.Stories.AsNoTracking().Where(s => s.Status == StoryStatus.Published && s.Slug != null);
+        var published = At(db, now);
         return await published.SingleOrDefaultAsync(s => s.Slug == slug, cancellationToken).ConfigureAwait(false)
             ?? await published.FirstOrDefaultAsync(s => s.FormerSlugs.Contains(slug), cancellationToken).ConfigureAwait(false);
     }

@@ -23,7 +23,7 @@ internal sealed class CountStoryReadHandler(IAppDbContext db, TimeProvider clock
     {
         ArgumentNullException.ThrowIfNull(request);
         if (!StoryReaders.Counts(request.UserAgent)
-            || !await db.Stories.AnyAsync(s => s.Id == request.StoryId && s.Status == StoryStatus.Published, cancellationToken).ConfigureAwait(false))
+            || !await PublishedStories.At(db, clock.GetUtcNow()).AnyAsync(s => s.Id == request.StoryId, cancellationToken).ConfigureAwait(false))
         {
             return;
         }
