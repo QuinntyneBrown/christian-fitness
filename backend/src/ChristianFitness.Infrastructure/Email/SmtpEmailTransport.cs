@@ -24,7 +24,7 @@ public sealed class SmtpSettings
 }
 
 /// <summary>Delivers one message to the mail server with MailKit (ADR 0010).</summary>
-public sealed class SmtpEmailTransport(SmtpSettings settings) : IEmailSender
+public sealed class SmtpEmailTransport(SmtpSettings settings) : IEmailSender, IBulkEmailSender
 {
     public Task SendAsync(EmailMessage message, CancellationToken cancellationToken) => DeliverAsync(message, cancellationToken);
 

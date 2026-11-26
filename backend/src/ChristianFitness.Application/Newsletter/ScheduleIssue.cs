@@ -1,3 +1,4 @@
+using System.Globalization;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Errors;
@@ -6,6 +7,7 @@ using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Newsletter;
 using ChristianFitness.Domain.News;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,9 @@ namespace ChristianFitness.Application.Newsletter;
 /// </summary>
 public sealed class ScheduleIssueCommand : IssueFields, IRequest<NextIssueDto>, IAuditableCommand
 {
+    /// <summary>For a missed issue only (L2-070 AC8): the time later today in Toronto it goes out, as <c>HH:mm</c>.</summary>
+    public string? SendTime { get; set; }
+
     string IAuditableCommand.AuditAction => "newsletter_issue.scheduled";
 }
 
@@ -58,18 +63,32 @@ internal sealed class ScheduleIssueValidator : IssueFieldsValidator<ScheduleIssu
         ids.Count == await db.Stories.CountAsync(s => ids.Contains(s.Id) && s.Status == StoryStatus.Published, cancellationToken).ConfigureAwait(false);
 }
 
-internal sealed class ScheduleIssueHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit)
+internal sealed class ScheduleIssueHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit, TimeProvider time)
     : IRequestHandler<ScheduleIssueCommand, NextIssueDto>
 {
     public async Task<NextIssueDto> Handle(ScheduleIssueCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         var issue = await Issues.FindDraftAsync(db, request.Number, cancellationToken).ConfigureAwait(false);
+        var sendAt = issue.MissedSend ? LaterToday(request.SendTime) : (DateTimeOffset?)null;
         issue.Write(request.ToContent());
-        issue.Schedule(current.Id);
+        issue.Schedule(current.Id, sendAt);
         audit.Record(current.Id, nameof(NewsletterIssue), issue.Id);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return NextIssueDto.Of(issue);
+    }
+
+    /// <summary>The time named, today in Toronto, if it is still to come; otherwise 400 naming <c>sendTime</c>.</summary>
+    private DateTimeOffset LaterToday(string? sendTime)
+    {
+        var now = time.GetUtcNow();
+        if (TimeOnly.TryParseExact(sendTime, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var at)
+            && EventSchedule.StartOf(EventSchedule.TorontoOf(now).Date, at) is var sendAt && sendAt > now)
+        {
+            return sendAt;
+        }
+
+        throw new ValidationException([new ValidationFailure("SendTime", "Choose a time later today") { ErrorCode = IssueRules.SendTimeInvalid }]);
     }
 }
 

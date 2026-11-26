@@ -39,6 +39,22 @@ internal sealed class NewsletterIssueConfiguration : IEntityTypeConfiguration<Ne
     }
 }
 
+internal sealed class IssueDeliveryConfiguration : IEntityTypeConfiguration<IssueDelivery>
+{
+    public void Configure(EntityTypeBuilder<IssueDelivery> builder)
+    {
+        builder.ToTable("IssueDeliveries");
+        builder.HasKey(d => d.Id);
+        builder.Property(d => d.Id).ValueGeneratedNever();
+        builder.Ignore(d => d.IsPending);
+        // One delivery per subscriber and issue, so a second start writes none (L2-070 AC7).
+        builder.HasIndex(d => new { d.IssueId, d.SubscriptionId }).IsUnique();
+        builder.HasIndex(d => d.SentAt);
+        builder.HasOne<NewsletterIssue>().WithMany().HasForeignKey(d => d.IssueId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<NewsletterSubscription>().WithMany().HasForeignKey(d => d.SubscriptionId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
 internal sealed class SubscriptionConfirmationConfiguration : IEntityTypeConfiguration<SubscriptionConfirmation>
 {
     public void Configure(EntityTypeBuilder<SubscriptionConfirmation> builder)

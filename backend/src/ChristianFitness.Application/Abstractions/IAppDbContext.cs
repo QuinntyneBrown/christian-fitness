@@ -115,6 +115,9 @@ public interface IAppDbContext
     /// <summary>The numbered issues of The Abundant Weekly (L2-070).</summary>
     DbSet<NewsletterIssue> NewsletterIssues { get; }
 
+    /// <summary>The recipients of the issue being sent; none once it is Sent (L2-070 AC7; ADR 0070).</summary>
+    DbSet<IssueDelivery> IssueDeliveries { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

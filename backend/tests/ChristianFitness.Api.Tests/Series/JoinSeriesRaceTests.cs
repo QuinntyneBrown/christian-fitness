@@ -79,6 +79,7 @@ public sealed class JoinSeriesRaceTests(JoinSeriesRaceTests.Factory factory) : I
 
         public DbSet<ChristianFitness.Domain.Newsletter.NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens => db.NewsletterUnsubscribeTokens;
         public DbSet<ChristianFitness.Domain.Newsletter.NewsletterIssue> NewsletterIssues => db.NewsletterIssues;
+        public DbSet<ChristianFitness.Domain.Newsletter.IssueDelivery> IssueDeliveries => db.IssueDeliveries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 

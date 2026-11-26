@@ -20,6 +20,13 @@ internal static class Desk
         return Staff.Cookie(signedIn);
     }
 
+    /// <summary>Signs existing staff in again: a staff session ends 30 minutes after its last request, and the tests move the clock by days.</summary>
+    public static async Task<string> SignInAgainAsync(ApiFactory factory, HttpClient client, string email)
+    {
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
+        return Staff.Cookie(signedIn);
+    }
+
     public static async Task<JsonElement> ReadAsync(HttpClient client, string cookie)
     {
         using var response = await AdminEvents.SendAsync(client, HttpMethod.Get, Path, cookie);
@@ -57,7 +64,7 @@ internal static class Desk
 /// </summary>
 public sealed class SaveIssueTests(NewsletterCandidatesFactory factory) : IClassFixture<NewsletterCandidatesFactory>
 {
-    private static readonly string[] IssueKeys = ["number", "status", "sendAt", "subject", "editorsNote", "leadStoryId", "alsoStoryIds", "eventIds", "verse", "verseReference"];
+    private static readonly string[] IssueKeys = ["number", "status", "sendAt", "subject", "editorsNote", "leadStoryId", "alsoStoryIds", "eventIds", "verse", "verseReference", "missedSend"];
 
     [Fact]
     public async Task Given_a_Draft_issue_When_its_fields_are_saved_Then_the_desk_shows_them_and_the_answer_says_when()

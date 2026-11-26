@@ -94,16 +94,81 @@ public sealed class NewsletterIssue
     /// <summary>The Admin who scheduled the issue; empty while it is a Draft (L2-070 AC13).</summary>
     public Guid? ScheduledById { get; private set; }
 
-    /// <summary>Locks a Draft to go out at its time (L2-070 AC6); any other status throws.</summary>
-    public void Schedule(Guid by)
+    /// <summary>The issue was still a Draft when its time passed, so nothing was sent (L2-070 AC8).</summary>
+    public bool MissedSend { get; private set; }
+
+    /// <summary>When the last email of the issue left; empty until it is Sent.</summary>
+    public DateTimeOffset? SentAt { get; private set; }
+
+    /// <summary>How many people the issue went to (L2-070 AC10); 0 until it is Sent.</summary>
+    public int RecipientCount { get; private set; }
+
+    /// <summary>
+    /// Locks a Draft to go out at its time (L2-070 AC6); any other status throws. A missed issue
+    /// goes out at <paramref name="sendAt"/>, a later time the same day (L2-070 AC8).
+    /// </summary>
+    public void Schedule(Guid by, DateTimeOffset? sendAt = null)
     {
         if (!IsDraft)
         {
             throw new InvalidOperationException("Only a Draft issue can be scheduled.");
         }
 
+        if (MissedSend)
+        {
+            SendAt = sendAt ?? throw new InvalidOperationException("A missed issue is scheduled for a time.");
+            MissedSend = false;
+        }
+
         Status = IssueStatus.Scheduled;
         ScheduledById = by;
+    }
+
+    /// <summary>The Draft's time passed with nothing scheduled (L2-070 AC8).</summary>
+    public void MarkMissed()
+    {
+        if (!IsDraft)
+        {
+            throw new InvalidOperationException("Only a Draft issue misses its time.");
+        }
+
+        MissedSend = true;
+    }
+
+    /// <summary>The Draft's day passed unsent: it waits, an ordinary Draft, for <paramref name="nextSendAt"/> (L2-070 AC8).</summary>
+    public void MoveTo(DateTimeOffset nextSendAt)
+    {
+        if (!IsDraft)
+        {
+            throw new InvalidOperationException("Only a Draft issue moves to another time.");
+        }
+
+        MissedSend = false;
+        SendAt = nextSendAt;
+    }
+
+    /// <summary>Sending starts: the issue can no longer be unscheduled (L2-070 AC6, AC7).</summary>
+    public void StartSending()
+    {
+        if (Status != IssueStatus.Scheduled)
+        {
+            throw new InvalidOperationException("Only a Scheduled issue is sent.");
+        }
+
+        Status = IssueStatus.Sending;
+    }
+
+    /// <summary>The last email left at <paramref name="at"/>; the issue went to <paramref name="recipients"/> people.</summary>
+    public void Complete(DateTimeOffset at, int recipients)
+    {
+        if (Status != IssueStatus.Sending)
+        {
+            throw new InvalidOperationException("Only a Sending issue is completed.");
+        }
+
+        Status = IssueStatus.Sent;
+        SentAt = at;
+        RecipientCount = recipients;
     }
 
     /// <summary>Whether "Unschedule to edit" applies: only until sending starts (L2-070 AC6).</summary>

@@ -58,10 +58,13 @@ public static class IssueRules
     /// <summary>An event picked is not published or has started (L2-070 AC2).</summary>
     public const string EventUnavailable = "event_unavailable";
 
+    /// <summary>A missed issue's new time is not a time still to come today in Toronto (L2-070 AC8).</summary>
+    public const string SendTimeInvalid = "send_time_invalid";
+
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal)
     {
         "subject_too_long", "editors_note_too_long", "verse_too_long", "verse_reference_too_long", TooManyStories, "too_many_events",
-        "subject_required", "editors_note_required", "lead_story_required", StoryUnavailable, EventUnavailable,
+        "subject_required", "editors_note_required", "lead_story_required", StoryUnavailable, EventUnavailable, SendTimeInvalid,
     };
 }
 

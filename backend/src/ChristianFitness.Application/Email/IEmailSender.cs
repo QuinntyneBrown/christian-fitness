@@ -10,6 +10,22 @@ public interface IEmailSender
 }
 
 /// <summary>
+/// Sends the newsletter's issues (ADR 0070): each email is handed to the relay before the call
+/// returns, never through the bounded queue of transactional mail, and a failure is thrown so the
+/// caller can try that recipient again.
+/// </summary>
+public interface IBulkEmailSender
+{
+    Task SendAsync(EmailMessage message, CancellationToken cancellationToken);
+}
+
+/// <summary>
+/// The relay's sending limits (<c>Email:MaxPerMinute</c>, <c>Email:MaxPerDay</c>; ADR 0070). While
+/// either is not set, no issue email is sent: the operator supplies the relay's limits.
+/// </summary>
+public sealed record BulkEmailLimits(int? MaxPerMinute, int? MaxPerDay);
+
+/// <summary>
 /// A plain-text email, with optional headers from <see cref="AllowedHeaders"/> (ADR 0070, ADR 0110).
 /// A class, not a record: a record's generated <c>ToString</c> would print the address and the text,
 /// which may hold a reset or unsubscribe link, if it were ever logged (L2-033 AC2).
