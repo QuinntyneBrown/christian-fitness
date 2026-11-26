@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 47% (17 of 36 journeys; 52 of 113 days)
+**% complete:** 50% (18 of 36 journeys; 55 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3002,3 +3002,50 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 - "Read the initial total after each build" caught the growth only at the end. It should be read
   after each slice, against main, not against the previous slice.
 - "Run the full suite against the built apps": the Vite WebSocket failures did not recur there.
+
+## Journey 3: Staff sign in with Google Workspace
+
+**What slowed it**
+
+- Journey 2 built the shared Google pieces (the OpenID Connect schemes, the external cookie, the
+  identity reader, the account match) at the same time. Its commits were cherry-picked unchanged
+  as they were pushed, and the staff finish waited for its identity reader; the staff-only slices
+  (session key, 12 hours, seed, the screen against fixtures, the docs) went first.
+- Every admin API test signed in through the password-and-code helper, so the removal had to wait
+  until a Google helper (`Staff.SignInWithGoogleAsync`) could replace it. A regex rewrote the 37
+  call sites, asserting the count in each file before writing.
+- A commit picked up the previous slice's message file. One message file per commit, written just
+  before it, and `git show --stat HEAD` after every commit, caught it before the push.
+
+**New lessons**
+
+- Signing in again with a live cookie reused the server-side session key (ASP.NET Core's cookie
+  handler renews the key it read from the request), so a copied cookie inherited the new session.
+  A sign-in now signs the old session out and signs in through a fresh handler; one API test per
+  app proves the old cookie answers 401.
+- Sliding expiration moves `IssuedUtc`, so a maximum session age needs its own item in the
+  ticket (`cf.signedInAt`); a ticket without it counts as past the maximum, which covers sessions
+  issued before the change without a backfill.
+- A `[class.x]` binding was the admin app's first, and pulled 4.3 kB of `@angular/core` into
+  `main` from a lazy component. Bisecting the new template by deleting one binding at a time found
+  it; an `[attr.class]` computed, already paid for by the Google mark, kept the initial total at
+  279.03 kB.
+- An unmatched path meets the fallback policy, which reads the member session, so an absent admin
+  endpoint answers 401 even to staff. Proving a route is gone needs both sessions on the request,
+  and then answers 404 or 405.
+- Google's `hd` claim, checked on the server, decides the staff domain; the email's own domain is
+  not checked, so test staff keep their `@example.org` emails and a Workspace's secondary domains
+  work.
+- The email fallback of an account match must bind only an account with no Google subject yet;
+  otherwise another Google account with the same email takes the account over. A staff test and a
+  member test each break it alone.
+
+**How earlier lessons worked**
+
+- "Read the initial total after each build" caught the 4.3 kB at once, and diffing
+  `--stats-json` inputs against the base build named the module.
+- "Break each rule alone": the domain check, the chooser on "Try another Google account", the
+  finish on return, the 12-hour boundary, the seed's empty password and the account match each
+  failed their own test.
+- "Serve the built apps for e2e" (`CF_SERVE_BUILT=1`) on free ports kept the runs clear of other
+  sessions' servers.
