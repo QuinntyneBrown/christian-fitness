@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 73% (27 of 36 journeys; 82 of 113 days)
+**% complete:** 75% (28 of 36 journeys; 85 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -42,7 +42,7 @@ audit), so those are not listed on their own.
 | 27  | Subscribe to the newsletter            | Member | Anyone subscribes without an account, confirms by email and unsubscribes in one click.                         | 4             |
 | 28  | Build and send the newsletter          | Admin  | Staff build the weekly issue from stories and events, test it, schedule it and send it.                        | 5             |
 | 29  | Read the newsletter on the web         | Member | The latest and earlier issues read on the web as the email did.                                                | 2             |
-| 30  | Send feedback                          | Member | Send an idea, a problem, a correction or thanks from any page, with an optional screenshot.                    | 3             |
+| 30  | ✅ Send feedback                       | Member | Send an idea, a problem, a correction or thanks from any page, with an optional screenshot.                    | 3             |
 | 31  | Answer feedback                        | Admin  | Staff read, reply to, resolve and reopen feedback in an inbox.                                                 | 3             |
 | 32  | ✅ Make a Community Pick               | Both   | Staff pick an event and make branded images and captions for four platforms; `/e/<id>` links land on it.       | 4             |
 | 33  | Set email and notification preferences | Member | Choose which emails and in-app notifications to get, saved together from a save bar.                           | 3             |
