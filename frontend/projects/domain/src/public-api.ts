@@ -20,6 +20,7 @@ export * from './account/reset-password-refusal';
 export * from './errors/api-error';
 export * from './security/antiforgery-interceptor';
 export * from './security/app-path';
+export * from './security/event-link-guard';
 export * from './security/member-auth-guard';
 export * from './security/redirect-signed-in-guard';
 export * from './security/signed-out-guard';

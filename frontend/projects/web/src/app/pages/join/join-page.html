@@ -7,7 +7,7 @@
   "
   altText="Already a member?"
   altLink="Sign in"
-  altHref="/sign-in"
+  [altHref]="signInHref"
   (submitted)="submit()"
 >
   @if (summary().length) {
@@ -36,7 +36,7 @@
   } @else if (refusal() === 'email-taken' && googleAccount()) {
     <cf-alert slot="alert" heading="This email already has a profile"
       >Your Google account's email already has a Christian Fitness profile.
-      <cf-link href="/sign-in">Sign in</cf-link> instead.</cf-alert
+      <cf-link [href]="signInHref">Sign in</cf-link> instead.</cf-alert
     >
   } @else if (refusal() === 'google-limited') {
     <cf-alert slot="alert" heading="Too many attempts"
@@ -92,7 +92,7 @@
         (refusal() === 'email-taken' ? 'An account with this email already exists.' : null)
       "
       [errorLink]="refusal() === 'email-taken' ? 'Sign in instead?' : undefined"
-      errorHref="/sign-in"
+      [errorHref]="signInHref"
       [readonly]="submitting()"
       (valueChange)="edit('email', $event)"
     />
