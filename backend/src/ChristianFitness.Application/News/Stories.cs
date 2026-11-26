@@ -90,6 +90,7 @@ public static class StoryRules
 {
     public const string StatusInvalid = "status_invalid";
     public const string PageInvalid = "page_invalid";
+    public const string SkipInvalid = "skip_invalid";
     public const string SlugTaken = "slug_taken";
     public const string VersionRequired = "version_required";
     public const string ImageInvalid = "image_invalid";
@@ -99,7 +100,7 @@ public static class StoryRules
 
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal)
     {
-        StatusInvalid, PageInvalid,
+        StatusInvalid, PageInvalid, SkipInvalid,
         "headline_required", "headline_too_long", "summary_too_long", "text_required", "text_too_long",
         "section_required", "section_invalid", "byline_required", "byline_invalid", "placement_invalid",
         "points_to_invalid", "next_step_too_long", "next_step_link_invalid", "slug_invalid", "slug_taken",
