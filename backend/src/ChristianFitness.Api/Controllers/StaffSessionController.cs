@@ -45,6 +45,15 @@ public sealed class StaffSessionController(ISender sender) : ControllerBase
             new StartGoogleSignInCommand { App = GoogleApp.Staff, Intent = GoogleIntents.SignIn, SelectAccount = request?.SelectAccount ?? false },
             cancellationToken).ConfigureAwait(false));
 
+    /// <summary>
+    /// Finishes staff Google sign-in with the identity Google sent back, and answers the staff
+    /// session (L2-018 AC1, AC2; ADR 0100). Anonymous: the identity, not a session, is what it reads.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("google")]
+    public async Task<IActionResult> CompleteGoogle(CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new CompleteStaffGoogleSignInCommand(), cancellationToken).ConfigureAwait(false));
+
     /// <summary>Who is signed in to the admin app.</summary>
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>

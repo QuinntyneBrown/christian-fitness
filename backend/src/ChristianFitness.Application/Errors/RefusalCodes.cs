@@ -169,6 +169,9 @@ public static class RefusalCodes
     /// <summary>No member account uses this Google account yet; the screen offers Join (L2-049 AC11, L2-004 AC9).</summary>
     public const string NoAccount = "no_account";
 
+    /// <summary>A Google account outside the team's Workspace domain tried Staff sign in (L2-018 AC2; ADR 0100).</summary>
+    public const string WrongDomain = "wrong_domain";
+
     /// <summary>A profile names more than 5 goals (L2-006 AC3).</summary>
     public const string TooManyGoals = "too_many_goals";
 

@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text;
+using ChristianFitness.Api.Tests.Google;
 using ChristianFitness.Api.Tests.Sessions;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Persistence;
@@ -78,6 +80,48 @@ internal static class Staff
     {
         using var passwordStep = await SignInAsync(client, email, Password);
         return await VerifyAsync(client, StepCookie(passwordStep), CodeAt(now ?? DateTimeOffset.UtcNow));
+    }
+
+    /// <summary>Where Staff sign in finishes Google sign-in (ADR 0100).</summary>
+    public const string GoogleFinishPath = "/api/admin/session/google";
+
+    /// <summary>
+    /// The Google Workspace account of <paramref name="email"/> in the team's domain. Its subject is
+    /// worked from the email, so the same person comes back as the same Google account.
+    /// </summary>
+    public static GoogleAccount WorkspaceAccount(string email) => new()
+    {
+        Subject = "2" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(email.ToUpperInvariant())))[..20],
+        Email = email,
+        HostedDomain = FakeGoogle.StaffDomain,
+    };
+
+    /// <summary>Finishes staff Google sign-in with <paramref name="external"/>, the <c>__Host-cf-google</c> cookie or none, and any further <paramref name="cookies"/>.</summary>
+    public static async Task<HttpResponseMessage> FinishGoogleAsync(HttpClient client, string? external, string? cookies = null)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(GoogleFinishPath, UriKind.Relative))
+        {
+            Content = JsonContent.Create(new { }),
+        };
+        var sent = string.Join("; ", new[] { external, cookies }.Where(c => c is not null));
+        if (sent.Length > 0)
+        {
+            request.Headers.Add("Cookie", sent);
+        }
+
+        return await client.SendAsync(request, TestContext.Current.CancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Signs in to the admin app as staff do: Google, with <paramref name="account"/> (by default
+    /// the Workspace account of <paramref name="email"/>), then the screen's finish. Answers the
+    /// finish's response.
+    /// </summary>
+    public static async Task<HttpResponseMessage> SignInWithGoogleAsync(ApiFactory factory, HttpClient client, string email, GoogleAccount? account = null, string? cookies = null)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        var external = await GoogleSignIn.ExternalCookieAsync(client, factory.Google, GoogleApp.Staff, account ?? WorkspaceAccount(email)).ConfigureAwait(false);
+        return await FinishGoogleAsync(client, external, cookies).ConfigureAwait(false);
     }
 
     /// <summary>The <c>Set-Cookie</c> value of the staff session cookie, with its attributes.</summary>
