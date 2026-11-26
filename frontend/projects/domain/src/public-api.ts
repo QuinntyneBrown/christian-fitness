@@ -113,3 +113,5 @@ export * from './news/copied-flag';
 export * from './news/story-reads';
 export * from './news/front-page';
 export * from './feedback/feedback-form';
+export * from './news/subscribe';
+export * from './news/feeds';

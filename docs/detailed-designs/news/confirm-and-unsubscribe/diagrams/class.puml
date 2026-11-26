@@ -15,17 +15,15 @@ class NewsletterSubscription <<entity>> {
   +Guid Id
   +string Email
   +SubscriptionStatus Status
-  +bool Weekly
-  +NewsletterExtras Extras
   +DateTimeOffset? ConsentedAt
+  +string? ConsentSource
   +DateTimeOffset? UnsubscribedAt
-  +Confirm(extras, now): void
+  +Confirm(now): void
   +Unsubscribe(now): void
   +IsPurgeableAt(now): bool
 }
 class SubscriptionConfirmation <<entity>> {
   +string TokenHash
-  +NewsletterExtras Extras
   +DateTimeOffset ExpiresAt
   +DateTimeOffset? UsedAt
   +IsUsableAt(now): bool
@@ -40,7 +38,6 @@ class ConfirmSubscriptionHandler {
 class SubscriptionConfirmedDto {
   +string Email
   +DateTimeOffset FirstIssueAt
-  +NewsletterExtras Extras
 }
 class UnsubscribeCommand {
   +string Token
@@ -49,39 +46,37 @@ class UnsubscribeHandler {
   +Handle(command): Task<UnsubscribedDto>
 }
 class UnsubscribedDto {
-  +string Email
+  +string? Email
 }
-interface INewsletterTokens {
-  +IssueUnsubscribeToken(subscriptionId): string
-  +FindSubscription(token): Guid?
+class NewsletterUnsubscribeToken <<entity>> {
+  +Guid SubscriptionId
+  +string TokenHash
+  +DateTimeOffset IssuedAt
+  +{static} Issue(subscriptionId, now): (NewsletterUnsubscribeToken, string)
 }
-class HashedNewsletterTokens
 class NewsletterEmails {
-  +Confirmation(subscription, token): EmailMessage
-  +Footer(subscription): string
-  +UnsubscribeHeaders(subscription): headers
+  +Confirmation(subscription, token, now): EmailMessage
+  -WithFooter(subscription, text, now): EmailMessage
 }
 class EmailMessage {
   +string To
   +string Subject
   +string Text
-  +Headers (to add)
+  +Headers: List-Unsubscribe, List-Unsubscribe-Post only
 }
-class PurgeUnsubscribedCommand
+class PurgeNewsletterSubscriptionsCommand
 class PublishingClock <<BackgroundService>>
-class NewsletterUpkeep <<scheduler job>>
 NewsletterSubscription "1" *-- "*" SubscriptionConfirmation
 ConfirmSubscriptionHandler ..> ConfirmSubscriptionCommand : handles
 ConfirmSubscriptionHandler ..> SubscriptionConfirmation : uses once
 ConfirmSubscriptionHandler ..> NewsletterSubscription : confirms
 ConfirmSubscriptionHandler ..> SubscriptionConfirmedDto
 UnsubscribeHandler ..> UnsubscribeCommand : handles
-UnsubscribeHandler ..> INewsletterTokens
+UnsubscribeHandler ..> NewsletterUnsubscribeToken : finds by hash
 UnsubscribeHandler ..> NewsletterSubscription : unsubscribes
 UnsubscribeHandler ..> UnsubscribedDto
-INewsletterTokens <|.. HashedNewsletterTokens
-NewsletterEmails ..> INewsletterTokens
+NewsletterSubscription "1" *-- "*" NewsletterUnsubscribeToken
+NewsletterEmails ..> NewsletterUnsubscribeToken : issues
 NewsletterEmails ..> EmailMessage : builds
-PublishingClock ..> NewsletterUpkeep : runs daily
-NewsletterUpkeep ..> PurgeUnsubscribedCommand : sends daily
+PublishingClock ..> PurgeNewsletterSubscriptionsCommand : sends each tick
 @enduml

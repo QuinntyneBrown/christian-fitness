@@ -10,7 +10,7 @@ law asks for (`docs/mocks/README.md`, "Newsletter confirmation and unsubscribe")
 
 - **subscription** — an email address's standing with the newsletter: Pending, Subscribed or Unsubscribed
 - **pending** — address that asked to subscribe and has not followed its confirmation link
-- **extras** — the three optional emails beside the Weekly: Event alerts, Training plan of the week and Morning devotion
+- **extras** — the three optional emails beside the Weekly (Event alerts, Training plan of the week and Morning devotion), deferred
 - **network** — client address as rate limits count it: an IPv4 address, or the /64 of an IPv6 address (`IClientAddress`)
 
 This feature covers the Subscribe screen of the Member web app at `/subscribe` (mock
@@ -26,103 +26,92 @@ to send the newsletter, never shared, and never written to a span, metric or log
 
 ## Description
 
+Read with ADR 0110, which settles what this design left open and what waits for later journeys.
+
 ### Member web app
 
-- **Newsletter box on `LandingPage`** — designed with the landing page (`L2-001` AC5,
-  `member-access/view-landing-page`). "Subscribe free" navigates to `/subscribe` with the typed
-  email in the router's navigation state, not in the URL, so no address reaches an access log or a
-  `Referer`; "Or follow by RSS" navigates to `/subscribe#rss` (`L2-057` AC1).
+- **Newsletter box on `LandingPage`** — the library's `cf-newsletter-box`, in the rail between
+  Upcoming events and Most read (`L2-001` AC5, `member-access/view-landing-page`). "Subscribe free"
+  navigates to `/subscribe` with the typed email in the router's navigation state, not in the URL,
+  so no address reaches an access log or a `Referer`; "Or follow by RSS" navigates to
+  `/subscribe#rss` (`L2-057` AC1). The box checks nothing: Subscribe does.
 - **`SubscribePage`** — routed page at `subscribe` in `projects/web`, loaded with `loadComponent`,
-  outside the member shell. Its `providers` bind `NEWSLETTER_SERVICE` to `HttpNewsletterService`,
-  `FEEDS_SERVICE` and `CLIPBOARD_SERVICE` (`publish-rss-feeds`). On open it fills the email field
-  from navigation state, asks `summary()` and, at `#rss`, moves focus to the feeds heading. It
-  composes the mock's blocks: `masthead masthead--plain` with Back to news, `subscribe` (lead,
-  form, note), `issue-preview` and `rss`. Neither reader count nor add-on controls are shown;
-  add-on emails are deferred until someone owns writing and scheduling them. At XS the email field and button stack and the
-  latest issue follows the form (`L2-057` AC9); the layout lives in the blocks' stylesheets.
-- **`SubscribeForm`** — signal store in the `domain` library, on the page's `providers`. It holds
-  the email and a state: `idle`,
-  `invalid`, `submitting`, `sent`, `failed`, `limited`. `emailError(email)` answers "That email
-  doesn't look right. Check for a typo and try again." for an empty value or one that is not
-  `local@domain.tld` in form (the exact pattern is `<TO SUPPLY>`; the server is the authority).
-  Typing clears `invalid` (`L2-057` AC3). A refusal with `too_many_attempts` sets `limited`; a 5xx
-  or no answer sets `failed`; both keep the email (`L2-057` AC6, AC7). Unit tests cover
-  each transition.
-- **Presentation** — the form is built from the library's `TextField` (`input--pill input--lg`),
-  `Button` (`btn--primary btn--lg`, `aria-busy` while submitting) and `Alert` for `error`, `limited`
-  and `link-expired`. The outcome "Check your inbox" is a
-  `role="status"` region that takes focus, names the address as text and offers "Read last week's
-  issue" (`/newsletter`) and "Use a different email", which returns the form empty (`L2-057` AC4).
-  **`IssuePreview`** (block `issue-preview`) shows "Latest issue", the number, the lead story with
-  its image and two more titles with their sections, and "Read the full issue" (`L2-059`). Whether
-  `subscribe` and `issue-preview` become design-system components is listed under Open questions.
+  outside the member shell, so members and visitors see the same page. Its `providers` bind
+  `NEWSLETTER_SERVICE` to `HttpNewsletterService`, `FEEDS_SERVICE` to `HttpFeedsService` and
+  `CLIPBOARD_SERVICE` (`publish-rss-feeds`). On open it fills the email field from navigation
+  state and, at `#rss`, moves focus to the feeds heading. It holds the screen's state in signals
+  (the view, the email, the field's error, the alert and whether it is sending) and composes the
+  plain `cf-masthead` (Back to news), `cf-subscribe`, `cf-feed-list` and `cf-footer`. Neither a
+  reader count nor add-on controls are shown; add-on emails are deferred until someone owns writing
+  and scheduling them. At XS the email field and button stack (`L2-057` AC9); the layout lives in
+  the blocks' stylesheets.
+- **Rules in `domain`** — `subscribeEmailErrorOf(email)` answers "That email doesn't look right.
+  Check for a typo and try again." for an empty value or one Join's email rule refuses (not blank,
+  at most 254 characters trimmed, one `@`, a dot in the domain, no white space), the rule the API's
+  validator applies too, with the same case table in both suites. Typing clears the error
+  (`L2-057` AC3). `subscribeRefusalOf(failure)` reads a refusal: 400 `validation_failed` marks the
+  field, 429 shows "Too many sign-ups", anything else, a 5xx or no answer included, shows "We
+  couldn't subscribe you"; both alerts keep the email (`L2-057` AC6, AC7). Unit tests cover each
+  row.
+- **Presentation** — `cf-subscribe` (block `subscribe`) draws the title, lead and state area: the
+  form with `cf-form-field`, an `input--pill input--lg` field and `cf-button` ("Subscribing…",
+  disabled and `aria-busy` while sending, the field read-only), and `cf-alert` for `error`,
+  `limited` and `link-expired`. The outcome "Check your inbox" is a `role="status"` panel that takes
+  focus, names the address as text and offers "Use a different email", which returns the form
+  empty and focused (`L2-057` AC4). "Read last week's issue" and the latest issue preview wait for
+  journey 29, when issues exist (ADR 0110).
 - **`NewsletterApi` / `NEWSLETTER_SERVICE`** — contract and token in the `api` library:
-  `summary()`, `subscribe(request)`, and `confirm(token)` and `unsubscribe(token)` from
-  `confirm-and-unsubscribe`, and `issue(number?)` from `read-newsletter-on-web`.
-  **`HttpNewsletterService`** implements it and errors with an `ApiError`.
+  `subscribe(request)`, and `confirm(token)` and `unsubscribe(token)` from
+  `confirm-and-unsubscribe`. **`HttpNewsletterService`** implements it and errors with an
+  `ApiError`.
 
 ### Christian Fitness API
 
-- **`PublicNewsletterController`** — `[AllowAnonymous]` under `api/public/newsletter`. `GET`
-  sends `GetNewsletterSummaryQuery`; `POST subscriptions` sends `SubscribeCommand` and answers 202.
-  Antiforgery applies to the POST as to every unsafe request (`L2-030` AC3); the page fetches a
-  token from `GET /api/antiforgery` first.
-- **`GetNewsletterSummaryQuery`** / handler — answers `NewsletterSummaryDto`: `name`, `about`,
-  `cadence` ("Every Saturday, 7 AM") and `latest` (`IssuePreviewDto`: number, lead
-  story and two more from the most recent Sent issue, or none). The name, description and cadence
-  come from configuration (`Newsletter:Name`, `Newsletter:About`, `Newsletter:Cadence`), documented
-  in `docs/operations/settings.md` with the change.
-- **`SubscribeCommand`** (`Email`, `Extras`) with **`SubscribeValidator`** — refuses an empty or
-  malformed address, or one over 254 characters, with 400 `validation_failed` and
-  `fieldCodes.email` = `email_invalid`.
-- **`SubscribeHandler`** — first takes a lease from **`SubscriptionLimiter`**, a new subclass of
+- **`PublicNewsletterController`** — `[AllowAnonymous]` under `api/public/newsletter`.
+  `POST subscriptions` sends `SubscribeCommand` and answers 202 with no body. Antiforgery applies
+  to the POST as to every unsafe request (`L2-030` AC3); the app fetches a token from
+  `GET /api/antiforgery` first.
+- **`SubscribeCommand`** (`Email`) with **`SubscribeValidator`** — refuses an empty or malformed
+  address, or one over 254 characters, with 400 `validation_failed` and `fieldCodes.email` =
+  `email_invalid`.
+- **`SubscribeHandler`** — first takes a lease from **`SubscriptionLimiter`**, a subclass of
   `AddressRateLimiter` (5 an hour per network); with none left it refuses with 429
   `too_many_attempts` (`L2-057` AC7). Every submission counts and none is given back, so the limit
   says nothing about which addresses are subscribed. It then normalizes the address (trimmed,
   lower case) and finds its `NewsletterSubscription`:
-  - none or Unsubscribed — `NewsletterSubscription.Request` makes it Pending; a new
-    `SubscriptionConfirmation` is issued and the confirmation email sent;
-  - Pending — a new confirmation is issued with the extras now chosen and the email sent again;
-  - Subscribed — `UpdateExtras` changes any explicitly submitted extras without confirmation,
-    leaving omitted extras, the address and Weekly subscription unchanged. If extras change,
-    send "Your newsletter settings changed" with an undo link (`L2-057` AC5).
+  - none, Pending or Unsubscribed — `Request` or `RequestAgain` makes it Pending from now, so its
+    purge starts again; a new `SubscriptionConfirmation` is issued and the confirmation email sent
+    (`L2-057` AC5);
+  - Subscribed — nothing changes and nothing is sent.
 
-  Each case answers `SubscribeAnswerDto(email)` with 202; the answer does not say which case ran.
+  Each case answers 202 with no body; the answer does not say which case ran.
 - **`NewsletterSubscription`** — entity in `ChristianFitness.Domain/Newsletter`: `Email` (unique,
-  normalized), `Status`, `Weekly`, `Extras` (`NewsletterExtras`: `EventAlerts`, `TrainingPlan`,
-  `MorningDevotion`), `RequestedAt`, `ConsentedAt`, `ConsentSource`, `UnsubscribedAt`. A class with no generated
-  `ToString`, so the address is never printed by accident (the pattern of `EmailMessage`).
-  Each Pending request updates `RequestedAt`; scheduled work purges a still-Pending subscription
-  and its confirmations 30 days after the most recent request (ADR 0078).
-- **`SubscriptionConfirmation`** — entity: the SHA-256 hash of a 32-byte base64url token, the
-  extras chosen, `ExpiresAt` 7 days after issue and `UsedAt`, as `PasswordReset` keeps its token
-  (ADR 0010). The token exists only in the email.
-- **`NewsletterEmails`** — Application service that composes the confirmation email: who sent it
-  (Christian Fitness and its postal address), why the reader received it, the one link
-  `<MemberApp:BaseUrl>/subscribe#confirm=<token>` (`MemberAppAddress`, never the request's `Host`),
-  and that ignoring it subscribes nobody (`L2-058` AC1). It is sent through the existing
-  **`IEmailSender`**: `QueuedEmailSender` queues it and returns, so the answer takes as long
-  whether or not an email was sent (ADR 0010).
-- **Settings-change undo** — the notification links to an opaque, scoped token identifying the
-  change, not the address or an unsubscribe action. Undo restores the previous extras for that
-  change without changing the address or Weekly subscription; it must not overwrite subsequent
-  settings changes. Tokens and addresses are never logged. The public form omits extras, so its
-  current submission leaves them unchanged. The accepted risk is that someone knowing an address
-  can otherwise add or remove submitted extras without confirming ownership.
+  normalized), `Status`, `RequestedAt`, `ConsentedAt`, `ConsentSource`, `UnsubscribedAt`. A class
+  with no generated `ToString`, so the address is never printed by accident. Each Pending request
+  updates `RequestedAt`; the publishing clock purges a still-Pending subscription and its
+  confirmations 30 days after the most recent request (ADR 0078, ADR 0110).
+- **`SubscriptionConfirmation`** — entity: the SHA-256 hash of a 32-byte base64url token,
+  `ExpiresAt` 7 days after issue and `UsedAt`, as `PasswordReset` keeps its token (ADR 0010). The
+  token exists only in the email.
+- **`NewsletterEmails`** — Application service that composes the confirmation email: why the
+  reader received it, the one link `<MemberApp:BaseUrl>/subscribe#confirm=<token>`
+  (`MemberAppAddress`, never the request's `Host`), that it works once and lasts 7 days, and that
+  ignoring it subscribes nobody (`L2-058` AC1). Every newsletter email ends with the footer of
+  `confirm-and-unsubscribe`: Christian Fitness, `Organisation:PostalAddress` and an Unsubscribe
+  link, with the `List-Unsubscribe` headers. It is sent through the existing **`IEmailSender`**:
+  `QueuedEmailSender` queues it and returns, so the answer takes as long whether or not an email
+  was sent (ADR 0010).
 - **Telemetry** — spans carry the route template only (`TelemetryRedactionProcessor`); no log line
   names the address or the token; the delivery failure log names the exception type only, as
-  `EmailDispatcher` does today.
+  `EmailDispatcher` does.
 
 ### Open questions
 
-- **Extras of a subscribed address.** `L2-057` AC5 updates a subscribed address's extras on a new
-  submission, with no confirmation. Anyone who knows the address can then turn its extras on or
-  off. The specification settles it; the risk is recorded for review.
-- **Email pattern.** The client check and `email_invalid` need one pattern; the case table is
-  `<TO SUPPLY>` and is shared by both suites (`AGENTS.md`, "Contracts").
-- **Design-system gaps.** The mocks' blocks `subscribe`, `issue-preview`, `rss` and `feed` have no
-  page in `docs/design-system/components/`. They are built as composites from library components
-  unless the design system adds them first.
+- **Extras.** `L2-057` AC5 updates a subscribed address's extras on a new submission. The extras
+  are deferred, so the form, the API and the subscription carry none, and the "Your newsletter
+  settings changed" email with its undo link is designed with them (ADR 0110).
+- **Design-system gaps.** The mocks' `issue-preview` block has no page in
+  `docs/design-system/components/`; it is built with journey 29.
 
 ## Requirements
 
@@ -146,14 +135,14 @@ delivery service.
 
 ### Containers
 
-The Member web app reads the newsletter's summary and posts a subscription to the API, which
-stores it and queues the confirmation email.
+The Member web app posts a subscription to the API, which stores it and queues the confirmation
+email.
 
 ![C4 container view for subscribing to the newsletter](diagrams/c4-container.png)
 
 ### Components
 
-`SubscribePage` holds a `SubscribeForm` and calls `NEWSLETTER_SERVICE`; `SubscribeHandler`
+`SubscribePage` checks the email with the domain's rules and calls `NEWSLETTER_SERVICE`; `SubscribeHandler`
 takes a lease from `SubscriptionLimiter`, updates `NewsletterSubscription` and sends through
 `IEmailSender`.
 
@@ -161,15 +150,15 @@ takes a lease from `SubscriptionLimiter`, updates `NewsletterSubscription` and s
 
 ### Class structure
 
-A `NewsletterSubscription` owns its `NewsletterExtras` and its `SubscriptionConfirmation` tokens;
+A `NewsletterSubscription` owns its `SubscriptionConfirmation` tokens;
 `SubscriptionLimiter` is one more `AddressRateLimiter`.
 
 ![Class diagram for subscribing to the newsletter](diagrams/class.png)
 
 ### Behaviour — open Subscribe
 
-The landing page passes the typed email in navigation state or opens the feeds; Subscribe loads
-the newsletter's summary and latest issue (`L2-057` AC1–AC2).
+The landing page passes the typed email in navigation state or opens the feeds; Subscribe shows
+its form at once and loads the feeds (`L2-057` AC1–AC2).
 
 ![Sequence diagram for opening Subscribe](diagrams/sequence-open-subscribe.png)
 

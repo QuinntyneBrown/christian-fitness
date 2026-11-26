@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 75% (28 of 36 journeys; 85 of 113 days)
+**% complete:** 79% (29 of 36 journeys; 89 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3480,3 +3480,65 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   exclude the new correction line for read-story's exact list to hold.
 - "Read the initial total after each slice" kept `main` flat: the form, the screenshot field and
   the correction link are in lazy chunks, and `afterNextRender` was already in the initial bundle.
+
+## Journey 27: Subscribe to the newsletter
+
+**What slowed it**
+
+- A purge break that only stopped deleting unsubscribe tokens still passed: the break loaded the
+  tokens into the change tracker, and EF Core InMemory cascaded their removal with the
+  subscription. The honest break removes the whole line, so nothing loads them.
+- The feed-count test first failed for the wrong reason: the test factory publishes a story at its
+  time plus one minute, so a story meant to sit just outside the 28-day window had to be placed at
+  28 days and one minute.
+- The feeds' failure test answered 500 and opened the server-error screen: the web app's
+  `serverErrorInterceptor` takes over on any 5xx to a GET under `/api`, even a secondary one. The
+  spec answers with no response (`abort`) for "no answer".
+- The web app's copy of the tokens had drifted: `--border-width-rule` was missing although landing
+  and the headline list already read it. The newsletter box's frame made it visible.
+- The design-system build script rewrote every page's line endings; only the rebuilt
+  `newsletter-box.html` was kept, the rest restored.
+- After the rebase, one full backend run failed "an old unsubscribe link unsubscribes again" with
+  400 on a subscribe, and the class passed alone. The test that proves a link survives "every key
+  revoked" called `IKeyManager.RevokeAllKeys` on the default key ring, which lives in the user
+  profile and is shared by every fixture, every test process and any API running on the machine:
+  an antiforgery token issued in between was refused. The newsletter fixture now keeps its keys in
+  a temporary folder of its own (`DataProtection:KeysPath`), and the 18 revocations the runs had
+  written to the profile were removed.
+- The worktree guard refused compound and heredoc shell commands; small Python edit scripts with
+  exact-match asserts, run one per command, did the edits.
+
+**New lessons**
+
+- To prove a purge deletes dependent rows, break it so nothing tracks them; InMemory cascades a
+  delete only to entities it already tracks, so a tracked break proves nothing.
+- Read a factory's offsets before placing data on a window's edge; work the edge from the stored
+  value, not the value passed in.
+- A screen whose secondary GET may fail on its own meets the server-error interceptor on a 5xx;
+  prove its "no answer" state with an aborted request, and record the 5xx behaviour in the ADR.
+- Pass a typed address between screens in the router's navigation state, never the URL: no access
+  log or `Referer` then carries it, and a reload simply drops it.
+- A token in a fragment leaves the address bar with `Location.replaceState` before the request
+  goes out; prove it by reading the URL while the request is held open.
+- A test that revokes, rotates or writes Data Protection keys gives its fixture a key folder of its
+  own; without `DataProtection:KeysPath` the keys are the user profile's, shared across processes,
+  and the failure lands in some other test, intermittently.
+- One copied flag naming the address last copied is simpler than a flag per item and keeps a
+  single "Copied" on screen.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": twelve backend breaks (the antiforgery exemption, unsubscribe once,
+  spent links, the clock running the purge, 30 and 29 days, the purge edge, tokens and
+  confirmations deleted, Subscribed never purged, the feeds window, Pros in All, halves up,
+  readers-only stories) and twelve frontend breaks (the email handed over, the token leaving the
+  bar, typing clearing the error, read-only while busy, expired versus failed, selecting on
+  refusal, RSS focus, the encoded Feedly address, panel focus, one "Copied", the footer's RSS link,
+  the rail order) each failed their own test.
+- "Read the initial total after each slice, against the base": web reads 278.51 kB against
+  278.49 kB on main; the 0.02 kB is the restored `--border-width-rule` token in the global styles.
+  Admin stays at 279.12 kB. The page and its three library blocks load with the route.
+- "Re-rendering PlantUML is part of the slice": every diagram the three designs touched was
+  re-rendered with `C:\tools\plantuml.jar`.
+- Docker was not running, so the nginx `log_format` without the query string was reviewed, not run
+  through `nginx -t`.

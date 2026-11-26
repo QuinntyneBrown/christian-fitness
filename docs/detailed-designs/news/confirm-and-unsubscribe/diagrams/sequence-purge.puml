@@ -7,10 +7,9 @@ skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "PublishingClock" as clock
-  participant "NewsletterUpkeep" as upkeep
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "PurgeUnsubscribedHandler" as h
+  participant "PurgeNewsletterSubscriptionsHandler" as h
   participant "SendDueIssueHandler" as send
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
@@ -19,12 +18,12 @@ end box
 == Every issue ==
 send -> db : Recipients: Status = Subscribed and the kind switched on only
 db --> send : No unsubscribed address (L2-058 AC6)
-== Once a day ==
+== Every 30-second tick, after the due stories ==
 clock -> db : Take lease on TimeProvider tick
-clock -> upkeep : Run daily job when due
-upkeep -> h : Send PurgeUnsubscribedCommand
-h -> db : Delete subscriptions UnsubscribedAt at least 29 days ago, so none outlives 30 days, with their confirmations
+clock -> h : Send PurgeNewsletterSubscriptionsCommand
+h -> db : Pending with RequestedAt at least 30 days ago, or Unsubscribed with UnsubscribedAt at least 29 days ago (indexed by status and time)
+h -> db : Delete them with their confirmations and unsubscribe tokens (L2-058 AC6, AC9)
 db --> h : Count deleted
-h --> upkeep : Done; the log carries the count only
+h --> clock : Count; the log carries the count only
 note over h : An address that subscribed again is Pending or Subscribed and is not deleted (L2-058 AC6)
 @enduml

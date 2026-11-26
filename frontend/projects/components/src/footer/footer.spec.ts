@@ -19,7 +19,7 @@ describe('Footer', () => {
     ]);
   });
 
-  it('as the news footer, links to RSS with its mark, Privacy and Terms after the copyright', async () => {
+  it('as the news footer, links to the newsletter, RSS with its mark, Privacy and Terms after the copyright', async () => {
     const fixture = TestBed.createComponent(Footer);
     fixture.componentRef.setInput('variant', 'news');
     fixture.componentRef.setInput('year', 2026);
@@ -31,11 +31,12 @@ describe('Footer', () => {
     );
     const links = [...el.querySelectorAll('.site-footer__links a')];
     expect(links.map((a) => [a.textContent?.trim(), a.getAttribute('href')])).toEqual([
-      ['RSS', '/feed'],
+      ['Newsletter', '/subscribe'],
+      ['RSS', '/subscribe#rss'],
       ['Privacy', '/privacy'],
       ['Terms', '/terms'],
     ]);
-    expect(links[0].querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(links[1].querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('names this year when the screen gives none', async () => {

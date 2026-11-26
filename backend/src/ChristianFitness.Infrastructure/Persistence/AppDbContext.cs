@@ -4,6 +4,7 @@ using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.News;
+using ChristianFitness.Domain.Newsletter;
 using ChristianFitness.Domain.Scheduling;
 using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
@@ -68,6 +69,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes => Set<ChristianFitness.Domain.Feedback.FeedbackNote>();
+
+    public DbSet<NewsletterSubscription> NewsletterSubscriptions => Set<NewsletterSubscription>();
+
+    public DbSet<SubscriptionConfirmation> SubscriptionConfirmations => Set<SubscriptionConfirmation>();
+
+    public DbSet<NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens => Set<NewsletterUnsubscribeToken>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();

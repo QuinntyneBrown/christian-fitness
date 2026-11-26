@@ -98,6 +98,13 @@ internal static class AntiforgerySetup
                 return;
             }
 
+            // Only an action posted from no page of the app opts out, the newsletter's one-click
+            // unsubscribe (RFC 8058; ADR 0110), whose token is its only credential.
+            if (context.ActionDescriptor.EndpointMetadata.OfType<IgnoreAntiforgeryTokenAttribute>().Any())
+            {
+                return;
+            }
+
             if (!await antiforgery.IsRequestValidAsync(context.HttpContext).ConfigureAwait(false))
             {
                 context.Result = new ObjectResult(new ProblemDetails

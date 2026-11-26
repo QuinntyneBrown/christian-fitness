@@ -1,0 +1,119 @@
+// Subscribe's main column (docs/design-system/assets/components.css: "Subscribe: newsletter and
+// RSS", subscribe; "Forms": input--pill, input--lg). The field is cf-form-field's, the alerts
+// cf-alert's and the buttons cf-button's.
+@use '../form-field/control';
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+// The design system's display type (components.css: "display").
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.detail-title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-display);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-6xl);
+  }
+}
+
+.subscribe__lead {
+  margin-top: var(--space-4);
+  max-width: var(--layout-measure-narrow);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+}
+
+.subscribe__state {
+  margin-top: var(--space-8);
+  max-width: var(--layout-measure-narrow);
+}
+
+.subscribe__alert {
+  margin-bottom: var(--space-6);
+}
+
+.subscribe__checking {
+  color: var(--color-fg-muted);
+}
+
+.subscribe__row {
+  margin-top: var(--space-1-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  @media (min-width: 40rem) {
+    flex-direction: row;
+  }
+}
+
+.input {
+  @include control.control;
+  @include control.read-only;
+  margin-top: 0;
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.input--pill {
+  border-radius: var(--radius-full);
+  padding-inline: var(--space-5);
+}
+
+.input--lg {
+  min-height: var(--control-height-lg);
+}
+
+.subscribe__note {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.subscribe__panel {
+  border-left: var(--border-width-thick) solid var(--color-accent);
+  background: var(--color-accent-subtle);
+  padding: var(--space-6);
+}
+
+.subscribe__panel-icon {
+  width: var(--space-7);
+  height: var(--space-7);
+  color: var(--color-fg-accent);
+}
+
+.subscribe__panel-title {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.subscribe__panel-text {
+  margin-top: var(--space-2);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+
+  strong {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-default);
+  }
+}
+
+.subscribe__panel-actions {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

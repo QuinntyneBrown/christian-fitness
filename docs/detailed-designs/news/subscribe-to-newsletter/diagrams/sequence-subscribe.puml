@@ -8,7 +8,7 @@ skinparam ArrowColor #344054
 actor "Visitor" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "SubscribePage" as page
-  participant "SubscribeForm" as form
+  participant "subscribeEmailErrorOf (domain)" as form
   participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
@@ -24,13 +24,13 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "QueuedEmailSender" as mail
 end box
 actor -> page : Press "Subscribe free"
-page -> form : submit(email)
+page -> form : subscribeEmailErrorOf(email)
 alt email empty or malformed
-  form --> page : invalid
+  form --> page : the error
   page --> actor : aria-invalid="true" and "That email doesn't look right..." ; nothing sent (L2-057 AC3)
 else email looks valid
-  form --> page : submitting
-  page --> actor : "Subscribing…", button disabled, fields read-only (L2-057 AC4)
+  form --> page : none
+  page --> actor : "Subscribing…", button disabled, field read-only (L2-057 AC4)
   page -> client : subscribe({ email })
   client -> ctrl : POST /api/public/newsletter/subscriptions
   ctrl -> h : Send SubscribeCommand
@@ -49,18 +49,14 @@ else email looks valid
       h -> db : Save subscription and new SubscriptionConfirmation (token hash, 7 days)
       h -> mail : Confirmation email with one link (L2-058 AC1)
     else Pending
-      h -> db : New SubscriptionConfirmation; earlier ones stay until expiry
+      h -> sub : RequestAgain(now): the purge starts again
+      h -> db : New SubscriptionConfirmation; earlier ones stay until expiry or use
       h -> mail : Confirmation email again (L2-057 AC5)
     else Subscribed
-      h -> sub : Keep omitted extras unchanged
-      opt extras explicitly submitted and changed
-        h -> sub : UpdateExtras(extras)
-        h -> db : Save change and scoped undo token
-        h -> mail : Settings changed email with undo link
-      end
+      h -> sub : Nothing changes; nothing is sent
     end
-    h --> ctrl : SubscribeAnswerDto(email), the same for every case
-    ctrl --> client : 202 JSON
+    h --> ctrl : Nothing, the same for every case
+    ctrl --> client : 202, no body
     client --> page : Answer
     page --> actor : "Check your inbox" (role="status", focused) naming the address (L2-057 AC4, AC5)
   end

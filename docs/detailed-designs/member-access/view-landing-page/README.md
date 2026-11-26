@@ -105,19 +105,21 @@ decisions the design left open are in [ADR 0107](../../../adr/0107-news-front-pa
     four `EventRow`s (existing component, block `event-row`): month and day, title, and weekday,
     time and area, each leading to `/join`, since the events screen needs a session (ADR 0037).
     `eventCardViewOf` words the start in Toronto, and the row reads "Sat 6:45 AM · Waterfront";
-  - `NewsletterBox` (design-system page `newsletter-box`): "The Abundant Weekly", "The week's
+  - `NewsletterBox` (`cf-newsletter-box`, design-system page `newsletter-box`): "The Abundant Weekly", "The week's
     stories and events in one email. Every Saturday, 7 AM.", the Email address field and
     "Subscribe free", and "Or follow by RSS". "Subscribe free" navigates to `/subscribe` with the
     typed email in navigation state; "Or follow by RSS" navigates to `/subscribe#rss`; the page
     sends nothing itself (`L2-057` AC1,
-    [subscribe to the newsletter](../../news/subscribe-to-newsletter/README.md)). Journey 27
-    builds it; until then the rail has no newsletter box;
+    [subscribe to the newsletter](../../news/subscribe-to-newsletter/README.md)). It sits between
+    the upcoming events and "Most read" (journey 27, ADR 0110);
   - "Most read", the `ranked` list of five stories (`L2-001` AC5).
 - **`Footer`** — existing component (block `site-footer`), gaining links to the newsletter's latest
   issue (`/newsletter`), the feeds (`/subscribe#rss`), Send feedback, the Privacy Policy
   (`/privacy`) and the Terms of Service (`/terms`) (`L2-001` AC9). The route of Send feedback is
   set by the feedback design (`L2-063`). Journey 25 keeps the Privacy Policy and Terms of Service
-  links; the Newsletter, RSS and Send feedback links come with journeys 26, 27 and 30.
+  links; journey 27 adds Newsletter (`/subscribe`, until the latest issue exists with journey 29)
+  and RSS (`/subscribe#rss`). Journey 30 put Send feedback in the member footer only
+  (ADR 0109), so the landing page's news footer has none yet.
 - **Feed discovery** — the document head names the feeds with
   `<link rel="alternate" type="application/rss+xml">` (`L2-060` AC3), as
   [publish RSS feeds](../../news/publish-rss-feeds/README.md) defines them. The links sit in the

@@ -30,6 +30,7 @@ host's secret store. No setting is logged.
 | `Email__Smtp__UserName`       | If the relay asks | The relay's user name. Unset, the API sends without authenticating.                                | `apikey`                                                                    |
 | `Email__Smtp__Password`       | If the relay asks | The relay's password or API key, from the secret store.                                           | from the secret store                                                       |
 | `Email__From`                 | Yes, outside Development | The sender of every email, a mailbox the relay may send as.                                      | `Christian Fitness <no-reply@christian.fitness>`                             |
+| `Organisation__PostalAddress` | Yes, outside Development | The organisation's postal address, which every newsletter email's footer names under "Christian Fitness" with its Unsubscribe link (L2-058 AC4; ADR 0110). The API, and `cf announce-legal-change`, refuse to start without it outside Development, naming it with the other missing email settings. In Development it reads "Postal address not set (development)". | `2091 Hurontario Street, Mississauga, Ontario, L5A 4E6` |
 | `Email__ReplyTo`              | No       | The staff mailbox set as Reply-To on feedback replies. Unset, a member cannot answer by email (ADR 0070).  | `hello@christianfitness.ca`                                                 |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | No       | The OpenTelemetry collector. When set, traces, metrics and logs are exported to it by OTLP; when unset, nothing leaves the process and logs go to the console only. | `http://otel-collector:4317`                                                |
 | `OTEL_SERVICE_NAME`           | No       | The service name on every span, metric and log. Defaults to `christian-fitness-api`.                      | `christian-fitness-api`                                                     |
@@ -45,14 +46,14 @@ features are deployed; values are not hard-coded.
 
 | Setting | Required | Purpose |
 | --- | --- | --- |
-| `Organisation__PostalAddress` | For newsletter and marketing email | The postal address in every footer. Its production value is `2091 Hurontario Street, Mississauga, Ontario, L5A 4E6`. |
 | `Email__MaxPerMinute` | For the newsletter sender | The SMTP relay's sending limit per minute; the operator supplies the relay's limit. |
 | `Email__MaxPerDay` | For the newsletter sender | The SMTP relay's sending limit per day; the operator supplies the relay's limit. |
 
 The relay limits govern the newsletter sender's rate and capacity; neither has a default. The
 staff Google Workspace domain is `christian.fitness`; legal enquiries go to
 `privacy@christian.fitness`. Every newsletter and marketing email footer names Christian Fitness
-and uses `Organisation:PostalAddress`.
+and uses `Organisation:PostalAddress`, which is implemented with the API's settings above
+(journey 27).
 
 ## CLI (`ChristianFitness.Cli`, built as `cf`)
 
@@ -124,9 +125,9 @@ the effective date release the new page text, retain both schedules and remove
 the expired notice metadata. Check the dated address with JavaScript disabled.
 
 At least 30 days ahead, run `cf announce-legal-change privacy yyyy-mm-dd` or
-`cf announce-legal-change terms yyyy-mm-dd` with the existing SQL, SMTP and
-`MemberApp__BaseUrl` settings. The command awaits each SMTP submission. Use one
-operator per announcement. If delivery is interrupted, reconcile SMTP delivery
+`cf announce-legal-change terms yyyy-mm-dd` with the existing SQL, SMTP,
+`MemberApp__BaseUrl` and `Organisation__PostalAddress` settings. The command awaits each SMTP
+submission. Use one operator per announcement. If delivery is interrupted, reconcile SMTP delivery
 records before repeating the command to avoid duplicate mail.
 
 Configure the Google OAuth consent screen's Privacy Policy URL as

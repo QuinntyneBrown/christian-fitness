@@ -1,0 +1,29 @@
+<section class="newsletter-box" aria-labelledby="rail-newsletter">
+  <h2 class="display newsletter-box__title" id="rail-newsletter">The Abundant Weekly</h2>
+  <p class="newsletter-box__text">
+    The week’s stories and events in one email. Every Saturday, 7 AM.
+  </p>
+  <form class="newsletter-box__form" novalidate (submit)="send($event)">
+    <label class="visually-hidden" for="rail-email">Email address</label>
+    <input
+      class="input input--pill"
+      id="rail-email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      placeholder="you@example.com"
+      [value]="email()"
+      (input)="edit($event)"
+    />
+    <cf-button type="submit" block>Subscribe free</cf-button>
+  </form>
+  <p class="newsletter-box__rss">
+    <cf-link variant="quiet" [href]="rssHref" (click)="followRss($event)"
+      ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" /></svg
+      >&ngsp;Or follow by RSS</cf-link
+    >
+  </p>
+</section>

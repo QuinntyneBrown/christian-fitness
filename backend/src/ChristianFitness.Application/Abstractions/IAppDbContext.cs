@@ -3,6 +3,7 @@ using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.News;
+using ChristianFitness.Domain.Newsletter;
 using ChristianFitness.Domain.Scheduling;
 using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
@@ -101,6 +102,15 @@ public interface IAppDbContext
     DbSet<Attendance> Attendances { get; }
     /// <summary>The notes members sent the team; only staff read them (L2-063; ADR 0109).</summary>
     DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes { get; }
+
+    /// <summary>Each address's subscription to The Abundant Weekly (L2-057, L2-058; ADR 0110).</summary>
+    DbSet<NewsletterSubscription> NewsletterSubscriptions { get; }
+
+    /// <summary>The confirmation links sent to Pending addresses, by hash (L2-058 AC1; ADR 0110).</summary>
+    DbSet<SubscriptionConfirmation> SubscriptionConfirmations { get; }
+
+    /// <summary>Each newsletter email's Unsubscribe token, by hash (L2-058 AC8; ADR 0078, ADR 0110).</summary>
+    DbSet<NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

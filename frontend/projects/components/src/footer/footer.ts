@@ -7,10 +7,10 @@ import { isPlainClick } from '../link/plain-click';
  * "Health · Energy · Abundant life", stacked on phones and on one row from 640 px. It is a
  * `<footer>` outside `main`, so it is the page's one `contentinfo` landmark; the screen places it
  * after its `main`. The `news` variant closes the news front page with the copyright and its links:
- * RSS with its mark, which leads to the All stories feed until Subscribe exists, Privacy and Terms
- * (L2-001 AC9, L2-060; ADR 0108). The `member` variant closes every scrolling member page; its
- * Send feedback goes to `feedbackHref`, which names the page the member is on (ADR 0109), and a
- * plain click on it is handed to the app as `navigate`.
+ * Newsletter, which opens Subscribe until the latest issue exists, RSS with its mark, which opens
+ * Subscribe's feeds, Privacy and Terms (L2-001 AC9, L2-060; ADR 0108, ADR 0110). The `member`
+ * variant closes every scrolling member page; its Send feedback goes to `feedbackHref`, which names
+ * the page the member is on (ADR 0109), and a plain click on it is handed to the app as `navigate`.
  */
 @Component({
   selector: 'cf-footer',

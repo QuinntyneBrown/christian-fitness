@@ -1,0 +1,115 @@
+<div class="subscribe__main">
+  <h1 class="display detail-title">The Abundant Weekly</h1>
+  <p class="subscribe__lead">
+    The week in Christian fitness across the GTA: the stories worth reading, the events worth
+    showing up for, and one verse to carry into your training. Every Saturday, 7 AM.
+  </p>
+  <div class="subscribe__state">
+    @switch (view()) {
+      @case ('checking') {
+        <p class="subscribe__checking" role="status" aria-busy="true">Checking your link…</p>
+      }
+      @case ('sent') {
+        <div class="subscribe__panel" role="status" tabindex="-1">
+          <svg class="icon subscribe__panel-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8" />
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            <path d="m16 19 2 2 4-4" />
+          </svg>
+          <h2 class="subscribe__panel-title">Check your inbox</h2>
+          <p class="subscribe__panel-text">
+            We sent a confirmation link to <strong>{{ email() }}</strong>. Tap it and your first
+            issue arrives Saturday morning.
+          </p>
+          <div class="subscribe__panel-actions">
+            <cf-button variant="ghost" (click)="differentEmail.emit()"
+              >Use a different email</cf-button
+            >
+          </div>
+        </div>
+      }
+      @case ('confirmed') {
+        <div class="subscribe__panel" role="status" tabindex="-1">
+          <svg class="icon subscribe__panel-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <h2 class="subscribe__panel-title">You're subscribed</h2>
+          <p class="subscribe__panel-text">
+            The Abundant Weekly will arrive at <strong>{{ email() }}</strong> on {{ firstIssue() }}.
+          </p>
+        </div>
+      }
+      @case ('unsubscribed') {
+        <div class="subscribe__panel" role="status" tabindex="-1">
+          <svg class="icon subscribe__panel-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <h2 class="subscribe__panel-title">You're unsubscribed</h2>
+          <p class="subscribe__panel-text">
+            @if (email(); as address) {
+              We won't email <strong>{{ address }}</strong> again.
+            } @else {
+              We won't email you again.
+            }
+            Changed your mind? You can subscribe again any time.
+          </p>
+          <div class="subscribe__panel-actions">
+            <cf-button variant="secondary" (click)="subscribeAgain.emit()"
+              >Subscribe again</cf-button
+            >
+          </div>
+        </div>
+      }
+      @default {
+        @if (alert() === 'expired') {
+          <div class="subscribe__alert">
+            <cf-alert heading="That link has expired" [focusOnShow]="false"
+              >Confirmation links last 7 days. Enter your email again and we'll send a new
+              one.</cf-alert
+            >
+          </div>
+        }
+        <form class="subscribe__form" novalidate (submit)="send($event)">
+          @if (alert() === 'failed') {
+            <div class="subscribe__alert">
+              <cf-alert heading="We couldn't subscribe you"
+                >Something went wrong on our side. Your email is still here, so try again in a
+                moment.</cf-alert
+              >
+            </div>
+          } @else if (alert() === 'limited') {
+            <div class="subscribe__alert">
+              <cf-alert heading="Too many sign-ups"
+                >Too many addresses were added from this network in the last hour. Try again
+                later.</cf-alert
+              >
+            </div>
+          }
+          <cf-form-field [fieldId]="fieldId" label="Email address" [error]="error()">
+            <div class="subscribe__row">
+              <input
+                class="input input--pill input--lg"
+                [id]="fieldId"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+                [value]="email() ?? ''"
+                [readOnly]="busy()"
+                [attr.aria-invalid]="error() ? 'true' : null"
+                [attr.aria-describedby]="error() ? fieldId + '-error' : null"
+                (input)="edit($event)"
+              />
+              <cf-button type="submit" size="lg" [busy]="busy()" [disabled]="busy()">{{
+                busy() ? 'Subscribing…' : 'Subscribe free'
+              }}</cf-button>
+            </div>
+          </cf-form-field>
+          <p class="subscribe__note">One click to unsubscribe, and we never share your address.</p>
+        </form>
+      }
+    }
+  </div>
+</div>

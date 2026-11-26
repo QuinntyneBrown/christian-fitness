@@ -13,7 +13,7 @@ box "Frontend — Member web app" #E0F2FE
   participant "CopiedFlag" as flag
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "PublicFeedsController" as ctrl
+  participant "PublicStoriesController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "ListFeedsHandler" as h
@@ -24,7 +24,7 @@ end box
 page -> client : list()
 client -> ctrl : GET /api/public/feeds
 ctrl -> h : Send ListFeedsQuery
-h -> db : Published stories per section in the recent window
+h -> db : Stories readers see, published in the last 28 days, per section
 db --> h : Counts
 h --> ctrl : FeedSummaryDto[] with absolute URLs from MemberApp:BaseUrl
 ctrl --> client : 200 JSON
@@ -34,7 +34,7 @@ actor -> page : Press Copy URL on a feed
 page -> clip : write(feed url)
 alt clipboard accepts
   clip --> page : true
-  page -> flag : raise() for that feed
+  page -> flag : raise() naming that feed
   page --> actor : Button reads "Copied" about 2 s; status "Feed address copied" (L2-060 AC5)
 else clipboard refuses
   clip --> page : false

@@ -161,6 +161,9 @@ public static class RefusalCodes
     /// <summary>Too many accounts were created, or reset links asked for, from one address in an hour (L2-034 AC2, AC3).</summary>
     public const string RateLimited = "rate_limited";
 
+    /// <summary>A newsletter confirmation link is unknown, used or expired (L2-058 AC3; ADR 0110): one code for all three.</summary>
+    public const string SubscriptionLinkExpired = "subscription_link_expired";
+
     /// <summary>A reset link is unknown, used or expired (L2-045 AC4): one code for all three.</summary>
     public const string ResetLinkExpired = "reset_link_expired";
 

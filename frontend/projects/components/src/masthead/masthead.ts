@@ -29,6 +29,11 @@ export class Masthead {
   readonly homeHref = input('/');
   readonly signInHref = input('/sign-in');
   readonly joinHref = input('/join');
+  /**
+   * The plain variant (`masthead--plain`; ADR 0110): Subscribe's bar scrolls away with the page,
+   * and its actions give way to one "Back to news" leading here.
+   */
+  readonly backHref = input<string>();
   /** The sections, in order; none draws the bar alone (the story form). */
   readonly sections = input<readonly MastheadSection[]>([]);
 

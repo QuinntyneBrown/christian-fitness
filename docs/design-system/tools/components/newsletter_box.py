@@ -1,4 +1,4 @@
-from cf_data import ADD_ONS, NEWSLETTER as N
+from cf_data import NEWSLETTER as N
 from dslib import cf_ui, ex, icon, kbd, matrix, mock, themes
 
 
@@ -31,18 +31,13 @@ def form(uid, *, invalid=False, busy=False, failed=False, limited=False, email="
     err = (f'<p class="field__error" id="{uid}-error">That email doesn’t look right. Check for a typo and try again.</p>' if invalid else "")
     submit = (f'<button class="btn btn--primary btn--lg" type="submit" disabled aria-busy="true">{cf_ui.busy_label("Subscribing…")}</button>'
               if busy else '<button class="btn btn--primary btn--lg" type="submit">Subscribe free</button>')
-    d = " disabled" if busy else ""
-    addons = "".join(f'<li><label class="check check--ui subscribe__addon"><input class="check__box" type="checkbox" name="also" value="{i}"'
-                     f'{" checked" if i == "events" else ""}{d}><span><span class="subscribe__addon-label">{label}</span>'
-                     f'<span class="subscribe__addon-detail">{detail}</span></span></label></li>' for i, label, detail in ADD_ONS)
     value = "grace.thompson@gmail" if invalid else email
     inv = f' aria-invalid="true" aria-describedby="{uid}-error"' if invalid else ""
     return (f'<form class="subscribe__form" action="#top" novalidate>{alert}'
             f'<label class="field__label" for="{uid}-email">Email address</label><div class="subscribe__row">'
             f'<input class="input input--pill input--lg" id="{uid}-email" name="email" type="email" autocomplete="email" value="{value}" placeholder="you@example.com"{inv}{" readonly" if busy else ""}>'
-            f'{submit}</div>{err}<fieldset class="subscribe__addons"><legend class="field__label">Also send me</legend>'
-            f'<ul class="list-ruled">{addons}</ul></fieldset>'
-            f'<p class="subscribe__note">Joined by {N["readers"]} readers. One click to unsubscribe, and we never share your address.</p></form>')
+            f'{submit}</div>{err}'
+            f'<p class="subscribe__note">One click to unsubscribe, and we never share your address.</p></form>')
 
 
 def panel(ic, title, text, actions):
@@ -56,7 +51,7 @@ SUCCESS = panel("mail-check", "Check your inbox",
                 f'<a class="btn btn--primary" href="#top">Read last week’s issue {icon("arrow-right")}</a>'
                 '<a class="btn btn--ghost subscribe__panel-alt" href="#top">Use a different email</a>')
 CONFIRMED = panel("circle-check", "You're subscribed",
-                  'The Abundant Weekly will arrive at <strong>grace.thompson@gmail.com</strong> on Saturday at 7 AM, with event alerts as they post.',
+                  'The Abundant Weekly will arrive at <strong>grace.thompson@gmail.com</strong> on Saturday at 7 AM.',
                   f'<a class="btn btn--primary" href="#top">Read last week’s issue {icon("arrow-right")}</a>')
 UNSUB = panel("circle-check", "You're unsubscribed",
               'We won\'t email <strong>grace.thompson@gmail.com</strong> again. Changed your mind? You can subscribe again any time.',
@@ -81,7 +76,7 @@ SPEC = {
 <li><b>Newsletter box</b> (<code>.newsletter-box</code>): in the front page's rail. A 2px ink frame, the newsletter's name, one line, an email field and "Subscribe free", and a quiet "Or follow by RSS". The field posts to Subscribe, where the address is confirmed.</li>
 <li><b>Join card</b> (<code>.join-card</code>): the first thing in the rail, on a bordeaux brand panel: \"Life to the full.\", what the community is, \"Join the community\" and social proof. It asks people to join, not to subscribe.</li>
 <li><b>Story subscribe band</b> (<code>.story-subscribe</code>): the last thing on a story page, on the dark chrome surface: the newsletter's name, one line and \"Subscribe free\" as a link to Subscribe. No field: a reader who has just finished a story decides on the next page.</li>
-<li><b>Subscribe</b> (<code>.subscribe</code>): the Subscribe page's main column: title, lead, the form with optional extras, and the panels that replace the form when it is done.</li>
+<li><b>Subscribe</b> (<code>.subscribe</code>): the Subscribe page's main column: title, lead, the form, and the panels that replace the form when it is done.</li>
 </ul>
 <p>Use one call-out per view. A story already ends with the band; do not add a newsletter box to it.</p>""",
     "anatomy": {
@@ -98,7 +93,7 @@ SPEC = {
     "variants": "<h3>Newsletter box</h3>" + ex(f'<div class="w-40">{box("variant")}</div>', "Landing rail. 2px ink frame, no fill.", True, mod="block")
     + "<h3>Join card</h3>" + ex(f'<div class="w-40">{JOIN}</div>', "Landing rail, first: brand panel with an inverse button.", True, mod="block")
     + "<h3>Story subscribe band</h3>" + ex(BAND, "Foot of every story: chrome band, inverse button linking to Subscribe.", True, mod="block")
-    + "<h3>Subscribe page</h3>" + ex(page(form("page")), "Subscribe: the form with three optional extras (Event alerts checked).", True, mod="block"),
+    + "<h3>Subscribe page</h3>" + ex(page(form("page")), "Subscribe: the email form. It shows no reader count and offers no extras (L2-057 AC2).", True, mod="block"),
     "sizes": "<p>The box and join card fill the rail (21.25rem from 1024px; full width below). The band and the Subscribe section stretch to <code>--layout-container-max</code>. Subscribe's field and button are <code>--lg</code> (48px); the box uses the default 44px.</p>",
     "states": {
         "intro": "<p>The Subscribe form carries the full set of states, each with its real attribute: <code>aria-invalid</code> and <code>aria-describedby</code> on a bad address, <code>disabled</code> and <code>aria-busy=\"true\"</code> on the button while sending, <code>readonly</code> on the field. When the form is done a <code>role=\"status\"</code> panel replaces it and takes focus. The rail's box has only the field and button states; it hands everything else to Subscribe.</p>",
@@ -109,11 +104,11 @@ SPEC = {
             ("Or follow by RSS", f'<a class="text-link text-link--quiet newsletter-box__rss" href="#top"{{a}}>{icon("rss")} Or follow by RSS</a>', {"Disabled": None}),
         ])
         + "<h3>Invalid</h3>" + ex(state(form("inv", invalid=True)), "Malformed address: marked, says what to fix; nothing is sent.", True, mod="block")
-        + "<h3>Submitting</h3>" + ex(state(form("busy", busy=True)), "\"Subscribing…\": button disabled and busy, field read-only, extras disabled.", True, mod="block")
+        + "<h3>Submitting</h3>" + ex(state(form("busy", busy=True)), "\"Subscribing…\": button disabled and busy, field read-only.", True, mod="block")
         + "<h3>Success</h3>" + ex(state(SUCCESS), "The address was taken: check your inbox. Nothing is sent until the link is tapped.", True, mod="block")
         + "<h3>Confirmed and unsubscribed</h3>" + ex(state(CONFIRMED) + state(UNSUB), "After the confirmation link; after Unsubscribe in an issue.", True, mod="block")
         + "<h3>Limited</h3>" + ex(state(form("lim", limited=True)), "Too many sign-ups from one network: a message above the form, focused; the email stays.", True, mod="block")
-        + "<h3>Error</h3>" + ex(state(form("err", failed=True)), "The server failed: a message above the form, focused; the email and extras stay.", True, mod="block")
+        + "<h3>Error</h3>" + ex(state(form("err", failed=True)), "The server failed: a message above the form, focused; the email stays.", True, mod="block")
         + "<h3>Link expired</h3>" + ex('<div class="subscribe__state"><div class="subscribe__alert">' + cf_ui.form_alert("That link has expired", "Confirmation links last 7 days. Enter your email again and we'll send a new one.") + "</div>" + form("exp", email="") + "</div>",
                                        "An old or used confirmation link: say so and offer the form again, empty.", True, mod="block"),
         "themes": themes(f'<div class="w-80">{box("theme")}</div>' + f'<div class="w-80">{JOIN}</div>', "stack"),
@@ -131,11 +126,10 @@ SPEC = {
 </ul>""",
     "theming": "<p>The box is the page surface framed in <code>--color-fg-default</code>; its text is <code>--color-fg-muted</code>. The join card is <code>--color-bg-brand</code> with <code>--color-fg-on-brand</code> and <code>--color-fg-on-brand-strong</code>; the band is <code>--color-bg-chrome</code> with <code>--color-fg-on-chrome</code> and <code>--color-fg-on-chrome-muted</code>. Both dark panels use the inverse button and <code>--color-focus-ring-on-dark</code>. Subscribe's panels fill <code>--color-accent-subtle</code> with a 2px <code>--color-accent</code> bar.</p>",
     "accessibility": {
-        "pattern": "<p>Native <code>&lt;form&gt;</code>s with a labelled <code>type=\"email\"</code> input and <code>autocomplete=\"email\"</code>. Extras are a <code>&lt;fieldset&gt;</code> of checkboxes with the legend \"Also send me\". Results are <code>role=\"status\"</code> panels; failures are <code>role=\"alert\"</code> <a href=\"alert.html\">form alerts</a>. The box and band are named regions (<code>aria-labelledby</code> their titles).</p>",
+        "pattern": "<p>Native <code>&lt;form&gt;</code>s with a labelled <code>type=\"email\"</code> input and <code>autocomplete=\"email\"</code>. Results are <code>role=\"status\"</code> panels; failures are <code>role=\"alert\"</code> <a href=\"alert.html\">form alerts</a>. The box and band are named regions (<code>aria-labelledby</code> their titles).</p>",
         "keys": [
-            (kbd("Tab"), "Field, Subscribe free, then the extras and RSS link."),
+            (kbd("Tab"), "Field, Subscribe free, then the RSS link."),
             (kbd("Enter"), "In the field: submits."),
-            (kbd("Space"), "Toggles an extra."),
         ],
         "focus": "<p>The field shows the accent border and ring; buttons the shared ring. On the brand and chrome panels the ring is <code>--color-focus-ring-on-dark</code>. After submit, focus moves to the alert or result panel; on invalid it stays in the field, which names the error.</p>",
         "labelling": "<p>The box's label is visually hidden but present: a placeholder is never the label. The error is tied to the field with <code>aria-describedby</code>. The address in a result panel is in <code>strong</code> so people can check it.</p>",
@@ -151,7 +145,7 @@ SPEC = {
             ("Panel title", "--color-fg-default", "--color-accent-subtle", 4.5),
         ],
         "motion": "<p>The busy spinner rotates; reduced motion stops it and the words \"Subscribing…\" remain.</p>",
-        "touch": "<p>Fields and buttons are 44px (48px on Subscribe). The RSS link is 44px tall (<code>--target-comfortable</code>). Extras are full-row labels.</p>",
+        "touch": "<p>Fields and buttons are 44px (48px on Subscribe). The RSS link is 44px tall (<code>--target-comfortable</code>).</p>",
     },
     "content": f"""<ul>
 <li>The name is always \"{N["name"]}\"; say when it comes: \"{N["cadence"]}\".</li>
@@ -199,7 +193,7 @@ SPEC = {
             ("<code>.join-card</code> <code>__title</code> <code>__text</code> <code>__proof</code>", "Brand panel asking people to join."),
             ("<code>.story-subscribe</code> <code>__inner</code> <code>__title</code> <code>__text</code>", "Chrome band after a story."),
             ("<code>.subscribe</code> <code>__main</code> <code>__lead</code> <code>__state</code> <code>__form</code> <code>__row</code> <code>__alert</code>", "Subscribe page and form."),
-            ("<code>__addons</code> <code>__addon</code> <code>__addon-label</code> <code>__addon-detail</code> <code>__note</code>", "Optional extras and the reassurance line."),
+            ("<code>__note</code>", "The reassurance line."),
             ("<code>__panel</code> <code>__panel-icon</code> <code>__panel-title</code> <code>__panel-text</code> <code>__panel-actions</code> <code>__panel-alt</code>", "Result panels."),
             ("<code>aria-invalid</code> <code>aria-busy</code> <code>disabled</code> <code>readonly</code>", "Invalid and submitting states."),
         ],

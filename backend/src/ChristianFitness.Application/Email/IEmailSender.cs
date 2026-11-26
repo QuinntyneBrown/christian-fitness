@@ -10,14 +10,37 @@ public interface IEmailSender
 }
 
 /// <summary>
-/// A plain-text email. A class, not a record: a record's generated <c>ToString</c> would print the
-/// address and the text, which may hold a reset link, if it were ever logged (L2-033 AC2).
+/// A plain-text email, with optional headers from <see cref="AllowedHeaders"/> (ADR 0070, ADR 0110).
+/// A class, not a record: a record's generated <c>ToString</c> would print the address and the text,
+/// which may hold a reset or unsubscribe link, if it were ever logged (L2-033 AC2).
 /// </summary>
-public sealed class EmailMessage(string to, string subject, string text)
+public sealed class EmailMessage
 {
-    public string To { get; } = to;
+    /// <summary>The headers a message may carry: one-click unsubscribe (RFC 8058; ADR 0070). Any other is refused.</summary>
+    public static readonly IReadOnlySet<string> AllowedHeaders =
+        new HashSet<string>(["List-Unsubscribe", "List-Unsubscribe-Post"], StringComparer.Ordinal);
 
-    public string Subject { get; } = subject;
+    public EmailMessage(string to, string subject, string text, IReadOnlyDictionary<string, string>? headers = null)
+    {
+        headers ??= new Dictionary<string, string>(StringComparer.Ordinal);
+        var refused = headers.Keys.FirstOrDefault(name => !AllowedHeaders.Contains(name));
+        if (refused is not null)
+        {
+            throw new ArgumentException($"The header {refused} is not allowed in an email.", nameof(headers));
+        }
 
-    public string Text { get; } = text;
+        To = to;
+        Subject = subject;
+        Text = text;
+        Headers = headers;
+    }
+
+    public string To { get; }
+
+    public string Subject { get; }
+
+    public string Text { get; }
+
+    /// <summary>The message's own headers, each from <see cref="AllowedHeaders"/>; empty for most mail.</summary>
+    public IReadOnlyDictionary<string, string> Headers { get; }
 }

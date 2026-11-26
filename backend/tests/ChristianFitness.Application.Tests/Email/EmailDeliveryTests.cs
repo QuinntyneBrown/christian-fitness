@@ -31,6 +31,38 @@ public sealed class EmailDeliveryTests
         Assert.Contains("Hi Grace,", received, StringComparison.Ordinal);
     }
 
+    // ADR 0070, ADR 0110: the one-click unsubscribe headers reach the mail server as written.
+    [Fact]
+    public async Task Given_a_message_with_unsubscribe_headers_When_it_is_delivered_Then_the_server_receives_both_headers()
+    {
+        await using var server = new FakeSmtpServer();
+        var transport = new SmtpEmailTransport(Settings(server.Port));
+        var headers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["List-Unsubscribe"] = "<https://members.example.test/api/public/newsletter/unsubscribe?token=abc>",
+            ["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click",
+        };
+
+        await transport.DeliverAsync(new EmailMessage("grace@example.org", "Confirm", "Text", headers), TestContext.Current.CancellationToken);
+
+        // A long header is folded onto continuation lines (RFC 5322 §2.2.3); unfold it to read it.
+        var received = (await server.NextMessageAsync(Timeout)).Replace("\r\n ", " ", StringComparison.Ordinal).Replace("\r\n\t", " ", StringComparison.Ordinal);
+        Assert.Contains("List-Unsubscribe: <https://members.example.test/api/public/newsletter/unsubscribe?token=abc>", received, StringComparison.Ordinal);
+        Assert.Contains("List-Unsubscribe-Post: List-Unsubscribe=One-Click", received, StringComparison.Ordinal);
+    }
+
+    // ADR 0070: any header outside the allow-list is refused before anything is sent.
+    [Theory]
+    [InlineData("Reply-To")]
+    [InlineData("Bcc")]
+    [InlineData("list-unsubscribe")]
+    public void Given_a_header_outside_the_allow_list_When_a_message_is_made_Then_it_is_refused(string name)
+    {
+        var headers = new Dictionary<string, string>(StringComparer.Ordinal) { [name] = "value" };
+
+        Assert.Throws<ArgumentException>(() => new EmailMessage("grace@example.org", "Subject", "Text", headers));
+    }
+
     [Fact]
     public async Task Given_the_queued_sender_When_a_message_is_sent_Then_it_returns_at_once_and_the_dispatcher_delivers_it()
     {
@@ -97,6 +129,7 @@ public sealed class EmailDeliveryTests
                 ["Email:Smtp:Host"] = "smtp.example.test",
                 ["Email:From"] = "Christian Fitness <hello@example.test>",
                 ["MemberApp:BaseUrl"] = "https://members.example.test/",
+                ["Organisation:PostalAddress"] = "1 Example Street, Toronto, Ontario, M5V 0A1",
             },
             isDevelopment: false);
 
@@ -110,7 +143,7 @@ public sealed class EmailDeliveryTests
     {
         var refused = Assert.Throws<InvalidOperationException>(() => Provider(new Dictionary<string, string?>(), isDevelopment: false).Dispose());
 
-        Assert.Equal("Missing setting: Email__Smtp__Host, Email__From, MemberApp__BaseUrl", refused.Message);
+        Assert.Equal("Missing setting: Email__Smtp__Host, Email__From, MemberApp__BaseUrl, Organisation__PostalAddress", refused.Message);
     }
 
     private static SmtpSettings Settings(int port) => new()

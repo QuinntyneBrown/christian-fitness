@@ -12,6 +12,11 @@
   background: var(--color-bg-surface);
 }
 
+// Subscribe's bar is not sticky: the page has one job (docs/design-system/components/masthead.html).
+.masthead--plain {
+  position: static;
+}
+
 .masthead__bar {
   max-width: var(--layout-container-max);
   margin-inline: auto;

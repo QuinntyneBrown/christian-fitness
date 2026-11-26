@@ -4,22 +4,22 @@ LAYOUT_WITH_LEGEND()
 title Components — Subscribe to the newsletter
 
 Container_Boundary(web, "Member web app") {
-  Component(page, "SubscribePage", "Routed page /subscribe", "Form, outcome, latest issue, feeds")
-  Component(store, "SubscribeForm", "Domain library", "Email check, states idle, submitting, sent, failed, limited")
-  Component(client, "HttpNewsletterService", "NEWSLETTER_SERVICE", "summary(), subscribe(request)")
-  Component(ui, "SubscribeBox, IssuePreview", "Components library", "Blocks subscribe, issue-preview")
+  Component(page, "SubscribePage", "Routed page /subscribe", "State signals: view, email, error, alert, busy")
+  Component(store, "subscribeEmailErrorOf, subscribeRefusalOf", "Domain library", "Email check; a refusal is invalid, limited or failed")
+  Component(client, "HttpNewsletterService", "NEWSLETTER_SERVICE", "subscribe(request)")
+  Component(ui, "cf-subscribe, cf-newsletter-box", "Components library", "Blocks subscribe, newsletter-box")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "PublicNewsletterController", "ASP.NET Core controller, anonymous", "GET summary, POST subscriptions")
+  Component(ctrl, "PublicNewsletterController", "ASP.NET Core controller, anonymous", "POST subscriptions")
   Component(val, "SubscribeValidator", "FluentValidation", "email_invalid")
   Component(h, "SubscribeHandler", "MediatR handler", "Same answer for every address")
   Component(lim, "SubscriptionLimiter", "AddressRateLimiter", "5 an hour per network")
-  Component(sub, "NewsletterSubscription", "Domain entity", "Pending, Subscribed, Unsubscribed and three deferred extras")
+  Component(sub, "NewsletterSubscription", "Domain entity", "Pending, Subscribed, Unsubscribed")
   Component(mailer, "NewsletterEmails", "Application service", "Composes the confirmation email")
   Component(sender, "IEmailSender", "QueuedEmailSender", "Queues and returns (ADR 0010)")
 }
 ContainerDb(db, "Christian Fitness database", "PostgreSQL", "Subscriptions and confirmation token hashes")
-Rel(page, store, "Holds")
+Rel(page, store, "Uses")
 Rel(page, ui, "Renders")
 Rel(page, client, "Calls")
 Rel(client, ctrl, "JSON/HTTPS")

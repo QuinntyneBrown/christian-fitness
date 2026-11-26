@@ -16,39 +16,31 @@ enum SubscriptionStatus {
   Subscribed
   Unsubscribed
 }
-class NewsletterExtras <<value>> {
-  +bool EventAlerts
-  +bool TrainingPlan
-  +bool MorningDevotion
-}
 class NewsletterSubscription <<entity>> {
   +Guid Id
   +string Email
   +SubscriptionStatus Status
-  +bool Weekly
-  +NewsletterExtras Extras
   +DateTimeOffset RequestedAt
   +DateTimeOffset? ConsentedAt
   +string? ConsentSource
   +DateTimeOffset? UnsubscribedAt
-  +{static} Request(email, extras, now): NewsletterSubscription
-  +UpdateExtras(extras): void
+  +{static} Request(email, now): NewsletterSubscription
+  +RequestAgain(now): bool
+  +IsPurgeableAt(now): bool
 }
 class SubscriptionConfirmation <<entity>> {
   +Guid Id
   +Guid SubscriptionId
   +string TokenHash
-  +NewsletterExtras Extras
   +DateTimeOffset ExpiresAt
   +DateTimeOffset? UsedAt
-  +{static} Issue(subscriptionId, extras, now): (SubscriptionConfirmation, string)
+  +{static} Issue(subscriptionId, now): (SubscriptionConfirmation, string)
 }
 class SubscribeCommand {
   +string Email
-  +NewsletterExtras? Extras
 }
 class SubscribeHandler {
-  +Handle(command): Task<SubscribeAnswerDto>
+  +Handle(command): Task
 }
 class SubscriptionLimiter {
   +const int Limit = 5
@@ -58,33 +50,20 @@ abstract class AddressRateLimiter {
   +TryAcquire(partitionKey): Lease?
 }
 class NewsletterEmails {
-  +Confirmation(subscription, token): EmailMessage
-  +SettingsChanged(subscription, undoToken): EmailMessage
+  +Confirmation(subscription, token, now): EmailMessage
 }
 interface IEmailSender {
   +SendAsync(message, ct): Task
 }
-class SubscribeAnswerDto {
-  +string Email
-}
-class GetNewsletterSummaryQuery
-class NewsletterSummaryDto {
-  +string Name
-  +string About
-  +string Cadence
-  +IssuePreviewDto? Latest
-}
 class SubscribePage <<Angular page>>
-class SubscribeForm <<domain>> {
-  +state: Signal<SubscribeState>
-  +emailError(email): string?
+class SubscribeRules <<domain>> {
+  +subscribeEmailErrorOf(email): string?
+  +subscribeRefusalOf(failure): string
 }
 interface NewsletterApi <<NEWSLETTER_SERVICE>> {
-  +summary(): Observable<NewsletterSummaryDto>
-  +subscribe(request): Observable<SubscribeAnswerDto>
+  +subscribe(request): Observable<void>
 }
 NewsletterSubscription --> SubscriptionStatus
-NewsletterSubscription *-- NewsletterExtras
 NewsletterSubscription "1" *-- "*" SubscriptionConfirmation
 AddressRateLimiter <|-- SubscriptionLimiter
 SubscribeHandler ..> SubscribeCommand : handles
@@ -93,8 +72,6 @@ SubscribeHandler ..> NewsletterSubscription
 SubscribeHandler ..> SubscriptionConfirmation : issues
 SubscribeHandler ..> NewsletterEmails
 SubscribeHandler ..> IEmailSender
-SubscribeHandler ..> SubscribeAnswerDto
-GetNewsletterSummaryQuery ..> NewsletterSummaryDto
 SubscribePage ..> NewsletterApi
-SubscribePage *-- SubscribeForm
+SubscribePage ..> SubscribeRules
 @enduml

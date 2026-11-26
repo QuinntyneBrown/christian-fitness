@@ -57,6 +57,13 @@ const routes: Routes = [
     loadComponent: story,
   },
   {
+    // The newsletter and the feeds, for members and visitors alike, outside the shell (L2-057;
+    // ADR 0110). An emailed link opens it with its token in the fragment.
+    path: 'subscribe',
+    title: titled('Subscribe'),
+    loadComponent: () => import('./pages/subscribe/subscribe-page'),
+  },
+  {
     // An event link from a Community Pick: a member goes on to the event, a visitor to Join and
     // back to it (L2-072 AC9; ADR 0098). It has no screen of its own.
     path: 'e/:id',

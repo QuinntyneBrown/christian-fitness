@@ -47,6 +47,10 @@ export class WebLandingPage {
   readonly events: Locator;
   readonly eventsError: Locator;
   readonly eventsTryAgain: Locator;
+  readonly newsletterBox: Locator;
+  readonly newsletterEmail: Locator;
+  readonly newsletterSubscribe: Locator;
+  readonly followByRss: Locator;
   readonly mostRead: Locator;
   readonly mostReadRows: Locator;
   readonly verse: Locator;
@@ -86,6 +90,10 @@ export class WebLandingPage {
     this.rows = this.events.locator('.event-row');
     this.eventsError = this.events.locator('.inline-error');
     this.eventsTryAgain = this.eventsError.getByRole('button', { name: 'Try again' });
+    this.newsletterBox = this.rail.getByRole('region', { name: 'The Abundant Weekly' });
+    this.newsletterEmail = this.newsletterBox.getByLabel('Email address', { exact: true });
+    this.newsletterSubscribe = this.newsletterBox.getByRole('button', { name: 'Subscribe free' });
+    this.followByRss = this.newsletterBox.getByRole('link', { name: 'Or follow by RSS' });
     this.mostRead = this.rail.getByRole('region', { name: 'Most read' });
     this.mostReadRows = this.mostRead.locator('.ranked li');
     this.verse = page.locator('.verse__quote');
@@ -105,6 +113,13 @@ export class WebLandingPage {
           href: link.getAttribute('href'),
         })),
       );
+  }
+
+  /** The rail's headings, in order. */
+  async railHeadings(): Promise<string[]> {
+    return (await this.rail.getByRole('heading', { level: 2 }).allTextContents()).map((h) =>
+      h.trim(),
+    );
   }
 
   /** The footer's links' words, in order. */

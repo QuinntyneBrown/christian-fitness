@@ -87,6 +87,7 @@
           <cf-list [items]="rows()" [template]="eventRow" />
         }
       </section>
+      <cf-newsletter-box (subscribeChosen)="subscribe($event)" (rssChosen)="go('/subscribe#rss')" />
       @if (mostRead().length) {
         <section aria-labelledby="rail-most-read">
           <h2 class="display rule-title" id="rail-most-read">Most read</h2>

@@ -1,0 +1,23 @@
+// Subscribe's layout (docs/design-system/assets/components.css: "Subscribe: newsletter and RSS",
+// subscribe): the main column, and room beside it for the latest issue (journey 29).
+.subscribe {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-10) var(--space-4);
+
+  > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--space-16);
+    padding-block: var(--space-16);
+  }
+}
