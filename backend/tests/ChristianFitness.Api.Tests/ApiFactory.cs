@@ -32,6 +32,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>The member app's address the API builds links with.</summary>
     public const string MemberAppBaseUrl = "https://members.example.test";
 
+    /// <summary>The postal address every newsletter email's footer names (ADR 0110).</summary>
+    public const string PostalAddress = "1 Example Street, Toronto, Ontario, M5V 0A1";
+
     /// <summary>
     /// The client address a request comes from, as the test names it. A request without it comes
     /// from an address of its own, so the joins of different tests never share the limit of
@@ -61,6 +64,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Email:Smtp:Host", "smtp.unused.invalid");
         builder.UseSetting("Email:From", "Christian Fitness <hello@example.test>");
         builder.UseSetting("MemberApp:BaseUrl", MemberAppBaseUrl);
+        builder.UseSetting("Organisation:PostalAddress", PostalAddress);
         builder.UseSetting("Google:ClientId", FakeGoogle.ClientId);
         builder.UseSetting("Google:ClientSecret", FakeGoogle.ClientSecret);
         builder.UseSetting("Google:StaffDomain", FakeGoogle.StaffDomain);

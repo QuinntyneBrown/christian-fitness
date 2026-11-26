@@ -1,4 +1,5 @@
 using ChristianFitness.Application.News;
+using ChristianFitness.Application.Newsletter;
 using ChristianFitness.Application.Scheduling;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -6,12 +7,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ChristianFitness.Api.Scheduling;
 
 /// <summary>What one tick did: whether this replica held the lease, and how many stories it published.</summary>
-public sealed record PublishingTick(bool Held, int Published);
+public sealed record PublishingTick(bool Held, int Published, int Purged = 0);
 
 /// <summary>
 /// The API's one scheduler (ADR 0069, ADR 0104): every <see cref="Interval"/> of its
 /// <see cref="TimeProvider"/> it takes or renews the scheduler lease and, only while it holds it,
-/// runs each due job in a scope of its own; today that is <see cref="PublishDueStoriesCommand"/>. A
+/// runs each due job in a scope of its own: <see cref="PublishDueStoriesCommand"/>, then
+/// <see cref="PurgeNewsletterSubscriptionsCommand"/> (ADR 0110). A
 /// replica that cannot take the lease skips the tick, and one that loses it starts no more work.
 /// The lease lasts <see cref="LeaseDuration"/> from the holder's last tick, so another replica takes
 /// over within a minute of the holder stopping. A failed tick is logged by the exception's type only
@@ -68,7 +70,10 @@ public sealed partial class PublishingClock : BackgroundService
         {
             var sender = scope.ServiceProvider.GetRequiredService<ISender>();
             var published = await sender.Send(new PublishDueStoriesCommand(), cancellationToken).ConfigureAwait(false);
-            return new PublishingTick(true, published);
+            using var purgeScope = _scopes.CreateScope();
+            var purged = await purgeScope.ServiceProvider.GetRequiredService<ISender>()
+                .Send(new PurgeNewsletterSubscriptionsCommand(), cancellationToken).ConfigureAwait(false);
+            return new PublishingTick(true, published, purged);
         }
     }
 
@@ -108,6 +113,11 @@ public sealed partial class PublishingClock : BackgroundService
                 LogPublished(_logger, tick.Published);
             }
 
+            if (tick.Purged > 0)
+            {
+                LogPurged(_logger, tick.Purged);
+            }
+
             Ticked?.Invoke(this, tick);
         }
     }
@@ -117,6 +127,9 @@ public sealed partial class PublishingClock : BackgroundService
 
     [LoggerMessage(Level = LogLevel.Information, Message = "The publishing clock published {Count} scheduled stories")]
     private static partial void LogPublished(ILogger logger, int count);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "The publishing clock purged {Count} newsletter subscriptions")]
+    private static partial void LogPurged(ILogger logger, int count);
 }
 
 /// <summary>Registers the publishing clock as the API's hosted scheduler (ADR 0069).</summary>

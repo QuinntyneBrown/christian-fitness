@@ -9,6 +9,9 @@ public static class EmailServiceCollectionExtensions
     /// <summary>The member app's address in development, when <c>MemberApp:BaseUrl</c> is not set.</summary>
     public const string DevelopmentMemberAppBaseUrl = "http://localhost:4200";
 
+    /// <summary>The postal address in development, when <c>Organisation:PostalAddress</c> is not set.</summary>
+    public const string DevelopmentPostalAddress = "Postal address not set (development)";
+
     /// <summary>
     /// Email and the member app's address (ADR 0010; docs/operations/settings.md). With
     /// <c>Email:Smtp:Host</c> set, mail is queued and delivered by SMTP after the answer; without it,
@@ -22,9 +25,10 @@ public static class EmailServiceCollectionExtensions
         var host = configuration["Email:Smtp:Host"];
         var from = configuration["Email:From"];
         var baseUrl = configuration["MemberApp:BaseUrl"];
+        var postalAddress = configuration["Organisation:PostalAddress"];
         if (!isDevelopment)
         {
-            var missing = new[] { ("Email__Smtp__Host", host), ("Email__From", from), ("MemberApp__BaseUrl", baseUrl) }
+            var missing = new[] { ("Email__Smtp__Host", host), ("Email__From", from), ("MemberApp__BaseUrl", baseUrl), ("Organisation__PostalAddress", postalAddress) }
                 .Where(setting => string.IsNullOrWhiteSpace(setting.Item2))
                 .Select(setting => setting.Item1)
                 .ToList();
@@ -34,6 +38,8 @@ public static class EmailServiceCollectionExtensions
             }
         }
 
+        // Every newsletter email's footer names it (L2-058 AC4; ADR 0110).
+        services.AddSingleton(new Organisation(string.IsNullOrWhiteSpace(postalAddress) ? DevelopmentPostalAddress : postalAddress));
         services.AddSingleton(new MemberAppAddress(new Uri(string.IsNullOrWhiteSpace(baseUrl) ? DevelopmentMemberAppBaseUrl : baseUrl, UriKind.Absolute)));
         if (string.IsNullOrWhiteSpace(host))
         {

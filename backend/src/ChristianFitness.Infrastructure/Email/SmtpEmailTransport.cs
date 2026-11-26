@@ -38,6 +38,10 @@ public sealed class SmtpEmailTransport(SmtpSettings settings) : IEmailSender
         };
         mime.From.Add(MailboxAddress.Parse(settings.From));
         mime.To.Add(MailboxAddress.Parse(message.To));
+        foreach (var (name, value) in message.Headers)
+        {
+            mime.Headers.Add(name, value);
+        }
 
         using var client = new SmtpClient();
         var security = !settings.UseTls

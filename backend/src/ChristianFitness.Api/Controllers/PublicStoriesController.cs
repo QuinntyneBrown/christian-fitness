@@ -34,6 +34,15 @@ public sealed class PublicStoriesController(ISender sender) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<StorySummaryDto>>> MostRead(CancellationToken cancellationToken) =>
         Ok(await sender.Send(new ListMostReadStoriesQuery(), cancellationToken).ConfigureAwait(false));
 
+    /// <summary>
+    /// Subscribe's feed list: each feed's name, address and stories a week over the last 28 days,
+    /// All stories first (L2-060 AC4; ADR 0110).
+    /// </summary>
+    [HttpGet("/api/public/feeds")]
+    [EnableRateLimiting(PublicReads.Policy)]
+    public async Task<ActionResult<IReadOnlyList<FeedSummaryDto>>> Feeds(CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new ListFeedsQuery(), cancellationToken).ConfigureAwait(false));
+
     /// <summary>The Published story at this link, current or former; else 404 <c>not_found</c>.</summary>
     [HttpGet("{slug}")]
     [EnableRateLimiting(PublicReads.Policy)]

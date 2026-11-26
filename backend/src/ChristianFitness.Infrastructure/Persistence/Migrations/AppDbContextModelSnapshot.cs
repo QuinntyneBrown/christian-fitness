@@ -1081,6 +1081,101 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("StoryReadTallies", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.NewsletterSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConsentSource")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("ConsentedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset?>("UnsubscribedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "RequestedAt");
+
+                    b.HasIndex("Status", "UnsubscribedAt");
+
+                    b.ToTable("NewsletterSubscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.NewsletterUnsubscribeToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("NewsletterUnsubscribeTokens", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.SubscriptionConfirmation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("SubscriptionConfirmations", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1505,6 +1600,24 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.News.Story", null)
                         .WithMany()
                         .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.NewsletterUnsubscribeToken", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Newsletter.NewsletterSubscription", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.SubscriptionConfirmation", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Newsletter.NewsletterSubscription", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

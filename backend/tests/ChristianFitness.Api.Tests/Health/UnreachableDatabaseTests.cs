@@ -71,6 +71,9 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<ChristianFitness.Domain.Events.CommunityPick> CommunityPicks => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Events.Attendance> Attendances => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes => throw new InvalidOperationException(Secret);
+        public DbSet<ChristianFitness.Domain.Newsletter.NewsletterSubscription> NewsletterSubscriptions => throw new InvalidOperationException(Secret);
+        public DbSet<ChristianFitness.Domain.Newsletter.SubscriptionConfirmation> SubscriptionConfirmations => throw new InvalidOperationException(Secret);
+        public DbSet<ChristianFitness.Domain.Newsletter.NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens => throw new InvalidOperationException(Secret);
         public DbSet<AuditEntry> AuditEntries => throw new InvalidOperationException(Secret);
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) =>
