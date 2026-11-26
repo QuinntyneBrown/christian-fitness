@@ -93,6 +93,9 @@ public static class StoryRules
     public const string SlugTaken = "slug_taken";
     public const string VersionRequired = "version_required";
     public const string ImageInvalid = "image_invalid";
+    public const string PublishDateRequired = "publish_date_required";
+    public const string PublishTimeRequired = "publish_time_required";
+    public const string PublishAtInPast = "publish_at_in_past";
 
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal)
     {
@@ -101,6 +104,7 @@ public static class StoryRules
         "section_required", "section_invalid", "byline_required", "byline_invalid", "placement_invalid",
         "points_to_invalid", "next_step_too_long", "next_step_link_invalid", "slug_invalid", "slug_taken",
         "image_invalid", "crop_invalid", "version_required",
+        PublishDateRequired, PublishTimeRequired, PublishAtInPast,
     };
 }
 
@@ -120,15 +124,17 @@ internal sealed class ListAdminStoriesValidator : AbstractValidator<ListAdminSto
 /// <summary>
 /// Counts every status, names the three stories longest in review, and reads one page of the tab,
 /// newest activity first. No read is counted before the story page exists (journey 24), so a story
-/// that has been published shows 0 reads and one never published none (ADR 0097).
+/// that has been published shows 0 reads and one never published none (ADR 0097). A Scheduled story
+/// whose time has come counts, filters and reads as Published at that time (ADR 0069).
 /// </summary>
-internal sealed class ListAdminStoriesHandler(IAppDbContext db) : IRequestHandler<ListAdminStoriesQuery, AdminStoryListDto>
+internal sealed class ListAdminStoriesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListAdminStoriesQuery, AdminStoryListDto>
 {
     public async Task<AdminStoryListDto> Handle(ListAdminStoriesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+        var now = time.GetUtcNow();
         var counts = await db.Stories.AsNoTracking()
-            .GroupBy(s => s.Status)
+            .GroupBy(s => s.Status == StoryStatus.Scheduled && s.PublishAt <= now ? StoryStatus.Published : s.Status)
             .Select(g => new { Status = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         int CountOf(StoryStatus status) => counts.Where(c => c.Status == status).Sum(c => c.Count);
@@ -145,7 +151,7 @@ internal sealed class ListAdminStoriesHandler(IAppDbContext db) : IRequestHandle
         var stories = db.Stories.AsNoTracking();
         if (status is { } only)
         {
-            stories = stories.Where(s => s.Status == only);
+            stories = stories.Where(s => (s.Status == StoryStatus.Scheduled && s.PublishAt <= now ? StoryStatus.Published : s.Status) == only);
         }
 
         var total = status is { } tab ? CountOf(tab) : counts.Sum(c => c.Count);
@@ -170,7 +176,7 @@ internal sealed class ListAdminStoriesHandler(IAppDbContext db) : IRequestHandle
                 s.Headline,
                 s.Byline,
                 StoryNames.Of(s.Section),
-                StoryNames.Of(s.Status),
+                StoryNames.Of(s.Status == StoryStatus.Scheduled && s.PublishAt <= now ? StoryStatus.Published : s.Status),
                 s.Status switch
                 {
                     StoryStatus.InReview => s.SubmittedAt!.Value,

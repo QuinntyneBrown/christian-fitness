@@ -17,7 +17,7 @@ public sealed class WriteStoryTests(StoriesFactory factory) : IClassFixture<Stor
     internal static readonly string[] StoryKeys =
     [
         "id", "status", "version", "headline", "summary", "text", "section", "bylineId", "placement", "includeInWeekly",
-        "pointsTo", "nextStepText", "nextStepLink", "slug", "image", "savedAt", "publishedAt",
+        "pointsTo", "nextStepText", "nextStepLink", "slug", "image", "savedAt", "publishedAt", "publishAt",
     ];
 
     /// <summary>The editor's fields; every one may be overridden.</summary>

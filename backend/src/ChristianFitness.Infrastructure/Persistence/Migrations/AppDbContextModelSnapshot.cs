@@ -898,6 +898,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("PublishedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("ScheduledById")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Section")
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");

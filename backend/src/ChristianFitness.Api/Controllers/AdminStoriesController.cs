@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChristianFitness.Api.Controllers;
 
 /// <summary>
-/// Admins list, write, review, preview, publish, update and unpublish stories (L2-068, L2-069; ADR
+/// Admins list, write, review, preview, publish, schedule, update and unpublish stories (L2-068, L2-069; ADR
 /// 0097). Routed under <c>api/admin/stories</c>, the Publishing area, which refuses a Moderator with
 /// <c>forbidden_role</c>. Each action sends one MediatR request and checks nothing.
 /// </summary>
@@ -95,6 +95,24 @@ public sealed class AdminStoriesController(ISender sender) : ControllerBase
     /// <summary>Update a Published story: the changes are live at once (L2-069 AC5).</summary>
     [HttpPost("{id:guid}/update")]
     public async Task<ActionResult<AdminStoryDto>> Update(Guid id, UpdateStoryCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Schedule, or Approve &amp; schedule: saves the fields and schedules the story for a Toronto date and time after now (L2-069 AC2, AC3, AC7).</summary>
+    [HttpPost("{id:guid}/schedule")]
+    public async Task<ActionResult<AdminStoryDto>> Schedule(Guid id, ScheduleStoryCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Unschedule: a Scheduled story whose time has not come becomes a Draft (L2-069 AC4).</summary>
+    [HttpPost("{id:guid}/unschedule")]
+    public async Task<ActionResult<AdminStoryDto>> Unschedule(Guid id, UnscheduleStoryCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
         command.Id = id;
