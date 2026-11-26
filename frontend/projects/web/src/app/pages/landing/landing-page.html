@@ -19,7 +19,7 @@
       <cf-river
         [heading]="latest() ? 'The latest' : section().label"
         [pageHeading]="riverIsHeading()"
-        [stories]="storiesState() === 'loaded' ? river() : []"
+        [stories]="riverRows()"
         [loading]="storiesState() === 'loading'"
         (navigate)="go($event)"
       >

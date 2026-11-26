@@ -46,6 +46,7 @@ import { HttpStoriesService } from '../../services/http-stories.service';
 
 /** How many events the rail asks for (L2-001 AC5). */
 const TAKE = 4;
+const NO_ROWS: readonly NewsStoryView[] = [];
 const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 
 /** One row of the rail's "Upcoming events", worded for a visitor. */
@@ -123,6 +124,10 @@ export default class LandingPage {
   protected readonly river = signal<NewsStoryView[]>([]);
   private readonly more = signal(false);
   protected readonly moreState = signal<'idle' | 'loading' | 'failed'>('idle');
+  /** The river's rows once the stories have loaded; none while they load or after they fail. */
+  protected readonly riverRows = computed(() =>
+    this.storiesState() === 'loaded' ? this.river() : NO_ROWS,
+  );
   protected readonly riverEnd = computed(() => riverEndOf(this.river().length, this.more()));
   /** The river's title is the page's `h1` unless the lead is. */
   protected readonly riverIsHeading = computed(
