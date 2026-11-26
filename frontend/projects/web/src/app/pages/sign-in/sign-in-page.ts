@@ -13,9 +13,11 @@ import {
   TextField,
 } from '@cf/components';
 import {
+  googleRefusalOf,
   googleReturnOf,
   signInRefusalOf,
   signInReturnPathOf,
+  type GoogleRefusal,
   type SignInRefusal,
 } from '@cf/domain';
 
@@ -29,7 +31,9 @@ import {
  * form stays as typed and the button enabled (ADR 0009, ADR 0012). "Forgot your password?" under
  * the password field opens the Forgot password screen (L2-044 AC1). Back from Google with
  * `google=returned`, the screen finishes the sign-in once and lands on the kept route, or Home
- * (L2-004 AC8, L2-049 AC6); until the answer comes it stays as it is (ADR 0099).
+ * (L2-004 AC8, L2-049 AC6); until the answer comes it stays as it is (ADR 0099). A Google attempt
+ * that is refused or doesn't finish says so in the alert (L2-004 AC10, AC11, L2-049 AC5, AC11),
+ * and the `google` marker leaves the address, so a reload repeats neither.
  */
 @Component({
   selector: 'cf-sign-in-page',
@@ -42,7 +46,8 @@ export default class SignInPage {
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   /** The return address as the guard set it; the API checks it again (L2-049 AC6). */
-  private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;
+  private readonly route = inject(ActivatedRoute);
+  private readonly query = this.route.snapshot.queryParamMap;
   private readonly returnUrl = this.query.get('returnUrl');
   /** Read once: every arrival on the screen creates it anew (slice 30.1). */
   private readonly returnPath = signInReturnPathOf(this.returnUrl);
@@ -51,14 +56,27 @@ export default class SignInPage {
   protected readonly email = signal('');
   protected readonly password = signal('');
   protected readonly submitting = signal(false);
-  protected readonly refusal = signal<SignInRefusal | null>(null);
+  protected readonly refusal = signal<SignInRefusal | GoogleRefusal | null>(null);
   /** On the way to Google: the button stays busy until the page unloads. */
   protected readonly leaving = signal(false);
   /** Finishing what Google returned: a second start waits for the answer. */
   private readonly finishing = signal(false);
 
   constructor() {
-    if (googleReturnOf(this.query.get('google')) === 'returned') this.finishGoogle();
+    const google = googleReturnOf(this.query.get('google'));
+    if (this.query.has('google')) this.dropGoogleMarker();
+    if (google === 'returned') this.finishGoogle();
+    else if (google === 'failed') this.refusal.set('google-failed');
+  }
+
+  /** Replaces the address without `google`, keeping the return address. */
+  private dropGoogleMarker(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { google: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   /** Finishes the Google sign-in the API's callback kept (L2-004 AC8). */
@@ -71,7 +89,7 @@ export default class SignInPage {
         next: () => void this.router.navigateByUrl(this.returnPath),
         error: (error: unknown) => {
           this.finishing.set(false);
-          this.refusal.set(signInRefusalOf(error));
+          this.refusal.set(googleRefusalOf(error));
         },
       });
   }
@@ -88,7 +106,7 @@ export default class SignInPage {
         next: ({ location }) => this.document.location.assign(location),
         error: (error: unknown) => {
           this.leaving.set(false);
-          this.refusal.set(signInRefusalOf(error));
+          this.refusal.set(googleRefusalOf(error));
         },
       });
   }

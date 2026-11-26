@@ -27,6 +27,8 @@ import {
   AGE_ERROR,
   clearFieldError,
   errorSummaryOf,
+  googleRefusalOf,
+  googleReturnOf,
   joinRefusalOf,
   joinRequestOf,
   signInReturnPathOf,
@@ -34,6 +36,7 @@ import {
   validateJoin,
   type JoinField,
   type JoinFieldErrors,
+  type GoogleRefusal,
   type JoinRefusal,
 } from '@cf/domain';
 
@@ -46,7 +49,9 @@ import {
  * with what `joinRefusalOf` says: a taken email on the email field (L2-003 AC2, mock `invalid`),
  * the generic "Check your details" (L2-032 AC1, mock `refused`) or "We couldn't create your
  * profile" (mock `error`). "Sign up with Google" comes first, above "or with email", and leaves for
- * Google in a full-page redirect (L2-003 AC7; ADR 0099).
+ * Google in a full-page redirect (L2-003 AC7; ADR 0099). Back from a Google attempt that didn't
+ * finish, or refused at its start, the alert says so (L2-003 AC11, L2-049 AC5, AC7) and the
+ * `google` marker leaves the address.
  */
 @Component({
   selector: 'cf-join-page',
@@ -73,8 +78,9 @@ export default class JoinPage {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   /** Where to land once joined: a `returnUrl` inside the app, such as a claim link, else Home (ADR 0092). */
+  private readonly route = inject(ActivatedRoute);
   private readonly returnPath = signInReturnPathOf(
-    inject(ActivatedRoute).snapshot.queryParamMap.get('returnUrl'),
+    this.route.snapshot.queryParamMap.get('returnUrl'),
   );
 
   protected readonly options = INTERESTS;
@@ -94,7 +100,19 @@ export default class JoinPage {
   protected readonly fieldErrors = signal<JoinFieldErrors>({});
   protected readonly summary = computed(() => errorSummaryOf(this.fieldErrors()));
   /** What the last answer refused, until the next submit (or, for a taken email, a new email). */
-  protected readonly refusal = signal<JoinRefusal | null>(null);
+  protected readonly refusal = signal<JoinRefusal | GoogleRefusal | null>(null);
+
+  constructor() {
+    const query = this.route.snapshot.queryParamMap;
+    if (!query.has('google')) return;
+    if (googleReturnOf(query.get('google')) === 'failed') this.refusal.set('google-failed');
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { google: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
 
   /** Keeps what the visitor typed in `field` and clears that field's error. */
   protected edit(field: Exclude<JoinField, 'ageConfirmed'>, value: string): void {
@@ -120,9 +138,11 @@ export default class JoinPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ location }) => this.document.location.assign(location),
-        error: () => {
+        error: (error: unknown) => {
           this.leaving.set(false);
-          this.refusal.set('failed');
+          this.refusal.set(
+            googleRefusalOf(error) === 'google-limited' ? 'google-limited' : 'google-failed',
+          );
         },
       });
   }

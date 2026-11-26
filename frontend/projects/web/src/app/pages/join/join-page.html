@@ -16,6 +16,14 @@
     <cf-alert slot="alert" heading="Too many new profiles"
       >Too many profiles were made from this network in the last hour. Try again later.</cf-alert
     >
+  } @else if (refusal() === 'google-failed') {
+    <cf-alert slot="alert" heading="Google sign-up didn't finish"
+      >Nothing was created. Try again, or create your profile with your email below.</cf-alert
+    >
+  } @else if (refusal() === 'google-limited') {
+    <cf-alert slot="alert" heading="Too many attempts"
+      >Too many attempts. Try again in a few minutes.</cf-alert
+    >
   } @else if (refusal() === 'failed') {
     <cf-alert slot="alert" heading="We couldn't create your profile"
       >Our servers didn't respond. Everything you typed is still here, so try again in a

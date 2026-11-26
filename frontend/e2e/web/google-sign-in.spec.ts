@@ -141,3 +141,106 @@ test.describe('Member app, finish Google sign-in', () => {
     expect(finished).toEqual([]);
   });
 });
+
+// L2-049 AC3, AC5, AC7, AC11, L2-004 AC10, AC11, L2-003 AC11: a Google sign-in that is refused or
+// doesn't finish says so on the screen that started it, in the alert above the form, and the
+// `google` marker leaves the address so a reload neither repeats the finish nor the message.
+test.describe('Member app, Google sign-in refused', () => {
+  test("back from a failed attempt, Sign in says it didn't finish", async ({ page, api }) => {
+    const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=failed&returnUrl=%2Fevents');
+
+    await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
+    await expect(signIn.alert).toContainText(
+      "You're not signed in. Try again, or sign in with your email below.",
+    );
+    await expect(signIn.alert).toBeFocused();
+    await expect.poll(() => signIn.location()).toBe('/sign-in?returnUrl=%2Fevents');
+    expect(finished).toEqual([]);
+  });
+
+  test("back from a failed attempt, Join says it didn't finish", async ({ page }) => {
+    const join = new WebJoinPage(page);
+
+    await page.goto('/join?google=failed');
+
+    await expect(join.alertTitle).toHaveText("Google sign-up didn't finish");
+    await expect(join.alert).toContainText(
+      'Nothing was created. Try again, or create your profile with your email below.',
+    );
+    await expect.poll(() => new URL(page.url()).search).toBe('');
+  });
+
+  test('too many starts from this network show "Too many attempts" on Sign in and Join', async ({
+    page,
+    api,
+  }) => {
+    api.on('POST', '/api/session/google/start', () => ({
+      status: 429,
+      json: { status: 429, code: 'too_many_attempts' },
+    }));
+    const signIn = new WebSignInPage(page);
+    const join = new WebJoinPage(page);
+
+    await signIn.open();
+    await signIn.continueWithGoogle();
+    await expect(signIn.alertTitle).toHaveText('Too many attempts');
+    await expect(signIn.alert).toContainText('Too many attempts. Try again in a few minutes.');
+    await expect(signIn.googleButton).toHaveText('Continue with Google');
+    await expect(signIn.googleButton).toBeEnabled();
+
+    await join.open();
+    await join.googleButton.click();
+    await expect(join.alertTitle).toHaveText('Too many attempts');
+    await expect(join.googleButton).toHaveText('Sign up with Google');
+  });
+
+  test("Google unavailable says the attempt didn't finish", async ({ page, api }) => {
+    api.on('POST', '/api/session/google/start', () => ({
+      status: 503,
+      json: { status: 503, code: 'google_unavailable' },
+    }));
+    const signIn = new WebSignInPage(page);
+
+    await signIn.open();
+    await signIn.continueWithGoogle();
+
+    await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
+  });
+
+  test('an unverified Google email is refused with what to do', async ({ page, api }) => {
+    answerGoogleFinish(api, {
+      status: 401,
+      json: { status: 401, code: 'google_email_unverified' },
+    });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(signIn.alertTitle).toHaveText("Your Google email isn't verified");
+    await expect(signIn.alert).toContainText(
+      "Your Google account's email isn't verified. Verify it with Google, or join with email.",
+    );
+    await expect.poll(() => signIn.location()).toBe('/sign-in');
+  });
+
+  test('a suspended account is told so', async ({ page, api }) => {
+    answerGoogleFinish(api, { status: 403, json: { status: 403, code: 'account_suspended' } });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(signIn.alertTitle).toHaveText('Your account is suspended');
+  });
+
+  test("a finish that fails says it didn't finish", async ({ page, api }) => {
+    answerGoogleFinish(api, { status: 500, json: { status: 500, code: 'server_error' } });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
+  });
+});
