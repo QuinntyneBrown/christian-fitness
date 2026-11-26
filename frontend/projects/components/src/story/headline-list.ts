@@ -1,4 +1,5 @@
 import { booleanAttribute, Component, input, output } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Skeleton } from '../skeleton/skeleton';
 import { followInApp, type NewsStoryView } from './story-lead';
 
@@ -13,13 +14,17 @@ const SKELETON_ROWS = [1, 2, 3, 4];
  */
 @Component({
   selector: 'cf-headline-list',
-  imports: [Skeleton],
+  imports: [NgTemplateOutlet, Skeleton],
   templateUrl: './headline-list.html',
   styleUrl: './headline-list.scss',
 })
 export class HeadlineList {
   readonly stories = input<readonly NewsStoryView[]>([]);
   readonly loading = input(false, { transform: booleanAttribute });
+  /** No ink rule above (`headline-list--plain`): an issue's "Worth your time". */
+  readonly plain = input(false, { transform: booleanAttribute });
+  /** The titles' heading level: 2 on the front page, 3 under a section's own heading. */
+  readonly level = input<2 | 3>(2);
 
   /** A plain click on a title, with the story's address. */
   readonly navigate = output<string>();

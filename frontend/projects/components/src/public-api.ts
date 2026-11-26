@@ -90,6 +90,7 @@ export * from './pick-art/pick-art';
 export * from './pick-art/pick-caption';
 export * from './pick-art/pick-asset';
 export * from './pick-art/slack-preview';
+export * from './issue/issue-view';
 export * from './pick-list/event-choices';
 export * from './pick-list/pick-cards';
 export * from './pick-list/pick-empty';

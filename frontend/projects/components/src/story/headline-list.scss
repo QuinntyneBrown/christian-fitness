@@ -9,6 +9,10 @@
   border-top: var(--border-width-rule) solid var(--color-fg-default);
 }
 
+.headline-list--plain {
+  border-top: 0;
+}
+
 .headline {
   display: flex;
   gap: var(--space-4);

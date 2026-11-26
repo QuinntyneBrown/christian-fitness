@@ -1,4 +1,9 @@
-<ul class="headline-list">
+<ng-template #link let-story>
+  <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
+    story.title
+  }}</a>
+</ng-template>
+<ul [attr.class]="plain() ? 'headline-list headline-list--plain' : 'headline-list'">
   @if (loading()) {
     @for (row of skeletons; track row) {
       <li class="headline">
@@ -15,13 +20,27 @@
       <li class="headline">
         <div class="headline__body">
           <p class="story__section">{{ story.section }}</p>
-          <h2 class="headline__title">
-            <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
-              story.title
-            }}</a>
-          </h2>
+          @if (level() === 3) {
+            <h3 class="headline__title">
+              <ng-container
+                [ngTemplateOutlet]="link"
+                [ngTemplateOutletContext]="{ $implicit: story }"
+              />
+            </h3>
+          } @else {
+            <h2 class="headline__title">
+              <ng-container
+                [ngTemplateOutlet]="link"
+                [ngTemplateOutletContext]="{ $implicit: story }"
+              />
+            </h2>
+          }
           <p class="story__meta">
-            {{ story.author ? story.author + ' · ' + story.age : story.age }}
+            {{
+              story.author && story.age
+                ? story.author + ' · ' + story.age
+                : story.author || story.age
+            }}
           </p>
         </div>
         @if (story.image) {
