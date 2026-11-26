@@ -1,0 +1,17 @@
+// Mock story/default (docs/design-system/assets/components.css, "Story"): the way to send a
+// correction, under a hairline at the end of the text (L2-061 AC5).
+:host {
+  display: block;
+}
+
+.story__correct {
+  margin-top: var(--space-10);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  padding-top: var(--space-5);
+  font-size: var(--font-size-ui);
+  color: var(--color-fg-muted);
+}

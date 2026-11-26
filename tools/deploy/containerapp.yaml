@@ -39,6 +39,9 @@ properties:
             value: /data/keys
           - name: Images__Directory
             value: /data/images
+          # Private to staff: no container serves this folder (ADR 0109).
+          - name: Feedback__ScreenshotDirectory
+            value: /data/feedback-screenshots
           - name: MemberApp__BaseUrl
             value: https://www.christian.fitness
           # The member app's shell, from the web container of the same replica (ADR 0105).

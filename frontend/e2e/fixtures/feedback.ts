@@ -74,7 +74,10 @@ export function sentNoteOf(request: Request): SentNote {
  * Answers `POST /api/feedback` with 204, or with `reply` when given, and returns each note sent,
  * in order.
  */
-export function answerFeedbackSend(api: ApiHandlers, reply?: () => ApiReply): SentNote[] {
+export function answerFeedbackSend(
+  api: ApiHandlers,
+  reply?: () => ApiReply | Promise<ApiReply>,
+): SentNote[] {
   const sent: SentNote[] = [];
   api.on('POST', '/api/feedback', (request: Request) => {
     sent.push(sentNoteOf(request));

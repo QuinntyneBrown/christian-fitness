@@ -46,7 +46,7 @@ the mock:
   `L2-063` AC8), `about_invalid`, `image_too_large` (over 5 MB), `image_type_not_allowed` (content
   signature not JPEG, PNG or WebP, whatever the file's name or type says) and
   `screenshot_not_allowed` (a screenshot on a kind other than Something's off). A failure can say
-  that its code names the field and not the body (`FieldCodes.FieldOnly` as its custom state):
+  that its code names the field and not the body (`FieldCodeOnly.State` as its custom state):
   such a failure goes into `fieldCodes` but not into the top-level code, which is how
   `field_too_long` answers `validation_failed` here while Join's still answers `field_too_long`.
 - **The limit.** Ten notes in a rolling hour per member (`FeedbackNote.SendWindow`); the eleventh
@@ -60,12 +60,16 @@ the mock:
 - **Device.** `IClientDevice` (beside `IClientAddress`) reads the request's `User-Agent` once into
   an OS family (iOS, iPadOS, Android, Windows, macOS, ChromeOS, Linux, else Other) and a browser
   family with its major version (Edge, Samsung Internet, Opera, Firefox, Chrome, Safari, else
-  Other, with no version when none is read). One case table proves it. Nothing finer and never the
+  Other, and Other when no major version is read). One case table proves it. Nothing finer and never the
   raw header is stored.
 - **Screenshots.** `IFeedbackScreenshotStore` keeps each screenshot under a new key (a GUID and the
   extension its signature gave, ADR 0025's `ImageKeys`) in its own private directory,
   `Feedback__ScreenshotDirectory` (else `feedback-screenshots` next to the application). No
   endpoint serves it yet: the inbox's staff endpoint (journey 31) will.
+- **The thanks.** "Got it. Thank you." replaces the form, focused, as the mock's `success` state.
+  Its sentence says "we’ll email you" when the member left the email choice ticked, as the mock
+  shows, and "we’ll message you here" when they did not, as the reply then comes as a direct
+  message (`L2-063` AC11); the mock has no state for the second, so this sentence stands in for it.
 - **You said, we did.** Three entries written by Admins, bundled in the member app as static
   content (`YOU_SAID_WE_DID`); they become a story section later (`L2-063` AC3).
 - **Library.** The chip is `cf-context-chip` and the list `cf-said`, both from the design system

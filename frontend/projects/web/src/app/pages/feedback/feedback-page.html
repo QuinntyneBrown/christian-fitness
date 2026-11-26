@@ -5,14 +5,40 @@
       lead="Tell us what’s working, what isn’t, and what you wish was here."
       asideHeading="You said, we did"
       flush
+      [done]="phase() === 'sent'"
       (send)="send()"
     >
+      @if (phase() === 'sent') {
+        <cf-done slot="done" heading="Got it. Thank you."
+          >Dana and the team read every note. If we need more detail we’ll
+          {{ sentMayEmail() ? 'email you' : 'message you here' }}, and we’ll let you know when it’s
+          fixed.
+          <cf-button slot="actions" size="md" href="/home">Back to Home</cf-button>
+          <cf-button slot="actions" size="md" variant="secondary" (click)="more()"
+            >Send more</cf-button
+          >
+        </cf-done>
+      }
+      @if (refusal() === 'failed') {
+        <cf-alert slot="alert" heading="We couldn't send your feedback"
+          ><p>
+            Something went wrong on our side. What you wrote is still here, so try again in a
+            moment.
+          </p></cf-alert
+        >
+      }
+      @if (refusal() === 'limit') {
+        <cf-alert slot="alert" heading="You’ve sent 10 notes this hour"
+          ><p>You can send more in an hour. What you wrote is still here.</p></cf-alert
+        >
+      }
       <cf-choice-card-group
         legend="What’s it about?"
         name="kind"
         [columns]="4"
         [options]="kinds"
         [value]="kind()"
+        [disabled]="sending()"
         (valueChange)="chooseKind($event)"
       />
       @if (aboutLabel(); as label) {
@@ -20,6 +46,7 @@
           label="About this page"
           [value]="label"
           removeLabel="Remove page"
+          [disabled]="sending()"
           (removed)="removeAbout()"
         />
       }
@@ -32,20 +59,51 @@
           [hint]="question().hint ?? undefined"
           [value]="text()"
           [error]="noteError()"
+          [readonly]="sending()"
           (valueChange)="edit($event)"
         />
       </div>
+      @if (asksScreenshot()) {
+        <div class="feedback__section">
+          <cf-file-field
+            fieldId="f-screenshot"
+            label="Screenshot"
+            name="screenshot"
+            optional
+            chooseLabel="Add a screenshot"
+            noun="screenshot"
+            emptyText="No screenshot chosen"
+            hint="JPEG, PNG or WebP, up to 5 MB"
+            [accept]="screenshotTypes"
+            [fileName]="screenshot()?.name ?? null"
+            [error]="screenshotError()"
+            [disabled]="sending()"
+            (fileChosen)="chooseScreenshot($event)"
+            (removed)="removeScreenshot()"
+          />
+        </div>
+      }
       @if (email(); as address) {
         <div class="feedback__section">
           <cf-checkbox
             [label]="'You can email me at ' + address + ' about this'"
             name="reply"
             [checked]="mayEmail()"
+            [disabled]="sending()"
             (checkedChange)="mayEmail.set($event)"
           />
         </div>
       }
-      <cf-button slot="actions" type="submit" size="md">Send feedback</cf-button>
+      @if (phase() !== 'sent') {
+        <cf-button
+          slot="actions"
+          type="submit"
+          size="md"
+          [disabled]="sending()"
+          [busy]="sending()"
+          >{{ sending() ? 'Sending…' : 'Send feedback' }}</cf-button
+        >
+      }
       <cf-said slot="aside" lead="Recent changes that started as member feedback." [items]="said" />
     </cf-form-page>
   </cf-container>

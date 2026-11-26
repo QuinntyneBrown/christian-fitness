@@ -1,7 +1,9 @@
 import {
   checkFeedbackNote,
+  checkFeedbackScreenshot,
   FEEDBACK_KINDS,
   feedbackQuestionOf,
+  feedbackRefusalOf,
   routeTemplateOf,
   startingFeedbackKind,
 } from './feedback-form';
@@ -80,5 +82,105 @@ describe('routeTemplateOf', () => {
     { paths: [], expected: '' },
   ])('$paths is $expected', ({ paths, expected }) => {
     expect(routeTemplateOf(paths)).toBe(expected);
+  });
+});
+
+// L2-063 AC7, AC8, AC9 (ADR 0109): what the form shows for each answer that is not a success.
+describe('feedbackRefusalOf', () => {
+  it.each([
+    {
+      why: 'the hourly limit',
+      error: { status: 429, code: 'too_many_attempts' },
+      expected: { kind: 'limit' },
+    },
+    {
+      why: 'a note too long',
+      error: { status: 400, code: 'validation_failed', fieldCodes: { text: 'field_too_long' } },
+      expected: { kind: 'note', message: 'Keep it to 2,000 characters.' },
+    },
+    {
+      why: 'an empty note',
+      error: { status: 400, code: 'validation_failed', fieldCodes: { text: 'text_required' } },
+      expected: { kind: 'note', message: 'Tell us a little more first.' },
+    },
+    {
+      why: 'a screenshot too large',
+      error: {
+        status: 400,
+        code: 'validation_failed',
+        fieldCodes: { screenshot: 'image_too_large' },
+      },
+      expected: { kind: 'screenshot', message: 'Use a JPEG, PNG or WebP image up to 5 MB' },
+    },
+    {
+      why: 'a screenshot of another type',
+      error: {
+        status: 400,
+        code: 'validation_failed',
+        fieldCodes: { screenshot: 'image_type_not_allowed' },
+      },
+      expected: { kind: 'screenshot', message: 'Use a JPEG, PNG or WebP image up to 5 MB' },
+    },
+    {
+      why: 'a screenshot on another kind',
+      error: {
+        status: 400,
+        code: 'validation_failed',
+        fieldCodes: { screenshot: 'screenshot_not_allowed' },
+      },
+      expected: { kind: 'failed' },
+    },
+    {
+      why: 'a field the form does not show',
+      error: { status: 400, code: 'validation_failed', fieldCodes: { kind: 'kind_invalid' } },
+      expected: { kind: 'failed' },
+    },
+    {
+      why: 'a server error',
+      error: { status: 500, code: 'server_error' },
+      expected: { kind: 'failed' },
+    },
+    { why: 'no answer', error: { status: 0, code: 'network_error' }, expected: { kind: 'failed' } },
+    { why: 'something else', error: new Error('boom'), expected: { kind: 'failed' } },
+    { why: 'nothing', error: null, expected: { kind: 'failed' } },
+  ])('$why', ({ error, expected }) => {
+    expect(feedbackRefusalOf(error)).toEqual(expected);
+  });
+});
+
+// L2-063 AC4: a screenshot is checked in the browser by its type and size; one case per row, the
+// 5 MB boundary included.
+describe('checkFeedbackScreenshot', () => {
+  const MB = 1024 * 1024;
+  it.each([
+    { why: 'a PNG', type: 'image/png', size: 2048, expected: null },
+    { why: 'a JPEG of exactly 5 MB', type: 'image/jpeg', size: 5 * MB, expected: null },
+    { why: 'a WebP', type: 'image/webp', size: 1, expected: null },
+    {
+      why: 'a PNG of 5 MB and a byte',
+      type: 'image/png',
+      size: 5 * MB + 1,
+      expected: 'Use a JPEG, PNG or WebP image up to 5 MB',
+    },
+    {
+      why: 'a GIF',
+      type: 'image/gif',
+      size: 2048,
+      expected: 'Use a JPEG, PNG or WebP image up to 5 MB',
+    },
+    {
+      why: 'a PDF',
+      type: 'application/pdf',
+      size: 2048,
+      expected: 'Use a JPEG, PNG or WebP image up to 5 MB',
+    },
+    {
+      why: 'a file of no type',
+      type: '',
+      size: 2048,
+      expected: 'Use a JPEG, PNG or WebP image up to 5 MB',
+    },
+  ])('$why: $expected', ({ type, size, expected }) => {
+    expect(checkFeedbackScreenshot({ type, size })).toBe(expected);
   });
 });
