@@ -14,7 +14,7 @@ import { catchError, type Observable, throwError } from 'rxjs';
  * {@link EventSeriesApi} over HTTP: `GET /api/events/series?category=&q=&joined=true`,
  * `GET /api/events/series/count` (ADR 0093), `GET /api/events/series/{id}` (ADR 0096) and
  * `POST /api/events/series/{id}/enrolment` and `DELETE /api/events/series/{id}/enrolment/me`
- * (ADR 0101); the
+ * (ADR 0101) and `PUT /api/events/series/{id}/drop-ins` (ADR 0102); the
  * member is the session's, never named in the request. A 5xx opens the server-error screen
  * through the interceptor; every failure passes on to the screen. It holds no state, and is provided on the Events and Event series screens, so it
  * lives only while a screen does.
@@ -50,6 +50,26 @@ export class HttpEventSeriesService implements EventSeriesApi {
       .delete<SeriesDetailDto>(`/api/events/series/${encodeURIComponent(id)}/enrolment/me`)
       .pipe(catchError(asApiError));
   }
+
+  setDropIns(id: string, sessionIds: readonly string[]): Observable<SeriesDetailDto> {
+    return this.http
+      .put<SeriesDetailDto>(`/api/events/series/${encodeURIComponent(id)}/drop-ins`, {
+        sessionIds,
+      })
+      .pipe(catchError(asDropInError));
+  }
+}
+
+/** As {@link asApiError}, keeping the full dates' numbers an `event_full` refusal names (ADR 0102). */
+function asDropInError(error: unknown): Observable<never> {
+  if (!(error instanceof HttpErrorResponse)) return throwError(() => error);
+  const refused = apiErrorOf(error.status, error.error);
+  const sessions: unknown = (error.error as { sessions?: unknown } | null)?.sessions;
+  return throwError(() =>
+    Array.isArray(sessions) && sessions.every((n) => typeof n === 'number')
+      ? { ...refused, sessions }
+      : refused,
+  );
 }
 
 function asApiError(error: unknown): Observable<never> {

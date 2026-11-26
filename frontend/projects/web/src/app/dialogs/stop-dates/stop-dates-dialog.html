@@ -1,0 +1,21 @@
+<cf-dialog
+  [heading]="words.heading"
+  titleId="dlg-title"
+  [subtitle]="words.subtitle"
+  (closed)="keep()"
+>
+  @if (failed()) {
+    <cf-alert heading="We couldn't take you off those dates"
+      ><p>You still have your places. Try again in a moment.</p></cf-alert
+    >
+  }
+  <p class="stop-dates__text">
+    Your place goes to someone else. You can register for these dates again while places are left.
+  </p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="stopping()" (click)="keep()"
+    >Keep my dates</cf-button
+  >
+  <cf-button slot="foot" grow [disabled]="stopping()" [busy]="stopping()" (click)="stop()">{{
+    stopping() ? 'Stopping…' : 'Stop going'
+  }}</cf-button>
+</cf-dialog>

@@ -157,3 +157,58 @@ describe('seriesSessionsViewOf', () => {
     expect(view.rows).toHaveLength(states.length);
   });
 });
+
+// L2-053 AC4 (ADR 0102): once a joined member holds fewer than every date to come, each date to come
+// reads "Registered" or "Not going" after its weekday, and one not going has no Details.
+describe('seriesSessionsViewOf for a joined member', () => {
+  const STATES = ['done', 'live', 'upcoming', 'cancelled', 'upcoming'] as const;
+  const sessionsHolding = (...numbers: number[]): SeriesSessionDto[] =>
+    STATES.map((state, n) =>
+      session({ id: `s${n + 1}`, number: n + 1, state, held: numbers.includes(n + 1) }),
+    );
+  it.each([
+    {
+      why: 'a date to come given up: Registered and Not going, Not going with no Details',
+      sessions: sessionsHolding(1, 2, 5),
+      joined: true,
+      marks: ['', ' · Registered', ' · Not going', '', ' · Registered'],
+      ends: ['status', 'details', null, 'status', 'details'],
+    },
+    {
+      why: 'every date to come held: no marks',
+      sessions: sessionsHolding(2, 3, 5),
+      joined: true,
+      marks: ['', '', '', '', ''],
+      ends: ['status', 'details', 'details', 'status', 'details'],
+    },
+    {
+      why: 'not joined, with dates dropped in on: no marks',
+      sessions: sessionsHolding(2),
+      joined: false,
+      marks: ['', '', '', '', ''],
+      ends: ['status', 'details', 'details', 'status', 'details'],
+    },
+  ])('$why', ({ sessions, joined, marks, ends }) => {
+    const view = seriesSessionsViewOf(sessions, null, joined);
+
+    expect(view.rows.map((row) => row.mark)).toEqual(marks);
+    expect(view.rows.map((row) => row.end?.kind ?? null)).toEqual(ends);
+  });
+
+  it('changing dates shows the tick boxes and no marks', () => {
+    const view = seriesSessionsViewOf(
+      sessionsHolding(2, 5),
+      { picked: new Set(['s2', 's5']) },
+      true,
+    );
+
+    expect(view.rows.map((row) => row.mark)).toEqual(['', '', '', '', '']);
+    expect(view.rows.map((row) => row.end?.kind ?? null)).toEqual([
+      'status',
+      'pick',
+      'pick',
+      'status',
+      'pick',
+    ]);
+  });
+});

@@ -23,7 +23,7 @@
         <div class="session-row__body">
           <p class="session-row__meta">
             {{ session.meta }}<span class="visually-hidden">{{ session.date }}</span
-            >{{ session.state === 'next' ? ' · Next up' : '' }}
+            >{{ session.state === 'next' ? ' · Next up' : '' }}{{ session.mark ?? '' }}
           </p>
           @if (session.topic) {
             <p class="session-row__topic">{{ session.topic }}</p>

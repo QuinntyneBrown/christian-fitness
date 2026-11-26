@@ -32,6 +32,8 @@ export interface SeriesSessionRow {
   state: SeriesSessionState;
   topic: string;
   end: SeriesSessionEnd;
+  /** " · Registered" or " · Not going" after the weekday for a joined member who gave dates up; else empty (ADR 0102). */
+  mark: string;
 }
 
 /** The sessions block: the rows, "8 sessions" for the eyebrow and "2 done · 5 to go". */
@@ -54,6 +56,7 @@ let parts: Intl.DateTimeFormat | undefined;
 export function seriesSessionRowOf(
   session: SeriesSessionDto,
   pick: SeriesSessionPick | null = null,
+  marked = false,
 ): SeriesSessionRow {
   parts ??= new Intl.DateTimeFormat('en-US', {
     timeZone: EVENT_TIME_ZONE,
@@ -64,22 +67,25 @@ export function seriesSessionRowOf(
   const at = Object.fromEntries(
     parts.formatToParts(new Date(session.startsAt)).map((part) => [part.type, part.value]),
   );
+  const mark = marked && pick === null ? (session.held ? ' · Registered' : ' · Not going') : '';
   const toCome: SeriesSessionEnd =
-    pick === null
-      ? {
-          kind: 'details',
-          href: `/events/${encodeURIComponent(session.id)}`,
-          number: session.number,
-        }
-      : session.full && !session.held
-        ? { kind: 'status', text: 'Full' }
-        : {
-            kind: 'pick',
-            label: 'Drop in',
-            hidden: ` on ${at['weekday']}, ${at['month']} ${at['day']}`,
-            value: session.id,
-            checked: pick.picked.has(session.id),
-          };
+    mark === ' · Not going'
+      ? null
+      : pick === null
+        ? {
+            kind: 'details',
+            href: `/events/${encodeURIComponent(session.id)}`,
+            number: session.number,
+          }
+        : session.full && !session.held
+          ? { kind: 'status', text: 'Full' }
+          : {
+              kind: 'pick',
+              label: 'Drop in',
+              hidden: ` on ${at['weekday']}, ${at['month']} ${at['day']}`,
+              value: session.id,
+              checked: pick.picked.has(session.id),
+            };
   const [state, end]: [SeriesSessionState, SeriesSessionEnd] =
     session.state === 'done'
       ? ['past', { kind: 'status', text: session.held ? 'Not recorded' : 'Done' }]
@@ -97,18 +103,26 @@ export function seriesSessionRowOf(
     state,
     topic: session.topic ?? '',
     end,
+    mark: state === 'next' || state === 'upcoming' ? mark : '',
   };
 }
 
-/** The rows, the count of every date (cancelled ones included) and "<done> done · <to go> to go". */
+/**
+ * The rows, the count of every date (cancelled ones included) and "<done> done · <to go> to go".
+ * Once a `joined` member holds fewer than every date to come, each date to come is marked
+ * Registered or Not going, and one not going has no Details (L2-053 AC4; ADR 0102).
+ */
 export function seriesSessionsViewOf(
   sessions: readonly SeriesSessionDto[],
   pick: SeriesSessionPick | null = null,
+  joined = false,
 ): SeriesSessionsView {
   const done = sessions.filter((s) => s.state === 'done').length;
-  const toGo = sessions.filter((s) => s.state === 'live' || s.state === 'upcoming').length;
+  const toCome = sessions.filter((s) => s.state === 'live' || s.state === 'upcoming');
+  const toGo = toCome.length;
+  const marked = joined && toCome.some((s) => !s.held);
   return {
-    rows: sessions.map((session) => seriesSessionRowOf(session, pick)),
+    rows: sessions.map((session) => seriesSessionRowOf(session, pick, marked)),
     count: sessions.length === 1 ? '1 session' : `${sessions.length} sessions`,
     note: `${done} done · ${toGo} to go`,
   };

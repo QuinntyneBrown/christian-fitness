@@ -11,4 +11,6 @@ export interface ApiError {
   fieldCodes?: Record<string, string>;
   /** The account a refusal was about, such as the Google email no profile uses (ADR 0099). */
   account?: string;
+  /** The numbers of the series dates an `event_full` refusal names (ADR 0102). */
+  sessions?: number[];
 }

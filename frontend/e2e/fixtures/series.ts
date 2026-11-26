@@ -230,7 +230,11 @@ export const COUCH_TO_5K_DETAIL: SeriesDetail = {
   spotsLeft: 9,
   sessionsLeft: 5,
   joined: true,
-  sessions: COUCH_SESSIONS,
+  // Joined: a place at each date to come, as the API answers a joined member (ADR 0101).
+  sessions: COUCH_SESSIONS.map((session) => ({
+    ...session,
+    held: session.held || session.state === 'live' || session.state === 'upcoming',
+  })),
 };
 
 /**
@@ -363,6 +367,51 @@ export function answerSeriesJoin(
     if (own) return own;
     const found = series.find((row) => row.id === id);
     return found ? { json: joinedOf(found) } : { status: 404, json: { code: 'series_not_found' } };
+  });
+  return asked;
+}
+
+/**
+ * `detail` as the member sees it once their dates to come are exactly `sessionIds` (L2-053 AC2, AC4;
+ * ADR 0102): each session to come is held when it is named, past ones keep what they had, and the
+ * enrolment is unchanged.
+ */
+export function droppedInOf(detail: SeriesDetail, sessionIds: readonly string[]): SeriesDetail {
+  return {
+    ...detail,
+    sessions: detail.sessions.map((session) => ({
+      ...session,
+      held:
+        session.state === 'live' || session.state === 'upcoming'
+          ? sessionIds.includes(session.id)
+          : session.held,
+    })),
+  };
+}
+
+/**
+ * Answers `PUT /api/events/series/{id}/drop-ins` (ADR 0102) with `droppedInOf` the series of that id
+ * among `series` and the body's `sessionIds`, or 404 `series_not_found`; `reply` may answer a
+ * request, by its zero-based number, otherwise (a refusal such as 409 `event_full` with `sessions`,
+ * or a reply held until a promise settles). Returns each request's `sessionIds`, in order.
+ */
+export function answerDropIns(
+  api: ApiHandlers,
+  series: SeriesDetail[],
+  reply: (requestNumber: number) => ApiReply | Promise<ApiReply> | null = () => null,
+): string[][] {
+  const asked: string[][] = [];
+  api.on('PUT', /^\/api\/events\/series\/[0-9a-f-]{36}\/drop-ins$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/').at(-2) ?? '';
+    const sessionIds = (request.postDataJSON() as { sessionIds: string[] }).sessionIds;
+    const number = asked.length;
+    asked.push(sessionIds);
+    const own = await reply(number);
+    if (own) return own;
+    const found = series.find((row) => row.id === id);
+    return found
+      ? { json: droppedInOf(found, sessionIds) }
+      : { status: 404, json: { code: 'series_not_found' } };
   });
   return asked;
 }

@@ -39,6 +39,8 @@ export interface SessionListRow {
   /** What the session is about, or empty. */
   topic: string;
   end: SessionRowEnd;
+  /** " · Registered" or " · Not going" after the weekday (ADR 0102); none or empty for no mark. */
+  mark?: string;
 }
 
 /**

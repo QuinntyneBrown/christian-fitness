@@ -143,6 +143,15 @@ export interface EventSeriesApi {
    * Any failure errors, and nothing changed.
    */
   leave(id: string): Observable<SeriesDetailDto>;
+
+  /**
+   * The signed-in member's dates still to come become exactly `sessionIds`, all or none
+   * (`PUT /api/events/series/{id}/drop-ins`, L2-053 AC2, AC4; ADR 0102), and they get the series
+   * back as they now see it. Any failure errors with an `ApiError`: 409 `event_full` with the full
+   * dates' numbers in `sessions`, 400 `sessions_invalid`, 403 `account_suspended`, 404
+   * `series_not_found`, or `network` (status 0); nothing changed.
+   */
+  setDropIns(id: string, sessionIds: readonly string[]): Observable<SeriesDetailDto>;
 }
 
 /** Binds {@link EventSeriesApi}; the Events and Event series screens provide it on their own route components. */

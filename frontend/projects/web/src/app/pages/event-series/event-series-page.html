@@ -78,6 +78,7 @@
             <cf-card variant="pad-sm">
               <cf-series-panel
                 [joined]="panel().joined"
+                [confirmed]="panel().confirmed"
                 [payNote]="panel().payNote"
                 [spots]="panel().spots"
                 [plans]="panel().plans"
@@ -87,6 +88,11 @@
                 [keptNote]="keptNote()"
                 [progress]="panel().progress"
                 [chatHref]="chatHref()"
+                [booked]="booked()"
+                [failure]="fullDates()"
+                [cancelable]="changing()"
+                (changeDates)="changeDates()"
+                (cancelChange)="cancelChange()"
                 (choose)="choose($event)"
                 (act)="join()"
                 (allDates)="downloadAllDates()"

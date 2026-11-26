@@ -256,6 +256,9 @@ test.describe('Member app, join a series: the joined panel', () => {
     answerSeriesJoin(api, [droppedIn]);
     const series = new WebEventSeriesPage(page);
     await series.open(droppedIn.id);
+    // Holding a date, the member changes their dates and chooses every session (ADR 0102).
+    await series.changeDatesButton.click();
+    await series.everySession.check();
 
     await series.panelButton.click();
 

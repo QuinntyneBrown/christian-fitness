@@ -47,6 +47,11 @@ export interface SeriesProgressView {
  */
 export interface SeriesPanelView {
   joined: boolean;
+  /**
+   * Once joined: "You're in for every session", or "You're in for <h> of <n> sessions to come" once
+   * dates are given up (ADR 0102); else empty.
+   */
+  confirmed: string;
   /** "Pay the host at your first session, …" once a paid series is joined; else none. */
   payNote: string | null;
   /** Once joined; else none. */
@@ -67,6 +72,9 @@ export interface SeriesPanelChoice {
   joining: boolean;
   picked?: number;
   registering?: boolean;
+  /** Changing dates already held ("Change dates"), and whether the ticks differ from them (ADR 0102). */
+  changing?: boolean;
+  changed?: boolean;
 }
 
 const NO_CHOICE: SeriesPanelChoice = { plan: null, joining: false };
@@ -98,20 +106,26 @@ export function seriesPanelViewOf(
 ): SeriesPanelView {
   const note = 'One group chat for the whole series.';
   const payNote = series.joined && series.priceCents > 0 ? SERIES_PAY_NOTE : null;
+  const pick = dropInPickOf({
+    picked: choice.picked ?? 0,
+    busy: choice.registering ?? false,
+    changing: choice.changing ?? false,
+    changed: choice.changed ?? false,
+  });
   if (series.joined || series.spotsLeft === null) {
     return {
       joined: series.joined,
+      confirmed: series.joined ? confirmedOf(series.sessions) : '',
       payNote,
       progress: series.joined ? progressOf(series.sessions) : null,
       spots: series.joined ? '' : 'No sessions left',
       plans: [],
-      action: null,
+      action: series.joined && choice.changing ? pick.button : null,
       note,
     };
   }
   const held = series.sessions.filter((session) => session.state !== 'cancelled').length;
   const busy = choice.joining || (choice.registering ?? false);
-  const pick = dropInPickOf({ picked: choice.picked ?? 0, busy: choice.registering ?? false });
   const price = priceOf(series.priceCents);
   const full = series.spotsLeft === 0;
   const dropIn = series.dropInPriceCents !== null;
@@ -159,6 +173,7 @@ export function seriesPanelViewOf(
         : pick.button;
   return {
     joined: false,
+    confirmed: '',
     payNote: null,
     progress: null,
     spots: full ? 'Series full' : `${series.spotsLeft} of ${series.capacity} spots left`,
@@ -181,6 +196,17 @@ export function seriesJoinRefusalOf(error: unknown): 'full' | 'failed' {
     error.code === 'series_full'
     ? 'full'
     : 'failed';
+}
+
+/** The joined member's confirmation: every session, or how many of the dates to come they hold. */
+function confirmedOf(sessions: SeriesDetailDto['sessions']): string {
+  const toCome = sessions.filter(
+    (session) => session.state === 'live' || session.state === 'upcoming',
+  );
+  const holding = toCome.filter((session) => session.held).length;
+  return holding === toCome.length
+    ? "You're in for every session"
+    : `You're in for ${holding} of ${toCome.length} sessions to come`;
 }
 
 /** The progress of a joined member: no attendance is recorded until journey 16. */

@@ -50,4 +50,17 @@ public sealed class SeriesController(ISender sender) : ControllerBase
     [HttpDelete("{id:guid}/enrolment/me")]
     public async Task<ActionResult<SeriesDetailDto>> Leave(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new LeaveSeriesCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// The signed-in member's dates still to come become exactly <c>sessionIds</c>, all or none
+    /// (L2-053 AC2, AC4, AC6; ADR 0102). Answers the series as they now see it; 400
+    /// <c>sessions_invalid</c>, 403 <c>account_suspended</c>, 404 <c>series_not_found</c> or 409
+    /// <c>event_full</c> with the full sessions' numbers.
+    /// </summary>
+    [HttpPut("{id:guid}/drop-ins")]
+    public async Task<ActionResult<SeriesDetailDto>> SetDropIns(Guid id, SetDropInDatesBody body, CancellationToken cancellationToken) =>
+        await sender.Send(new SetDropInDatesCommand(id, body?.SessionIds ?? []), cancellationToken).ConfigureAwait(false);
 }
+
+/// <summary>What the series page sends to change the member's dates: every date to come they want to hold (ADR 0102).</summary>
+public sealed record SetDropInDatesBody(IReadOnlyList<Guid>? SessionIds);
