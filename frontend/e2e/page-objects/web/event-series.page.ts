@@ -32,6 +32,16 @@ export class WebEventSeriesPage extends ErrorScreen {
   readonly plans: Locator;
   readonly panelNote: Locator;
   readonly confirmed: Locator;
+  /** The ways to come as one radio group, "How would you like to come?" (ADR 0099). */
+  readonly planGroup: Locator;
+  readonly everySession: Locator;
+  readonly dropIn: Locator;
+  /** The panel's one button: "Join the series", "Joining…" or "Pick a date first". */
+  readonly panelButton: Locator;
+  /** "Pay the host at your first session, …" under the confirmation of a paid series. */
+  readonly payNote: Locator;
+  /** The generic failure above the button. */
+  readonly failure: Locator;
   readonly hostCard: Locator;
   readonly hostLabel: Locator;
   readonly hostName: Locator;
@@ -61,6 +71,12 @@ export class WebEventSeriesPage extends ErrorScreen {
     this.plans = this.panel.locator('.plan-option');
     this.panelNote = this.panel.locator('.register__note');
     this.confirmed = this.panel.getByRole('status');
+    this.planGroup = this.panel.getByRole('group', { name: 'How would you like to come?' });
+    this.everySession = this.planGroup.getByRole('radio', { name: /^Every session/ });
+    this.dropIn = this.planGroup.getByRole('radio', { name: /^Pick dates to drop in/ });
+    this.panelButton = this.panel.locator('.register__state').getByRole('button');
+    this.payNote = this.panel.locator('.register__note--start');
+    this.failure = this.panel.getByRole('alert');
     this.hostCard = this.aside.locator('a.host-card');
     this.hostLabel = this.hostCard.locator('.host-card__label');
     this.hostName = this.hostCard.locator('.host-card__name');

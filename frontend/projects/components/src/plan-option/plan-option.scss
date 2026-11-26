@@ -1,0 +1,75 @@
+// The design system's plan option (docs/design-system/assets/components.css, "plan-option"):
+// a hairline ring, the accent tint and ring once checked, dimmed when disabled, and the shared
+// focus ring around the whole row.
+:host {
+  display: block;
+}
+
+.plan-option {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-hover);
+  }
+
+  &:has(.plan-option__input:checked) {
+    background: var(--color-accent-subtle);
+    box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-fg-accent);
+  }
+
+  &:has(.plan-option__input:disabled) {
+    cursor: not-allowed;
+    opacity: var(--opacity-unavailable);
+  }
+
+  &:has(.plan-option__input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+.plan-option__input {
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  flex-shrink: 0;
+  margin: 0;
+  accent-color: var(--color-accent);
+}
+
+.plan-option__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.plan-option__title {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+}
+
+.plan-option__note {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.plan-option__price {
+  flex-shrink: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-option {
+    transition: none;
+  }
+}

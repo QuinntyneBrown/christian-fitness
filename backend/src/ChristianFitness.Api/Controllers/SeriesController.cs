@@ -33,4 +33,13 @@ public sealed class SeriesController(ISender sender) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<SeriesDetailDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetSeriesQuery(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// The signed-in member joins the series: a place at every session to come and its one chat
+    /// (L2-052 AC2; ADR 0099). Answers the series as they now see it; 403 <c>account_suspended</c>,
+    /// 404 <c>series_not_found</c> or 409 <c>series_full</c>.
+    /// </summary>
+    [HttpPost("{id:guid}/enrolment")]
+    public async Task<ActionResult<SeriesDetailDto>> Join(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new JoinSeriesCommand(id), cancellationToken).ConfigureAwait(false);
 }

@@ -200,7 +200,7 @@ test.describe('Member app, view an event series: the sessions', () => {
   });
 });
 
-// L2-051 AC1 (ADR 0080, ADR 0096): the sign-up panel, read-only until joining (journey 12).
+// L2-051 AC1 (ADR 0080, ADR 0096, ADR 0099): the sign-up panel.
 test.describe('Member app, view an event series: the sign-up panel', () => {
   test('A series the member has not joined shows the spots left and both ways to come with their prices', async ({
     page,
@@ -220,9 +220,9 @@ test.describe('Member app, view an event series: the sign-up panel', () => {
     ]);
     await expect(series.panelNote).toHaveText('One group chat for the whole series.');
     await expect(series.confirmed).toHaveCount(0);
-    // Read-only: nothing to press until joining comes (journey 12).
-    await expect(series.panel.getByRole('button')).toHaveCount(0);
-    await expect(series.panel.getByRole('radio')).toHaveCount(0);
+    // The ways to come are one radio group and the panel has one button (journey 12, ADR 0099).
+    await expect(series.planGroup.getByRole('radio')).toHaveCount(2);
+    await expect(series.panelButton).toHaveText('Join the series');
   });
 
   test('A full series says so, and why every session cannot be had', async ({ page, api }) => {

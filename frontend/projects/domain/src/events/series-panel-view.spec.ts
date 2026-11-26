@@ -74,7 +74,7 @@ describe('seriesPanelViewOf', () => {
       spots: 'Series full',
       plans: [
         ['Every session (5 left)', 'Every place in the series is taken', '$64 for all 8'],
-        ['Pick dates to drop in', 'Come when you can', '$10 each'],
+        ['Pick dates to drop in', 'Tick dates in the list', '$10 each'],
       ],
     },
     {
@@ -98,7 +98,102 @@ describe('seriesPanelViewOf', () => {
     expect(view.note).toBe('One group chat for the whole series.');
   });
 
-  it('a member who joined is told so', () => {
-    expect(seriesPanelViewOf({ ...BOOTCAMP, joined: true }).joined).toBe(true);
+  it('a member who joined is told so, with how to pay a paid series', () => {
+    const view = seriesPanelViewOf({ ...BOOTCAMP, joined: true });
+
+    expect(view.joined).toBe(true);
+    expect(view.payNote).toBe(
+      "Pay the host at your first session, by cash or e-transfer. You won't be charged online.",
+    );
+    expect(view.plans).toEqual([]);
+    expect(view.action).toBeNull();
+  });
+
+  it('a member who joined a free series has nothing to pay', () => {
+    expect(seriesPanelViewOf({ ...BOOTCAMP, priceCents: 0, joined: true }).payNote).toBeNull();
+  });
+});
+
+// L2-052 AC1, AC2 and AC5 (ADR 0099): which way is chosen, what can be chosen and the button, one
+// case per row: [checked, disabled] for each option, then the button's label, disabled and busy.
+describe('seriesPanelViewOf, the choice and the button', () => {
+  it.each([
+    {
+      why: 'nothing chosen yet: every session, and Join the series',
+      panel: BOOTCAMP,
+      choice: { plan: null, joining: false },
+      plans: [
+        [true, false],
+        [false, false],
+      ],
+      action: ['Join the series', false, false],
+    },
+    {
+      why: 'drop-in chosen: tick dates, and the button waits for one',
+      panel: BOOTCAMP,
+      choice: { plan: 'drop', joining: false },
+      plans: [
+        [false, false],
+        [true, false],
+      ],
+      action: ['Pick a date first', true, false],
+    },
+    {
+      why: 'every session chosen again',
+      panel: BOOTCAMP,
+      choice: { plan: 'all', joining: false },
+      plans: [
+        [true, false],
+        [false, false],
+      ],
+      action: ['Join the series', false, false],
+    },
+    {
+      why: 'joining: both options disabled, the chosen one kept, Joining… busy',
+      panel: BOOTCAMP,
+      choice: { plan: 'all', joining: true },
+      plans: [
+        [true, true],
+        [false, true],
+      ],
+      action: ['Joining…', true, true],
+    },
+    {
+      why: 'full: drop-in chosen whatever was chosen, every session cannot be',
+      panel: { ...BOOTCAMP, spotsLeft: 0 },
+      choice: { plan: 'all', joining: false },
+      plans: [
+        [false, true],
+        [true, false],
+      ],
+      action: ['Pick a date first', true, false],
+    },
+    {
+      why: 'no drop-in: drop-in asked for still chooses every session',
+      panel: { ...BOOTCAMP, dropInPriceCents: null },
+      choice: { plan: 'drop', joining: false },
+      plans: [[true, false]],
+      action: ['Join the series', false, false],
+    },
+    {
+      why: 'full with no drop-in: nothing can be chosen and nothing pressed',
+      panel: { ...BOOTCAMP, spotsLeft: 0, dropInPriceCents: null },
+      choice: { plan: null, joining: false },
+      plans: [[false, true]],
+      action: null,
+    },
+  ] as const)('$why', ({ panel, choice, plans, action }) => {
+    const view = seriesPanelViewOf(panel as Panel, choice);
+
+    expect(view.plans.map((plan) => [plan.checked, plan.disabled])).toEqual(plans);
+    expect(view.plans.map((plan) => plan.value)).toEqual(['all', 'drop'].slice(0, plans.length));
+    expect(view.action && [view.action.label, view.action.disabled, view.action.busy]).toEqual(
+      action,
+    );
+    expect(view.payNote).toBeNull();
+  });
+
+  it('nothing to come: no way to come and no button', () => {
+    expect(seriesPanelViewOf({ ...BOOTCAMP, spotsLeft: null, sessionsLeft: 0 }).action).toBeNull();
   });
 });

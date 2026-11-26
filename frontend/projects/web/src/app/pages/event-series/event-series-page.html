@@ -74,9 +74,14 @@
             <cf-card variant="pad-sm">
               <cf-series-panel
                 [joined]="panel().joined"
+                [payNote]="panel().payNote"
                 [spots]="panel().spots"
                 [plans]="panel().plans"
+                [button]="panel().action"
+                [failed]="joinFailed()"
                 [note]="panel().note"
+                (choose)="choose($event)"
+                (act)="join()"
               />
             </cf-card>
             <cf-host-card

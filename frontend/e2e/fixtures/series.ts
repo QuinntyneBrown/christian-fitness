@@ -318,3 +318,43 @@ export function answerSeriesDetail(
   });
   return asked;
 }
+
+/**
+ * `detail` as the member sees it once they joined (L2-052 AC2; ADR 0099): joined, a place held at
+ * every session to come (the next one and those after it, not cancelled), and one place fewer left.
+ */
+export function joinedOf(detail: SeriesDetail): SeriesDetail {
+  return {
+    ...detail,
+    joined: true,
+    spotsLeft: detail.spotsLeft === null ? null : detail.spotsLeft - 1,
+    sessions: detail.sessions.map((session) => ({
+      ...session,
+      held: session.held || session.state === 'live' || session.state === 'upcoming',
+    })),
+  };
+}
+
+/**
+ * Answers `POST /api/events/series/{id}/enrolment` (ADR 0099) with `joinedOf` the series of that id
+ * among `series`, or 404 `series_not_found`; `reply` may answer a request, by its zero-based number,
+ * otherwise (a refusal such as 409 `series_full`, or a reply held until a promise settles). Returns
+ * the ids joined, in order.
+ */
+export function answerSeriesJoin(
+  api: ApiHandlers,
+  series: SeriesDetail[],
+  reply: (requestNumber: number) => ApiReply | Promise<ApiReply> | null = () => null,
+): string[] {
+  const asked: string[] = [];
+  api.on('POST', /^\/api\/events\/series\/[0-9a-f-]{36}\/enrolment$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/').at(-2) ?? '';
+    const number = asked.length;
+    asked.push(id);
+    const own = await reply(number);
+    if (own) return own;
+    const found = series.find((row) => row.id === id);
+    return found ? { json: joinedOf(found) } : { status: 404, json: { code: 'series_not_found' } };
+  });
+  return asked;
+}
