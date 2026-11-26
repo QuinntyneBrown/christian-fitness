@@ -3057,7 +3057,7 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 - Journey 3 built staff sign-in on the same handler at the same time and cherry-picked this
   journey's first four commits. When its PR merged first, the rebase could not recognise them
   (their conflicts had been resolved on the other branch), so `git rebase --onto origin/main
-  <last shared commit>` replayed only this journey's later slices, and the migration was left out
+<last shared commit>` replayed only this journey's later slices, and the migration was left out
   of the slice commit and generated after the rebase, after journey 3's.
 - An ASP.NET Core quirk cost a round: the ProblemDetails exception handler clears the response's
   headers, so a cookie deleted before a refusal was lost; `Response.OnStarting` deletes it.
@@ -3260,6 +3260,7 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   reading another story after the in-window reload made it fail for the right reason.
 - "Read the initial total after each slice": web stayed at 278.49 kB against main's 278.46 kB; the
   story page, its reads and Keep reading are in the lazy chunk.
+
 ## Journey 32: Make a Community Pick
 
 **What slowed it**
@@ -3349,8 +3350,9 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 - The output cache is shared by every test of a class, and the story tests put stories straight in
   the store, which evicts nothing. A rate-limit test that read `/feed` 120 times on an empty store
   kept an empty feed for the next test, and an unpublish test kept a Training feed for the
-  conditional test. Each test now reads feeds no other test of its class keeps, or evicts every
-  feed first (`StoryFeeds.EvictAllAsync`).
+  conditional test. CI then ran the cache tests in another order and the unpublish test read the
+  Training feed the conditional test had kept. Every test that puts stories straight in the store
+  now evicts every feed before its first read (`StoryFeeds.EvictAllAsync`).
 - Two break runs did not compile: removing the eviction call left the handler's `feeds` parameter
   unread (CS9113, analysers run on every build). The break replaces the call with `_ = feeds;`.
 - The full e2e run on two workers failed two specs this journey does not touch

@@ -13,7 +13,8 @@ namespace ChristianFitness.Api.Tests.Stories;
 /// validator while nothing changed. The API keeps each rendered feed, so a story put straight in the
 /// store is not seen until something evicts it; publishing, editing or unpublishing a story through
 /// the API, and the publishing clock publishing a scheduled one, evict the All stories feed and the
-/// story's section feeds, and no other. This class has its own store and its own feed cache.
+/// story's section feeds, and no other. This class has its own store and its own feed cache; each
+/// test empties the cache after putting its stories, so a feed an earlier test kept is not read.
 /// </summary>
 public sealed class FeedCacheTests(StoriesFactory factory) : IClassFixture<StoriesFactory>
 {
@@ -58,6 +59,7 @@ public sealed class FeedCacheTests(StoriesFactory factory) : IClassFixture<Stori
         var now = factory.Time.GetUtcNow();
         var byline = await factory.AddBylineAsync("Cache Writer");
         await factory.PutStoryAsync("Kept event story", StoryStatus.Published, now.AddDays(-6), byline, StorySection.Events, slug: "kept-event-story");
+        await StoryFeeds.EvictAllAsync(factory);
         using (await StoryFeeds.GetAsync(factory, "/events/feed"))
         using (await StoryFeeds.GetAsync(factory, "/feed"))
         {
@@ -93,6 +95,7 @@ public sealed class FeedCacheTests(StoriesFactory factory) : IClassFixture<Stori
     {
         var byline = await factory.AddBylineAsync("Update Writer");
         var story = await factory.PutStoryAsync("Before the update", StoryStatus.Published, factory.Time.GetUtcNow().AddDays(-4), byline, StorySection.Community, slug: "before-the-update");
+        await StoryFeeds.EvictAllAsync(factory);
         using var before = await StoryFeeds.GetAsync(factory, "/feed");
         using (await StoryFeeds.GetAsync(factory, "/community/feed"))
         using (await StoryFeeds.GetAsync(factory, "/nutrition/feed"))
@@ -126,6 +129,7 @@ public sealed class FeedCacheTests(StoriesFactory factory) : IClassFixture<Stori
     public async Task Given_a_published_story_in_served_feeds_When_an_Admin_unpublishes_it_Then_it_leaves_All_stories_and_its_section_feed()
     {
         var story = await factory.PutStoryAsync("To be unpublished", StoryStatus.Published, factory.Time.GetUtcNow().AddDays(-2), section: StorySection.Training, slug: "to-be-unpublished");
+        await StoryFeeds.EvictAllAsync(factory);
         using var before = await StoryFeeds.GetAsync(factory, "/training/feed");
         Assert.Contains("To be unpublished", await StoryFeeds.TitlesAsync(before));
         using (await StoryFeeds.GetAsync(factory, "/feed"))
@@ -154,6 +158,7 @@ public sealed class FeedCacheTests(StoriesFactory factory) : IClassFixture<Stori
     {
         var now = factory.Time.GetUtcNow();
         await factory.PutStoryAsync("Scheduled for the clock", StoryStatus.Scheduled, now.AddDays(-1), section: StorySection.FaithAndBody, slug: "scheduled-for-the-clock", publishAt: now.AddMinutes(1));
+        await StoryFeeds.EvictAllAsync(factory);
         using (await StoryFeeds.GetAsync(factory, "/faith-body/feed"))
         {
         }
