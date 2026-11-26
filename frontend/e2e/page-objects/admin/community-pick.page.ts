@@ -211,6 +211,20 @@ export class CommunityPickPage {
     );
   }
 
+  /**
+   * Starts watching the scripts the page loads from now on, and returns a check of whether any of
+   * them holds `text` (such as `toBlob`, which only the drawing code calls).
+   */
+  watchScripts(): (text: string) => Promise<boolean> {
+    const bodies: Promise<string>[] = [];
+    this.page.on('response', (response) => {
+      if (response.request().resourceType() === 'script') {
+        bodies.push(response.text().catch(() => ''));
+      }
+    });
+    return async (text) => (await Promise.all(bodies)).some((body) => body.includes(text));
+  }
+
   /** What the clipboard holds, its line ends as written (a Windows clipboard reads `\r\n`). */
   async clipboard(): Promise<string> {
     const text = await this.page.evaluate(() => navigator.clipboard.readText());

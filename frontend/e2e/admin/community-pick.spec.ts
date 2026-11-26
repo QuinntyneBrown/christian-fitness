@@ -328,6 +328,24 @@ test.describe('Admin app, Community Pick: creating the assets', () => {
     },
   );
 
+  // AC12: the code that draws and exports the graphics is not in what the screen loads; it comes
+  // with the first Create assets.
+  test('the drawing code loads only when Create assets is pressed', async ({ page, api }) => {
+    api.on('GET', '/api/admin/community-pick/events', () => pickableEvents());
+    answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    const loaded = pick.watchScripts();
+    await pick.open();
+    await expect(pick.previewTitle).toHaveText('Five files, four platforms, one click');
+
+    expect(await loaded('toBlob')).toBe(false);
+
+    await pick.create();
+
+    await expect(pick.assetImages).toHaveCount(2);
+    expect(await loaded('toBlob')).toBe(true);
+  });
+
   // AC5: the text meets 4.5:1 against what is behind it, even on the lightest photo there is. The
   // bands sampled are where the fixture's title, when line and note sit in each shape.
   test('on a white photo, what is under the text still meets 4.5:1 against white', async ({
