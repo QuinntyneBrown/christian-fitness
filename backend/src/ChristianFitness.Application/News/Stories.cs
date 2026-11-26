@@ -92,6 +92,7 @@ public static class StoryRules
     public const string PageInvalid = "page_invalid";
     public const string SlugTaken = "slug_taken";
     public const string VersionRequired = "version_required";
+    public const string ImageInvalid = "image_invalid";
 
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal)
     {

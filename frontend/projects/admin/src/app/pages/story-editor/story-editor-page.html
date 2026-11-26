@@ -39,6 +39,9 @@
       [headlineInvalid]="!!marked()['headline']"
       [textInvalid]="!!marked()['text']"
       [readonly]="store.acting() !== null"
+      [imageSrc]="imageSrc()"
+      [imageBusy]="store.imageUpload() === 'uploading'"
+      (imageChosen)="store.addImage($event)"
       (headlineChange)="edit({ headline: $event })"
       (summaryChange)="edit({ summary: $event })"
       (textChange)="edit({ text: $event })"
@@ -79,6 +82,16 @@
       @if (store.saveState() === 'failed') {
         <cf-alert slot="alert" heading="We couldn't save your changes">
           What you wrote is still here. Try again in a moment.
+        </cf-alert>
+      }
+      @if (store.imageUpload() === 'invalid') {
+        <cf-alert slot="alert" heading="Choose another image">
+          Use a JPEG, PNG or WebP image at least 1600 px wide and up to 5 MB.
+        </cf-alert>
+      }
+      @if (store.imageUpload() === 'failed') {
+        <cf-alert slot="alert" heading="We couldn't add the image">
+          The story is as it was. Check your connection and try again.
         </cf-alert>
       }
       @if (store.saveState() === 'invalid') {

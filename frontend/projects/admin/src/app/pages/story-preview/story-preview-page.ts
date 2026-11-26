@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ADMIN_STORIES_SERVICE, type ApiError, type StoryPreviewDto } from '@cf/api';
+import { ADMIN_STORIES_SERVICE, type ApiError, storyImageUrl, type StoryPreviewDto } from '@cf/api';
 import { Banner, Button, EmptyState, Story, type StoryNextCard } from '@cf/components';
 import {
   storyBlocks,
@@ -48,6 +48,11 @@ export default class StoryPreviewPage {
     );
   });
   protected readonly section = computed(() => storySectionLabel(this.preview()?.section ?? null));
+  /** The lead image, at its centre crop (L2-069 AC9; ADR 0097). */
+  protected readonly image = computed(() => {
+    const image = this.preview()?.image;
+    return image ? storyImageUrl(image.key) : null;
+  });
   protected readonly blocks = computed(() => storyBlocks(this.preview()?.text ?? ''));
   protected readonly when = computed(() => {
     const preview = this.preview();

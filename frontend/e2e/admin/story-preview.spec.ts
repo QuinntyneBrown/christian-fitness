@@ -1,4 +1,5 @@
 import {
+  answerStoryImages,
   DRAFT_STORY,
   newStory,
   REVIEW_PREVIEW,
@@ -61,6 +62,24 @@ test.describe('Admin app, the story preview', () => {
     await expect(preview.bodyLinks).toHaveAttribute('href', 'https://example.org/lena');
     await expect(preview.nextLabel).toHaveText('In the directory');
     await expect(preview.nextTitle).toHaveText('Book a session with Lena');
+  });
+
+  // L2-069 AC9: the lead image above the story, at 16:9.
+  test('a story with a lead image shows it above the story', async ({ page, api }) => {
+    const key = '0123456789abcdef0123456789abcd01.jpg';
+    answerStoryImages(api);
+    api.on('GET', `${BASE}/${REVIEW_STORY.id}/preview`, () => ({
+      json: {
+        ...REVIEW_PREVIEW,
+        image: { key, crop: { x: 0, y: 188, width: 2000, height: 1125 } },
+      },
+    }));
+    const preview = new StoryPreviewPage(page);
+
+    await preview.open(REVIEW_STORY.id);
+
+    await expect(preview.image).toHaveAttribute('src', `/api/stories/images/${key}`);
+    await expect(preview.image).toHaveAttribute('alt', '');
   });
 
   test('a story with no next step shows no card', async ({ page, api }) => {

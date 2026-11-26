@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Text.RegularExpressions;
 
 namespace ChristianFitness.Application.Events;
@@ -29,6 +30,85 @@ public static partial class ImageKeys
         if (head.Length >= 12 && head[..4].SequenceEqual("RIFF"u8) && head[8..12].SequenceEqual("WEBP"u8))
         {
             return ("webp", "image/webp");
+        }
+
+        return null;
+    }
+
+    /// <summary>The width and height a JPEG, PNG or WebP header names, in pixels, or none when it cannot be read (L2-069 AC9).</summary>
+    public static (int Width, int Height)? SizeOf(ReadOnlySpan<byte> head) => Detect(head)?.Extension switch
+    {
+        "png" => head.Length >= 24 ? (BinaryPrimitives.ReadInt32BigEndian(head[16..]), BinaryPrimitives.ReadInt32BigEndian(head[20..])) : null,
+        "webp" => WebPSizeOf(head),
+        "jpg" => JpegSizeOf(head),
+        _ => null,
+    };
+
+    private static (int Width, int Height)? WebPSizeOf(ReadOnlySpan<byte> head)
+    {
+        if (head.Length < 25)
+        {
+            return null;
+        }
+
+        var chunk = head[12..16];
+        if (chunk.SequenceEqual("VP8 "u8) && head.Length >= 30)
+        {
+            return (BinaryPrimitives.ReadUInt16LittleEndian(head[26..]) & 0x3FFF, BinaryPrimitives.ReadUInt16LittleEndian(head[28..]) & 0x3FFF);
+        }
+
+        if (chunk.SequenceEqual("VP8L"u8))
+        {
+            var bits = BinaryPrimitives.ReadUInt32LittleEndian(head[21..]);
+            return ((int)(bits & 0x3FFF) + 1, (int)((bits >> 14) & 0x3FFF) + 1);
+        }
+
+        if (chunk.SequenceEqual("VP8X"u8) && head.Length >= 30)
+        {
+            return ((head[24] | (head[25] << 8) | (head[26] << 16)) + 1, (head[27] | (head[28] << 8) | (head[29] << 16)) + 1);
+        }
+
+        return null;
+    }
+
+    /// <summary>Walks a JPEG's segments to its first frame header (SOF0–SOF15 but DHT, JPG and DAC).</summary>
+    private static (int Width, int Height)? JpegSizeOf(ReadOnlySpan<byte> head)
+    {
+        var at = 2;
+        while (at + 4 <= head.Length)
+        {
+            if (head[at] != 0xFF)
+            {
+                return null;
+            }
+
+            var marker = head[at + 1];
+            if (marker == 0xFF)
+            {
+                at++;
+                continue;
+            }
+
+            if (marker is 0xD8 or 0x01 or (>= 0xD0 and <= 0xD7))
+            {
+                at += 2;
+                continue;
+            }
+
+            if (marker is 0xD9 or 0xDA)
+            {
+                return null;
+            }
+
+            var length = BinaryPrimitives.ReadUInt16BigEndian(head[(at + 2)..]);
+            if (marker is >= 0xC0 and <= 0xCF and not 0xC4 and not 0xC8 and not 0xCC)
+            {
+                return at + 9 <= head.Length
+                    ? (BinaryPrimitives.ReadUInt16BigEndian(head[(at + 7)..]), BinaryPrimitives.ReadUInt16BigEndian(head[(at + 5)..]))
+                    : null;
+            }
+
+            at += 2 + length;
         }
 
         return null;

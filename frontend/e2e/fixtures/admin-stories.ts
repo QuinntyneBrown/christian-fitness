@@ -1,4 +1,4 @@
-import type { ApiReply } from './api-handlers';
+import type { ApiHandlers, ApiReply } from './api-handlers';
 import {
   BYLINES,
   CF_TEAM,
@@ -304,3 +304,14 @@ export const REVIEW_PREVIEW: StoryPreviewFixture = {
     link: `/directory/${STORY_OPTIONS.listings[0].id}`,
   },
 };
+
+/** Answers `GET /api/stories/images/{key}` with a 1 × 1 PNG, as the lead image endpoint does. */
+export function answerStoryImages(api: ApiHandlers): void {
+  api.on('GET', /^\/api\/stories\/images\/[0-9a-f]{32}\.(jpg|png|webp)$/, () => ({
+    headers: { 'content-type': 'image/png' },
+    body: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+      'base64',
+    ),
+  }));
+}

@@ -10,6 +10,7 @@ import {
   BLANK_STORY,
   STORY_AUTOSAVE_MS,
   StoryEditorStore,
+  storyCenterCrop,
   storyPointerOf,
   storyPointerOptions,
   storyPointerValue,
@@ -401,5 +402,61 @@ describe('StoryEditorStore actions', () => {
     store.edit({ headline: 'Changed meanwhile' });
 
     expect([store.acting(), store.fields().headline]).toEqual(['submit', 'Pickleball']);
+  });
+});
+
+// L2-069 AC9 (ADR 0097): the largest 16:9 rectangle at the image's centre, in whole pixels inside it.
+describe('storyCenterCrop', () => {
+  it.each([
+    [1600, 900, { x: 0, y: 0, width: 1600, height: 900 }],
+    [2000, 1500, { x: 0, y: 188, width: 2000, height: 1125 }],
+    [3200, 1600, { x: 178, y: 0, width: 2844, height: 1600 }],
+    [1600, 2400, { x: 0, y: 750, width: 1600, height: 900 }],
+    [1601, 900, { x: 1, y: 0, width: 1600, height: 900 }],
+    [1700, 950, { x: 6, y: 0, width: 1688, height: 950 }],
+  ])('%i by %i', (width, height, crop) => {
+    expect(storyCenterCrop(width, height)).toEqual(crop);
+  });
+});
+
+// L2-069 AC9: an uploaded image becomes the story's, cropped at its centre and saved as an edit.
+describe('StoryEditorStore lead image', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.useRealTimers();
+  });
+
+  it('takes the uploaded image with its centre crop and saves it once typing pauses', () => {
+    const fake = fakeApi();
+    Object.assign(fake.api, {
+      uploadImage: () => of({ imageKey: 'k.jpg', width: 2000, height: 1500 }),
+    });
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.addImage(new File([], 'lead.jpg'));
+    vi.advanceTimersByTime(STORY_AUTOSAVE_MS);
+
+    const image = { key: 'k.jpg', crop: { x: 0, y: 188, width: 2000, height: 1125 } };
+    expect([store.imageUpload(), store.fields().image, fake.saves.map((s) => s.image)]).toEqual([
+      'idle',
+      image,
+      [image],
+    ]);
+  });
+
+  it.each([
+    [{ status: 400, code: 'validation_failed', fieldCodes: { image: 'image_invalid' } }, 'invalid'],
+    [{ status: 0, code: 'network' }, 'failed'],
+  ])('keeps the image it had when the upload is refused with %j', (error, state) => {
+    const fake = fakeApi();
+    Object.assign(fake.api, { uploadImage: () => throwError(() => error) });
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.addImage(new File([], 'lead.jpg'));
+
+    expect([store.imageUpload(), store.fields().image]).toEqual([state, null]);
   });
 });

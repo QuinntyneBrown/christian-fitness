@@ -121,9 +121,10 @@ allows.
   of work (`L2-069` AC14; ADR 0023).
 - **`UploadStoryImageCommand`** / handler — the event image rules reused: `ImageKeys.Detect` reads
   the type from the first bytes, at most 5 MB, stored through `IImageStore`; a new
-  `ImageKeys.WidthOf` reads the width from the JPEG, PNG or WebP header, and under 1,600 px is
-  refused with `fieldCodes.image` = `image_invalid` (`L2-069` AC9). Audited as
-  `story_image.uploaded`. A story may be published without an image.
+  `ImageKeys.SizeOf` reads the size from the JPEG, PNG or WebP header, and under 1,600 px is
+  refused with `fieldCodes.image` = `image_invalid` (`L2-069` AC9). It answers 201 with
+  `imageKey`, `width` and `height`. Audited as `story_image.uploaded`. A story may be published
+  without an image. `GET /api/stories/images/{key}` serves the image to anyone (ADR 0097).
 - **`PublishingClock`** — the shared API `BackgroundService` of
   [ADR 0069](../../../adr/0069-scheduled-work.md). Every 30 seconds, after taking the database
   lease, it sends **`PublishDueStoriesCommand`** in a new scope; its handler persists each due
@@ -186,9 +187,10 @@ AC7).
   (`L2-069` AC14).
 - **The previous lead.** Publishing a story as Lead turns the previous lead into an ordinary story
   in its section at its original publish time; there is only one Lead (`L2-069` AC6).
-- **Cropping to 16:9.** In the browser with the CDK-based crop dialog. The original and the crop
-  rectangle are uploaded; the server stores the original and serves the crop through
-  `IImageStore`. No server image library, so no ADR (`L2-069` AC9).
+- **Cropping to 16:9.** In the browser with the CDK-based crop dialog. The original is uploaded
+  and the crop rectangle saved with the story; the server stores the original and readers draw
+  the rectangle. No server image library (`L2-069` AC9). Until a mock draws the dialog, the editor
+  takes the largest 16:9 rectangle at the image's centre (ADR 0097).
 - **Body format.** A small Markdown subset: paragraphs, `>` quotes, `##`/`###` headings, bulleted
   and numbered lists, `https` links, emphasis and strong. Raw HTML is never rendered; one
   sanitising renderer serves Preview and the story page (`L2-069` AC10).

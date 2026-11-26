@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ADMIN_STORIES_SERVICE,
+  storyImageUrl,
   TOASTS_SERVICE,
   type StoryFieldsDto,
   type StoryPlacementName,
@@ -107,6 +108,11 @@ export default class StoryEditorPage {
     }
   });
   protected readonly fields = this.store.fields;
+  /** The lead image's address, or none (L2-069 AC9). */
+  protected readonly imageSrc = computed(() => {
+    const image = this.store.fields().image;
+    return image ? storyImageUrl(image.key) : null;
+  });
   /** The bar's actions for the status, the primary last (L2-069 AC2, AC3, AC5). */
   protected readonly actions = computed(() =>
     this.isNew() ? [] : storyActions(this.store.status()),

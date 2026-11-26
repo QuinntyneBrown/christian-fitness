@@ -73,6 +73,9 @@
         </div>
       </div>
     </header>
+    @if (image(); as src) {
+      <figure class="story__figure"><img class="story__image" [src]="src" alt="" /></figure>
+    }
     <div class="story__body">
       @for (block of blocks(); track $index) {
         @switch (block.kind) {

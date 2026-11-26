@@ -70,6 +70,26 @@
   }
 }
 
+// The lead image fills the writing column at 16:9, Replace image on its corner.
+.editor__image {
+  position: relative;
+}
+
+.editor__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+.editor__replace {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  --btn-bg: var(--color-bg-surface);
+}
+
 .editor__text {
   max-width: var(--layout-measure);
   margin: var(--space-8) auto 0;

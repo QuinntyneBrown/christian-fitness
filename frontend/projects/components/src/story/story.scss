@@ -18,11 +18,15 @@
   }
 }
 
-.story__kicker {
-  margin-top: var(--space-6);
+.story__kicker,
+.story-next__label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-fg-accent);
+}
+
+.story__kicker {
+  margin-top: var(--space-6);
 }
 
 .story__title {
@@ -53,7 +57,8 @@
   padding-block: var(--space-4);
 }
 
-.story__byline-body {
+.story__byline-body,
+.story-next__body {
   min-width: 0;
   flex: 1 1 0%;
 }
@@ -160,16 +165,8 @@ a.story-next:hover {
   background: var(--color-accent-subtle-hover);
 }
 
-.story-next__body {
-  min-width: 0;
-  flex: 1 1 0%;
-}
-
 .story-next__label {
   display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-fg-accent);
 }
 
 .story-next__title {
@@ -192,6 +189,12 @@ a.story-next:hover {
   @media (min-width: 40rem) {
     padding-inline: var(--space-6);
   }
+}
+
+.story__image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
 // Mock admin-story-preview/loading: the head's and body's skeletons, stacked.

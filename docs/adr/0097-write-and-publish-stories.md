@@ -86,7 +86,27 @@ scheduling is journey 23). The requirement, the two designs (`publishing/manage-
   others are disabled and the story is read-only. Publish refused for its fields names what is
   missing above the story (the alert takes focus) and marks each field until it is edited.
 
+- **Lead image.** `POST /api/admin/stories/images` keeps a JPEG, PNG or WebP at most 5 MB whose
+  header says it is at least 1,600 px wide (`ImageKeys.SizeOf` reads PNG, the three WebP forms
+  and a JPEG's first frame header); anything else is 400 `validation_failed` with
+  `fieldCodes.image` = `image_invalid`. It answers 201 with `imageKey`, `width` and `height` and is
+  audited `story_image.uploaded` (`StoryImage`, the key's GUID). `GET /api/stories/images/{key}`
+  serves it to anyone, as event images are (ADR 0025), since published stories are public.
+- **Crop (stand-in).** The design names a CDK crop dialog, but no mock draws one. Until one is
+  drawn, the editor crops every lead image to the largest 16:9 rectangle at its centre
+  (`storyCenterCrop`), saves that rectangle with the story, and draws the photo with
+  `object-fit: cover`, which shows exactly that rectangle. A crop dialog later changes only the
+  rectangle chosen; the stored shape and every reader stay as they are.
+- **Dropzone.** The design system's dropzone is built in the components library with the states
+  its page proposed: named by its title and described by its hint, disabled while the editor is
+  read-only, `data-state="dragover"` while a file is over it, and busy ("Uploading…") while the
+  file uploads. A refused or failed upload is an alert above the story, as the editor's other
+  failures are.
+
 ## Consequences
+
+- A crop dialog needs a mock first; it then replaces `storyCenterCrop` as the source of the
+  rectangle.
 
 - Journey 24 renders the public story page with `storyBlocks` and the library's `story`, adding
   Copy link, the correction line and Keep reading to it.

@@ -22,6 +22,10 @@ export class StoryEditorPage {
   readonly toast: Locator;
   readonly toastTitle: Locator;
   readonly toastText: Locator;
+  /** "Add a lead image", while the story has none. */
+  readonly dropzone: Locator;
+  readonly photo: Locator;
+  readonly replaceImage: Locator;
   readonly headline: Locator;
   readonly summary: Locator;
   readonly story: Locator;
@@ -59,6 +63,9 @@ export class StoryEditorPage {
     this.toast = page.getByRole('region', { name: 'Notifications' }).locator('.toast');
     this.toastTitle = this.toast.locator('.toast__title');
     this.toastText = this.toast.locator('.toast__text');
+    this.dropzone = this.editor.locator('.dropzone');
+    this.photo = this.editor.locator('.editor__photo');
+    this.replaceImage = this.editor.getByRole('button', { name: 'Replace image' });
     this.headline = this.editor.getByRole('textbox', { name: 'Headline', exact: true });
     this.summary = this.editor.getByRole('textbox', { name: 'Summary', exact: true });
     this.story = this.editor.getByRole('textbox', { name: 'Story', exact: true });
@@ -86,6 +93,28 @@ export class StoryEditorPage {
   /** One of the bar's actions, by its words. */
   action(name: string): Locator {
     return this.actions.getByRole('button', { name, exact: true });
+  }
+
+  /** Picks a lead image through the dropzone's file picker. */
+  async chooseImage(name: string): Promise<void> {
+    await this.pick(this.dropzone, name);
+  }
+
+  /** Picks a new lead image through Replace image's file picker. */
+  async replaceWith(name: string): Promise<void> {
+    await this.pick(this.replaceImage, name);
+  }
+
+  private async pick(opener: Locator, name: string): Promise<void> {
+    const chooser = this.page.waitForEvent('filechooser');
+    await opener.click();
+    await (
+      await chooser
+    ).setFiles({
+      name,
+      mimeType: name.endsWith('.png') ? 'image/png' : 'image/jpeg',
+      buffer: Buffer.from('not decoded: the server reads it'),
+    });
   }
 
   async open(id: string): Promise<void> {

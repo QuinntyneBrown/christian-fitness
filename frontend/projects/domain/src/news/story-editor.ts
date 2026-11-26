@@ -3,6 +3,7 @@ import {
   ADMIN_STORIES_SERVICE,
   type AdminStoryDto,
   type ApiError,
+  type StoryCropDto,
   type StoryFieldsDto,
   type StoryOptionsDto,
   type StoryPlacementName,
@@ -78,6 +79,20 @@ export function storyPointerOf(value: string): StoryPointerDto | null {
   return at > 0 && id && (kind === 'event' || kind === 'listing') ? { kind, id } : null;
 }
 
+/**
+ * The lead image's crop (L2-069 AC9; ADR 0097): the largest 16:9 rectangle at the centre of an
+ * image `width` by `height` pixels, in whole pixels that stay inside it.
+ */
+export function storyCenterCrop(width: number, height: number): StoryCropDto {
+  const wide = width * 9 >= height * 16;
+  const w = wide ? Math.floor((height * 16) / 9) : width;
+  const h = wide ? height : Math.floor((width * 9) / 16);
+  return { x: Math.round((width - w) / 2), y: Math.round((height - h) / 2), width: w, height: h };
+}
+
+/** A lead image's upload: none under way, uploading, refused by the rules, or failed. */
+export type StoryImageUpload = 'idle' | 'uploading' | 'invalid' | 'failed';
+
 /** Where the editor's story is: being read, ready, missing (404) or not read (another failure). */
 export type StoryEditorLoad = 'loading' | 'ready' | 'missing' | 'failed';
 
@@ -118,6 +133,7 @@ export class StoryEditorStore implements OnDestroy {
     now: signal(new Date()),
     acting: signal<StoryAction | null>(null),
     fieldCodes: signal<Record<string, string>>({}),
+    imageUpload: signal<StoryImageUpload>('idle'),
   };
   private version = 0;
   /** Edits made since the save under way began, so another save follows it. */
@@ -130,6 +146,7 @@ export class StoryEditorStore implements OnDestroy {
   private inFlight = false;
   private optionsRead: Subscription | undefined;
   private actionRun: Subscription | undefined;
+  private uploading: Subscription | undefined;
   /** The action to take once the save under way ends, so it acts on what was typed. */
   private afterSave: (() => void) | undefined;
   private created: ((id: string) => void) | undefined;
@@ -145,6 +162,8 @@ export class StoryEditorStore implements OnDestroy {
   readonly options = this.state.options.asReadonly();
   /** The time the bar words the last save against, moved on every {@link STORY_CLOCK_MS}. */
   readonly now = this.state.now.asReadonly();
+  /** The lead image's upload (L2-069 AC9). */
+  readonly imageUpload = this.state.imageUpload.asReadonly();
   /** The action under way, or none. */
   readonly acting = this.state.acting.asReadonly();
   /** The fields Publish refused, by their camel-case name, until each is edited (L2-069 AC7). */
@@ -267,6 +286,24 @@ export class StoryEditorStore implements OnDestroy {
     });
   }
 
+  /**
+   * Uploads a lead image (L2-069 AC9): once kept it becomes the story's image, cropped at its
+   * centre to 16:9, and is saved as any edit is; refused by the rules or failed, the story keeps
+   * the image it had.
+   */
+  addImage(file: File): void {
+    if (this.state.acting() || this.state.imageUpload() === 'uploading') return;
+    this.state.imageUpload.set('uploading');
+    this.uploading = this.api.uploadImage(file).subscribe({
+      next: ({ imageKey, width, height }) => {
+        this.state.imageUpload.set('idle');
+        this.edit({ image: { key: imageKey, crop: storyCenterCrop(width, height) } });
+      },
+      error: (error: ApiError) =>
+        this.state.imageUpload.set(error?.fieldCodes?.['image'] ? 'invalid' : 'failed'),
+    });
+  }
+
   ngOnDestroy(): void {
     this.reset();
     this.optionsRead?.unsubscribe();
@@ -356,7 +393,9 @@ export class StoryEditorStore implements OnDestroy {
     this.reading?.unsubscribe();
     this.saving?.unsubscribe();
     this.actionRun?.unsubscribe();
-    this.reading = this.saving = this.actionRun = undefined;
+    this.uploading?.unsubscribe();
+    this.reading = this.saving = this.actionRun = this.uploading = undefined;
+    this.state.imageUpload.set('idle');
     this.afterSave = undefined;
     this.state.acting.set(null);
     this.state.fieldCodes.set({});

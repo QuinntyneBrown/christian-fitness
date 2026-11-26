@@ -34,6 +34,8 @@ export class Story {
   readonly author = input('');
   /** "2 hours ago · 6 min read". */
   readonly when = input('');
+  /** The lead image's address, drawn at 16:9 above the body; none draws no figure. */
+  readonly image = input<string | null>(null);
   readonly blocks = input<readonly StoryBlock[]>([]);
   readonly next = input<StoryNextCard | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });

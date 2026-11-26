@@ -32,7 +32,36 @@
       <div class="editor__writing">
         <h1 class="visually-hidden">{{ heading() }}</h1>
         <div class="editor__alert"><ng-content select="[slot=alert]" /></div>
-        <ng-content select="[slot=image]" />
+        @if (imageSrc(); as src) {
+          <div class="editor__image">
+            <img class="editor__photo" [src]="src" alt="" />
+            <cf-button
+              class="editor__replace"
+              variant="secondary"
+              size="sm"
+              [busy]="imageBusy()"
+              [disabled]="readonly()"
+              (click)="replace()"
+              >Replace image</cf-button
+            >
+            <input
+              type="file"
+              hidden
+              tabindex="-1"
+              [attr.accept]="imageAccept"
+              (change)="picked($event)"
+            />
+          </div>
+        } @else {
+          <cf-dropzone
+            title="Add a lead image"
+            hint="16:9, at least 1600 px wide"
+            [accept]="imageAccept"
+            [busy]="imageBusy()"
+            [disabled]="readonly()"
+            (fileChosen)="imageChosen.emit($event)"
+          />
+        }
         <div class="editor__text">
           <label class="visually-hidden" for="f-headline">Headline</label>
           <textarea

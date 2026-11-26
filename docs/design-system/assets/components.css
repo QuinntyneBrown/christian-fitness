@@ -2025,6 +2025,9 @@ a.listing-row__link:hover .listing-row__name, .listing-row__link[data-state="hov
 .editor__replace { position: absolute; right: var(--space-3); bottom: var(--space-3); --btn-bg: var(--color-bg-surface); box-shadow: var(--shadow-1); }
 .dropzone { display: flex; width: 100%; aspect-ratio: 16 / 9; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); border-radius: var(--radius-lg); border: var(--border-width-thick) dashed var(--color-border-default); color: var(--color-fg-muted); transition: border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
 .dropzone:hover, .dropzone[data-state="hover"] { border-color: var(--color-border-strong); color: var(--color-fg-default); }
+.dropzone[data-state="dragover"] { border-color: var(--color-accent); color: var(--color-fg-default); }
+.dropzone:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
+.dropzone[aria-busy="true"] { opacity: var(--opacity-busy); cursor: progress; }
 .dropzone__icon { width: var(--space-7); height: var(--space-7); }
 .dropzone__title { font-weight: var(--font-weight-semibold); }
 .dropzone__hint { font-size: var(--font-size-sm); }

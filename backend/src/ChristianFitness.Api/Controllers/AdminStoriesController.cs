@@ -1,5 +1,6 @@
 using ChristianFitness.Application.News;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
@@ -13,6 +14,9 @@ namespace ChristianFitness.Api.Controllers;
 [Route("api/admin/stories")]
 public sealed class AdminStoriesController(ISender sender) : ControllerBase
 {
+    /// <summary>Room above the 5 MB image limit, so a larger image is refused by the rule with its code, not by the server.</summary>
+    private const int ImageBodyLimit = 10 * 1024 * 1024;
+
     /// <summary>One page of one tab of Stories (L2-068 AC1 to AC3, AC8).</summary>
     [HttpGet]
     public async Task<ActionResult<AdminStoryListDto>> List([FromQuery] string? status, [FromQuery] int? page, CancellationToken cancellationToken) =>
@@ -22,6 +26,17 @@ public sealed class AdminStoriesController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateStoryCommand command, CancellationToken cancellationToken) =>
         StatusCode(StatusCodes.Status201Created, await sender.Send(command, cancellationToken).ConfigureAwait(false));
+
+    /// <summary>Stores one lead image and answers 201 with its key and size (L2-069 AC9). Larger bodies than the limit are refused before this runs.</summary>
+    [HttpPost("images")]
+    [RequestSizeLimit(ImageBodyLimit)]
+    [RequestFormLimits(MultipartBodyLengthLimit = ImageBodyLimit)]
+    public async Task<IActionResult> UploadImage(IFormFile file, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        await using var content = file.OpenReadStream();
+        return StatusCode(StatusCodes.Status201Created, await sender.Send(new UploadStoryImageCommand(content, file.Length), cancellationToken).ConfigureAwait(false));
+    }
 
     /// <summary>The editor's choices: bylines, events and listings (L2-069 AC1, AC7).</summary>
     [HttpGet("options")]
