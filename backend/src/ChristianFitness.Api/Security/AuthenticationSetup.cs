@@ -107,6 +107,7 @@ internal static class AuthenticationSetup
                     if (StaffSessionAge.IsPast(context.Properties, context.HttpContext.RequestServices.GetRequiredService<TimeProvider>().GetUtcNow()))
                     {
                         DatabaseTicketStore.MarkExpired(context.HttpContext);
+                        StaffSessionAge.MarkPast(context.HttpContext);
                         context.RejectPrincipal();
                         await context.HttpContext.SignOutAsync(SessionSchemes.Staff).ConfigureAwait(false);
                     }
@@ -117,7 +118,10 @@ internal static class AuthenticationSetup
                     // (unless signing out already expired it).
                     if (DatabaseTicketStore.FoundExpired(context.HttpContext))
                     {
-                        ProblemCodes.Override(context.HttpContext, ProblemCodes.SessionExpired);
+                        ProblemCodes.Override(
+                            context.HttpContext,
+                            ProblemCodes.SessionExpired,
+                            StaffSessionAge.FoundPast(context.HttpContext) ? ProblemCodes.MaxAgeReason : ProblemCodes.IdleReason);
                         if (context.Response.Headers.SetCookie.Any(value => value?.StartsWith(StaffCookie + "=", StringComparison.Ordinal) == true))
                         {
                             return Refuse(context.Response, StatusCodes.Status401Unauthorized);

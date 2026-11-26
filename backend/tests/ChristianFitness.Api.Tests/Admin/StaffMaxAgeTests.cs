@@ -76,6 +76,7 @@ public sealed class StaffMaxAgeTests(ProtectionsApiFactory factory) : IClassFixt
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         Assert.Equal("session_expired", problem.GetProperty("code").GetString());
+        Assert.Equal("max_age", problem.GetProperty("reason").GetString());
         var attributes = Browser.Attributes(Assert.IsType<string>(Staff.SetCookie(response)));
         Assert.Contains("expires=thu, 01 jan 1970 00:00:00 gmt", attributes);
         Assert.Empty(await StaffSessionsOfAsync(email));

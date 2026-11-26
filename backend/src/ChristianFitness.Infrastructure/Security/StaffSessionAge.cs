@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
 namespace ChristianFitness.Infrastructure.Security;
 
@@ -17,6 +18,22 @@ public static class StaffSessionAge
 
     /// <summary>The longest a staff session lasts from sign-in.</summary>
     public static readonly TimeSpan Maximum = TimeSpan.FromHours(12);
+
+    private static readonly object PastKey = new();
+
+    /// <summary>Marks this request's staff session as ended by the maximum, so the refusal can say so.</summary>
+    public static void MarkPast(HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Items[PastKey] = true;
+    }
+
+    /// <summary>True when this request's staff session was ended by the maximum.</summary>
+    public static bool FoundPast(HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return context.Items.ContainsKey(PastKey);
+    }
 
     /// <summary>Records <paramref name="signedInAt"/> as the sign-in time of a new session.</summary>
     public static void Record(AuthenticationProperties properties, DateTimeOffset signedInAt)

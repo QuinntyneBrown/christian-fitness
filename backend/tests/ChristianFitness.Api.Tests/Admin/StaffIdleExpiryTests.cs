@@ -43,8 +43,9 @@ public sealed class StaffIdleExpiryTests(ProtectionsApiFactory factory) : IClass
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
-        Assert.Equal(["code", "status", "title", "traceId", "type"], problem.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(["code", "reason", "status", "title", "traceId", "type"], problem.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal("session_expired", problem.GetProperty("code").GetString());
+        Assert.Equal("idle", problem.GetProperty("reason").GetString());
         var attributes = Browser.Attributes(Assert.IsType<string>(Staff.SetCookie(response)));
         Assert.Contains("expires=thu, 01 jan 1970 00:00:00 gmt", attributes);
         Assert.Equal(0, await StaffSessionsOfAsync("dana.idle30@example.org"));

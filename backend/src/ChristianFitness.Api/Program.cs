@@ -38,6 +38,11 @@ builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = context =>
     {
         context.ProblemDetails.Extensions.TryAdd("code", ProblemCodes.For(context.HttpContext, context.ProblemDetails.Status ?? context.HttpContext.Response.StatusCode));
+        if (ProblemCodes.ReasonFor(context.HttpContext) is { } reason)
+        {
+            context.ProblemDetails.Extensions.TryAdd("reason", reason);
+        }
+
         ProblemReference.AddTo(context);
     });
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
