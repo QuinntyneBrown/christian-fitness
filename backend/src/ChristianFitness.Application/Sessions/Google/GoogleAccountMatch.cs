@@ -7,9 +7,9 @@ namespace ChristianFitness.Application.Sessions.Google;
 /// <summary>
 /// Finds the member account of a Google identity (L2-049 AC4): first the member whose stored
 /// <see cref="Member.GoogleSubject"/> is the identity's subject; failing that, the member whose
-/// email is the identity's (compared trimmed and in lower case), which is then linked to the
-/// subject. The link is saved with whatever the caller saves next. The member and staff finishes
-/// both use it.
+/// email is the identity's (compared trimmed and in lower case) and who has no Google account yet,
+/// which is then linked to the subject. The link is saved with whatever the caller saves next.
+/// The member and staff finishes both use it.
 /// </summary>
 public sealed class GoogleAccountMatch(IAppDbContext db)
 {
@@ -28,7 +28,14 @@ public sealed class GoogleAccountMatch(IAppDbContext db)
         var byEmail = await db.Members
             .SingleOrDefaultAsync(member => member.NormalizedEmail == email, cancellationToken)
             .ConfigureAwait(false);
-        byEmail?.LinkGoogle(identity.Subject);
+        // The email binds only an account with no Google account yet: one already bound to another
+        // subject is not taken over by a second Google account with the same address (ADR 0099).
+        if (byEmail is not { GoogleSubject: null })
+        {
+            return null;
+        }
+
+        byEmail.LinkGoogle(identity.Subject);
         return byEmail;
     }
 }

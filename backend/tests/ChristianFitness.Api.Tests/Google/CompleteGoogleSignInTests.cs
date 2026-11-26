@@ -75,6 +75,29 @@ public sealed class CompleteGoogleSignInTests(ProtectionsApiFactory factory) : I
     }
 
     [Fact]
+    public async Task Given_a_member_linked_to_one_Google_account_When_another_Google_account_comes_back_with_their_email_Then_it_is_not_signed_in_and_the_link_stays()
+    {
+        using var client = Browser.CreateClient(factory);
+        var graceId = await SignInTests.JoinAsync(client, "grace.google.taken@example.org");
+        var first = new GoogleAccount { Email = "grace.google.taken@example.org" };
+        using (var linked = await CompleteAsync(client, await GoogleSignIn.ExternalCookieAsync(client, factory.Google, GoogleApp.Member, first)))
+        {
+            Assert.Equal(HttpStatusCode.OK, linked.StatusCode);
+        }
+
+        // Another Google account (a recreated Workspace user, an address reused) with the same email.
+        var other = new GoogleAccount { Email = "grace.google.taken@example.org" };
+        using var response = await CompleteAsync(client, await GoogleSignIn.ExternalCookieAsync(client, factory.Google, GoogleApp.Member, other));
+
+        await AssertRefusedAsync(response, HttpStatusCode.NotFound, "no_account");
+        // The first account still signs Grace in: its link was not replaced.
+        using var again = await CompleteAsync(client, await GoogleSignIn.ExternalCookieAsync(client, factory.Google, GoogleApp.Member, new GoogleAccount { Subject = first.Subject, Email = first.Email }));
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
+        var session = await again.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal(graceId, session.GetProperty("memberId").GetString());
+    }
+
+    [Fact]
     public async Task Given_no_Google_identity_When_the_screen_finishes_Then_it_is_refused_google_email_unverified()
     {
         using var client = Browser.CreateClient(factory);
