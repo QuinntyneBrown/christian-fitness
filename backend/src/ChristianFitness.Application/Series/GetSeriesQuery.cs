@@ -40,10 +40,11 @@ public sealed record SeriesDetailDto(
 /// One date of a series as its row shows it (L2-051 AC2 to AC5; ADR 0096): its position among all
 /// the dates (cancelled ones included; ADR 0080), its start, its end (none when unknown; ADR 0101), topic and ADR 0091's state by the
 /// API's clock, whether the signed-in member holds a place at it (never at a cancelled date; ADR
-/// 0103), and whether it is full: still to come, not cancelled and every place taken (L2-053 AC7;
-/// ADR 0102).
+/// 0103), whether it is full: still to come, not cancelled and every place taken (L2-053 AC7;
+/// ADR 0102), and whether staff recorded that the member came: <c>true</c>, <c>false</c>, or none
+/// where nothing is recorded for them there (L2-080 AC7; ADR 0106).
 /// </summary>
-public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State, bool Held, bool Full);
+public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State, bool Held, bool Full, bool? Attended);
 
 /// <summary>
 /// Opens one series for the signed-in member (L2-051; ADR 0096). A series opens while one of its
@@ -102,6 +103,10 @@ internal static class SeriesDetails
             .Select(r => r.EventId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+        var attended = await db.Attendances.AsNoTracking()
+            .Where(a => a.MemberId == memberId && sessionIds.Contains(a.EventId))
+            .ToDictionaryAsync(a => a.EventId, a => a.Came, cancellationToken)
+            .ConfigureAwait(false);
         var states = SeriesSchedule.StatesOf([.. sessions.Select(s => s.Times)], now);
         var going = await registrations.GoingForAsync(sessionIds, cancellationToken).ConfigureAwait(false);
         var spotsLeft = SeriesPlaces.SpotsLeft(series.Capacity, sessions.Select(s => (s.Times, going.GetValueOrDefault(s.Id))), now);
@@ -134,6 +139,7 @@ internal static class SeriesDetails
                 s.Topic,
                 SessionStateNames.Of(states[n]),
                 held.Contains(s.Id) && !s.Cancelled,
-                !s.Cancelled && s.StartsAt > now && going.GetValueOrDefault(s.Id) >= series.Capacity))]);
+                !s.Cancelled && s.StartsAt > now && going.GetValueOrDefault(s.Id) >= series.Capacity,
+                attended.TryGetValue(s.Id, out var came) ? came : null))]);
     }
 }

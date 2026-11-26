@@ -6,6 +6,7 @@ import {
   answerSeriesDetail,
   COUCH_SESSIONS,
   COUCH_TO_5K_DETAIL,
+  COUCH_TO_5K_RECORDED,
   PARK_BOOTCAMP_DETAIL,
 } from '../fixtures/series';
 import { WebEventDetailPage } from '../page-objects/web/event-detail.page';
@@ -166,6 +167,23 @@ test.describe('Member app, view an event series: the sessions', () => {
       await expect(series.sessionList.getByRole('link')).toHaveCount(5);
     },
   );
+
+  // L2-051 AC3 and L2-080 AC7 (ADR 0106): what staff recorded shows on the member's past dates.
+  test('A past date reads You came or Missed as staff recorded it, never by colour alone', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesDetail(api, [COUCH_TO_5K_RECORDED]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(COUCH_TO_5K_RECORDED.id);
+
+    await expect(series.sessionEnd(1)).toHaveText('You came');
+    await expect(series.came(1)).toBeVisible();
+    await expect(series.sessionEnd(2)).toHaveText('Missed');
+    await expect(series.came(2)).toHaveCount(0);
+    await expect(series.sessionsNote).toHaveText('2 done · 5 to go');
+  });
 
   test("Details opens that session's event page in the app", async ({ page, api }) => {
     answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);

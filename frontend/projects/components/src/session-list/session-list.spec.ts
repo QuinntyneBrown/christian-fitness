@@ -53,6 +53,14 @@ describe('SessionList', () => {
     expect(rows[0]?.querySelector('.session-row__date')?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('says "You came" with a decorative tick where staff recorded that the member came', async () => {
+    const { root } = await render([row({ state: 'past', end: { kind: 'came' } })]);
+    const came = root.querySelector('.session-row__end .session-row__came');
+
+    expect(came?.textContent?.trim()).toBe('You came');
+    expect(came?.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('renders a topic as text', async () => {
     const { root } = await render([row({ topic: '<b>Hills</b>' })]);
 

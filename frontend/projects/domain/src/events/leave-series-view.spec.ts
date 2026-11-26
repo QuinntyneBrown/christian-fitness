@@ -15,6 +15,7 @@ const sessions = (heldAt: number[]): Session[] =>
     state,
     held: heldAt.includes(n + 1),
     full: false,
+    attended: null,
   }));
 
 const COUCH = {

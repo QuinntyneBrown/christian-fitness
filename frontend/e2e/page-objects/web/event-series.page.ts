@@ -133,6 +133,28 @@ export class WebEventSeriesPage extends ErrorScreen {
     return this.session(n).locator('.session-row__end');
   }
 
+  /** "You came" with its tick on session `n`, where staff recorded that the member came (ADR 0106). */
+  came(n: number): Locator {
+    return this.session(n).locator('.session-row__came');
+  }
+
+  /** The panel's session meter, each bar as done, next, cancelled or upcoming. */
+  meterBars(): Promise<string[]> {
+    return this.panel
+      .locator('.session-meter__bar')
+      .evaluateAll((bars) =>
+        bars.map((bar) =>
+          bar.classList.contains('session-meter__bar--done')
+            ? 'done'
+            : bar.classList.contains('session-meter__bar--next')
+              ? 'next'
+              : bar.classList.contains('session-meter__bar--cancelled')
+                ? 'cancelled'
+                : 'upcoming',
+        ),
+      );
+  }
+
   /** The "Drop in" tick box of session `n`, named "Drop in on <weekday>, <date>" (ADR 0102). */
   dropInBox(n: number): Locator {
     return this.session(n).getByRole('checkbox');
