@@ -5,7 +5,7 @@ title Components — Read a story
 
 Container_Boundary(web, "Member web app") {
   Component(page, "StoryPage", "Routed page /stories/:slug", "Loads, replaces a former link, copies the link, counts the read")
-  Component(article, "Story", "Components library", "Blocks story, story-next, story-more, story-card, story-subscribe")
+  Component(article, "Story", "Components library", "cf-story (story, story-next) with cf-story-more (story-more, story-card) and cf-story-subscribe")
   Component(client, "HttpStoriesService", "STORIES_SERVICE", "get(slug)")
   Component(clip, "NavigatorClipboard", "CLIPBOARD_SERVICE", "write(text)")
   Component(reads, "LocalStoryReads", "STORY_READS", "Hashed ids in local storage; once per 24 hours")
@@ -14,7 +14,7 @@ Container_Boundary(web, "Member web app") {
 Container_Boundary(api, "Christian Fitness API") {
   Component(shell, "StoryShellController", "ASP.NET Core controller, anonymous", "GET /stories/{slug}: shell with metadata, 301, 404 or 503")
   Component(ctrl, "PublicStoriesController", "ASP.NET Core controller, anonymous", "GET {slug}, POST {id}/reads")
-  Component(q, "GetPublishedStoryHandler", "MediatR handler", "Published only, former slugs, next step, Keep reading")
+  Component(q, "GetPublishedStoryHandler", "MediatR handler", "Published or due Scheduled, former slugs, next step, Keep reading")
   Component(s, "GetStoryShellHandler, HttpStoryShell", "MediatR handler, loopback reader", "Fills the member app's shell")
   Component(c, "CountStoryReadHandler", "MediatR handler", "Adds one to the day's tally")
   Component(limit, "public-reads", "ASP.NET Core rate-limiter policy", "120 public reads per minute per client IP")

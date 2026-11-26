@@ -41,7 +41,8 @@ class StoryReaders <<domain rule>> {
   +{static} Counts(userAgent): bool
 }
 class PublishedStories {
-  +{static} FindAsync(db, slug): Story?
+  +{static} At(db, now): IQueryable<Story>
+  +{static} FindAsync(db, slug, now): Story?
 }
 class GetPublishedStoryHandler {
   +Handle(GetPublishedStoryQuery): PublishedStoryDto
@@ -90,7 +91,7 @@ class LocalStoryReads {
 }
 Story --> StoryStatus
 Story "1" <-- "*" StoryReadTally : counts
-PublishedStories ..> Story : current or former slug, Published only
+PublishedStories ..> Story : current or former slug, Published or due Scheduled
 GetPublishedStoryHandler ..> PublishedStories
 GetPublishedStoryHandler ..> PublishedStoryDto : answers
 GetStoryShellHandler ..> PublishedStories

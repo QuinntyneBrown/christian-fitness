@@ -57,12 +57,14 @@ journey 22 left.
   AC1, AC4, AC10). The text column is at most 42 rem wide. Copy link is the library's `Button`;
   its words come from the `copied` input and a `p role="status"` carries "Link copied" (`L2-061`
   AC3); with `address` set (the clipboard refused) a read-only field shows the address, focused
-  and selected. After the article, `more` draws "Keep reading" (blocks `story-more` and
-  `story-card`, each card image, section, title and "author · age" as one link) and
-  `subscribeHref` the Weekly box (`story-subscribe`: "The Abundant Weekly", "Every Saturday, 7
-  AM.", the library's inverse `Button` "Subscribe free" to `/subscribe`, which journey 27 builds;
-  `L2-061` AC6). The design system documents these blocks on the story page, so they are parts of
-  `cf-story`, not components of their own; the admin preview passes neither. Outputs:
+  and selected. After the article, `more` draws "Keep reading" (`cf-story-more`, blocks
+  `story-more` and `story-card`, each card image, section, title and "author · age" as one link)
+  and `subscribeHref` the Weekly box (`cf-story-subscribe`, block `story-subscribe`: "The
+  Abundant Weekly", "Every Saturday, 7 AM.", the library's inverse `Button` "Subscribe free" to
+  `/subscribe`, which journey 27 builds; `L2-061` AC6). The design system documents these blocks
+  on the story page, so they are parts of `cf-story` in `story/`, as `cf-story-runs` is, each with
+  its own stylesheet to keep `cf-story` inside the component-style budget; the admin preview
+  passes neither. Outputs:
   `copyRequested` and `navigate` (a plain click on an internal next step or a card).
 - **`StoriesApi` / `STORIES_SERVICE`** — contract and token in the `api` library: `get(slug)`
   answers a `PublishedStoryDto`. **`HttpStoriesService`** implements it.
@@ -106,8 +108,10 @@ journey 22 left.
   one MediatR request. `GET {slug}` (`public-reads`) answers `PublishedStoryDto`; `POST
   {id:guid}/reads` answers 204. The lead image is the one `api/stories/images/{key}` serves.
 - **`GetPublishedStoryQuery`** / handler — finds the Published story whose slug, or one of whose
-  `FormerSlugs`, matches. A slug that matches nothing, or a story that is not Published, is refused
-  with 404 `not_found` and nothing of the story (`L2-061` AC7). For a published story it answers
+  `FormerSlugs`, matches, through `PublishedStories.At(db, now)`: Published stories and Scheduled
+  ones whose time has come, which read as Published at that time (ADR 0069, journey 23); the shell,
+  Keep reading and the read count use the same query. A slug that matches nothing, or a story that
+  is not Published, is refused with 404 `not_found` and nothing of the story (`L2-061` AC7). For a published story it answers
   `PublishedStoryDto`: `id`, current `slug`, `section`, `headline`, `summary`, `author`,
   `publishedAt` (UTC), `text`, `image`, `next` (`kind`, `text`, `link`) when the pointed event or
   listing is still published and the story has "Next step" words, and `keepReading` (three

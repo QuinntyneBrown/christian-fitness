@@ -16,7 +16,11 @@ import { Link } from '../link/link';
 import { isPlainClick } from '../link/plain-click';
 import { Skeleton } from '../skeleton/skeleton';
 import { SkeletonRegion } from '../skeleton/skeleton-region';
+import { StoryMore, type StoryMoreCard } from './story-more';
 import { StoryRuns } from './story-runs';
+import { StorySubscribe } from './story-subscribe';
+
+export type { StoryMoreCard } from './story-more';
 
 /** The card after a story's text (L2-061 AC4): "In the directory", the words, and where it leads. */
 export interface StoryNextCard {
@@ -24,18 +28,6 @@ export interface StoryNextCard {
   title: string;
   /** Where the card leads; none renders the card without a link (the admin preview). */
   href: string | null;
-}
-
-/** One "Keep reading" card (L2-061 AC6; mock `story/default`), leading to its story. */
-export interface StoryMoreCard {
-  href: string;
-  /** The card's image; none draws no image. */
-  image: string | null;
-  /** The section's name, "Community"; empty for none. */
-  section: string;
-  title: string;
-  /** "Priya Raman · Yesterday". */
-  meta: string;
 }
 
 /**
@@ -53,13 +45,13 @@ export interface StoryMoreCard {
  * `story/link-refused`). A plain click on a next step inside the app (`/…`) emits `navigate` with
  * its address; any other click is the browser's.
  *
- * After the article, `more` draws "Keep reading" (`story-more`, `story-card`), whose cards route
- * a plain click the same way, and `subscribeHref` the Weekly box (`story-subscribe`) leading to
+ * After the article, `more` draws "Keep reading" (`cf-story-more`), whose cards route a plain
+ * click the same way, and `subscribeHref` the Weekly box (`cf-story-subscribe`) leading to
  * Subscribe (L2-061 AC6); neither shows without them.
  */
 @Component({
   selector: 'cf-story',
-  imports: [Button, Link, Skeleton, SkeletonRegion, StoryRuns],
+  imports: [Button, Link, Skeleton, SkeletonRegion, StoryMore, StoryRuns, StorySubscribe],
   templateUrl: './story.html',
   styleUrl: './story.scss',
 })
