@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.News;
 using FluentValidation;
 using MediatR;
@@ -95,6 +96,43 @@ internal sealed class ListFrontPageStoriesHandler(IAppDbContext db, TimeProvider
         var top = headlines.Select(h => h.Id).Append(lead?.Id ?? Guid.Empty).ToList();
         var river = await FrontPageStories.ReadAsync(db, readable.Where(s => !top.Contains(s.Id)), request.Skip ?? 0, ListFrontPageStoriesQuery.PageSize + 1, cancellationToken).ConfigureAwait(false);
         return new FrontPageDto(lead, headlines, [.. river.Take(ListFrontPageStoriesQuery.PageSize)], river.Count > ListFrontPageStoriesQuery.PageSize);
+    }
+}
+
+/// <summary>"Most read" (L2-001 AC5; ADR 0107): the five stories read most in the last 7 Toronto days.</summary>
+public sealed record ListMostReadStoriesQuery : IRequest<IReadOnlyList<StorySummaryDto>>
+{
+    /// <summary>How many stories "Most read" holds.</summary>
+    public const int Count = 5;
+
+    /// <summary>How many Toronto days, today among them, the reads are summed over.</summary>
+    public const int Days = 7;
+}
+
+/// <summary>
+/// Sums each readable story's daily read tallies (ADR 0105) from the Toronto day six days ago to
+/// today, and answers the five highest, a tie going to the newer story, then the higher id. A story
+/// with no reads in the window is not ranked; one readers can no longer see is left out.
+/// </summary>
+internal sealed class ListMostReadStoriesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListMostReadStoriesQuery, IReadOnlyList<StorySummaryDto>>
+{
+    public async Task<IReadOnlyList<StorySummaryDto>> Handle(ListMostReadStoriesQuery request, CancellationToken cancellationToken)
+    {
+        var now = time.GetUtcNow();
+        var since = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, EventSchedule.Toronto).DateTime).AddDays(1 - ListMostReadStoriesQuery.Days);
+        var reads = db.StoryReadTallies.AsNoTracking()
+            .Where(t => t.Day >= since)
+            .GroupBy(t => t.StoryId)
+            .Select(g => new { StoryId = g.Key, Reads = g.Sum(t => t.Count) });
+        var readable = PublishedStories.At(db, now);
+        var ranked = await readable
+            .Join(reads, s => s.Id, r => r.StoryId, (s, r) => new { s.Id, r.Reads, PublishedAt = s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt })
+            .OrderByDescending(s => s.Reads).ThenByDescending(s => s.PublishedAt).ThenByDescending(s => s.Id)
+            .Take(ListMostReadStoriesQuery.Count)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var stories = await FrontPageStories.ReadAsync(db, readable.Where(s => ranked.Contains(s.Id)), 0, ListMostReadStoriesQuery.Count, cancellationToken).ConfigureAwait(false);
+        return [.. stories.OrderBy(s => ranked.IndexOf(s.Id))];
     }
 }
 
