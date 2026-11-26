@@ -1081,6 +1081,30 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("StoryReadTallies", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.NewsletterIssue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SendAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.ToTable("NewsletterIssues", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Newsletter.NewsletterSubscription", b =>
                 {
                     b.Property<Guid>("Id")

@@ -44,6 +44,7 @@ internal static class AuthenticationSetup
         ["series"] = StaffArea.Series,
         ["stories"] = StaffArea.Publishing,
         ["community-pick"] = StaffArea.CommunityPick,
+        ["newsletter"] = StaffArea.Newsletter,
     };
 
     /// <summary>The route of an event's attendance, the <see cref="StaffArea.Attendance"/> area (ADR 0106).</summary>

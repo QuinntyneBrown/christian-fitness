@@ -28,6 +28,9 @@ public enum StaffArea
     /// <summary>An event's attendance, <c>api/admin/events/{id}/attendance</c> (L2-080; ADR 0106): open to Moderators too.</summary>
     Attendance,
 
+    /// <summary>The Newsletter desk, <c>api/admin/newsletter</c> (L2-070 AC12): open to Moderators too.</summary>
+    Newsletter,
+
     /// <summary>An admin endpoint in no area above yet: closed to Moderators until a slice names its area.</summary>
     Unlisted,
 }

@@ -112,6 +112,9 @@ public interface IAppDbContext
     /// <summary>Each newsletter email's Unsubscribe token, by hash (L2-058 AC8; ADR 0078, ADR 0110).</summary>
     DbSet<NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens { get; }
 
+    /// <summary>The numbered issues of The Abundant Weekly (L2-070).</summary>
+    DbSet<NewsletterIssue> NewsletterIssues { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 
