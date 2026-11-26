@@ -53,16 +53,16 @@ public class StoriesFactory : BylinesFactory
         StoryPlacement placement = StoryPlacement.Latest,
         string? slug = null,
         DateTimeOffset? publishAt = null,
-        Guid? scheduledBy = null)
+        Guid? scheduledBy = null,
+        Func<StoryContent, StoryContent>? content = null)
     {
         var when = at ?? Time.GetUtcNow();
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         bylineId ??= await db.Bylines.Select(b => (Guid?)b.Id).FirstOrDefaultAsync(TestContext.Current.CancellationToken)
             ?? await AddBylineAsync($"Story Writer {Guid.NewGuid():N}"[..30]);
-        var story = Story.Create(
-            Story.Blank with { Headline = headline, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug },
-            when);
+        var written = Story.Blank with { Headline = headline, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug };
+        var story = Story.Create(content is null ? written : content(written), when);
         switch (status)
         {
             case StoryStatus.InReview:

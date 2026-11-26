@@ -1,5 +1,6 @@
 import { booleanAttribute, Component, input } from '@angular/core';
 import type { StoryBlock } from '@cf/api';
+import { Link } from '../link/link';
 import { Skeleton } from '../skeleton/skeleton';
 import { SkeletonRegion } from '../skeleton/skeleton-region';
 import { StoryRuns } from './story-runs';
@@ -22,7 +23,7 @@ export interface StoryNextCard {
  */
 @Component({
   selector: 'cf-story',
-  imports: [Skeleton, SkeletonRegion, StoryRuns],
+  imports: [Link, Skeleton, SkeletonRegion, StoryRuns],
   templateUrl: './story.html',
   styleUrl: './story.scss',
 })
@@ -38,6 +39,8 @@ export class Story {
   readonly image = input<string | null>(null);
   readonly blocks = input<readonly StoryBlock[]>([]);
   readonly next = input<StoryNextCard | null>(null);
+  /** Where "All stories" leads, above the section; none draws no back link (the admin preview). */
+  readonly backHref = input<string | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });
   readonly loadingLabel = input('Loading story');
 }

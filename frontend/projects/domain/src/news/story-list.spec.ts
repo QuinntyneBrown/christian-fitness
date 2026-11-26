@@ -4,6 +4,7 @@ import {
   storyNextLabel,
   storyPreviewNotice,
   storyReaderWhen,
+  storyReadingMinutes,
   storyListHref,
   storyListQueryOf,
   storyReadsText,
@@ -135,16 +136,30 @@ describe('storyReadsText', () => {
   });
 });
 
-// Mock admin-story-preview/default (L2-069 AC13).
+// L2-061 AC2 (ADR 0105): the text's words at 220 a minute, rounded up, never less than 1.
+describe('storyReadingMinutes', () => {
+  const words = (n: number) => Array.from({ length: n }, () => 'word').join(' ');
+  it.each([
+    ['no words', 0, 1],
+    ['one word', 1, 1],
+    ['220 words is a minute', 220, 1],
+    ['221 words is two', 221, 2],
+    ['1,320 words is six', 1320, 6],
+  ])('%s', (_why, count, minutes) => {
+    expect(storyReadingMinutes(words(count))).toBe(minutes);
+  });
+
+  it('counts runs holding a letter or digit, so Markdown marks are not words', () => {
+    expect(storyReadingMinutes(`${words(220)} > - ## **`)).toBe(1);
+  });
+});
+
+// Mocks admin-story-preview/default and story/default (L2-069 AC13, L2-061 AC1).
 describe('storyReaderWhen', () => {
   const words = (n: number) => Array.from({ length: n }, () => 'word').join(' ');
   it.each([
     ['not yet published, one word', null, 'word', 'Not published yet · 1 min read'],
-    ['no words at all', null, '', 'Not published yet · 1 min read'],
-    ['200 words is a minute', null, words(200), 'Not published yet · 1 min read'],
-    ['201 words is two', null, words(201), 'Not published yet · 2 min read'],
-    ['marks alone are not words', null, `${words(200)} > - ##`, 'Not published yet · 1 min read'],
-    ['published 2 hours ago', '2026-04-15T10:45:00Z', words(1100), '2 hours ago · 6 min read'],
+    ['published 2 hours ago', '2026-04-15T10:45:00Z', words(1250), '2 hours ago · 6 min read'],
     ['published yesterday', '2026-04-14T14:00:00Z', 'word', 'Yesterday · 1 min read'],
     ['published on Apr 8', '2026-04-08T14:00:00Z', 'word', 'Apr 8 · 1 min read'],
   ])('%s', (_why, publishedAt, text, expected) => {

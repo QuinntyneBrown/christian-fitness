@@ -18,6 +18,9 @@
 } @else {
   <article class="story">
     <header class="story__head">
+      @if (backHref(); as href) {
+        <cf-link [href]="href" variant="back">All stories</cf-link>
+      }
       @if (section()) {
         <p class="story__section story__kicker">{{ section() }}</p>
       }
