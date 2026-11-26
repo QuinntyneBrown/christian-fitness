@@ -115,3 +115,4 @@ export * from './news/front-page';
 export * from './feedback/feedback-form';
 export * from './news/subscribe';
 export * from './news/feeds';
+export * from './newsletter/issue-builder';

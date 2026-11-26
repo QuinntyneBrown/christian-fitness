@@ -15,6 +15,7 @@ export * from './admin/admin-series';
 export * from './admin/admin-stories';
 export * from './admin/admin-services';
 export * from './admin/community-pick';
+export * from './admin/admin-newsletter';
 export * from './admin/staff-session';
 export * from './admin/toasts';
 export * from './chat/chat';
