@@ -87,6 +87,8 @@ export * from './session-list/session-meter';
 export * from './session-list/session-list';
 export * from './series-card/series-row';
 export * from './series-card/series-panel';
+export * from './plan-option/plan-option';
+export * from './plan-option/plan-list';
 export * from './series-card/series-card';
 export * from './radio-group/radio-group';
 export * from './select/select';

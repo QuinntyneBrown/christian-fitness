@@ -5,23 +5,47 @@
         <path d="M20 6 9 17l-5-5" /></svg
       >You're in for every session
     </p>
+    @if (payNote(); as pay) {
+      <p class="register__note register__note--start">{{ pay }}</p>
+    }
   } @else {
     <div class="register__head">
       <h2 class="series-panel__title">Sign up</h2>
       <p class="register__spots">{{ spots() }}</p>
     </div>
     @if (plans().length > 0) {
-      <ul class="plan-list" aria-label="Ways to come">
-        @for (plan of plans(); track plan.title) {
-          <li class="plan-option">
-            <span class="plan-option__body"
-              ><span class="plan-option__title">{{ plan.title }}</span
-              ><span class="plan-option__note">{{ plan.note }}</span></span
-            ><span class="plan-option__price">{{ plan.price }}</span>
-          </li>
+      <cf-plan-list legend="How would you like to come?">
+        @for (plan of plans(); track plan.value) {
+          <cf-plan-option
+            name="plan"
+            [value]="plan.value"
+            [label]="plan.title"
+            [note]="plan.note"
+            [price]="plan.price"
+            [checked]="plan.checked"
+            [disabled]="plan.disabled"
+            (choose)="choose.emit($event)"
+          />
         }
-      </ul>
+      </cf-plan-list>
     }
-    <p class="register__note">{{ note() }}</p>
+    <div class="register__state">
+      @if (button(); as action) {
+        @if (failed()) {
+          <p class="register__error" role="alert">
+            We couldn't sign you up. Try again in a moment.
+          </p>
+        }
+        <cf-button
+          size="lg"
+          block
+          [disabled]="action.disabled"
+          [busy]="action.busy"
+          (click)="act.emit()"
+          >{{ action.label }}</cf-button
+        >
+      }
+      <p class="register__note">{{ note() }}</p>
+    </div>
   }
 </div>

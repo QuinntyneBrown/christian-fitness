@@ -1,0 +1,15 @@
+<label class="plan-option">
+  <input
+    class="plan-option__input"
+    type="radio"
+    [name]="name()"
+    [value]="value()"
+    [checked]="checked()"
+    [disabled]="disabled()"
+    (change)="choose.emit(value())"
+  />
+  <span class="plan-option__body"
+    ><span class="plan-option__title">{{ label() }}</span
+    ><span class="plan-option__note">{{ note() }}</span></span
+  ><span class="plan-option__price">{{ price() }}</span>
+</label>

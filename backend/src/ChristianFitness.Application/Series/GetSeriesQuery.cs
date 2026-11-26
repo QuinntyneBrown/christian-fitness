@@ -53,11 +53,30 @@ public sealed record GetSeriesQuery(Guid Id) : IRequest<SeriesDetailDto>;
 internal sealed class GetSeriesHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, TimeProvider time)
     : IRequestHandler<GetSeriesQuery, SeriesDetailDto>
 {
-    public async Task<SeriesDetailDto> Handle(GetSeriesQuery request, CancellationToken cancellationToken)
+    public Task<SeriesDetailDto> Handle(GetSeriesQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+        return SeriesDetails.OfAsync(db, registrations, request.Id, current.Id, time.GetUtcNow(), cancellationToken);
+    }
+}
+
+/// <summary>One series as a member's page shows it, shared by the read, the join and the leave (ADR 0096, ADR 0099).</summary>
+internal static class SeriesDetails
+{
+    /// <summary>
+    /// The series as <paramref name="memberId"/> sees it at <paramref name="now"/>; 404
+    /// <c>series_not_found</c> when it is unknown or none of its dates is held (L2-051 AC6).
+    /// </summary>
+    public static async Task<SeriesDetailDto> OfAsync(
+        IAppDbContext db,
+        IRegistrationReader registrations,
+        Guid seriesId,
+        Guid memberId,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
         var series = await db.EventSeries.AsNoTracking()
-            .SingleOrDefaultAsync(s => s.Id == request.Id, cancellationToken)
+            .SingleOrDefaultAsync(s => s.Id == seriesId, cancellationToken)
             .ConfigureAwait(false);
         var sessions = series is null
             ? []
@@ -67,13 +86,11 @@ internal sealed class GetSeriesHandler(IAppDbContext db, IRegistrationReader reg
             throw new RefusalException(RefusalCodes.SeriesNotFound, RefusalKind.NotFound);
         }
 
-        var now = time.GetUtcNow();
         var facts = SeriesFacts.Of([.. sessions.Select(s => s.Times)], now);
         // The foreign key guarantees the host; it is shown whatever the listing's status (ADR 0089).
         var host = await db.DirectoryListings.AsNoTracking()
             .SingleAsync(l => l.Id == series.HostListingId, cancellationToken)
             .ConfigureAwait(false);
-        var memberId = current.Id;
         var joined = await db.SeriesEnrolments.AsNoTracking()
             .AnyAsync(e => e.SeriesId == series.Id && e.MemberId == memberId, cancellationToken)
             .ConfigureAwait(false);
