@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261126060230_AddCommunityPicks")]
+    [Migration("20261126071541_AddCommunityPicks")]
     partial class AddCommunityPicks
     {
         /// <inheritdoc />
@@ -974,6 +974,23 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("Stories", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.News.StoryReadTally", b =>
+                {
+                    b.Property<Guid>("StoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Count")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("StoryId", "Day");
+
+                    b.ToTable("StoryReadTallies", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1373,6 +1390,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("ImageCrop");
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.News.StoryReadTally", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.News.Story", null)
+                        .WithMany()
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
