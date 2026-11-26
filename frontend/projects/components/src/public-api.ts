@@ -86,6 +86,7 @@ export * from './pagination/pagination-items';
 export * from './profile-hero/profile-hero';
 export * from './progress-bar/progress-bar';
 export * from './pick-art/pick-art';
+export * from './pick-art/pick-asset';
 export * from './pick-list/event-choices';
 export * from './pick-list/pick-cards';
 export * from './pick-list/pick-empty';

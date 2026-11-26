@@ -45,7 +45,7 @@
       </cf-empty-state>
     } @else {
       <div class="split split--pick">
-        <form class="sticky-aside" novalidate>
+        <form class="sticky-aside" novalidate (submit)="create($event)">
           <cf-event-choices
             legend="Event"
             name="event"
@@ -65,17 +65,54 @@
               (valueChange)="note.set($event)"
             />
           </div>
-          <cf-button type="submit" size="lg" block>
+          @if (failed()) {
+            <p class="register__error" role="alert">
+              We couldn't create the assets. Try again in a moment.
+            </p>
+          } @else if (changed()) {
+            <p class="caption__hint" role="status">
+              You changed the event or note. Recreate to update.
+            </p>
+          }
+          <cf-button type="submit" size="lg" block [busy]="creating()">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
               />
             </svg>
-            Create assets
+            @if (creating()) {
+              Creating…
+            } @else if (changed()) {
+              Recreate assets
+            } @else {
+              Create assets
+            }
           </cf-button>
         </form>
         <section aria-label="Assets">
-          @if (preview(); as art) {
+          @if (made(); as made) {
+            <cf-segmented-control
+              label="Platform"
+              flush
+              ink
+              [options]="platformOptions()"
+              (navigate)="showPlatform($event)"
+            />
+            <div class="pick-assets">
+              <div [attr.class]="assetsClass()">
+                @for (image of shown(); track image.spec.key) {
+                  <cf-pick-asset
+                    [shape]="image.spec.shape"
+                    [artLabel]="made.art.label"
+                    [src]="image.url"
+                    [label]="image.spec.label"
+                    [fileName]="image.fileName"
+                    (save)="save(image)"
+                  />
+                }
+              </div>
+            </div>
+          } @else if (preview(); as art) {
             <cf-pick-empty
               heading="Five files, four platforms, one click"
               text="Instagram post and story, a Facebook and Slack link image, and a WhatsApp square, each with its caption ready to paste."

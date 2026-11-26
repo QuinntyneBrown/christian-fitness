@@ -73,3 +73,45 @@
 section {
   min-width: 0;
 }
+
+// The design system's "register__error" and pick-art's "caption__hint", above the button.
+.register__error {
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.caption__hint {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+// The design system's "pick-assets" and "assets" layouts (pick-art.html).
+.pick-assets {
+  margin-top: var(--space-6);
+
+  > * + * {
+    margin-top: var(--space-8);
+  }
+}
+
+.assets {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 40rem) {
+  .assets--insta {
+    grid-template-columns: 1fr 0.5fr;
+  }
+
+  .assets--pair {
+    grid-template-columns: 0.8fr 1fr;
+    gap: var(--space-8);
+  }
+}

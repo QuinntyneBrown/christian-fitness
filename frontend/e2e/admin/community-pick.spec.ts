@@ -1,9 +1,14 @@
 import {
+  answerPickPhoto,
+  answerPicks,
   HOOPS_NIGHT,
   PARK_BOOTCAMP,
+  PICKABLE_EVENTS,
   pickableEvents,
   SUNRISE_5K,
   SUNRISE_NOTE,
+  WHITE_PHOTO as WHITE,
+  withPhoto,
 } from '../fixtures/community-pick';
 import { expect, MODERATOR_SIGNED_IN, test } from '../fixtures/test';
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
@@ -220,5 +225,248 @@ test.describe('Admin app, Community Pick while loading, with nothing, and on fai
 
     await expect(pick.radios).toHaveCount(5);
     await expect(pick.error).toHaveCount(0);
+  });
+});
+
+// L2-072 AC3, AC4, AC5, AC7, AC8, AC10, AC12, AC13 (ADR 0098): Create assets draws five PNGs in
+// the browser at their platforms' sizes, from the event's photo or the brand pattern, shows them
+// one platform at a time, each with its size and a PNG download, and records the pick; a change
+// asks to recreate; a failure says so above a usable button.
+test.describe('Admin app, Community Pick: creating the assets', () => {
+  test(
+    'Create assets reads "Creating…", then shows the five PNGs at their sizes and records the pick',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const events = [withPhoto(SUNRISE_5K), ...PICKABLE_EVENTS.slice(1)];
+      api.on('GET', '/api/admin/community-pick/events', () => pickableEvents(events));
+      let release = (): void => undefined;
+      const gate = new Promise<void>((resolve) => (release = resolve));
+      const photo = answerPickPhoto(api, async () => {
+        await gate;
+        return { headers: { 'content-type': 'image/png' }, body: WHITE };
+      });
+      const sent = answerPicks(api);
+      const pick = new CommunityPickPage(page);
+      await pick.open();
+      await pick.writeNote(`  ${SUNRISE_NOTE} `);
+
+      await pick.create();
+
+      await expect(pick.createButton).toHaveText('Creating…');
+      await expect(pick.createButton).toHaveAttribute('aria-busy', 'true');
+      await expect(pick.previewTitle).toHaveText('Five files, four platforms, one click');
+      release();
+
+      await expect(pick.currentPlatform).toHaveText('Instagram');
+      await expect(pick.platformLinks).toHaveText(['Instagram', 'Facebook', 'WhatsApp', 'Slack']);
+      await expect(pick.assetLabels).toHaveText(['Post · 1080 × 1080', 'Story · 1080 × 1920']);
+      await expect(pick.assetImages).toHaveCount(2);
+      await expect(pick.assetImages.first()).toHaveAttribute('src', /^blob:/);
+      await expect(pick.assets.first().locator('.pick-art')).toHaveAttribute(
+        'aria-label',
+        'Community Pick graphic: Easter Sunrise 5K, Sat Apr 18',
+      );
+      await expect(pick.preview).toHaveCount(0);
+      await expect(pick.createButton).toHaveText('Create assets');
+      await expect(pick.changedNotice).toHaveCount(0);
+      // The preview showed the photo and the graphics were drawn from it; nothing asks again.
+      const asked = photo.asked;
+
+      // The pick is recorded with the trimmed note, and the list shows it in place (AC13).
+      await expect.poll(() => sent).toEqual([{ eventId: SUNRISE_5K.id, note: SUNRISE_NOTE }]);
+      await expect(pick.choices.first().locator('.event-choice__area')).toHaveText(
+        'Waterfront · Last picked Apr 10',
+      );
+
+      // Each PNG downloads named for the pick, the event and the platform, at its size (AC4, AC7).
+      expect(await pick.downloadPng('Post')).toEqual({
+        name: 'community-pick-easter-sunrise-5k-instagram-post.png',
+        width: 1080,
+        height: 1080,
+      });
+      expect(await pick.downloadPng('Story')).toEqual({
+        name: 'community-pick-easter-sunrise-5k-instagram-story.png',
+        width: 1080,
+        height: 1920,
+      });
+      // The hidden file name is positioned out of flow, so Chromium joins it with a space.
+      await expect(pick.download('Post')).toHaveAccessibleName(
+        /^PNG ?: community-pick-easter-sunrise-5k-instagram-post\.png$/,
+      );
+
+      await pick.showPlatform('Facebook');
+
+      await expect(page).toHaveURL(/\/community-pick\?platform=facebook$/);
+      await expect(pick.currentPlatform).toHaveText('Facebook');
+      await expect(pick.assetLabels).toHaveText(['Link image · 1200 × 630']);
+      expect(await pick.downloadPng('Link image')).toEqual({
+        name: 'community-pick-easter-sunrise-5k-facebook.png',
+        width: 1200,
+        height: 630,
+      });
+
+      await pick.showPlatform('WhatsApp');
+
+      await expect(pick.assetLabels).toHaveText(['Image · 1080 × 1080']);
+      expect(await pick.downloadPng('Image')).toEqual({
+        name: 'community-pick-easter-sunrise-5k-whatsapp.png',
+        width: 1080,
+        height: 1080,
+      });
+
+      await pick.showPlatform('Slack');
+
+      await expect(pick.assetLabels).toHaveText(['Unfurl image · 1200 × 630']);
+      expect(await pick.downloadPng('Unfurl image')).toEqual({
+        name: 'community-pick-easter-sunrise-5k-slack.png',
+        width: 1200,
+        height: 630,
+      });
+      expect(photo.asked).toBe(asked);
+    },
+  );
+
+  // AC5: the text meets 4.5:1 against what is behind it, even on the lightest photo there is. The
+  // bands sampled are where the fixture's title, when line and note sit in each shape.
+  test('on a white photo, what is under the text still meets 4.5:1 against white', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/community-pick/events', () =>
+      pickableEvents([withPhoto(SUNRISE_5K)]),
+    );
+    answerPickPhoto(api);
+    answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+    await pick.writeNote(SUNRISE_NOTE);
+    await pick.create();
+    await expect(pick.assetImages).toHaveCount(2);
+
+    expect(await pick.leastContrastUnderText('Post', 0.7, 0.94)).toBeGreaterThanOrEqual(4.5);
+    expect(await pick.leastContrastUnderText('Story', 0.83, 0.96)).toBeGreaterThanOrEqual(4.5);
+
+    await pick.showPlatform('Facebook');
+
+    expect(await pick.leastContrastUnderText('Link image', 0.57, 0.88)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  // No-image mock: an event with no photo gets the brand pattern; no photo is asked for.
+  test('an event with no image is drawn on the brand pattern', async ({ page, api }) => {
+    api.on('GET', '/api/admin/community-pick/events', () => pickableEvents([PARK_BOOTCAMP]));
+    answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+
+    await pick.create();
+
+    await expect(pick.assetImages).toHaveCount(2);
+    expect(await pick.downloadPng('Post')).toEqual({
+      name: 'community-pick-saturday-park-bootcamp-instagram-post.png',
+      width: 1080,
+      height: 1080,
+    });
+  });
+
+  // Changed mock (AC8): the assets shown stay those last made until Recreate.
+  test('changing the event or the note asks to recreate, and Recreate makes them anew', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/community-pick/events', () => pickableEvents());
+    const sent = answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+    await pick.writeNote(SUNRISE_NOTE);
+    await pick.create();
+    await expect(pick.assetImages).toHaveCount(2);
+    const made = await pick.assetImages.first().getAttribute('src');
+
+    await pick.writeNote(`${SUNRISE_NOTE} Bring water`);
+
+    await expect(pick.changedNotice).toHaveText(
+      'You changed the event or note. Recreate to update.',
+    );
+    await expect(pick.createButton).toHaveText('Recreate assets');
+    await expect(pick.assetImages.first()).toHaveAttribute('src', made!);
+
+    await pick.writeNote(SUNRISE_NOTE);
+
+    await expect(pick.changedNotice).toHaveCount(0);
+    await expect(pick.createButton).toHaveText('Create assets');
+
+    await pick.choose('Saturday Park Bootcamp');
+
+    await expect(pick.changedNotice).toHaveText(
+      'You changed the event or note. Recreate to update.',
+    );
+    await expect(pick.assets.first().locator('.pick-art')).toHaveAttribute(
+      'aria-label',
+      'Community Pick graphic: Easter Sunrise 5K, Sat Apr 18',
+    );
+
+    await pick.create();
+
+    await expect(pick.assets.first().locator('.pick-art')).toHaveAttribute(
+      'aria-label',
+      'Community Pick graphic: Saturday Park Bootcamp, Sat Apr 25',
+    );
+    await expect(pick.changedNotice).toHaveCount(0);
+    await expect(pick.createButton).toHaveText('Create assets');
+    expect(sent.map((s) => s.eventId)).toEqual([SUNRISE_5K.id, PARK_BOOTCAMP.id]);
+  });
+
+  // Failed mock (AC10): the photo does not load, so nothing is made and nothing is recorded.
+  test('when the assets cannot be made, a message says so above a usable button', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/community-pick/events', () =>
+      pickableEvents([withPhoto(SUNRISE_5K)]),
+    );
+    let fail = true;
+    answerPickPhoto(api, () =>
+      fail
+        ? { status: 500, json: { code: 'server_error' } }
+        : { headers: { 'content-type': 'image/png' }, body: WHITE },
+    );
+    const sent = answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+
+    await pick.create();
+
+    await expect(pick.failure).toHaveText("We couldn't create the assets. Try again in a moment.");
+    await expect(pick.createButton).toHaveText('Create assets');
+    await expect(pick.createButton).toBeEnabled();
+    await expect(pick.preview).toBeVisible();
+    await expect(page).toHaveURL(/\/community-pick$/);
+    expect(sent).toEqual([]);
+    fail = false;
+
+    await pick.create();
+
+    await expect(pick.assetImages).toHaveCount(2);
+    await expect(pick.failure).toHaveCount(0);
+  });
+
+  // ADR 0098: a pick that fails to record changes nothing on screen; the downloads stay usable.
+  test('a pick that is not recorded leaves the assets and the list as they are', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/community-pick/events', () => pickableEvents());
+    const sent = answerPicks(api, () => ({ status: 500, json: { code: 'server_error' } }));
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+
+    await pick.create();
+
+    await expect(pick.assetImages).toHaveCount(2);
+    await expect.poll(() => sent.length).toBe(1);
+    await expect(pick.failure).toHaveCount(0);
+    await expect(page).toHaveURL(/\/community-pick$/);
+    await expect(pick.choices.first().locator('.event-choice__area')).toHaveText('Waterfront');
+    expect((await pick.downloadPng('Post')).width).toBe(1080);
   });
 });

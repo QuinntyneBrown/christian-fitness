@@ -1,4 +1,4 @@
-import type { ApiReply } from './api-handlers';
+import type { ApiHandlers, ApiReply } from './api-handlers';
 
 /** One event of `GET /api/admin/community-pick/events` (ADR 0098). */
 export interface PickableEventFixture {
@@ -96,4 +96,60 @@ export const SUNRISE_NOTE = 'Flat, stroller-friendly, and you finish as the sun 
 /** `GET /api/admin/community-pick/events` answering `events`. */
 export function pickableEvents(events: PickableEventFixture[] = PICKABLE_EVENTS): ApiReply {
   return { json: { siteOrigin: SITE_ORIGIN, events } };
+}
+
+/** The key of the photo `withPhoto` gives an event, as the event image endpoint serves it. */
+export const PICK_PHOTO_KEY = `${'a1'.repeat(16)}.png`;
+
+/** `event` with the photo `answerPickPhoto` serves. */
+export function withPhoto(event: PickableEventFixture): PickableEventFixture {
+  return { ...event, imageKey: PICK_PHOTO_KEY };
+}
+
+/** A 1 × 1 white PNG: the lightest photo there is, so the graphic's shade must carry the text. */
+export const WHITE_PHOTO = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC',
+  'base64',
+);
+
+/**
+ * Answers `GET /api/events/images/<PICK_PHOTO_KEY>` with `reply` (the white photo unless given),
+ * and returns how many times it was asked for.
+ */
+export function answerPickPhoto(
+  api: ApiHandlers,
+  reply: () => ApiReply | Promise<ApiReply> = () => ({
+    headers: { 'content-type': 'image/png' },
+    body: WHITE_PHOTO,
+  }),
+): { asked: number } {
+  const count = { asked: 0 };
+  api.on('GET', `/api/events/images/${PICK_PHOTO_KEY}`, () => {
+    count.asked++;
+    return reply();
+  });
+  return count;
+}
+
+/** What `POST /api/admin/community-pick/picks` was sent. */
+export interface PickSent {
+  eventId: string;
+  note: string;
+}
+
+/** When the fixture's picks are recorded: Fri Apr 10, 9:00 AM in Toronto. */
+export const PICKED_AT = '2026-04-10T13:00:00+00:00';
+
+/**
+ * Answers `POST /api/admin/community-pick/picks` with 201 and `PICKED_AT`, or with `reply` when
+ * given, and returns the bodies sent, in order (ADR 0098).
+ */
+export function answerPicks(api: ApiHandlers, reply?: () => ApiReply): PickSent[] {
+  const sent: PickSent[] = [];
+  api.on('POST', '/api/admin/community-pick/picks', (request) => {
+    const body = request.postDataJSON() as PickSent;
+    sent.push(body);
+    return reply?.() ?? { status: 201, json: { eventId: body.eventId, pickedAt: PICKED_AT } };
+  });
+  return sent;
 }

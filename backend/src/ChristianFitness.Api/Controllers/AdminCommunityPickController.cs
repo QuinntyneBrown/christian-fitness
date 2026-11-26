@@ -16,4 +16,9 @@ public sealed class AdminCommunityPickController(ISender sender) : ControllerBas
     [HttpGet("events")]
     public async Task<ActionResult<PickableEventListDto>> Events(CancellationToken cancellationToken) =>
         await sender.Send(new ListPickableEventsQuery(), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Records a pick of an event with its note and answers 201 with it (L2-072 AC13).</summary>
+    [HttpPost("picks")]
+    public async Task<IActionResult> Record(RecordPickCommand command, CancellationToken cancellationToken) =>
+        StatusCode(StatusCodes.Status201Created, await sender.Send(command, cancellationToken).ConfigureAwait(false));
 }

@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 
 /**
@@ -139,8 +140,69 @@ export class CommunityPickPage {
   /** The PNG button of the asset whose label starts with `label` ("Post", "Story"). */
   download(label: string): Locator {
     return this.assets
-      .filter({ has: this.page.locator('.asset__label', { hasText: label }) })
+      .filter({
+        has: this.page.locator('.asset__label', { hasText: new RegExp(`^${escape(label)}`) }),
+      })
       .getByRole('button', { name: /^PNG/ });
+  }
+
+  /**
+   * Presses the PNG button of the asset whose label starts with `label` and reads the file that
+   * downloads: its name and the width and height its PNG header gives.
+   */
+  async downloadPng(label: string): Promise<{ name: string; width: number; height: number }> {
+    const [download] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.download(label).click(),
+    ]);
+    const path = await download.path();
+    const bytes = await readFile(path);
+    const signature = bytes.subarray(0, 8).toString('hex');
+    if (signature !== '89504e470d0a1a0a') throw new Error(`Not a PNG: ${signature}`);
+    return {
+      name: download.suggestedFilename(),
+      width: bytes.readUInt32BE(16),
+      height: bytes.readUInt32BE(20),
+    };
+  }
+
+  /**
+   * The least contrast against white of the drawn image of the asset whose label starts with
+   * `label`, down a column 3% in from its left edge, from `from` to `to` of its height (fractions):
+   * where the graphic's text sits, so it is what is under the text.
+   */
+  async leastContrastUnderText(label: string, from: number, to: number): Promise<number> {
+    const image = this.assets
+      .filter({
+        has: this.page.locator('.asset__label', { hasText: new RegExp(`^${escape(label)}`) }),
+      })
+      .locator('.pick-art img');
+    return image.evaluate(
+      async (img: HTMLImageElement, [top, bottom]) => {
+        await img.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const context = canvas.getContext('2d')!;
+        context.drawImage(img, 0, 0);
+        const x = Math.round(canvas.width * 0.03);
+        const y0 = Math.round(canvas.height * top);
+        const rows = Math.round(canvas.height * bottom) - y0;
+        const { data } = context.getImageData(x, y0, 1, rows);
+        const linear = (c: number): number => {
+          const v = c / 255;
+          return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        };
+        let least = 21;
+        for (let i = 0; i < data.length; i += 4) {
+          const l =
+            0.2126 * linear(data[i]) + 0.7152 * linear(data[i + 1]) + 0.0722 * linear(data[i + 2]);
+          least = Math.min(least, 1.05 / (l + 0.05));
+        }
+        return least;
+      },
+      [from, to],
+    );
   }
 
   /** The preview art's text: its label, title, when line and note. */

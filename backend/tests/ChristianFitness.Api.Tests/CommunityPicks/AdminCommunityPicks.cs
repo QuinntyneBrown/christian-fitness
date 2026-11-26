@@ -33,7 +33,7 @@ internal static class AdminCommunityPicks
         AdminEvents.SendAsync(client, HttpMethod.Get, EventsPath, cookie);
 
     /// <summary>Records a pick of <paramref name="eventId"/> with <paramref name="note"/>.</summary>
-    public static Task<HttpResponseMessage> RecordAsync(HttpClient client, string cookie, object? eventId, object? note) =>
+    public static Task<HttpResponseMessage> RecordAsync(HttpClient client, string? cookie, object? eventId, object? note) =>
         AdminEvents.SendAsync(client, HttpMethod.Post, PicksPath, cookie, new Dictionary<string, object?>(StringComparer.Ordinal) { ["eventId"] = eventId, ["note"] = note });
 
     /// <summary>Reads an answer as JSON.</summary>
