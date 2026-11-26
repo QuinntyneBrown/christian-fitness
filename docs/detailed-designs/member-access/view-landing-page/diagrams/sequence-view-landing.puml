@@ -58,7 +58,7 @@ else Visitor
     end
   else Most read
     page -> stories : mostRead()
-    stories -> sctrl : GET /api/public/stories/most-read
+    stories -> sctrl : GET /api/public/most-read-stories
     sctrl -> most : Send ListMostReadStoriesQuery
     most -> db : Sum StoryReadTally for the last 7 days (TimeProvider)
     most --> sctrl : Five StorySummaryDto

@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 69% (25 of 36 journeys; 77 of 113 days)
+**% complete:** 73% (27 of 36 journeys; 82 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3387,3 +3387,52 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   at 279.11 kB; the footer's news variant reuses the `@if` blocks the footer already paid for.
 - Docker was not running again, so the two nginx feed locations were reviewed, not run through
   `nginx -t`.
+
+## Journey 25: Read the news front page
+
+**What slowed it**
+
+- `L2-001` AC2 ("the newest story leads") and `L2-069` AC6 (a story "appears where Publishing
+  placed it") disagreed once journey 22 had built placements. ADR 0107 lets the Lead-placed story
+  lead and Top-placed stories fill the headlines first, which reads exactly as `L2-001` when
+  nothing is placed.
+- The design named `GET /api/public/stories/most-read`, but `most-read` is a valid story link, so
+  the literal route would have hidden a story's API read. "Most read" got its own address.
+- The worktree guard refused compound shell commands that mixed `cd`, heredocs and git; edits went
+  through Python scripts in the journey's scratchpad folder with exact-match asserts, and git ran
+  alone.
+- A `git rm` stages at once, so the next slice's commit of named backend paths took the frontend
+  deletions with it; `git reset --soft HEAD~1` and `git restore --staged frontend` split them
+  again. `git show --stat HEAD` after each commit caught it.
+- The break scripts' Python read Playwright's output as cp1252 and threw on its check marks; the
+  summary lines still printed, but the scripts should pass `encoding='utf-8'`.
+
+**New lessons**
+
+- Before adding a literal route beside a `{slug}` route, check whether the literal is a valid slug;
+  give a list its own address rather than reserve a word in the slug space.
+- A river that grows by pages needs a server-side cap (`skip` at most 48) and a client-side one
+  (`RIVER_MAX`), each with its own test, so neither the DOM nor a crafted query grows past 60.
+- The shared story-age helper says "Yesterday" for anything before Toronto midnight, so the mock's
+  "9 hours ago" at 8:45 AM is not what the app shows; fixtures pick times inside the same Toronto
+  day when they mean hours.
+- A literal `[]` or `{}` in a template binding compiles to `ɵɵpureFunction0`, which grew `main` by
+  0.26 kB the first time a page used it. Diffing `main`'s exports against the base build (by
+  definition, since minified names move) found it; a module constant behind a `computed` took
+  it back to the base size. Building the base from a `git archive` of `origin/main` under the
+  ignored `frontend/tmp/` reuses the worktree's `node_modules` without a symlink.
+- A page whose `h1` moves between parts (the lead, the river's title, a hidden heading while
+  loading) keeps that rule in one computed (`riverIsHeading`) and one spec per case.
+
+**How earlier lessons worked**
+
+- "Break each rule alone" (scripted, `brkb.py` and `brkui.py`): every API rule (placement, top
+  headlines, section filter, `more`, both validators, the readable filter, the 7-day window at
+  both ends, the tie, the ranking order) and every page rule (`aria-current`, the faith slug, the
+  empty copy, both failures, the river append, the cap, hiding Most read, the sticky rail, the two
+  columns, the sideways sections, the sticky masthead, text not HTML, four events, the area)
+  failed its own test and was restored.
+- "Use the shared published-stories query" (journey 24): both new reads start from
+  `PublishedStories.At`, so a due Scheduled story counts at its time with no new code.
+- "Run the full suite against the built apps on free ports with two workers" kept the runs clear
+  of the other sessions on the machine.
