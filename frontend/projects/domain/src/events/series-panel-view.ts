@@ -141,3 +141,18 @@ export function seriesPanelViewOf(
     note,
   };
 }
+
+/**
+ * What a refused join means for the panel (L2-052 AC5 to AC8; ADR 0099): `full` for the
+ * {@link ApiError} `series_full`, so the page shows the series as full without asking again;
+ * `failed` for anything else (`account_suspended`, a 5xx, no answer), shown as the generic message.
+ */
+export function seriesJoinRefusalOf(error: unknown): 'full' | 'failed' {
+  return typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'status' in error &&
+    error.code === 'series_full'
+    ? 'full'
+    : 'failed';
+}
