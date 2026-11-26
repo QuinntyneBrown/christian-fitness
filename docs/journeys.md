@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 56% (20 of 36 journeys; 61 of 113 days)
+**% complete:** 58% (21 of 36 journeys; 63 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -35,7 +35,7 @@ audit), so those are not listed on their own.
 | 20  | ✅ Edit my listing                     | Both   | An owner edits their listing; name and kind changes wait for staff approval.                                   | 2             |
 | 21  | ✅ Manage bylines                      | Admin  | Admins add, edit and remove the names stories run under.                                                       | 2             |
 | 22  | ✅ Write and publish stories           | Admin  | Admins list, write, review, preview, publish, update and unpublish stories.                                    | 5             |
-| 23  | Schedule stories                       | Admin  | A scheduled story publishes itself within a minute, run by the console's scheduler.                            | 2             |
+| 23  | ✅ Schedule stories                    | Admin  | A scheduled story publishes itself within a minute, run by the console's scheduler.                            | 2             |
 | 24  | Read a story                           | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
 | 25  | Read the news front page               | Member | The landing page becomes a news front page: sections, top stories, the rail and most read.                     | 3             |
 | 26  | Follow stories by RSS                  | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
@@ -79,7 +79,7 @@ under `detailed-designs/` and the mocks under `mocks/` (pages, dialogs and notif
 | 20  | L2-079                                                                   | directory/edit-listing                                            | owner-listing-editor, listing-profile, admin-listings                   |
 | 21  | L2-077                                                                   | publishing/write-review-publish-story                             | admin-bylines, byline-editor, remove-byline                             |
 | 22  | L2-068; L2-069 (not AC4)                                                 | publishing/manage-stories, publishing/write-review-publish-story  | admin-stories, admin-story-editor, admin-story-preview                  |
-| 23  | L2-069 AC2, AC4; ADR 0069                                                | publishing/write-review-publish-story                             | admin-story-editor                                                      |
+| 23  | L2-069 AC2, AC4; ADR 0069, ADR 0104                                      | publishing/write-review-publish-story                             | admin-story-editor                                                      |
 | 24  | L2-061; L2-034 AC4–5; ADR 0072, 0073                                     | news/read-story                                                   | story                                                                   |
 | 25  | L2-001; L2-002                                                           | member-access/view-landing-page                                   | landing                                                                 |
 | 26  | L2-060                                                                   | news/publish-rss-feeds                                            | subscribe                                                               |
