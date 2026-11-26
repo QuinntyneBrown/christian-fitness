@@ -102,6 +102,7 @@ export * from './sidebar-navigation/sidebar-navigation';
 export * from './skeleton/skeleton';
 export * from './skeleton/skeleton-region';
 export * from './skip-link/skip-link';
+export * from './sso-notice/sso-notice';
 export * from './spinner/spinner';
 export * from './stat/fill';
 export * from './stat/fill-list';
