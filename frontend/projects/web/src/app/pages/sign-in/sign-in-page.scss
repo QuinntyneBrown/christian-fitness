@@ -1,9 +1,4 @@
-// The page is the auth layout; it adds only the place of "Forgot your password?", under the
-// password field as the mock's field__hint sits.
+// The page is the sign-in card; "Forgot password?" sits in the Password label's row.
 :host {
   display: block;
-}
-
-.sign-in-page__forgot {
-  margin-top: var(--space-1-5);
 }

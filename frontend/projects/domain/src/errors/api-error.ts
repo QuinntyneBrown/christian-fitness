@@ -3,7 +3,8 @@ import type { ApiError } from '@cf/api';
 /**
  * The `ApiError` a service gives a screen for a failed response (L2-032): the status, the
  * ProblemDetails `code` (`network` when no answer arrived, `error` when the body carries none) and
- * the field errors when they are a map of lists of sentences. Nothing else of the body is kept.
+ * the field errors when they are a map of lists of sentences, and the `account` a refusal was about
+ * when it is a string (ADR 0099). Nothing else of the body is kept.
  */
 export function apiErrorOf(status: number, body: unknown): ApiError {
   if (status === 0) return { status, code: 'network' };
@@ -12,11 +13,13 @@ export function apiErrorOf(status: number, body: unknown): ApiError {
   const code = typeof problem['code'] === 'string' ? problem['code'] : 'error';
   const errors = problem['errors'];
   const fieldCodes = problem['fieldCodes'];
+  const account = problem['account'];
   return {
     status,
     code,
     ...(isFieldErrors(errors) ? { errors } : {}),
     ...(isFieldCodes(fieldCodes) ? { fieldCodes } : {}),
+    ...(typeof account === 'string' ? { account } : {}),
   };
 }
 

@@ -4,10 +4,19 @@ import { booleanAttribute, Component, input } from '@angular/core';
 /**
  * The design system's button variants, from highest emphasis to lowest; `inverse` and `on-brand`
  * are the primary and secondary pair on bordeaux panels, and `quiet` is the borderless,
- * full-width text action.
+ * full-width text action. `neutral` is the near-black primary where bordeaux would compete, such as
+ * the member Sign in submit under the Google button.
  */
 export type ButtonVariant =
-  'primary' | 'secondary' | 'ghost' | 'danger' | 'link' | 'inverse' | 'on-brand' | 'quiet';
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'danger'
+  | 'link'
+  | 'neutral'
+  | 'inverse'
+  | 'on-brand'
+  | 'quiet';
 
 /**
  * The design system's button sizes: `xs` and `sm` are 36 px (44 px targets on touch), `default`

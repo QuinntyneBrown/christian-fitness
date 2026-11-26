@@ -1,6 +1,7 @@
 using ChristianFitness.Api.Errors;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Security;
+using ChristianFitness.Infrastructure.Security.Google;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -138,7 +139,8 @@ internal static class AuthenticationSetup
 
                     return Refuse(context.Response, StatusCodes.Status401Unauthorized);
                 };
-            });
+            })
+            .AddGoogleSignIn(configuration);
 
         var authorization = services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());

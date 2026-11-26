@@ -9,4 +9,6 @@ export interface ApiError {
   errors?: Record<string, string[]>;
   /** For a refused event: each failed field's own code, by the field's camel-case name (ADR 0021). */
   fieldCodes?: Record<string, string>;
+  /** The account a refusal was about, such as the Google email no profile uses (ADR 0099). */
+  account?: string;
 }

@@ -28,7 +28,18 @@ internal sealed partial class ProblemDetailsExceptionHandler(IProblemDetailsServ
         return problemDetails.TryWriteAsync(new ProblemDetailsContext { HttpContext = httpContext, ProblemDetails = problem });
     }
 
-    private static ProblemDetails Refused(RefusalException refusal) => new()
+    private static ProblemDetails Refused(RefusalException refusal)
+    {
+        var problem = Problem(refusal);
+        foreach (var (name, value) in refusal.Extensions)
+        {
+            problem.Extensions[name] = value;
+        }
+
+        return problem;
+    }
+
+    private static ProblemDetails Problem(RefusalException refusal) => new()
     {
         Status = refusal.Kind switch
         {
@@ -39,6 +50,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(IProblemDetailsServ
             RefusalKind.BadRequest => StatusCodes.Status400BadRequest,
             RefusalKind.Gone => StatusCodes.Status410Gone,
             RefusalKind.NotFound => StatusCodes.Status404NotFound,
+            RefusalKind.Unavailable => StatusCodes.Status503ServiceUnavailable,
             _ => StatusCodes.Status400BadRequest,
         },
         // ASP.NET Core has no default type for 429; RFC 6585 defines it.

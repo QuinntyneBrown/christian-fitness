@@ -76,6 +76,13 @@
 }
 
 // The primary and secondary pair on bordeaux panels, with the borealis focus ring.
+.btn--neutral {
+  --btn-bg: var(--color-bg-inverse);
+  --btn-bg-hover: var(--color-bg-inverse);
+  --btn-bg-active: var(--color-bg-inverse);
+  --btn-fg: var(--color-fg-inverse);
+}
+
 .btn--inverse {
   --btn-bg: var(--color-bg-brand-inverse);
   --btn-bg-hover: var(--color-bg-brand-inverse-hover);

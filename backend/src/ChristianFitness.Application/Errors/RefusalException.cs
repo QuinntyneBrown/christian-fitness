@@ -21,6 +21,9 @@ public enum RefusalKind
     /// <summary>The record asked for does not exist (404).</summary>
     NotFound,
 
+    /// <summary>A service the request needs is not configured or cannot be reached, such as Google (503).</summary>
+    Unavailable,
+
     BadRequest,
 }
 
@@ -55,4 +58,10 @@ public sealed class RefusalException : Exception
     public string Code { get; }
 
     public RefusalKind Kind { get; }
+
+    /// <summary>
+    /// What the refusal names beside its code, written as ProblemDetails extensions, such as the
+    /// Google account that has no member account (ADR 0099). Never logged.
+    /// </summary>
+    public IReadOnlyDictionary<string, object?> Extensions { get; init; } = new Dictionary<string, object?>();
 }

@@ -160,6 +160,15 @@ public static class RefusalCodes
     /// </summary>
     public const string TooManyAttempts = "too_many_attempts";
 
+    /// <summary>Google is not configured, or cannot be reached, so a Google sign-in cannot start (L2-049 AC11; ADR 0099).</summary>
+    public const string GoogleUnavailable = "google_unavailable";
+
+    /// <summary>No checked Google account came back, or its email is not verified (L2-049 AC3, AC11; ADR 0099).</summary>
+    public const string GoogleEmailUnverified = "google_email_unverified";
+
+    /// <summary>No member account uses this Google account yet; the screen offers Join (L2-049 AC11, L2-004 AC9).</summary>
+    public const string NoAccount = "no_account";
+
     /// <summary>A profile names more than 5 goals (L2-006 AC3).</summary>
     public const string TooManyGoals = "too_many_goals";
 

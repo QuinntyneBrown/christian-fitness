@@ -10,6 +10,7 @@ export * from './account/join';
 export * from './account/join-rules';
 export * from './account/join-refusal';
 export * from './account/sign-in-refusal';
+export * from './account/google-return';
 export * from './account/email-rule';
 export * from './account/reset-request-refusal';
 export * from './account/new-password-rules';

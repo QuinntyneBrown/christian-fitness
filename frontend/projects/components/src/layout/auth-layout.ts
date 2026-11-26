@@ -16,7 +16,9 @@ import { Seal } from '../brand-lockup/seal';
  * panel (`auth__brand`: the light `cf-brand-lockup` back to the landing page and, on a wide screen,
  * the hero `cf-seal`, the claim and what members do together) and, in the page's one `main`, a form with its heading, lead, fields, submit button and
  * the line that offers the other way in. The fields come through `[slot=fields]`, the button
- * through `[slot=submit]`, a form alert, when there is one, through `[slot=alert]` above the
+ * through `[slot=submit]`, Google's way in (the Google button and "or with email", or the account
+ * Google returned) through `[slot=sso]` between the alert and the fields (ADR 0099), a form alert,
+ * when there is one, through `[slot=alert]` above the
  * fields, and words the lead goes on with (such as a bold email) through `[slot=lead]`.
  * Submitting the form, by its button or by Enter in a field, emits `submitted`; the page decides
  * what that does.

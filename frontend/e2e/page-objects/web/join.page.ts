@@ -28,6 +28,11 @@ export class WebJoinPage {
   readonly interests: Locator;
   readonly submitButton: Locator;
   readonly signInLink: Locator;
+  /** Google's way in: "Sign up with Google", then "or with email". */
+  readonly googleButton: Locator;
+  readonly divider: Locator;
+  /** The form's parts in the order they show: Google, the divider, the fields. */
+  readonly parts: Locator;
   /** The `form-alert` above the fields: the error summary, the refusal or the failure. */
   readonly alert: Locator;
   readonly alertTitle: Locator;
@@ -50,6 +55,9 @@ export class WebJoinPage {
       .filter({ has: page.locator('.field__legend') });
     this.submitButton = this.form.locator('.auth__submit .btn');
     this.signInLink = this.form.locator('.auth__alt').getByRole('link', { name: 'Sign in' });
+    this.googleButton = this.form.locator('.auth__sso .google-button');
+    this.divider = this.form.locator('.auth__sso').getByRole('separator');
+    this.parts = this.form.locator('.google-button, [role=separator], .auth__fields');
     this.alert = this.form.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertLinks = this.alert.locator('.form-alert__list a');

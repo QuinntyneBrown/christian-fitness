@@ -51,6 +51,18 @@ describe('apiErrorOf', () => {
       body: { code: 'validation_failed', errors: [['Enter your full name']] },
       expected: { status: 400, code: 'validation_failed' },
     },
+    {
+      why: 'a refusal naming the Google account it was about (ADR 0099)',
+      status: 404,
+      body: { code: 'no_account', account: 'grace@gmail.com' },
+      expected: { status: 404, code: 'no_account', account: 'grace@gmail.com' },
+    },
+    {
+      why: 'an account that is not a string',
+      status: 404,
+      body: { code: 'no_account', account: { email: 'grace@gmail.com' } },
+      expected: { status: 404, code: 'no_account' },
+    },
   ])('$why', ({ status, body, expected }) => {
     expect(apiErrorOf(status, body)).toEqual(expected);
   });

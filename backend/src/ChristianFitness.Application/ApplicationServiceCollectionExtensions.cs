@@ -36,6 +36,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();
+        services.AddSingleton<Sessions.Google.GoogleSignInLimiter>();
         return services;
     }
 }

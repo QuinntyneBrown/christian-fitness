@@ -1,11 +1,17 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { SessionApi, SessionDto, SignInRequestDto } from '@cf/api';
+import type {
+  GoogleRedirectDto,
+  SessionApi,
+  SessionDto,
+  SignInRequestDto,
+  StartGoogleRequestDto,
+} from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, map, of, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link SessionApi} over HTTP: `GET`, `POST` and `DELETE /api/session`. A failed write errors with
+ * {@link SessionApi} over HTTP: `GET`, `POST` and `DELETE /api/session`, and the Google start. A failed write errors with
  * an `ApiError` (`apiErrorOf`), so no screen handles an `HttpErrorResponse`. It holds no state.
  */
 @Injectable()
@@ -18,6 +24,12 @@ export class HttpSessionService implements SessionApi {
 
   signIn(request: SignInRequestDto): Observable<SessionDto> {
     return this.http.post<SessionDto>('/api/session', request).pipe(catchError(asApiError));
+  }
+
+  startGoogle(request: StartGoogleRequestDto): Observable<GoogleRedirectDto> {
+    return this.http
+      .post<GoogleRedirectDto>('/api/session/google/start', request)
+      .pipe(catchError(asApiError));
   }
 
   signOut(): Observable<void> {
