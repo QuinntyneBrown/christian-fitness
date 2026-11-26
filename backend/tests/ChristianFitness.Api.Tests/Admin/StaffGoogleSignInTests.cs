@@ -107,6 +107,23 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     }
 
     [Fact]
+    public async Task Given_staff_bound_to_a_Google_account_When_another_Google_account_with_their_email_finishes_Then_it_is_refused_not_staff()
+    {
+        using var client = Browser.CreateClient(factory);
+        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "dana.bound.google@example.org", StaffRoleName.Admin, twoStep: false));
+        using (var bound = await Staff.SignInWithGoogleAsync(factory, client, "dana.bound.google@example.org"))
+        {
+            Assert.Equal(HttpStatusCode.OK, bound.StatusCode);
+        }
+
+        var other = new GoogleAccount { Email = "dana.bound.google@example.org", HostedDomain = FakeGoogle.StaffDomain };
+        using var response = await Staff.SignInWithGoogleAsync(factory, client, other.Email, other);
+
+        await AssertRefusedAsync(response, HttpStatusCode.Forbidden, "not_staff");
+        Assert.Equal(Staff.WorkspaceAccount("dana.bound.google@example.org").Subject, await SubjectOfAsync(id));
+    }
+
+    [Fact]
     public async Task Given_suspended_staff_When_they_finish_Then_it_is_refused_account_suspended()
     {
         using var client = Browser.CreateClient(factory);
