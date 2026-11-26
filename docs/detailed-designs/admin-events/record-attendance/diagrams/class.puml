@@ -16,12 +16,12 @@ class EventAttendancePage {
   -state: Signal<'loading' | 'loaded' | 'not-started' | 'error'>
 }
 class AttendanceTracker {
-  +tick(memberId: string, came: boolean): Promise<void>
+  +tick(memberId: string, came: boolean): void
   +came: Signal<number>
 }
 interface AdminEventsApi {
-  +attendance(id: string): Promise<AttendancePageDto>
-  +setAttendance(id: string, memberId: string, came: boolean): Promise<void>
+  +attendance(id: string): Observable<EventAttendanceDto>
+  +setAttendance(id: string, memberId: string, came: boolean): Observable<void>
 }
 class GetEventAttendanceQuery {
   +Guid EventId
@@ -36,7 +36,10 @@ class SetAttendanceHandler
 class AttendanceRules {
   +HasStarted(event, now): bool
 }
-class AttendancePageDto {
+class EventAttendanceDto {
+  +Guid EventId
+  +string Title
+  +DateTimeOffset StartsAt
   +bool Started
   +int Registered
   +int Came
@@ -44,7 +47,7 @@ class AttendancePageDto {
 }
 class AttendanceRowDto {
   +Guid MemberId
-  +string MemberName
+  +string Name
   +bool Came
 }
 class Attendance {
@@ -64,8 +67,8 @@ AttendanceTracker ..> AdminEventsApi : ADMIN_EVENTS_SERVICE
 GetEventAttendanceHandler ..> GetEventAttendanceQuery : handles
 SetAttendanceHandler ..> SetAttendanceCommand : handles
 SetAttendanceHandler ..> AttendanceRules
-GetEventAttendanceHandler ..> AttendancePageDto : returns
-AttendancePageDto *-- AttendanceRowDto
+GetEventAttendanceHandler ..> EventAttendanceDto : returns
+EventAttendanceDto *-- AttendanceRowDto
 Attendance --> Registration : for a registered member
 SetAttendanceHandler ..> Attendance
 GetEventAttendanceHandler ..> Attendance
