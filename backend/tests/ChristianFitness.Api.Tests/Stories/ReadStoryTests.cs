@@ -39,7 +39,7 @@ public sealed class ReadStoryTests(StoriesFactory factory) : IClassFixture<Stori
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var read = await AdminStories.JsonAsync(response);
-        Assert.Equal(["id", "slug", "section", "headline", "summary", "author", "publishedAt", "text", "image", "next"], AdminStories.Keys(read));
+        Assert.Equal(["id", "slug", "section", "headline", "summary", "author", "publishedAt", "text", "image", "next", "keepReading"], AdminStories.Keys(read));
         Assert.Equal(
             (story.Id.ToString(), "west-end-church-gym", "community", "A West End church turned its basement into a free gym", "Rowers, kettlebells and a Thursday prayer circle.", "Naomi Reader"),
             (read.GetProperty("id").GetString(), read.GetProperty("slug").GetString(), read.GetProperty("section").GetString(),

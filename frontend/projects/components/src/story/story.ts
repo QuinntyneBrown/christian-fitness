@@ -26,6 +26,18 @@ export interface StoryNextCard {
   href: string | null;
 }
 
+/** One "Keep reading" card (L2-061 AC6; mock `story/default`), leading to its story. */
+export interface StoryMoreCard {
+  href: string;
+  /** The card's image; none draws no image. */
+  image: string | null;
+  /** The section's name, "Community"; empty for none. */
+  section: string;
+  title: string;
+  /** "Priya Raman · Yesterday". */
+  meta: string;
+}
+
 /**
  * The design system's story page (docs/design-system/components/story.html, block `story`): the
  * head with the back link, the section, the headline as the page's `h1`, the dek and the byline
@@ -40,6 +52,10 @@ export interface StoryNextCard {
  * clipboard refused) the address shows in a read-only field, focused and selected (mock
  * `story/link-refused`). A plain click on a next step inside the app (`/…`) emits `navigate` with
  * its address; any other click is the browser's.
+ *
+ * After the article, `more` draws "Keep reading" (`story-more`, `story-card`), whose cards route
+ * a plain click the same way, and `subscribeHref` the Weekly box (`story-subscribe`) leading to
+ * Subscribe (L2-061 AC6); neither shows without them.
  */
 @Component({
   selector: 'cf-story',
@@ -70,6 +86,10 @@ export class Story implements OnChanges {
   readonly copied = input(false, { transform: booleanAttribute });
   /** The story's address, shown selected because the clipboard refused; none hides it. */
   readonly address = input<string | null>(null);
+  /** Keep reading's cards; none draws no section. */
+  readonly more = input<readonly StoryMoreCard[]>([]);
+  /** Where the Weekly box's Subscribe leads; none draws no box (the admin preview). */
+  readonly subscribeHref = input<string | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });
   readonly loadingLabel = input('Loading story');
 

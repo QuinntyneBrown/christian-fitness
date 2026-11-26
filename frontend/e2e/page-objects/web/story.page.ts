@@ -70,6 +70,38 @@ export class WebStoryPage extends ErrorScreen {
     this.nextTitle = this.next.locator('.story-next__title');
   }
 
+  /** The "Keep reading" section. */
+  get keepReading(): Locator {
+    return this.page.locator('.story-more');
+  }
+
+  get cards(): Locator {
+    return this.keepReading.locator('.story-card');
+  }
+
+  /** The Weekly box under Keep reading. */
+  get subscribe(): Locator {
+    return this.page.locator('.story-subscribe');
+  }
+
+  /** Each Keep reading card as a reader reads it. */
+  async cardViews(): Promise<
+    { href: string | null; image: string | null; section: string; title: string; meta: string }[]
+  > {
+    const views = [];
+    for (const card of await this.cards.all()) {
+      const image = card.locator('.story-card__image');
+      views.push({
+        href: await card.getAttribute('href'),
+        image: (await image.count()) ? await image.getAttribute('src') : null,
+        section: await card.locator('.story-card__section').innerText(),
+        title: await card.locator('.story-card__title').innerText(),
+        meta: await card.locator('.story__meta').innerText(),
+      });
+    }
+    return views;
+  }
+
   /** What the clipboard holds now. */
   clipboard(): Promise<string> {
     return this.page.evaluate(() => navigator.clipboard.readText());

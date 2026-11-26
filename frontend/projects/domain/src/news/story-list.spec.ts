@@ -1,6 +1,7 @@
 import type { StoryStatusName } from '@cf/api';
 import {
   storyByline,
+  storyCardMeta,
   storyNextLabel,
   storyPreviewNotice,
   storyReaderWhen,
@@ -151,6 +152,18 @@ describe('storyReadingMinutes', () => {
 
   it('counts runs holding a letter or digit, so Markdown marks are not words', () => {
     expect(storyReadingMinutes(`${words(220)} > - ## **`)).toBe(1);
+  });
+});
+
+// Mock story/default's Keep reading (L2-061 AC6): a card's author and age.
+describe('storyCardMeta', () => {
+  it.each([
+    ['4 hours ago', 'CF Team', '2026-04-15T08:45:00Z', 'CF Team · 4 hours ago'],
+    ['yesterday', 'Priya Raman', '2026-04-14T14:00:00Z', 'Priya Raman · Yesterday'],
+    ['a date', 'Priya Raman', '2026-04-08T14:00:00Z', 'Priya Raman · Apr 8'],
+    ['no author', null, '2026-04-14T14:00:00Z', 'Yesterday'],
+  ])('%s', (_why, author, publishedAt, expected) => {
+    expect(storyCardMeta(author, publishedAt, NOW)).toBe(expected);
   });
 });
 

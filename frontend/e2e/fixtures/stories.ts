@@ -25,6 +25,7 @@ export interface PublishedStoryFixture {
   text: string;
   image: StoryCardFixture['image'];
   next: { kind: 'event' | 'listing'; text: string; link: string } | null;
+  keepReading: StoryCardFixture[];
 }
 
 /** `count` words of filler, so a story's reading time is known from the fixture (220 words a minute). */
@@ -65,6 +66,35 @@ export const CHURCH_GYM: PublishedStoryFixture = {
     text: 'Find church sports ministries near you',
     link: '/directory/0190c0de-0000-7000-8000-0000000001a1',
   },
+  keepReading: [
+    {
+      slug: 'tuesday-walking-group',
+      section: 'community',
+      headline: 'The Tuesday walking group that got 40 seniors off the couch and into the park',
+      author: 'Priya Raman',
+      publishedAt: '2026-04-14T14:00:00Z',
+      image: {
+        key: '0193a9c00000700080000000000000a2.jpg',
+        crop: { x: 0, y: 0, width: 1600, height: 900 },
+      },
+    },
+    {
+      slug: 'easter-sunrise-record',
+      section: 'events',
+      headline: 'Easter Sunrise 5K hits a record 142 sign-ups with ten days to go',
+      author: 'CF Team',
+      publishedAt: '2026-04-15T08:45:00Z',
+      image: null,
+    },
+    {
+      slug: 'okafor-coaching-strength',
+      section: 'pros',
+      headline: 'Danielle Okafor on coaching strength without the shame',
+      author: 'Marcus Bell',
+      publishedAt: '2026-04-15T06:45:00Z',
+      image: null,
+    },
+  ],
 };
 
 /** Mock `story/plain`: no summary, no image, no next step; 40 words, so "1 min read"; published 9:45 PM yesterday in Toronto. */
@@ -79,6 +109,7 @@ export const REST_DAY: PublishedStoryFixture = {
   text: words(40),
   image: null,
   next: null,
+  keepReading: [],
 };
 
 /**

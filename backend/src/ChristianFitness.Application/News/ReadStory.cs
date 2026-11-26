@@ -21,7 +21,15 @@ public sealed record PublishedStoryDto(
     DateTimeOffset PublishedAt,
     string Text,
     StoryImageDto? Image,
-    StoryNextDto? Next);
+    StoryNextDto? Next,
+    IReadOnlyList<StoryCardDto> KeepReading)
+{
+    /// <summary>How many other stories "Keep reading" holds.</summary>
+    public const int KeepReadingCount = 3;
+}
+
+/// <summary>One "Keep reading" card (L2-061 AC6): image, section, title, author and age, leading to the story.</summary>
+public sealed record StoryCardDto(string Slug, string? Section, string Headline, string? Author, DateTimeOffset PublishedAt, StoryImageDto? Image);
 
 /// <summary>
 /// The Published story whose link, current or former, is <paramref name="Slug"/>; anything else is
@@ -50,7 +58,31 @@ internal sealed class GetPublishedStoryHandler(IAppDbContext db) : IRequestHandl
             story.PublishedAt!.Value,
             story.Text,
             answer.Image,
-            await StoryNext.OfAsync(db, story, cancellationToken).ConfigureAwait(false));
+            await StoryNext.OfAsync(db, story, cancellationToken).ConfigureAwait(false),
+            await KeepReadingAsync(story, cancellationToken).ConfigureAwait(false));
+    }
+
+    /// <summary>Three other Published stories: the same section first, then the rest, each newest first (L2-061 AC6).</summary>
+    private async Task<IReadOnlyList<StoryCardDto>> KeepReadingAsync(Story story, CancellationToken cancellationToken)
+    {
+        var bylines = db.Bylines.AsNoTracking();
+        var others = await db.Stories.AsNoTracking()
+            .Where(s => s.Status == StoryStatus.Published && s.Slug != null && s.Id != story.Id)
+            .OrderByDescending(s => s.Section == story.Section).ThenByDescending(s => s.PublishedAt).ThenByDescending(s => s.Id)
+            .Take(PublishedStoryDto.KeepReadingCount)
+            .Select(s => new
+            {
+                s.Slug, s.Section, s.Headline, s.PublishedAt, s.ImageKey, s.ImageCrop,
+                Author = bylines.Where(b => b.Id == s.BylineId).Select(b => b.Name).FirstOrDefault(),
+            })
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        return [.. others.Select(s => new StoryCardDto(
+            s.Slug!,
+            StoryNames.Of(s.Section),
+            s.Headline,
+            s.Author,
+            s.PublishedAt!.Value,
+            s.ImageKey is { } key && s.ImageCrop is { } crop ? new StoryImageDto(key, new StoryCropDto(crop.X, crop.Y, crop.Width, crop.Height)) : null))];
     }
 }
 

@@ -12,12 +12,14 @@ import {
   ErrorPage,
   SkipLink,
   Story,
+  type StoryMoreCard,
   type StoryNextCard,
   TopBar,
 } from '@cf/components';
 import {
   CopiedFlag,
   storyBlocks,
+  storyCardMeta,
   storyNextLabel,
   storyReaderWhen,
   storySectionLabel,
@@ -78,6 +80,15 @@ export default class StoryPage {
     const next = this.story()?.next;
     return next ? { label: storyNextLabel(next.kind), title: next.text, href: next.link } : null;
   });
+  protected readonly more = computed<StoryMoreCard[]>(() =>
+    (this.story()?.keepReading ?? []).map((card) => ({
+      href: `/stories/${encodeURIComponent(card.slug)}`,
+      image: card.image ? storyImageUrl(card.image.key) : null,
+      section: storySectionLabel(card.section),
+      title: card.headline,
+      meta: storyCardMeta(card.author, card.publishedAt, this.now()),
+    })),
+  );
   protected readonly copied = this.copiedFlag.copied;
   /** The address shown selected after the clipboard refused; none until then. */
   protected readonly address = signal<string | null>(null);

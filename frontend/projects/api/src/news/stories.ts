@@ -18,6 +18,18 @@ export interface PublishedStoryDto {
   text: string;
   image: StoryImageDto | null;
   next: StoryNextDto | null;
+  /** Three other Published stories: the same section first, then the rest, newest first (AC6). */
+  keepReading: StoryCardDto[];
+}
+
+/** One "Keep reading" card (L2-061 AC6). */
+export interface StoryCardDto {
+  slug: string;
+  section: StorySectionName | null;
+  headline: string;
+  author: string | null;
+  publishedAt: string;
+  image: StoryImageDto | null;
 }
 
 /**

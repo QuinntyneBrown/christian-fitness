@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { StoryBlock, StoryRun } from '@cf/api';
-import { Story, type StoryNextCard } from './story';
+import { Story, type StoryMoreCard, type StoryNextCard } from './story';
 
 const run = (text: string, marks: Partial<StoryRun> = {}): StoryRun => ({
   text,
@@ -155,5 +155,67 @@ describe('Story', () => {
       field.selectionEnd,
     ]).toEqual([null, 'https://www.christian.fitness/stories/rest', true, true, 0, 42]);
     fixture.nativeElement.remove();
+  });
+
+  // L2-061 AC6 (mock story/default): Keep reading's cards, then the Weekly.
+  it('shows Keep reading with each card, routes a plain click on one, and the Weekly with Subscribe', async () => {
+    const fixture = TestBed.createComponent(Story);
+    const emitted: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => emitted.push(href));
+    const cards: StoryMoreCard[] = [
+      {
+        href: '/stories/walk',
+        image: '/a.jpg',
+        section: 'Community',
+        title: '<b>Walk</b>',
+        meta: 'Priya · Yesterday',
+      },
+      { href: '/stories/run', image: null, section: '', title: 'Run', meta: 'Yesterday' },
+    ];
+    fixture.componentRef.setInput('more', cards);
+    fixture.componentRef.setInput('subscribeHref', '/subscribe');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const views = [...host.querySelectorAll<HTMLAnchorElement>('.story-more .story-card')].map(
+      (a) => [
+        a.getAttribute('href'),
+        a.querySelector('img')?.getAttribute('src') ?? null,
+        a.querySelector('.story-card__section')?.textContent ?? null,
+        a.querySelector('.story-card__title')?.textContent,
+        a.querySelector('.story__meta')?.textContent,
+      ],
+    );
+    host.querySelector<HTMLAnchorElement>('.story-card')!.click();
+    const subscribe = host.querySelector('.story-subscribe a');
+
+    expect([
+      host.querySelector('.story-more h2')?.textContent,
+      views,
+      emitted,
+      host.querySelector('.story-subscribe h2')?.textContent?.trim(),
+      subscribe?.textContent?.trim(),
+      subscribe?.getAttribute('href'),
+    ]).toEqual([
+      'Keep reading',
+      [
+        ['/stories/walk', '/a.jpg', 'Community', '<b>Walk</b>', 'Priya · Yesterday'],
+        ['/stories/run', null, null, 'Run', 'Yesterday'],
+      ],
+      ['/stories/walk'],
+      'The Abundant Weekly',
+      'Subscribe free',
+      '/subscribe',
+    ]);
+  });
+
+  it('shows neither Keep reading with no cards nor the Weekly with no Subscribe address', async () => {
+    const fixture = TestBed.createComponent(Story);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect([host.querySelector('.story-more'), host.querySelector('.story-subscribe')]).toEqual([
+      null,
+      null,
+    ]);
   });
 });

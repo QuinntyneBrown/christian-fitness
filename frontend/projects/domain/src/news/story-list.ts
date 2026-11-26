@@ -233,10 +233,21 @@ export function storyReadingMinutes(text: string): number {
  */
 export function storyReaderWhen(publishedAt: string | null, text: string, now: Date): string {
   const read = `${storyReadingMinutes(text)} min read`;
-  const instant = publishedAt ? new Date(publishedAt) : null;
-  if (!instant || Number.isNaN(instant.getTime())) return `Not published yet · ${read}`;
+  const age = publishedAt ? storyAge(publishedAt, now) : '';
+  return `${age || 'Not published yet'} · ${read}`;
+}
+
+/** A published story's age, capitalised: "2 hours ago", "Yesterday" or "Apr 8"; empty for a value that is not an instant. */
+function storyAge(publishedAt: string, now: Date): string {
+  const instant = new Date(publishedAt);
+  if (Number.isNaN(instant.getTime())) return '';
   const when = ago(instant, now).replace(/^on /, '');
-  return `${when.charAt(0).toUpperCase()}${when.slice(1)} · ${read}`;
+  return `${when.charAt(0).toUpperCase()}${when.slice(1)}`;
+}
+
+/** A Keep reading card's line (L2-061 AC6; mock `story/default`): "Priya Raman · Yesterday", leaving out a missing author. */
+export function storyCardMeta(author: string | null, publishedAt: string, now: Date): string {
+  return [author, storyAge(publishedAt, now)].filter((part) => part).join(' · ');
 }
 
 /**
