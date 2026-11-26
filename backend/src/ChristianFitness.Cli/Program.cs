@@ -25,8 +25,8 @@ const string Usage = """
                         otpauth:// link once, for the staff member's app (ADR 0013).
 
     Settings (environment variables): ConnectionStrings__Default; for seed also
-    Seed__StaffEmail, Seed__StaffPassword and Seed__StaffName; Seed__DirectorySamples=true
-    adds the sample directory listings.
+    Seed__AdminEmail (the first Admin's Google Workspace account) and optionally
+    Seed__AdminName; Seed__DirectorySamples=true adds the sample directory listings.
     """;
 
 var command = args.FirstOrDefault();
@@ -55,7 +55,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 if (command == "seed")
 {
     var seed = builder.Configuration.GetSection("Seed");
-    var staff = new StaffSeedOptions(seed["StaffEmail"]!, seed["StaffPassword"]!, seed["StaffName"]!);
+    var staff = new StaffSeedOptions(seed["AdminEmail"]!, seed["AdminName"]);
     var missing = staff.MissingSettings().ToList();
     if (missing.Count > 0)
     {
