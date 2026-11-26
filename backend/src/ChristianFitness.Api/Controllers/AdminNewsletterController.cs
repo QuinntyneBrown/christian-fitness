@@ -45,6 +45,11 @@ public sealed class AdminNewsletterController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>The issue as saved, in the web version's shape, for Preview (L2-070 AC9).</summary>
+    [HttpGet("issues/{number:int}/preview")]
+    public async Task<ActionResult<IssueDto>> Preview(int number, CancellationToken cancellationToken) =>
+        await sender.Send(new PreviewIssueQuery(number), cancellationToken).ConfigureAwait(false);
+
     /// <summary>Makes a Scheduled issue a Draft again (L2-070 AC6).</summary>
     [HttpPost("issues/{number:int}/unschedule")]
     public async Task<ActionResult<NextIssueDto>> Unschedule(int number, CancellationToken cancellationToken) =>

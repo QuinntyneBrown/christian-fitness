@@ -53,7 +53,7 @@ internal sealed class SendDueIssueHandler(IAppDbContext db, TimeProvider time, I
         }
         else if (due is not null)
         {
-            due.StartSending();
+            due.StartSending((await IssueCapture.ReadAsync(db, due, now, cancellationToken).ConfigureAwait(false)).ToJson());
             var subscribers = await db.NewsletterSubscriptions
                 .Where(s => s.Status == SubscriptionStatus.Subscribed)
                 .Select(s => s.Id)

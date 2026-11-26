@@ -147,9 +147,16 @@ public sealed class NewsletterIssue
         SendAt = nextSendAt;
     }
 
-    /// <summary>Sending starts: the issue can no longer be unscheduled (L2-070 AC6, AC7).</summary>
-    public void StartSending()
+    /// <summary>
+    /// What the issue said when sending started, as JSON, so the web version reads as the email did
+    /// (L2-059 AC1); empty until then.
+    /// </summary>
+    public string? Captured { get; private set; }
+
+    /// <summary>Sending starts with <paramref name="captured"/> kept: the issue can no longer be unscheduled (L2-070 AC6, AC7).</summary>
+    public void StartSending(string captured)
     {
+        Captured = captured;
         if (Status != IssueStatus.Scheduled)
         {
             throw new InvalidOperationException("Only a Scheduled issue is sent.");

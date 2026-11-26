@@ -1119,6 +1119,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("uuid[]");
 
+                    b.Property<string>("Captured")
+                        .HasColumnType("text");
+
                     b.Property<string>("EditorsNote")
                         .IsRequired()
                         .HasMaxLength(2000)
