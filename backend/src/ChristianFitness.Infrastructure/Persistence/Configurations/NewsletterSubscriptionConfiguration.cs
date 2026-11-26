@@ -21,6 +21,18 @@ internal sealed class NewsletterSubscriptionConfiguration : IEntityTypeConfigura
     }
 }
 
+internal sealed class NewsletterIssueConfiguration : IEntityTypeConfiguration<NewsletterIssue>
+{
+    public void Configure(EntityTypeBuilder<NewsletterIssue> builder)
+    {
+        builder.ToTable("NewsletterIssues");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Id).ValueGeneratedNever();
+        builder.Property(i => i.Status).HasConversion<string>().HasMaxLength(16);
+        builder.HasIndex(i => i.Number).IsUnique();
+    }
+}
+
 internal sealed class SubscriptionConfirmationConfiguration : IEntityTypeConfiguration<SubscriptionConfirmation>
 {
     public void Configure(EntityTypeBuilder<SubscriptionConfirmation> builder)

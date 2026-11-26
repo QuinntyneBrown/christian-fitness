@@ -28,6 +28,8 @@ public sealed class StaffAccessTests
         { StaffRoleName.Moderator, StaffArea.CommunityPick, true, "a Moderator makes Community Picks (ADR 0098)" },
         { StaffRoleName.Admin, StaffArea.Publishing, true, "an Admin manages stories and bylines (L2-077; ADR 0094)" },
         { StaffRoleName.Moderator, StaffArea.Publishing, false, "a Moderator does not open Stories (L2-068 AC7, L2-077 AC10)" },
+        { StaffRoleName.Admin, StaffArea.Newsletter, true, "an Admin builds the newsletter" },
+        { StaffRoleName.Moderator, StaffArea.Newsletter, true, "a Moderator uses the Newsletter desk as an Admin does (L2-070 AC12; ADR 0064)" },
         // The backend's own rows: the console itself, and an endpoint in no area yet.
         { StaffRoleName.Admin, StaffArea.Console, true, "an Admin has a staff session" },
         { StaffRoleName.Moderator, StaffArea.Console, true, "a Moderator has a staff session" },

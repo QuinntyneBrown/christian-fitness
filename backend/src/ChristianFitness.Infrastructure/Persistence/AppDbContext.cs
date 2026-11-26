@@ -76,6 +76,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens => Set<NewsletterUnsubscribeToken>();
 
+    public DbSet<NewsletterIssue> NewsletterIssues => Set<NewsletterIssue>();
+
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
 
