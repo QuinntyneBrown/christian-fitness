@@ -29,25 +29,24 @@ test.describe('Member app, start Google sign-in', () => {
     await expect(signIn.googleButton.locator('img')).toHaveCount(0);
   });
 
-  test(
-    'pressing "Continue with Google" reads "Opening Google…", disables it and leaves for Google',
-    { tag: '@critical' },
-    async ({ page, api }) => {
-      let answer!: () => void;
-      const started = answerGoogleStart(api, new Promise<void>((resolve) => (answer = resolve)));
-      const signIn = new WebSignInPage(page);
+  test('pressing "Continue with Google" reads "Opening Google…", disables it and leaves for Google', async ({
+    page,
+    api,
+  }) => {
+    let answer!: () => void;
+    const started = answerGoogleStart(api, new Promise<void>((resolve) => (answer = resolve)));
+    const signIn = new WebSignInPage(page);
 
-      await signIn.open('/events');
-      await signIn.continueWithGoogle();
+    await signIn.open('/events');
+    await signIn.continueWithGoogle();
 
-      await expect(signIn.googleButton).toHaveText('Opening Google…');
-      await expect(signIn.googleButton).toBeDisabled();
-      await expect(signIn.googleButton).toHaveAttribute('aria-busy', 'true');
-      answer();
-      await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
-      expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events' }]);
-    },
-  );
+    await expect(signIn.googleButton).toHaveText('Opening Google…');
+    await expect(signIn.googleButton).toBeDisabled();
+    await expect(signIn.googleButton).toHaveAttribute('aria-busy', 'true');
+    answer();
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+    expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events' }]);
+  });
 
   test('with no return address, the start sends none', async ({ page, api }) => {
     const started = answerGoogleStart(api);
@@ -97,18 +96,17 @@ test.describe('Member app, start Google sign-in', () => {
 // the screen finishes the sign-in with `POST /api/session/google` (the identity is in the API's
 // cookie, backend CompleteGoogleSignInTests) and lands on the kept return address, else Home.
 test.describe('Member app, finish Google sign-in', () => {
-  test(
-    'back from Google, the member is signed in and lands where they were going',
-    { tag: '@critical' },
-    async ({ page, api }) => {
-      const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+  test('back from Google, the member is signed in and lands where they were going', async ({
+    page,
+    api,
+  }) => {
+    const finished = answerGoogleFinish(api, { json: SIGNED_IN });
 
-      await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
+    await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
 
-      await page.waitForURL((url) => url.pathname === '/events');
-      expect(finished).toEqual([{ token: XSRF_TOKEN }]);
-    },
-  );
+    await page.waitForURL((url) => url.pathname === '/events');
+    expect(finished).toEqual([{ token: XSRF_TOKEN }]);
+  });
 
   test('with no return address, the member lands on Home', async ({ page, api }) => {
     const finished = answerGoogleFinish(api, { json: SIGNED_IN });
@@ -249,35 +247,34 @@ test.describe('Member app, Google sign-in refused', () => {
 // in shows the notice in place of the Google button, naming the account as text, with "Create my
 // profile" (Join's "Finish your profile") and "Use another account" (Google's account chooser).
 test.describe('Member app, a Google account with no profile', () => {
-  test(
-    'Sign in names the account and offers to create a profile or use another account',
-    { tag: '@critical' },
-    async ({ page, api }) => {
-      answerGoogleFinish(api, {
-        status: 404,
-        json: { status: 404, code: 'no_account', account: 'grace@<b>gracefellowship</b>.ca' },
-      });
-      const started = answerGoogleStart(api);
-      const signIn = new WebSignInPage(page);
+  test('Sign in names the account and offers to create a profile or use another account', async ({
+    page,
+    api,
+  }) => {
+    answerGoogleFinish(api, {
+      status: 404,
+      json: { status: 404, code: 'no_account', account: 'grace@<b>gracefellowship</b>.ca' },
+    });
+    const started = answerGoogleStart(api);
+    const signIn = new WebSignInPage(page);
 
-      await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
+    await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
 
-      await expect(signIn.ssoNotice).toHaveAttribute('role', 'alert');
-      await expect(signIn.ssoNotice).toBeFocused();
-      await expect(signIn.ssoNoticeAccount).toHaveText('grace@<b>gracefellowship</b>.ca');
-      await expect(signIn.ssoNoticeText).toHaveText(
-        "There's no Christian Fitness profile on this Google account yet. Create one now — we'll bring over your name and photo.",
-      );
-      await expect(signIn.googleButton).toHaveCount(0);
-      await expect(signIn.divider).toHaveText('or with email');
-      await expect(signIn.alert).toHaveCount(0);
-      await expect(signIn.createMyProfile).toHaveAttribute('href', '/join?google=finish');
+    await expect(signIn.ssoNotice).toHaveAttribute('role', 'alert');
+    await expect(signIn.ssoNotice).toBeFocused();
+    await expect(signIn.ssoNoticeAccount).toHaveText('grace@<b>gracefellowship</b>.ca');
+    await expect(signIn.ssoNoticeText).toHaveText(
+      "There's no Christian Fitness profile on this Google account yet. Create one now — we'll bring over your name and photo.",
+    );
+    await expect(signIn.googleButton).toHaveCount(0);
+    await expect(signIn.divider).toHaveText('or with email');
+    await expect(signIn.alert).toHaveCount(0);
+    await expect(signIn.createMyProfile).toHaveAttribute('href', '/join?google=finish');
 
-      await signIn.useAnotherAccount.click();
-      await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
-      expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events', selectAccount: true }]);
-    },
-  );
+    await signIn.useAnotherAccount.click();
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+    expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events', selectAccount: true }]);
+  });
 
   test('"Use another account" works by keyboard', async ({ page, api }) => {
     answerGoogleFinish(api, {

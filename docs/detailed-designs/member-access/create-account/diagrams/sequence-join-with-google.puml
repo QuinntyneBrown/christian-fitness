@@ -45,7 +45,7 @@ alt Google account already has a member account (AC10)
   sctrl --> ses : 200
   page --> actor : Home; no second account
 else No member account
-  done --> sctrl : Refusal <TO SUPPLY>; Google identity kept
+  done --> sctrl : Refusal no_account (404); Google identity kept
   sctrl --> ses : ProblemDetails
   page -> acc : pendingGoogle()
   acc -> actrl : GET /api/account/google
