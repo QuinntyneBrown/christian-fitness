@@ -29,25 +29,24 @@ test.describe('Member app, start Google sign-in', () => {
     await expect(signIn.googleButton.locator('img')).toHaveCount(0);
   });
 
-  test(
-    'pressing "Continue with Google" reads "Opening Google…", disables it and leaves for Google',
-    { tag: '@critical' },
-    async ({ page, api }) => {
-      let answer!: () => void;
-      const started = answerGoogleStart(api, new Promise<void>((resolve) => (answer = resolve)));
-      const signIn = new WebSignInPage(page);
+  test('pressing "Continue with Google" reads "Opening Google…", disables it and leaves for Google', async ({
+    page,
+    api,
+  }) => {
+    let answer!: () => void;
+    const started = answerGoogleStart(api, new Promise<void>((resolve) => (answer = resolve)));
+    const signIn = new WebSignInPage(page);
 
-      await signIn.open('/events');
-      await signIn.continueWithGoogle();
+    await signIn.open('/events');
+    await signIn.continueWithGoogle();
 
-      await expect(signIn.googleButton).toHaveText('Opening Google…');
-      await expect(signIn.googleButton).toBeDisabled();
-      await expect(signIn.googleButton).toHaveAttribute('aria-busy', 'true');
-      answer();
-      await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
-      expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events' }]);
-    },
-  );
+    await expect(signIn.googleButton).toHaveText('Opening Google…');
+    await expect(signIn.googleButton).toBeDisabled();
+    await expect(signIn.googleButton).toHaveAttribute('aria-busy', 'true');
+    answer();
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+    expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events' }]);
+  });
 
   test('with no return address, the start sends none', async ({ page, api }) => {
     const started = answerGoogleStart(api);
@@ -97,18 +96,17 @@ test.describe('Member app, start Google sign-in', () => {
 // the screen finishes the sign-in with `POST /api/session/google` (the identity is in the API's
 // cookie, backend CompleteGoogleSignInTests) and lands on the kept return address, else Home.
 test.describe('Member app, finish Google sign-in', () => {
-  test(
-    'back from Google, the member is signed in and lands where they were going',
-    { tag: '@critical' },
-    async ({ page, api }) => {
-      const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+  test('back from Google, the member is signed in and lands where they were going', async ({
+    page,
+    api,
+  }) => {
+    const finished = answerGoogleFinish(api, { json: SIGNED_IN });
 
-      await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
+    await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
 
-      await page.waitForURL((url) => url.pathname === '/events');
-      expect(finished).toEqual([{ token: XSRF_TOKEN }]);
-    },
-  );
+    await page.waitForURL((url) => url.pathname === '/events');
+    expect(finished).toEqual([{ token: XSRF_TOKEN }]);
+  });
 
   test('with no return address, the member lands on Home', async ({ page, api }) => {
     const finished = answerGoogleFinish(api, { json: SIGNED_IN });
@@ -139,5 +137,157 @@ test.describe('Member app, finish Google sign-in', () => {
 
     await expect(signIn.googleButton).toHaveText('Continue with Google');
     expect(finished).toEqual([]);
+  });
+});
+
+// L2-049 AC3, AC5, AC7, AC11, L2-004 AC10, AC11, L2-003 AC11: a Google sign-in that is refused or
+// doesn't finish says so on the screen that started it, in the alert above the form, and the
+// `google` marker leaves the address so a reload neither repeats the finish nor the message.
+test.describe('Member app, Google sign-in refused', () => {
+  test("back from a failed attempt, Sign in says it didn't finish", async ({ page, api }) => {
+    const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=failed&returnUrl=%2Fevents');
+
+    await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
+    await expect(signIn.alert).toContainText(
+      "You're not signed in. Try again, or sign in with your email below.",
+    );
+    await expect(signIn.alert).toBeFocused();
+    await expect.poll(() => signIn.location()).toBe('/sign-in?returnUrl=%2Fevents');
+    expect(finished).toEqual([]);
+  });
+
+  test("back from a failed attempt, Join says it didn't finish", async ({ page }) => {
+    const join = new WebJoinPage(page);
+
+    await page.goto('/join?google=failed');
+
+    await expect(join.alertTitle).toHaveText("Google sign-up didn't finish");
+    await expect(join.alert).toContainText(
+      'Nothing was created. Try again, or create your profile with your email below.',
+    );
+    await expect.poll(() => new URL(page.url()).search).toBe('');
+  });
+
+  test('too many starts from this network show "Too many attempts" on Sign in and Join', async ({
+    page,
+    api,
+  }) => {
+    api.on('POST', '/api/session/google/start', () => ({
+      status: 429,
+      json: { status: 429, code: 'too_many_attempts' },
+    }));
+    const signIn = new WebSignInPage(page);
+    const join = new WebJoinPage(page);
+
+    await signIn.open();
+    await signIn.continueWithGoogle();
+    await expect(signIn.alertTitle).toHaveText('Too many attempts');
+    await expect(signIn.alert).toContainText('Too many attempts. Try again in a few minutes.');
+    await expect(signIn.googleButton).toHaveText('Continue with Google');
+    await expect(signIn.googleButton).toBeEnabled();
+
+    await join.open();
+    await join.googleButton.click();
+    await expect(join.alertTitle).toHaveText('Too many attempts');
+    await expect(join.googleButton).toHaveText('Sign up with Google');
+  });
+
+  test("Google unavailable says the attempt didn't finish", async ({ page, api }) => {
+    api.on('POST', '/api/session/google/start', () => ({
+      status: 503,
+      json: { status: 503, code: 'google_unavailable' },
+    }));
+    const signIn = new WebSignInPage(page);
+
+    await signIn.open();
+    await signIn.continueWithGoogle();
+
+    await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
+  });
+
+  test('an unverified Google email is refused with what to do', async ({ page, api }) => {
+    answerGoogleFinish(api, {
+      status: 401,
+      json: { status: 401, code: 'google_email_unverified' },
+    });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(signIn.alertTitle).toHaveText("Your Google email isn't verified");
+    await expect(signIn.alert).toContainText(
+      "Your Google account's email isn't verified. Verify it with Google, or join with email.",
+    );
+    await expect.poll(() => signIn.location()).toBe('/sign-in');
+  });
+
+  test('a suspended account is told so', async ({ page, api }) => {
+    answerGoogleFinish(api, { status: 403, json: { status: 403, code: 'account_suspended' } });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(signIn.alertTitle).toHaveText('Your account is suspended');
+  });
+
+  test("a finish that fails says it didn't finish", async ({ page, api }) => {
+    answerGoogleFinish(api, { status: 500, json: { status: 500, code: 'server_error' } });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
+  });
+});
+
+// L2-004 AC9, L2-049 AC11, AC13: a Google account with no profile is refused `no_account`; Sign
+// in shows the notice in place of the Google button, naming the account as text, with "Create my
+// profile" (Join's "Finish your profile") and "Use another account" (Google's account chooser).
+test.describe('Member app, a Google account with no profile', () => {
+  test('Sign in names the account and offers to create a profile or use another account', async ({
+    page,
+    api,
+  }) => {
+    answerGoogleFinish(api, {
+      status: 404,
+      json: { status: 404, code: 'no_account', account: 'grace@<b>gracefellowship</b>.ca' },
+    });
+    const started = answerGoogleStart(api);
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
+
+    await expect(signIn.ssoNotice).toHaveAttribute('role', 'alert');
+    await expect(signIn.ssoNotice).toBeFocused();
+    await expect(signIn.ssoNoticeAccount).toHaveText('grace@<b>gracefellowship</b>.ca');
+    await expect(signIn.ssoNoticeText).toHaveText(
+      "There's no Christian Fitness profile on this Google account yet. Create one now — we'll bring over your name and photo.",
+    );
+    await expect(signIn.googleButton).toHaveCount(0);
+    await expect(signIn.divider).toHaveText('or with email');
+    await expect(signIn.alert).toHaveCount(0);
+    await expect(signIn.createMyProfile).toHaveAttribute('href', '/join?google=finish');
+
+    await signIn.useAnotherAccount.click();
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+    expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events', selectAccount: true }]);
+  });
+
+  test('"Use another account" works by keyboard', async ({ page, api }) => {
+    answerGoogleFinish(api, {
+      status: 404,
+      json: { status: 404, code: 'no_account', account: 'grace@gracefellowship.ca' },
+    });
+    answerGoogleStart(api);
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+    await signIn.useAnotherAccount.focus();
+    await page.keyboard.press('Enter');
+
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
   });
 });

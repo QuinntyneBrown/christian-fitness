@@ -35,7 +35,7 @@ const PASSWORD_MIN = 8;
 export function validateJoin(form: JoinForm): JoinFieldErrors {
   const errors: JoinFieldErrors = {};
   const name = form.fullName.trim();
-  if (name === '') errors.fullName = 'Enter your full name';
+  if (name === '') errors.fullName = 'Enter your name.';
   else if (name.length > NAME_MAX) errors.fullName = `Use ${NAME_MAX} characters or fewer`;
 
   const email = form.email.trim();

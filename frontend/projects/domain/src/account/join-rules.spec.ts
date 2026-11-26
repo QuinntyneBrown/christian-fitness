@@ -30,12 +30,12 @@ describe('validateJoin', () => {
     {
       why: 'name blank',
       form: form('', EMAIL, PASSWORD),
-      expected: { fullName: 'Enter your full name' },
+      expected: { fullName: 'Enter your name.' },
     },
     {
       why: 'name white space',
       form: form('   ', EMAIL, PASSWORD),
-      expected: { fullName: 'Enter your full name' },
+      expected: { fullName: 'Enter your name.' },
     },
     { why: 'name 100', form: form('n'.repeat(100), EMAIL, PASSWORD), expected: {} },
     {
@@ -121,9 +121,9 @@ describe('errorSummaryOf', () => {
   it.each<{ errors: JoinFieldErrors; expected: { text: string; target: string }[] }>([
     { errors: {}, expected: [] },
     {
-      errors: { password: 'Use at least 8 characters', fullName: 'Enter your full name' },
+      errors: { password: 'Use at least 8 characters', fullName: 'Enter your name.' },
       expected: [
-        { text: 'Enter your full name', target: 'f-name' },
+        { text: 'Enter your name.', target: 'f-name' },
         { text: 'Use at least 8 characters', target: 'f-password' },
       ],
     },
@@ -142,13 +142,13 @@ describe('errorSummaryOf', () => {
 // Editing a field clears its own error; the others stay until the next submit.
 describe('clearFieldError', () => {
   const errors: JoinFieldErrors = {
-    fullName: 'Enter your full name',
+    fullName: 'Enter your name.',
     email: 'Enter an email address like name@example.com',
   };
 
   it.each<{ field: 'fullName' | 'email' | 'password'; expected: JoinFieldErrors }>([
     { field: 'fullName', expected: { email: 'Enter an email address like name@example.com' } },
-    { field: 'email', expected: { fullName: 'Enter your full name' } },
+    { field: 'email', expected: { fullName: 'Enter your name.' } },
     { field: 'password', expected: errors },
   ])('editing $field', ({ field, expected }) => {
     expect(clearFieldError(errors, field)).toEqual(expected);

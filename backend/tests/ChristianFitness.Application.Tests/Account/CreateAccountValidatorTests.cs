@@ -19,8 +19,8 @@ public sealed class CreateAccountValidatorTests
     {
         // why, fullName, email, password, homeChurch, expected "field:message" or null when valid
         { "valid", Name, Email, Password, "Grace Fellowship, Scarborough", null },
-        { "name blank", "", Email, Password, null, "FullName:Enter your full name" },
-        { "name white space", "   ", Email, Password, null, "FullName:Enter your full name" },
+        { "name blank", "", Email, Password, null, "FullName:Enter your name." },
+        { "name white space", "   ", Email, Password, null, "FullName:Enter your name." },
         { "name 100", new string('n', 100), Email, Password, null, null },
         { "name 101", new string('n', 101), Email, Password, null, "FullName:Use 100 characters or fewer" },
         { "name 100 once trimmed", "  " + new string('n', 100) + " ", Email, Password, null, null },

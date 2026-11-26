@@ -46,7 +46,7 @@ alt More than 20 starts from this network in 15 minutes (L2-049 AC7)
   client --> page : ApiError
   page --> actor : Button enabled again; the screen shows the refusal
 else Google client or team's domain missing (L2-018 AC10)
-  h --> ctrl : RefusalException <TO SUPPLY>
+  h --> ctrl : RefusalException google_unavailable
   ctrl --> client : 503 ProblemDetails, nothing sent to Google
   client --> page : ApiError
   page --> actor : Button enabled again

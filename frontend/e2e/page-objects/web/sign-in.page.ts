@@ -34,6 +34,12 @@ export class WebSignInPage {
   readonly divider: Locator;
   /** The card's parts in the order they show: Google, the divider, the email form. */
   readonly parts: Locator;
+  /** The notice about the Google account that has no profile, in place of the Google button. */
+  readonly ssoNotice: Locator;
+  readonly ssoNoticeAccount: Locator;
+  readonly ssoNoticeText: Locator;
+  readonly createMyProfile: Locator;
+  readonly useAnotherAccount: Locator;
   /** "Reset your password" in the alert that says sign-in is paused. */
   readonly resetLink: Locator;
 
@@ -50,6 +56,11 @@ export class WebSignInPage {
     this.googleButton = this.sso.locator('.google-button');
     this.divider = this.sso.getByRole('separator');
     this.parts = this.form.locator('.google-button, [role=separator], .auth__fields');
+    this.ssoNotice = this.sso.locator('.sso-notice');
+    this.ssoNoticeAccount = this.ssoNotice.locator('.sso-notice__account');
+    this.ssoNoticeText = this.ssoNotice.locator('.sso-notice__text');
+    this.createMyProfile = this.ssoNotice.getByRole('link', { name: 'Create my profile' });
+    this.useAnotherAccount = this.ssoNotice.getByRole('button', { name: 'Use another account' });
     this.alt = this.form.locator('.auth__alt');
     this.joinLink = this.alt.getByRole('link', { name: 'Create a profile' });
     this.alert = this.form.locator('.auth__alert .form-alert');

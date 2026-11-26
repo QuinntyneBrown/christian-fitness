@@ -21,6 +21,7 @@ public sealed class SignInHandlerTests : IAsyncDisposable
     private const string Email = "Grace.Thompson@Gmail.com";
     private const string Password = "abundantlife";
     private const string SuspendedEmail = "tsimmons22@gmail.com";
+    private const string GoogleOnlyEmail = "ruth.okafor@gmail.com";
     private const string Suspended = "suspended";
     private const string Paused = "paused";
     private const string Invalid = "invalid";
@@ -30,6 +31,7 @@ public sealed class SignInHandlerTests : IAsyncDisposable
 
     private readonly ServiceProvider _services;
     private readonly RecordingSessionSignIn _session = new();
+    private readonly RecordingHasher _hasher = new();
     private readonly FakeTimeProvider _time = new(Now);
     private readonly Member _grace;
     private readonly Member _tyler;
@@ -41,7 +43,7 @@ public sealed class SignInHandlerTests : IAsyncDisposable
             .AddApplication()
             .AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(store))
             .AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>())
-            .AddSingleton<IPasswordHasherService, IdentityPasswordHasher>()
+            .AddSingleton<IPasswordHasherService>(_hasher)
             .AddSingleton<ISessionSignIn>(_session)
             .AddSingleton<TimeProvider>(_time)
             .BuildServiceProvider();
@@ -50,7 +52,8 @@ public sealed class SignInHandlerTests : IAsyncDisposable
         _tyler = Member.Join("Tyler Simmons", SuspendedEmail, hash, Now.AddDays(-30));
         using var scope = _services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Members.AddRange(_grace, _tyler);
+        // Joined with Google: no password (L2-003 AC9).
+        db.Members.AddRange(_grace, _tyler, Member.JoinWithGoogle("Ruth Okafor", GoogleOnlyEmail, "google-subject-ruth", Now.AddDays(-30)));
         // A suspended member: staff set the status in slice 27.1; the store does it here.
         db.Entry(_tyler).Property(m => m.Status).CurrentValue = MemberStatus.Suspended;
         db.SaveChanges();
@@ -89,6 +92,25 @@ public sealed class SignInHandlerTests : IAsyncDisposable
             Assert.Empty(_session.SignedIn);
         }
 
+        Assert.NotNull(why);
+    }
+
+    /// <summary>
+    /// L2-004 AC2: an account with no password, joined with Google, answers exactly as a wrong
+    /// password does: refused, counted, and checked against a real hash, so it takes as long.
+    /// </summary>
+    [Theory]
+    [InlineData("a password", Password)]
+    [InlineData("a password like an empty hash", "AA==")]
+    public async Task Given_an_account_with_no_password_When_a_password_sign_in_is_handled_Then_it_answers_as_a_wrong_password(string why, string password)
+    {
+        var refusal = await Assert.ThrowsAsync<RefusalException>(() => SendAsync(GoogleOnlyEmail, password));
+
+        Assert.Equal((RefusalCodes.InvalidCredentials, RefusalKind.Unauthenticated), (refusal.Code, refusal.Kind));
+        Assert.Empty(_session.SignedIn);
+        Assert.Equal(1, await FailuresForAsync(GoogleOnlyEmail));
+        var checkedHash = Assert.Single(_hasher.Checked);
+        Assert.NotEqual(string.Empty, checkedHash);
         Assert.NotNull(why);
     }
 
@@ -196,6 +218,22 @@ public sealed class SignInHandlerTests : IAsyncDisposable
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var key = SignInFailure.KeyOf(Member.NormalizeEmail(email));
         return await db.SignInFailures.CountAsync(f => f.EmailKey == key, TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>Identity's hasher, recording each hash a password was checked against.</summary>
+    private sealed class RecordingHasher : IPasswordHasherService
+    {
+        private readonly IdentityPasswordHasher _inner = new();
+
+        public List<string> Checked { get; } = [];
+
+        public string Hash(string password) => _inner.Hash(password);
+
+        public bool Verify(string passwordHash, string password)
+        {
+            Checked.Add(passwordHash);
+            return _inner.Verify(passwordHash, password);
+        }
     }
 
     private sealed class RecordingSessionSignIn : ISessionSignIn

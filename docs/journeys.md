@@ -9,12 +9,12 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 50% (18 of 36 journeys; 55 of 113 days)
+**% complete:** 53% (19 of 36 journeys; 59 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
 | 1   | ✅ Read the Privacy Policy and Terms   | Member | Static Privacy and Terms pages; Join confirms age 16+ and records the versions accepted.                       | 3             |
-| 2   | Join and sign in with Google           | Member | Sign up, finish a profile and sign in with Google, completed on the server (OIDC, PKCE).                       | 4             |
+| 2   | ✅ Join and sign in with Google        | Member | Sign up, finish a profile and sign in with Google, completed on the server (OIDC, PKCE).                       | 4             |
 | 3   | ✅ Staff sign in with Google Workspace | Admin  | Staff sign in only with a team-domain Google account; the staff password and two-step are removed.             | 3             |
 | 4   | ✅ Search events and see mine          | Member | Search Events by title and show only the events I'm going to.                                                  | 2             |
 | 5   | ✅ Browse the directory                | Member | Find the organizations, people and ministries behind events, by kind and by search.                            | 3             |

@@ -49,12 +49,12 @@ test.describe('Member app, join refusals: the form names each invalid field', ()
     await expect(join.alert).toHaveAttribute('role', 'alert');
     await expect(join.alert).toBeFocused();
     await expect(join.alertLinks).toHaveText([
-      'Enter your full name',
+      'Enter your name.',
       'Enter an email address like name@example.com',
       'Use at least 8 characters',
     ]);
     await expect(join.fullName).toHaveAttribute('aria-invalid', 'true');
-    await expect(join.fullName).toHaveAccessibleDescription('Enter your full name');
+    await expect(join.fullName).toHaveAccessibleDescription('Enter your name.');
     await expect(join.email).toHaveAttribute('aria-invalid', 'true');
     await expect(join.email).toHaveAccessibleDescription(
       'Enter an email address like name@example.com',
@@ -88,7 +88,7 @@ test.describe('Member app, join refusals: the form names each invalid field', ()
     await join.fullName.fill('Grace Thompson');
 
     await expect(join.fullName).not.toHaveAttribute('aria-invalid');
-    await expect(join.fieldError('Full name')).toHaveCount(0);
+    await expect(join.fieldError('Name')).toHaveCount(0);
     await expect(join.email).toHaveAttribute('aria-invalid', 'true');
     await expect(join.password).toHaveAttribute('aria-invalid', 'true');
   });

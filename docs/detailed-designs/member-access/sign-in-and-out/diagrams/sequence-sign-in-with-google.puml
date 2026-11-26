@@ -58,7 +58,7 @@ else Account chosen and checked
     ctrl --> client : 200 SessionDto + Set-Cookie (L2-004 AC8)
     page --> actor : Kept route if it is a path in the app, else Home (L2-004 AC6)
   else No member account (L2-004 AC9)
-    h --> ctrl : Refusal <TO SUPPLY> with account (email)
+    h --> ctrl : Refusal no_account (404) with account (email)
     ctrl --> client : ProblemDetails
     page -> dom : googleSignInRefusalOf: 'no-account'
     page --> actor : SsoNotice (role=alert, focused) naming the account,\n"Create my profile" and "Use another account"; nobody signed in

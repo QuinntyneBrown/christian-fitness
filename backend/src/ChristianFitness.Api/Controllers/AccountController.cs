@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Account;
+using ChristianFitness.Application.Account.Google;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,30 @@ public sealed class AccountController(ISender sender) : ControllerBase
     [AllowAnonymous]
     [HttpPost("join")]
     public async Task<IActionResult> Join(CreateAccountCommand command, CancellationToken cancellationToken) =>
+        Created("/api/session", await sender.Send(command, cancellationToken).ConfigureAwait(false));
+
+    /// <summary>
+    /// The Google account kept for "Finish your profile": its email and name (L2-003 AC8; ADR
+    /// 0099). Anonymous: the visitor has no session yet.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("google")]
+    public async Task<ActionResult<GoogleAccountDto>> PendingGoogle(CancellationToken cancellationToken) =>
+        await sender.Send(new GetPendingGoogleAccountQuery(), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>"Change": forgets the kept Google account at once (L2-049 AC12).</summary>
+    [AllowAnonymous]
+    [HttpDelete("google")]
+    public async Task<IActionResult> ForgetGoogle(CancellationToken cancellationToken)
+    {
+        await sender.Send(new ForgetGoogleAccountCommand(), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
+    /// <summary>Creates the account from the kept Google account and signs the new member in (L2-003 AC9).</summary>
+    [AllowAnonymous]
+    [HttpPost("join/google")]
+    public async Task<IActionResult> JoinWithGoogle(CreateGoogleAccountCommand command, CancellationToken cancellationToken) =>
         Created("/api/session", await sender.Send(command, cancellationToken).ConfigureAwait(false));
 
     /// <summary>

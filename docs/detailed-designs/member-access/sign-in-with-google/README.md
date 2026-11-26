@@ -40,7 +40,7 @@ The slice runs from the Google button on each screen, through Google, to the mem
 extends the session code of [sign in and sign out](../sign-in-and-out/README.md) (`SessionController`,
 `ISessionSignIn`, `MemberCredentials`) and of [admin sign-in](../../admin-access/admin-sign-in/README.md)
 (`StaffSessionController`, `IStaffSessionSignIn`). It needs an ADR when the first slice lands; the
-choices below marked `<TO SUPPLY>` are its open points.
+choices that were open are settled by [ADR 0099](../../../adr/0099-member-google-sign-in.md).
 
 ### Frontend (both apps)
 
@@ -85,7 +85,7 @@ choices below marked `<TO SUPPLY>` are its open points.
      `IClientAddress`, counting both apps alike) refuses the 21st start from one network within 15
      minutes with `too_many_attempts` and HTTP 429 (`L2-049` AC7);
   2. a missing Google client (`Google:ClientId`, `Google:ClientSecret`) or, for a staff attempt, a
-     missing team's domain (`Google:StaffDomain`) refuses the start with code `<TO SUPPLY>` and HTTP
+     missing team's domain (`Google:StaffDomain`) refuses the start with code `google_unavailable` and HTTP
      503, and nothing leaves for Google (`L2-018` AC10);
   3. a return address that is not a path inside the member app is dropped, by the server copy of the
      rule `signInReturnPathOf` applies (`L2-049` AC6, `L2-004` AC6); both suites share one inline
@@ -123,7 +123,7 @@ choices below marked `<TO SUPPLY>` are its open points.
   to the starting screen with no marker and no message (`L2-049` AC5).
 - **`GoogleExternal` cookie scheme** — `__Host-cf-google`: `Secure`, `HttpOnly`, `SameSite=Lax`,
   path `/`, protected by the Data Protection keys the session cookies use. It holds the Google
-  identity and nothing else: never a code, token, `state` or nonce. Its lifetime is `<TO SUPPLY>`;
+  identity and nothing else: never a code, token, `state` or nonce. Its lifetime is 10 minutes;
   each finish that signs someone in or refuses them for good deletes it.
 - **`GoogleIdentity`** — Application record: `Subject`, `Email`, `EmailVerified`, `Name`,
   `PictureUrl` and `HostedDomain`, the only claims sign-in uses (`L2-049` AC2).
@@ -137,11 +137,11 @@ choices below marked `<TO SUPPLY>` are its open points.
   intent. It sends one `CompleteGoogleSignInCommand` and answers 200 with the `SessionDto` and the
   member session cookie, as the email sign-in does.
 - **`CompleteGoogleSignInHandler`** — in this order:
-  1. no Google identity (none came back, or it expired) refuses with code `<TO SUPPLY>` and HTTP 401;
+  1. no Google identity (none came back, or it expired) refuses with code `google_email_unverified` and HTTP 401;
   2. an identity whose `EmailVerified` is false is forgotten and refused the same way: nothing is
      created or signed in (`L2-049` AC3);
   3. `GoogleAccountMatch.FindAsync(identity)` finds the member account (`L2-049` AC4);
-  4. none found: the refusal `<TO SUPPLY>` (code and status) with an `account` extension holding the
+  4. none found: the refusal `no_account` and HTTP 404 with an `account` extension holding the
      Google account's email, and the identity is kept for "Finish your profile"
      ([create a member account](../create-account/README.md)), where the field is labelled
      "Name" and a blank name shows "Enter your name." in the summary and beside the field;
@@ -193,7 +193,8 @@ HTTP 400 without it (`L2-003` AC12; [create a member account](../create-account/
 - **Too many attempts on screen.** Mock states `google-limited` (Join, Sign in) and `limited` (Staff
   sign in) say "Too many attempts. Try again in a few minutes." (`L2-049` AC7).
 - **Not configured on screen.** Staff sign in's mock state `not-configured` says "Sign-in isn't set up
-  yet. Ask the person who runs Christian Fitness." (`L2-018` AC10); the spec is silent on the member app.
+  yet. Ask the person who runs Christian Fitness." (`L2-018` AC10); the member app says "Google
+  sign-in didn't finish" (or "sign-up" on Join), as for any attempt that does not finish (ADR 0099).
 - **The Google picture.** Settled by ADR 0062 (`L2-049` AC14): the server copies it into
   `IImageStore` once at join if the member keeps it; the browser never loads it from Google.
 - **Account chooser.** Settled by ADR 0062 (`L2-049` AC13): `prompt=select_account` only for "Use

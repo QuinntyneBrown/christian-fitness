@@ -29,7 +29,7 @@ public sealed class JoinValidationTests(ApiFactory factory) : IClassFixture<ApiF
         Assert.Equal(["code", "errors", "status", "title", "traceId", "type"], Keys(problem));
         var errors = problem.GetProperty("errors");
         Assert.Equal(["email", "fullName", "password"], Keys(errors));
-        Assert.Equal("Enter your full name", Single(errors, "fullName"));
+        Assert.Equal("Enter your name.", Single(errors, "fullName"));
         Assert.Equal("Enter an email address like name@example.com", Single(errors, "email"));
         Assert.Equal("Use at least 8 characters", Single(errors, "password"));
         Assert.Empty(await MembersWithAsync("grace.thompson@gmail"));

@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 50% (18 of 36 journeys; 55 of 113 days)
+**% complete:** 53% (19 of 36 journeys; 59 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3049,3 +3049,48 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   failed their own test.
 - "Serve the built apps for e2e" (`CF_SERVE_BUILT=1`) on free ports kept the runs clear of other
   sessions' servers.
+
+## Journey 2: Join and sign in with Google
+
+**What slowed it**
+
+- Journey 3 built staff sign-in on the same handler at the same time and cherry-picked this
+  journey's first four commits. When its PR merged first, the rebase could not recognise them
+  (their conflicts had been resolved on the other branch), so `git rebase --onto origin/main
+  <last shared commit>` replayed only this journey's later slices, and the migration was left out
+  of the slice commit and generated after the rebase, after journey 3's.
+- An ASP.NET Core quirk cost a round: the ProblemDetails exception handler clears the response's
+  headers, so a cookie deleted before a refusal was lost; `Response.OnStarting` deletes it.
+- A fake `at_hash` in the fake Google's ID token failed every callback against the real access
+  token check; the claim is left out.
+- The machine ran out of memory with two `ng serve` servers, Playwright and `dotnet test`
+  running together (fork failures); the dev servers were stopped and the built apps served instead.
+
+**New lessons**
+
+- A single-page app cannot follow an XHR's redirect to Google: the start answers `{location}` and
+  the page leaves with `location.assign`. The OpenID Connect handler builds the address (state,
+  nonce, PKCE) when its challenge is captured instead of sent.
+- The handler checks `state`, nonce and the token but not the attempt's age, which lives in a
+  correlation cookie the browser keeps; the server stores the start time in the properties and
+  refuses an older answer against `TimeProvider`, so a `FakeTimeProvider` test proves it.
+- Items the handler keeps in the authentication properties (`cf.*`, the redirect address for the
+  code) travel into the external cookie unless removed in `OnTokenValidated`; a test asserting the
+  cookie's exact items caught them.
+- A telemetry test whose breaks only add span tags passes anyway: the redaction processor keeps
+  only the allowed tags. Breaking it honestly means logging the secret, which the analysers refuse
+  without a pragma.
+- A passwordless account must be checked against the fixed hash, or Identity's hasher fails an
+  empty hash at once and the timing tells which emails joined with Google; a recording hasher in
+  the handler's test proves which hash was checked.
+- The requirement's exact words beat the code's: "Enter your name." carries a full stop that the
+  other Join messages do not, and both stacks now say it.
+
+**How earlier lessons worked**
+
+- "Break each rule alone" (scripted, one break per build) proved each Join with Google rule, the
+  photo host and scheme checks, the passwordless check and the telemetry test; two breaks that did
+  not compile were rewritten until they did.
+- "Read the initial total after each build" and the `--stats-json` inputs showed nothing of Join
+  in `main`; the total stayed under the 280 kB budget.
+- "Serve the built apps for e2e" kept the full run clear of Vite's HMR socket.

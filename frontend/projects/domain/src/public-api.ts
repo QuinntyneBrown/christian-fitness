@@ -8,6 +8,7 @@ export * from './errors/offline-interceptor';
 export * from './errors/forbidden-interceptor';
 export * from './account/join';
 export * from './account/join-rules';
+export * from './account/google-join';
 export * from './account/join-refusal';
 export * from './account/sign-in-refusal';
 export * from './account/google-return';

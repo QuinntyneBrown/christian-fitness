@@ -40,7 +40,9 @@ test.describe('Member app, sign-in refusals', () => {
     await signIn.submitAndAwaitAnswer();
 
     await expect(signIn.alertTitle).toHaveText('Email or password is incorrect');
-    await expect(signIn.alertText).toHaveText('Check both and try again.');
+    await expect(signIn.alertText).toHaveText(
+      'Check both and try again. If you joined with Google, use Continue with Google.',
+    );
     await expect(signIn.alert).toHaveAttribute('role', 'alert');
     await expect(signIn.alert).toBeFocused();
     await expect(signIn.email).not.toHaveAttribute('aria-invalid');

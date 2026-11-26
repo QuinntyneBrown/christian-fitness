@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+// The account the profile will be made with, on the canvas tint (sso-notice.html, "Account").
+.sso-account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-canvas);
+  padding: var(--space-3-5) var(--space-4);
+}
+
+.sso-account__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.sso-account__email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sso-account__via {
+  margin-top: var(--space-0-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.sso-account__change {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+
+  // Touch: a 44 × 44 px target without changing the look.
+  @media (pointer: coarse) {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      width: max(100%, var(--target-comfortable));
+      height: max(100%, var(--target-comfortable));
+    }
+  }
+}
