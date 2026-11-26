@@ -38,7 +38,7 @@ public sealed record SeriesDetailDto(
 
 /// <summary>
 /// One date of a series as its row shows it (L2-051 AC2 to AC5; ADR 0096): its position among all
-/// the dates (cancelled ones included; ADR 0080), its start, its end (none when unknown; ADR 0099), topic and ADR 0091's state by the
+/// the dates (cancelled ones included; ADR 0080), its start, its end (none when unknown; ADR 0101), topic and ADR 0091's state by the
 /// API's clock, and whether the signed-in member holds a place at it.
 /// </summary>
 public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State, bool Held);
@@ -60,7 +60,7 @@ internal sealed class GetSeriesHandler(IAppDbContext db, IRegistrationReader reg
     }
 }
 
-/// <summary>One series as a member's page shows it, shared by the read, the join and the leave (ADR 0096, ADR 0099).</summary>
+/// <summary>One series as a member's page shows it, shared by the read, the join and the leave (ADR 0096, ADR 0101).</summary>
 internal static class SeriesDetails
 {
     /// <summary>

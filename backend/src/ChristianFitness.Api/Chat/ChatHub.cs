@@ -17,7 +17,7 @@ public sealed class ChatHub(ISender sender, IChatChannel channel) : Hub
 {
     public const string Path = "/api/chat";
 
-    /// <summary>Joins a group chat on this connection: a standalone event's or a series' (ADR 0099), named by its id.</summary>
+    /// <summary>Joins a group chat on this connection: a standalone event's or a series' (ADR 0101), named by its id.</summary>
     public Task<ChatAnswer> Join(Guid chatId) =>
         sender.Send(new JoinChatCommand(Caller, chatId, Context.ConnectionId), Context.ConnectionAborted);
 
@@ -44,7 +44,7 @@ public sealed class ChatHub(ISender sender, IChatChannel channel) : Hub
 
 /// <summary>
 /// Delivers a chat's messages through <see cref="ChatHub"/>'s groups, one group per conversation scope:
-/// a standalone event's chat or a series' one chat (ADR 0099).
+/// a standalone event's chat or a series' one chat (ADR 0101).
 /// </summary>
 internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
 {

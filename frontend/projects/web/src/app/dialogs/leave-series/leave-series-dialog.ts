@@ -12,7 +12,7 @@ export type LeaveSeriesData = SeriesDetailDto;
 export type LeaveSeriesResult = SeriesDetailDto | null;
 
 /**
- * The Leave the series dialog (L2-052 AC9; ADR 0099; mock `docs/mocks/dialogs/leave-series/`), a
+ * The Leave the series dialog (L2-052 AC9; ADR 0101; mock `docs/mocks/dialogs/leave-series/`), a
  * CDK Dialog around the library's `cf-dialog`: the series with its cadence and how many places go
  * back. "Stay in the series", Close and Escape leave with nothing changed; "Leave the series" asks
  * the screen's `EVENT_SERIES_SERVICE` and, while it is on its way, both buttons are disabled and

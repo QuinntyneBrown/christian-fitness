@@ -8,7 +8,7 @@ export class WebEventChatPage {
   readonly chatTitle: Locator;
   readonly subtitle: Locator;
   readonly backLink: Locator;
-  /** A series' chat (ADR 0099): the way back to the series page. */
+  /** A series' chat (ADR 0101): the way back to the series page. */
   readonly seriesBackLink: Locator;
   readonly messages: Locator;
   readonly composerInput: Locator;
@@ -99,7 +99,7 @@ export class WebEventChatPage {
     await this.page.goto(`/events/${eventId}/chat`);
   }
 
-  /** A series' one group chat (ADR 0099), at `/events/series/:id/chat`. */
+  /** A series' one group chat (ADR 0101), at `/events/series/:id/chat`. */
   async openSeries(seriesId: string): Promise<void> {
     await this.page.goto(`/events/series/${seriesId}/chat`);
   }

@@ -6,7 +6,7 @@ using ChristianFitness.Api.Tests.Chat;
 namespace ChristianFitness.Api.Tests.Series;
 
 /// <summary>
-/// L2-052 AC2 (ADR 0080, ADR 0099): a series has one group chat, keyed by the series. Its members
+/// L2-052 AC2 (ADR 0080, ADR 0101): a series has one group chat, keyed by the series. Its members
 /// are those who joined the series and those who hold a place at one of its sessions that has not
 /// ended; it is addressed by the series' id, and a session's own id has no chat. Its stored messages,
 /// read marker, Messages row and Home count follow the series. Today is April 15, 2026: Couch to

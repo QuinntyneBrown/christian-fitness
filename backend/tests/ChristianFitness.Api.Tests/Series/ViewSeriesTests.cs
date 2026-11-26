@@ -72,7 +72,7 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         Assert.Equal(ids.Select(id => id.ToString()), sessions.Select(s => s.GetProperty("id").GetString()));
         Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8], sessions.Select(s => s.GetProperty("number").GetInt32()));
         Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 7)), sessions[0].GetProperty("startsAt").GetDateTimeOffset());
-        // Each date's end, for the calendar file "All dates" writes (L2-052 AC3; ADR 0099).
+        // Each date's end, for the calendar file "All dates" writes (L2-052 AC3; ADR 0101).
         Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 7)).AddMinutes(60), sessions[0].GetProperty("endsAt").GetDateTimeOffset());
         Assert.Equal("No class: Victoria Day week", sessions[5].GetProperty("topic").GetString());
         // Today is April 15: two done, April 21 next, May 12 cancelled (ADR 0091).

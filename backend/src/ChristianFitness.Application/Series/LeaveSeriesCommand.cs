@@ -9,7 +9,7 @@ namespace ChristianFitness.Application.Series;
 
 /// <summary>
 /// The signed-in member leaves a series and the answer is the series as they now see it (L2-052
-/// AC9; ADR 0099). In one unit of work the enrolment and every place at a session of the series
+/// AC9; ADR 0101). In one unit of work the enrolment and every place at a session of the series
 /// that has not started (cancelled ones included) are removed; each touched session releases a
 /// place and the series withdraws one. Places at started sessions stay in the member's history,
 /// and the member leaves the series chat when nothing else keeps them in it. A member who has not
@@ -45,7 +45,7 @@ internal sealed class LeaveSeriesHandler(IAppDbContext db, IRegistrationReader r
             catch (DbUpdateConcurrencyException) when (attempt < Attempts)
             {
                 // A join, drop-in or cancellation committed between this read and write (ADR 0033,
-                // ADR 0099): put back what this attempt removed, read again and decide again.
+                // ADR 0101): put back what this attempt removed, read again and decide again.
                 await ForgetAsync(touched, cancellationToken).ConfigureAwait(false);
             }
         }

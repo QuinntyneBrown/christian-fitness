@@ -57,7 +57,7 @@ describe('conversationHref', () => {
     expect(conversationHref('group', 'e1')).toBe('/events/e1/chat');
   });
 
-  it("opens a series' one chat on the series (ADR 0099)", () => {
+  it("opens a series' one chat on the series (ADR 0101)", () => {
     expect(conversationHref('series', 's1')).toBe('/events/series/s1/chat');
   });
 

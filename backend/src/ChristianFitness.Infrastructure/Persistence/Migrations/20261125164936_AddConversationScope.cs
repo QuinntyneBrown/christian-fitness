@@ -5,7 +5,7 @@
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     /// <summary>
-    /// Chat moves from an event id to a conversation scope (ADR 0080, ADR 0099): every stored message
+    /// Chat moves from an event id to a conversation scope (ADR 0080, ADR 0101): every stored message
     /// keeps its chat, a session's messages move to its series' one chat, and a member's read markers
     /// for a series' sessions merge into one, at the latest instant read. Nothing is deleted that is
     /// not written again. The series gains its enrolment concurrency token.

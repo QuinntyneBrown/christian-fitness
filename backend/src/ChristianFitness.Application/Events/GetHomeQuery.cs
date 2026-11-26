@@ -23,7 +23,7 @@ public sealed record GetHomeQuery : IRequest<HomeDto>
 /// <summary>
 /// Reads the earliest published event the member is going to that has not started, the three
 /// soonest published upcoming events of the categories their interests name that they are not going
-/// to, and the unread message count across their group chats (ADR 0099) and direct conversations.
+/// to, and the unread message count across their group chats (ADR 0101) and direct conversations.
 /// </summary>
 internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, IRegistrationReader registrations, TimeProvider time)
     : IRequestHandler<GetHomeQuery, HomeDto>
@@ -53,7 +53,7 @@ internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, I
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        // The group chats the member is in: standalone events' and series' (ADR 0099).
+        // The group chats the member is in: standalone events' and series' (ADR 0101).
         var chats = (await ChatMembership.RoomsOfAsync(db, memberId, now, cancellationToken).ConfigureAwait(false))
             .Select(c => c.Scope.Id)
             .ToList();

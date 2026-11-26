@@ -172,7 +172,7 @@ export interface SeriesSession {
   /** Its position among all the dates, cancelled ones included. */
   number: number;
   startsAt: string;
-  /** Its end, or none (ADR 0099). */
+  /** Its end, or none (ADR 0101). */
   endsAt: string | null;
   topic: string | null;
   state: 'done' | 'live' | 'upcoming' | 'cancelled';
@@ -324,7 +324,7 @@ export function answerSeriesDetail(
 }
 
 /**
- * `detail` as the member sees it once they joined (L2-052 AC2; ADR 0099): joined, a place held at
+ * `detail` as the member sees it once they joined (L2-052 AC2; ADR 0101): joined, a place held at
  * every session to come (the next one and those after it, not cancelled), and one place fewer left.
  */
 export function joinedOf(detail: SeriesDetail): SeriesDetail {
@@ -340,7 +340,7 @@ export function joinedOf(detail: SeriesDetail): SeriesDetail {
 }
 
 /**
- * Answers `POST /api/events/series/{id}/enrolment` (ADR 0099) with `joinedOf` the series of that id
+ * Answers `POST /api/events/series/{id}/enrolment` (ADR 0101) with `joinedOf` the series of that id
  * among `series`, or 404 `series_not_found`; `reply` may answer a request, by its zero-based number,
  * otherwise (a refusal such as 409 `series_full`, or a reply held until a promise settles). Returns
  * the ids joined, in order.
@@ -364,7 +364,7 @@ export function answerSeriesJoin(
 }
 
 /**
- * `detail` as the member sees it once they left (L2-052 AC9; ADR 0099): not joined, no place held
+ * `detail` as the member sees it once they left (L2-052 AC9; ADR 0101): not joined, no place held
  * at a session that has not started, and one place more left.
  */
 export function leftOf(detail: SeriesDetail): SeriesDetail {
@@ -380,7 +380,7 @@ export function leftOf(detail: SeriesDetail): SeriesDetail {
 }
 
 /**
- * Answers `DELETE /api/events/series/{id}/enrolment/me` (ADR 0099) with `leftOf` the series of that
+ * Answers `DELETE /api/events/series/{id}/enrolment/me` (ADR 0101) with `leftOf` the series of that
  * id among `series`, or 404 `series_not_found`; `reply` may answer a request, by its zero-based
  * number, otherwise. Returns the ids left, in order.
  */

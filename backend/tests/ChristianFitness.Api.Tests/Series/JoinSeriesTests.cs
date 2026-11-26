@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Series;
 
 /// <summary>
-/// L2-052 AC2 and AC4 (ADR 0099): a member joins a series and holds a place at every session still
+/// L2-052 AC2 and AC4 (ADR 0101): a member joins a series and holds a place at every session still
 /// to come that is not cancelled; the enrolment and each of those sessions' going rise by one, the
 /// places of a paid series are reserved, a date already held keeps its own place, and the member is
 /// in the series' chat. Today is April 15, 2026: Couch to 5K's April 21, 28, May 5, 19 and 26 are to

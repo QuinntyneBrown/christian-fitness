@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChristianFitness.Infrastructure.Persistence.Configurations;
 
-/// <summary>A stored chat message (ADR 0040): read newest first per conversation scope (ADR 0099), its kind stored by name.</summary>
+/// <summary>A stored chat message (ADR 0040): read newest first per conversation scope (ADR 0101), its kind stored by name.</summary>
 internal sealed class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
 {
     public void Configure(EntityTypeBuilder<ChatMessage> builder)

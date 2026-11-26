@@ -71,7 +71,7 @@ const routes: Routes = [
         loadComponent: () => import('./pages/event-series/event-series-page'),
       },
       {
-        // A series' one group chat: the chat page in its series form (L2-052 AC2; ADR 0099).
+        // A series' one group chat: the chat page in its series form (L2-052 AC2; ADR 0101).
         path: 'events/series/:id/chat',
         title: titled('Group chat'),
         data: { series: true },

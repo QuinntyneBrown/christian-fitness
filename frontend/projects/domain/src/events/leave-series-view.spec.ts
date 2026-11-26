@@ -22,7 +22,7 @@ const COUCH = {
   lastStartsAt: '2026-05-26T22:30:00Z',
 };
 
-// L2-052 AC9 (ADR 0099): the dialog names the series and how many places go back, one case per row.
+// L2-052 AC9 (ADR 0101): the dialog names the series and how many places go back, one case per row.
 describe('leaveSeriesWordsOf', () => {
   it.each([
     {

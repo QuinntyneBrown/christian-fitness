@@ -8,7 +8,7 @@ namespace ChristianFitness.Application.Chat;
 
 /// <summary>
 /// A member asks to receive a group chat on this connection (L2-016; ADR 0039). The chat is named by
-/// its id: a standalone event's or a series' (ADR 0099). Only a member of the chat may; anyone else
+/// its id: a standalone event's or a series' (ADR 0101). Only a member of the chat may; anyone else
 /// is answered <c>not_a_participant</c>, the same for an unknown id so the answer reveals nothing.
 /// </summary>
 public sealed record JoinChatCommand(Guid MemberId, Guid ChatId, string ConnectionId) : IRequest<ChatAnswer>;
@@ -81,7 +81,7 @@ internal sealed record ChatSeat(ChatScope Scope, string Title, bool Cancelled);
 internal sealed record ChatRoom(ChatScope Scope, string Title, DateTimeOffset Since);
 
 /// <summary>
-/// Who is in a group chat (ADR 0041, ADR 0080, ADR 0099). A standalone event's chat holds the members
+/// Who is in a group chat (ADR 0041, ADR 0080, ADR 0101). A standalone event's chat holds the members
 /// registered for it. A series' one chat holds the members who joined the series and those who hold
 /// a place at one of its sessions that has not ended (its end, else its start, after now); a session
 /// has no chat of its own.

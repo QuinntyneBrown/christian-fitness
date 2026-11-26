@@ -11,7 +11,7 @@ public sealed record ChatHistoryDto(IReadOnlyList<ChatMessageDto> Messages, bool
 /// <summary>
 /// The latest <see cref="GetChatHistoryHandler.PageSize"/> messages of a group chat, or the page
 /// before the message <paramref name="Before"/> (L2-016 AC6; ADR 0040). The chat is named by its
-/// id: a standalone event's or a series' (ADR 0099). Only a member of the chat may read it; anyone
+/// id: a standalone event's or a series' (ADR 0101). Only a member of the chat may read it; anyone
 /// else, and an unknown id, is refused <c>not_a_participant</c> (403).
 /// </summary>
 public sealed record GetChatHistoryQuery(Guid ChatId, Guid? Before) : IRequest<ChatHistoryDto>;

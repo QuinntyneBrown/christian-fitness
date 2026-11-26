@@ -14,7 +14,7 @@ import { catchError, type Observable, throwError } from 'rxjs';
  * {@link EventSeriesApi} over HTTP: `GET /api/events/series?category=&q=&joined=true`,
  * `GET /api/events/series/count` (ADR 0093), `GET /api/events/series/{id}` (ADR 0096) and
  * `POST /api/events/series/{id}/enrolment` and `DELETE /api/events/series/{id}/enrolment/me`
- * (ADR 0099); the
+ * (ADR 0101); the
  * member is the session's, never named in the request. A 5xx opens the server-error screen
  * through the interceptor; every failure passes on to the screen. It holds no state, and is provided on the Events and Event series screens, so it
  * lives only while a screen does.

@@ -51,7 +51,7 @@ internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember
             try
             {
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                // A session's chat is its series': the member stays while they joined it or hold another date (ADR 0099).
+                // A session's chat is its series': the member stays while they joined it or hold another date (ADR 0101).
                 var scope = ChatScope.Of(e);
                 if (!await ChatMembership.InAsync(db, scope, memberId, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
                 {

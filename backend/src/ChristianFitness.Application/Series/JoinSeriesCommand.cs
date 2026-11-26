@@ -9,7 +9,7 @@ namespace ChristianFitness.Application.Series;
 
 /// <summary>
 /// The signed-in member joins a series and the answer is the series as they now see it (L2-052 AC2,
-/// AC4 to AC7; ADR 0099). Joining records one enrolment and a place at every session still to come
+/// AC4 to AC7; ADR 0101). Joining records one enrolment and a place at every session still to come
 /// that is not cancelled and that the member does not already hold, at the series price (reserved
 /// when it is above 0); a place already held keeps its own price and status. A suspended member is
 /// refused <c>account_suspended</c>, a series that does not open <c>series_not_found</c>, and one
@@ -44,7 +44,7 @@ internal sealed class JoinSeriesHandler(IAppDbContext db, IRegistrationReader re
             catch (DbUpdateException) when (attempt < Attempts)
             {
                 // Another join, drop-in or leave committed between this read and write (ADR 0033,
-                // ADR 0099): forget this attempt, read the series as it now is and decide again.
+                // ADR 0101): forget this attempt, read the series as it now is and decide again.
                 await ForgetAsync(added, cancellationToken).ConfigureAwait(false);
             }
         }

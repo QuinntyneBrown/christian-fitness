@@ -32,7 +32,7 @@ public static class RefusalCodes
 
     /// <summary>
     /// A session still to come of the series has no place left, or none is to come, so the series
-    /// cannot be joined; there is no waitlist (L2-052 AC5, AC6; ADR 0099).
+    /// cannot be joined; there is no waitlist (L2-052 AC5, AC6; ADR 0101).
     /// </summary>
     public const string SeriesFull = "series_full";
 

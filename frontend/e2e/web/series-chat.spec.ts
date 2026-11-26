@@ -9,7 +9,7 @@ import { WebEventDetailPage } from '../page-objects/web/event-detail.page';
 import { WebEventSeriesPage } from '../page-objects/web/event-series.page';
 import { WebMessagesPage } from '../page-objects/web/messages.page';
 
-// L2-052 AC2 (ADR 0080, ADR 0099): a series has one group chat, opened by the series' id at
+// L2-052 AC2 (ADR 0080, ADR 0101): a series has one group chat, opened by the series' id at
 // /events/series/<id>/chat and reached from Messages and from a session's event page.
 test.describe('Member app, a series group chat', () => {
   test('The series chat joins by the series id, reads "Series group" and leads back to the series', async ({
