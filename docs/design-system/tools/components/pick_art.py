@@ -32,19 +32,19 @@ def platforms(cur="Instagram", label="Platform"):
 
 
 INSTA_CAP = ("Community Pick: Easter Sunrise 5K\n\n" + NOTE + "\n\nSat, Apr 18 at 6:45 AM\nMartin Goodman Trail, Marilyn Bell Park\n"
-             "Free. Register at the link in bio.\n\n#ChristianFitness #CommunityPick #TorontoFitness #FaithAndFitness")
+             "Free. Link in bio, or register at www.christian.fitness/e/018f0000-0000-7000-8000-000000000001\n\n#ChristianFitness #CommunityPick #TorontoFitness #FaithAndFitness")
 WA_CAP = ("*Community Pick: Easter Sunrise 5K*\n_" + NOTE + "_\n\nSat, Apr 18 at 6:45 AM\nMartin Goodman Trail, Marilyn Bell Park\nFree\n\n"
-          "Register: https://www.christian.fitness/e/sunrise-5k")
-SLACK_CAP = ("*Community Pick:* &lt;https://www.christian.fitness/e/sunrise-5k|Easter Sunrise 5K&gt;\n" + NOTE
-             + "\nSat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park")
-F = "community-pick-sunrise-5k"
+          "Register: https://www.christian.fitness/e/018f0000-0000-7000-8000-000000000001")
+SLACK_CAP = ("*Community Pick:* &lt;https://www.christian.fitness/e/018f0000-0000-7000-8000-000000000001|Easter Sunrise 5K&gt;\n" + NOTE
+             + "\nSat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park · Free")
+F = "community-pick-easter-sunrise-5k"
 
 INSTA = (platforms() + '<div class="pick-assets"><div class="assets assets--insta">'
          + asset("Post · 1080 × 1080", f"{F}-instagram-post.png", "square") + asset("Story · 1080 × 1920", f"{F}-instagram-story.png", "story")
          + "</div>" + caption(INSTA_CAP) + "</div>")
 FACEBOOK = (platforms("Facebook", "Platform (Facebook)") + '<div class="pick-assets">' + asset("Link image · 1200 × 630", f"{F}-facebook.png", "landscape")
             + caption("This week’s Community Pick: Easter Sunrise 5K.\n\n" + NOTE + "\n\nSat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park\n"
-                      "Free, 58 spots left.\n\nRegister: https://www.christian.fitness/e/sunrise-5k") + "</div>")
+                      "Free, 58 spots left.\n\nRegister: https://www.christian.fitness/e/018f0000-0000-7000-8000-000000000001") + "</div>")
 WHATSAPP = (platforms("WhatsApp", "Platform (WhatsApp)") + '<div class="pick-assets"><div class="assets assets--pair">'
             + asset("Image · 1080 × 1080", f"{F}-whatsapp.png", "square")
             + caption(WA_CAP, "Asterisks and underscores format as bold and italic in WhatsApp.") + "</div></div>")
@@ -52,7 +52,7 @@ SLACK_PREVIEW = ('<div class="card card--pad-sm slack-preview" aria-label="How t
                  '<span class="avatar avatar--group" aria-hidden="true">CF</span><div class="slack-preview__body">'
                  '<p><strong>Christian Fitness</strong> <span class="muted">9:02 AM</span></p>'
                  '<p><strong>Community Pick:</strong> <span class="slack-preview__link">Easter Sunrise 5K</span></p>'
-                 f'<p>{NOTE}</p><p>Sat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park</p>'
+                 f'<p>{NOTE}</p><p>Sat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park · Free</p>'
                  f'<div class="slack-preview__unfurl"><p class="slack-preview__site">www.christian.fitness</p>{art("landscape")}</div></div></div>')
 SLACK = (platforms("Slack", "Platform (Slack)") + '<div class="pick-assets">' + SLACK_PREVIEW + '<div class="assets assets--pair">'
          + asset("Unfurl image · 1200 × 630", f"{F}-slack.png", "landscape")
@@ -97,7 +97,7 @@ SPEC = {
             ("Copy", '<button class="btn btn--neutral btn--xs" type="button"{a}>' + icon("copy") + 'Copy<span class="visually-hidden"> caption</span></button>', {}),
         ]) + "<h3>Before anything is made</h3><p>The right side shows the <a href=\"pick-list.html\">pick empty</a> preview; while assets are created the button reads \"Creating…\" and the event and note are read-only; if creating fails, an inline error sits above the button and nothing on the right changes.</p>",
         "themes": themes(SM.format(c=art("square")) + BOX.format(c=caption(WA_CAP, "Asterisks and underscores format as bold and italic in WhatsApp."))),
-        "notes": "<ul><li>The graphic does not change with the theme: it is brand artwork that is posted as an image.</li><li>Copied: the product confirms with a <a href=\"toast.html\">toast</a> (\"Caption copied\"); the mocks do not show it.</li></ul>",
+        "notes": "<ul><li>The graphic does not change with the theme: it is brand artwork that is posted as an image.</li><li>Copied: the Copy button reads \"Copied\" for about 2 seconds and a visually hidden <code>role=\"status\"</code> says \"Caption copied\" (L2-072 AC7; ADR 0098).</li></ul>",
     },
     "responsive": """<ul>
 <li>Below 640px every asset stacks full width; the story graphic is then very tall, so it follows the post.</li>
@@ -113,7 +113,7 @@ SPEC = {
             (kbd("Enter"), "Switches platform; downloads; copies."),
         ],
         "focus": "<p>The shared ring on every button and platform link.</p>",
-        "labelling": "<p>PNG buttons add the file name in visually hidden text (\"PNG: community-pick-sunrise-5k-instagram-post.png\"); Copy adds \"caption\".</p>",
+        "labelling": "<p>PNG buttons add the file name in visually hidden text (\"PNG: community-pick-easter-sunrise-5k-instagram-post.png\"); Copy adds \"caption\".</p>",
         "pairs": [
             ("Text on the graphic", "--color-fg-on-brand", "--color-bg-brand", 4.5),
             ("When line", "--color-fg-on-brand-highlight", "--color-bg-brand", 4.5),
@@ -161,7 +161,7 @@ SPEC = {
         <p class="pick-art__when">Sat Apr 18 · 6:45 AM · Waterfront</p><p class="pick-art__note">…</p></div>
     </div>
     <figcaption class="asset__caption"><span class="asset__label">Post · 1080 × 1080</span>
-      <button class="btn btn--secondary btn--xs" type="button">…PNG<span class="visually-hidden">: community-pick-sunrise-5k-instagram-post.png</span></button></figcaption>
+      <button class="btn btn--secondary btn--xs" type="button">…PNG<span class="visually-hidden">: community-pick-easter-sunrise-5k-instagram-post.png</span></button></figcaption>
   </figure>
 </div>
 <div class="caption">

@@ -98,6 +98,14 @@
                     >
                   } @else {
                     <span class="table__actions">
+                      @if (row.quietLink; as quiet) {
+                        <a
+                          class="row-link row-link--quiet"
+                          [href]="quiet.href"
+                          (click)="follow($event, quiet.href)"
+                          >{{ quiet.label }}<span class="visually-hidden">: {{ row.name }}</span></a
+                        >
+                      }
                       <button class="row-link" type="button" (click)="action.emit(row.id)">
                         {{ label }}<span class="visually-hidden"> {{ row.name }}</span>
                       </button>

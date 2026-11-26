@@ -1,0 +1,117 @@
+// The Community Pick page (docs/design-system/assets/components.css: "page-head",
+// "page-head--wrap", "admin-title", "subtitle", "split--pick", "sticky-aside", "pick-note",
+// "register__error" and the loading mock's "skeleton-stack"). The picker column's 21.25rem is the
+// design system's size-column-pick, which the admin tokens do not carry.
+:host {
+  display: block;
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.page-head--wrap {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.admin-title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-4xl);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-5xl);
+    line-height: var(--line-height-none);
+  }
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.split {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+@media (min-width: 64rem) {
+  .split--pick {
+    grid-template-columns: 21.25rem minmax(0, 1fr);
+  }
+}
+
+.sticky-aside {
+  align-self: start;
+
+  @media (min-width: 64rem) {
+    position: sticky;
+    top: var(--layout-sticky-offset);
+  }
+}
+
+.pick-note {
+  margin-block: var(--space-5) var(--space-3);
+}
+
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+section {
+  min-width: 0;
+}
+
+// The design system's "register__error" and pick-art's "caption__hint", above the button.
+.register__error {
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.caption__hint {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+// The design system's "pick-assets" and "assets" layouts (pick-art.html).
+.pick-assets {
+  margin-top: var(--space-6);
+
+  > * + * {
+    margin-top: var(--space-8);
+  }
+}
+
+.assets {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 40rem) {
+  .assets--insta {
+    grid-template-columns: 1fr 0.5fr;
+  }
+
+  .assets--pair {
+    grid-template-columns: 0.8fr 1fr;
+    gap: var(--space-8);
+  }
+}

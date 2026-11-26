@@ -59,6 +59,7 @@
         [rows]="rows()"
         [cell]="statusCell"
         (action)="editEvent($event)"
+        (navigate)="navigate($event)"
       />
     } @else if (tab() === 'all') {
       <cf-empty-state [heading]="empty().heading" [text]="empty().text">

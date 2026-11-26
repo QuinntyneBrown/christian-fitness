@@ -62,6 +62,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Story> Stories => Set<Story>();
 
     public DbSet<SchedulerLease> SchedulerLeases => Set<SchedulerLease>();
+    public DbSet<CommunityPick> CommunityPicks => Set<CommunityPick>();
 
     public DbSet<StoryReadTally> StoryReadTallies => Set<StoryReadTally>();
 

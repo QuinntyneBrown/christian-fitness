@@ -1,0 +1,24 @@
+// The design system's asset (docs/design-system/assets/components.css, "asset").
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.asset {
+  margin: 0;
+}
+
+.asset__caption {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.asset__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+}

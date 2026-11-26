@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
+import { eventLinkGuard, memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -55,6 +55,13 @@ const routes: Routes = [
     canMatch: [signedOutGuard],
     data: { masthead: true },
     loadComponent: story,
+  },
+  {
+    // An event link from a Community Pick: a member goes on to the event, a visitor to Join and
+    // back to it (L2-072 AC9; ADR 0098). It has no screen of its own.
+    path: 'e/:id',
+    canActivate: [eventLinkGuard],
+    children: [],
   },
   {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).

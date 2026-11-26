@@ -21,6 +21,7 @@ const AREA_GROUPS: Record<AdminAreaKey, AdminAreaGroup | null> = {
   stories: 'Publish',
   events: 'Gather',
   series: 'Gather',
+  'community-pick': 'Gather',
   listings: 'Community',
   services: 'Community',
   members: 'Community',

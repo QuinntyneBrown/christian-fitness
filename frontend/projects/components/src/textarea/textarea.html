@@ -10,6 +10,7 @@
     [id]="fieldId()"
     [name]="name()"
     [rows]="rows()"
+    [attr.maxlength]="limit() ?? null"
     [attr.aria-describedby]="describedBy()"
     [attr.aria-invalid]="shownError() ? 'true' : null"
     [value]="value()"

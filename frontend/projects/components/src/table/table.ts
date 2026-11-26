@@ -56,6 +56,11 @@ export interface TableRow {
   actionHref?: string;
   /** A row the table's action does not apply to: its action cell stays empty. */
   noAction?: boolean;
+  /**
+   * A quieter link before the row's action, its row's name added after a colon for screen
+   * readers ("Make it a pick: Easter Sunrise 5K"; table.html, "Two row actions").
+   */
+  quietLink?: { label: string; href: string };
 }
 
 /** What a `custom` cell template receives. */

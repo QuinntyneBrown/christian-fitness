@@ -6,6 +6,7 @@ describe('adminNavOf', () => {
     expect(adminNavOf('Moderator', { suggestions: 3, storiesInReview: 0 })).toEqual([
       { key: 'dashboard', label: 'Dashboard', href: '/', group: null },
       { key: 'series', label: 'Event series', href: '/series', group: 'Gather' },
+      { key: 'community-pick', label: 'Community Pick', href: '/community-pick', group: 'Gather' },
       {
         key: 'listings',
         label: 'Listings',
@@ -25,6 +26,7 @@ describe('adminNavOf', () => {
       ['Stories', 'Publish', '/stories'],
       ['Events', 'Gather', '/events'],
       ['Event series', 'Gather', '/series'],
+      ['Community Pick', 'Gather', '/community-pick'],
       ['Listings', 'Community', '/listings'],
       ['Services', 'Community', '/services'],
       ['Members', 'Community', '/members'],

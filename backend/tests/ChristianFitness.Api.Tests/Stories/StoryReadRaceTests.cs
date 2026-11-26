@@ -81,6 +81,7 @@ public sealed class StoryReadRaceTests(StoryReadRaceTests.Factory factory) : ICl
         public DbSet<Story> Stories => db.Stories;
 
         public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
+        public DbSet<ChristianFitness.Domain.Events.CommunityPick> CommunityPicks => db.CommunityPicks;
 
         public DbSet<StoryReadTally> StoryReadTallies => db.StoryReadTallies;
 

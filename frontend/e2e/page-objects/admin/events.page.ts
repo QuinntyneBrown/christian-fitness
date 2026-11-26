@@ -18,6 +18,8 @@ export class AdminEventsPage {
   readonly tabCounts: Locator;
   readonly table: Locator;
   readonly rows: Locator;
+  /** Every row's "Make it a pick" link, in order (L2-072 AC1). */
+  readonly pickLinks: Locator;
   readonly loading: Locator;
   readonly skeletons: Locator;
   readonly empty: Locator;
@@ -47,6 +49,7 @@ export class AdminEventsPage {
     this.tabCounts = this.tabs.locator('.tabs__count');
     this.table = this.main.locator('.table-wrap .table');
     this.rows = this.table.locator('tbody tr');
+    this.pickLinks = this.table.locator('a.row-link--quiet');
     this.loading = this.main.locator('.skeleton-region[aria-busy="true"]');
     this.skeletons = this.loading.locator('.skeleton');
     this.empty = this.main.locator('.empty-state');
@@ -109,6 +112,13 @@ export class AdminEventsPage {
   /** Rests the pointer on the page head, away from the toasts. */
   async movePointerAway(): Promise<void> {
     await this.page.mouse.move(5, 5);
+  }
+
+  /** The "Make it a pick" link of the row for the event named `title` (L2-072 AC1). */
+  pickLink(title: string): Locator {
+    const name = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // The hidden title is positioned out of flow, so Chromium joins it with a space.
+    return this.table.getByRole('link', { name: new RegExp(`^Make it a pick ?: ${name}$`) });
   }
 
   /** The Edit action of the row for the event named `title`. */

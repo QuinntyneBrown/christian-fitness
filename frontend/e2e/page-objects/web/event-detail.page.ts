@@ -89,4 +89,15 @@ export class WebEventDetailPage extends ErrorScreen {
   async open(id: string): Promise<void> {
     await this.page.goto(`/events/${id}`);
   }
+
+  /** Opens the event's short link, `/e/<id>`, as a Community Pick caption gives it (L2-072 AC9). */
+  async openLink(id: string): Promise<void> {
+    await this.page.goto(`/e/${id}`);
+  }
+
+  /** The path and query the address bar shows. */
+  location(): string {
+    const url = new URL(this.page.url());
+    return url.pathname + url.search;
+  }
 }
