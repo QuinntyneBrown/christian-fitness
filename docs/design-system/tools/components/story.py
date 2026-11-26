@@ -96,7 +96,7 @@ ERROR = (f'<div class="river"><p class="display river__title">The latest</p><div
 
 SIZES = """<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Form</th><th scope="col">Title (phone → 640px)</th><th scope="col">Image</th><th scope="col">Heading level</th></tr></thead><tbody>
 <tr><td>Story page title <code>.story__title</code></td><td><code>--font-size-3xl</code> → <code>4xl</code>, bold</td><td>16:9, up to 64rem</td><td><code>h1</code></td></tr>
-<tr><td>Lead <code>.story-lead__title</code></td><td><code>--font-size-3xl</code> → <code>4xl</code>, bold</td><td>16:9, column width</td><td><code>h1</code> on Latest</td></tr>
+<tr><td>Lead <code>.story-lead__title</code></td><td><code>--font-size-3xl</code> → <code>4xl</code> → <code>--font-size-lead</code> from 1024px, bold, tight</td><td>16:9, column width</td><td><code>h1</code> on Latest</td></tr>
 <tr><td>Story row <code>.story-row__title</code></td><td><code>--font-size-xl</code> → <code>2xl</code>, bold</td><td>4:3, 7rem → 14rem</td><td><code>h3</code> under the river's <code>h2</code></td></tr>
 <tr><td>Headline <code>.headline__title</code></td><td><code>--font-size-lg</code>, bold</td><td>5rem square</td><td><code>h2</code> on the front page, <code>h3</code> in an issue</td></tr>
 <tr><td>Story card <code>.story-card__title</code></td><td><code>--font-size-lg</code>, bold</td><td>16:10, card width</td><td>none: the card is a link</td></tr>
@@ -218,9 +218,9 @@ SPEC = {
         ("Hairlines", "--color-border-default", "color"),
         ("Story next / hover", "--color-accent-subtle / --color-accent-subtle-hover", "color"),
         ("Pull quote bar", "--color-fg-accent", "color"),
-        ("Title sizes", "--font-size-lg / --font-size-xl / --font-size-2xl / --font-size-3xl / --font-size-4xl", "value"),
+        ("Title sizes", "--font-size-lg / --font-size-xl / --font-size-2xl / --font-size-3xl / --font-size-4xl / --font-size-lead", "value"),
         ("Line heights", "--line-height-tight / --line-height-snug / --line-height-relaxed", "value"),
-        ("Rules", "--border-width-hairline / --border-width-thick", "value"),
+        ("Rules", "--border-width-hairline / --border-width-thick / --border-width-rule", "value"),
         ("Container, measure", "--layout-container-max / --layout-measure", "value"),
         ("Rail offset", "--layout-topbar-height", "value"),
         ("Gaps", "--space-4 / --space-5 / --space-8 / --space-10 / --space-12", "value"),

@@ -371,7 +371,7 @@
       "fg": "--color-fg-on-brand",
       "bg": "--color-bg-brand",
       "min": 4.5,
-      "note": "text on brand panels (verse, join aside, stat hero)"
+      "note": "text on brand panels (join card and aside, stat hero)"
     },
     {
       "fg": "--color-fg-on-brand-strong",
@@ -389,7 +389,7 @@
       "fg": "--color-fg-on-brand-highlight",
       "bg": "--color-bg-brand",
       "min": 4.5,
-      "note": "verse citation, stat labels"
+      "note": "stat labels"
     },
     {
       "fg": "--color-fg-on-brand",

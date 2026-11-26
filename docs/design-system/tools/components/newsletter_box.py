@@ -177,7 +177,7 @@ SPEC = {
         ("Band", "--color-bg-chrome / --color-fg-on-chrome / --color-fg-on-chrome-muted", "color"),
         ("Ring on dark", "--color-focus-ring-on-dark", "color"),
         ("Panel", "--color-accent-subtle / --color-accent / --color-fg-accent", "color"),
-        ("Frame width", "--border-width-thick", "value"),
+        ("Frame width", "--border-width-rule", "value"),
         ("Padding", "--space-5 / --space-6", "value"),
         ("Title sizes", "--font-size-2xl / --font-size-3xl", "value"),
         ("RSS link height", "--target-comfortable", "value"),

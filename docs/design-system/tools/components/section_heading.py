@@ -107,7 +107,7 @@ SPEC = {
         ("Subtitle, note", "--color-fg-muted", "color"),
         ("Eyebrow", "--color-fg-accent", "color"),
         ("Sizes", "--font-size-5xl / --font-size-2xl / --font-size-xl / --font-size-sm", "value"),
-        ("Rule", "--border-width-thick", "value"),
+        ("Rule", "--border-width-rule", "value"),
         ("Measure", "--layout-measure-narrow", "value"),
         ("Spacing", "--space-2 / --space-4", "value"),
     ],

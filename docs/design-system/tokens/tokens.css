@@ -99,6 +99,7 @@
   --font-size-2xl: 1.5rem;     /* 24px  section titles, date numerals */
   --font-size-3xl: 1.875rem;   /* 30px  dialog and card titles */
   --font-size-4xl: 2.25rem;    /* 36px  mobile page titles */
+  --font-size-lead: 2.6rem;    /* 41.6px  front-page lead headline from 1024px (the prototype's size) */
   --font-size-5xl: 3rem;       /* 48px  page titles */
   --font-size-6xl: 3.75rem;    /* 60px  detail titles, stat hero */
   --font-size-7xl: 4.5rem;     /* 72px  landing hero (sm) */
@@ -111,6 +112,7 @@
 
   --line-height-display: 0.9;  /* condensed display headings */
   --line-height-none: 1;
+  --line-height-lead: 1.12;    /* front-page lead headline */
   --line-height-tight: 1.25;
   --line-height-snug: 1.375;
   --line-height-normal: 1.5;
@@ -123,6 +125,7 @@
   --line-height-3xl: 2.25rem;  /* with --font-size-3xl */
   --line-height-4xl: 2.5rem;   /* with --font-size-4xl */
 
+  --letter-spacing-tight: -0.01em;  /* front-page lead headline */
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.025em;   /* display headings, wordmark, overlines */
   --letter-spacing-wider: 0.14em;   /* "Admin console" eyebrow */
@@ -139,11 +142,11 @@
   --color-bg-backdrop: rgb(17 17 17 / 0.4);
   --color-bg-skeleton: var(--palette-stone-150);
   --color-skeleton-shine: rgb(255 255 255 / 0.35);
-  --color-bg-brand: var(--palette-bordeaux-700);           /* verse, join aside, stat hero, report */
+  --color-bg-brand: var(--palette-bordeaux-700);           /* join card and aside, stat hero, report */
   --color-bg-brand-inverse: var(--palette-stone-0);        /* white button on a brand panel */
   --color-bg-brand-inverse-hover: var(--palette-bordeaux-50);
   --color-bg-on-brand-hover: rgb(255 255 255 / 0.1);
-  --color-bg-chrome: var(--palette-stone-950);             /* admin sidebar, staff sign-in */
+  --color-bg-chrome: var(--palette-stone-950);             /* admin sidebar, staff sign-in, verse band */
   --color-bg-chrome-current: var(--palette-bordeaux-700);
   --color-bg-chrome-badge: var(--palette-borealis-300);
   --color-bg-on-chrome-hover: rgb(255 255 255 / 0.1);
@@ -325,7 +328,7 @@
   --size-avatar-3xl: 7rem;   /* 112px profile hero */
   --size-seal-lockup: 2.125rem;
   --size-seal-signin: 2.75rem;
-  --size-seal-verse: 8.75rem;
+  --size-seal-verse: 7.5rem;
   --size-seal-hero: 11.25rem;
   --size-dot: 0.5rem;
   --size-dot-lg: 0.625rem;
@@ -349,6 +352,7 @@
 
   --border-width-hairline: 1px;
   --border-width-thick: 2px;
+  --border-width-rule: 4px;   /* editorial rules: headline list, ruled titles, newsletter frame */
 
   /* ---------- Semantic: elevation -------------------------------------- */
   --shadow-1: 0 1px 0 rgb(17 17 17 / 0.04);      /* resting cards */

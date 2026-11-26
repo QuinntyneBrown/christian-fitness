@@ -15,6 +15,8 @@ Feedback Inbox). Those 33 frames are reproduced at parity: same layout, spacing,
 and data, rebuilt as BEM + tokens instead of Tailwind. Last synced with the frames of 24 Nov 2026
 (18:54 UTC): the story page, feedback, preferences, the legal pages, suggesting a listing, and the
 console's publishing and community screens with its grouped navigation.
+Landing was checked against its frame again on 26 Nov 2026: markup, copy and data already matched;
+the verse band (ink, not bordeaux), the 4px editorial rules and the lead headline's size were brought in line.
 Each mock names its frame in `<meta name="mock:source">`;
 screens and states the prototype doesn't draw are marked _Derived_ and built from its parts.
 
