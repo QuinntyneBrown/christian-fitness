@@ -1,86 +1,100 @@
-<cf-top-bar variant="site" homeHref="/" />
+<cf-skip-link />
+<cf-masthead [sections]="sections()" (navigate)="go($event)" />
 <main id="main" class="landing">
-  <section class="hero" aria-labelledby="hero-title">
-    <div>
-      <h1 class="display hero__title" id="hero-title">Life to the full.</h1>
-      <p class="hero__lead">
-        A Christian community for health in body and spirit. Find events, train with friends, and
-        meet professionals who share your faith.
-      </p>
-      <div class="hero__actions">
-        <cf-button size="lg" href="/join">Join the community</cf-button>
+  @if (latest() && storiesState() === 'loading') {
+    <cf-skeleton-region label="Christian Fitness news" heading>
+      <div class="top-stories">
+        <cf-story-lead loading />
+        <cf-headline-list loading />
       </div>
-    </div>
-    <div class="hero__media">
-      <img
-        class="hero__image"
-        src="/images/events/run.jpg"
-        alt="A group running together along the Toronto waterfront at sunrise"
-        width="1376"
-        height="768"
-      />
-    </div>
-  </section>
-
-  <section class="band" aria-labelledby="coming-title">
-    <div class="band__inner">
-      <div>
-        <h2 class="display band__title" id="coming-title">Coming up</h2>
-        <p class="subtitle">Runs, workouts and gatherings posted by our team every week.</p>
-        <div class="landing-list">
-          @if (state() === 'loading') {
-            <cf-skeleton-region label="Loading upcoming events">
-              <cf-list [items]="skeletons" [template]="skeletonRow" />
-            </cf-skeleton-region>
-          } @else if (state() === 'failed') {
+    </cf-skeleton-region>
+  } @else if (latest() && storiesState() === 'loaded' && lead(); as shown) {
+    <section class="top-stories" aria-label="Top stories">
+      <cf-story-lead [story]="shown" (navigate)="go($event)" />
+      <cf-headline-list [stories]="headlines()" (navigate)="go($event)" />
+    </section>
+  }
+  <div [attr.class]="riverIsHeading() ? 'news news--flush' : 'news'">
+    <section class="river" aria-label="Stories">
+      <cf-river
+        [heading]="latest() ? 'The latest' : section().label"
+        [pageHeading]="riverIsHeading()"
+        [stories]="storiesState() === 'loaded' ? river() : []"
+        [loading]="storiesState() === 'loading'"
+        (navigate)="go($event)"
+      >
+        @if (storiesState() === 'failed') {
+          <div class="river__error">
             <cf-inline-message
-              heading="Upcoming events didn't load."
+              heading="Stories didn't load."
               text="Check your connection, then try again."
-              (retry)="load()"
+              (retry)="loadStories()"
             />
-          } @else if (rows().length === 0) {
-            <cf-empty-state
-              variant="inline"
-              headingTag="p"
-              heading="No events posted yet."
-              text="Check back soon."
-            >
-              <cf-button slot="actions" variant="ghost" size="sm" href="/join"
-                >Join to hear first</cf-button
-              >
-            </cf-empty-state>
-          } @else {
-            <cf-list [items]="rows()" [template]="eventRow" />
+          </div>
+        } @else if (storiesState() === 'loaded') {
+          @if (!lead() && !river().length) {
+            <p class="river__empty">
+              {{
+                latest()
+                  ? 'No stories yet. Check back soon.'
+                  : 'No stories in ' + section().label + ' yet this week.'
+              }}
+            </p>
+          } @else if (moreState() === 'loading') {
+            <div class="feed-end">
+              <cf-spinner label="Loading more stories…" [delay]="0" />
+            </div>
+          } @else if (moreState() === 'failed') {
+            <div class="feed-end">
+              <cf-inline-message
+                heading="More stories didn't load."
+                text="The ones above are still here."
+                (retry)="loadMore()"
+              />
+            </div>
+          } @else if (riverEnd() === 'more') {
+            <div class="feed-end">
+              <cf-button variant="secondary" (click)="loadMore()">More stories</cf-button>
+            </div>
+          } @else if (riverEnd() === 'capped') {
+            <div class="feed-end">
+              <p>
+                That's the latest 60 stories.
+                {{ latest() ? 'Choose a section above to see older ones.' : '' }}
+              </p>
+            </div>
           }
-        </div>
-      </div>
-      <div class="band__aside">
-        <div>
-          <h3 class="display band__point-title">Train together</h3>
-          <p class="band__point-text">
-            Build a profile, find people at your pace, and keep each other going in group chats for
-            every event.
-          </p>
-        </div>
-        <div>
-          <h3 class="display band__point-title">Trusted professionals</h3>
-          <p class="band__point-text">
-            Trainers, dietitians, physios and counsellors, each one vetted and listed by our team.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="band" aria-labelledby="pros-title">
-    <div class="band__inner">
-      <div>
-        <h2 class="display band__title" id="pros-title">Meet our professionals</h2>
-        <p class="subtitle">Trainers, dietitians, physios and counsellors, vetted by our team.</p>
-        <div class="landing-pros-placeholder" cfLandingProfessionalsOnView></div>
-      </div>
-    </div>
-  </section>
+        }
+      </cf-river>
+    </section>
+    <aside class="rail" aria-label="Join, events and newsletter">
+      <cf-join-card />
+      <section aria-labelledby="rail-events">
+        <h2 class="display rule-title" id="rail-events">Upcoming events</h2>
+        @if (eventsState() === 'loading') {
+          <cf-skeleton-region label="Loading upcoming events">
+            <cf-list [items]="skeletons" [template]="skeletonRow" />
+          </cf-skeleton-region>
+        } @else if (eventsState() === 'failed') {
+          <cf-inline-message
+            heading="Upcoming events didn't load."
+            text="Check your connection, then try again."
+            (retry)="loadEvents()"
+          />
+        } @else if (rows().length === 0) {
+          <p class="rail__empty">No events posted yet. Check back soon.</p>
+        } @else {
+          <cf-list [items]="rows()" [template]="eventRow" />
+        }
+      </section>
+      @if (mostRead().length) {
+        <section aria-labelledby="rail-most-read">
+          <h2 class="display rule-title" id="rail-most-read">Most read</h2>
+          <cf-ranked-list [stories]="mostRead()" (navigate)="go($event)" />
+        </section>
+      }
+    </aside>
+  </div>
 
   <section class="verse" aria-label="Scripture">
     <div class="verse__inner">
@@ -96,7 +110,6 @@
 <ng-template #eventRow let-row>
   <cf-event-row
     href="/join"
-    large
     [month]="row.month"
     [day]="row.day"
     [heading]="row.heading"

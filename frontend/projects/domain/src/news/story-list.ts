@@ -238,7 +238,7 @@ export function storyReaderWhen(publishedAt: string | null, text: string, now: D
 }
 
 /** A published story's age, capitalised: "2 hours ago", "Yesterday" or "Apr 8"; empty for a value that is not an instant. */
-function storyAge(publishedAt: string, now: Date): string {
+export function storyAge(publishedAt: string, now: Date): string {
   const instant = new Date(publishedAt);
   if (Number.isNaN(instant.getTime())) return '';
   const when = ago(instant, now).replace(/^on /, '');

@@ -1,0 +1,10 @@
+<ol class="ranked">
+  @for (story of stories(); track story.href; let n = $index) {
+    <li>
+      <span class="ranked__n" aria-hidden="true">{{ n + 1 }}</span>
+      <p class="ranked__title">
+        <a [href]="story.href" (click)="follow($event, story.href)">{{ story.title }}</a>
+      </p>
+    </li>
+  }
+</ol>

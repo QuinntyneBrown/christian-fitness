@@ -111,3 +111,4 @@ export * from './news/story-text';
 export * from './news/story-actions';
 export * from './news/copied-flag';
 export * from './news/story-reads';
+export * from './news/front-page';

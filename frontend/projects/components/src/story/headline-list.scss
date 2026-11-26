@@ -1,0 +1,74 @@
+// The design system's headline list (docs/design-system/assets/components.css: "News front page").
+:host {
+  display: block;
+  min-width: 0;
+  align-self: start;
+}
+
+.headline-list {
+  border-top: var(--border-width-rule) solid var(--color-fg-default);
+}
+
+.headline {
+  display: flex;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+
+  & + & {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.headline__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.headline__body--loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.story__section {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.headline__title {
+  margin-top: var(--space-0-5);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  text-wrap: pretty;
+}
+
+.story-link {
+  color: inherit;
+  border-radius: var(--radius-xs);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-thick) solid var(--color-focus-ring);
+    outline-offset: var(--border-width-thick);
+  }
+}
+
+.story__meta {
+  margin-top: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.headline__image,
+.headline__tile {
+  width: var(--size-thumb-sm);
+  height: var(--size-thumb-sm);
+  flex-shrink: 0;
+  object-fit: cover;
+}
