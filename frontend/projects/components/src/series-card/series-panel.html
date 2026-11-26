@@ -8,6 +8,43 @@
     @if (payNote(); as pay) {
       <p class="register__note register__note--start">{{ pay }}</p>
     }
+    @if (keptNote(); as kept) {
+      <p class="register__note register__note--start">{{ kept }}</p>
+    }
+    @if (progress(); as mine) {
+      <div class="series-progress">
+        <p class="series-progress__head">
+          <span class="series-progress__label">Your progress</span
+          ><span class="series-progress__count">{{ mine.count }}</span>
+        </p>
+        <cf-session-meter
+          class="series-progress__meter"
+          thick
+          [bars]="mine.bars"
+          [label]="mine.label"
+        />
+      </div>
+    }
+    <cf-button-row class="series-panel__actions" layout="grid">
+      <cf-button variant="secondary" size="sm" (click)="allDates.emit()"
+        ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 2v4" />
+          <path d="M16 2v4" />
+          <path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" />
+          <path d="M3 10h18" />
+          <path d="M16 19h6" />
+          <path d="M19 16v6" /></svg
+        >All dates</cf-button
+      >
+      <cf-button variant="secondary" size="sm" [href]="chatHref()"
+        ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg
+        >Group chat</cf-button
+      >
+    </cf-button-row>
+    <cf-button class="series-panel__leave" variant="quiet" (click)="leave.emit()"
+      >Leave the series</cf-button
+    >
   } @else {
     <div class="register__head">
       <h2 class="series-panel__title">Sign up</h2>

@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { DOCUMENT } from '@angular/common';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,8 +22,11 @@ import {
 import {
   type SeriesPageView,
   seriesPageViewOf,
+  seriesCalendarNameOf,
+  seriesCalendarOf,
   type SeriesPlan,
   seriesJoinRefusalOf,
+  seriesKeptNoteOf,
   seriesPanelViewOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
@@ -65,6 +69,7 @@ export default class EventSeriesPage {
   private readonly series = inject(EVENT_SERIES_SERVICE);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
   private id = '';
   private request: Subscription | null = null;
   private joinRequest: Subscription | null = null;
@@ -77,11 +82,24 @@ export default class EventSeriesPage {
   private readonly plan = signal<SeriesPlan | null>(null);
   protected readonly joining = signal(false);
   protected readonly joinFailed = signal(false);
+  /** Right after a join, which dates already booked keep the drop-in price (AC4). */
+  protected readonly keptNote = signal<string | null>(null);
+  protected readonly chatHref = computed(
+    () => `/events/series/${encodeURIComponent(this.id)}/chat`,
+  );
   protected readonly panel = computed(() => {
     const detail = this.detail();
     return detail
       ? seriesPanelViewOf(detail, { plan: this.plan(), joining: this.joining() })
-      : { joined: false, payNote: null, spots: '', plans: [], action: null, note: '' };
+      : {
+          joined: false,
+          payNote: null,
+          progress: null,
+          spots: '',
+          plans: [],
+          action: null,
+          note: '',
+        };
   });
   protected readonly facts = computed<DescriptionItem[]>(() => {
     const view = this.view();
@@ -128,6 +146,8 @@ export default class EventSeriesPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (series) => {
+          const before = this.detail();
+          this.keptNote.set(before && seriesKeptNoteOf(before, series));
           this.show(series);
           this.joining.set(false);
         },
@@ -143,6 +163,25 @@ export default class EventSeriesPage {
       });
   }
 
+  /**
+   * Saves one calendar file with every session still to come (L2-052 AC3; ADR 0099), through an
+   * object URL revoked as soon as the download starts.
+   */
+  protected downloadAllDates(): void {
+    const series = this.detail();
+    if (!series) return;
+    const file = new Blob([seriesCalendarOf(series, new Date())], { type: 'text/calendar' });
+    const url = URL.createObjectURL(file);
+    try {
+      const link = this.document.createElement('a');
+      link.href = url;
+      link.download = seriesCalendarNameOf(series.title);
+      link.click();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   /** Opens an address of the app (the host's profile, a session's event page) in the app. */
   protected open(href: string): void {
     void this.router.navigateByUrl(href);
@@ -155,6 +194,7 @@ export default class EventSeriesPage {
 
   private load(): void {
     this.request?.unsubscribe();
+    this.keptNote.set(null);
     this.state.set('loading');
     this.request = this.series
       .get(this.id)

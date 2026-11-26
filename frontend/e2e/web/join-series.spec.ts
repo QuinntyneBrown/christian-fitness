@@ -1,4 +1,5 @@
 import { expect, test } from '../fixtures/test';
+import type { Download } from '@playwright/test';
 import { answerPhotos } from '../fixtures/directory';
 import {
   answerSeriesDetail,
@@ -35,9 +36,9 @@ test.describe('Member app, join a series', () => {
 
       await expect(series.confirmed).toHaveText("You're in for every session");
       expect(joined).toEqual([PARK_BOOTCAMP_DETAIL.id]);
-      await expect(series.payNote).toHaveText(
+      await expect(series.payNotes).toHaveText([
         "Pay the host at your first session, by cash or e-transfer. You won't be charged online.",
-      );
+      ]);
       await expect(series.planGroup).toHaveCount(0);
       await expect(series.panel.getByRole('button', { name: 'Join the series' })).toHaveCount(0);
     },
@@ -52,7 +53,7 @@ test.describe('Member app, join a series', () => {
     await series.panelButton.click();
 
     await expect(series.confirmed).toHaveText("You're in for every session");
-    await expect(series.payNote).toHaveCount(0);
+    await expect(series.payNotes).toHaveCount(0);
   });
 
   test('While the join waits, the button reads "Joining…" and nothing can be pressed or chosen', async ({
@@ -178,4 +179,89 @@ test.describe('Member app, join a series: full and refused', () => {
       expect(joined).toHaveLength(2);
     });
   }
+});
+
+/** The text of a download. */
+async function textOf(download: Download): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of await download.createReadStream()) chunks.push(chunk as Buffer);
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+// L2-052 AC3 and AC4 (ADR 0099): what a member who joined sees.
+test.describe('Member app, join a series: the joined panel', () => {
+  test('A member who joined sees their progress, All dates, Group chat and Leave the series', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(COUCH_TO_5K_DETAIL.id);
+
+    await expect(series.confirmed).toHaveText("You're in for every session");
+    await expect(series.progressLabel).toHaveText('Your progress');
+    await expect(series.progressCount).toHaveText('Attendance not recorded yet');
+    await expect(series.allDatesButton).toBeVisible();
+    await expect(series.groupChatLink).toHaveAttribute(
+      'href',
+      `/events/series/${COUCH_TO_5K_DETAIL.id}/chat`,
+    );
+    await expect(series.leaveButton).toBeVisible();
+  });
+
+  test('All dates downloads one calendar file with every session still to come', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesDetail(api, [COUCH_TO_5K_DETAIL]);
+    const series = new WebEventSeriesPage(page);
+    await series.open(COUCH_TO_5K_DETAIL.id);
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      series.allDatesButton.click(),
+    ]);
+
+    expect(download.suggestedFilename()).toBe('couch-to-5k-run-club.ics');
+    const calendar = await textOf(download);
+    const lines = calendar.split('\r\n');
+    expect(lines[0]).toBe('BEGIN:VCALENDAR');
+    // April 21, 28, May 5, 19 and 26: not the two done, nor the cancelled May 12.
+    expect(lines.filter((line) => line.startsWith('DTSTART:'))).toEqual([
+      'DTSTART:20260421T223000Z',
+      'DTSTART:20260428T223000Z',
+      'DTSTART:20260505T223000Z',
+      'DTSTART:20260519T223000Z',
+      'DTSTART:20260526T223000Z',
+    ]);
+    expect(lines).toContain('DTEND:20260421T233000Z');
+    expect(lines).toContain('LOCATION:Humber Bay Park East\\, Etobicoke\\, Toronto');
+    expect(lines.at(-2)).toBe('END:VCALENDAR');
+  });
+
+  test('Joining a paid series after dropping in on a date says that date keeps the drop-in price', async ({
+    page,
+    api,
+  }) => {
+    const droppedIn: SeriesDetail = {
+      ...PARK_BOOTCAMP_DETAIL,
+      sessions: PARK_BOOTCAMP_DETAIL.sessions.map((session) => ({
+        ...session,
+        held: session.number === 4,
+      })),
+    };
+    answerPhotos(api);
+    answerSeriesDetail(api, [droppedIn]);
+    answerSeriesJoin(api, [droppedIn]);
+    const series = new WebEventSeriesPage(page);
+    await series.open(droppedIn.id);
+
+    await series.panelButton.click();
+
+    await expect(series.payNotes).toHaveText([
+      "Pay the host at your first session, by cash or e-transfer. You won't be charged online.",
+      "You'd already booked session 4, so it stays at the drop-in price ($10). Your other dates are at the series price.",
+    ]);
+  });
 });

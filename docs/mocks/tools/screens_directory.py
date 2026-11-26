@@ -46,8 +46,9 @@ def plan_option(value: str, title: str, note: str, price: str, *, on: bool, disa
                 </label>"""
 
 
-def series_panel(sr: dict, mode: str, picked: tuple) -> str:
-    """mode: joined | join | joining | failed | drop | booking | booked | full"""
+def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
+    """mode: joined | join | joining | failed | drop | booking | booked | full; kept: the
+    sessions already dropped in on, which keep the drop-in price after a join (ADR 0099)."""
     remaining = [x for x in sr["sessions"] if x["status"] in ("next", "upcoming")]
     past = sum(1 for x in sr["sessions"] if x["status"] == "past")
     attended = sum(1 for x in sr["sessions"] if x["attended"] is True)
@@ -55,8 +56,15 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
     came = f"Came to {attended} of {recorded}" if recorded else "Attendance not recorded yet"
     paid = sr["series_price"] != "Free"
     if mode == "joined":
-        pay = (f'<p class="register__note register__note--start"><strong>How to pay.</strong> Pay {sr["series_price"].split(" for")[0]} to the host at your first session. '
-               'Your places are reserved; online payment is not available yet.</p>' if paid else "")
+        pay = ('<p class="register__note register__note--start">Pay the host at your first session, by cash or e-transfer. '
+               "You won't be charged online.</p>" if paid else "")
+        if kept:
+            one = len(kept) == 1
+            numbers = " and ".join(str(n) for n in kept)
+            which = "session" if one else "sessions"
+            pay += ('<p class="register__note register__note--start">' + "You'd" + f' already booked {which} {numbers}, '
+                    f'so {"it stays" if one else "they stay"} at the drop-in price ({sr["drop_in"]}{"" if one else " each"}). '
+                    'Your other dates are at the series price.</p>')
         return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're in for every session</p>
               {pay}
               <div class="series-progress">
@@ -103,7 +111,7 @@ def series_panel(sr: dict, mode: str, picked: tuple) -> str:
               </div>"""
 
 
-def series_page(sr: dict, mode: str, picked: tuple = ()) -> str:
+def series_page(sr: dict, mode: str, picked: tuple = (), kept: tuple = ()) -> str:
     joined = mode == "joined"
     pickable = mode in ("drop", "booking", "refused", "full")
     remaining = sum(1 for x in sr["sessions"] if x["status"] in ("next", "upcoming"))
@@ -131,7 +139,7 @@ def series_page(sr: dict, mode: str, picked: tuple = ()) -> str:
         </div>
         <aside class="sticky-aside" aria-label="Sign up">
           <div class="card card--pad-sm">
-              {series_panel(sr, mode, picked)}
+              {series_panel(sr, mode, picked, kept)}
           </div>
           {host_card(sr["host"], kind=False)}
         </aside>
@@ -163,6 +171,11 @@ def _():
 @s("joined", "A paid series just joined: \"You're in for every session\", how to pay, progress, all dates and group chat.")
 def _():
     return member_shell("events", series_page(dict(BOOTCAMP, joined=True, enrolled=39), "joined"))
+
+
+@s("joined-drop-in", "A paid series just joined by a member who had dropped in on session 4: that date stays at the drop-in price, the others at the series price (L2-052 AC4; ADR 0099).")
+def _():
+    return member_shell("events", series_page(dict(BOOTCAMP, joined=True, enrolled=39), "joined", kept=(4,)))
 
 
 @s("failed", "Join the series pressed but the request failed: a generic message above the button, which stays usable.")

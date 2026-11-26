@@ -172,6 +172,8 @@ export interface SeriesSession {
   /** Its position among all the dates, cancelled ones included. */
   number: number;
   startsAt: string;
+  /** Its end, or none (ADR 0099). */
+  endsAt: string | null;
   topic: string | null;
   state: 'done' | 'live' | 'upcoming' | 'cancelled';
   /** The member holds a place at it. */
@@ -194,6 +196,7 @@ export const COUCH_SESSIONS: SeriesSession[] = COUCH_DATES.map(([date, topic], n
   id: `0190c0de-0000-7000-8000-00000000c50${n + 1}`,
   number: n + 1,
   startsAt: `${date}T22:30:00Z`,
+  endsAt: `${date}T23:30:00Z`,
   topic,
   state: n < 2 ? 'done' : n === 2 ? 'live' : n === 5 ? 'cancelled' : 'upcoming',
   held: n === 0,
@@ -290,6 +293,7 @@ export const PARK_BOOTCAMP_DETAIL: SeriesDetail = {
     id: `0190c0de-0000-7000-8000-00000000c60${n + 1}`,
     number: n + 1,
     startsAt: `2026-0${n < 4 ? 4 : 5}-${day}T12:00:00Z`,
+    endsAt: `2026-0${n < 4 ? 4 : 5}-${day}T12:45:00Z`,
     topic: null,
     state: n < 3 ? 'done' : n === 3 ? 'live' : 'upcoming',
     held: false,

@@ -60,6 +60,7 @@ export * from './events/series-row-view';
 export * from './events/series-page-view';
 export * from './events/series-sessions-view';
 export * from './events/series-panel-view';
+export * from './events/series-calendar';
 export * from './events/series-card-view';
 export * from './events/events-no-results';
 export * from './events/event-draft';

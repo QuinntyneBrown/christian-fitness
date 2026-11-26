@@ -6,6 +6,7 @@ const session = (over: Partial<SeriesSessionDto>): SeriesSessionDto => ({
   id: 's3',
   number: 3,
   startsAt: at('2026-04-21'),
+  endsAt: null,
   topic: 'Same intervals, six times through',
   state: 'upcoming',
   held: false,

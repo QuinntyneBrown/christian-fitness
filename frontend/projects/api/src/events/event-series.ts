@@ -97,6 +97,8 @@ export interface SeriesSessionDto {
   /** Its position among all the dates in date order, cancelled ones included (ADR 0080). */
   number: number;
   startsAt: string;
+  /** Its end, or none when it has none (ADR 0099), for the calendar file "All dates" writes. */
+  endsAt: string | null;
   topic: string | null;
   /** By the API's clock (ADR 0091); `live` is the next one. */
   state: AdminSessionState;

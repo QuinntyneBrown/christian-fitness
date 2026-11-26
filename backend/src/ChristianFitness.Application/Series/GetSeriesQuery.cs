@@ -38,10 +38,10 @@ public sealed record SeriesDetailDto(
 
 /// <summary>
 /// One date of a series as its row shows it (L2-051 AC2 to AC5; ADR 0096): its position among all
-/// the dates (cancelled ones included; ADR 0080), its start, topic and ADR 0091's state by the
+/// the dates (cancelled ones included; ADR 0080), its start, its end (none when unknown; ADR 0099), topic and ADR 0091's state by the
 /// API's clock, and whether the signed-in member holds a place at it.
 /// </summary>
-public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, string? Topic, string State, bool Held);
+public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State, bool Held);
 
 /// <summary>
 /// Opens one series for the signed-in member (L2-051; ADR 0096). A series opens while one of its
@@ -124,6 +124,6 @@ internal static class SeriesDetails
             spotsLeft,
             facts.Left,
             joined,
-            [.. sessions.Select((s, n) => new SeriesSessionDto(s.Id, n + 1, s.StartsAt, s.Topic, SessionStateNames.Of(states[n]), held.Contains(s.Id)))]);
+            [.. sessions.Select((s, n) => new SeriesSessionDto(s.Id, n + 1, s.StartsAt, s.EndsAt, s.Topic, SessionStateNames.Of(states[n]), held.Contains(s.Id)))]);
     }
 }
