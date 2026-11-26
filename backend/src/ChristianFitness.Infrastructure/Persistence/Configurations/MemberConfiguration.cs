@@ -15,6 +15,9 @@ internal sealed class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.Property(member => member.NormalizedEmail).HasMaxLength(Member.EmailMaxLength).IsRequired();
         builder.HasIndex(member => member.NormalizedEmail).IsUnique();
         builder.Property(member => member.PasswordHash).IsRequired();
+        builder.Property(member => member.GoogleSubject).HasMaxLength(Member.GoogleSubjectMaxLength);
+        // One member per Google account; PostgreSQL does not compare the members with none (NULL).
+        builder.HasIndex(member => member.GoogleSubject).IsUnique();
         builder.Property(member => member.HomeChurch).HasMaxLength(Member.HomeChurchMaxLength);
         builder.PrimitiveCollection(member => member.Interests).IsRequired();
         builder.Property(member => member.City).HasMaxLength(Member.CityMaxLength);

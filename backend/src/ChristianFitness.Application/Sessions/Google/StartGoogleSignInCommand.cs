@@ -77,7 +77,8 @@ internal sealed class StartGoogleSignInHandler(GoogleSignInLimiter limiter, ICli
             throw new RefusalException(RefusalCodes.GoogleUnavailable, RefusalKind.Unavailable);
         }
 
-        var returnPath = request.App == GoogleApp.Member && request.Intent == GoogleIntents.SignIn
+        // None given is none kept: the screen lands on Home by its own rule (L2-004 AC6).
+        var returnPath = request.App == GoogleApp.Member && request.Intent == GoogleIntents.SignIn && request.ReturnUrl is not null
             ? MemberReturnPath.Of(request.ReturnUrl)
             : null;
         var attempt = new GoogleAttempt(request.App, request.Intent ?? GoogleIntents.SignIn, returnPath, request.SelectAccount);

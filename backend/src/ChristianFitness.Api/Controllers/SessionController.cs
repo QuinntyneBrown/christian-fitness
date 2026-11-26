@@ -26,6 +26,15 @@ public sealed class SessionController(ISender sender) : ControllerBase
     }
 
     /// <summary>
+    /// Finishes a Google sign-in with the identity Google returned, kept in <c>__Host-cf-google</c>:
+    /// the member session, or a refusal the Sign in screen shows (L2-004 AC8; ADR 0099).
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("google")]
+    public async Task<IActionResult> CompleteGoogle(CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new CompleteGoogleSignInCommand(), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>
     /// Starts a Google sign-in and answers Google's authorization address, for the screen to leave
     /// for in a full-page redirect (L2-049 AC1; ADR 0099). Anonymous: a visitor has no session yet.
     /// </summary>

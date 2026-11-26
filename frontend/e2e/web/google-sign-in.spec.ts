@@ -1,5 +1,6 @@
-import { expect, test } from '../fixtures/test';
-import { answerGoogleStart, FAKE_GOOGLE_PATH } from '../fixtures/google';
+import { expect, SIGNED_IN, test, XSRF_TOKEN } from '../fixtures/test';
+import { answerGoogleFinish, answerGoogleStart, FAKE_GOOGLE_PATH } from '../fixtures/google';
+import { WebHomePage } from '../page-objects/web/home.page';
 import { WebJoinPage } from '../page-objects/web/join.page';
 import { WebSignInPage } from '../page-objects/web/sign-in.page';
 
@@ -89,5 +90,54 @@ test.describe('Member app, start Google sign-in', () => {
     await page.keyboard.press('Enter');
 
     await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+  });
+});
+
+// L2-004 AC8, L2-049 AC4, AC6: Google sends the browser back to Sign in with `google=returned`;
+// the screen finishes the sign-in with `POST /api/session/google` (the identity is in the API's
+// cookie, backend CompleteGoogleSignInTests) and lands on the kept return address, else Home.
+test.describe('Member app, finish Google sign-in', () => {
+  test(
+    'back from Google, the member is signed in and lands where they were going',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+
+      await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
+
+      await page.waitForURL((url) => url.pathname === '/events');
+      expect(finished).toEqual([{ token: XSRF_TOKEN }]);
+    },
+  );
+
+  test('with no return address, the member lands on Home', async ({ page, api }) => {
+    const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+    const home = new WebHomePage(page);
+
+    await page.goto('/sign-in?google=returned');
+
+    await expect(home.greeting).toHaveText('Welcome, Grace');
+    expect(home.location()).toBe('/home');
+    expect(finished).toHaveLength(1);
+  });
+
+  test('a return address outside the app is not followed', async ({ page, api }) => {
+    answerGoogleFinish(api, { json: SIGNED_IN });
+    const home = new WebHomePage(page);
+
+    await page.goto('/sign-in?google=returned&returnUrl=https%3A%2F%2Fevil.example%2F');
+
+    await expect(home.greeting).toHaveText('Welcome, Grace');
+    expect(home.location()).toBe('/home');
+  });
+
+  test('a plain visit, or a cancel at Google, finishes nothing', async ({ page, api }) => {
+    const finished = answerGoogleFinish(api, { json: SIGNED_IN });
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?returnUrl=%2Fevents');
+
+    await expect(signIn.googleButton).toHaveText('Continue with Google');
+    expect(finished).toEqual([]);
   });
 });

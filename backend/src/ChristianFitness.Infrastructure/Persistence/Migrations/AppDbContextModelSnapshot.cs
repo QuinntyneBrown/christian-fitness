@@ -693,6 +693,10 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.Property<string>("GoogleSubject")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("HomeChurch")
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
@@ -734,6 +738,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GoogleSubject")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .IsUnique();

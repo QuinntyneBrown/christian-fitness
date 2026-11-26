@@ -1,4 +1,4 @@
-import type { ApiHandlers } from './api-handlers';
+import type { ApiHandlers, ApiReply } from './api-handlers';
 
 /**
  * Where the e2e fixture's Google lives: a local page standing in for Google's account chooser, so
@@ -39,4 +39,22 @@ export function answerGoogleStart(
     ),
   }));
   return started;
+}
+
+/** What the screen sent to finish a Google sign-in: its antiforgery header. */
+export interface FinishedGoogle {
+  token: string | undefined;
+}
+
+/**
+ * Answers the member's finish (`POST /api/session/google`) with `reply`, the session or a
+ * refusal, recording the antiforgery header each finish carried.
+ */
+export function answerGoogleFinish(api: ApiHandlers, reply: ApiReply): FinishedGoogle[] {
+  const finished: FinishedGoogle[] = [];
+  api.on('POST', '/api/session/google', (request) => {
+    finished.push({ token: request.headers()['x-xsrf-token'] });
+    return reply;
+  });
+  return finished;
 }

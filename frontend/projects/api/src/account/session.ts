@@ -54,6 +54,13 @@ export interface SessionApi {
    * `google_unavailable` (503) (L2-049 AC7, AC11).
    */
   startGoogle(request: StartGoogleRequestDto): Observable<GoogleRedirectDto>;
+
+  /**
+   * Finishes the Google sign-in the API's callback kept, signing the member in. A refusal errors
+   * with an `ApiError`: `google_email_unverified` (401), `no_account` (404, with the `account`),
+   * `account_suspended` (403) (L2-004 AC8 to AC10, L2-049 AC11).
+   */
+  completeGoogle(): Observable<SessionDto>;
 }
 
 /** Binds {@link SessionApi}; the member app's `app.config.ts` provides it. */

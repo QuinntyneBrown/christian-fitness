@@ -26,7 +26,9 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
     public const string TokenEndpoint = "https://oauth2.googleapis.com/token";
 
     private readonly RSA _rsa = RSA.Create(2048);
+    private readonly RSA _foreignRsa = RSA.Create(2048);
     private readonly RsaSecurityKey _key;
+    private readonly RsaSecurityKey _foreignKey;
     private readonly OpenIdConnectConfiguration _configuration;
     private readonly ConcurrentDictionary<string, GoogleAccount> _answers = new(StringComparer.Ordinal);
     private readonly ConcurrentQueue<IReadOnlyDictionary<string, string>> _exchanges = new();
@@ -34,6 +36,8 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
     public FakeGoogle()
     {
         _key = new RsaSecurityKey(_rsa) { KeyId = "fake-google-key" };
+        // Same key id, another key: a token Google did not sign.
+        _foreignKey = new RsaSecurityKey(_foreignRsa) { KeyId = "fake-google-key" };
         _configuration = new OpenIdConnectConfiguration
         {
             Issuer = Issuer,
@@ -69,7 +73,7 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
     }
 
     /// <summary>An ID token signed with Google's key; <paramref name="tamper"/> may change any claim first.</summary>
-    public string IdTokenFor(GoogleAccount account, string nonce, Action<Dictionary<string, object>>? tamper = null)
+    public string IdTokenFor(GoogleAccount account, string nonce, Action<Dictionary<string, object>>? tamper = null, bool signedElsewhere = false)
     {
         ArgumentNullException.ThrowIfNull(account);
         var now = DateTimeOffset.UtcNow;
@@ -81,6 +85,11 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
             ["email"] = account.Email,
             ["email_verified"] = account.EmailVerified,
             ["name"] = account.Name,
+            // Google sends these too; sign-in uses none of them (L2-049 AC2).
+            ["given_name"] = account.Name.Split(' ')[0],
+            ["family_name"] = account.Name.Split(' ')[^1],
+            ["locale"] = "en",
+            ["azp"] = ClientId,
             ["nonce"] = nonce,
             ["iat"] = now.ToUnixTimeSeconds(),
             ["exp"] = now.AddMinutes(60).ToUnixTimeSeconds(),
@@ -99,7 +108,7 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
         return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
         {
             Claims = claims,
-            SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.RsaSha256),
+            SigningCredentials = new SigningCredentials(signedElsewhere ? _foreignKey : _key, SecurityAlgorithms.RsaSha256),
         });
     }
 
@@ -107,6 +116,7 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
     {
         Backchannel.Dispose();
         _rsa.Dispose();
+        _foreignRsa.Dispose();
     }
 
     private sealed class TokenEndpointHandler(FakeGoogle google) : HttpMessageHandler
@@ -135,7 +145,7 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
                 Content = JsonContent.Create(new Dictionary<string, object>
                 {
                     ["access_token"] = "fake-access-token",
-                    ["id_token"] = google.IdTokenFor(account, account.Nonce ?? string.Empty, account.Tamper),
+                    ["id_token"] = google.IdTokenFor(account, account.Nonce ?? string.Empty, account.Tamper, account.SignedElsewhere),
                     ["token_type"] = "Bearer",
                     ["expires_in"] = 3599,
                     ["scope"] = "openid email profile",
@@ -168,4 +178,7 @@ public sealed class GoogleAccount
 
     /// <summary>A change to the ID token's claims before it is signed, such as another audience.</summary>
     public Action<Dictionary<string, object>>? Tamper { get; init; }
+
+    /// <summary>The ID token is signed with a key that is not Google's.</summary>
+    public bool SignedElsewhere { get; init; }
 }

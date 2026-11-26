@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using ChristianFitness.Application.Sessions.Google;
 using Microsoft.AspNetCore.Authentication;
@@ -39,6 +40,7 @@ public static class GoogleAuthentication
     internal const string IntentItem = "cf.intent";
     internal const string ReturnPathItem = "cf.return";
     internal const string SelectAccountItem = "cf.select";
+    internal const string StartedItem = "cf.started";
 
     /// <summary>The only claims sign-in uses, read from Google's checked ID token (L2-049 AC2).</summary>
     private static readonly string[] KeptClaims = ["sub", "email", "email_verified", "name", "picture", "hd"];
@@ -55,6 +57,7 @@ public static class GoogleAuthentication
         ArgumentNullException.ThrowIfNull(configuration);
         builder.Services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.Section));
         builder.Services.AddScoped<IGoogleChallenge, OpenIdConnectGoogleChallenge>();
+        builder.Services.AddScoped<IGoogleIdentityReader, ExternalCookieGoogleIdentityReader>();
 
         var settings = configuration.GetSection(GoogleSettings.Section).Get<GoogleSettings>() ?? new GoogleSettings();
         var memberBaseUrl = configuration["MemberApp:BaseUrl"];
@@ -78,6 +81,9 @@ public static class GoogleAuthentication
             .AddOpenIdConnect(MemberScheme, options => Configure(options, settings, MemberCallbackPath, memberBaseUrl, hostedDomain: null))
             .AddOpenIdConnect(StaffScheme, options => Configure(options, settings, StaffCallbackPath, adminBaseUrl, settings.StaffDomain));
     }
+
+    /// <summary>The OpenID Connect scheme of <paramref name="app"/>.</summary>
+    public static string SchemeOf(GoogleApp app) => app == GoogleApp.Member ? MemberScheme : StaffScheme;
 
     /// <summary>The screen an attempt returns to, with <paramref name="marker"/> (<c>returned</c> or <c>failed</c>) or none (a cancel).</summary>
     internal static string ScreenOf(AuthenticationProperties? properties, string? marker)
@@ -147,6 +153,22 @@ public static class GoogleAuthentication
                 context.ProtocolMessage.SetParameter("hd", hostedDomain);
             }
 
+            // Inside the protected state, so the server alone decides the attempt's age (L2-049 AC5).
+            context.Properties.Items[StartedItem] = context.Options.TimeProvider!.GetUtcNow().ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
+            return Task.CompletedTask;
+        };
+        options.Events.OnMessageReceived = context =>
+        {
+            // The correlation cookie's expiry is the browser's to keep; the server checks the age too.
+            var started = context.Properties?.Items.TryGetValue(StartedItem, out var value) == true
+                && long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds)
+                ? DateTimeOffset.FromUnixTimeSeconds(seconds)
+                : (DateTimeOffset?)null;
+            if (started is null || context.Options.TimeProvider!.GetUtcNow() - started.Value > AttemptLifetime)
+            {
+                context.Fail("The Google sign-in attempt expired.");
+            }
+
             return Task.CompletedTask;
         };
         options.Events.OnTokenValidated = context =>
@@ -154,6 +176,12 @@ public static class GoogleAuthentication
             // Keep only what sign-in uses: no token, code, state or nonce goes into the cookie.
             var kept = context.Principal!.Claims.Where(claim => KeptClaims.Contains(claim.Type, StringComparer.Ordinal));
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(kept, ExternalScheme, "name", "role"));
+            // The attempt's own items stay with the attempt, not in the kept identity.
+            foreach (var item in new[] { IntentItem, ReturnPathItem, SelectAccountItem, StartedItem, OpenIdConnectDefaults.RedirectUriForCodePropertiesKey })
+            {
+                context.Properties!.Items.Remove(item);
+            }
+
             return Task.CompletedTask;
         };
         options.Events.OnAccessDenied = context =>

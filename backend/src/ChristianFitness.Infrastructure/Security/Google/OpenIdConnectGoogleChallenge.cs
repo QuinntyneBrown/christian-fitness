@@ -39,7 +39,7 @@ internal sealed class OpenIdConnectGoogleChallenge(IHttpContextAccessor accessor
         }
 
         properties.RedirectUri = GoogleAuthentication.ScreenOf(properties, "returned");
-        var scheme = attempt.App == GoogleApp.Member ? GoogleAuthentication.MemberScheme : GoogleAuthentication.StaffScheme;
+        var scheme = GoogleAuthentication.SchemeOf(attempt.App);
         try
         {
             await context.ChallengeAsync(scheme, properties).ConfigureAwait(false);

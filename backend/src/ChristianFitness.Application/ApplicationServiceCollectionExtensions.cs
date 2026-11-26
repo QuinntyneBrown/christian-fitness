@@ -37,6 +37,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();
         services.AddSingleton<Sessions.Google.GoogleSignInLimiter>();
+        services.AddScoped<Sessions.Google.GoogleAccountMatch>();
         return services;
     }
 }

@@ -32,6 +32,10 @@ export class HttpSessionService implements SessionApi {
       .pipe(catchError(asApiError));
   }
 
+  completeGoogle(): Observable<SessionDto> {
+    return this.http.post<SessionDto>('/api/session/google', {}).pipe(catchError(asApiError));
+  }
+
   signOut(): Observable<void> {
     return this.http.delete<unknown>('/api/session').pipe(
       map(() => undefined),
