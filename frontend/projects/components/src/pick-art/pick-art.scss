@@ -1,0 +1,107 @@
+// The design system's pick art (docs/design-system/assets/components.css, "Pick art"). Its type
+// sizes and insets are percentages of its width (cqw), by design: they scale with the PNG.
+:host {
+  display: block;
+}
+
+.pick-art {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+  box-shadow: var(--shadow-2);
+  container-type: inline-size;
+}
+
+.pick-art--square {
+  aspect-ratio: 1;
+}
+
+.pick-art--story {
+  aspect-ratio: 9 / 16;
+}
+
+.pick-art--landscape {
+  aspect-ratio: 1200 / 630;
+}
+
+.pick-art__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pick-art__pattern {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 4cqw,
+    var(--color-bg-brand-inverse) 4cqw 4.6cqw
+  );
+  opacity: 0.35;
+}
+
+.pick-art__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--color-bg-brand) 20%, transparent 75%);
+}
+
+.pick-art__label {
+  position: absolute;
+  left: 6cqw;
+  top: 6cqw;
+  margin: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-brand-inverse);
+  color: var(--color-fg-brand-inverse);
+  padding: 1.2cqw 3cqw;
+  font-size: 3.2cqw;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+}
+
+.pick-art__body {
+  position: absolute;
+  inset: auto 6cqw 6cqw;
+
+  > p {
+    margin: 0;
+  }
+}
+
+.pick-art__title {
+  font-family: var(--font-family-display);
+  font-size: 9cqw;
+  font-style: italic;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  line-height: var(--line-height-none);
+}
+
+.pick-art--landscape .pick-art__title {
+  font-size: 6.5cqw;
+}
+
+.pick-art__body .pick-art__when {
+  margin-top: 2cqw;
+  font-size: 3.4cqw;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-on-brand-highlight);
+}
+
+.pick-art__body .pick-art__note {
+  margin-top: 1.5cqw;
+  font-size: 3.4cqw;
+  line-height: var(--line-height-snug);
+}
+
+.pick-art--landscape .pick-art__when,
+.pick-art--landscape .pick-art__note {
+  font-size: 2.6cqw;
+}

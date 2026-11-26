@@ -1,9 +1,12 @@
 <div class="join-card">
-  <p class="display join-card__title">{{ heading() }}</p>
-  <p class="join-card__text">{{ text() }}</p>
+  <p class="display join-card__title">Life to the full.</p>
+  <p class="join-card__text">
+    A Christian community for health in body and spirit. Find events, train with friends, and meet
+    professionals who share your faith.
+  </p>
   <div class="join-card__action">
-    <cf-button variant="inverse" [href]="href()"
-      >{{ action() }}
+    <cf-button variant="inverse" [href]="joinHref()"
+      >Join the community
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M5 12h14" />
         <path d="m12 5 7 7-7 7" /></svg

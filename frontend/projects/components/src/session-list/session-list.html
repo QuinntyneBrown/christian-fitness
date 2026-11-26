@@ -52,6 +52,12 @@
                 [checked]="end.checked"
                 (checkedChange)="tick.emit({ value: end.value, checked: $event })"
               />
+            } @else if (end.kind === 'came') {
+              <span class="session-row__came"
+                ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" /></svg
+                >You came</span
+              >
             } @else {
               <span class="session-row__status">{{ end.text }}</span>
             }

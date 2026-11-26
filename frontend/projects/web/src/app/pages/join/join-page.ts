@@ -39,6 +39,7 @@ import {
   googleReturnOf,
   joinRefusalOf,
   joinRequestOf,
+  SIGN_IN_DEFAULT_PATH,
   signInReturnPathOf,
   toggleInterest,
   validateGoogleJoin,
@@ -98,6 +99,11 @@ export default class JoinPage {
   private readonly returnPath = signInReturnPathOf(
     this.route.snapshot.queryParamMap.get('returnUrl'),
   );
+  /** Sign in, keeping the return address Join was opened with, such as an event link's (ADR 0098). */
+  protected readonly signInHref =
+    this.returnPath === SIGN_IN_DEFAULT_PATH
+      ? '/sign-in'
+      : `/sign-in?returnUrl=${encodeURIComponent(this.returnPath)}`;
 
   protected readonly options = INTERESTS;
   protected readonly fullName = signal('');

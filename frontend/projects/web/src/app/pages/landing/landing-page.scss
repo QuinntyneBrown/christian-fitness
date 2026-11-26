@@ -1,19 +1,12 @@
-// The news front page's layout, from the mock `landing` (L2-002): the top stories, the river
-// beside the rail, and the verse band. The stories, the ruled titles, the join card and the lists
-// are the components library's.
-// The front page is paper white edge to edge, as in the mock, not the app's canvas.
-:host {
-  display: block;
-  min-height: 100dvh;
-  background: var(--color-bg-surface);
-}
-
-.display {
-  font-family: var(--font-family-display);
-  font-weight: var(--font-weight-medium);
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
+/*
+ * The news front page's layout, from the mock `landing` (L2-001, L2-002; ADR 0107): the top
+ * stories, the news grid of river and rail, and the verse. The story blocks, masthead and join
+ * card are the library's; these are the page's own composites, with the design system's numbers
+ * (docs/design-system/assets/components.css: "News front page").
+ */
+.landing {
+  // The sticky masthead never covers what takes focus.
+  scroll-padding-top: calc(var(--layout-topbar-height) * 2);
 }
 
 .top-stories {
@@ -31,19 +24,11 @@
     padding-inline: var(--space-6);
   }
 
+  // L2-002 AC2: the lead beside the four headlines.
   @media (min-width: 64rem) {
     grid-template-columns: 1.75fr 1fr;
     gap: var(--space-10);
     padding-top: var(--space-8);
-  }
-}
-
-.headline-list {
-  border-top: var(--border-width-rule) solid var(--color-fg-default);
-  align-self: start;
-
-  > li + li {
-    border-top: var(--border-width-hairline) solid var(--color-border-default);
   }
 }
 
@@ -59,51 +44,36 @@
     min-width: 0;
   }
 
-  &--flush {
-    border-top: 0;
-  }
-
   @media (min-width: 40rem) {
     padding-inline: var(--space-6);
   }
 
+  // L2-002 AC2: the river beside the rail.
   @media (min-width: 64rem) {
     grid-template-columns: 1fr 21.25rem;
   }
 }
 
-.river {
-  &__title {
-    font-size: var(--font-size-3xl);
-    line-height: var(--line-height-3xl);
-    font-weight: var(--font-weight-semibold);
-  }
+.news--flush {
+  border-top: 0;
+}
 
-  &__list {
-    margin-top: var(--space-4);
+.river__empty {
+  margin-top: var(--space-6);
+  color: var(--color-fg-muted);
+}
 
-    > li + li {
-      border-top: var(--border-width-hairline) solid var(--color-border-default);
-    }
-  }
-
-  &__empty {
-    margin-top: var(--space-6);
-    color: var(--color-fg-muted);
-  }
-
-  &__message {
-    margin-top: var(--space-6);
-    max-width: var(--layout-measure);
-  }
+.river__error {
+  margin-top: var(--space-6);
+  max-width: var(--layout-measure);
 }
 
 .feed-end {
   display: flex;
   justify-content: center;
-  padding: var(--space-8) 0;
-  color: var(--color-fg-muted);
+  padding-block: var(--space-8);
   font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
   text-align: center;
 }
 
@@ -112,26 +82,45 @@
   flex-direction: column;
   gap: var(--space-10);
 
+  // L2-002 AC2: the rail stays in view, under the masthead, while the stories scroll.
   @media (min-width: 64rem) {
     position: sticky;
     top: calc(var(--layout-topbar-height) * 2);
     align-self: start;
   }
+}
 
-  &__empty {
-    padding-block: var(--space-4);
-    font-size: var(--font-size-sm);
-    color: var(--color-fg-muted);
-  }
+.rule-title {
+  border-bottom: var(--border-width-rule) solid var(--color-fg-default);
+  padding-bottom: var(--space-2);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
 
-  &__message {
-    margin-top: var(--space-4);
+.rail__empty {
+  padding-block: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.landing-skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
   }
 }
 
 .verse {
-  background: var(--color-bg-chrome);
-  color: var(--color-fg-on-chrome);
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
 
   &__inner {
     max-width: var(--layout-container-max);
@@ -140,17 +129,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-8);
-    padding: var(--space-14) var(--space-4);
-
-    @media (min-width: 40rem) {
-      padding-inline: var(--space-6);
-    }
-
-    @media (min-width: 48rem) {
-      flex-direction: row;
-      align-items: center;
-      gap: var(--space-12);
-    }
+    padding: var(--space-16) var(--space-4);
   }
 
   &__quote {
@@ -159,16 +138,40 @@
     font-weight: var(--font-weight-medium);
     font-size: var(--font-size-3xl);
     line-height: var(--line-height-tight);
-
-    @media (min-width: 40rem) {
-      font-size: var(--font-size-4xl);
-    }
   }
 
   &__cite {
-    margin-top: var(--space-3);
-    color: var(--color-highlight);
+    margin-top: var(--space-4);
+    color: var(--color-fg-on-brand-highlight);
     font-style: normal;
     display: block;
+  }
+}
+
+@media (min-width: 40rem) {
+  .verse__inner {
+    padding-inline: var(--space-6);
+  }
+
+  .verse__quote {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+@media (min-width: 48rem) {
+  .verse__inner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-14);
+  }
+}
+
+@media (min-width: 64rem) {
+  .verse__inner {
+    padding-block: var(--space-20);
+  }
+
+  .verse__quote {
+    font-size: var(--font-size-5xl);
   }
 }

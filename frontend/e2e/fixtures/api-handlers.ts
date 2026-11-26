@@ -118,10 +118,9 @@ export class ApiHandlers {
     {
       method: 'GET',
       path: '/api/public/stories',
-      handler: () => ({
-        json: { lead: null, headlines: [], latest: [], nextCursor: null, mostRead: [] },
-      }),
+      handler: () => ({ json: { lead: null, headlines: [], latest: [], more: false } }),
     },
+    { method: 'GET', path: '/api/public/most-read-stories', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },
     {
       method: 'GET',

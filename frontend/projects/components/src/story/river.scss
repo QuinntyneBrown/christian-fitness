@@ -1,0 +1,111 @@
+// The design system's river (docs/design-system/assets/components.css: "News front page").
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.river__title {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-3xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.river__list {
+  margin-top: var(--space-4);
+}
+
+.story-row {
+  display: flex;
+  gap: var(--space-5);
+  padding-block: var(--space-6);
+
+  & + & {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+
+  @media (min-width: 40rem) {
+    gap: var(--space-8);
+  }
+}
+
+.story-row__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.story-row__body--loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.story__section {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.story__ago {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+.story-row__title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  text-wrap: pretty;
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+.story-link {
+  color: inherit;
+  border-radius: var(--radius-xs);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-thick) solid var(--color-focus-ring);
+    outline-offset: var(--border-width-thick);
+  }
+}
+
+.story-row__dek {
+  margin-top: var(--space-2);
+  display: none;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+
+  @media (min-width: 40rem) {
+    display: block;
+  }
+}
+
+.story__meta {
+  margin-top: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.story-row__image,
+.story-row__tile {
+  width: var(--size-thumb-story);
+  height: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.story-row__image {
+  @media (min-width: 40rem) {
+    width: 14rem;
+  }
+}

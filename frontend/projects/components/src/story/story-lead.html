@@ -6,20 +6,26 @@
     <cf-skeleton width="90" />
     <cf-skeleton shape="text-sm" width="30" />
   </div>
-} @else {
+} @else if (story(); as lead) {
   <article class="story-lead">
-    @if (image(); as src) {
-      <img class="story-lead__image" [src]="src" alt="" width="1376" height="774" />
+    @if (lead.image) {
+      <img class="story-lead__image" [src]="lead.image" alt="" width="1600" height="900" />
     }
-    <p class="story__section story-lead__section">{{ section() }}</p>
+    <p class="story__section story-lead__section">{{ lead.section }}</p>
     <h1 class="story-lead__title">
-      <a class="story-link" [href]="href()">{{ heading() }}</a>
+      <a class="story-link" [href]="lead.href" (click)="follow($event, lead.href)">{{
+        lead.title
+      }}</a>
     </h1>
-    @if (summary()) {
-      <p class="story-lead__dek">{{ summary() }}</p>
+    @if (lead.summary) {
+      <p class="story-lead__dek">{{ lead.summary }}</p>
     }
     <p class="story__meta story-lead__meta">
-      <strong>{{ author() }}</strong> · {{ age() }}
+      @if (lead.author) {
+        <strong>{{ lead.author }}</strong>{{ ' · ' + lead.age }}
+      } @else {
+        {{ lead.age }}
+      }
     </p>
   </article>
 }

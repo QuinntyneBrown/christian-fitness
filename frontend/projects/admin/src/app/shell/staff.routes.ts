@@ -49,10 +49,22 @@ const routes: Routes = [
         loadComponent: () => import('../pages/event-registrations/event-registrations-page'),
       },
       {
+        // Who came to one event, ticked by Admins and Moderators (journey 16; ADR 0106).
+        path: 'events/:id/attendance',
+        title: titled('Event attendance'),
+        loadComponent: () => import('../pages/event-attendance/event-attendance-page'),
+      },
+      {
         // Every series by its next session, the chosen one's summary and dates (journey 9; ADR 0091).
         path: 'series',
         title: titled('Event series'),
         loadComponent: () => import('../pages/series/series-page'),
+      },
+      {
+        // A published event made into branded posts for four platforms (journey 32; ADR 0098).
+        path: 'community-pick',
+        title: titled('Community Pick'),
+        loadComponent: () => import('../pages/community-pick/community-pick-page'),
       },
       {
         // Listing suggestions and what is listed (journey 18; ADR 0090), for Admins and Moderators.

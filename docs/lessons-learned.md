@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 61% (22 of 36 journeys; 66 of 113 days)
+**% complete:** 75% (28 of 36 journeys; 85 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3057,7 +3057,7 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 - Journey 3 built staff sign-in on the same handler at the same time and cherry-picked this
   journey's first four commits. When its PR merged first, the rebase could not recognise them
   (their conflicts had been resolved on the other branch), so `git rebase --onto origin/main
-  <last shared commit>` replayed only this journey's later slices, and the migration was left out
+<last shared commit>` replayed only this journey's later slices, and the migration was left out
   of the slice commit and generated after the rebase, after journey 3's.
 - An ASP.NET Core quirk cost a round: the ProblemDetails exception handler clears the response's
   headers, so a cookie deleted before a refusal was lost; `Response.OnStarting` deletes it.
@@ -3224,38 +3224,259 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   leaves behind) and restoring `HEAD`. The Stop going dialog loads on first use.
 - "Run the full suite against the built apps" was used for each slice's last run.
 
-## Journey 25: Read the news front page (partly done)
+## Journey 24: Read a story
 
 **What slowed it**
 
-- The request was "implement the landing page"; the app still drew the old hero layout, and the
-  news page's API, its story page (journey 24) and the pages its rail and footer link to (26, 27,
-  29, 30) did not exist. The scope had to be asked before any code: the page and its two reads
-  were built, and what would lead nowhere was left out (ADR 0105). The journey stays unticked.
-- The container had no .NET SDK at the pinned feature band and a newer Playwright than the
-  installed browser: the backend was built with a local, uncommitted `global.json` edit and the
-  browser by a symlink to the installed build. Neither is in the repository.
-- Under `ng serve`, `legal-change` and two admin specs failed on Vite's hot-reload socket; against
-  the built apps they passed.
+- The context ran out twice; the slice commits and the summary carried the work over, and the
+  rebase onto journey 23 was resumed mid-way.
+- Journey 23 merged first and changed the same story code: `PutStoryAsync` gained parameters on
+  both sides, `StoryAnswers.Of` took `now`, and a past-due Scheduled story now reads as Published.
+  The story page, Keep reading, the shell and the read count all looked for `Status == Published`
+  only, so a due story was missing from each until one `PublishedStories.At(db, now)` query served
+  all four. Every hand-written `IAppDbContext` double needed both new sets.
+- The story component grew past the 4 kB component-style budget in slice 3, and only the
+  production build said so; Keep reading and the Weekly box became `cf-story-more` and
+  `cf-story-subscribe` inside `story/`, as `cf-story-runs` already was.
+- Docker was not running, so the nginx story location was reviewed but not run through `nginx -t`.
 
 **New lessons**
 
-- When a mock sync finds the HTML already at parity, look at the rendered pixels before saying
-  there is nothing to do: the differences were three CSS values, invisible in the markup.
-- Check what a journey's links lead to before building them. A box or link whose page is a later
-  journey is left out and named in the ADR, not shipped pointing at Not found.
-- A front-end and a back-end slice can be built side by side once the JSON contract is written
-  down first, field by field, with the refusals; the fixtures and the handler tests then meet.
-- Story image keys in fixtures must be shaped like real ones (32 hex and an extension), or the
-  shared image handler does not answer them and every spec fails on an unanswered request.
-- New tokens the app needs are added to the app's own `tokens.css`; it is a copy that trails the
-  design system's, and six tokens cost the initial bundle 0.14 kB.
+- After rebasing onto a journey that changes what a status means at read time, grep every query
+  of that status in the new code, not only the conflicted files: the compiler caught `Of(story)`
+  but not `Status == Published`.
+- Build the production app after any slice that adds styles to an existing component: the
+  development server does not enforce `anyComponentStyle`.
+- A read counter for anonymous visitors works without a cookie: a per-browser log of hashed story
+  ids in local storage with a 24-hour window, and per-day tallies on the server with a concurrency
+  token and a retry, so a race adds rather than overwrites.
+- Playwright's `history.length` counts the initial `about:blank`; a `replaceState` leaves it at 2.
 
 **How earlier lessons worked**
 
-- "Measure the initial bundle against the base": 278.46 kB to 278.60 kB, measured by building the
-  base commit in a worktree with its own `npm ci`; `main` itself shrank by 0.02 kB and the growth
-  is the six new tokens in the global stylesheet.
-- "Run the full suite against the built apps" settled the three dev-server failures.
-- "A new default in the shared fixture means running the whole suite": `/api/public/stories` is
-  answered empty by default, and the professionals default went with its section.
+- "Regenerate a colliding migration on main's snapshot" worked again: take main's snapshot, drop
+  the slice's migration, regenerate and convert to LF.
+- "Honest red" caught a weak reads spec: the first version passed with the window check broken, and
+  reading another story after the in-window reload made it fail for the right reason.
+- "Read the initial total after each slice": web stayed at 278.49 kB against main's 278.46 kB; the
+  story page, its reads and Keep reading are in the lazy chunk.
+
+## Journey 32: Make a Community Pick
+
+**What slowed it**
+
+- The journey changed hands after the first agent stalled for hours with nothing committed past
+  slice 2. Its `ng serve` processes for both apps were still running in the worktree and held
+  `node_modules` open, so `npm ci` failed with `EBUSY`; listing the processes whose command line
+  named the worktree and stopping them cleared it.
+- Main moved twice during the journey (journeys 2, 3, 12, 15, 22 and 23). Each rebase replayed the
+  first, stale migration commit and needed the migration generated again after main's newest one,
+  and every `IAppDbContext` test double added since (the series race, the lease race) needed the
+  new `DbSet`. Journey 3 also removed `Staff.SignInWithCodeAsync`, which the pick tests used.
+- The design-system generator rewrites every page with CRLF; only the page that changed was kept.
+
+**New lessons**
+
+- A clipboard read in Playwright on Windows answers `\r\n` line ends; the page object turns them
+  back into `\n` before comparing with the caption the page wrote.
+- A lazily imported module is proven lazy by the scripts the page loads: collect each script
+  response's text and look for a call only that module makes (`toBlob`) before and after the
+  action. A static import of the renderer failed it at once.
+- An output named after a DOM event (`copy`) fails angular-eslint's `no-output-native`; the
+  caption's output is `copyCaption`.
+- A row of `cf-table` can carry a quiet link before its action (`quietLink`), followed in the app
+  through `navigate`; "Make it a pick" uses it rather than a second table.
+- An "upcoming" rule in a list read with the real clock needs `page.clock.setFixedTime` in the
+  spec, since the cast's fixtures are dated April 2026; `setFixedTime` keeps timers running, so
+  zoneless rendering is unaffected.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the singular spot, the Slack `|` escape and the date's day each failed
+  their own caption case; the Copied timer, the past-event filter on "Make it a pick", Join's kept
+  return address, the guard's Join redirect and the lazy renderer each failed their own spec.
+- "Read the initial total against main, not the previous slice": admin 279.12 kB against main's
+  279.11 kB (the Community Pick navigation item, as ADR 0098 expects) and web 278.46 kB, the same
+  as main.
+- "Serve the built apps for e2e on free ports" (`CF_SERVE_BUILT=1`): the full run of 880 specs
+  passed with no Vite socket failures.
+
+## Journey 16: Record event attendance
+
+**What slowed it**
+
+- The context ran out once; the slice commits, the summary and the scratchpad scripts (`rep.py`,
+  `brkb.py`, `brkui.py` for e2e breaks on the built apps, and a new `brku.py` for unit breaks)
+  carried the work over.
+- The worktree guard refused any Bash call that mixed `git` with other commands or edited files
+  through a long pipeline; git ran alone, and edits went through `rep.py` or the Edit tool.
+- A Moderator opening the Attendance tab saw "Admins only": the client guard decides by the first
+  path segment, so `events/:id/attendance` needed its own rule (`canOpen`) beside the server's
+  full-template area (ADR 0106).
+- Two unit breaks passed at first: restoring a failed box to "the opposite of what it shows" and a
+  looser attendance path. Each got a row that tells the two apart (a box ticked twice before its
+  save failed; a Moderator at `/events/attendance`).
+
+**New lessons**
+
+- A staff area narrower than a route's first segment is matched on the full route template on the
+  server, and the client guard needs the same rule; a test of each role at that path covers both.
+- A tick that saves itself needs one request per row in flight: a tick made while it is busy is
+  sent when the first answers, so the last tick wins and a failure restores the last saved value,
+  not the opposite of the box.
+- A page that recomputes its table rows on every tick redraws every box; keep the rows tied to the
+  loaded list and read each box's state through a lookup signal, so a tick redraws one box.
+- A checkbox in a table whose visible label repeats on every row ("Came") needs an accessible name
+  that says whose box it is (`aria-label="Came: <name>"`); the design system's checkbox gained
+  `ariaLabel` and `busy` rather than the page adding attributes.
+- A new nullable field on a DTO the member reads breaks every exact-keys test of it; add the key
+  there and assert the null in the same change.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": each handler guard (started, registered, unchanged, the race retry,
+  who recorded it, the audit action, the count's event filter), each tracker rule, each page rule
+  (busy, the danger toast, the per-row name) and each series row and progress case failed its own
+  test.
+- "Measure the initial bundle": before the rebase, admin stayed at 279.11 kB and web at
+  278.46 kB, as on main. After the rebase onto journeys 24 and 32 they read 279.12 kB and
+  278.49 kB. The page, its tracker and the toast region load with the route.
+- "Run the full suite against the built apps" with two workers was steady.
+
+## Journey 26: Follow stories by RSS
+
+**What slowed it**
+
+- The output cache is shared by every test of a class, and the story tests put stories straight in
+  the store, which evicts nothing. A rate-limit test that read `/feed` 120 times on an empty store
+  kept an empty feed for the next test, and an unpublish test kept a Training feed for the
+  conditional test. CI then ran the cache tests in another order and the unpublish test read the
+  Training feed the conditional test had kept. Every test that puts stories straight in the store
+  now evicts every feed before its first read (`StoryFeeds.EvictAllAsync`).
+- Two break runs did not compile: removing the eviction call left the handler's `feeds` parameter
+  unread (CS9113, analysers run on every build). The break replaces the call with `_ = feeds;`.
+- The full e2e run on two workers failed two specs this journey does not touch
+  (`event-chat` "Earlier messages" and the admin Stories skeleton); both passed alone on one
+  worker while other sessions' builds and test hosts shared the machine.
+- The worktree guard refused heredocs that wrote files and multi-command lines; the Write tool and
+  small Python edit scripts with exact-match asserts did the edits.
+
+**New lessons**
+
+- A conditional-request rule has two paths: the output cache answers 304 itself for a kept feed,
+  so an API test that only repeats a kept request passes with the handler's rule broken. Evict
+  first to prove the handler's comparison, then repeat after a 200 to prove the cache's.
+- A `Last-Modified` taken as the newest of a feed's items can go back when an item leaves it
+  (unpublished or moved), and a reader sending only `If-Modified-Since` would get a wrong 304. Take
+  it over every story that has ever gone out; the fake clock must move on before the change, or
+  every change lands in the same second.
+- An endpoint outside `/api` sets no antiforgery cookie, because `UseAntiforgeryTokens` adds it
+  only to `/api` answers; widening that check alone turned the no-cookie assertion red.
+- A footer variant's link text read through `allTextContents()` keeps the space between the icon
+  and the word; trim it in the page object.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the published filter (future and due Scheduled stories), raw summary
+  markup, the section filter, the 30-story limit, the Pros feed, the rate limit, the antiforgery
+  path, the validators, the output cache, each eviction (publish, update's old section, unpublish,
+  the clock) and the unpublished `Last-Modified` each failed their own test.
+- "After rebasing onto a journey that changes what a status means at read time, grep every query":
+  the feed reads through `PublishedStories.At`, so a due Scheduled story is in it at its time.
+- "Read the initial total after each slice, against the base": web stayed at 278.49 kB and admin
+  at 279.11 kB; the footer's news variant reuses the `@if` blocks the footer already paid for.
+- Docker was not running again, so the two nginx feed locations were reviewed, not run through
+  `nginx -t`.
+
+## Journey 25: Read the news front page
+
+**What slowed it**
+
+- `L2-001` AC2 ("the newest story leads") and `L2-069` AC6 (a story "appears where Publishing
+  placed it") disagreed once journey 22 had built placements. ADR 0107 lets the Lead-placed story
+  lead and Top-placed stories fill the headlines first, which reads exactly as `L2-001` when
+  nothing is placed.
+- The design named `GET /api/public/stories/most-read`, but `most-read` is a valid story link, so
+  the literal route would have hidden a story's API read. "Most read" got its own address.
+- The worktree guard refused compound shell commands that mixed `cd`, heredocs and git; edits went
+  through Python scripts in the journey's scratchpad folder with exact-match asserts, and git ran
+  alone.
+- A `git rm` stages at once, so the next slice's commit of named backend paths took the frontend
+  deletions with it; `git reset --soft HEAD~1` and `git restore --staged frontend` split them
+  again. `git show --stat HEAD` after each commit caught it.
+- The break scripts' Python read Playwright's output as cp1252 and threw on its check marks; the
+  summary lines still printed, but the scripts should pass `encoding='utf-8'`.
+
+**New lessons**
+
+- Before adding a literal route beside a `{slug}` route, check whether the literal is a valid slug;
+  give a list its own address rather than reserve a word in the slug space.
+- A river that grows by pages needs a server-side cap (`skip` at most 48) and a client-side one
+  (`RIVER_MAX`), each with its own test, so neither the DOM nor a crafted query grows past 60.
+- The shared story-age helper says "Yesterday" for anything before Toronto midnight, so the mock's
+  "9 hours ago" at 8:45 AM is not what the app shows; fixtures pick times inside the same Toronto
+  day when they mean hours.
+- A literal `[]` or `{}` in a template binding compiles to `ɵɵpureFunction0`, which grew `main` by
+  0.26 kB the first time a page used it. Diffing `main`'s exports against the base build (by
+  definition, since minified names move) found it; a module constant behind a `computed` took
+  it back to the base size. Building the base from a `git archive` of `origin/main` under the
+  ignored `frontend/tmp/` reuses the worktree's `node_modules` without a symlink.
+- A page whose `h1` moves between parts (the lead, the river's title, a hidden heading while
+  loading) keeps that rule in one computed (`riverIsHeading`) and one spec per case.
+
+**How earlier lessons worked**
+
+- "Break each rule alone" (scripted, `brkb.py` and `brkui.py`): every API rule (placement, top
+  headlines, section filter, `more`, both validators, the readable filter, the 7-day window at
+  both ends, the tie, the ranking order) and every page rule (`aria-current`, the faith slug, the
+  empty copy, both failures, the river append, the cap, hiding Most read, the sticky rail, the two
+  columns, the sideways sections, the sticky masthead, text not HTML, four events, the area)
+  failed its own test and was restored.
+- "Use the shared published-stories query" (journey 24): both new reads start from
+  `PublishedStories.At`, so a due Scheduled story counts at its time with no new code.
+- "Run the full suite against the built apps on free ports with two workers" kept the runs clear
+  of the other sessions on the machine.
+
+## Journey 30: Send feedback
+
+**What slowed it**
+
+- The context ran out once, mid-way through slice 1; the summary and the uncommitted worktree
+  carried the work over.
+- `dotnet ef migrations add` with the API as the startup project fails (no Design package there);
+  the Infrastructure project works as both.
+- Theory rows carrying 5 MB byte arrays made xUnit's discovery serialise megabytes and the run
+  looked hung; naming the format and size in the row and building the bytes in the test fixed it.
+- Editing a source file while a Playwright run was under way against `ng serve` reloaded the page
+  mid-spec, twice: a stray "Failed to fetch dynamically imported module" and a missing chip. Wait
+  for the rebuild before starting a run, and never edit watched files while one is going.
+- A break that compared against a literal the compiler refuses (`=== 'nope'` against a union)
+  gave a build error, not a red; break with a value of the same type.
+- Stopping the background task that ran `timeout … npx ng serve` left the `ng serve` process
+  listening, and the "built apps" suite reused it on the same port; two specs then failed on the
+  dev server's reload socket. Check the ports' owners after stopping a server, and run the built
+  suite on ports nothing has used.
+
+**New lessons**
+
+- A field code that must not become the top-level code (`field_too_long` under
+  `validation_failed`) can say so in the failure's custom state (`FieldCodeOnly.State`), so one
+  rule set serves both Join's and Feedback's contracts without a per-endpoint whitelist.
+- Let the server resolve a label from an id the address carries (`about=page:<route template>` or
+  `story:<id>`), so the stored note and the screen cannot disagree and no client text is echoed.
+- A button that is disabled while sending cannot take focus in the same turn it is enabled again:
+  focus it in `afterNextRender` (already paid for by `cf-done` and the menu).
+- Put a new piece of a near-budget component in its own sub-component from the start
+  (`cf-story-correct`, as journey 24 did for Keep reading).
+- Parsing `multipart/form-data` in the fixture by hand is enough to assert every field and the
+  file's name, type and size exactly.
+
+**How earlier lessons worked**
+
+- "Honest red" by break scripts proved each rule: the busy label, the trimmed text, the no-email
+  thanks, both alerts, the note's server refusal, the screenshot's size and kind checks, the
+  in-app correction link, the rate window's edge and the device table's order.
+- "Grep the specs when a shared page object changes": the story page object's paragraphs had to
+  exclude the new correction line for read-story's exact list to hold.
+- "Read the initial total after each slice" kept `main` flat: the form, the screenshot field and
+  the correction link are in lazy chunks, and `afterNextRender` was already in the initial bundle.

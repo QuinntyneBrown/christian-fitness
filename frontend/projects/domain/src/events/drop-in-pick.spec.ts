@@ -18,6 +18,7 @@ const SATURDAYS: SeriesDetailDto['sessions'] = ['04', '11', '18', '25', '02', '0
     state: n < 3 ? 'done' : n === 3 ? 'live' : n === 6 ? 'cancelled' : 'upcoming',
     held: false,
     full: false,
+    attended: null,
   }),
 );
 const holding = (...numbers: number[]): SeriesDetailDto['sessions'] =>

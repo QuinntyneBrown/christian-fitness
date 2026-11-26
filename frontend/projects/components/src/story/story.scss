@@ -63,6 +63,20 @@
   flex: 1 1 0%;
 }
 
+// Mock story/link-refused: the address to copy by hand, under the byline, selected.
+.story__address {
+  margin-top: var(--space-3);
+  width: 100%;
+  min-height: var(--control-height-md);
+  border-radius: var(--radius-md);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-default);
+}
+
 .story__author {
   font-weight: var(--font-weight-semibold);
 }

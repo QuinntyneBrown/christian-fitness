@@ -17,3 +17,17 @@ internal sealed class RegistrationConfiguration : IEntityTypeConfiguration<Regis
         builder.HasIndex(r => new { r.MemberId, r.CreatedAt });
     }
 }
+
+/// <summary>Whether a member came to an event (ADR 0106): one per member and event, removed with the event.</summary>
+internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attendance>
+{
+    public void Configure(EntityTypeBuilder<Attendance> builder)
+    {
+        builder.ToTable("Attendances");
+        builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id).ValueGeneratedNever();
+        builder.HasOne<Event>().WithMany().HasForeignKey(a => a.EventId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(a => new { a.EventId, a.MemberId }).IsUnique();
+        builder.HasIndex(a => new { a.MemberId, a.EventId });
+    }
+}

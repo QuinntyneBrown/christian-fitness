@@ -357,6 +357,36 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("SuggestionChecks", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Attendance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Came")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId", "MemberId")
+                        .IsUnique();
+
+                    b.HasIndex("MemberId", "EventId");
+
+                    b.ToTable("Attendances", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -402,6 +432,34 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasKey("MemberId", "ScopeId");
 
                     b.ToTable("ChatReadMarkers", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.CommunityPick", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("character varying(70)");
+
+                    b.Property<DateTimeOffset>("PickedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PickedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PickedById");
+
+                    b.HasIndex("EventId", "PickedAt");
+
+                    b.ToTable("CommunityPicks", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Events.DirectMessage", b =>
@@ -660,6 +718,69 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("SeriesEnrolments", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Feedback.FeedbackNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Browser")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Device")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<bool>("MayEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PageRouteTemplate")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("PageTitle")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("ScreenshotKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid?>("StoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId", "SentAt");
+
+                    b.HasIndex("Status", "SentAt");
+
+                    b.ToTable("FeedbackNotes", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Members.Member", b =>
@@ -941,6 +1062,23 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "ActivityAt");
 
                     b.ToTable("Stories", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.News.StoryReadTally", b =>
+                {
+                    b.Property<Guid>("StoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Count")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("StoryId", "Day");
+
+                    b.ToTable("StoryReadTallies", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>
@@ -1244,6 +1382,30 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Attendance", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.CommunityPick", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("PickedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.Event", b =>
                 {
                     b.HasOne("ChristianFitness.Domain.Directory.DirectoryListing", null)
@@ -1272,6 +1434,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Events.EventSeries", null)
                         .WithMany()
                         .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Feedback.FeedbackNote", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1327,6 +1498,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("ImageCrop");
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.News.StoryReadTally", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.News.Story", null)
+                        .WithMany()
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Notifications.Notification", b =>

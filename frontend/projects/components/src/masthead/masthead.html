@@ -1,15 +1,15 @@
 <header class="masthead">
   <div class="masthead__bar">
     <cf-brand-lockup [href]="homeHref()" />
-    <div class="site-header__actions">
-      <span class="site-header__signin">
+    <div class="masthead__actions">
+      <span class="masthead__signin">
         <cf-button variant="ghost" [href]="signInHref()">Sign in</cf-button>
       </span>
       <cf-button [href]="joinHref()">Join free</cf-button>
     </div>
   </div>
   @if (sections().length) {
-    <nav class="section-nav" [attr.aria-label]="sectionsLabel()">
+    <nav class="section-nav" aria-label="Sections">
       @for (section of sections(); track section.href) {
         <a
           class="section-nav__link"

@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
+import { eventLinkGuard, memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -8,6 +8,7 @@ import { memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/doma
 const titled = (page: string) => `${page} · Christian Fitness`;
 const eventChat = () => import('./pages/event-chat/event-chat-page');
 const offline = () => import('./pages/offline/offline-page');
+const story = () => import('./pages/story/story-page');
 
 const routes: Routes = [
   {
@@ -45,6 +46,22 @@ const routes: Routes = [
     title: titled('Claim a listing'),
     canMatch: [signedOutGuard],
     loadComponent: () => import('./pages/claim-listing/claim-sign-in-page'),
+  },
+  {
+    // A published story for a visitor, under the masthead (L2-061 AC13; ADR 0105). With a session
+    // it does not match, and the shell's child of the same address opens.
+    path: 'stories/:slug',
+    title: titled('Story'),
+    canMatch: [signedOutGuard],
+    data: { masthead: true },
+    loadComponent: story,
+  },
+  {
+    // An event link from a Community Pick: a member goes on to the event, a visitor to Join and
+    // back to it (L2-072 AC9; ADR 0098). It has no screen of its own.
+    path: 'e/:id',
+    canActivate: [eventLinkGuard],
+    children: [],
   },
   {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).
@@ -149,6 +166,18 @@ const routes: Routes = [
         path: 'notifications',
         title: titled('Notifications'),
         loadComponent: () => import('./pages/notifications/notifications-page'),
+      },
+      {
+        // A published story for a member, under the member navigation (L2-061 AC13; ADR 0105).
+        path: 'stories/:slug',
+        title: titled('Story'),
+        loadComponent: story,
+      },
+      {
+        // Send feedback, about the page in the address (L2-063; ADR 0109).
+        path: 'feedback',
+        title: titled('Send feedback'),
+        loadComponent: () => import('./pages/feedback/feedback-page'),
       },
       {
         // The signed-in member's own profile (L2-005; ADR 0015).

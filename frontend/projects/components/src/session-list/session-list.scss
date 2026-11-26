@@ -119,3 +119,14 @@
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);
 }
+
+// "You came": the member's own attendance, in accent with a tick, said in words (ADR 0106).
+.session-row__came {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}

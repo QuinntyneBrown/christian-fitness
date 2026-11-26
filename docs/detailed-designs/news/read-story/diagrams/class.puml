@@ -17,88 +17,90 @@ enum StoryStatus {
   Scheduled
   Published
 }
-enum StorySection {
-  Events
-  Training
-  Nutrition
-  FaithBody
-  Community
-  Pros
-}
 class Story <<entity>> {
   +Guid Id
-  +string Slug
+  +string? Slug
+  +string[] FormerSlugs
   +string Headline
-  +string? Summary
+  +string Summary
   +string Text
-  +string Byline
+  +StorySection? Section
+  +Guid? BylineId
   +string? ImageKey
   +StoryPointer PointsTo
   +DateTimeOffset? PublishedAt
 }
-class StoryPointer <<value>> {
-  +StoryPointerKind Kind
-  +Guid? TargetId
-}
-class StorySlugRedirect <<entity>> {
-  +string FormerSlug
-  +Guid StoryId
-}
 class StoryReadTally <<entity>> {
   +Guid StoryId
   +DateOnly Day
-  +int Count
+  +int Count <<concurrency token>>
+  +{static} First(storyId, day)
+  +Add()
 }
-class StoryText <<domain service>> {
-  +{static} Paragraphs(text: string): StoryParagraph[]
-  +{static} ReadingMinutes(text: string): int
+class StoryReaders <<domain rule>> {
+  +{static} Counts(userAgent): bool
 }
-class GetPublishedStoryQuery {
-  +string Slug
+class PublishedStories {
+  +{static} At(db, now): IQueryable<Story>
+  +{static} FindAsync(db, slug, now): Story?
 }
 class GetPublishedStoryHandler {
-  +Handle(query): Task<PublishedStoryDto>
+  +Handle(GetPublishedStoryQuery): PublishedStoryDto
 }
 class PublishedStoryDto {
   +Guid Id
   +string Slug
-  +string Section
+  +string? Section
   +string Headline
-  +string? Summary
-  +string Byline
+  +string Summary
+  +string? Author
   +DateTimeOffset PublishedAt
-  +int ReadingMinutes
-  +string? ImageUrl
-  +StoryParagraphDto[] Paragraphs
+  +string Text
+  +StoryImageDto? Image
   +StoryNextDto? Next
   +StoryCardDto[] KeepReading
 }
-class CountStoryReadCommand {
-  +Guid StoryId
+class GetStoryShellHandler {
+  +Handle(GetStoryShellQuery): StoryShellAnswer
+}
+interface IStoryShell {
+  +GetAsync(): string?
+}
+class HttpStoryShell <<infrastructure>> {
+  -shell: string?
+}
+class CountStoryReadHandler {
+  +Handle(CountStoryReadCommand)
 }
 class StoryPage <<Angular page>> {
   -story: Signal<PublishedStoryDto>
-  -copied: CopiedFlag
-  +copyLink(): void
+  -copiedFlag: CopiedFlag
+  +copyLink(): Promise<void>
 }
 interface StoriesApi <<STORIES_SERVICE>> {
   +get(slug): Observable<PublishedStoryDto>
-  +countRead(id): Observable<void>
 }
 interface ClipboardApi <<CLIPBOARD_SERVICE>> {
   +write(text): Promise<boolean>
 }
+interface StoryReadsApi <<STORY_READS>> {
+  +count(storyId): void
+}
+class LocalStoryReads {
+  uses storyReadLog
+}
 Story --> StoryStatus
-Story --> StorySection
-Story *-- StoryPointer
-Story "1" <-- "*" StorySlugRedirect : names
 Story "1" <-- "*" StoryReadTally : counts
-GetPublishedStoryHandler ..> GetPublishedStoryQuery : handles
-GetPublishedStoryHandler ..> Story : reads published
-GetPublishedStoryHandler ..> StorySlugRedirect : resolves former slug
-GetPublishedStoryHandler ..> StoryText : splits
+PublishedStories ..> Story : current or former slug, Published or due Scheduled
+GetPublishedStoryHandler ..> PublishedStories
 GetPublishedStoryHandler ..> PublishedStoryDto : answers
+GetStoryShellHandler ..> PublishedStories
+GetStoryShellHandler ..> IStoryShell
+HttpStoryShell ..|> IStoryShell
+CountStoryReadHandler ..> StoryReaders
+CountStoryReadHandler ..> StoryReadTally : adds one, retries a lost race
 StoryPage ..> StoriesApi
 StoryPage ..> ClipboardApi
-StoryPage ..> CountStoryReadCommand : via countRead
+StoryPage ..> StoryReadsApi
+LocalStoryReads ..|> StoryReadsApi
 @enduml

@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted, 23 November 2026 (slice 8.1).
+Accepted, 23 November 2026 (slice 8.1). Its layout (hero, three "Coming up" events) is superseded
+by [ADR 0107](0107-news-front-page.md); the guard, the anonymous events endpoint and the member
+count left out still hold.
 
 ## Context
 

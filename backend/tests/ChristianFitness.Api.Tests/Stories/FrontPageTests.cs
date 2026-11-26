@@ -4,130 +4,177 @@ using ChristianFitness.Domain.News;
 
 namespace ChristianFitness.Api.Tests.Stories;
 
-/// <summary>What the front-page tests ask the API: no cookie, as a visitor (L2-001; ADR 0105).</summary>
+/// <summary>What the front-page tests ask the API: no cookie, as a visitor.</summary>
 internal static class FrontPage
 {
     public const string Path = "/api/public/stories";
 
-    public static readonly string[] Keys = ["lead", "headlines", "latest", "nextCursor", "mostRead"];
+    public static async Task<HttpResponseMessage> AskAsync(HttpClient client, string query = "") =>
+        await Browser.SendAsync(client, HttpMethod.Get, $"{Path}{query}", null);
 
-    public static readonly string[] StoryKeys = ["id", "slug", "section", "headline", "summary", "byline", "publishedAt", "imageKey"];
-
-    public static async Task<JsonElement> ReadAsync(StoriesFactory factory, string query = "")
+    public static async Task<JsonElement> ReadAsync(HttpClient client, string query = "")
     {
-        using var client = Browser.CreateClient(factory);
-        using var response = await Browser.SendAsync(client, HttpMethod.Get, Path + query, cookie: null);
+        using var response = await AskAsync(client, query);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await AdminStories.JsonAsync(response);
     }
 
-    /// <summary>The lead story's headline, or none.</summary>
-    public static string? LeadOf(JsonElement page) =>
-        page.GetProperty("lead").ValueKind == JsonValueKind.Null ? null : page.GetProperty("lead").GetProperty("headline").GetString();
-
-    /// <summary>The headlines of the stories in <paramref name="part"/> (<c>headlines</c>, <c>latest</c>, <c>mostRead</c>), in order.</summary>
-    public static string[] Of(JsonElement page, string part) =>
-        [.. page.GetProperty(part).EnumerateArray().Select(s => s.GetProperty("headline").GetString()!)];
-
-    public static string? CursorOf(JsonElement page) => page.GetProperty("nextCursor").GetString();
+    public static string[] Headlines(JsonElement list) => [.. list.EnumerateArray().Select(s => s.GetProperty("headline").GetString()!)];
 }
 
 /// <summary>
-/// L2-001 AC2, AC4, AC10 and L2-069 AC5, AC6 (journey 25; ADR 0105): a visitor reads the front page
-/// with no session. Only stories readers may see are answered: Published ones and Scheduled ones
-/// whose time has come, at that time (ADR 0069). With nothing placed, the newest leads, the next
-/// four are the headlines and the rest are the river, newest first. A story placed Lead leads
-/// whatever its age, stories placed Top take the headlines before newer ones, and no story appears
-/// twice. A story answers only what its page publishes.
+/// L2-001 AC2, AC10 (journey 25; ADR 0107): Latest answers the newest readable story as the lead,
+/// the next four as headlines and the rest as the river, newest first, each with what the page
+/// shows and nothing of a member. Drafts, stories in review, scheduled ones not yet due and
+/// unpublished ones never appear; a Scheduled story whose time has come does.
 /// </summary>
-public sealed class FrontPageTests(StoriesFactory factory) : IClassFixture<StoriesFactory>
+public sealed class FrontPageLatestTests(StoriesFactory factory) : IClassFixture<StoriesFactory>
 {
-    private DateTimeOffset Ago(int minutes) => factory.Time.GetUtcNow().AddMinutes(-minutes);
-
-    /// <summary>A Published story that went out <paramref name="minutesAgo"/> minutes ago.</summary>
-    private Task<Story> PublishedAsync(string headline, int minutesAgo, StoryPlacement placement = StoryPlacement.Latest, StorySection section = StorySection.Community) =>
-        factory.PutStoryAsync(headline, StoryStatus.Published, Ago(minutesAgo + 1), section: section, placement: placement, slug: headline.ToLowerInvariant().Replace(' ', '-'));
-
     [Fact]
-    public async Task Given_stories_of_every_status_and_nothing_placed_When_a_visitor_reads_the_front_page_Then_the_newest_leads_the_next_four_are_headlines_and_the_rest_follow_newest_first()
+    public async Task Given_readable_stories_When_Latest_is_asked_for_Then_the_newest_leads_the_next_four_are_headlines_and_the_rest_follow_newest_first()
     {
-        await factory.ClearStoriesAsync();
-        for (var n = 8; n >= 1; n--)
+        var at = factory.Time.GetUtcNow().AddDays(-3);
+        var byline = await factory.AddBylineAsync("Front Writer");
+        for (var n = 1; n <= 7; n++)
         {
-            await PublishedAsync($"Story {n}", minutesAgo: n * 10);
+            await factory.PutStoryAsync($"Story {n}", StoryStatus.Published, at.AddHours(n), byline, StorySection.Training, slug: $"front-story-{n}");
         }
 
-        await factory.PutStoryAsync("A draft", at: Ago(5));
-        await factory.PutStoryAsync("In review", StoryStatus.InReview, Ago(5));
-        await factory.PutStoryAsync("Unpublished", StoryStatus.Published, Ago(5), unpublished: true);
-        await factory.PutStoryAsync("Scheduled for later", StoryStatus.Scheduled, Ago(500), publishAt: Ago(-1));
-        await factory.PutStoryAsync("Past due", StoryStatus.Scheduled, Ago(500), publishAt: Ago(25), slug: "past-due");
+        await factory.PutStoryAsync(
+            "Story 8",
+            StoryStatus.Published,
+            at.AddHours(8),
+            byline,
+            StorySection.Community,
+            slug: "front-story-8",
+            content: c => c with { Summary = "The newest one.", ImageKey = "0193a9c00000700080000000000000b8.jpg", ImageCrop = new StoryCrop(0, 0, 1600, 900) });
+        await factory.PutStoryAsync("Due scheduled", StoryStatus.Scheduled, at.AddHours(1), byline, StorySection.Pros, slug: "front-due", publishAt: at.AddHours(5).AddMinutes(30));
+        await factory.PutStoryAsync("A draft", StoryStatus.Draft, at.AddHours(9), byline, slug: "front-draft");
+        await factory.PutStoryAsync("In review", StoryStatus.InReview, at.AddHours(9), byline, slug: "front-review");
+        await factory.PutStoryAsync("Not yet", StoryStatus.Scheduled, at.AddHours(9), byline, slug: "front-not-yet", publishAt: factory.Time.GetUtcNow().AddDays(1));
+        await factory.PutStoryAsync("Unpublished", StoryStatus.Published, at.AddHours(9), byline, unpublished: true, slug: "front-unpublished");
+        using var client = Browser.CreateClient(factory);
 
-        var page = await FrontPage.ReadAsync(factory);
+        var page = await FrontPage.ReadAsync(client);
 
-        Assert.Equal(FrontPage.Keys, AdminStories.Keys(page));
-        Assert.Equal("Story 1", FrontPage.LeadOf(page));
-        Assert.Equal(["Story 2", "Past due", "Story 3", "Story 4"], FrontPage.Of(page, "headlines"));
-        Assert.Equal(["Story 5", "Story 6", "Story 7", "Story 8"], FrontPage.Of(page, "latest"));
-        Assert.Null(FrontPage.CursorOf(page));
-        Assert.Empty(FrontPage.Of(page, "mostRead"));
-        var pastDue = page.GetProperty("headlines")[1];
-        Assert.Equal(Ago(25), pastDue.GetProperty("publishedAt").GetDateTimeOffset());
-    }
-
-    [Fact]
-    public async Task Given_a_story_with_everything_and_one_with_little_When_the_front_page_is_read_Then_each_answers_only_its_public_fields()
-    {
-        await factory.ClearStoriesAsync();
-        var byline = await factory.AddBylineAsync("Naomi Okafor");
-        var bare = await factory.PutStoryAsync("Bare story", StoryStatus.Published, Ago(61), byline, StorySection.Pros, slug: "bare-story", summary: "  ");
-        var full = await factory.PutStoryAsync(
-            "Full story", StoryStatus.Published, Ago(31), byline, StorySection.FaithAndBody, slug: "full-story", summary: "Why rest is training.", imageKey: "story-full.webp");
-
-        var page = await FrontPage.ReadAsync(factory);
-
+        Assert.Equal(["lead", "headlines", "latest", "more"], AdminStories.Keys(page));
         var lead = page.GetProperty("lead");
-        Assert.Equal(FrontPage.StoryKeys, AdminStories.Keys(lead));
+        Assert.Equal(["id", "slug", "section", "headline", "summary", "author", "publishedAt", "image"], AdminStories.Keys(lead));
         Assert.Equal(
-            (full.Id, "full-story", "faith-body", "Full story", "Why rest is training.", "Naomi Okafor", Ago(30), "story-full.webp"),
-            (lead.GetProperty("id").GetGuid(), lead.GetProperty("slug").GetString(), lead.GetProperty("section").GetString(), lead.GetProperty("headline").GetString(),
-                lead.GetProperty("summary").GetString(), lead.GetProperty("byline").GetString(), lead.GetProperty("publishedAt").GetDateTimeOffset(), lead.GetProperty("imageKey").GetString()));
-        var second = page.GetProperty("headlines")[0];
-        Assert.Equal(FrontPage.StoryKeys, AdminStories.Keys(second));
-        Assert.Equal(
-            (bare.Id, "pros", JsonValueKind.Null, JsonValueKind.Null),
-            (second.GetProperty("id").GetGuid(), second.GetProperty("section").GetString(), second.GetProperty("summary").ValueKind, second.GetProperty("imageKey").ValueKind));
+            ("front-story-8", "community", "Story 8", "The newest one.", "Front Writer", at.AddHours(8).AddMinutes(1), "0193a9c00000700080000000000000b8.jpg"),
+            (lead.GetProperty("slug").GetString(), lead.GetProperty("section").GetString(), lead.GetProperty("headline").GetString(),
+             lead.GetProperty("summary").GetString(), lead.GetProperty("author").GetString(), lead.GetProperty("publishedAt").GetDateTimeOffset(),
+             lead.GetProperty("image").GetProperty("key").GetString()));
+        Assert.Equal(["Story 7", "Story 6", "Due scheduled", "Story 5"], FrontPage.Headlines(page.GetProperty("headlines")));
+        Assert.Equal(["Story 4", "Story 3", "Story 2", "Story 1"], FrontPage.Headlines(page.GetProperty("latest")));
+        var river = page.GetProperty("latest").EnumerateArray().First();
+        Assert.Equal((JsonValueKind.Null, JsonValueKind.Null), (river.GetProperty("summary").ValueKind, river.GetProperty("image").ValueKind));
+        Assert.False(page.GetProperty("more").GetBoolean());
     }
+}
 
+/// <summary>
+/// L2-069 AC6 with L2-001 AC2 (ADR 0107): a story placed as the Lead leads even when newer ones
+/// follow it, and stories placed in Top headlines come before newer ones placed in The latest.
+/// </summary>
+public sealed class FrontPagePlacementTests(StoriesFactory factory) : IClassFixture<StoriesFactory>
+{
     [Fact]
-    public async Task Given_stories_placed_Lead_and_Top_When_the_front_page_is_read_Then_the_Lead_leads_the_Top_stories_take_the_headlines_and_no_story_appears_twice()
+    public async Task Given_a_Lead_and_a_Top_story_When_Latest_is_asked_for_Then_the_Lead_leads_and_the_Top_story_is_a_headline()
     {
-        await factory.ClearStoriesAsync();
-        await PublishedAsync("Newest", minutesAgo: 10);
-        await PublishedAsync("Newer", minutesAgo: 20);
-        await PublishedAsync("Top recent", minutesAgo: 30, StoryPlacement.Top);
-        await PublishedAsync("Ordinary", minutesAgo: 40);
-        await PublishedAsync("The lead", minutesAgo: 50, StoryPlacement.Lead);
-        await PublishedAsync("Top old", minutesAgo: 60, StoryPlacement.Top);
-        await PublishedAsync("Oldest", minutesAgo: 70);
+        var at = factory.Time.GetUtcNow().AddDays(-3);
+        var byline = await factory.AddBylineAsync("Placed Writer");
+        await factory.PutStoryAsync("Placed lead", StoryStatus.Published, at, byline, placement: StoryPlacement.Lead, slug: "placed-lead");
+        await factory.PutStoryAsync("Placed top", StoryStatus.Published, at.AddHours(1), byline, placement: StoryPlacement.Top, slug: "placed-top");
+        for (var n = 1; n <= 5; n++)
+        {
+            await factory.PutStoryAsync($"Later {n}", StoryStatus.Published, at.AddHours(1 + n), byline, slug: $"placed-later-{n}");
+        }
 
-        var page = await FrontPage.ReadAsync(factory);
+        using var client = Browser.CreateClient(factory);
 
-        Assert.Equal("The lead", FrontPage.LeadOf(page));
-        Assert.Equal(["Newest", "Newer", "Top recent", "Top old"], FrontPage.Of(page, "headlines"));
-        Assert.Equal(["Ordinary", "Oldest"], FrontPage.Of(page, "latest"));
+        var page = await FrontPage.ReadAsync(client);
+
+        Assert.Equal("Placed lead", page.GetProperty("lead").GetProperty("headline").GetString());
+        Assert.Equal(["Later 5", "Later 4", "Later 3", "Placed top"], FrontPage.Headlines(page.GetProperty("headlines")));
+        Assert.Equal(["Later 2", "Later 1"], FrontPage.Headlines(page.GetProperty("latest")));
     }
+}
 
+/// <summary>
+/// L2-001 AC3, AC4 (ADR 0107): a section answers only its own stories, newest first, as the river,
+/// with no lead and no headlines; a section with none answers an empty river; an unknown section is
+/// refused, since the page shows Latest for it and never sends one.
+/// </summary>
+public sealed class FrontPageSectionTests(StoriesFactory factory) : IClassFixture<StoriesFactory>
+{
     [Fact]
-    public async Task Given_no_story_a_reader_may_see_When_the_front_page_is_read_Then_it_has_no_lead_and_every_list_is_empty()
+    public async Task Given_stories_in_several_sections_When_one_section_is_asked_for_Then_only_its_stories_come_newest_first_without_top_stories()
     {
-        await factory.ClearStoriesAsync();
-        await factory.PutStoryAsync("Only a draft");
+        var at = factory.Time.GetUtcNow().AddDays(-3);
+        var byline = await factory.AddBylineAsync("Section Writer");
+        await factory.PutStoryAsync("Older faith", StoryStatus.Published, at, byline, StorySection.FaithAndBody, placement: StoryPlacement.Lead, slug: "older-faith");
+        await factory.PutStoryAsync("Nutrition", StoryStatus.Published, at.AddHours(1), byline, StorySection.Nutrition, slug: "section-nutrition");
+        await factory.PutStoryAsync("Newer faith", StoryStatus.Published, at.AddHours(2), byline, StorySection.FaithAndBody, slug: "newer-faith");
+        using var client = Browser.CreateClient(factory);
 
-        var page = await FrontPage.ReadAsync(factory);
+        var page = await FrontPage.ReadAsync(client, "?section=faith-and-body");
+        var empty = await FrontPage.ReadAsync(client, "?section=training");
 
         Assert.Equal(JsonValueKind.Null, page.GetProperty("lead").ValueKind);
-        Assert.Equal((0, 0, 0), (page.GetProperty("headlines").GetArrayLength(), page.GetProperty("latest").GetArrayLength(), page.GetProperty("mostRead").GetArrayLength()));
-        Assert.Null(FrontPage.CursorOf(page));
+        Assert.Equal(0, page.GetProperty("headlines").GetArrayLength());
+        Assert.Equal(["Newer faith", "Older faith"], FrontPage.Headlines(page.GetProperty("latest")));
+        Assert.Equal(0, empty.GetProperty("latest").GetArrayLength());
+    }
+
+    [Theory]
+    [InlineData("?section=faith-body", "section", "section_invalid")]
+    [InlineData("?section=Events", "section", "section_invalid")]
+    [InlineData("?skip=-1", "skip", "skip_invalid")]
+    [InlineData("?skip=60", "skip", "skip_invalid")]
+    public async Task Given_an_unknown_section_or_a_skip_out_of_range_When_asked_for_Then_it_is_refused(string query, string field, string code)
+    {
+        using var client = Browser.CreateClient(factory);
+
+        using var response = await FrontPage.AskAsync(client, query);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await AdminStories.JsonAsync(response);
+        Assert.Equal("validation_failed", problem.GetProperty("code").GetString());
+        Assert.Equal([field], AdminStories.Keys(problem.GetProperty("fieldCodes")));
+        Assert.Equal(code, problem.GetProperty("fieldCodes").GetProperty(field).GetString());
+    }
+}
+
+/// <summary>
+/// L2-001 AC2 with AGENTS.md's "bound what grows" (ADR 0107): the river comes 12 stories at a time
+/// after the top stories, <c>more</c> says whether older ones follow, and the page asks for at most
+/// 60 (a skip of 48 at most).
+/// </summary>
+public sealed class FrontPageMoreTests(StoriesFactory factory) : IClassFixture<StoriesFactory>
+{
+    [Fact]
+    public async Task Given_thirty_two_stories_When_the_river_is_asked_for_twelve_at_a_time_Then_each_page_follows_the_last_and_the_third_is_the_end()
+    {
+        var at = factory.Time.GetUtcNow().AddDays(-3);
+        var byline = await factory.AddBylineAsync("Paging Writer");
+        for (var n = 1; n <= 32; n++)
+        {
+            await factory.PutStoryAsync($"Paged {n}", StoryStatus.Published, at.AddHours(n), byline, slug: $"paged-{n}");
+        }
+
+        using var client = Browser.CreateClient(factory);
+
+        var first = await FrontPage.ReadAsync(client);
+        var second = await FrontPage.ReadAsync(client, "?skip=12");
+        var third = await FrontPage.ReadAsync(client, "?skip=24");
+
+        Assert.Equal([.. Enumerable.Range(16, 12).Reverse().Select(n => $"Paged {n}")], FrontPage.Headlines(first.GetProperty("latest")));
+        Assert.True(first.GetProperty("more").GetBoolean());
+        Assert.Equal([.. Enumerable.Range(4, 12).Reverse().Select(n => $"Paged {n}")], FrontPage.Headlines(second.GetProperty("latest")));
+        Assert.True(second.GetProperty("more").GetBoolean());
+        Assert.Equal(["Paged 3", "Paged 2", "Paged 1"], FrontPage.Headlines(third.GetProperty("latest")));
+        Assert.False(third.GetProperty("more").GetBoolean());
+        Assert.Equal("Paged 32", third.GetProperty("lead").GetProperty("headline").GetString());
     }
 }

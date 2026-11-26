@@ -1,0 +1,26 @@
+<fieldset>
+  <legend class="field__label field__label--md">{{ legend() }}</legend>
+  <ul class="event-choices">
+    @for (item of items(); track item.id) {
+      <li>
+        <label class="event-choice">
+          <input
+            class="event-choice__input"
+            type="radio"
+            [name]="name()"
+            [value]="item.id"
+            [checked]="item.id === value()"
+            [disabled]="disabled()"
+            (change)="chosen.emit(item.id)"
+          />
+          <img class="event-choice__image" [src]="item.imageSrc" alt="" />
+          <span class="event-choice__body"
+            ><span class="event-choice__when">{{ item.when }}</span
+            ><span class="event-choice__title">{{ item.title }}</span
+            ><span class="event-choice__area">{{ item.area }}</span></span
+          >
+        </label>
+      </li>
+    }
+  </ul>
+</fieldset>

@@ -1,3 +1,4 @@
+using ChristianFitness.Application.CommunityPicks;
 using ChristianFitness.Application.Directory;
 using ChristianFitness.Application.Directory.Review;
 using ChristianFitness.Application.Errors;
@@ -84,7 +85,9 @@ public static class ProblemCodes
     /// is a field's own code, such as an event's <c>title_required</c> (L2-022 AC2; ADR 0021) or a
     /// moderation's <c>note_required</c> (L2-029 AC5; ADR 0028), is also
     /// named in a <c>fieldCodes</c> extension: the field's camel-case name and its first code. A body
-    /// with no such failure, such as Join's, has no <c>fieldCodes</c>.
+    /// with no such failure, such as Join's, has no <c>fieldCodes</c>. A failure marked
+    /// <see cref="FieldCodeOnly"/> names its field in <c>fieldCodes</c> and never the top-level code
+    /// (ADR 0109).
     /// </summary>
     public static ValidationProblemDetails Invalid(IEnumerable<ValidationFailure> failures)
     {
@@ -95,10 +98,10 @@ public static class ProblemCodes
         var problem = new ValidationProblemDetails(errors)
         {
             Status = StatusCodes.Status400BadRequest,
-            Extensions = { ["code"] = CodeFor(list.Select(failure => failure.ErrorCode)) },
+            Extensions = { ["code"] = CodeFor(list.Where(failure => failure.CustomState != FieldCodeOnly.State).Select(failure => failure.ErrorCode)) },
         };
         var fieldCodes = list
-            .Where(failure => EventFieldCodes.All.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode) || DecideApplicationRules.FieldCodes.Contains(failure.ErrorCode) || ListServicesRules.FieldCodes.Contains(failure.ErrorCode) || EditListingRules.FieldCodes.Contains(failure.ErrorCode) || ListDirectoryRules.FieldCodes.Contains(failure.ErrorCode) || SuggestListingRules.FieldCodes.Contains(failure.ErrorCode) || DirectoryListingRules.FieldCodes.Contains(failure.ErrorCode) || BylineRules.FieldCodes.Contains(failure.ErrorCode) || OwnListingRules.FieldCodes.Contains(failure.ErrorCode) || StoryRules.FieldCodes.Contains(failure.ErrorCode))
+            .Where(failure => failure.CustomState == FieldCodeOnly.State || EventFieldCodes.All.Contains(failure.ErrorCode) || ModerationRules.FieldCodes.Contains(failure.ErrorCode) || DecideApplicationRules.FieldCodes.Contains(failure.ErrorCode) || ListServicesRules.FieldCodes.Contains(failure.ErrorCode) || EditListingRules.FieldCodes.Contains(failure.ErrorCode) || ListDirectoryRules.FieldCodes.Contains(failure.ErrorCode) || SuggestListingRules.FieldCodes.Contains(failure.ErrorCode) || DirectoryListingRules.FieldCodes.Contains(failure.ErrorCode) || BylineRules.FieldCodes.Contains(failure.ErrorCode) || OwnListingRules.FieldCodes.Contains(failure.ErrorCode) || StoryRules.FieldCodes.Contains(failure.ErrorCode) || CommunityPickRules.FieldCodes.Contains(failure.ErrorCode))
             .GroupBy(failure => CamelCase(failure.PropertyName), StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First().ErrorCode, StringComparer.Ordinal);
         if (fieldCodes.Count > 0)

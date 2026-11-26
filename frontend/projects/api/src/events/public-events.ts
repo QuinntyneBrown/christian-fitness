@@ -10,7 +10,7 @@ export interface LandingEventDto {
   /** The start as an ISO instant in UTC, which the screen words in Toronto. */
   startsAt: string;
   place: string;
-  /** The part of the GTA it is in, such as "Waterfront", as readers word it (ADR 0076). */
+  /** The area of the GTA, "Waterfront", shown in the rail (L2-001 AC5). */
   area: string;
 }
 

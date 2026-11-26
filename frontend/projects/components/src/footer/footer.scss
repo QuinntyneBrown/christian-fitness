@@ -73,4 +73,12 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--target-comfortable);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.site-footer__links a:hover {
+  color: var(--color-fg-default);
+}
+.icon--xs {
+  width: var(--size-icon-xs);
+  height: var(--size-icon-xs);
 }

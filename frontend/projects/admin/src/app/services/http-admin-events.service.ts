@@ -10,6 +10,7 @@ import type {
   EventHostDto,
   EventHostListDto,
   EventImageDto,
+  EventAttendanceDto,
   EventRegistrationsDto,
   UpdateEventRequestDto,
 } from '@cf/api';
@@ -74,6 +75,21 @@ export class HttpAdminEventsService implements AdminEventsApi {
   registrations(id: string): Observable<EventRegistrationsDto> {
     return this.http
       .get<EventRegistrationsDto>(`/api/admin/events/${encodeURIComponent(id)}/registrations`)
+      .pipe(catchError(asApiError));
+  }
+
+  attendance(id: string): Observable<EventAttendanceDto> {
+    return this.http
+      .get<EventAttendanceDto>(`/api/admin/events/${encodeURIComponent(id)}/attendance`)
+      .pipe(catchError(asApiError));
+  }
+
+  setAttendance(id: string, memberId: string, came: boolean): Observable<void> {
+    return this.http
+      .put<void>(
+        `/api/admin/events/${encodeURIComponent(id)}/attendance/${encodeURIComponent(memberId)}`,
+        { came },
+      )
       .pipe(catchError(asApiError));
   }
 

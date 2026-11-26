@@ -1,0 +1,45 @@
+// The design system's Slack preview (docs/design-system/assets/components.css, "slack-preview").
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.slack-preview {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--font-size-ui);
+}
+
+.slack-preview__body {
+  min-width: 0;
+  flex: 1 1 0%;
+
+  > p {
+    margin: 0;
+  }
+
+  strong {
+    font-weight: var(--font-weight-bold);
+  }
+}
+
+.slack-preview__time {
+  color: var(--color-fg-muted);
+}
+
+.slack-preview__link {
+  color: var(--color-info-fg);
+}
+
+.slack-preview__unfurl {
+  margin-top: var(--space-2);
+  max-width: var(--layout-form-max);
+  border-left: var(--border-width-thick) solid var(--color-border-default);
+  padding-left: var(--space-3);
+}
+
+.slack-preview__site {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}

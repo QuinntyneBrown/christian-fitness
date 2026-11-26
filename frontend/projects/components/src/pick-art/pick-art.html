@@ -1,0 +1,18 @@
+<div [attr.class]="artClass()" role="img" [attr.aria-label]="label()">
+  @if (rendered(); as src) {
+    <img class="pick-art__photo" [src]="src" alt="" />
+  } @else {
+    @if (photoSrc(); as photo) {
+      <img class="pick-art__photo" [src]="photo" alt="" />
+    } @else {
+      <div class="pick-art__pattern"></div>
+    }
+    <div class="pick-art__shade"></div>
+    <p class="pick-art__label">Community Pick</p>
+    <div class="pick-art__body">
+      <p class="pick-art__title">{{ title() }}</p>
+      <p class="pick-art__when">{{ when() }}</p>
+      <p class="pick-art__note">{{ note() }}</p>
+    </div>
+  }
+</div>

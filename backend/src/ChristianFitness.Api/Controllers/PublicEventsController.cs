@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChristianFitness.Api.Controllers;
 
-/// <summary>What a visitor with no session may read: the landing page's next events (L2-001; ADR 0037, ADR 0105).</summary>
+/// <summary>What a visitor with no session may read: the front page's next events (L2-001; ADR 0037, ADR 0107).</summary>
 [ApiController]
 [AllowAnonymous]
 [Route("api/public/events")]

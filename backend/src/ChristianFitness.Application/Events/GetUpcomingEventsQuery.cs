@@ -5,11 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
-/// <summary>
-/// An event as the public landing page shows it (L2-001 AC5; ADR 0105): its place and its area, the
-/// neighbourhood and city staff wrote under the place, as the member's list reads it; nothing about
-/// who is going or who made it.
-/// </summary>
+/// <summary>An event as the front page's rail shows it, with its area: nothing about who is going or who made it (L2-001 AC5; ADR 0107).</summary>
 public sealed record LandingEventDto(Guid Id, string Title, string Category, DateTimeOffset StartsAt, string Place, string Area);
 
 /// <summary>The next published events that have not started, soonest first, at most <see cref="MaxTake"/> (L2-001 AC5, AC6).</summary>

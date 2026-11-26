@@ -29,9 +29,10 @@ export interface SeriesPanelAction {
 export type SeriesMeterBar = 'done' | 'next' | 'upcoming' | 'cancelled';
 
 /**
- * "Your progress" once joined (L2-052 AC3; ADR 0101): "Attendance not recorded yet" until
- * journey 16 records attendance, and the decorative session meter with the next date highlighted
- * and cancelled ones faded, whose hidden label names the next session.
+ * "Your progress" once joined (L2-052 AC3; ADR 0101, ADR 0106): "Came to <attended> of
+ * <recorded>" over the past dates whose attendance staff recorded, or "Attendance not recorded
+ * yet" when none is, and the decorative session meter with the dates attended done, the next date
+ * highlighted and cancelled ones faded, whose hidden label names the next session.
  */
 export interface SeriesProgressView {
   count: string;
@@ -209,13 +210,26 @@ function confirmedOf(sessions: SeriesDetailDto['sessions']): string {
     : `You're in for ${holding} of ${toCome.length} sessions to come`;
 }
 
-/** The progress of a joined member: no attendance is recorded until journey 16. */
+/** The progress of a joined member, counting only the past dates whose attendance is recorded. */
 function progressOf(sessions: SeriesDetailDto['sessions']): SeriesProgressView {
   const next = sessions.find((session) => session.state === 'live');
+  const recorded = sessions.filter(
+    (session) => session.state === 'done' && session.attended !== null,
+  );
+  const attended = recorded.filter((session) => session.attended).length;
   return {
-    count: 'Attendance not recorded yet',
+    count:
+      recorded.length === 0
+        ? 'Attendance not recorded yet'
+        : `Came to ${attended} of ${recorded.length}`,
     bars: sessions.map((session) =>
-      session.state === 'cancelled' ? 'cancelled' : session.state === 'live' ? 'next' : 'upcoming',
+      session.state === 'cancelled'
+        ? 'cancelled'
+        : session.state === 'live'
+          ? 'next'
+          : session.state === 'done' && session.attended === true
+            ? 'done'
+            : 'upcoming',
     ),
     label: next
       ? `Session ${next.number} of ${sessions.length} is next`

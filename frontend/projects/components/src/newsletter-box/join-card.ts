@@ -3,8 +3,9 @@ import { Button } from '../button/button';
 
 /**
  * The design system's join card (docs/design-system/components/newsletter-box.html, block
- * `join-card`): the bordeaux panel at the top of the news rail, with the community's headline,
- * one sentence on what it is and the white button that leads to Join. Words are rendered as text.
+ * `join-card`): the rail's call to join on a brand panel, "Life to the full.", the community in
+ * one sentence and "Join the community" leading to Join (L2-001 AC5). The member count the mock
+ * draws is left out until a requirement states it (ADR 0037, ADR 0107).
  */
 @Component({
   selector: 'cf-join-card',
@@ -13,8 +14,5 @@ import { Button } from '../button/button';
   styleUrl: './join-card.scss',
 })
 export class JoinCard {
-  readonly heading = input.required<string>();
-  readonly text = input.required<string>();
-  readonly action = input('Join the community');
-  readonly href = input('/join');
+  readonly joinHref = input('/join');
 }

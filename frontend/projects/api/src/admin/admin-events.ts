@@ -117,6 +117,28 @@ export interface EventRegistrationsDto {
   registrations: RegistrationRowDto[];
 }
 
+/** One registered member on the Attendance tab: who, and whether staff recorded that they came (ADR 0106). */
+export interface AttendanceRowDto {
+  memberId: string;
+  name: string;
+  came: boolean;
+}
+
+/**
+ * `GET /api/admin/events/{id}/attendance` (L2-080; ADR 0106): the title and start, whether it has
+ * started by the API's clock, how many are registered and came, and once started every registered
+ * member by name, at most 500; before the start `items` is empty.
+ */
+export interface EventAttendanceDto {
+  eventId: string;
+  title: string;
+  startsAt: string;
+  started: boolean;
+  registered: number;
+  came: number;
+  items: AttendanceRowDto[];
+}
+
 /** `POST /api/admin/events/images`: the key the image is kept under. */
 export interface EventImageDto {
   imageKey: string;
@@ -167,6 +189,18 @@ export interface AdminEventsApi {
 
   /** The event's registrations (L2-024 AC1; ADR 0036). An unknown id errors with code `not_found` (404). */
   registrations(id: string): Observable<EventRegistrationsDto>;
+
+  /**
+   * The event's attendance (L2-080; ADR 0106), for Admins and Moderators. An unknown id errors with
+   * code `event_not_found` (404).
+   */
+  attendance(id: string): Observable<EventAttendanceDto>;
+
+  /**
+   * Records whether `memberId` came to the event (204; ADR 0106). A refusal errors with an
+   * `ApiError`: 409 `event_not_started`, 404 `not_registered` or `event_not_found`.
+   */
+  setAttendance(id: string, memberId: string, came: boolean): Observable<void>;
 
   /** Keeps a JPEG, PNG or WebP of up to 5 MB and answers its key; else `validation_failed` with `fieldCodes.image`. */
   uploadImage(file: File): Observable<EventImageDto>;

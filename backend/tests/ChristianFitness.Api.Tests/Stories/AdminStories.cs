@@ -54,17 +54,17 @@ public class StoriesFactory : BylinesFactory
         string? slug = null,
         DateTimeOffset? publishAt = null,
         Guid? scheduledBy = null,
-        string summary = "",
-        string? imageKey = null)
+        Func<StoryContent, StoryContent>? content = null,
+        string? formerSlug = null)
     {
         var when = at ?? Time.GetUtcNow();
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         bylineId ??= await db.Bylines.Select(b => (Guid?)b.Id).FirstOrDefaultAsync(TestContext.Current.CancellationToken)
             ?? await AddBylineAsync($"Story Writer {Guid.NewGuid():N}"[..30]);
-        var story = Story.Create(
-            Story.Blank with { Headline = headline, Summary = summary, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug, ImageKey = imageKey },
-            when);
+        var written = Story.Blank with { Headline = headline, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug };
+        written = content is null ? written : content(written);
+        var story = Story.Create(formerSlug is null ? written : written with { Slug = formerSlug }, when);
         switch (status)
         {
             case StoryStatus.InReview:
@@ -76,6 +76,12 @@ public class StoriesFactory : BylinesFactory
             case StoryStatus.Scheduled:
                 story.Schedule(publishAt ?? when.AddDays(1), scheduledBy ?? Guid.NewGuid(), when.AddMinutes(1));
                 break;
+        }
+
+        if (formerSlug is not null)
+        {
+            // Published under the former link, then given its current one (L2-069 AC8).
+            story.UpdatePublished(written, when.AddMinutes(1));
         }
 
         if (unpublished)
@@ -102,15 +108,6 @@ public class StoriesFactory : BylinesFactory
         db.Events.Add(e);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return e.Id;
-    }
-
-    /// <summary>Empties the store of stories, so a front-page test starts with only its own.</summary>
-    internal async Task ClearStoriesAsync()
-    {
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Stories.RemoveRange(await db.Stories.ToListAsync(TestContext.Current.CancellationToken));
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     /// <summary>Makes every Lead story in the store an ordinary one, so a test starts with none.</summary>

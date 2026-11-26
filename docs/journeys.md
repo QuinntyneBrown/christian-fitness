@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 61% (22 of 36 journeys; 66 of 113 days)
+**% complete:** 75% (28 of 36 journeys; 85 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -25,10 +25,10 @@ audit), so those are not listed on their own.
 | 10  | ✅ Browse event series                 | Member | A Series view on Events lists programs by next session, with progress and filters.                             | 3             |
 | 11  | ✅ View an event series                | Member | A series page with its sessions, host and sign-up panel; session events show their series.                     | 3             |
 | 12  | ✅ Join and leave a series             | Member | Hold a place at every remaining session and join the series' one group chat, or leave it.                      | 4             |
-| 13  | ✅ Drop in on series dates              | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
+| 13  | ✅ Drop in on series dates             | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
 | 14  | ✅ Get notifications in the app        | Member | A bell with an unread count and a Notifications screen, fed over the existing real-time connection.            | 3             |
 | 15  | ✅ Cancel and restore series dates     | Both   | Staff cancel or restore a session; members holding a place are told in chat and by notification.               | 2             |
-| 16  | Record event attendance                | Both   | Staff tick who came; members see "You came", "Missed" and "Came to n of m" on the series.                      | 3             |
+| 16  | ✅ Record event attendance             | Both   | Staff tick who came; members see "You came", "Missed" and "Came to n of m" on the series.                      | 3             |
 | 17  | ✅ Suggest a listing                   | Member | A member suggests someone, or themselves, for the directory.                                                   | 2             |
 | 18  | ✅ Review listing suggestions          | Admin  | Staff record the four checks, approve or decline, edit listings; the sender hears back from Christian Fitness. | 4             |
 | 19  | ✅ Claim a listing                     | Member | The listed party opens a claim link and publishes their own listing, or says it isn't them.                    | 3             |
@@ -36,15 +36,15 @@ audit), so those are not listed on their own.
 | 21  | ✅ Manage bylines                      | Admin  | Admins add, edit and remove the names stories run under.                                                       | 2             |
 | 22  | ✅ Write and publish stories           | Admin  | Admins list, write, review, preview, publish, update and unpublish stories.                                    | 5             |
 | 23  | ✅ Schedule stories                    | Admin  | A scheduled story publishes itself within a minute, run by the console's scheduler.                            | 2             |
-| 24  | Read a story                           | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
-| 25  | Read the news front page               | Member | The landing page becomes a news front page: sections, top stories, the rail and most read.                     | 3             |
-| 26  | Follow stories by RSS                  | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
+| 24  | ✅ Read a story                        | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
+| 25  | ✅ Read the news front page            | Member | The landing page becomes a news front page: sections, top stories, the rail and most read.                     | 3             |
+| 26  | ✅ Follow stories by RSS               | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
 | 27  | Subscribe to the newsletter            | Member | Anyone subscribes without an account, confirms by email and unsubscribes in one click.                         | 4             |
 | 28  | Build and send the newsletter          | Admin  | Staff build the weekly issue from stories and events, test it, schedule it and send it.                        | 5             |
 | 29  | Read the newsletter on the web         | Member | The latest and earlier issues read on the web as the email did.                                                | 2             |
-| 30  | Send feedback                          | Member | Send an idea, a problem, a correction or thanks from any page, with an optional screenshot.                    | 3             |
+| 30  | ✅ Send feedback                       | Member | Send an idea, a problem, a correction or thanks from any page, with an optional screenshot.                    | 3             |
 | 31  | Answer feedback                        | Admin  | Staff read, reply to, resolve and reopen feedback in an inbox.                                                 | 3             |
-| 32  | Make a Community Pick                  | Both   | Staff pick an event and make branded images and captions for four platforms; `/e/<id>` links land on it.       | 4             |
+| 32  | ✅ Make a Community Pick               | Both   | Staff pick an event and make branded images and captions for four platforms; `/e/<id>` links land on it.       | 4             |
 | 33  | Set email and notification preferences | Member | Choose which emails and in-app notifications to get, saved together from a save bar.                           | 3             |
 | 34  | Set privacy and suggestion preferences | Member | Choose who sees my profile, lists me and messages me, and what orders Home's suggestions.                      | 4             |
 | 35  | Download my data                       | Member | Request a .zip of my data and download it from a private link.                                                 | 3             |
@@ -123,7 +123,7 @@ under `detailed-designs/` and the mocks under `mocks/` (pages, dialogs and notif
   `listing-row`, `follow-button` (5); `host-card` (6–7); `side-navigation` (9); `series-card`
   (10); `session-list`, `plan-option`, `choice-card` (11–13); `suggestion`, `steps` (17–18);
   `review-card` (18); `section-heading`, `dropzone` (19–22); `editor`, `prose` (22); `story` (24);
-  `masthead`, `newsletter-box` (25); `feed-list` (26); `issue` (29); `feedback-row` (31);
+  `masthead`, `newsletter-box` (25); `feed-list` (27, with Subscribe's feed list; ADR 0108); `issue` (29); `feedback-row` (31);
   `pick-art`, `pick-list` (32); `preference-row`, `save-bar` (33).
 - **Not built here.** Web push (ADR 0068 leaves it to a later ADR), the newsletter's add-on emails
   (L2-057 AC2, L2-070 AC11), online payment (L2-052 AC4) and members checking themselves in

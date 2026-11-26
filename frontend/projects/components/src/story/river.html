@@ -1,0 +1,54 @@
+@if (pageHeading()) {
+  <h1 class="display river__title">{{ heading() }}</h1>
+} @else {
+  <h2 class="display river__title">{{ heading() }}</h2>
+}
+@if (loading()) {
+  <ul class="river__list">
+    @for (row of skeletons; track row) {
+      <li class="story-row">
+        <div class="story-row__body story-row__body--loading">
+          <cf-skeleton shape="text-sm" width="30" />
+          <cf-skeleton shape="title" />
+          <cf-skeleton width="80" />
+        </div>
+        <span class="story-row__tile"><cf-skeleton shape="tile" /></span>
+      </li>
+    }
+  </ul>
+} @else if (stories().length) {
+  <ul class="river__list">
+    @for (story of stories(); track story.href) {
+      <li class="story-row">
+        <div class="story-row__body">
+          <p class="story__section">
+            {{ story.section }}<span class="story__ago">{{ ' · ' + story.age }}</span>
+          </p>
+          @if (pageHeading()) {
+            <h2 class="story-row__title">
+              <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
+                story.title
+              }}</a>
+            </h2>
+          } @else {
+            <h3 class="story-row__title">
+              <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
+                story.title
+              }}</a>
+            </h3>
+          }
+          @if (story.summary) {
+            <p class="story-row__dek">{{ story.summary }}</p>
+          }
+          @if (story.author) {
+            <p class="story__meta">{{ story.author }}</p>
+          }
+        </div>
+        @if (story.image) {
+          <img class="story-row__image" [src]="story.image" alt="" width="1600" height="900" />
+        }
+      </li>
+    }
+  </ul>
+}
+<ng-content />

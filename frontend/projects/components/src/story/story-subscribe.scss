@@ -1,0 +1,48 @@
+// Mock story/default (docs/design-system/assets/components.css, "Story"): the Weekly box after
+// Keep reading (L2-061 AC6).
+:host {
+  display: block;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.story-subscribe {
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome);
+}
+
+.story-subscribe__inner {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  padding: var(--space-10) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+
+  @media (min-width: 48rem) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.story-subscribe__title {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-none);
+}
+
+.story-subscribe__text {
+  margin-top: var(--space-2);
+  color: var(--color-fg-on-chrome-muted);
+}

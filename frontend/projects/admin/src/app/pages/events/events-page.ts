@@ -119,7 +119,10 @@ export default class AdminEventsPage {
     const state = this.state();
     return state.kind === 'ready' ? state.events : [];
   });
-  protected readonly rows = computed<TableRow[]>(() => this.shownEvents().map(rowOf));
+  protected readonly rows = computed<TableRow[]>(() => {
+    const now = Date.now();
+    return this.shownEvents().map((event) => rowOf(event, now));
+  });
   protected readonly empty = computed(() => EMPTY[this.tab()]);
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
@@ -227,10 +230,23 @@ export default class AdminEventsPage {
   }
 }
 
-function rowOf(event: AdminEventDto): TableRow {
+/**
+ * A row of the table; a published event still to come also gets "Make it a pick", which opens
+ * Community Pick with it chosen (L2-072 AC1; ADR 0098).
+ */
+function rowOf(event: AdminEventDto, now: number): TableRow {
+  const pickable = event.status === 'published' && Date.parse(event.startsAt) > now;
   return {
     id: event.id,
     name: event.title,
+    ...(pickable
+      ? {
+          quietLink: {
+            label: 'Make it a pick',
+            href: `/community-pick?event=${encodeURIComponent(event.id)}`,
+          },
+        }
+      : {}),
     cells: {
       event: { text: event.title, sub: adminEventSubOf(event) },
       date: { text: eventWhen(event.startsAt) },

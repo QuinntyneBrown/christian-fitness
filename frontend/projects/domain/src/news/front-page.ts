@@ -1,69 +1,47 @@
-import type { NewsSectionSlug, StorySummaryDto } from '@cf/api';
-import { storyAge } from './story-list';
+import type { StorySectionName } from '@cf/api';
 
-/** How many stories the river holds at most, however many pages are asked for (L2-037). */
-export const RIVER_MAX = 60;
-
-/** One entry of the front page's section navigation: Latest is every section, with no slug. */
+/** One view of the front page: Latest or a section (L2-001 AC1, AC3). */
 export interface NewsSection {
-  slug: NewsSectionSlug | null;
+  /** The address's `section` value (ADR 0071), or `latest` for none. */
+  slug: string;
   label: string;
-  href: string;
+  /** The section's name in the API; none for Latest. */
+  story: StorySectionName | null;
 }
 
-/** Latest and the six sections, in the masthead's order (L2-001 AC1), each with its address (ADR 0071). */
-export const NEWS_SECTIONS: readonly NewsSection[] = [
-  { slug: null, label: 'Latest', href: '/' },
-  { slug: 'events', label: 'Events', href: '/?section=events' },
-  { slug: 'training', label: 'Training', href: '/?section=training' },
-  { slug: 'nutrition', label: 'Nutrition', href: '/?section=nutrition' },
-  { slug: 'faith-body', label: 'Faith & Body', href: '/?section=faith-body' },
-  { slug: 'community', label: 'Community', href: '/?section=community' },
-  { slug: 'pros', label: 'Pros', href: '/?section=pros' },
+const LATEST: NewsSection = { slug: 'latest', label: 'Latest', story: null };
+
+const SECTIONS: readonly NewsSection[] = [
+  { slug: 'events', label: 'Events', story: 'events' },
+  { slug: 'training', label: 'Training', story: 'training' },
+  { slug: 'nutrition', label: 'Nutrition', story: 'nutrition' },
+  { slug: 'faith-body', label: 'Faith & Body', story: 'faith-and-body' },
+  { slug: 'community', label: 'Community', story: 'community' },
+  { slug: 'pros', label: 'Pros', story: 'pros' },
 ];
 
-/** The section a `section` query value names; anything else, or none, is Latest (L2-001 AC3). */
+/** The masthead's sections in order, Latest first, each with its address (L2-001 AC1, AC3). */
+export const NEWS_SECTIONS: readonly (NewsSection & { href: string })[] = [
+  { ...LATEST, href: '/' },
+  ...SECTIONS.map((section) => ({ ...section, href: `/?section=${section.slug}` })),
+];
+
+/** The view an address's `section` value names; anything else, or none, is Latest (L2-001 AC3). */
 export function newsSectionOf(value: string | null): NewsSection {
-  return (
-    NEWS_SECTIONS.find((section) => section.slug !== null && section.slug === value) ??
-    NEWS_SECTIONS[0]!
-  );
+  return SECTIONS.find((section) => section.slug === value) ?? LATEST;
 }
 
-/** A story as the front page draws it, whichever form it takes. */
-export interface StoryTeaserView {
-  id: string;
-  href: string;
-  section: string;
-  heading: string;
-  summary: string;
-  author: string;
-  age: string;
-  image: string | null;
-}
+/** How many river stories the page holds at most, so the river stays bounded (ADR 0107). */
+export const RIVER_MAX = 60;
 
-/** The story worded for the front page: its address, its section's name and its age in Toronto. */
-export function storyTeaserOf(story: StorySummaryDto, now: Date): StoryTeaserView {
-  return {
-    id: story.id,
-    href: `/stories/${encodeURIComponent(story.slug)}`,
-    section: NEWS_SECTIONS.find((section) => section.slug === story.section)?.label ?? '',
-    heading: story.headline,
-    summary: story.summary ?? '',
-    author: story.byline,
-    age: storyAge(story.publishedAt, now),
-    image: story.imageKey ? `/api/stories/images/${encodeURIComponent(story.imageKey)}` : null,
-  };
-}
+/** How many river stories one page brings (ADR 0107). */
+export const RIVER_PAGE = 12;
 
 /**
- * The river after another page arrives: the stories it held and the new ones, without a story it
- * already holds, and never more than {@link RIVER_MAX}.
+ * What ends the river (ADR 0107; mocks `landing/more-stories`, `landing/river-capped`): "More
+ * stories" while older stories follow, the capped line once 60 show, nothing otherwise.
  */
-export function riverWith(
-  held: readonly StoryTeaserView[],
-  more: readonly StoryTeaserView[],
-): StoryTeaserView[] {
-  const ids = new Set(held.map((story) => story.id));
-  return [...held, ...more.filter((story) => !ids.has(story.id))].slice(0, RIVER_MAX);
+export function riverEndOf(shown: number, more: boolean): 'more' | 'capped' | 'end' {
+  if (!more) return 'end';
+  return shown >= RIVER_MAX ? 'capped' : 'more';
 }

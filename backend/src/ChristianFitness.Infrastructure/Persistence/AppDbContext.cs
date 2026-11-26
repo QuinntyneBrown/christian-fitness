@@ -62,6 +62,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Story> Stories => Set<Story>();
 
     public DbSet<SchedulerLease> SchedulerLeases => Set<SchedulerLease>();
+    public DbSet<CommunityPick> CommunityPicks => Set<CommunityPick>();
+
+    public DbSet<StoryReadTally> StoryReadTallies => Set<StoryReadTally>();
+
+    public DbSet<Attendance> Attendances => Set<Attendance>();
+    public DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes => Set<ChristianFitness.Domain.Feedback.FeedbackNote>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();

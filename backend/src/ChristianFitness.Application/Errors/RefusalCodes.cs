@@ -24,6 +24,12 @@ public static class RefusalCodes
     /// <summary>A story uses the byline, so it cannot be removed (L2-077 AC7; ADR 0094).</summary>
     public const string BylineInUse = "byline_in_use";
 
+    /// <summary>The event has not started, so attendance cannot be recorded yet (L2-080 AC5; ADR 0106).</summary>
+    public const string EventNotStarted = "event_not_started";
+
+    /// <summary>The member holds no registration at the event, so their attendance cannot be recorded (ADR 0106).</summary>
+    public const string NotRegistered = "not_registered";
+
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
     public const string EventNotFound = "event_not_found";
 

@@ -43,4 +43,21 @@
     background: var(--color-accent-subtle);
     box-shadow: inset 0 0 0 var(--border-width-thick) var(--color-fg-accent);
   }
+
+  .choice__label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-1-5);
+  }
+}
+
+// A card's decorative icon: muted, and accent once its card is chosen.
+.choice-card__icon {
+  margin: var(--space-0-5) 0 0;
+  flex-shrink: 0;
+  color: var(--color-fg-muted);
+
+  .choice-card:has(:checked) & {
+    color: var(--color-fg-accent);
+  }
 }

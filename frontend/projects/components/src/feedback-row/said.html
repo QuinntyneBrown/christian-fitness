@@ -1,0 +1,10 @@
+<p class="said__lead">{{ lead() }}</p>
+<ul class="list-ruled said">
+  @for (item of items(); track item.did) {
+    <li>
+      <p class="said__quote">“{{ item.quote }}”</p>
+      <p class="said__did">{{ item.did }}</p>
+      <p class="said__when">{{ item.when }}</p>
+    </li>
+  }
+</ul>

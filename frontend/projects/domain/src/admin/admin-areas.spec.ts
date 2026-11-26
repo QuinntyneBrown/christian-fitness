@@ -4,6 +4,7 @@ import {
   areasFor,
   adminPageIsFlush,
   canManage,
+  canOpen,
   currentAdminArea,
   type AdminAreaKey,
 } from './admin-areas';
@@ -16,6 +17,7 @@ describe('ADMIN_AREAS', () => {
       ['Stories', '/stories'],
       ['Events', '/events'],
       ['Event series', '/series'],
+      ['Community Pick', '/community-pick'],
       ['Listings', '/listings'],
       ['Services', '/services'],
       ['Members', '/members'],
@@ -46,6 +48,11 @@ describe('currentAdminArea', () => {
     { why: 'an empty URL', url: '', expected: 'dashboard' },
     { why: 'an area', url: '/events', expected: 'events' },
     { why: 'event series, not events', url: '/series?id=c5', expected: 'series' },
+    {
+      why: 'Community Pick with an event chosen',
+      url: '/community-pick?event=e1',
+      expected: 'community-pick',
+    },
     { why: 'bylines, under stories', url: '/stories/bylines', expected: 'stories' },
     { why: 'an area with a trailing slash', url: '/services/', expected: 'services' },
     { why: 'a screen under an area', url: '/members/0190c0de', expected: 'members' },
@@ -92,6 +99,13 @@ describe('canManage', () => {
     { role: 'Moderator', area: 'members', allowed: true, why: 'a Moderator moderates members' },
     { role: 'Admin', area: 'series', allowed: true, why: 'an Admin manages event series' },
     { role: 'Moderator', area: 'series', allowed: true, why: 'a Moderator manages event series' },
+    { role: 'Admin', area: 'community-pick', allowed: true, why: 'an Admin makes Community Picks' },
+    {
+      role: 'Moderator',
+      area: 'community-pick',
+      allowed: true,
+      why: 'a Moderator makes Community Picks (ADR 0098)',
+    },
     { role: 'Admin', area: 'stories', allowed: true, why: 'an Admin manages stories and bylines' },
     {
       role: 'Moderator',
@@ -108,6 +122,24 @@ describe('canManage', () => {
   });
 });
 
+// L2-019 AC1 as amended (ADR 0106): an event's Attendance tab opens for Moderators too.
+describe('canOpen', () => {
+  it.each<{ role: StaffRoleName; url: string; allowed: boolean }>([
+    { role: 'Moderator', url: '/events/e1/attendance', allowed: true },
+    { role: 'Moderator', url: '/events/e1/attendance/?x=1#top', allowed: true },
+    { role: 'Admin', url: '/events/e1/attendance', allowed: true },
+    { role: 'Visitor' as StaffRoleName, url: '/events/e1/attendance', allowed: false },
+    { role: 'Moderator', url: '/events/e1/registrations', allowed: false },
+    { role: 'Moderator', url: '/events', allowed: false },
+    { role: 'Moderator', url: '/events/attendance', allowed: false },
+    { role: 'Moderator', url: '/members', allowed: true },
+    { role: 'Moderator', url: '/admins-only', allowed: true },
+    { role: 'Admin', url: '/stories', allowed: true },
+  ])('$role at $url: $allowed', ({ role, url, allowed }) => {
+    expect(canOpen(role, url)).toBe(allowed);
+  });
+});
+
 describe('areasFor', () => {
   it('lists every area for an Admin, in navigation order', () => {
     expect(areasFor('Admin').map((area) => area.key)).toEqual([
@@ -115,16 +147,18 @@ describe('areasFor', () => {
       'stories',
       'events',
       'series',
+      'community-pick',
       'listings',
       'services',
       'members',
     ]);
   });
 
-  it('lists the Dashboard, Event series, Listings and Members for a Moderator', () => {
+  it('lists the Dashboard, Event series, Community Pick, Listings and Members for a Moderator', () => {
     expect(areasFor('Moderator').map((area) => area.key)).toEqual([
       'dashboard',
       'series',
+      'community-pick',
       'listings',
       'members',
     ]);

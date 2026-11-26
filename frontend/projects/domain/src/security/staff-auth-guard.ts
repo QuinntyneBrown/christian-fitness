@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { RedirectCommand, Router, type CanActivateFn } from '@angular/router';
 import { STAFF_SESSION_SERVICE } from '@cf/api';
 import { catchError, map, of } from 'rxjs';
-import { canManage, currentAdminArea } from '../admin/admin-areas';
+import { canOpen } from '../admin/admin-areas';
 import { isSessionExpired } from '../admin/session-expiry';
 import { ADMINS_ONLY_PATH } from '../errors/forbidden-interceptor';
 
@@ -14,7 +14,7 @@ import { ADMINS_ONLY_PATH } from '../errors/forbidden-interceptor';
  * there saying why (L2-018 AC5; ADR 0016); anything else keeps them where they are, since a 5xx
  * already opens the server-error screen and a 403 the forbidden screen. The admin routes use it as
  * `canActivateChild`, so every move between areas asks again. A session whose role does not open
- * the area being opened (`canManage`) shows "Admins only" in its place, the address kept, so a
+ * the screen being opened (`canOpen`) shows "Admins only" in its place, the address kept, so a
  * reload asks again (L2-019 AC5; ADR 0020); the API refuses that area's requests either way.
  */
 export const staffAuthGuard: CanActivateFn = (_route, state) => {
@@ -23,8 +23,7 @@ export const staffAuthGuard: CanActivateFn = (_route, state) => {
     .current()
     .pipe(
       map((staff) => {
-        const area = currentAdminArea(state.url);
-        return area === null || canManage(staff.role, area)
+        return canOpen(staff.role, state.url)
           ? true
           : new RedirectCommand(router.parseUrl(ADMINS_ONLY_PATH), { browserUrl: state.url });
       }),

@@ -1,0 +1,33 @@
+<ul class="headline-list">
+  @if (loading()) {
+    @for (row of skeletons; track row) {
+      <li class="headline">
+        <div class="headline__body headline__body--loading">
+          <cf-skeleton shape="text-sm" width="20" />
+          <cf-skeleton width="90" />
+          <cf-skeleton shape="text-sm" width="40" />
+        </div>
+        <span class="headline__tile"><cf-skeleton shape="tile" /></span>
+      </li>
+    }
+  } @else {
+    @for (story of stories(); track story.href) {
+      <li class="headline">
+        <div class="headline__body">
+          <p class="story__section">{{ story.section }}</p>
+          <h2 class="headline__title">
+            <a class="story-link" [href]="story.href" (click)="follow($event, story.href)">{{
+              story.title
+            }}</a>
+          </h2>
+          <p class="story__meta">
+            {{ story.author ? story.author + ' · ' + story.age : story.age }}
+          </p>
+        </div>
+        @if (story.image) {
+          <img class="headline__image" [src]="story.image" alt="" width="1600" height="900" />
+        }
+      </li>
+    }
+  }
+</ul>

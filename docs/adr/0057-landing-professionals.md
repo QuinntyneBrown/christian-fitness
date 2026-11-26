@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted, 24 November 2026 (slice 8.2).
+Superseded by [ADR 0107](0107-news-front-page.md) (journey 25): the news front page has no
+professionals section. Accepted, 24 November 2026 (slice 8.2).
 
 ## Context
 

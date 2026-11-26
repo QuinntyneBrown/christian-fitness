@@ -1,0 +1,15 @@
+// The Send feedback screen's own layout (mock `feedback/default`): the note, the screenshot and
+// the email choice each as a tight form section (`form-section--tight`, 24 px above). The form
+// page, the choice cards, the chip, the fields and "You said, we did" are the library's.
+:host {
+  display: block;
+}
+
+.feedback-page {
+  display: block;
+  min-height: 100dvh;
+}
+
+.feedback__section {
+  margin-top: var(--space-6);
+}

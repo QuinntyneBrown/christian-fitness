@@ -106,6 +106,11 @@ export interface SeriesSessionDto {
   held: boolean;
   /** Still to come, not cancelled and every place taken (L2-053 AC7; ADR 0102). */
   full: boolean;
+  /**
+   * Staff recorded that the member came (`true`) or did not (`false`); `null` where nothing is
+   * recorded for them there (L2-080 AC7; ADR 0106).
+   */
+  attended: boolean | null;
 }
 
 /** The event series a member browses (L2-050; ADR 0093). */

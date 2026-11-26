@@ -90,6 +90,7 @@ public static class StoryRules
 {
     public const string StatusInvalid = "status_invalid";
     public const string PageInvalid = "page_invalid";
+    public const string SkipInvalid = "skip_invalid";
     public const string SlugTaken = "slug_taken";
     public const string VersionRequired = "version_required";
     public const string ImageInvalid = "image_invalid";
@@ -99,7 +100,7 @@ public static class StoryRules
 
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal)
     {
-        StatusInvalid, PageInvalid,
+        StatusInvalid, PageInvalid, SkipInvalid,
         "headline_required", "headline_too_long", "summary_too_long", "text_required", "text_too_long",
         "section_required", "section_invalid", "byline_required", "byline_invalid", "placement_invalid",
         "points_to_invalid", "next_step_too_long", "next_step_link_invalid", "slug_invalid", "slug_taken",
@@ -123,9 +124,9 @@ internal sealed class ListAdminStoriesValidator : AbstractValidator<ListAdminSto
 
 /// <summary>
 /// Counts every status, names the three stories longest in review, and reads one page of the tab,
-/// newest activity first. No read is counted before the story page exists (journey 24), so a story
-/// that has been published shows 0 reads and one never published none (ADR 0097). A Scheduled story
-/// whose time has come counts, filters and reads as Published at that time (ADR 0069).
+/// newest activity first. A story that has been published shows the sum of its daily read tallies
+/// (ADR 0105), and one never published none (ADR 0097). A Scheduled story whose time has come
+/// counts, filters and reads as Published at that time (ADR 0069).
 /// </summary>
 internal sealed class ListAdminStoriesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListAdminStoriesQuery, AdminStoryListDto>
 {
@@ -140,6 +141,7 @@ internal sealed class ListAdminStoriesHandler(IAppDbContext db, TimeProvider tim
         int CountOf(StoryStatus status) => counts.Where(c => c.Status == status).Sum(c => c.Count);
 
         var bylines = db.Bylines.AsNoTracking();
+        var tallies = db.StoryReadTallies.AsNoTracking();
         var review = await db.Stories.AsNoTracking()
             .Where(s => s.Status == StoryStatus.InReview)
             .OrderBy(s => s.SubmittedAt).ThenBy(s => s.Id)
@@ -165,6 +167,7 @@ internal sealed class ListAdminStoriesHandler(IAppDbContext db, TimeProvider tim
             {
                 s.Id, s.Headline, s.Section, s.Status, s.EditedAt, s.SubmittedAt, s.PublishAt, s.PublishedAt, s.FirstPublishedAt,
                 Byline = bylines.Where(b => b.Id == s.BylineId).Select(b => b.Name).FirstOrDefault(),
+                Reads = tallies.Where(t => t.StoryId == s.Id).Sum(t => t.Count),
             })
             .ToListAsync(cancellationToken).ConfigureAwait(false);
 
@@ -184,7 +187,7 @@ internal sealed class ListAdminStoriesHandler(IAppDbContext db, TimeProvider tim
                     StoryStatus.Published => s.PublishedAt!.Value,
                     _ => s.EditedAt,
                 },
-                s.FirstPublishedAt is null ? null : 0))],
+                s.FirstPublishedAt is null ? null : s.Reads))],
             page,
             pageCount);
     }

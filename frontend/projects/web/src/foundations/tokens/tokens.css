@@ -99,7 +99,6 @@
   --font-size-2xl: 1.5rem;     /* 24px  section titles, date numerals */
   --font-size-3xl: 1.875rem;   /* 30px  dialog and card titles */
   --font-size-4xl: 2.25rem;    /* 36px  mobile page titles */
-  --font-size-lead: 2.6rem;    /* 41.6px  front-page lead headline from 1024px (the prototype's size) */
   --font-size-5xl: 3rem;       /* 48px  page titles */
   --font-size-6xl: 3.75rem;    /* 60px  detail titles, stat hero */
   --font-size-7xl: 4.5rem;     /* 72px  landing hero (sm) */
@@ -112,7 +111,6 @@
 
   --line-height-display: 0.9;  /* condensed display headings */
   --line-height-none: 1;
-  --line-height-lead: 1.12;    /* front-page lead headline */
   --line-height-tight: 1.25;
   --line-height-snug: 1.375;
   --line-height-normal: 1.5;
@@ -126,7 +124,6 @@
   --line-height-4xl: 2.5rem;   /* with --font-size-4xl */
 
   --letter-spacing-normal: 0;
-  --letter-spacing-tight: -0.01em;  /* front-page lead headline */
   --letter-spacing-wide: 0.025em;   /* display headings, wordmark, overlines */
   --letter-spacing-wider: 0.14em;   /* "Admin console" eyebrow */
   --letter-spacing-code: 0.4em;     /* one-time code input */
@@ -310,7 +307,7 @@
   --size-avatar-3xl: 7rem;   /* 112px profile hero */
   --size-seal-lockup: 2.125rem;
   --size-seal-signin: 2.75rem;
-  --size-seal-verse: 7.5rem;
+  --size-seal-verse: 8.75rem;
   --size-seal-hero: 11.25rem;
   --size-dot: 0.5rem;
   --size-dot-lg: 0.625rem;
@@ -319,8 +316,6 @@
   --size-date-col-lg: 3.5rem;
   --size-thumb-w: 5rem;
   --size-thumb-h: 4rem;
-  --size-thumb-sm: 5rem;              /* headline square */
-  --size-thumb-story: 7rem;           /* story row image */
   --size-meter: 0.375rem;
   --size-divider-h: 1.5rem;
   --size-switch-w: 2.75rem;
@@ -336,7 +331,6 @@
 
   --border-width-hairline: 1px;
   --border-width-thick: 2px;
-  --border-width-rule: 4px;   /* editorial rules: headline list, ruled titles, newsletter frame */
 
   /* ---------- Semantic: elevation -------------------------------------- */
   --shadow-1: 0 1px 0 rgb(17 17 17 / 0.04);      /* resting cards */

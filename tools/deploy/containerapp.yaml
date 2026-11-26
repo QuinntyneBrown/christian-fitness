@@ -39,8 +39,14 @@ properties:
             value: /data/keys
           - name: Images__Directory
             value: /data/images
+          # Private to staff: no container serves this folder (ADR 0109).
+          - name: Feedback__ScreenshotDirectory
+            value: /data/feedback-screenshots
           - name: MemberApp__BaseUrl
             value: https://www.christian.fitness
+          # The member app's shell, from the web container of the same replica (ADR 0105).
+          - name: StoryShell__Url
+            value: http://127.0.0.1:8080/index.html
           - name: Email__Smtp__Host
             value: smtp.azurecomm.net
           - name: Email__Smtp__Port

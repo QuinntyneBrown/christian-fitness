@@ -3,40 +3,42 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   type EventSummaryDto,
-  type FrontPageDto,
   type LandingEventDto,
   PUBLIC_EVENTS_SERVICE,
   STORIES_SERVICE,
+  storyImageUrl,
+  type StorySummaryDto,
 } from '@cf/api';
 import {
   Button,
   EventRow,
   Footer,
-  Headline,
+  HeadlineList,
   InlineMessage,
   JoinCard,
   List,
   Masthead,
   type MastheadSection,
-  Ranked,
-  type RankedItem,
-  RuleTitle,
+  type NewsStoryView,
+  RankedList,
+  type RankedStory,
+  River,
   Seal,
+  Skeleton,
   SkeletonRegion,
+  SkipLink,
   Spinner,
   StoryLead,
-  StoryRow,
 } from '@cf/components';
 import {
-  type EventCardView,
   eventCardViewOf,
   NEWS_SECTIONS,
-  type NewsSection,
   newsSectionOf,
   RIVER_MAX,
-  riverWith,
-  storyTeaserOf,
-  type StoryTeaserView,
+  RIVER_PAGE,
+  riverEndOf,
+  storyAge,
+  storySectionLabel,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpPublicEventsService } from '../../services/http-public-events.service';
@@ -44,12 +46,11 @@ import { HttpStoriesService } from '../../services/http-stories.service';
 
 /** How many events the rail asks for (L2-001 AC5). */
 const TAKE = 4;
-const EVENT_SKELETONS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
-const HEADLINE_SKELETONS = [1, 2, 3, 4];
-const RIVER_SKELETONS = [1, 2, 3];
+const NO_ROWS: readonly NewsStoryView[] = [];
+const SKELETON_ROWS = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 
 /** One row of the rail's "Upcoming events", worded for a visitor. */
-interface LandingRow {
+interface RailRow {
   id: string;
   month: string;
   day: string;
@@ -57,16 +58,18 @@ interface LandingRow {
   meta: string;
 }
 
+type Load = 'loading' | 'loaded' | 'failed';
+
 /**
- * The public landing page at `/`, a news front page (L2-001, L2-002): the masthead with the
- * sections; for Latest the lead story beside four headlines and the river under "The latest", for
- * a section its stories alone under its name; the rail with the call to join, the next four
- * events and "Most read"; John 10:10 and the footer. A signed-in member never sees it
- * (`redirectSignedInGuard`). `STORIES_SERVICE` and `PUBLIC_EVENTS_SERVICE` are bound here, so the
- * clients and their requests live only while the page does. The stories and the events load and
- * fail on their own, each with its own Try again. The section is the address's `section` value
- * (ADR 0071); choosing one routes without a reload and asks for that section's stories. The river
- * grows 12 stories at a time and never holds more than 60 (L2-037).
+ * The news front page at `/` (L2-001, L2-002; ADR 0107; mock `landing/`), for visitors: a
+ * signed-in member never sees it (`redirectSignedInGuard`). The masthead lists the sections;
+ * `?section=<slug>` chooses one, and an unknown one is Latest. Latest shows the lead, four
+ * headlines and the river under "The latest"; a section shows only its river under its name. The
+ * river grows 12 stories at a time up to 60 with More stories. The rail holds the join card, the
+ * next four events and "Most read". Stories, events and most read load and fail apart, and Try
+ * again asks for the part that failed alone. `STORIES_SERVICE` and `PUBLIC_EVENTS_SERVICE` are
+ * bound here, so their clients and requests live only while the page does. Every word a story
+ * gives is rendered as text.
  */
 @Component({
   selector: 'cf-landing-page',
@@ -74,73 +77,67 @@ interface LandingRow {
     Button,
     EventRow,
     Footer,
-    Headline,
+    HeadlineList,
     InlineMessage,
     JoinCard,
     List,
     Masthead,
-    Ranked,
-    RuleTitle,
+    RankedList,
+    River,
     Seal,
+    Skeleton,
     SkeletonRegion,
+    SkipLink,
     Spinner,
     StoryLead,
-    StoryRow,
   ],
   providers: [
-    { provide: STORIES_SERVICE, useClass: HttpStoriesService },
     { provide: PUBLIC_EVENTS_SERVICE, useClass: HttpPublicEventsService },
+    { provide: STORIES_SERVICE, useClass: HttpStoriesService },
   ],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.scss',
 })
 export default class LandingPage {
-  private readonly storiesApi = inject(STORIES_SERVICE);
   private readonly events = inject(PUBLIC_EVENTS_SERVICE);
+  private readonly stories = inject(STORIES_SERVICE);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private storiesRequest: Subscription | null = null;
   private eventsRequest: Subscription | null = null;
-  private nextCursor: string | null = null;
+  private storiesRequest: Subscription | null = null;
+  private now = new Date();
 
-  protected readonly eventSkeletons = EVENT_SKELETONS;
-  protected readonly headlineSkeletons = HEADLINE_SKELETONS;
-  protected readonly riverSkeletons = RIVER_SKELETONS;
-
-  protected readonly section = signal<NewsSection>(NEWS_SECTIONS[0]!);
+  protected readonly skeletons = SKELETON_ROWS;
+  protected readonly section = signal(newsSectionOf(null));
+  protected readonly latest = computed(() => this.section().story === null);
   protected readonly sections = computed<MastheadSection[]>(() =>
-    NEWS_SECTIONS.map((section) => ({
-      label: section.label,
-      href: section.href,
-      current: section === this.section(),
+    NEWS_SECTIONS.map((s) => ({
+      label: s.label,
+      href: s.href,
+      current: s.slug === this.section().slug,
     })),
   );
 
-  protected readonly storiesState = signal<'loading' | 'loaded' | 'failed'>('loading');
-  protected readonly lead = signal<StoryTeaserView | null>(null);
-  protected readonly headlines = signal<StoryTeaserView[]>([]);
-  protected readonly river = signal<StoryTeaserView[]>([]);
-  protected readonly mostRead = signal<RankedItem[]>([]);
-  /** Whether another page of the river can be asked for, and how the last ask went. */
-  protected readonly more = signal<'none' | 'ready' | 'loading' | 'failed'>('none');
-  protected readonly capped = computed(() => this.river().length >= RIVER_MAX);
-
-  protected readonly isLatest = computed(() => this.section().slug === null);
-  /** The lead and the headlines show for Latest, while it loads and once it has a lead. */
-  protected readonly showsTop = computed(
-    () => this.isLatest() && (this.storiesState() === 'loading' || this.lead() !== null),
+  protected readonly storiesState = signal<Load>('loading');
+  protected readonly lead = signal<NewsStoryView | null>(null);
+  protected readonly headlines = signal<NewsStoryView[]>([]);
+  protected readonly river = signal<NewsStoryView[]>([]);
+  private readonly more = signal(false);
+  protected readonly moreState = signal<'idle' | 'loading' | 'failed'>('idle');
+  /** The river's rows once the stories have loaded; none while they load or after they fail. */
+  protected readonly riverRows = computed(() =>
+    this.storiesState() === 'loaded' ? this.river() : NO_ROWS,
   );
-  protected readonly riverTitle = computed(() =>
-    this.isLatest() ? 'The latest' : this.section().label,
-  );
-  protected readonly emptyText = computed(() =>
-    this.isLatest()
-      ? 'No stories yet. Check back soon.'
-      : `No stories in ${this.section().label} yet this week.`,
+  protected readonly riverEnd = computed(() => riverEndOf(this.river().length, this.more()));
+  /** The river's title is the page's `h1` unless the lead is. */
+  protected readonly riverIsHeading = computed(
+    () => !this.latest() || (this.storiesState() !== 'loading' && this.lead() === null),
   );
 
-  protected readonly eventsState = signal<'loading' | 'loaded' | 'failed'>('loading');
-  protected readonly rows = signal<LandingRow[]>([]);
+  protected readonly eventsState = signal<Load>('loading');
+  protected readonly rows = signal<RailRow[]>([]);
+  /** "Most read"; empty while it loads, when nothing was read and when it fails, which hides it. */
+  protected readonly mostRead = signal<RankedStory[]>([]);
 
   constructor() {
     inject(ActivatedRoute)
@@ -150,61 +147,52 @@ export default class LandingPage {
         this.loadStories();
       });
     this.loadEvents();
+    this.loadMostRead();
   }
 
-  /** Routes to a section's address without a reload. */
+  /** Follows a section or a story inside the app. */
   protected go(href: string): void {
     void this.router.navigateByUrl(href);
   }
 
-  /** Asks for the section's front page again, in place. */
+  /** Asks for the section's front page again, from the top. */
   protected loadStories(): void {
     this.storiesRequest?.unsubscribe();
     this.storiesState.set('loading');
-    this.more.set('none');
-    this.storiesRequest = this.storiesApi
-      .frontPage(this.section().slug, null)
+    this.moreState.set('idle');
+    this.storiesRequest = this.stories
+      .frontPage(this.section().story, 0)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
-          const now = new Date();
-          this.lead.set(page.lead ? storyTeaserOf(page.lead, now) : null);
-          this.headlines.set(page.headlines.slice(0, 4).map((story) => storyTeaserOf(story, now)));
-          this.river.set(riverWith([], teasersOf(page, now)));
-          this.mostRead.set(
-            page.mostRead.slice(0, 5).map((story) => {
-              const teaser = storyTeaserOf(story, now);
-              return { id: teaser.id, title: teaser.heading, href: teaser.href };
-            }),
-          );
-          this.settle(page);
+          this.now = new Date();
+          this.lead.set(page.lead ? this.viewOf(page.lead) : null);
+          this.headlines.set(page.headlines.map((s) => this.viewOf(s)));
+          this.river.set(page.latest.slice(0, RIVER_PAGE).map((s) => this.viewOf(s)));
+          this.more.set(page.more);
           this.storiesState.set('loaded');
         },
-        error: () => {
-          this.lead.set(null);
-          this.headlines.set([]);
-          this.river.set([]);
-          this.mostRead.set([]);
-          this.storiesState.set('failed');
-        },
+        error: () => this.storiesState.set('failed'),
       });
   }
 
-  /** Asks for the next 12 stories of the river, keeping the ones it holds if they do not come. */
+  /** Adds the next 12 river stories, keeping those shown when it fails (ADR 0107). */
   protected loadMore(): void {
-    const cursor = this.nextCursor;
-    if (!cursor || this.more() === 'loading' || this.capped()) return;
-    this.more.set('loading');
+    const shown = this.river().length;
+    if (shown >= RIVER_MAX) return;
     this.storiesRequest?.unsubscribe();
-    this.storiesRequest = this.storiesApi
-      .frontPage(this.section().slug, cursor)
+    this.moreState.set('loading');
+    this.storiesRequest = this.stories
+      .frontPage(this.section().story, shown)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
-          this.river.update((held) => riverWith(held, teasersOf(page, new Date())));
-          this.settle(page);
+          const added = page.latest.slice(0, RIVER_PAGE).map((s) => this.viewOf(s));
+          this.river.update((river) => [...river, ...added].slice(0, RIVER_MAX));
+          this.more.set(page.more);
+          this.moreState.set('idle');
         },
-        error: () => this.more.set('failed'),
+        error: () => this.moreState.set('failed'),
       });
   }
 
@@ -217,25 +205,45 @@ export default class LandingPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (events) => {
-          this.rows.set(events.slice(0, TAKE).map((event) => rowOf(event)));
+          this.rows.set(events.slice(0, TAKE).map(railRowOf));
           this.eventsState.set('loaded');
         },
         error: () => this.eventsState.set('failed'),
       });
   }
 
-  /** Keeps the cursor of the page after `page`, unless the river is full. */
-  private settle(page: FrontPageDto): void {
-    this.nextCursor = this.capped() ? null : page.nextCursor;
-    this.more.set(this.nextCursor ? 'ready' : 'none');
+  private loadMostRead(): void {
+    this.stories
+      .mostRead()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stories) =>
+          this.mostRead.set(
+            stories.slice(0, 5).map((s) => ({ href: storyHref(s.slug), title: s.headline })),
+          ),
+        // A failed "Most read" hides itself; nothing else on the page changes (mock `most-read-failed`).
+        error: () => this.mostRead.set([]),
+      });
+  }
+
+  private viewOf(story: StorySummaryDto): NewsStoryView {
+    return {
+      href: storyHref(story.slug),
+      section: storySectionLabel(story.section),
+      title: story.headline,
+      summary: story.summary,
+      author: story.author ?? '',
+      age: storyAge(story.publishedAt, this.now),
+      image: story.image ? storyImageUrl(story.image.key) : null,
+    };
   }
 }
 
-function teasersOf(page: FrontPageDto, now: Date): StoryTeaserView[] {
-  return page.latest.map((story) => storyTeaserOf(story, now));
+function storyHref(slug: string): string {
+  return `/stories/${encodeURIComponent(slug)}`;
 }
 
-function rowOf(event: LandingEventDto): LandingRow {
+function railRowOf(event: LandingEventDto): RailRow {
   const summary: EventSummaryDto = {
     ...event,
     priceCents: 0,
@@ -243,7 +251,7 @@ function rowOf(event: LandingEventDto): LandingRow {
     going: 0,
     imageKey: null,
   };
-  const card: EventCardView = eventCardViewOf(summary);
+  const card = eventCardViewOf(summary);
   return {
     id: card.id,
     month: card.month,

@@ -1,7 +1,5 @@
-using System.Globalization;
-using System.Text;
 using ChristianFitness.Application.Abstractions;
-using ChristianFitness.Application.Events;
+using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.News;
 using FluentValidation;
 using MediatR;
@@ -10,155 +8,61 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.News;
 
 /// <summary>
-/// How a section is spelled in a reader's address and answers (ADR 0071): the slug of its name, as
-/// in <c>/?section=faith-body</c> and <c>/faith-body/feed</c>. The console's own names differ
-/// (<see cref="StoryNames"/>, ADR 0097).
-/// </summary>
-public static class StorySections
-{
-    private static readonly Dictionary<StorySection, string> Slugs = new()
-    {
-        [StorySection.Events] = "events",
-        [StorySection.Training] = "training",
-        [StorySection.Nutrition] = "nutrition",
-        [StorySection.FaithAndBody] = "faith-body",
-        [StorySection.Community] = "community",
-        [StorySection.Pros] = "pros",
-    };
-
-    public static string SlugOf(StorySection section) => Slugs[section];
-
-    /// <summary>The section an exact slug names, or none: another case or the console's name is not one.</summary>
-    public static StorySection? SectionOf(string? slug) =>
-        slug is null ? null : Slugs.Where(pair => pair.Value == slug).Select(pair => (StorySection?)pair.Key).FirstOrDefault();
-}
-
-/// <summary>
-/// A story as the front page shows it (L2-001 AC2, AC10; ADR 0105): its link, section slug,
-/// headline, summary (none when it has none), the name of its byline, when it went out and the key
-/// of its lead image, served by <c>GET /api/stories/images/{key}</c>. Nothing names or reaches a member.
+/// One story as the front page shows it (L2-001 AC2): its link, section, headline, summary (none
+/// when it has none), author, publication and lead image. Nothing of a member (AC10).
 /// </summary>
 public sealed record StorySummaryDto(
     Guid Id,
     string Slug,
-    string Section,
+    string? Section,
     string Headline,
     string? Summary,
-    string Byline,
+    string? Author,
     DateTimeOffset PublishedAt,
-    string? ImageKey);
+    StoryImageDto? Image);
 
 /// <summary>
-/// The front page (L2-001 AC2 to AC5; ADR 0105): the lead story or none, at most
-/// <see cref="ListFrontPageStoriesQuery.HeadlineCount"/> headlines, one page of the river with the
-/// cursor of the next or none, and the most-read stories, which stay empty until reads are counted
-/// (journey 24).
+/// The front page (L2-001 AC2, AC3; ADR 0107): for Latest the lead and up to four headlines, then
+/// one page of the river; for a section no lead, no headlines and that section's river. <c>More</c>
+/// says whether older stories follow the page.
 /// </summary>
-public sealed record FrontPageDto(
-    StorySummaryDto? Lead,
-    IReadOnlyList<StorySummaryDto> Headlines,
-    IReadOnlyList<StorySummaryDto> Latest,
-    string? NextCursor,
-    IReadOnlyList<StorySummaryDto> MostRead);
+public sealed record FrontPageDto(StorySummaryDto? Lead, IReadOnlyList<StorySummaryDto> Headlines, IReadOnlyList<StorySummaryDto> Latest, bool More);
 
 /// <summary>
-/// The stories a visitor's front page shows (L2-001 AC2, AC3; ADR 0105): every section together
-/// ("Latest"), or only the one <paramref name="Section"/> names by its slug (ADR 0071), the river
-/// <see cref="PageSize"/> at a time after the opaque <paramref name="Cursor"/> and
-/// <see cref="RiverMax"/> in all (L2-037).
+/// The front page of <paramref name="Section"/> (a section's name, or none for Latest), its river
+/// from the <paramref name="Skip"/>th story after the top stories (ADR 0107).
 /// </summary>
-public sealed record ListFrontPageStoriesQuery(string? Section = null, string? Cursor = null) : IRequest<FrontPageDto>
+public sealed record ListFrontPageStoriesQuery(string? Section, int? Skip) : IRequest<FrontPageDto>
 {
-    /// <summary>The headlines beside the lead story (L2-001 AC2).</summary>
+    /// <summary>How many headlines follow the lead.</summary>
     public const int HeadlineCount = 4;
 
-    /// <summary>The river's stories in one answer.</summary>
+    /// <summary>How many river stories one page holds.</summary>
     public const int PageSize = 12;
 
-    /// <summary>The most stories of the river a reader pages through (L2-037).</summary>
+    /// <summary>How many river stories the page may hold in all, so the river stays bounded.</summary>
     public const int RiverMax = 60;
 }
 
-/// <summary>
-/// A section this API does not know, or a cursor it did not write, is refused with 400
-/// <c>validation_failed</c>, its field named <c>section_invalid</c> or <c>cursor_invalid</c>; the
-/// page never sends such a section, since it shows Latest instead (L2-001 AC3).
-/// </summary>
-public sealed class ListFrontPageStoriesValidator : AbstractValidator<ListFrontPageStoriesQuery>
+internal sealed class ListFrontPageStoriesValidator : AbstractValidator<ListFrontPageStoriesQuery>
 {
-    public const string SectionInvalid = "section_invalid";
-
     public ListFrontPageStoriesValidator()
     {
         RuleFor(q => q.Section)
-            .Must(section => section is null || StorySections.SectionOf(section) is not null)
-            .WithMessage("Choose one of the sections")
-            .WithErrorCode(SectionInvalid);
-        RuleFor(q => q.Cursor)
-            .Must(cursor => cursor is null || FrontPageCursor.TryParse(cursor, out _))
-            .WithMessage("The list could not continue")
-            .WithErrorCode(EventFieldCodes.CursorInvalid);
+            .Must(section => section is null || StoryNames.SectionOf(section) is not null)
+            .WithErrorCode("section_invalid").WithMessage("Choose events, training, nutrition, faith-and-body, community or pros");
+        RuleFor(q => q.Skip)
+            .Must(skip => skip is null or >= 0 and <= ListFrontPageStoriesQuery.RiverMax - ListFrontPageStoriesQuery.PageSize)
+            .WithErrorCode(StoryRules.SkipInvalid).WithMessage("Skip from 0 to 48 stories");
     }
 }
 
 /// <summary>
-/// Where a page of the river ended (ADR 0105): the publish time and id of its last story, how many
-/// stories of the river the reader has been given, and the lead and headlines of the first page,
-/// which the river leaves out on every page so that a change at the top between pages neither
-/// repeats nor skips a story. It is an opaque URL-safe text holding nothing but these.
-/// </summary>
-internal sealed record FrontPageCursor(DateTimeOffset At, Guid Id, int Shown, IReadOnlyList<Guid> Top)
-{
-    public string Write() =>
-        Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Create(
-                CultureInfo.InvariantCulture, $"{At.UtcTicks}|{Id:N}|{Shown}|{string.Join(',', Top.Select(id => id.ToString("N")))}")))
-            .Replace("+", "-", StringComparison.Ordinal).Replace("/", "_", StringComparison.Ordinal).TrimEnd('=');
-
-    public static bool TryParse(string cursor, out FrontPageCursor? value)
-    {
-        value = null;
-        var padded = cursor.Replace("-", "+", StringComparison.Ordinal).Replace("_", "/", StringComparison.Ordinal);
-        padded = padded.PadRight(padded.Length + ((4 - (padded.Length % 4)) % 4), '=');
-        var bytes = new byte[padded.Length];
-        if (!Convert.TryFromBase64String(padded, bytes, out var written))
-        {
-            return false;
-        }
-
-        var parts = Encoding.UTF8.GetString(bytes, 0, written).Split('|');
-        if (parts.Length != 4
-            || !long.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var ticks)
-            || ticks > DateTimeOffset.MaxValue.Ticks
-            || !Guid.TryParseExact(parts[1], "N", out var id)
-            || !int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out var shown)
-            || shown is < 1 or >= ListFrontPageStoriesQuery.RiverMax)
-        {
-            return false;
-        }
-
-        var top = new List<Guid>();
-        foreach (var part in parts[3].Split(',', StringSplitOptions.RemoveEmptyEntries))
-        {
-            if (top.Count > ListFrontPageStoriesQuery.HeadlineCount || !Guid.TryParseExact(part, "N", out var shownAtTop))
-            {
-                return false;
-            }
-
-            top.Add(shownAtTop);
-        }
-
-        value = new FrontPageCursor(new DateTimeOffset(ticks, TimeSpan.Zero), id, shown, top);
-        return true;
-    }
-}
-
-/// <summary>
-/// Reads only what a reader may see: Published stories and Scheduled ones whose time has come, at
-/// that time (ADR 0069), newest first, then by id. The story placed Lead leads, or else the newest;
-/// stories placed Top are the headlines, newest first, and where fewer than four are placed the
-/// newest other stories fill the rest; everything else is the river (L2-001 AC2, L2-069 AC6; ADR
-/// 0105). One section answers only its own stories as the river, with no lead and no headlines
-/// (L2-001 AC3). A page after a cursor answers the river alone. No story is answered twice.
+/// Reads the stories readers see now (ADR 0069), newest first, then by id (ADR 0107). For Latest the
+/// lead is the story placed as the Lead, or the newest without one; the headlines are those placed in
+/// Top headlines, filled with the newest others up to four, newest first; the river is the rest.
+/// For a section the river is that section's stories. The river is read 12 at a time, one more to
+/// know whether older ones follow.
 /// </summary>
 internal sealed class ListFrontPageStoriesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListFrontPageStoriesQuery, FrontPageDto>
 {
@@ -166,105 +70,104 @@ internal sealed class ListFrontPageStoriesHandler(IAppDbContext db, TimeProvider
     {
         ArgumentNullException.ThrowIfNull(request);
         var now = time.GetUtcNow();
-        var visible = db.Stories.AsNoTracking()
-            .Where(s => s.Section != null && (s.Status == StoryStatus.Published || (s.Status == StoryStatus.Scheduled && s.PublishAt <= now)));
-        var river = StorySections.SectionOf(request.Section) is { } section ? visible.Where(s => s.Section == section) : visible;
+        var section = StoryNames.SectionOf(request.Section);
+        var readable = PublishedStories.At(db, now);
+        if (section is not null)
+        {
+            readable = readable.Where(s => s.Section == section);
+        }
 
         StorySummaryDto? lead = null;
-        IReadOnlyList<StorySummaryDto> headlines = [];
-        // A list, which the database takes as an array parameter.
-        List<Guid> top = [];
-        var shown = 0;
-        if (request.Cursor is not null && FrontPageCursor.TryParse(request.Cursor, out var after) && after is not null)
+        List<StorySummaryDto> headlines = [];
+        if (section is null)
         {
-            var (at, id) = (after.At, after.Id);
-            river = river.Where(s =>
-                (s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt) < at
-                || ((s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt) == at && s.Id.CompareTo(id) < 0));
-            (top, shown) = ([.. after.Top], after.Shown);
-        }
-        else if (request.Section is null)
-        {
-            (lead, headlines) = await TopAsync(visible, cancellationToken).ConfigureAwait(false);
-            top = lead is null ? [] : [lead.Id, .. headlines.Select(s => s.Id)];
+            lead = await FrontPageStories.NewestAsync(db, readable.Where(s => s.Placement == StoryPlacement.Lead), cancellationToken).ConfigureAwait(false)
+                ?? await FrontPageStories.NewestAsync(db, readable, cancellationToken).ConfigureAwait(false);
+            var leadId = lead?.Id ?? Guid.Empty;
+            headlines = [.. await FrontPageStories.ReadAsync(db, readable.Where(s => s.Id != leadId && s.Placement == StoryPlacement.Top), 0, ListFrontPageStoriesQuery.HeadlineCount, cancellationToken).ConfigureAwait(false)];
+            if (headlines.Count < ListFrontPageStoriesQuery.HeadlineCount)
+            {
+                var taken = headlines.Select(h => h.Id).Append(leadId).ToList();
+                headlines.AddRange(await FrontPageStories.ReadAsync(db, readable.Where(s => !taken.Contains(s.Id)), 0, ListFrontPageStoriesQuery.HeadlineCount - headlines.Count, cancellationToken).ConfigureAwait(false));
+                headlines = [.. headlines.OrderByDescending(h => h.PublishedAt).ThenByDescending(h => h.Id)];
+            }
         }
 
-        if (top.Count > 0)
-        {
-            river = river.Where(s => !top.Contains(s.Id));
-        }
-
-        var size = Math.Min(ListFrontPageStoriesQuery.PageSize, ListFrontPageStoriesQuery.RiverMax - shown);
-        var found = await ReadAsync(river, size + 1, cancellationToken).ConfigureAwait(false);
-        var latest = found.Take(size).ToList();
-        var next = found.Count > size && shown + size < ListFrontPageStoriesQuery.RiverMax
-            ? new FrontPageCursor(latest[^1].PublishedAt, latest[^1].Id, shown + size, top).Write()
-            : null;
-
-        // No read is counted before the story page exists (journey 24), so none is most read yet;
-        // the first page of Latest is where the five most read of the last 7 days go (ADR 0105).
-        IReadOnlyList<StorySummaryDto> mostRead = [];
-        return new FrontPageDto(lead, headlines, latest, next, mostRead);
+        var top = headlines.Select(h => h.Id).Append(lead?.Id ?? Guid.Empty).ToList();
+        var river = await FrontPageStories.ReadAsync(db, readable.Where(s => !top.Contains(s.Id)), request.Skip ?? 0, ListFrontPageStoriesQuery.PageSize + 1, cancellationToken).ConfigureAwait(false);
+        return new FrontPageDto(lead, headlines, [.. river.Take(ListFrontPageStoriesQuery.PageSize)], river.Count > ListFrontPageStoriesQuery.PageSize);
     }
+}
 
-    /// <summary>
-    /// The lead and the headlines (ADR 0105): the newest story placed Lead, or else the newest of
-    /// all; then the stories placed Top, and the newest others where fewer than four are placed,
-    /// shown newest first.
-    /// </summary>
-    private async Task<(StorySummaryDto? Lead, IReadOnlyList<StorySummaryDto> Headlines)> TopAsync(IQueryable<Story> visible, CancellationToken cancellationToken)
+/// <summary>"Most read" (L2-001 AC5; ADR 0107): the five stories read most in the last 7 Toronto days.</summary>
+public sealed record ListMostReadStoriesQuery : IRequest<IReadOnlyList<StorySummaryDto>>
+{
+    /// <summary>How many stories "Most read" holds.</summary>
+    public const int Count = 5;
+
+    /// <summary>How many Toronto days, today among them, the reads are summed over.</summary>
+    public const int Days = 7;
+}
+
+/// <summary>
+/// Sums each readable story's daily read tallies (ADR 0105) from the Toronto day six days ago to
+/// today, and answers the five highest, a tie going to the newer story, then the higher id. A story
+/// with no reads in the window is not ranked; one readers can no longer see is left out.
+/// </summary>
+internal sealed class ListMostReadStoriesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListMostReadStoriesQuery, IReadOnlyList<StorySummaryDto>>
+{
+    public async Task<IReadOnlyList<StorySummaryDto>> Handle(ListMostReadStoriesQuery request, CancellationToken cancellationToken)
     {
-        var lead = await NewestAsync(visible.Where(s => s.Placement == StoryPlacement.Lead), cancellationToken).ConfigureAwait(false)
-            ?? await NewestAsync(visible, cancellationToken).ConfigureAwait(false);
-        if (lead is null)
-        {
-            return (null, []);
-        }
-
-        var leadId = lead.Id;
-        var placed = await ReadAsync(
-            visible.Where(s => s.Placement == StoryPlacement.Top && s.Id != leadId), ListFrontPageStoriesQuery.HeadlineCount, cancellationToken).ConfigureAwait(false);
-        var taken = placed.Select(s => s.Id).Append(leadId).ToList();
-        IReadOnlyList<StorySummaryDto> others = placed.Count < ListFrontPageStoriesQuery.HeadlineCount
-            ? await ReadAsync(visible.Where(s => !taken.Contains(s.Id)), ListFrontPageStoriesQuery.HeadlineCount - placed.Count, cancellationToken).ConfigureAwait(false)
-            : [];
-        return (lead, [.. placed.Concat(others).OrderByDescending(s => s.PublishedAt).ThenByDescending(s => s.Id)]);
+        var now = time.GetUtcNow();
+        var since = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, EventSchedule.Toronto).DateTime).AddDays(1 - ListMostReadStoriesQuery.Days);
+        var reads = db.StoryReadTallies.AsNoTracking()
+            .Where(t => t.Day >= since)
+            .GroupBy(t => t.StoryId)
+            .Select(g => new { StoryId = g.Key, Reads = g.Sum(t => t.Count) });
+        var readable = PublishedStories.At(db, now);
+        var ranked = await readable
+            .Join(reads, s => s.Id, r => r.StoryId, (s, r) => new { s.Id, r.Reads, PublishedAt = s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt })
+            .OrderByDescending(s => s.Reads).ThenByDescending(s => s.PublishedAt).ThenByDescending(s => s.Id)
+            .Take(ListMostReadStoriesQuery.Count)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var stories = await FrontPageStories.ReadAsync(db, readable.Where(s => ranked.Contains(s.Id)), 0, ListMostReadStoriesQuery.Count, cancellationToken).ConfigureAwait(false);
+        return [.. stories.OrderBy(s => ranked.IndexOf(s.Id))];
     }
+}
 
-    private async Task<StorySummaryDto?> NewestAsync(IQueryable<Story> stories, CancellationToken cancellationToken)
+/// <summary>Reads stories as the front page shows them, newest first, then by id (ADR 0107).</summary>
+internal static class FrontPageStories
+{
+    /// <summary>The newest of <paramref name="stories"/>, or none.</summary>
+    public static async Task<StorySummaryDto?> NewestAsync(IAppDbContext db, IQueryable<Story> stories, CancellationToken cancellationToken)
     {
-        var newest = await ReadAsync(stories, 1, cancellationToken).ConfigureAwait(false);
-        return newest.Count == 0 ? null : newest[0];
+        var found = await ReadAsync(db, stories, 0, 1, cancellationToken).ConfigureAwait(false);
+        return found.Count == 0 ? null : found[0];
     }
 
-    /// <summary>The newest <paramref name="take"/> of <paramref name="stories"/>, each at the time readers see (ADR 0069).</summary>
-    private async Task<IReadOnlyList<StorySummaryDto>> ReadAsync(IQueryable<Story> stories, int take, CancellationToken cancellationToken)
+    public static async Task<IReadOnlyList<StorySummaryDto>> ReadAsync(IAppDbContext db, IQueryable<Story> stories, int skip, int take, CancellationToken cancellationToken)
     {
         var bylines = db.Bylines.AsNoTracking();
         var rows = await stories
-            .OrderByDescending(s => s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt)
-            .ThenByDescending(s => s.Id)
+            .Select(s => new { Story = s, PublishedAt = s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt })
+            .OrderByDescending(s => s.PublishedAt).ThenByDescending(s => s.Story.Id)
+            .Skip(skip)
             .Take(take)
             .Select(s => new
             {
-                s.Id,
-                s.Slug,
-                s.Section,
-                s.Headline,
-                s.Summary,
-                Byline = bylines.Where(b => b.Id == s.BylineId).Select(b => b.Name).FirstOrDefault(),
-                At = s.Status == StoryStatus.Scheduled ? s.PublishAt : s.PublishedAt,
-                s.ImageKey,
+                s.Story.Id, s.Story.Slug, s.Story.Section, s.Story.Headline, s.Story.Summary, s.PublishedAt, s.Story.ImageKey, s.Story.ImageCrop,
+                Author = bylines.Where(b => b.Id == s.Story.BylineId).Select(b => b.Name).FirstOrDefault(),
             })
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         return [.. rows.Select(s => new StorySummaryDto(
             s.Id,
-            s.Slug ?? string.Empty,
-            StorySections.SlugOf(s.Section!.Value),
+            s.Slug!,
+            StoryNames.Of(s.Section),
             s.Headline,
             string.IsNullOrWhiteSpace(s.Summary) ? null : s.Summary,
-            s.Byline ?? string.Empty,
-            s.At!.Value,
-            s.ImageKey))];
+            s.Author,
+            s.PublishedAt!.Value,
+            s.ImageKey is { } key && s.ImageCrop is { } crop ? new StoryImageDto(key, new StoryCropDto(crop.X, crop.Y, crop.Width, crop.Height)) : null))];
     }
 }

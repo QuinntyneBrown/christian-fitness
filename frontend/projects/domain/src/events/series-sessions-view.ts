@@ -10,6 +10,7 @@ export type SeriesSessionState = 'past' | 'next' | 'upcoming' | 'cancelled';
  */
 export type SeriesSessionEnd =
   | { kind: 'details'; href: string; number: number }
+  | { kind: 'came' }
   | { kind: 'status'; text: string }
   | { kind: 'pick'; label: string; hidden: string; value: string; checked: boolean }
   | null;
@@ -47,8 +48,9 @@ export interface SeriesSessionsView {
 let parts: Intl.DateTimeFormat | undefined;
 
 /**
- * One date's row, in Toronto time (ADR 0096): `done` is past, reading "Not recorded" where the
- * member held a place (attendance comes with journey 16) and "Done" where not; `live` is "Next
+ * One date's row, in Toronto time (ADR 0096): `done` is past; where the member held a place it
+ * reads "You came" or "Missed" as staff recorded it and "Not recorded" until they do (L2-051 AC3;
+ * ADR 0106), and "Done" where they held none; `live` is "Next
  * up"; every date still to come has Details; a cancelled one reads "Cancelled". While dates are
  * picked (`pick`; L2-053 AC1, AC7; ADR 0102) a date still to come has a "Drop in" tick box instead,
  * unless it is full and not held, when it reads "Full".
@@ -88,7 +90,7 @@ export function seriesSessionRowOf(
             };
   const [state, end]: [SeriesSessionState, SeriesSessionEnd] =
     session.state === 'done'
-      ? ['past', { kind: 'status', text: session.held ? 'Not recorded' : 'Done' }]
+      ? ['past', pastEndOf(session)]
       : session.state === 'cancelled'
         ? ['cancelled', { kind: 'status', text: 'Cancelled' }]
         : session.state === 'live'
@@ -105,6 +107,13 @@ export function seriesSessionRowOf(
     end,
     mark: state === 'next' || state === 'upcoming' ? mark : '',
   };
+}
+
+/** A past date's end: what staff recorded where the member held a place, else "Done". */
+function pastEndOf(session: SeriesSessionDto): SeriesSessionEnd {
+  if (!session.held) return { kind: 'status', text: 'Done' };
+  if (session.attended === null) return { kind: 'status', text: 'Not recorded' };
+  return session.attended ? { kind: 'came' } : { kind: 'status', text: 'Missed' };
 }
 
 /**

@@ -1,15 +1,6 @@
-// The design system's join card (docs/design-system/assets/components.css, `join-card`). The
-// button is cf-button's.
+// The design system's join card (docs/design-system/assets/components.css: "News front page").
 :host {
   display: block;
-}
-
-.display {
-  font-family: var(--font-family-display);
-  font-weight: var(--font-weight-medium);
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
 }
 
 .join-card {

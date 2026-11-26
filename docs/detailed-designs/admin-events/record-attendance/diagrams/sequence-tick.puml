@@ -11,7 +11,7 @@ box "Frontend — Admin web app" #E0F2FE
   participant "HttpAdminEventsService" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "AdminEventsController" as ctrl
+  participant "AdminEventAttendanceController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SetAttendanceHandler" as handler

@@ -213,10 +213,31 @@ export function storyReadsText(reads: number | null): string | null {
   return countFormat.format(reads);
 }
 
+/** How many words a reader reads a minute, for "6 min read". */
+const WORDS_A_MINUTE = 220;
+
 /**
- * A published story's age as readers see it, in Toronto: "Just now", "25 min ago", "2 hours ago"
- * the same day, "Yesterday", else "Apr 8". Empty for a value that is not an instant.
+ * A story's reading time in minutes (L2-061 AC2; ADR 0105): its words, the white-space separated
+ * runs holding a letter or digit (so Markdown marks are not words), at 220 a minute, rounded up,
+ * never less than 1. The one place the rule lives; the page and the admin preview both use it.
  */
+export function storyReadingMinutes(text: string): number {
+  const words = text.split(/\s+/).filter((word) => /[\p{L}\p{N}]/u.test(word)).length;
+  return Math.max(1, Math.ceil(words / WORDS_A_MINUTE));
+}
+
+/**
+ * The story page's byline line (mocks `story/default`, `admin-story-preview/default`): "2 hours
+ * ago · 6 min read", "Yesterday · 1 min read" or "Apr 8 · …", and "Not published yet · …" before
+ * it goes out.
+ */
+export function storyReaderWhen(publishedAt: string | null, text: string, now: Date): string {
+  const read = `${storyReadingMinutes(text)} min read`;
+  const age = publishedAt ? storyAge(publishedAt, now) : '';
+  return `${age || 'Not published yet'} · ${read}`;
+}
+
+/** A published story's age, capitalised: "2 hours ago", "Yesterday" or "Apr 8"; empty for a value that is not an instant. */
 export function storyAge(publishedAt: string, now: Date): string {
   const instant = new Date(publishedAt);
   if (Number.isNaN(instant.getTime())) return '';
@@ -224,20 +245,9 @@ export function storyAge(publishedAt: string, now: Date): string {
   return `${when.charAt(0).toUpperCase()}${when.slice(1)}`;
 }
 
-/** How many words a reader reads a minute, for "6 min read". */
-const WORDS_A_MINUTE = 200;
-
-/**
- * The story page's byline line (mock `admin-story-preview/default`): "2 hours ago · 6 min read",
- * "Yesterday · 1 min read" or "Apr 8 · …", and "Not published yet · …" before it goes out. The
- * reading time counts the text's words at 200 a minute, at least 1 minute.
- */
-export function storyReaderWhen(publishedAt: string | null, text: string, now: Date): string {
-  const words = text.split(/\s+/).filter((word) => /[\p{L}\p{N}]/u.test(word)).length;
-  const read = `${Math.max(1, Math.ceil(words / WORDS_A_MINUTE))} min read`;
-  const instant = publishedAt ? new Date(publishedAt) : null;
-  if (!instant || Number.isNaN(instant.getTime())) return `Not published yet · ${read}`;
-  return `${storyAge(instant.toISOString(), now)} · ${read}`;
+/** A Keep reading card's line (L2-061 AC6; mock `story/default`): "Priya Raman · Yesterday", leaving out a missing author. */
+export function storyCardMeta(author: string | null, publishedAt: string, now: Date): string {
+  return [author, storyAge(publishedAt, now)].filter((part) => part).join(' · ');
 }
 
 /**

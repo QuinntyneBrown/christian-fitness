@@ -1,0 +1,11 @@
+<div class="context-chip">
+  <div class="context-chip__body">
+    <p class="context-chip__label">{{ label() }}</p>
+    <p class="context-chip__value">{{ value() }}</p>
+  </div>
+  <cf-icon-button size="sm" [label]="removeLabel()" [disabled]="disabled()" (click)="removed.emit()"
+    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" /></svg
+  ></cf-icon-button>
+</div>

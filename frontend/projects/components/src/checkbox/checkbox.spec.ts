@@ -31,6 +31,19 @@ describe('Checkbox', () => {
     },
   );
 
+  it('takes a name of its own and a busy state while its change is saved (ADR 0106)', () => {
+    const { box } = render({ variant: 'compact', ariaLabel: 'Came: Grace Thompson', busy: true });
+
+    expect(box.getAttribute('aria-label')).toBe('Came: Grace Thompson');
+    expect(box.getAttribute('aria-busy')).toBe('true');
+    expect(box.disabled).toBe(false);
+    const plain = render({ variant: 'compact' }).box;
+    expect([plain.hasAttribute('aria-label'), plain.hasAttribute('aria-busy')]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
   it('reports each toggle', () => {
     const { fixture, box } = render({});
     const toggles: boolean[] = [];

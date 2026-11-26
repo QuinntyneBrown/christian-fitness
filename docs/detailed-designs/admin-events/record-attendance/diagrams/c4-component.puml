@@ -9,7 +9,7 @@ Container_Boundary(admin, "Admin web app") {
   Component(svc, "HttpAdminEventsService", "ADMIN_EVENTS_SERVICE", "attendance, setAttendance")
 }
 Container_Boundary(api, "Christian Fitness API") {
-  Component(ctrl, "AdminEventsController", "ASP.NET Core controller", "AttendanceStaff policy")
+  Component(ctrl, "AdminEventAttendanceController", "ASP.NET Core controller", "Attendance staff area: Admin and Moderator")
   Component(list, "GetEventAttendanceHandler", "MediatR handler", "Registered members and Came")
   Component(set, "SetAttendanceHandler", "MediatR handler", "Started rule, saves, audits")
   Component(rule, "AttendanceRules", "Domain service", "Started rule, session counts")

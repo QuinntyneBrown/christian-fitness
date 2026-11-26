@@ -1,0 +1,113 @@
+// The design system's event choices (docs/design-system/assets/components.css, "Pick list":
+// event-choices, event-choice, and the legend's field__label field__label--md). The photo's
+// 4rem × 3.5rem is the design system's size-thumb-event, which the app tokens do not carry.
+:host {
+  display: block;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.field__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.field__label--md {
+  font-size: var(--font-size-md);
+}
+
+.event-choices {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+
+  > li + li {
+    margin-top: var(--space-2);
+  }
+}
+
+.event-choice {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  padding: var(--space-2-5);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-hover);
+  }
+
+  &:has(.event-choice__input:checked) {
+    box-shadow: inset 0 0 0 var(--border-width-thick) var(--color-fg-accent);
+  }
+
+  &:has(.event-choice__input:disabled) {
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+  }
+
+  &:has(.event-choice__input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.event-choice__input {
+  margin: 0 0 0 var(--space-1);
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  flex-shrink: 0;
+  accent-color: var(--color-accent);
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.event-choice__image {
+  width: 4rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.event-choice__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.event-choice__when {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.event-choice__title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
+
+.event-choice__area {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

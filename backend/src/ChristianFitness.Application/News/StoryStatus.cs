@@ -287,7 +287,7 @@ internal sealed class ReturnStoryToDraftHandler(IAppDbContext db, TimeProvider t
     }
 }
 
-internal sealed class PublishStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+internal sealed class PublishStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit, IStoryFeedCache feeds)
     : IRequestHandler<PublishStoryCommand, AdminStoryDto>
 {
     public async Task<AdminStoryDto> Handle(PublishStoryCommand request, CancellationToken cancellationToken)
@@ -295,17 +295,19 @@ internal sealed class PublishStoryHandler(IAppDbContext db, TimeProvider time, I
         ArgumentNullException.ThrowIfNull(request);
         var now = time.GetUtcNow();
         var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        var section = story.Section;
         StoryActions.Change(() => story.Edit(request.ToContent(), now));
         story.SetSlug(await StoryActions.SlugOfAsync(db, story, cancellationToken).ConfigureAwait(false));
         StoryActions.Change(() => story.Publish(now));
         await StoryActions.TakeLeadAsync(db, story, cancellationToken).ConfigureAwait(false);
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        await feeds.EvictAsync(cancellationToken, section, story.Section).ConfigureAwait(false);
         return StoryAnswers.Of(story, now);
     }
 }
 
-internal sealed class UpdateStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+internal sealed class UpdateStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit, IStoryFeedCache feeds)
     : IRequestHandler<UpdateStoryCommand, AdminStoryDto>
 {
     public async Task<AdminStoryDto> Handle(UpdateStoryCommand request, CancellationToken cancellationToken)
@@ -313,15 +315,17 @@ internal sealed class UpdateStoryHandler(IAppDbContext db, TimeProvider time, IC
         ArgumentNullException.ThrowIfNull(request);
         var now = time.GetUtcNow();
         var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        var section = story.Section;
         StoryActions.Change(() => story.UpdatePublished(request.ToContent(), now));
         await StoryActions.TakeLeadAsync(db, story, cancellationToken).ConfigureAwait(false);
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        await feeds.EvictAsync(cancellationToken, section, story.Section).ConfigureAwait(false);
         return StoryAnswers.Of(story, now);
     }
 }
 
-internal sealed class UnpublishStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+internal sealed class UnpublishStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit, IStoryFeedCache feeds)
     : IRequestHandler<UnpublishStoryCommand, AdminStoryDto>
 {
     public async Task<AdminStoryDto> Handle(UnpublishStoryCommand request, CancellationToken cancellationToken)
@@ -332,6 +336,7 @@ internal sealed class UnpublishStoryHandler(IAppDbContext db, TimeProvider time,
         StoryActions.Change(() => story.Unpublish(now));
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        await feeds.EvictAsync(cancellationToken, story.Section).ConfigureAwait(false);
         return StoryAnswers.Of(story, now);
     }
 }
