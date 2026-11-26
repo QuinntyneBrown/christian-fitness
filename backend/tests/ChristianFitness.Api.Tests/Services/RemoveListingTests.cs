@@ -45,7 +45,7 @@ public sealed class RemoveListingTests(RegisterForEventFactory factory) : IClass
     {
         var client = Browser.CreateClient(factory);
         var id = Guid.Parse(await Staff.CreateAsync(factory, client, email, role));
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
         return (client, Staff.Cookie(signedIn), id);
     }
 

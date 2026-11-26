@@ -37,7 +37,7 @@ internal static class AdminEvents
     public static async Task<string> SignInStaffAsync(AdminEventsFactory factory, HttpClient client, string email)
     {
         await Staff.CreateAsync(factory, client, email, Domain.Members.StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
         return Staff.Cookie(signedIn);
     }
 

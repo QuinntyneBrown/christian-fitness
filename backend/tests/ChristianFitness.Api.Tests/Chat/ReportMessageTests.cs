@@ -91,7 +91,7 @@ public sealed class ReportMessageTests(RegisterForEventFactory factory) : IClass
         using var staff = Browser.CreateClient(factory);
         var email = $"dana.{Guid.NewGuid():N}@example.org";
         await Staff.CreateAsync(factory, staff, email, StaffRoleName.Moderator);
-        using var signedIn = await Staff.SignInWithCodeAsync(staff, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, staff, email);
         using var response = await Browser.SendAsync(staff, HttpMethod.Get, $"/api/admin/members?status={status}", Staff.Cookie(signedIn));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);

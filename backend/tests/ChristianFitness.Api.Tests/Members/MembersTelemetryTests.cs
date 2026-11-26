@@ -20,7 +20,7 @@ public sealed class MembersTelemetryTests(TelemetryTests.Factory factory) : ICla
     {
         using var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, "dana.members.telemetry@example.org", StaffRoleName.Moderator);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.members.telemetry@example.org");
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.members.telemetry@example.org");
         var traceId = ActivityTraceId.CreateRandom();
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("/api/admin/members?q=thompson&status=active", UriKind.Relative));
         request.Headers.Add("Cookie", Staff.Cookie(signedIn));
@@ -58,7 +58,7 @@ public sealed class MembersTelemetryTests(TelemetryTests.Factory factory) : ICla
         using var client = Browser.CreateClient(factory);
         var target = await Staff.CreateAsync(factory, client, "kevin.note.telemetry@example.org", role: null);
         await Staff.CreateAsync(factory, client, "dana.note.telemetry@example.org", StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.note.telemetry@example.org");
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.note.telemetry@example.org");
         var traceId = ActivityTraceId.CreateRandom();
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri($"/api/admin/members/{target}/suspend", UriKind.Relative))
         {

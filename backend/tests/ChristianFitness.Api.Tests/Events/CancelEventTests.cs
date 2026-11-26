@@ -30,7 +30,7 @@ public sealed class CancelEventTests(RegisterForEventFactory factory) : IClassFi
     {
         var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, email, Domain.Members.StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
         return (client, Staff.Cookie(signedIn));
     }
 

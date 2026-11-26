@@ -114,7 +114,7 @@ public sealed class GroupMembershipTests(RegisterForEventFactory factory) : ICla
         await using var hope = await JoinedChatAsync("hope.notice@example.org", eventId);
         using var staff = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, staff, "dana.notice@example.org", Domain.Members.StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(staff, "dana.notice@example.org", factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, staff, "dana.notice@example.org");
 
         using var cancelled = await AdminEvents.SendAsync(staff, HttpMethod.Post, $"/api/admin/events/{eventId}/cancel", Staff.Cookie(signedIn));
 

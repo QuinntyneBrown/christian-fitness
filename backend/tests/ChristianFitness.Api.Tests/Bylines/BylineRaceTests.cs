@@ -44,12 +44,6 @@ public sealed class BylineRaceTests(BylineRaceTests.Factory factory) : IClassFix
 
         public DbSet<ChristianFitness.Domain.Sessions.SignInFailure> SignInFailures => db.SignInFailures;
 
-        public DbSet<ChristianFitness.Domain.Members.StaffTwoStep> StaffTwoSteps => db.StaffTwoSteps;
-
-        public DbSet<ChristianFitness.Domain.Members.TwoStepChallenge> TwoStepChallenges => db.TwoStepChallenges;
-
-        public DbSet<ChristianFitness.Domain.Members.TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
-
         public DbSet<ChristianFitness.Domain.Events.Event> Events => db.Events;
 
         public DbSet<ChristianFitness.Domain.Events.Registration> Registrations => db.Registrations;

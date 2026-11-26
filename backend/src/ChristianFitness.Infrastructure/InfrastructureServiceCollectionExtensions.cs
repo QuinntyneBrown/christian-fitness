@@ -55,7 +55,6 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISessionSignIn, CookieSessionSignIn>();
         services.AddScoped<IStaffSessionSignIn, CookieStaffSessionSignIn>();
         services.AddScoped<IGoogleStaffDomain, GoogleSettingsStaffDomain>();
-        services.AddScoped<ITwoStepCookie, CookieTwoStepCookie>();
         services.AddScoped<ISessionRevocation, DatabaseSessionRevocation>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         services.AddScoped<IClientAddress, HttpClientAddress>();

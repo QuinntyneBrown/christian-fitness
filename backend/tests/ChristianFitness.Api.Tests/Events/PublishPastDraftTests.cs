@@ -20,7 +20,7 @@ public sealed class PublishPastDraftTests(AdminEventsFactory factory) : IClassFi
         var id = await AdminEvents.CreatedIdAsync(client, cookie, AdminEvents.Retreat());
         // The retreat starts May 22 at 4:00 PM Toronto; the clock moves to May 23, so staff sign in again (ADR 0016).
         factory.Time.Advance(new DateTimeOffset(2026, 5, 23, 12, 0, 0, TimeSpan.Zero) - factory.Time.GetUtcNow());
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.publish.past@example.org", factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.publish.past@example.org");
         cookie = Staff.Cookie(signedIn);
 
         using var response = await AdminEvents.SendAsync(client, HttpMethod.Post, $"/api/admin/events/{id}/publish", cookie);

@@ -43,7 +43,7 @@ public sealed class BrowseServicesTests(RegisterForEventFactory factory) : IClas
         using var _ = staff;
         var email = $"dana.{application:N}@example.org";
         await Staff.CreateAsync(factory, staff, email, StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(staff, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, staff, email);
         var cookie = Staff.Cookie(signedIn);
         factory.Time.Advance(TimeSpan.FromMinutes(1));
         var path = $"/api/admin/services/applications/{application}/{(approve ? "approve" : "decline")}";

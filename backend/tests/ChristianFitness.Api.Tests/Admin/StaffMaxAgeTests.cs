@@ -87,7 +87,7 @@ public sealed class StaffMaxAgeTests(ProtectionsApiFactory factory) : IClassFixt
     {
         var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, email, StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
         Assert.Equal(HttpStatusCode.OK, signedIn.StatusCode);
         return (client, Staff.Cookie(signedIn));
     }

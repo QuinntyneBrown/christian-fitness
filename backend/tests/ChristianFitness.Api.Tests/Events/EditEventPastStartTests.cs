@@ -21,7 +21,7 @@ public sealed class EditEventPastStartTests(AdminEventsFactory factory) : IClass
         // The retreat starts May 22 at 4:00 PM Toronto; the clock moves to May 23.
         factory.Time.Advance(new DateTimeOffset(2026, 5, 23, 12, 0, 0, TimeSpan.Zero) - factory.Time.GetUtcNow());
         // The staff session idled out meanwhile (ADR 0016), so staff sign in again.
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.past@example.org", factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.past@example.org");
         cookie = Staff.Cookie(signedIn);
         var sameStart = AdminEvents.Retreat();
         sameStart["place"] = "Camp Muskoka";

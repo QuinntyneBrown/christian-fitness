@@ -27,7 +27,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     public async Task Given_staff_with_a_role_When_they_finish_Google_sign_in_Then_they_get_a_staff_session_and_it_is_audited()
     {
         using var client = Browser.CreateClient(factory);
-        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "dana.google.in@example.org", StaffRoleName.Admin, twoStep: false));
+        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "dana.google.in@example.org", StaffRoleName.Admin));
         var at = factory.Time.GetUtcNow();
 
         using var response = await Staff.SignInWithGoogleAsync(factory, client, "dana.google.in@example.org");
@@ -40,6 +40,10 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
         Assert.Contains("httponly", attributes);
         Assert.Contains("secure", attributes);
         Assert.Contains("samesite=strict", attributes);
+        Assert.Contains("path=/", attributes);
+        // Host-prefixed, and it ends with the browser: no expiry of its own.
+        Assert.StartsWith("__Host-cf-admin=", Staff.SetCookie(response), StringComparison.Ordinal);
+        Assert.DoesNotContain(attributes, attribute => attribute.StartsWith("expires=", StringComparison.Ordinal) || attribute.StartsWith("max-age=", StringComparison.Ordinal));
         using var me = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", Staff.Cookie(response));
         Assert.Equal(HttpStatusCode.OK, me.StatusCode);
         Assert.Contains(Expired, Browser.Attributes(Assert.IsType<string>(Browser.SetCookie(response, GoogleSignIn.ExternalCookieName))));
@@ -72,7 +76,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     {
         using var client = Browser.CreateClient(factory);
         // Even a staff member's own email is refused from outside the domain: the domain is Google's signed answer.
-        await Staff.CreateAsync(factory, client, email, StaffRoleName.Admin, twoStep: false);
+        await Staff.CreateAsync(factory, client, email, StaffRoleName.Admin);
         var google = new GoogleAccount { Email = email, HostedDomain = hostedDomain };
 
         using var response = await Staff.SignInWithGoogleAsync(factory, client, google.Email, google);
@@ -110,7 +114,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     public async Task Given_staff_bound_to_a_Google_account_When_another_Google_account_with_their_email_finishes_Then_it_is_refused_not_staff()
     {
         using var client = Browser.CreateClient(factory);
-        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "dana.bound.google@example.org", StaffRoleName.Admin, twoStep: false));
+        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "dana.bound.google@example.org", StaffRoleName.Admin));
         using (var bound = await Staff.SignInWithGoogleAsync(factory, client, "dana.bound.google@example.org"))
         {
             Assert.Equal(HttpStatusCode.OK, bound.StatusCode);
@@ -127,7 +131,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     public async Task Given_suspended_staff_When_they_finish_Then_it_is_refused_account_suspended()
     {
         using var client = Browser.CreateClient(factory);
-        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "joel.suspended.google@example.org", StaffRoleName.Moderator, twoStep: false));
+        var id = Guid.Parse(await Staff.CreateAsync(factory, client, "joel.suspended.google@example.org", StaffRoleName.Moderator));
         await SuspendAsync(id);
 
         using var response = await Staff.SignInWithGoogleAsync(factory, client, "joel.suspended.google@example.org");
@@ -150,7 +154,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     public async Task Given_an_unverified_email_When_it_finishes_Then_it_is_refused_google_email_unverified()
     {
         using var client = Browser.CreateClient(factory);
-        await Staff.CreateAsync(factory, client, "dana.unverified.google@example.org", StaffRoleName.Admin, twoStep: false);
+        await Staff.CreateAsync(factory, client, "dana.unverified.google@example.org", StaffRoleName.Admin);
         var google = Staff.WorkspaceAccount("dana.unverified.google@example.org");
         google = new GoogleAccount { Subject = google.Subject, Email = google.Email, HostedDomain = google.HostedDomain, EmailVerified = false };
 
@@ -163,7 +167,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     public async Task Given_an_identity_kept_by_the_member_app_When_Staff_sign_in_finishes_with_it_Then_it_is_no_identity()
     {
         using var client = Browser.CreateClient(factory);
-        await Staff.CreateAsync(factory, client, "dana.cross.app@example.org", StaffRoleName.Admin, twoStep: false);
+        await Staff.CreateAsync(factory, client, "dana.cross.app@example.org", StaffRoleName.Admin);
         var member = await GoogleSignIn.ExternalCookieAsync(client, factory.Google, GoogleApp.Member, Staff.WorkspaceAccount("dana.cross.app@example.org"));
 
         using var response = await Staff.FinishGoogleAsync(client, member);
@@ -175,7 +179,7 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
     public async Task Given_staff_signed_in_When_they_sign_in_again_sending_the_old_cookie_Then_the_old_session_key_no_longer_works()
     {
         using var client = Browser.CreateClient(factory);
-        await Staff.CreateAsync(factory, client, "dana.rotate.google@example.org", StaffRoleName.Admin, twoStep: false);
+        await Staff.CreateAsync(factory, client, "dana.rotate.google@example.org", StaffRoleName.Admin);
         using var first = await Staff.SignInWithGoogleAsync(factory, client, "dana.rotate.google@example.org");
         var old = Staff.Cookie(first);
 
@@ -187,6 +191,31 @@ public sealed class StaffGoogleSignInTests(ProtectionsApiFactory factory) : ICla
         Assert.Equal(HttpStatusCode.Unauthorized, withOld.StatusCode);
         using var withNew = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/session", Staff.Cookie(second));
         Assert.Equal(HttpStatusCode.OK, withNew.StatusCode);
+    }
+
+    // L2-046 AC1 (ADR 0100): no password or code step is left to call.
+    [Theory]
+    [InlineData("/api/admin/session", """{"email":"dana.gone@example.org","password":"abundantlife"}""", HttpStatusCode.MethodNotAllowed)]
+    [InlineData("/api/admin/session/two-step", """{"code":"123456"}""", HttpStatusCode.NotFound)]
+    public async Task Given_the_retired_password_and_code_steps_When_they_are_posted_to_Then_there_is_no_such_endpoint(string path, string body, HttpStatusCode expected)
+    {
+        using var client = Browser.CreateClient(factory);
+        // Signed in to both apps, so the answer is about the route, not about a missing session (an
+        // unmatched path meets the fallback policy, which reads the member session).
+        var email = $"dana.gone.{(int)expected}@example.org";
+        await Staff.CreateAsync(factory, client, email, StaffRoleName.Admin);
+        using var staff = await Staff.SignInWithGoogleAsync(factory, client, email);
+        using var member = await Browser.SignInAsync(client, email, Staff.Password);
+        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(path, UriKind.Relative))
+        {
+            Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json"),
+        };
+        request.Headers.Add("Cookie", $"{Staff.Cookie(staff)}; {Browser.SessionCookie(member)}");
+
+        using var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected, response.StatusCode);
+        Assert.Null(Staff.SetCookie(response));
     }
 
     /// <summary>A refusal: its status and code, no staff session, and (unless none came) the identity forgotten.</summary>

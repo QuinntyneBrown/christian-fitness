@@ -25,15 +25,6 @@ public interface IAppDbContext
     /// <summary>Failed sign-ins of the last 15 minutes (L2-004 AC3; ADR 0012).</summary>
     DbSet<SignInFailure> SignInFailures { get; }
 
-    /// <summary>The staff accounts' authenticator secrets (L2-046; ADR 0013).</summary>
-    DbSet<StaffTwoStep> StaffTwoSteps { get; }
-
-    /// <summary>The pending admin sign-ins, by the hash of their token (L2-046; ADR 0013).</summary>
-    DbSet<TwoStepChallenge> TwoStepChallenges { get; }
-
-    /// <summary>The wrong second-step codes, counted per account (L2-046 AC4; ADR 0013).</summary>
-    DbSet<TwoStepFailure> TwoStepFailures { get; }
-
     /// <summary>The events staff create and members register for (L2-022; ADR 0021).</summary>
     DbSet<Event> Events { get; }
 

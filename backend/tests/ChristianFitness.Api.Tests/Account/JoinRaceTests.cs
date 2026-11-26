@@ -39,12 +39,6 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
         public DbSet<PasswordReset> PasswordResets => db.PasswordResets;
         public DbSet<SignInFailure> SignInFailures => db.SignInFailures;
 
-        public DbSet<StaffTwoStep> StaffTwoSteps => db.StaffTwoSteps;
-
-        public DbSet<TwoStepChallenge> TwoStepChallenges => db.TwoStepChallenges;
-
-        public DbSet<TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
-
         public DbSet<ChristianFitness.Domain.Events.Event> Events => db.Events;
 
         public DbSet<ChristianFitness.Domain.Events.Registration> Registrations => db.Registrations;

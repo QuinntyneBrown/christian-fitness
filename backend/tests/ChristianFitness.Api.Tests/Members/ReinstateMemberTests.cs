@@ -152,18 +152,18 @@ public sealed class ReinstateMemberTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Given_a_reinstated_staff_account_When_it_signs_in_to_the_admin_app_Then_the_password_step_is_accepted_again()
+    public async Task Given_a_reinstated_staff_account_When_it_signs_in_to_the_admin_app_Then_it_is_signed_in_again()
     {
         var id = Guid.Parse(await Staff.CreateAsync(_factory, _client, "joel@christianfitness.ca", StaffRoleName.Moderator));
         using var suspended = await PostAsync(_dana, id, "suspend", new { note = Note, confirmed = true });
-        using var refused = await Staff.SignInAsync(_client, "joel@christianfitness.ca", Staff.Password);
+        using var refused = await Staff.SignInWithGoogleAsync(_factory, _client, "joel@christianfitness.ca");
         Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
 
         using var response = await ReinstateAsync(_dana, id);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        using var signIn = await Staff.SignInAsync(_client, "joel@christianfitness.ca", Staff.Password);
-        Assert.Equal(HttpStatusCode.Accepted, signIn.StatusCode);
+        using var signIn = await Staff.SignInWithGoogleAsync(_factory, _client, "joel@christianfitness.ca");
+        Assert.Equal(HttpStatusCode.OK, signIn.StatusCode);
     }
 
     [Fact]

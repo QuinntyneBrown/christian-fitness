@@ -40,7 +40,7 @@ public sealed class ApplicationQueueTests(RegisterForEventFactory factory) : ICl
     {
         var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, email, role);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
         return (client, Staff.Cookie(signedIn));
     }
 

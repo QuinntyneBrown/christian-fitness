@@ -1,38 +1,37 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
+using ChristianFitness.Api.Tests.Google;
 using ChristianFitness.Api.Tests.Telemetry;
 using ChristianFitness.Domain.Members;
 
 namespace ChristianFitness.Api.Tests.Admin;
 
 /// <summary>
-/// L2-046 AC8, L2-033 AC2 and L2-040 AC1: a second step, right or wrong, leaves no code, secret or
-/// step cookie in any span or log; the span records the route template, the method and the status
-/// only.
+/// L2-049 AC8, L2-033 AC2 and L2-040 AC1 (ADR 0100): finishing staff Google sign-in, signed in or
+/// refused, leaves no email, Google subject or cookie in any span or log; the span records the
+/// route template, the method and the status only.
 /// </summary>
-public sealed class TwoStepTelemetryTests(TelemetryTests.Factory factory) : IClassFixture<TelemetryTests.Factory>
+public sealed class StaffGoogleSignInTelemetryTests(TelemetryTests.Factory factory) : IClassFixture<TelemetryTests.Factory>
 {
     [Theory]
-    [InlineData("the right code", true, HttpStatusCode.OK)]
-    [InlineData("a wrong code", false, HttpStatusCode.Unauthorized)]
-    public async Task Given_a_pending_sign_in_When_a_code_is_checked_Then_nothing_secret_is_recorded(string why, bool right, HttpStatusCode status)
+    [InlineData("staff of the domain", "christian.fitness", HttpStatusCode.OK)]
+    [InlineData("an account outside the domain", "other.org", HttpStatusCode.Forbidden)]
+    public async Task Given_a_staff_Google_finish_When_it_is_answered_Then_nothing_personal_or_secret_is_recorded(string why, string hostedDomain, HttpStatusCode status)
     {
         Assert.NotNull(why);
         using var client = Browser.CreateClient(factory);
-        var email = $"dana.telemetry.{(right ? "right" : "wrong")}@example.org";
+        var email = $"dana.telemetry.{hostedDomain.Replace('.', '-')}@example.org";
         await Staff.CreateAsync(factory, client, email, StaffRoleName.Admin);
-        using var passwordStep = await Staff.SignInAsync(client, email, Staff.Password);
-        var cookie = Staff.StepCookie(passwordStep);
-        var rightCode = Staff.CodeAt(DateTimeOffset.UtcNow);
-        // A wrong code still has 6 digits, so it is as findable in a log as a right one.
-        var code = right ? rightCode : rightCode == "999999" ? "999998" : "999999";
+        var google = Staff.WorkspaceAccount(email);
+        google = new GoogleAccount { Subject = google.Subject, Email = email, HostedDomain = hostedDomain };
+        var external = await GoogleSignIn.ExternalCookieAsync(client, factory.Google, GoogleApp.Staff, google);
         var traceId = ActivityTraceId.CreateRandom();
-        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri("/api/admin/session/two-step", UriKind.Relative))
+        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Staff.GoogleFinishPath, UriKind.Relative))
         {
-            Content = JsonContent.Create(new { code }),
+            Content = JsonContent.Create(new { }),
         };
-        request.Headers.Add("Cookie", cookie);
+        request.Headers.Add("Cookie", external);
         request.Headers.Add("traceparent", $"00-{traceId}-{ActivitySpanId.CreateRandom()}-01");
 
         using var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -42,12 +41,18 @@ public sealed class TwoStepTelemetryTests(TelemetryTests.Factory factory) : ICla
         var span = await factory.Spans.WaitForAsync(
             s => s.Kind == ActivityKind.Server && s.TraceId == traceId,
             s => $"{s.DisplayName} {{{string.Join(", ", s.TagObjects.Select(t => t.Key))}}}",
-            "the server span of POST /api/admin/session/two-step");
+            "the server span of POST /api/admin/session/google");
 
-        Assert.Equal("POST api/admin/session/two-step", span.DisplayName);
+        Assert.Equal("POST api/admin/session/google", span.DisplayName);
         Assert.Equal(["http.request.method", "http.response.status_code", "http.route"], span.TagObjects.Select(t => t.Key).Order(StringComparer.Ordinal));
-        var token = cookie.Split('=', 2)[1];
-        foreach (var secret in new[] { code, token, Totp.Base32Of(Staff.Secret), "christian-fitness-20", "cf-admin-step", "dana.telemetry" })
+        var cookieValue = external.Split('=', 2)[1];
+        var secrets = new List<string> { cookieValue, google.Subject, "dana.telemetry" };
+        if (status == HttpStatusCode.OK)
+        {
+            secrets.Add(Staff.Cookie(response).Split('=', 2)[1]);
+        }
+
+        foreach (var secret in secrets)
         {
             AssertNotRecorded(secret);
         }

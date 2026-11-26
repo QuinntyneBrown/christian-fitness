@@ -32,7 +32,7 @@ public sealed class LandingProfessionalsTests(RegisterForEventFactory factory) :
         using var staff = Browser.CreateClient(factory);
         var staffEmail = $"dana.{application:N}@example.org";
         await Staff.CreateAsync(factory, staff, staffEmail, StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(staff, staffEmail, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, staff, staffEmail);
         var staffCookie = Staff.Cookie(signedIn);
         factory.Time.Advance(TimeSpan.FromMinutes(1));
         using var approved = await AdminEvents.SendAsync(staff, HttpMethod.Post, $"/api/admin/services/applications/{application}/approve", staffCookie);

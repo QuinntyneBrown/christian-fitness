@@ -128,15 +128,6 @@ public static class RefusalCodes
     /// <summary>No account has this email and password (L2-004 AC2): one code for both.</summary>
     public const string InvalidCredentials = "invalid_credentials";
 
-    /// <summary>A second-step code is wrong, malformed or already used (L2-046 AC3).</summary>
-    public const string InvalidCode = "invalid_code";
-
-    /// <summary>No pending sign-in, or it is older than 5 minutes (L2-046 AC5).</summary>
-    public const string TwoStepExpired = "two_step_expired";
-
-    /// <summary>A staff account without two-step verification set up (L2-046 AC6).</summary>
-    public const string TwoStepNotSetUp = "two_step_not_set_up";
-
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
     public const string NotFound = "not_found";
 
@@ -155,8 +146,8 @@ public static class RefusalCodes
     public const string ResetLinkExpired = "reset_link_expired";
 
     /// <summary>
-    /// 5 sign-ins for one email failed in the last 15 minutes (L2-004 AC3), or 5 second-step codes
-    /// for one staff account were wrong in 15 minutes (L2-046 AC4).
+    /// 5 sign-ins for one email failed in the last 15 minutes (L2-004 AC3), or more than 20 Google
+    /// sign-ins started from one network in 15 minutes (L2-049 AC7).
     /// </summary>
     public const string TooManyAttempts = "too_many_attempts";
 
