@@ -80,8 +80,12 @@
                 [button]="panel().action"
                 [failed]="joinFailed()"
                 [note]="panel().note"
+                [keptNote]="keptNote()"
+                [progress]="panel().progress"
+                [chatHref]="chatHref()"
                 (choose)="choose($event)"
                 (act)="join()"
+                (allDates)="downloadAllDates()"
               />
             </cf-card>
             <cf-host-card

@@ -40,6 +40,7 @@ const COUCH: SeriesDetailDto = {
     id: `s${n + 1}`,
     number: n + 1,
     startsAt: '2026-04-21T22:30:00Z',
+    endsAt: null,
     topic: null,
     state: state as SeriesDetailDto['sessions'][number]['state'],
     held: false,

@@ -38,8 +38,17 @@ export class WebEventSeriesPage extends ErrorScreen {
   readonly dropIn: Locator;
   /** The panel's one button: "Join the series", "Joining…" or "Pick a date first". */
   readonly panelButton: Locator;
-  /** "Pay the host at your first session, …" under the confirmation of a paid series. */
-  readonly payNote: Locator;
+  /**
+   * The notes under the confirmation: "Pay the host at your first session, …" for a paid series,
+   * then which dates already booked keep the drop-in price.
+   */
+  readonly payNotes: Locator;
+  readonly progressLabel: Locator;
+  /** "Attendance not recorded yet", or "Came to <attended> of <recorded>". */
+  readonly progressCount: Locator;
+  readonly allDatesButton: Locator;
+  readonly groupChatLink: Locator;
+  readonly leaveButton: Locator;
   /** The generic failure above the button. */
   readonly failure: Locator;
   readonly hostCard: Locator;
@@ -75,7 +84,12 @@ export class WebEventSeriesPage extends ErrorScreen {
     this.everySession = this.planGroup.getByRole('radio', { name: /^Every session/ });
     this.dropIn = this.planGroup.getByRole('radio', { name: /^Pick dates to drop in/ });
     this.panelButton = this.panel.locator('.register__state').getByRole('button');
-    this.payNote = this.panel.locator('.register__note--start');
+    this.payNotes = this.panel.locator('.register__note--start');
+    this.progressLabel = this.panel.locator('.series-progress__label');
+    this.progressCount = this.panel.locator('.series-progress__count');
+    this.allDatesButton = this.panel.getByRole('button', { name: 'All dates' });
+    this.groupChatLink = this.panel.getByRole('link', { name: 'Group chat' });
+    this.leaveButton = this.panel.getByRole('button', { name: 'Leave the series' });
     this.failure = this.panel.getByRole('alert');
     this.hostCard = this.aside.locator('a.host-card');
     this.hostLabel = this.hostCard.locator('.host-card__label');

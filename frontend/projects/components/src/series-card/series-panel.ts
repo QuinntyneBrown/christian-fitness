@@ -1,5 +1,7 @@
 import { booleanAttribute, Component, input, output } from '@angular/core';
 import { Button } from '../button/button';
+import { ButtonRow } from '../button/button-row';
+import { SessionMeter, type SessionMeterBar } from '../session-list/session-meter';
 import { PlanList } from '../plan-option/plan-list';
 import { PlanOption } from '../plan-option/plan-option';
 
@@ -11,6 +13,13 @@ export interface SeriesPanelPlan {
   price: string;
   checked: boolean;
   disabled: boolean;
+}
+
+/** "Your progress": the count, the decorative meter's bars and its hidden label. */
+export interface SeriesPanelProgress {
+  count: string;
+  bars: readonly SessionMeterBar[];
+  label: string;
 }
 
 /** The panel's one button: its words, and whether it is disabled or busy. */
@@ -25,12 +34,14 @@ export interface SeriesPanelButton {
  * panel", block `series-panel` in a `card--pad-sm`; ADR 0099): "Sign up" with the spots left, the
  * ways to come as plan options in one radio group, "How would you like to come?", the one button,
  * a generic failure above it (`role="alert"`) and the chat note; or, once `joined`, "You're in
- * for every session" as a status and how to pay. Words are rendered as text. It emits the way
- * chosen and the button's press; the page decides what they do.
+ * for every session" as a status, how to pay, the dates already booked that keep their price,
+ * "Your progress" with its session meter, "All dates", "Group chat" and "Leave the series". Words
+ * are rendered as text. It emits the way chosen, the button's press, All dates and Leave; the
+ * page decides what they do.
  */
 @Component({
   selector: 'cf-series-panel',
-  imports: [Button, PlanList, PlanOption],
+  imports: [Button, ButtonRow, PlanList, PlanOption, SessionMeter],
   templateUrl: './series-panel.html',
   styleUrl: './series-panel.scss',
 })
@@ -47,6 +58,16 @@ export class SeriesPanel {
   readonly failed = input(false, { transform: booleanAttribute });
   /** "One group chat for the whole series." */
   readonly note = input('');
+  /** "You'd already booked session 4, …" right after a join; else none. */
+  readonly keptNote = input<string | null>(null);
+  /** Once joined; else none. */
+  readonly progress = input<SeriesPanelProgress | null>(null);
+  /** The series' group chat. */
+  readonly chatHref = input('');
+  /** The member asked for the calendar file of every date to come. */
+  readonly allDates = output<void>();
+  /** The member chose "Leave the series". */
+  readonly leave = output<void>();
   /** The value of the way the member chose. */
   readonly choose = output<string>();
   /** The member pressed the button. */

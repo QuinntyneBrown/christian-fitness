@@ -1,4 +1,7 @@
-<span class="session-meter" aria-hidden="true">
+<span
+  [attr.class]="thick() ? 'session-meter session-meter--thick' : 'session-meter'"
+  aria-hidden="true"
+>
   @for (bar of bars(); track $index) {
     <span [attr.class]="classOf(bar)"></span>
   }

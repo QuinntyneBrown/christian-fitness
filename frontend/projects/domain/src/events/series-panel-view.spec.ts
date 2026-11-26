@@ -1,5 +1,5 @@
 import type { SeriesDetailDto } from '@cf/api';
-import { seriesJoinRefusalOf, seriesPanelViewOf } from './series-panel-view';
+import { seriesJoinRefusalOf, seriesKeptNoteOf, seriesPanelViewOf } from './series-panel-view';
 
 type Panel = Pick<
   SeriesDetailDto,
@@ -18,6 +18,7 @@ const held = (n: number, cancelled = 0): SeriesDetailDto['sessions'] =>
     id: `s${i}`,
     number: i + 1,
     startsAt: '2026-04-25T12:00:00Z',
+    endsAt: null,
     topic: null,
     state: i < cancelled ? 'cancelled' : 'upcoming',
     held: false,
@@ -214,5 +215,82 @@ describe('seriesJoinRefusalOf', () => {
     { why: 'nothing', error: null, shows: 'failed' },
   ])('$why', ({ error, shows }) => {
     expect(seriesJoinRefusalOf(error)).toBe(shows);
+  });
+});
+
+// L2-052 AC3 (ADR 0099): a joined member's progress, before attendance is recorded (journey 16).
+describe('seriesPanelViewOf, progress', () => {
+  it('reads "Attendance not recorded yet" with the next date highlighted and cancelled ones faded', () => {
+    const sessions = (['done', 'done', 'live', 'upcoming', 'cancelled'] as const).map(
+      (state, n) => ({
+        ...held(1)[0]!,
+        id: `s${n}`,
+        number: n + 1,
+        state,
+      }),
+    );
+    const view = seriesPanelViewOf({ ...BOOTCAMP, joined: true, sessions });
+
+    expect(view.progress).toEqual({
+      count: 'Attendance not recorded yet',
+      bars: ['upcoming', 'upcoming', 'next', 'upcoming', 'cancelled'],
+      label: 'Session 3 of 5 is next',
+    });
+  });
+
+  it('has no progress before joining', () => {
+    expect(seriesPanelViewOf(BOOTCAMP).progress).toBeNull();
+  });
+});
+
+// L2-052 AC4, L2-053 AC5 (ADR 0099): the join confirmation for dates already dropped in on, one
+// case per row: which sessions were held before the join, and the note.
+describe('seriesKeptNoteOf', () => {
+  const states = ['done', 'done', 'done', 'live', 'upcoming', 'upcoming', 'cancelled'] as const;
+  const before = (heldAt: number[], over: Partial<Panel> = {}) => ({
+    ...BOOTCAMP,
+    ...over,
+    sessions: states.map((state, n) => ({
+      ...held(1)[0]!,
+      id: `s${n}`,
+      number: n + 1,
+      state,
+      held: heldAt.includes(n + 1),
+    })),
+  });
+  const joined = { joined: true };
+
+  it.each([
+    {
+      why: 'one date to come',
+      series: before([4]),
+      note: "You'd already booked session 4, so it stays at the drop-in price ($10). Your other dates are at the series price.",
+    },
+    {
+      why: 'two dates to come',
+      series: before([4, 5]),
+      note: "You'd already booked sessions 4 and 5, so they stay at the drop-in price ($10 each). Your other dates are at the series price.",
+    },
+    {
+      why: 'three dates to come',
+      series: before([4, 5, 6]),
+      note: "You'd already booked sessions 4, 5 and 6, so they stay at the drop-in price ($10 each). Your other dates are at the series price.",
+    },
+    {
+      why: 'a free drop-in',
+      series: before([5], { dropInPriceCents: 0 }),
+      note: "You'd already booked session 5, so it stays free. Your other dates are at the series price.",
+    },
+    { why: 'only a past date held', series: before([2]), note: null },
+    { why: 'only a cancelled date held', series: before([7]), note: null },
+    { why: 'nothing held', series: before([]), note: null },
+    { why: 'a free series', series: before([4], { priceCents: 0 }), note: null },
+    { why: 'joined already', series: before([4], { joined: true }), note: null },
+  ])('$why', ({ series, note }) => {
+    expect(seriesKeptNoteOf(series, joined)).toBe(note);
+  });
+
+  it('says nothing when the join did not happen', () => {
+    expect(seriesKeptNoteOf(before([4]), { joined: false })).toBeNull();
   });
 });

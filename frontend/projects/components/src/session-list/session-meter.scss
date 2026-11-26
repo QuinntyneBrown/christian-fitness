@@ -26,3 +26,7 @@
 .session-meter__bar--cancelled {
   opacity: var(--opacity-disabled);
 }
+
+.session-meter--thick > .session-meter__bar {
+  height: var(--space-2);
+}

@@ -787,6 +787,7 @@
         "not-joined",
         "joining",
         "joined",
+        "joined-drop-in",
         "failed",
         "drop-in-none",
         "drop-in",

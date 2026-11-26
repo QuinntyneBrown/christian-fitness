@@ -67,3 +67,32 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+.series-progress {
+  margin-top: var(--space-5);
+}
+
+.series-progress__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.series-progress__label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.series-progress__count {
+  color: var(--color-fg-muted);
+}
+
+.series-progress__meter {
+  margin-top: var(--space-2);
+}
+
+.series-panel__actions,
+.series-panel__leave {
+  margin-top: var(--space-3);
+}
