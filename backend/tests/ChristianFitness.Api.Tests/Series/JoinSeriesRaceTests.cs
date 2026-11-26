@@ -65,6 +65,7 @@ public sealed class JoinSeriesRaceTests(JoinSeriesRaceTests.Factory factory) : I
         public DbSet<SeriesEnrolment> SeriesEnrolments => db.SeriesEnrolments;
         public DbSet<ChristianFitness.Domain.News.Byline> Bylines => db.Bylines;
         public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
+        public DbSet<ChristianFitness.Domain.Events.CommunityPick> CommunityPicks => db.CommunityPicks;
 
         public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
 
