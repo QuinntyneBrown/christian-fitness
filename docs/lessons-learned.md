@@ -2327,7 +2327,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 **How earlier lessons worked**
 
-- "Keep the field's text apart from the URL's term" (26.1): the field keeps "  SUNRISE " while the
+- "Keep the field's text apart from the URL's term" (26.1): the field keeps " SUNRISE " while the
   address holds `q=SUNRISE`, and a chip does not rewrite it; the spec asserts both.
 - "Read a URL through one pure function" (26.1, 4.2): `eventListQueryOf` turns an unknown category,
   blank text and any `going` but `true` into unset, so the screen never asks a question the API
@@ -2540,7 +2540,7 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
   `IAppDbContext`, so it is refused with the other fields' codes in one answer; its direct test
   gives the validator an InMemory `AppDbContext` holding one listing per status.
 - A live region that starts empty is kept in the page but out of the flow (`:empty { position:
-  absolute }`), not `display: none`, so a later sentence is announced and an empty one adds no gap.
+absolute }`), not `display: none`, so a later sentence is announced and an empty one adds no gap.
 
 **How earlier lessons worked**
 
@@ -2628,7 +2628,6 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 
 - "Count a slice's new specs against the CI budget" (24.1) is retired: new specs no longer cost
   CI time, only the one critical path does.
-
 
 ## Journey 9: Manage event series
 
