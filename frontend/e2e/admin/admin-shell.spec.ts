@@ -39,6 +39,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
     await expect(shell.navItems).toHaveText([
       'Dashboard',
       'Stories',
+      'Newsletter',
       'Events',
       'Event series',
       'Community Pick',
@@ -51,6 +52,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
     ).toEqual([
       '/',
       '/stories',
+      '/newsletter',
       '/events',
       '/series',
       '/community-pick',
@@ -72,7 +74,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
 
     await expect(shell.navGroups).toHaveText(['Publish', 'Gather', 'Community']);
     await expect(shell.navGroups.first()).toBeVisible();
-    await expect(shell.navGroupLinks('Publish')).toHaveText(['Stories']);
+    await expect(shell.navGroupLinks('Publish')).toHaveText(['Stories', 'Newsletter']);
     await expect(shell.navGroupLinks('Gather')).toHaveText([
       'Events',
       'Event series',

@@ -19,6 +19,7 @@ export interface AdminNavArea {
 const AREA_GROUPS: Record<AdminAreaKey, AdminAreaGroup | null> = {
   dashboard: null,
   stories: 'Publish',
+  newsletter: 'Publish',
   events: 'Gather',
   series: 'Gather',
   'community-pick': 'Gather',

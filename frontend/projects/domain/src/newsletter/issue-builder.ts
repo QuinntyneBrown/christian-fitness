@@ -239,13 +239,14 @@ export class IssueBuilder implements OnDestroy {
     fieldCodes: signal<Record<string, string>>({}),
     savedAt: signal<string | null>(null),
     saveFailed: signal(false),
+    saving: signal(false),
     test: signal<IssueTestState>('idle'),
     testSentTo: signal<string | null>(null),
     sendTime: signal(''),
   };
   private timer: ReturnType<typeof setTimeout> | undefined;
   private reading: Subscription | undefined;
-  private saving: Subscription | undefined;
+  private saveRun: Subscription | undefined;
   private acting: Subscription | undefined;
   private testing: Subscription | undefined;
   private inFlight = false;
@@ -262,6 +263,8 @@ export class IssueBuilder implements OnDestroy {
   readonly savedAt = this.state.savedAt.asReadonly();
   /** The last autosave did not reach the server; the fields are kept. */
   readonly saveFailed = this.state.saveFailed.asReadonly();
+  /** A save is under way: "Saving…" (mock `autosaving`). */
+  readonly saving = this.state.saving.asReadonly();
   readonly test = this.state.test.asReadonly();
   readonly testSentTo = this.state.testSentTo.asReadonly();
   /** A missed issue's new time today, `HH:mm` (L2-070 AC8). */
@@ -403,7 +406,7 @@ export class IssueBuilder implements OnDestroy {
   ngOnDestroy(): void {
     clearTimeout(this.timer);
     this.reading?.unsubscribe();
-    this.saving?.unsubscribe();
+    this.saveRun?.unsubscribe();
     this.acting?.unsubscribe();
     this.testing?.unsubscribe();
   }
@@ -424,16 +427,19 @@ export class IssueBuilder implements OnDestroy {
       return;
     }
     this.inFlight = true;
+    this.state.saving.set(true);
     this.editedSince = false;
-    this.saving = this.api.save(issue.number, this.state.fields()).subscribe({
+    this.saveRun = this.api.save(issue.number, this.state.fields()).subscribe({
       next: (saved) => {
         this.inFlight = false;
+        this.state.saving.set(false);
         this.state.savedAt.set(saved.savedAt);
         this.state.saveFailed.set(false);
         if (this.editedSince && this.timer === undefined) this.save();
       },
       error: () => {
         this.inFlight = false;
+        this.state.saving.set(false);
         this.state.saveFailed.set(true);
       },
     });

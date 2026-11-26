@@ -1,0 +1,229 @@
+<div class="page-head page-head--wrap">
+  <div>
+    <h1 class="admin-title">Newsletter</h1>
+    <p class="subtitle">{{ subtitle() }}</p>
+  </div>
+</div>
+
+<ng-template #issueCell let-row>
+  <span class="table__strong">{{ row.cells.issue?.text }}</span>&ngsp;<span class="muted"
+    >· {{ sentDates().get(row.id) }}</span
+  >
+</ng-template>
+
+@switch (builder.load()) {
+  @case ('loading') {
+    <cf-skeleton-region label="Loading the newsletter">
+      <div class="split split--builder">
+        <cf-card>
+          <div class="skeleton-stack">
+            <cf-skeleton shape="title" width="30" />
+            <cf-skeleton shape="button-block" />
+            <cf-skeleton shape="tile" />
+            <cf-skeleton shape="tile" />
+          </div>
+        </cf-card>
+        <div class="skeleton-stack">
+          <cf-skeleton shape="tile" />
+          <cf-skeleton shape="button-block" />
+        </div>
+      </div>
+    </cf-skeleton-region>
+  }
+  @case ('failed') {
+    <cf-empty-state
+      variant="error"
+      heading="The newsletter didn't load"
+      text="We couldn't reach Christian Fitness. Check your connection and try again."
+    >
+      <cf-button slot="actions" size="sm" (click)="builder.open()">Try again</cf-button>
+    </cf-empty-state>
+  }
+  @default {
+    @if (issue(); as issue) {
+      <form class="split split--builder" novalidate (submit)="schedule($event)">
+        <cf-card element="section" labelledBy="issue-title">
+          <div class="cluster">
+            <h2 class="builder__title" id="issue-title">Issue #{{ issue.number }}</h2>
+            <cf-status [variant]="scheduled() ? 'scheduled' : 'draft'">{{
+              scheduled() ? 'Scheduled' : 'Draft'
+            }}</cf-status>
+            @if (saved(); as saved) {
+              <span class="editor__saved" role="status">{{ saved }}</span>
+            }
+          </div>
+          <div class="builder__fields">
+            <cf-text-field
+              fieldId="f-subject"
+              label="Subject line"
+              name="subject"
+              [value]="fields().subject"
+              [readonly]="locked()"
+              [error]="errorOf('subject')"
+              (valueChange)="builder.edit({ subject: $event })"
+            />
+            <cf-textarea
+              fieldId="f-note"
+              label="Editor’s note"
+              name="note"
+              [rows]="3"
+              [value]="fields().editorsNote"
+              [readonly]="locked()"
+              [error]="errorOf('editorsNote')"
+              (valueChange)="builder.edit({ editorsNote: $event })"
+            />
+            <cf-select
+              fieldId="f-lead"
+              label="The big story"
+              name="lead"
+              prompt="Choose a story"
+              [options]="leadOptions()"
+              [value]="fields().leadStoryId ?? ''"
+              [disabled]="locked()"
+              [error]="errorOf('leadStoryId')"
+              (valueChange)="builder.edit({ leadStoryId: $event || null })"
+            />
+            <cf-pick-rows
+              legend="Also this week"
+              name="also"
+              [count]="alsoCount()"
+              [items]="alsoRows()"
+              [disabled]="locked()"
+              (toggled)="toggleAlso($event)"
+            />
+            <cf-interest-list
+              fieldId="f-events"
+              legend="Events this week"
+              hint="Choose which of the next four events to feature. All four appear on the calendar."
+            >
+              @for (event of events(); track event.id) {
+                <cf-interest
+                  [pressed]="event.pressed"
+                  [disabled]="locked()"
+                  (pressedChange)="builder.toggleEvent(event.id, $event)"
+                  >{{ event.title }}</cf-interest
+                >
+              }
+            </cf-interest-list>
+            <div class="field-grid field-grid--verse">
+              <cf-text-field
+                fieldId="f-verse"
+                label="Verse to carry"
+                name="verse"
+                [value]="fields().verse"
+                [readonly]="locked()"
+                [error]="errorOf('verse')"
+                (valueChange)="builder.edit({ verse: $event })"
+              />
+              <cf-text-field
+                fieldId="f-reference"
+                label="Reference"
+                name="reference"
+                [value]="fields().verseReference"
+                [readonly]="locked()"
+                [error]="errorOf('verseReference')"
+                (valueChange)="builder.edit({ verseReference: $event })"
+              />
+            </div>
+          </div>
+        </cf-card>
+        <aside class="aside-stack sticky-aside" aria-label="Send">
+          @if (sendCard(); as card) {
+            <cf-send-card [label]="card.label" [date]="card.date" [meta]="card.meta">
+              @if (scheduled()) {
+                <cf-button
+                  variant="on-brand"
+                  size="md"
+                  block
+                  [busy]="builder.action() === 'unscheduling'"
+                  (click)="builder.unschedule()"
+                  >{{
+                    builder.action() === 'unscheduling' ? 'Unscheduling…' : 'Unschedule to edit'
+                  }}</cf-button
+                >
+              } @else if (issue.missedSend) {
+                <div class="send-card__reschedule">
+                  <cf-text-field
+                    fieldId="f-resend"
+                    label="Send later today at"
+                    name="resend"
+                    type="time"
+                    hint="Today, Eastern time. It cannot be moved to another day."
+                    [value]="builder.sendTime()"
+                    [readonly]="locked()"
+                    [error]="errorOf('sendTime')"
+                    (valueChange)="builder.chooseSendTime($event)"
+                  />
+                </div>
+                <cf-button
+                  type="submit"
+                  variant="inverse"
+                  size="md"
+                  block
+                  [busy]="builder.action() === 'scheduling'"
+                  >{{
+                    builder.action() === 'scheduling' ? 'Rescheduling…' : 'Reschedule'
+                  }}</cf-button
+                >
+              } @else {
+                <cf-button
+                  type="submit"
+                  variant="inverse"
+                  size="md"
+                  block
+                  [busy]="builder.action() === 'scheduling'"
+                  >{{
+                    builder.action() === 'scheduling' ? 'Scheduling…' : 'Schedule issue'
+                  }}</cf-button
+                >
+              }
+            </cf-send-card>
+          }
+          @if (builder.action() === 'failed') {
+            <p class="register__error" role="alert">
+              We couldn't {{ scheduled() ? 'unschedule' : 'schedule' }} the issue. Try again in a
+              moment.
+            </p>
+          }
+          <cf-button-row>
+            <cf-button
+              variant="secondary"
+              size="sm"
+              grow
+              newTab
+              [href]="'/newsletter/preview?issue=' + issue.number"
+              >Preview</cf-button
+            >
+            <cf-button
+              variant="secondary"
+              size="sm"
+              grow
+              [busy]="builder.test() === 'sending'"
+              (click)="builder.sendTest()"
+              >{{ builder.test() === 'sent' ? 'Test sent' : 'Send me a test' }}</cf-button
+            >
+          </cf-button-row>
+          <p class="visually-hidden" role="status">{{ testStatus() }}</p>
+          @if (builder.test() === 'failed') {
+            <p class="register__error" role="alert">
+              We couldn't send the test. Try again in a moment.
+            </p>
+          }
+          <p class="builder__note">
+            Add-on emails (event alerts, training plan, devotions) are deferred until someone owns
+            writing and scheduling them.
+          </p>
+        </aside>
+      </form>
+      <section class="sent" aria-labelledby="sent-title">
+        <h2 class="section-title" id="sent-title">Sent</h2>
+        <cf-table
+          caption="Sent issues"
+          [columns]="sentColumns"
+          [rows]="sentRows()"
+          [cell]="issueCell"
+        />
+      </section>
+    }
+  }
+}

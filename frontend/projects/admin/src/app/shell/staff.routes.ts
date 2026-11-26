@@ -61,6 +61,12 @@ const routes: Routes = [
         loadComponent: () => import('../pages/series/series-page'),
       },
       {
+        // The next issue of The Abundant Weekly, built and scheduled (journey 28; L2-070).
+        path: 'newsletter',
+        title: titled('Newsletter'),
+        loadComponent: () => import('../pages/newsletter-desk/newsletter-desk-page'),
+      },
+      {
         // A published event made into branded posts for four platforms (journey 32; ADR 0098).
         path: 'community-pick',
         title: titled('Community Pick'),

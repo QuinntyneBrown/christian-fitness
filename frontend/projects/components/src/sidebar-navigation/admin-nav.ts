@@ -10,6 +10,7 @@ export interface AdminNavItem {
   key:
     | 'dashboard'
     | 'stories'
+    | 'newsletter'
     | 'events'
     | 'series'
     | 'community-pick'

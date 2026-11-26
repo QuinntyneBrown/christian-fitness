@@ -1,0 +1,150 @@
+// The Newsletter desk (docs/design-system/assets/components.css: "page-head", "page-head--wrap",
+// "admin-title", "subtitle", "split--builder", "cluster", "builder__title", "builder__fields",
+// "builder__note", "editor__saved", "field-grid--verse", "aside-stack--snug", "sticky-aside",
+// "send-card__reschedule", "register__error", "section-title", "mt-12" and the loading mock's
+// "skeleton-stack"). The send column's 20rem is the design system's size-column-builder, which
+// the admin tokens do not carry.
+:host {
+  display: block;
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.page-head--wrap {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.admin-title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-4xl);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-5xl);
+    line-height: var(--line-height-none);
+  }
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.split {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+@media (min-width: 64rem) {
+  .split--builder {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.builder__title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-3xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.builder__fields {
+  margin-top: var(--space-6);
+
+  > * + * {
+    margin-top: var(--space-5);
+  }
+}
+
+.editor__saved {
+  display: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  @media (min-width: 40rem) {
+    display: inline;
+  }
+}
+
+.field-grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 40rem) {
+  .field-grid--verse {
+    grid-template-columns: 1fr 10rem;
+  }
+}
+
+.aside-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.sticky-aside {
+  align-self: start;
+}
+
+.send-card__reschedule {
+  margin: var(--space-3) 0;
+}
+
+.builder__note {
+  padding-inline: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.register__error {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger-fg);
+}
+
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sent {
+  margin-top: var(--space-12);
+}
+
+.section-title {
+  margin-bottom: var(--space-4);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.table__strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.muted {
+  color: var(--color-fg-muted);
+}

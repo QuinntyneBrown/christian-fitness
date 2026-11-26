@@ -93,7 +93,7 @@ test.describe('Admin app, the Bylines page', () => {
     await bylines.open();
 
     await expect(bylines.rows).toHaveCount(5);
-    await expect(shell.navGroupLinks('Publish')).toHaveText(['Stories']);
+    await expect(shell.navGroupLinks('Publish')).toHaveText(['Stories', 'Newsletter']);
     await expect(shell.currentItem).toHaveText('Stories');
     await expect(shell.navItem('Stories')).toHaveAttribute('href', '/stories');
   });

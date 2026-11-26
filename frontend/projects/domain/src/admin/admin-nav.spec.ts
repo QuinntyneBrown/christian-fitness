@@ -5,6 +5,7 @@ describe('adminNavOf', () => {
   it("lists the role's areas, with the suggestions waiting counted beside Listings", () => {
     expect(adminNavOf('Moderator', { suggestions: 3, storiesInReview: 0 })).toEqual([
       { key: 'dashboard', label: 'Dashboard', href: '/', group: null },
+      { key: 'newsletter', label: 'Newsletter', href: '/newsletter', group: 'Publish' },
       { key: 'series', label: 'Event series', href: '/series', group: 'Gather' },
       { key: 'community-pick', label: 'Community Pick', href: '/community-pick', group: 'Gather' },
       {
@@ -24,6 +25,7 @@ describe('adminNavOf', () => {
     expect(adminNavOf('Admin', null).map((area) => [area.label, area.group, area.href])).toEqual([
       ['Dashboard', null, '/'],
       ['Stories', 'Publish', '/stories'],
+      ['Newsletter', 'Publish', '/newsletter'],
       ['Events', 'Gather', '/events'],
       ['Event series', 'Gather', '/series'],
       ['Community Pick', 'Gather', '/community-pick'],

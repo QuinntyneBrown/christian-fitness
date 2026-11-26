@@ -15,6 +15,7 @@ describe('ADMIN_AREAS', () => {
     expect(ADMIN_AREAS.map((area) => [area.label, area.path])).toEqual([
       ['Dashboard', '/'],
       ['Stories', '/stories'],
+      ['Newsletter', '/newsletter'],
       ['Events', '/events'],
       ['Event series', '/series'],
       ['Community Pick', '/community-pick'],
@@ -54,6 +55,11 @@ describe('currentAdminArea', () => {
       expected: 'community-pick',
     },
     { why: 'bylines, under stories', url: '/stories/bylines', expected: 'stories' },
+    {
+      why: 'the issue preview, under Newsletter',
+      url: '/newsletter/preview',
+      expected: 'newsletter',
+    },
     { why: 'an area with a trailing slash', url: '/services/', expected: 'services' },
     { why: 'a screen under an area', url: '/members/0190c0de', expected: 'members' },
     {
@@ -100,6 +106,13 @@ describe('canManage', () => {
     { role: 'Admin', area: 'series', allowed: true, why: 'an Admin manages event series' },
     { role: 'Moderator', area: 'series', allowed: true, why: 'a Moderator manages event series' },
     { role: 'Admin', area: 'community-pick', allowed: true, why: 'an Admin makes Community Picks' },
+    { role: 'Admin', area: 'newsletter', allowed: true, why: 'an Admin builds the newsletter' },
+    {
+      role: 'Moderator',
+      area: 'newsletter',
+      allowed: true,
+      why: 'a Moderator uses Newsletter as an Admin does (L2-070 AC12)',
+    },
     {
       role: 'Moderator',
       area: 'community-pick',
@@ -145,6 +158,7 @@ describe('areasFor', () => {
     expect(areasFor('Admin').map((area) => area.key)).toEqual([
       'dashboard',
       'stories',
+      'newsletter',
       'events',
       'series',
       'community-pick',
@@ -157,6 +171,7 @@ describe('areasFor', () => {
   it('lists the Dashboard, Event series, Community Pick, Listings and Members for a Moderator', () => {
     expect(areasFor('Moderator').map((area) => area.key)).toEqual([
       'dashboard',
+      'newsletter',
       'series',
       'community-pick',
       'listings',
