@@ -37,7 +37,7 @@ public sealed record StoryCardDto(string Slug, string? Section, string Headline,
 /// </summary>
 public sealed record GetPublishedStoryQuery(string Slug) : IRequest<PublishedStoryDto>;
 
-internal sealed class GetPublishedStoryHandler(IAppDbContext db) : IRequestHandler<GetPublishedStoryQuery, PublishedStoryDto>
+internal sealed class GetPublishedStoryHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetPublishedStoryQuery, PublishedStoryDto>
 {
     public async Task<PublishedStoryDto> Handle(GetPublishedStoryQuery request, CancellationToken cancellationToken)
     {
@@ -47,7 +47,7 @@ internal sealed class GetPublishedStoryHandler(IAppDbContext db) : IRequestHandl
         var author = story.BylineId is { } bylineId
             ? await db.Bylines.AsNoTracking().Where(b => b.Id == bylineId).Select(b => b.Name).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             : null;
-        var answer = StoryAnswers.Of(story);
+        var answer = StoryAnswers.Of(story, time.GetUtcNow());
         return new PublishedStoryDto(
             story.Id,
             story.Slug!,

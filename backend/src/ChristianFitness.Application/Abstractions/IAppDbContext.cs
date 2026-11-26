@@ -92,6 +92,9 @@ public interface IAppDbContext
     /// <summary>The exclusive, expiring rights to run scheduled work (ADR 0069, ADR 0104).</summary>
     DbSet<SchedulerLease> SchedulerLeases { get; }
 
+    /// <summary>Each Published story's reads per Toronto day (L2-061 AC12; ADR 0105).</summary>
+    DbSet<StoryReadTally> StoryReadTallies { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

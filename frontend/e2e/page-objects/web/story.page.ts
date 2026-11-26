@@ -115,6 +115,16 @@ export class WebStoryPage extends ErrorScreen {
     ]);
   }
 
+  /** What the browser keeps of the stories it counted (`cf-story-reads`), or none. */
+  storedReads(): Promise<string | null> {
+    return this.page.evaluate(() => localStorage.getItem('cf-story-reads'));
+  }
+
+  /** The cookies the browser holds for the app. */
+  async cookies(): Promise<string[]> {
+    return (await this.page.context().cookies()).map((cookie) => cookie.name);
+  }
+
   /** How many entries the tab's history holds, so a replaced address is told from a new one. */
   historyLength(): Promise<number> {
     return this.page.evaluate(() => history.length);

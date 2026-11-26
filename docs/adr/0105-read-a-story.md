@@ -75,8 +75,11 @@ journey built, and a few points were left open:
   counted in the last 24 hours is not sent again; entries older than 24 hours are dropped on each
   write, so the list stays bounded. No cookie is set and nothing identifying the browser leaves it.
   The API adds one to the story's tally for the current Toronto day (`StoryReadTally`), only for a
-  Published story and not for a known crawler's user agent; anything else is a silent 204. The
-  admin preview never counts. Stories' Reads column sums the tallies.
+  Published story and not for a known crawler's or link previewer's user agent, nor a request
+  naming none (`StoryReaders`); anything else is a silent 204. The tally is keyed by story and
+  day and its count is the concurrency token, so a read that loses a race to another reads the
+  tally again and adds itself. The admin preview never counts. Stories' Reads column sums the
+  tallies.
 - **Deferred.** Send a correction (AC5) is journey 30; the vetting address is not built; the
   Weekly box leads to `/subscribe`, which journey 27 builds.
 

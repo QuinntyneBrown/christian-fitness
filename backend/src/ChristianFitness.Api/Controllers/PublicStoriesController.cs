@@ -21,4 +21,15 @@ public sealed class PublicStoriesController(ISender sender) : ControllerBase
     [EnableRateLimiting(PublicReads.Policy)]
     public async Task<ActionResult<PublishedStoryDto>> Get(string slug, CancellationToken cancellationToken) =>
         await sender.Send(new GetPublishedStoryQuery(slug), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// Counts one read of the story (L2-061 AC12; ADR 0105); always 204, whether it counted or not.
+    /// Not held to <c>public-reads</c>: opening a story counts once, through <see cref="Get"/>.
+    /// </summary>
+    [HttpPost("{id:guid}/reads")]
+    public async Task<NoContentResult> CountRead(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new CountStoryReadCommand(id, Request.Headers.UserAgent.ToString()), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
 }

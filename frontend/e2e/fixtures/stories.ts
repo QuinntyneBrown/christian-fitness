@@ -113,8 +113,22 @@ export const REST_DAY: PublishedStoryFixture = {
 };
 
 /**
+ * Answers `POST /api/public/stories/{id}/reads` with 204, as the API always does (ADR 0105);
+ * returns the story ids counted, in order. A later call replaces an earlier one's answer.
+ */
+export function answerStoryReads(api: ApiHandlers): string[] {
+  const counted: string[] = [];
+  api.on('POST', /^\/api\/public\/stories\/[^/]+\/reads$/, (request) => {
+    counted.push(new URL(request.url()).pathname.split('/')[4] ?? '');
+    return { status: 204 };
+  });
+  return counted;
+}
+
+/**
  * Answers `GET /api/public/stories/{slug}` with the story whose current slug is asked for, and
- * 404 `not_found` for any other; returns the slugs asked for, in order.
+ * 404 `not_found` for any other; returns the slugs asked for, in order. Counts reads as
+ * {@link answerStoryReads} does.
  */
 export function answerStories(
   api: ApiHandlers,
@@ -122,6 +136,7 @@ export function answerStories(
   reply?: (slug: string) => ApiReply | undefined,
 ): string[] {
   const asked: string[] = [];
+  answerStoryReads(api);
   api.on('GET', /^\/api\/public\/stories\/[^/]+$/, (request) => {
     const slug = decodeURIComponent(new URL(request.url()).pathname.split('/').pop() ?? '');
     asked.push(slug);

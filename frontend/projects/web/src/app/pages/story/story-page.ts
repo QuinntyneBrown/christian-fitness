@@ -4,7 +4,13 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CLIPBOARD_SERVICE, type PublishedStoryDto, STORIES_SERVICE, storyImageUrl } from '@cf/api';
+import {
+  CLIPBOARD_SERVICE,
+  type PublishedStoryDto,
+  STORIES_SERVICE,
+  STORY_READS,
+  storyImageUrl,
+} from '@cf/api';
 import {
   Button,
   Container,
@@ -26,6 +32,7 @@ import {
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpStoriesService } from '../../services/http-stories.service';
+import { LocalStoryReads } from '../../services/local-story-reads';
 import { NavigatorClipboard } from '../../services/navigator-clipboard';
 
 /**
@@ -38,7 +45,8 @@ import { NavigatorClipboard } from '../../services/navigator-clipboard';
  * headline and summary (AC11). Copy link puts the story's address on the clipboard and reads "Link
  * copied" for 2 seconds, or shows the address selected when the clipboard refuses (AC3); a next
  * step inside the app is followed through the router, so a visitor's guard takes them to sign in
- * and back (AC4). Every word the story gives is rendered as text.
+ * and back (AC4). Once the story shows, a read of it is counted (AC12). Every word the story gives
+ * is rendered as text.
  */
 @Component({
   selector: 'cf-story-page',
@@ -46,6 +54,7 @@ import { NavigatorClipboard } from '../../services/navigator-clipboard';
   providers: [
     { provide: STORIES_SERVICE, useClass: HttpStoriesService },
     { provide: CLIPBOARD_SERVICE, useClass: NavigatorClipboard },
+    { provide: STORY_READS, useClass: LocalStoryReads },
   ],
   templateUrl: './story-page.html',
   styleUrl: './story-page.scss',
@@ -53,6 +62,7 @@ import { NavigatorClipboard } from '../../services/navigator-clipboard';
 export default class StoryPage {
   private readonly stories = inject(STORIES_SERVICE);
   private readonly clipboard = inject(CLIPBOARD_SERVICE);
+  private readonly reads = inject(STORY_READS);
   private readonly title = inject(Title);
   private readonly document = inject(DOCUMENT);
   private readonly location = inject(Location);
@@ -178,6 +188,7 @@ export default class StoryPage {
           this.state.set('loaded');
           this.title.setTitle(story.headline);
           this.describe(story.summary);
+          this.reads.count(story.id);
         },
         // A 5xx has already opened the server-error screen; a 404 is "not found", anything else "failed".
         error: (error: unknown) =>

@@ -1,7 +1,13 @@
 import { answerStoryImages } from '../fixtures/admin-stories';
 import { answerAsVisitor } from '../fixtures/claims';
 import { SIGNED_IN, expect, test } from '../fixtures/test';
-import { answerStories, CHURCH_GYM, REST_DAY, STORY_NOW } from '../fixtures/stories';
+import {
+  answerStories,
+  answerStoryReads,
+  CHURCH_GYM,
+  REST_DAY,
+  STORY_NOW,
+} from '../fixtures/stories';
 import { WebStoryPage } from '../page-objects/web/story.page';
 
 // L2-061 AC1, AC2, AC7, AC9 to AC11, AC13 (journey 24; ADR 0105): anyone reads a published story at
@@ -139,6 +145,7 @@ test.describe('Member app, read a story', () => {
     answerAsVisitor(api, SIGNED_IN);
     let release: () => void = () => undefined;
     const held = new Promise<void>((resolve) => (release = resolve));
+    answerStoryReads(api);
     let fail = true;
     api.on('GET', `/api/public/stories/${REST_DAY.slug}`, async () => {
       await held;
