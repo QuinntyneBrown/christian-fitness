@@ -3,7 +3,7 @@
 ## Status
 
 Superseded by [ADR 0074](0074-retire-staff-password-and-two-step.md), 25 November 2026.
-The implementation described below remains in place until the Google staff sign-in cutover.
+The implementation described below was removed by [ADR 0100](0100-staff-google-sign-in.md).
 
 ## Context
 

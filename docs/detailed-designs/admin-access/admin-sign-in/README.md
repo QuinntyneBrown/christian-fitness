@@ -132,23 +132,22 @@ for the team's domain in Google Workspace (`L2-046` AC2).
 
 ### Open questions
 
-- **Existing code contradicts the amended requirement.** The admin app still signs staff in with a
-  password and a second-step code: `StaffSignInCommand` and its handler, `VerifyTwoStepCommand`
-  (`Application/Admin/TwoStep.cs`), `StaffTwoStep`, `Totp`, `TwoStepChallenge`, `TwoStepFailure`,
-  `ITwoStepCookie` and `CookieTwoStepCookie` (`__Host-cf-admin-step`), `StaffTwoStepSetUp` and the
-  `cf two-step` CLI command, `POST /api/admin/session` and `POST /api/admin/session/two-step`, and
-  in the admin app `TwoStepPage` (`/sign-in/verify`), `twoStepRefusalOf`, `TwoStepRequestDto` and the
-  password form of `SignInPage`. `docs/operations/settings.md` and `docs/operations/deployment.md`
-  still describe `cf two-step` and the seeded staff password (`seed-staff-password`). The next
-  slices remove each of them, with a later migration that drops the two-step tables, so that
-  `/sign-in/verify` is the admin not-found page (`L2-046` AC1). ADR 0074 records the decision
-  and the deployment ordering needed to keep the running revision working.
-- **The first staff account.** With Google, `cf seed` reads the required `Seed:AdminEmail` setting
-  for the first Admin's `@christian.fitness` account. It refuses with a clear error if the setting
-  is missing; no email is hard-coded. The existing password-based seed remains until this change.
-- **Session-expired wording after 12 hours.** A session ended by the 12-hour maximum also answers
-  `session_expired` and says "You were signed out after 12 hours. Sign in again to continue." (ADR 0062,
-  mock `session-expired`).
+None remain; [ADR 0100](../../../adr/0100-staff-google-sign-in.md) settled each one.
+
+- **The password and code paths (resolved).** `StaffSignInCommand`, `VerifyTwoStepCommand`,
+  `StaffTwoStep`, `Totp`, `TwoStepChallenge`, `TwoStepFailure`, `ITwoStepCookie` and
+  `CookieTwoStepCookie`, `StaffTwoStepSetUp`, `cf two-step`, `POST /api/admin/session` and
+  `POST /api/admin/session/two-step` are removed, and in the admin app `TwoStepPage`,
+  `twoStepRefusalOf`, `TwoStepRequestDto` and the password form; `/sign-in/verify` is the admin
+  not-found page (`L2-046` AC1). The `RemoveStaffTwoStep` migration drops the two-step tables in the
+  same release, departing from ADR 0074's two-release ordering for the reason ADR 0100 gives.
+- **The first staff account (resolved).** `cf seed` reads the required `Seed:AdminEmail` (and the
+  optional `Seed:AdminName`) and creates the first Admin with no password; its first Google sign-in
+  binds it. A missing email stops `cf seed` with exit code 2 before anything is written.
+- **Session-expired wording after 12 hours (resolved).** `session_expired` carries a `reason`
+  extension, `idle` or `max_age`, and the screen says "You were signed out after 12 hours. Sign in
+  again to continue." for `max_age` (mock `session-expired`). A session with no recorded sign-in
+  time counts as past the 12 hours.
 - **Not configured, too many attempts and suspended staff.** Mock states `not-configured`
   ("Sign-in isn't set up yet. Ask the person who runs Christian Fitness.", `L2-018` AC10), `limited`
   ("Too many attempts. Try again in a few minutes.", `L2-049` AC7) and `suspended` ("This account can't

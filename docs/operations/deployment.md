@@ -84,7 +84,7 @@ and shell provisioning are not deployed yet.
 | `id-christian-fitness-app`                | The identity the replica pulls images with                              |
 
 The secret settings are secrets of the container app (`db-connection`, `smtp-username`,
-`smtp-password`) and of the job (`db-owner-connection`, `seed-staff-password`). To change one:
+`smtp-password`) and of the job (`db-owner-connection`). To change one:
 `az containerapp secret set`, then run `Deploy` so a new revision reads it.
 
 ## Scheduled work (planned)
@@ -108,23 +108,20 @@ any scheduler settings and operational recovery procedures alongside their imple
 
 ## The first staff account
 
-`cf seed` creates it from the job's `Seed__*` settings. Read its first password, sign in at the
-admin app and change it:
+`cf seed` creates the first Admin from the job's `Seed__AdminEmail` (and optional
+`Seed__AdminName`), set by `tools/deploy/provision.sh` from `ADMIN_EMAIL` and `ADMIN_NAME`. It
+has no password: the Admin signs in at the admin app with "Sign in with Google", using that
+Google Workspace account, and the first sign-in binds it (ADR 0100). Staff sign-in needs the
+Google client and the team's domain (`Google__ClientId`, `Google__ClientSecret`,
+`Google__StaffDomain`) on the container app; while any is missing, Staff sign in says "Sign-in
+isn't set up yet" and nobody can open the console.
 
-```sh
-az containerapp job secret show -g rg-christian-fitness -n caj-christian-fitness-release \
-  --secret-name seed-staff-password --query value -o tsv
-```
-
-Staff cannot sign in until `cf two-step` has been run for them. Its link is a secret: run it
-yourself, in Cloud Shell, where nobody else reads the terminal.
-
-```sh
-az containerapp exec -g rg-christian-fitness -n ca-christian-fitness --container api \
-  --command "dotnet /app/cli/cf.dll two-step <email>"
-```
-
-`exec` runs in the API's container, whose connection is `cf_api`; `two-step` only writes rows.
+Two-step verification for staff is Google Workspace's: enforce 2-Step Verification for every
+account in the `christian.fitness` domain in the Google Admin console (Security, Authentication,
+2-Step Verification, "Enforcement" on) before giving anyone a console role (L2-046 AC2). The
+application asks for no code of its own. Further staff are added by an Admin in the console;
+removing someone from the Workspace domain ends their console access at their next sign-in, and
+a staff session ends after 12 hours whatever they do.
 
 ## Making it all again
 

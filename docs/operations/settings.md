@@ -42,7 +42,6 @@ features are deployed; values are not hard-coded.
 | `Organisation__PostalAddress` | For newsletter and marketing email | The postal address in every footer. Its production value is `2091 Hurontario Street, Mississauga, Ontario, L5A 4E6`. |
 | `Email__MaxPerMinute` | For the newsletter sender | The SMTP relay's sending limit per minute; the operator supplies the relay's limit. |
 | `Email__MaxPerDay` | For the newsletter sender | The SMTP relay's sending limit per day; the operator supplies the relay's limit. |
-| `Seed__AdminEmail` | For `cf seed` with Google Workspace staff sign-in | The first Admin's Google Workspace email at `@christian.fitness`. No value is hard-coded; if missing, `cf seed` refuses with a clear error before writing. |
 | `publicSiteOrigin` | For Community Pick | The public member site origin, `https://www.christian.fitness`, used for absolute links. |
 
 The relay limits govern the newsletter sender's rate and capacity; neither has a default. The
@@ -58,21 +57,17 @@ then `seed`, then start the API. The five starting bylines are added only while 
 bylines and no Admin has ever added, edited or removed one, so a byline an Admin removed is not brought back
 (ADR 0094).
 
-`cf two-step <email>` sets up two-step verification for a staff account (L2-046 AC6, ADR 0013):
-it stores a new authenticator secret and prints its `otpauth://` link once, for the staff member
-to add to their authenticator app (as a QR code or by hand). Staff cannot sign in to the admin app
-until it has been run for them, the first staff account from `cf seed` included. Running it again
-replaces the secret, which is what to do when a phone is lost. An email that is not a staff
-account's stops it with exit code 3 and changes nothing. It needs only
-`ConnectionStrings__Default`; the link is a secret, so run it where nobody else can read the
-terminal and never paste it into a ticket or a chat.
+`cf seed` creates the first Admin from `Seed__AdminEmail` with no password: staff sign in only
+with Google Workspace, and that Admin's first Google sign-in binds the account (L2-018, L2-049
+AC15, ADR 0100). Staff passwords and two-step verification belong to Google Workspace, where the
+team must enforce two-step verification for every account in the domain (L2-046 AC2); the
+application has no password or code of its own for staff.
 
 | Setting                      | Required          | Purpose                                                                                                     | Example                                                                     |
 | ---------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `ConnectionStrings__Default` | Yes               | The PostgreSQL database to migrate and seed, with a role that may change the schema.                       | `Host=db;Port=5432;Database=christian_fitness;Username=cf_owner;Password=…` |
-| `Seed__StaffEmail`           | For `cf seed`     | The email of the first staff account, an Admin. A second run with the same email changes nothing.          | `admin@example.org`                                                         |
-| `Seed__StaffPassword`        | For `cf seed`     | Its first password, stored only as a PBKDF2 hash. Change it after the first sign-in.                         | from the secret store                                                       |
-| `Seed__StaffName`            | For `cf seed`     | Its display name.                                                                                           | `Community Admin`                                                           |
+| `Seed__AdminEmail`           | For `cf seed`     | The first Admin's Google Workspace account, in the team's domain. A second run with the same email, in any case, changes nothing. | `admin@christian.fitness`                                                   |
+| `Seed__AdminName`            | No                | The first Admin's display name. Defaults to `Christian Fitness Admin`.                                     | `Dana Reyes`                                                                |
 | `Seed__DirectorySamples`     | No                | `true` adds the mocks' eleven sample directory listings beside the Christian Fitness team listing, which is always seeded, and the mocks' connections between them, which each profile's Connected lists (ADR 0082, ADR 0087). Leave it unset in production, so the directory shows only listings staff checked. | `true` on a demonstration system |
 
 `cf migrate` installs the `pg_trgm` extension for the directory's search index (ADR 0082); it is a
@@ -80,7 +75,7 @@ trusted extension, so the schema owner may create it without a superuser. Azure 
 PostgreSQL also requires it in the server parameter `azure.extensions` (`PG_TRGM`), or
 `CREATE EXTENSION` fails; the Deploy workflow adds it before migrating (docs/operations/deployment.md).
 
-A missing `Seed__*` setting stops `cf seed` with exit code 2, naming the setting, before anything
+A missing `Seed__AdminEmail` stops `cf seed` with exit code 2, naming the setting, before anything
 is written. A missing connection string stops either command with exit code 2.
 
 ## Static host (the built member and admin apps)

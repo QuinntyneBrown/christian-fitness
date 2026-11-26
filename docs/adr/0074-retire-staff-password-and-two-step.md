@@ -3,7 +3,8 @@
 ## Status
 
 Accepted, 25 November 2026. Supersedes [ADR 0013](0013-staff-two-step-verification.md).
-This decision describes the target; the existing implementation has not yet been removed.
+Carried out by [ADR 0100](0100-staff-google-sign-in.md), which drops the tables in the same
+release as the removal and says why.
 
 ## Context
 
