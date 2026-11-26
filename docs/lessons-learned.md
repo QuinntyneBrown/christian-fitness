@@ -3337,7 +3337,8 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   who recorded it, the audit action, the count's event filter), each tracker rule, each page rule
   (busy, the danger toast, the per-row name) and each series row and progress case failed its own
   test.
-- "Measure the initial bundle": admin stayed at 279.11 kB and web at 278.46 kB; the page, its
-  tracker and the toast region load with the route.
+- "Measure the initial bundle": before the rebase, admin stayed at 279.11 kB and web at
+  278.46 kB, as on main. After the rebase onto journeys 24 and 32 they read 279.12 kB and
+  278.49 kB. The page, its tracker and the toast region load with the route.
 - "Run the full suite against the built apps" with two workers was steady.
 
