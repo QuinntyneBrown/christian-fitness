@@ -4,6 +4,7 @@ import {
   type AdminStoriesApi,
   type AdminStoryDto,
   type StorySaveDto,
+  type StoryScheduleDto,
 } from '@cf/api';
 import { of, Subject, throwError, type Observable } from 'rxjs';
 import {
@@ -24,6 +25,7 @@ const DRAFT: AdminStoryDto = {
   headline: 'Pickleball',
   savedAt: '2026-04-14T18:00:00Z',
   publishedAt: null,
+  publishAt: null,
 };
 
 /** A stories API whose saves answer at once with the next version, or as `answer` says. */
@@ -402,6 +404,141 @@ describe('StoryEditorStore actions', () => {
     store.edit({ headline: 'Changed meanwhile' });
 
     expect([store.acting(), store.fields().headline]).toEqual(['submit', 'Pickleball']);
+  });
+});
+
+// L2-069 AC2, AC4, AC7 (ADR 0104): When is "As soon as it's published" until Schedule is chosen;
+// Schedule sends the fields with the Toronto date and time; a Scheduled story opens with its time
+// chosen and Unschedule sends only the version; a refused date or time is marked until edited.
+describe('StoryEditorStore scheduling', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.useRealTimers();
+  });
+
+  const SCHEDULED: AdminStoryDto = {
+    ...DRAFT,
+    status: 'scheduled',
+    publishAt: '2026-04-18T10:00:00Z',
+  };
+
+  function withScheduling(fake: ReturnType<typeof fakeApi>) {
+    const asked: unknown[] = [];
+    let refusal: unknown = null;
+    Object.assign(fake.api, {
+      schedule: (_id: string, save: StoryScheduleDto) => {
+        asked.push(['schedule', save]);
+        return refusal
+          ? throwError(() => refusal)
+          : of({
+              ...DRAFT,
+              status: 'scheduled',
+              version: save.version + 1,
+              publishAt: '2026-04-18T10:00:00Z',
+            });
+      },
+      unschedule: (_id: string, version: number) => {
+        asked.push(['unschedule', version]);
+        return of({ ...DRAFT, version: version + 1 });
+      },
+    });
+    return { asked, refuse: (next: unknown) => (refusal = next) };
+  }
+
+  it('starts with the story going out as soon as it is published, and no date or time', () => {
+    const store = storeWith(fakeApi().api);
+    store.open('s1');
+
+    expect([store.when(), store.publishDate(), store.publishTime()]).toEqual(['now', '', '']);
+  });
+
+  it('schedules the fields as typed with the date and time chosen, saving nothing first', () => {
+    const fake = fakeApi();
+    const scheduling = withScheduling(fake);
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.edit({ headline: 'Ready' });
+    store.chooseWhen('schedule');
+    store.choosePublishDate('2026-04-18');
+    store.choosePublishTime('06:00');
+    store.act('schedule', () => undefined);
+    vi.advanceTimersByTime(STORY_AUTOSAVE_MS);
+
+    expect(fake.saves).toEqual([]);
+    expect(scheduling.asked).toEqual([
+      [
+        'schedule',
+        {
+          ...BLANK_STORY,
+          headline: 'Ready',
+          version: 3,
+          publishDate: '2026-04-18',
+          publishTime: '06:00',
+        },
+      ],
+    ]);
+    expect([store.status(), store.publishAt(), store.when()]).toEqual([
+      'scheduled',
+      '2026-04-18T10:00:00Z',
+      'schedule',
+    ]);
+  });
+
+  it('opens a Scheduled story with its Toronto date and time, and Unschedule sends its version', () => {
+    const fake = fakeApi(SCHEDULED);
+    const scheduling = withScheduling(fake);
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    expect([store.when(), store.publishDate(), store.publishTime()]).toEqual([
+      'schedule',
+      '2026-04-18',
+      '06:00',
+    ]);
+
+    store.act('unschedule', () => undefined);
+
+    expect(scheduling.asked).toEqual([['unschedule', 3]]);
+    expect([store.status(), store.when(), store.publishDate(), store.publishTime()]).toEqual([
+      'draft',
+      'now',
+      '',
+      '',
+    ]);
+  });
+
+  it('never saves a Scheduled story as it is typed', () => {
+    const fake = fakeApi(SCHEDULED);
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.edit({ summary: 'Changed' });
+    vi.advanceTimersByTime(STORY_AUTOSAVE_MS * 2);
+
+    expect(fake.saves).toEqual([]);
+  });
+
+  it('marks a refused date until it is chosen again', () => {
+    const fake = fakeApi();
+    const scheduling = withScheduling(fake);
+    scheduling.refuse({
+      status: 400,
+      code: 'validation_failed',
+      fieldCodes: { publishDate: 'publish_at_in_past', publishTime: 'publish_time_required' },
+    });
+    const store = storeWith(fake.api);
+    store.open('s1');
+    store.chooseWhen('schedule');
+
+    store.act('schedule', () => undefined);
+    expect([store.saveState(), store.status()]).toEqual(['invalid', 'draft']);
+
+    store.choosePublishDate('2026-04-16');
+    expect(store.fieldCodes()).toEqual({ publishTime: 'publish_time_required' });
+    store.choosePublishTime('09:00');
+    expect(store.fieldCodes()).toEqual({});
   });
 });
 

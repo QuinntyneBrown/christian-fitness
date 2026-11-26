@@ -36,6 +36,14 @@
   padding-top: var(--space-4);
 }
 
+// When's date and time, side by side under its choices (mock `admin-story-editor/scheduled`).
+.panel__when {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
 .panel__fields {
   display: flex;
   flex-direction: column;

@@ -188,6 +188,8 @@ export interface StoryFixture {
   image: { key: string; crop: { x: number; y: number; width: number; height: number } } | null;
   savedAt: string;
   publishedAt: string | null;
+  /** A Scheduled story's time (ADR 0104). */
+  publishAt: string | null;
 }
 
 /** Mock `admin-story-editor/default`: the story in review, saved 2 minutes ago. */
@@ -210,6 +212,7 @@ export const REVIEW_STORY: StoryFixture = {
   image: null,
   savedAt: '2026-04-15T12:43:00Z',
   publishedAt: null,
+  publishAt: null,
 };
 
 /** Mock `admin-story-editor/draft`: a Draft saved yesterday. */
@@ -245,6 +248,24 @@ export const PUBLISHED_STORY: StoryFixture = {
   slug: 'west-end-church-basement-gym',
   savedAt: '2026-04-15T11:12:00Z',
   publishedAt: '2026-04-15T11:12:00Z',
+};
+
+/** Mock `admin-story-editor/scheduled`: to go out Saturday April 18 at 6:00 AM in Toronto. */
+export const SCHEDULED_STORY: StoryFixture = {
+  ...REVIEW_STORY,
+  id: STORY_ROWS[2].id,
+  status: 'scheduled',
+  version: 5,
+  headline: STORY_ROWS[2].headline,
+  summary: 'Three days at Muskoka Woods, one bag. Here is what the team is bringing.',
+  section: 'events',
+  bylineId: CF_TEAM.id,
+  pointsTo: null,
+  nextStepText: null,
+  nextStepLink: null,
+  slug: 'retreat-packing-list',
+  savedAt: '2026-04-15T12:43:00Z',
+  publishAt: '2026-04-18T10:00:00Z',
 };
 
 /** What `POST /api/admin/stories` answers for New story: an empty Draft, unless told otherwise. */

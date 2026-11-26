@@ -11,7 +11,17 @@ import {
   type StoryStatusName,
 } from '@cf/api';
 import type { Observable, Subscription } from 'rxjs';
+import { torontoClockOf } from '../events/session-draft';
 import type { StoryAction } from './story-actions';
+
+/** When a story goes out (L2-069 AC1): as soon as it is published, or at a chosen date and time. */
+export type StoryWhen = 'now' | 'schedule';
+
+/** When's choices, as Publishing words them (mock `admin-story-editor/draft`). */
+export const STORY_WHEN_CHOICES: readonly { value: StoryWhen; label: string }[] = [
+  { value: 'now', label: 'As soon as it’s published' },
+  { value: 'schedule', label: 'Schedule' },
+];
 
 /** How long after the last edit a Draft or a story In review is saved (L2-069 AC11). */
 export const STORY_AUTOSAVE_MS = 2_000;
@@ -134,6 +144,10 @@ export class StoryEditorStore implements OnDestroy {
     acting: signal<StoryAction | null>(null),
     fieldCodes: signal<Record<string, string>>({}),
     imageUpload: signal<StoryImageUpload>('idle'),
+    publishAt: signal<string | null>(null),
+    when: signal<StoryWhen>('now'),
+    publishDate: signal(''),
+    publishTime: signal(''),
   };
   private version = 0;
   /** Edits made since the save under way began, so another save follows it. */
@@ -168,6 +182,36 @@ export class StoryEditorStore implements OnDestroy {
   readonly acting = this.state.acting.asReadonly();
   /** The fields Publish refused, by their camel-case name, until each is edited (L2-069 AC7). */
   readonly fieldCodes = this.state.fieldCodes.asReadonly();
+  /** When a Scheduled story goes out. */
+  readonly publishAt = this.state.publishAt.asReadonly();
+  /**
+   * When (L2-069 AC1, AC2; ADR 0104): "As soon as it's published", or Schedule at the Toronto
+   * `publishDate` and `publishTime`. Chosen in the editor, sent with Schedule, never autosaved; a
+   * Scheduled story opens with its own time chosen.
+   */
+  readonly when = this.state.when.asReadonly();
+  readonly publishDate = this.state.publishDate.asReadonly();
+  readonly publishTime = this.state.publishTime.asReadonly();
+
+  /** Chooses when the story goes out. */
+  chooseWhen(when: StoryWhen): void {
+    if (this.state.acting()) return;
+    this.state.when.set(when);
+  }
+
+  /** The Toronto date it goes out, `yyyy-MM-dd`; a refusal of it is cleared. */
+  choosePublishDate(date: string): void {
+    if (this.state.acting()) return;
+    this.state.publishDate.set(date);
+    this.unmark('publishDate');
+  }
+
+  /** The Toronto time it goes out, `HH:mm`; a refusal of it is cleared. */
+  choosePublishTime(time: string): void {
+    if (this.state.acting()) return;
+    this.state.publishTime.set(time);
+    this.unmark('publishTime');
+  }
 
   /** Starts an empty Draft; `created` hears its id once its first save keeps it. */
   openNew(created: (id: string) => void): void {
@@ -205,12 +249,7 @@ export class StoryEditorStore implements OnDestroy {
   edit(patch: Partial<StoryFieldsDto>): void {
     if (this.state.acting()) return;
     this.state.fields.update((fields) => ({ ...fields, ...patch }));
-    const marked = this.state.fieldCodes();
-    if (Object.keys(patch).some((field) => field in marked)) {
-      this.state.fieldCodes.set(
-        Object.fromEntries(Object.entries(marked).filter(([field]) => !(field in patch))),
-      );
-    }
+    this.unmark(...Object.keys(patch));
     if (!this.autosaves()) return;
     if (this.inFlight) this.editedSince = true;
     clearTimeout(this.timer);
@@ -245,7 +284,7 @@ export class StoryEditorStore implements OnDestroy {
   act(action: StoryAction, acted: (done: StoryActed) => void): void {
     const id = this.state.id();
     if (!id || this.state.acting()) return;
-    const sendsFields = action === 'publish' || action === 'update';
+    const sendsFields = action === 'publish' || action === 'update' || action === 'schedule';
     if (!sendsFields && (this.timer !== undefined || this.inFlight)) {
       this.afterSave = () => this.act(action, acted);
       if (!this.inFlight) this.save();
@@ -263,6 +302,13 @@ export class StoryEditorStore implements OnDestroy {
       submit: () => this.api.submit(id, this.version),
       'return-to-draft': () => this.api.returnToDraft(id, this.version),
       publish: () => this.api.publish(id, save),
+      schedule: () =>
+        this.api.schedule(id, {
+          ...save,
+          publishDate: this.state.publishDate(),
+          publishTime: this.state.publishTime(),
+        }),
+      unschedule: () => this.api.unschedule(id, this.version),
       update: () => this.api.update(id, save),
       unpublish: () => this.api.unpublish(id, this.version),
     };
@@ -308,6 +354,16 @@ export class StoryEditorStore implements OnDestroy {
     this.reset();
     this.optionsRead?.unsubscribe();
     this.optionsRead = undefined;
+  }
+
+  /** The refusals of `fields` no longer stand once they are edited (L2-069 AC7). */
+  private unmark(...fields: string[]): void {
+    const marked = this.state.fieldCodes();
+    if (fields.some((field) => field in marked)) {
+      this.state.fieldCodes.set(
+        Object.fromEntries(Object.entries(marked).filter(([field]) => !fields.includes(field))),
+      );
+    }
   }
 
   private autosaves(): boolean {
@@ -371,9 +427,18 @@ export class StoryEditorStore implements OnDestroy {
     clearTimeout(this.timer);
     this.timer = undefined;
     this.version = story.version;
+    // A Scheduled story shows its own time; one that stops being Scheduled goes back to "now";
+    // otherwise the time chosen but not yet sent is kept.
+    const clock = story.publishAt ? torontoClockOf(new Date(story.publishAt)) : null;
+    if (clock || this.state.status() === 'scheduled') {
+      this.state.when.set(clock ? 'schedule' : 'now');
+      this.state.publishDate.set(clock?.date ?? '');
+      this.state.publishTime.set(clock?.time ?? '');
+    }
     this.state.status.set(story.status);
     this.state.savedAt.set(story.savedAt);
     this.state.publishedAt.set(story.publishedAt);
+    this.state.publishAt.set(story.publishAt);
     this.state.fields.set(fieldsOf(story));
     this.state.save.set('idle');
     this.state.now.set(new Date());
@@ -409,6 +474,10 @@ export class StoryEditorStore implements OnDestroy {
     this.state.status.set('draft');
     this.state.savedAt.set(null);
     this.state.publishedAt.set(null);
+    this.state.publishAt.set(null);
+    this.state.when.set('now');
+    this.state.publishDate.set('');
+    this.state.publishTime.set('');
     this.state.fields.set(BLANK_STORY);
     this.state.save.set('idle');
   }

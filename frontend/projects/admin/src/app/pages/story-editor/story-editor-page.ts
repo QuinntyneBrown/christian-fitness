@@ -20,6 +20,7 @@ import {
   EmptyState,
   isPlainClick,
   Link,
+  RadioGroup,
   Select,
   Status,
   TextField,
@@ -29,12 +30,14 @@ import {
 import {
   STORY_PLACEMENTS,
   STORY_SECTIONS,
+  STORY_WHEN_CHOICES,
   StoryEditorStore,
   storyActions,
   storyActionToast,
   storyPublishProblem,
   ToastStore,
   type StoryAction,
+  type StoryWhen,
   storyPointerOf,
   storyPointerOptions,
   storyPointerValue,
@@ -68,6 +71,7 @@ const NOT_FOUND = '/not-found';
     Editor,
     EmptyState,
     Link,
+    RadioGroup,
     Select,
     Status,
     TextField,
@@ -113,12 +117,39 @@ export default class StoryEditorPage {
     const image = this.store.fields().image;
     return image ? storyImageUrl(image.key) : null;
   });
-  /** The bar's actions for the status, the primary last (L2-069 AC2, AC3, AC5). */
+  /**
+   * The bar's actions for the status, the primary last (L2-069 AC2 to AC5): Schedule or Approve &
+   * schedule once Schedule is chosen for a story not yet Scheduled.
+   */
   protected readonly actions = computed(() =>
-    this.isNew() ? [] : storyActions(this.store.status()),
+    this.isNew() ? [] : storyActions(this.store.status(), this.store.when() === 'schedule'),
   );
-  /** What Publish refused, named above the story (L2-069 AC7). */
-  protected readonly problem = computed(() => storyPublishProblem(this.store.fieldCodes()));
+  /** What Publish or Schedule refused, named above the story (L2-069 AC7). */
+  protected readonly problem = computed(() =>
+    storyPublishProblem(this.store.fieldCodes(), this.store.when() === 'schedule'),
+  );
+  /**
+   * A Scheduled story keeps its time until Unschedule, and nothing changes while an action runs
+   * (ADR 0104; mock `admin-story-editor/saving`).
+   */
+  protected readonly whenFixed = computed(
+    () => this.store.status() === 'scheduled' || this.store.acting() !== null,
+  );
+  /** When's choices, both unavailable while it is fixed. */
+  protected readonly whenChoices = computed(() =>
+    STORY_WHEN_CHOICES.map((choice) => ({ ...choice, disabled: this.whenFixed() })),
+  );
+  /** The date's refusal: missing, or with the time not after now (L2-069 AC7). */
+  protected readonly dateError = computed(() => {
+    switch (this.store.fieldCodes()['publishDate']) {
+      case undefined:
+        return null;
+      case 'publish_at_in_past':
+        return 'Pick a date and time after now';
+      default:
+        return 'Pick a date';
+    }
+  });
   protected readonly marked = computed(() => this.store.fieldCodes());
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
@@ -182,6 +213,10 @@ export default class StoryEditorPage {
     this.edit({ placement: value as StoryPlacementName });
   }
 
+  protected chooseWhen(value: string): void {
+    this.store.chooseWhen(value as StoryWhen);
+  }
+
   protected chooseByline(value: string): void {
     this.edit({ bylineId: value || null });
   }
@@ -192,7 +227,13 @@ export default class StoryEditorPage {
 
   protected act(action: StoryAction): void {
     this.store.act(action, ({ action: done, from }) => {
-      const toast = storyActionToast(done, from, this.store.fields().section);
+      const toast = storyActionToast(
+        done,
+        from,
+        this.store.fields().section,
+        this.store.publishAt(),
+        this.store.now(),
+      );
       this.toasts.show(toast.title, toast.text);
     });
   }
