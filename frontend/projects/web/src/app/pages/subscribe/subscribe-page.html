@@ -1,0 +1,25 @@
+<cf-skip-link />
+<cf-masthead backHref="/" />
+<main id="main">
+  <section class="subscribe">
+    <cf-subscribe
+      [view]="view()"
+      [email]="email()"
+      [error]="error()"
+      [alert]="alert()"
+      [busy]="busy()"
+      [firstIssue]="firstIssue()"
+      (emailChange)="edit($event)"
+      (submitted)="submit($event)"
+      (differentEmail)="differentEmail()"
+      (subscribeAgain)="subscribeAgain()"
+    />
+  </section>
+  <cf-feed-list
+    [feeds]="feeds()"
+    [copiedUrl]="copiedUrl()"
+    [selectedUrl]="selectedUrl()"
+    (copyRequested)="copy($event)"
+  />
+</main>
+<cf-footer />

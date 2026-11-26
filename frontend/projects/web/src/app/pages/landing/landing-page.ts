@@ -16,6 +16,7 @@ import {
   HeadlineList,
   InlineMessage,
   JoinCard,
+  NewsletterBox,
   List,
   Masthead,
   type MastheadSection,
@@ -80,6 +81,7 @@ type Load = 'loading' | 'loaded' | 'failed';
     HeadlineList,
     InlineMessage,
     JoinCard,
+    NewsletterBox,
     List,
     Masthead,
     RankedList,
@@ -153,6 +155,14 @@ export default class LandingPage {
   /** Follows a section or a story inside the app. */
   protected go(href: string): void {
     void this.router.navigateByUrl(href);
+  }
+
+  /**
+   * Opens Subscribe with the email typed in the newsletter box filled in (L2-057 AC1; ADR 0110):
+   * the address travels in navigation state, never in the URL.
+   */
+  protected subscribe(email: string): void {
+    void this.router.navigateByUrl('/subscribe', { state: { email } });
   }
 
   /** Asks for the section's front page again, from the top. */

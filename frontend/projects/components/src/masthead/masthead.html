@@ -1,11 +1,20 @@
-<header class="masthead">
+<header [attr.class]="backHref() ? 'masthead masthead--plain' : 'masthead'">
   <div class="masthead__bar">
     <cf-brand-lockup [href]="homeHref()" />
     <div class="masthead__actions">
-      <span class="masthead__signin">
-        <cf-button variant="ghost" [href]="signInHref()">Sign in</cf-button>
-      </span>
-      <cf-button [href]="joinHref()">Join free</cf-button>
+      @if (backHref(); as back) {
+        <cf-button variant="ghost" [href]="back"
+          ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" /></svg
+          >Back to news</cf-button
+        >
+      } @else {
+        <span class="masthead__signin">
+          <cf-button variant="ghost" [href]="signInHref()">Sign in</cf-button>
+        </span>
+        <cf-button [href]="joinHref()">Join free</cf-button>
+      }
     </div>
   </div>
   @if (sections().length) {

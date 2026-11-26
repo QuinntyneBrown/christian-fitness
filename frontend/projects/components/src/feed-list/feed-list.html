@@ -1,0 +1,61 @@
+<section class="rss" id="rss" aria-labelledby="rss-title">
+  <div class="rss__inner">
+    <div>
+      <h2 class="display rss__title" id="rss-title" tabindex="-1">
+        <svg class="icon rss__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 11a9 9 0 0 1 9 9" />
+          <path d="M4 4a16 16 0 0 1 16 16" />
+          <circle cx="5" cy="19" r="1" /></svg
+        >Prefer RSS?
+      </h2>
+      <p class="rss__text">
+        Follow every story, or just the sections you care about, in Feedly, Inoreader, NetNewsWire
+        or any reader. No email or account needed.
+      </p>
+    </div>
+    <div>
+      @if (feeds().length) {
+        <ul class="feed-list">
+          @for (feed of feeds(); track feed.url) {
+            <li [attr.class]="feed.isAll ? 'feed feed--all' : 'feed'">
+              <div class="feed__body">
+                <p class="feed__name">
+                  {{ feed.name }}&ngsp;<span class="feed__count">{{ feed.count }}</span>
+                </p>
+                <p class="feed__url">{{ feed.url }}</p>
+              </div>
+              <div class="feed__actions">
+                <span class="feed__copy">
+                  <cf-button
+                    variant="secondary"
+                    size="sm"
+                    block
+                    (click)="copyRequested.emit(feed.url)"
+                  >
+                    @if (copiedUrl() === feed.url) {
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5" /></svg
+                      >Copied
+                    } @else {
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg
+                      >Copy URL
+                    }
+                    <span class="visually-hidden"> of the {{ feed.name }} feed</span>
+                  </cf-button>
+                </span>
+                <cf-button variant="neutral" size="sm" [href]="feed.feedlyHref" newTab
+                  >Open in Feedly<span class="visually-hidden">
+                    the {{ feed.name }} feed (opens in a new tab)</span
+                  ></cf-button
+                >
+              </div>
+            </li>
+          }
+        </ul>
+      }
+      <p class="visually-hidden" role="status">{{ copiedUrl() ? 'Feed address copied' : '' }}</p>
+    </div>
+  </div>
+</section>

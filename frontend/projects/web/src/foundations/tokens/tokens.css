@@ -331,6 +331,7 @@
 
   --border-width-hairline: 1px;
   --border-width-thick: 2px;
+  --border-width-rule: 4px;   /* editorial rules: headline list, ruled titles, newsletter frame */
 
   /* ---------- Semantic: elevation -------------------------------------- */
   --shadow-1: 0 1px 0 rgb(17 17 17 / 0.04);      /* resting cards */
