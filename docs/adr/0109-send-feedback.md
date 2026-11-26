@@ -76,7 +76,9 @@ the mock:
   pages that document them (`steps` and `feedback-row`). The choice cards gain an optional icon
   per option, as the design system's card shows.
 - **Deferred.** Staff reading notes, replying and reply delivery (`L2-063` AC10's staff side and
-  AC11) are journey 31. A story's own footer passes the page type, not the story.
+  AC11) are journey 31. A story's own footer passes the page type, not the story. The admin
+  story preview draws no "Send a correction" line, as the admin app has no member route for it
+  to lead to; `cf-story` draws it only when given `correctionHref`.
 
 ## Consequences
 
