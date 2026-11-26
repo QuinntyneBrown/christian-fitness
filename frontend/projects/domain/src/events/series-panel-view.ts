@@ -1,4 +1,5 @@
 import type { SeriesDetailDto } from '@cf/api';
+import { dropInPickOf } from './drop-in-pick';
 import { priceOf } from './event-card-view';
 
 /** A way to come: the whole series, or dates picked to drop in (ADR 0101). */
@@ -46,6 +47,11 @@ export interface SeriesProgressView {
  */
 export interface SeriesPanelView {
   joined: boolean;
+  /**
+   * Once joined: "You're in for every session", or "You're in for <h> of <n> sessions to come" once
+   * dates are given up (ADR 0102); else empty.
+   */
+  confirmed: string;
   /** "Pay the host at your first session, …" once a paid series is joined; else none. */
   payNote: string | null;
   /** Once joined; else none. */
@@ -57,10 +63,18 @@ export interface SeriesPanelView {
   note: string;
 }
 
-/** What the member has done on the panel: the way they chose, if any, and whether a join waits. */
+/**
+ * What the member has done on the panel: the way they chose, if any, whether a join waits, and
+ * with drop-in chosen how many dates are ticked and whether their registration waits (ADR 0102).
+ */
 export interface SeriesPanelChoice {
   plan: SeriesPlan | null;
   joining: boolean;
+  picked?: number;
+  registering?: boolean;
+  /** Changing dates already held ("Change dates"), and whether the ticks differ from them (ADR 0102). */
+  changing?: boolean;
+  changed?: boolean;
 }
 
 const NO_CHOICE: SeriesPanelChoice = { plan: null, joining: false };
@@ -72,9 +86,9 @@ export const SERIES_PAY_NOTE =
 /**
  * The panel's words for a series and what the member chose (ADR 0080, ADR 0096, ADR 0101). Every
  * session is chosen by default; a full series chooses drop-in instead and every session cannot be
- * chosen. Drop-in chosen reads "Tick dates in the list" and waits on "Pick a date first" until
- * journey 13 adds the tick boxes; a full series with no drop-in has no button. While a join
- * waits both options are disabled and the button reads "Joining…".
+ * chosen. Drop-in chosen words its note and button from the dates ticked (`dropInPickOf`; ADR
+ * 0102); a full series with no drop-in has no button. While a join or a registration waits both
+ * options are disabled and the button reads "Joining…" or "Registering…".
  */
 export function seriesPanelViewOf(
   series: Pick<
@@ -92,18 +106,26 @@ export function seriesPanelViewOf(
 ): SeriesPanelView {
   const note = 'One group chat for the whole series.';
   const payNote = series.joined && series.priceCents > 0 ? SERIES_PAY_NOTE : null;
+  const pick = dropInPickOf({
+    picked: choice.picked ?? 0,
+    busy: choice.registering ?? false,
+    changing: choice.changing ?? false,
+    changed: choice.changed ?? false,
+  });
   if (series.joined || series.spotsLeft === null) {
     return {
       joined: series.joined,
+      confirmed: series.joined ? confirmedOf(series.sessions) : '',
       payNote,
       progress: series.joined ? progressOf(series.sessions) : null,
       spots: series.joined ? '' : 'No sessions left',
       plans: [],
-      action: null,
+      action: series.joined && choice.changing ? pick.button : null,
       note,
     };
   }
   const held = series.sessions.filter((session) => session.state !== 'cancelled').length;
+  const busy = choice.joining || (choice.registering ?? false);
   const price = priceOf(series.priceCents);
   const full = series.spotsLeft === 0;
   const dropIn = series.dropInPriceCents !== null;
@@ -125,7 +147,7 @@ export function seriesPanelViewOf(
           : 'Your spot is held each week',
       price: series.priceCents > 0 ? `${price} for all ${held}` : price,
       checked: plan === 'all',
-      disabled: full || choice.joining,
+      disabled: full || busy,
     },
   ];
   if (series.dropInPriceCents !== null) {
@@ -133,10 +155,10 @@ export function seriesPanelViewOf(
     plans.push({
       value: 'drop',
       title: 'Pick dates to drop in',
-      note: plan === 'drop' ? 'Tick dates in the list' : 'Come when you can',
+      note: plan === 'drop' ? pick.note : 'Come when you can',
       price: series.dropInPriceCents > 0 ? `${each} each` : each,
       checked: plan === 'drop',
-      disabled: choice.joining,
+      disabled: busy,
     });
   }
   const action: SeriesPanelAction | null =
@@ -148,9 +170,10 @@ export function seriesPanelViewOf(
             disabled: choice.joining,
             busy: choice.joining,
           }
-        : { label: 'Pick a date first', disabled: true, busy: false };
+        : pick.button;
   return {
     joined: false,
+    confirmed: '',
     payNote: null,
     progress: null,
     spots: full ? 'Series full' : `${series.spotsLeft} of ${series.capacity} spots left`,
@@ -173,6 +196,17 @@ export function seriesJoinRefusalOf(error: unknown): 'full' | 'failed' {
     error.code === 'series_full'
     ? 'full'
     : 'failed';
+}
+
+/** The joined member's confirmation: every session, or how many of the dates to come they hold. */
+function confirmedOf(sessions: SeriesDetailDto['sessions']): string {
+  const toCome = sessions.filter(
+    (session) => session.state === 'live' || session.state === 'upcoming',
+  );
+  const holding = toCome.filter((session) => session.held).length;
+  return holding === toCome.length
+    ? "You're in for every session"
+    : `You're in for ${holding} of ${toCome.length} sessions to come`;
 }
 
 /** The progress of a joined member: no attendance is recorded until journey 16. */

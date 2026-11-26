@@ -36,6 +36,13 @@ public static class RefusalCodes
     /// </summary>
     public const string SeriesFull = "series_full";
 
+    /// <summary>
+    /// A set of drop-in dates names a session that repeats, is not the series', is cancelled, or
+    /// has started and is not held, or adds a date to a series with no drop-in price for a member who
+    /// has not joined it (L2-053; ADR 0102).
+    /// </summary>
+    public const string SessionsInvalid = "sessions_invalid";
+
     /// <summary>The listing asked for does not exist (L2-013 AC4; ADR 0000).</summary>
     public const string ServiceNotFound = "service_not_found";
 

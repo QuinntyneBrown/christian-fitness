@@ -36,7 +36,10 @@ export class WebEventSeriesPage extends ErrorScreen {
   readonly planGroup: Locator;
   readonly everySession: Locator;
   readonly dropIn: Locator;
-  /** The panel's one button: "Join the series", "Joining…" or "Pick a date first". */
+  /**
+   * The panel's one button: "Join the series", "Joining…", "Pick a date first", "Register for <n>
+   * date(s)", "Registering…", "Save dates" or "Saving…".
+   */
   readonly panelButton: Locator;
   /**
    * The notes under the confirmation: "Pay the host at your first session, …" for a paid series,
@@ -49,6 +52,12 @@ export class WebEventSeriesPage extends ErrorScreen {
   readonly allDatesButton: Locator;
   readonly groupChatLink: Locator;
   readonly leaveButton: Locator;
+  /** "Change dates" once dates are registered (ADR 0102). */
+  readonly changeDatesButton: Locator;
+  /** Every button of the panel, in order. */
+  readonly panelButtons: Locator;
+  /** "Cancel" while dates are changed: back to the dates held (ADR 0102). */
+  readonly cancelButton: Locator;
   /** The generic failure above the button. */
   readonly failure: Locator;
   readonly hostCard: Locator;
@@ -83,13 +92,16 @@ export class WebEventSeriesPage extends ErrorScreen {
     this.planGroup = this.panel.getByRole('group', { name: 'How would you like to come?' });
     this.everySession = this.planGroup.getByRole('radio', { name: /^Every session/ });
     this.dropIn = this.planGroup.getByRole('radio', { name: /^Pick dates to drop in/ });
-    this.panelButton = this.panel.locator('.register__state').getByRole('button');
+    this.panelButton = this.panel.locator('.register__state .btn--primary');
     this.payNotes = this.panel.locator('.register__note--start');
     this.progressLabel = this.panel.locator('.series-progress__label');
     this.progressCount = this.panel.locator('.series-progress__count');
     this.allDatesButton = this.panel.getByRole('button', { name: 'All dates' });
     this.groupChatLink = this.panel.getByRole('link', { name: 'Group chat' });
     this.leaveButton = this.panel.getByRole('button', { name: 'Leave the series' });
+    this.changeDatesButton = this.panel.getByRole('button', { name: 'Change dates' });
+    this.cancelButton = this.panel.getByRole('button', { name: 'Cancel' });
+    this.panelButtons = this.panel.getByRole('button');
     this.failure = this.panel.getByRole('alert');
     this.hostCard = this.aside.locator('a.host-card');
     this.hostLabel = this.hostCard.locator('.host-card__label');
@@ -119,6 +131,21 @@ export class WebEventSeriesPage extends ErrorScreen {
 
   sessionEnd(n: number): Locator {
     return this.session(n).locator('.session-row__end');
+  }
+
+  /** The "Drop in" tick box of session `n`, named "Drop in on <weekday>, <date>" (ADR 0102). */
+  dropInBox(n: number): Locator {
+    return this.session(n).getByRole('checkbox');
+  }
+
+  /** Every "Drop in" tick box in the list. */
+  get dropInBoxes(): Locator {
+    return this.sessionList.getByRole('checkbox');
+  }
+
+  /** The note of the way to come at `index` (0: Every session, 1: Pick dates to drop in). */
+  planNote(index: number): Locator {
+    return this.plans.nth(index).locator('.plan-option__note');
   }
 
   /** The "Details" link of session `n`, named "Details of session <n>". */

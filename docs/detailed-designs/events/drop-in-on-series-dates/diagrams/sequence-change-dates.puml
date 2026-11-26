@@ -22,17 +22,20 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 actor -> page : "Change dates"
 page --> actor : Tick boxes again with sessions 4 and 6 ticked (L2-053 AC3)
-actor -> page : Untick session 6; confirm
+actor -> page : Untick session 6; "Save dates"
+page --> actor : Stop-dates dialog "Stop going to 1 date?"; focus on "Keep my dates"
+actor -> page : "Stop going"
 page -> client : setDropIns(id, [s4])
 client -> ctrl : PUT /api/events/series/{id}/drop-ins
 ctrl -> h : Send SetDropInDatesCommand
 h -> db : Caller's registrations at the series' sessions
-alt an unticked session has started
-  h --> ctrl : event_started (as L2-012 AC2)
+note over h : A held date that has started is kept whatever the set says (ADR 0102)
+alt a newly ticked session has no place left
+  h --> ctrl : 409 event_full, sessions = [numbers]
 else
   h -> db : Remove the registration at session 6; ReleasePlace(); SaveChanges (L2-053 AC4)
   db --> h : Committed
-  opt no registration left at any session of the series and no enrolment
+  opt no enrolment and no date not ended (ADR 0101's chat rule)
     h -> chat : LeaveAsync(member, series chat)
   end
   h --> ctrl : SeriesDetailDto

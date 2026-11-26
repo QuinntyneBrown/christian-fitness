@@ -22,6 +22,11 @@ export type CheckboxVariant = 'compact' | 'form' | 'choice';
 })
 export class Checkbox {
   readonly label = input.required<string>();
+  /**
+   * Compact only: words after the label that only assistive technology reads, completing its name
+   * ("Drop in" + " on Sat, Apr 25"; ADR 0102).
+   */
+  readonly hiddenLabel = input<string>();
   readonly description = input<string>();
   readonly variant = input<CheckboxVariant>('form');
   /** The checkbox's id, when something must find it, such as an error summary's link. */

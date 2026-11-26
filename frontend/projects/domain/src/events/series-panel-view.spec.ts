@@ -22,6 +22,7 @@ const held = (n: number, cancelled = 0): SeriesDetailDto['sessions'] =>
     topic: null,
     state: i < cancelled ? 'cancelled' : 'upcoming',
     held: false,
+    full: false,
   }));
 
 /** Saturday Park Bootcamp as the mock `event-series/not-joined` draws it. */
@@ -115,6 +116,65 @@ describe('seriesPanelViewOf', () => {
   });
 });
 
+// L2-053 AC4 (ADR 0102): a joined member's confirmation counts the dates to come they hold, and
+// while they change their dates the button is Save dates; one case per row.
+describe('seriesPanelViewOf, a joined member changing dates', () => {
+  const holding = (k: number): SeriesDetailDto['sessions'] =>
+    held(8).map((session, i) => ({ ...session, held: i < k }));
+  it.each([
+    {
+      why: 'every date to come held',
+      sessions: holding(8),
+      choice: { plan: null, joining: false },
+      confirmed: "You're in for every session",
+      action: null,
+    },
+    {
+      why: 'one date to come given up',
+      sessions: holding(7),
+      choice: { plan: null, joining: false },
+      confirmed: "You're in for 7 of 8 sessions to come",
+      action: null,
+    },
+    {
+      why: 'changing, the ticks as they were',
+      sessions: holding(8),
+      choice: { plan: null, joining: false, picked: 8, changing: true, changed: false },
+      confirmed: "You're in for every session",
+      action: ['Save dates', true, false],
+    },
+    {
+      why: 'changing, a date unticked',
+      sessions: holding(8),
+      choice: { plan: null, joining: false, picked: 7, changing: true, changed: true },
+      confirmed: "You're in for every session",
+      action: ['Save dates', false, false],
+    },
+    {
+      why: 'saving',
+      sessions: holding(8),
+      choice: {
+        plan: null,
+        joining: false,
+        picked: 7,
+        changing: true,
+        changed: true,
+        registering: true,
+      },
+      confirmed: "You're in for every session",
+      action: ['Saving…', true, true],
+    },
+  ] as const)('$why', ({ sessions, choice, confirmed, action }) => {
+    const view = seriesPanelViewOf({ ...BOOTCAMP, joined: true, sessions }, choice);
+
+    expect(view.confirmed).toBe(confirmed);
+    expect(view.action && [view.action.label, view.action.disabled, view.action.busy]).toEqual(
+      action,
+    );
+    expect(view.plans).toEqual([]);
+  });
+});
+
 // L2-052 AC1, AC2 and AC5 (ADR 0101): which way is chosen, what can be chosen and the button, one
 // case per row: [checked, disabled] for each option, then the button's label, disabled and busy.
 describe('seriesPanelViewOf, the choice and the button', () => {
@@ -148,6 +208,36 @@ describe('seriesPanelViewOf, the choice and the button', () => {
         [false, false],
       ],
       action: ['Join the series', false, false],
+    },
+    {
+      why: 'registering ticked dates: both options disabled, Registering… busy',
+      panel: BOOTCAMP,
+      choice: { plan: 'drop', joining: false, picked: 2, registering: true },
+      plans: [
+        [false, true],
+        [true, true],
+      ],
+      action: ['Registering…', true, true],
+    },
+    {
+      why: 'changing dates held, the ticks as they were: Save dates waits for a change',
+      panel: BOOTCAMP,
+      choice: { plan: 'drop', joining: false, picked: 2, changing: true, changed: false },
+      plans: [
+        [false, false],
+        [true, false],
+      ],
+      action: ['Save dates', true, false],
+    },
+    {
+      why: 'changing dates held, every one unticked: Save dates can be pressed',
+      panel: BOOTCAMP,
+      choice: { plan: 'drop', joining: false, picked: 0, changing: true, changed: true },
+      plans: [
+        [false, false],
+        [true, false],
+      ],
+      action: ['Save dates', false, false],
     },
     {
       why: 'joining: both options disabled, the chosen one kept, Joining… busy',

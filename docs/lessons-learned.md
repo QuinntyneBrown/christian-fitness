@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 58% (21 of 36 journeys; 63 of 113 days)
+**% complete:** 61% (22 of 36 journeys; 66 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3180,3 +3180,47 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 - "Run the full suite against the built apps": the 386 admin specs passed on built apps.
 - "Regenerate a colliding migration on main's snapshot" worked as written; the snapshot diff was
   only the slice's 28 lines.
+
+## Journey 13: Drop in on series dates
+
+**What slowed it**
+
+- The context ran out twice; the slice commits, the summaries and the journey's scratchpad
+  scripts (`rep.py` edits with exact-match asserts, `brk.py` for e2e breaks, `brkb.py` for API
+  breaks, `ubrk.py` for unit breaks) carried the work over.
+- `dotnet test --no-build --filter` right after a build said "No test matches" about one run in
+  three; `brkb.py` now runs the filter again until a summary line appears. One break
+  (`true || …`) gave "No test matches" every time and was replaced by an equivalent one.
+- Playwright workers crashed with 0xC0000409 at the default worker count; two or three workers on
+  the built apps (`node e2e/static-server.mjs` on free ports) were steady.
+- Slices 2 and 3 could not be committed apart: the booked panel replaced Sign up for a member
+  holding a date, so join-series' "join after dropping in" needed Change dates first. They went
+  in one commit with slice 4, which shared the same files.
+- Journey 15 merged first and made a cancelled date's place a kept registration; the rebase
+  conflicted on `GetSeriesQuery` (`held` became "registration and not cancelled"), and the new
+  handler had to keep places at cancelled dates instead of giving them up on a change.
+
+**New lessons**
+
+- A set-shaped endpoint (`PUT …/drop-ins` with every date to hold) makes add, remove and "all or
+  none" one handler and one retry loop; the client sends what it shows and never a diff.
+- A refusal that names things carries numbers in an extension (`sessions: [6]`) and the screen
+  words them; `RefusalException.Extensions` already existed for ADR 0099.
+- A page-object locator for "the panel's button" must name the primary button once a second
+  button (Cancel) can share the block, or every spec using it hits a strict-mode violation.
+- A fixture that says "joined" must hold the places a joined member holds; Couch to 5K said joined
+  with no date to come held, which the new "You're in for 0 of 5" wording exposed.
+- When a later journey changes what `held` means, every handler that removes registrations must be
+  checked against it after the rebase, with a test that holds a place at a cancelled date.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": each guard of the handler (full, capacity, price, started, cancelled,
+  repeated, suspended only when adding, no drop-in price, the chat leave, the joined price), each
+  page rule (register vs join, the full text, busy, booked, change mode, the dialog's Escape and
+  full close, Cancel, marks, the confirmation) and each domain row failed its own test.
+- "Measure the initial bundle against the base": web stayed at 278.46 kB, measured by checking
+  out `origin/main`'s `frontend/projects` (and removing the new dialog folder, which a checkout
+  leaves behind) and restoring `HEAD`. The Stop going dialog loads on first use.
+- "Run the full suite against the built apps" was used for each slice's last run.
+

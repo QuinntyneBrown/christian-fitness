@@ -47,6 +47,8 @@ export interface SeriesPanelButton {
 })
 export class SeriesPanel {
   readonly joined = input(false, { transform: booleanAttribute });
+  /** Once joined: "You're in for every session" or "You're in for 4 of 5 sessions to come". */
+  readonly confirmed = input('');
   /** "Pay the host at your first session, …" under the confirmation; none for a free series. */
   readonly payNote = input<string | null>(null);
   /** "12 of 50 spots left", "Series full" or "No sessions left". */
@@ -64,6 +66,19 @@ export class SeriesPanel {
   readonly progress = input<SeriesPanelProgress | null>(null);
   /** The series' group chat. */
   readonly chatHref = input('');
+  /**
+   * Once a member who has not joined holds dates (ADR 0102): "Registered for 2 dates" and
+   * "Sessions 4, 6. You can add more dates any time. …", with "Change dates"; else none.
+   */
+  readonly booked = input<{ confirmed: string; note: string } | null>(null);
+  /** Words for the failure above the button in place of the generic one, such as the dates that filled. */
+  readonly failure = input<string | null>(null);
+  /** The member chose "Change dates". */
+  readonly changeDates = output<void>();
+  /** While dates are changed: "Cancel" under the button, back to the dates held (ADR 0102). */
+  readonly cancelable = input(false, { transform: booleanAttribute });
+  /** The member chose "Cancel" while changing dates. */
+  readonly cancelChange = output<void>();
   /** The member asked for the calendar file of every date to come. */
   readonly allDates = output<void>();
   /** The member chose "Leave the series". */

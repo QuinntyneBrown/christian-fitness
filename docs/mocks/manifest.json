@@ -792,7 +792,11 @@
         "drop-in-none",
         "drop-in",
         "drop-in-full",
+        "booking",
         "booked",
+        "change-dates",
+        "joined-change",
+        "joined-changed",
         "full",
         "loading",
         "error"

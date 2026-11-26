@@ -12,10 +12,14 @@ from screens_member import SRC, ev_link, host_card, series_link, session_meter
 # ===========================================================================
 # Event series
 # ===========================================================================
-def session_row(x: dict, *, joined: bool, pickable: bool, picked: tuple) -> str:
+def session_row(x: dict, *, joined: bool, pickable: bool, picked: tuple, full: tuple = (), held: tuple | None = None) -> str:
+    """full: session numbers with no place left (read "Full" while picking, ADR 0102); held: a joined
+    member's dates to come when they gave some up, each to-come row then reads Registered or Not going."""
     past, cancelled, nxt = x["status"] == "past", x["status"] == "cancelled", x["status"] == "next"
     mod = " session-row--next" if nxt else " session-row--past" if past else " session-row--cancelled" if cancelled else ""
-    if pickable and not past and not cancelled:
+    if pickable and not past and not cancelled and x["n"] in full and x["n"] not in picked:
+        end = '<span class="session-row__status">Full</span>'
+    elif pickable and not past and not cancelled:
         end = (f'<label class="check"><input class="check__box" type="checkbox" name="dates" value="{x["n"]}"'
                f'{" checked" if x["n"] in picked else ""}> <span>Drop in<span class="visually-hidden"> on {x["weekday"]}, {x["month"]} {x["day"]}</span></span></label>')
     elif past:
@@ -28,10 +32,11 @@ def session_row(x: dict, *, joined: bool, pickable: bool, picked: tuple) -> str:
         end = f'<a class="btn btn--secondary btn--xs" href="{ev_link(EV[x["event"]])}">Details<span class="visually-hidden"> of session {x["n"]}</span> {icon("arrow-right", "icon--xs")}</a>'
     else:
         end = ""
+    mark = ("" if held is None or past or cancelled else " · Registered" if x["n"] in held else " · Not going")
     return f"""<li class="session-row{mod}">
               <div class="session-row__date" aria-hidden="true"><span class="session-row__month">{x["month"]}</span><span class="session-row__day">{x["day"]}</span></div>
               <div class="session-row__body">
-                <p class="session-row__meta">Session {x["n"]} · {x["weekday"]}<span class="visually-hidden">, {x["month"]} {x["day"]}</span>{" · Next up" if nxt else ""}</p>
+                <p class="session-row__meta">Session {x["n"]} · {x["weekday"]}<span class="visually-hidden">, {x["month"]} {x["day"]}</span>{" · Next up" if nxt else ""}{mark}</p>
                 <p class="session-row__topic">{x["topic"]}</p>
               </div>
               <div class="session-row__end">{end}</div>
@@ -46,16 +51,17 @@ def plan_option(value: str, title: str, note: str, price: str, *, on: bool, disa
                 </label>"""
 
 
-def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
-    """mode: joined | join | joining | failed | drop | booking | booked | full; kept: the
-    sessions already dropped in on, which keep the drop-in price after a join (ADR 0101)."""
+def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = (), held: tuple | None = None) -> str:
+    """mode: joined | joined-change | join | joining | failed | drop | booking | booked | change | full;
+    kept: the sessions already dropped in on, which keep the drop-in price after a join (ADR 0101);
+    held: a joined member's dates to come when they gave some up (ADR 0102)."""
     remaining = [x for x in sr["sessions"] if x["status"] in ("next", "upcoming")]
     past = sum(1 for x in sr["sessions"] if x["status"] == "past")
     attended = sum(1 for x in sr["sessions"] if x["attended"] is True)
     recorded = sum(1 for x in sr["sessions"] if x["status"] == "past" and x["attended"] is not None)
     came = f"Came to {attended} of {recorded}" if recorded else "Attendance not recorded yet"
     paid = sr["series_price"] != "Free"
-    if mode == "joined":
+    if mode in ("joined", "joined-change"):
         pay = ('<p class="register__note register__note--start">Pay the host at your first session, by cash or e-transfer. '
                "You won't be charged online.</p>" if paid else "")
         if kept:
@@ -65,7 +71,16 @@ def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
             pay += ('<p class="register__note register__note--start">' + "You'd" + f' already booked {which} {numbers}, '
                     f'so {"it stays" if one else "they stay"} at the drop-in price ({sr["drop_in"]}{"" if one else " each"}). '
                     'Your other dates are at the series price.</p>')
-        return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}You're in for every session</p>
+        confirmed = ("You're in for every session" if held is None
+                     else f"You're in for {len(held)} of {len(remaining)} sessions to come")
+        if mode == "joined-change":
+            return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}{confirmed}</p>
+              {pay}
+              <div class="register__state">
+                <button class="btn btn--primary btn--lg btn--block" type="button" data-mock-href="{href("stop-dates")}">Save dates</button>
+                <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("event-series", "joined")}">Cancel</button>
+              </div>"""
+        return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}{confirmed}</p>
               {pay}
               <div class="series-progress">
                 <p class="series-progress__head"><span class="series-progress__label">Your progress</span><span class="series-progress__count">{came}</span></p>
@@ -75,18 +90,22 @@ def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
                 <button class="btn btn--secondary btn--sm" type="button" data-mock-href="{href("toast", "info")}">{icon("calendar-plus")}All dates</button>
                 <a class="btn btn--secondary btn--sm" href="{href("messages")}">{icon("message-circle")}Group chat</a>
               </div>
+              <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("event-series", "joined-change")}">Change dates</button>
               <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("leave-series")}">Leave the series</button>"""
     if mode == "booked":
         n = len(picked)
         pay = f' Pay {sr["drop_in"]} to the host at each session; online payment is not available yet.' if sr["drop_in"] != "Free" else ""
         return f"""<p class="register__confirmed" role="status">{icon("check", "icon--lg")}Registered for {n} {"date" if n == 1 else "dates"}</p>
               <p class="register__note register__note--start">Sessions {", ".join(str(i) for i in sorted(picked))}. You can add more dates any time.{pay}</p>
-              <a class="btn btn--quiet mt-3" href="{href("event-series", "drop-in")}">Change dates</a>"""
+              <button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("event-series", "change-dates")}">Change dates</button>"""
     full = mode == "full"
-    drop = mode in ("drop", "booking", "refused") or full
+    change = mode == "change"
+    drop = mode in ("drop", "booking", "refused", "change") or full
     n = len(picked)
     drop_note = (f"{n} picked below" if n else "Tick dates in the list") if drop else "Come when you can"
-    if drop:
+    if change:
+        label, target = "Save dates", href("stop-dates")
+    elif drop:
         label = f'Register for {n} {"date" if n == 1 else "dates"}' if n else "Pick a date first"
         target = href("event-series", "booked")
     else:
@@ -94,9 +113,11 @@ def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
     busy = mode in ("joining", "booking")
     if busy:
         label = busy_label("Joining…" if mode == "joining" else "Registering…")
-    disabled = ' disabled aria-busy="true"' if busy else " disabled" if drop and not n else ""
+    disabled = ' disabled aria-busy="true"' if busy else " disabled" if drop and not n and not change else ""
     error = ('<p class="register__error" role="alert">We couldn\'t sign you up. Try again in a moment.</p>' if mode == "failed"
              else '<p class="register__error" role="alert">Sat May 9 is full. Untick it and try again.</p>' if mode == "refused" else "")
+    cancel = (f'<button class="btn btn--quiet mt-3" type="button" data-mock-href="{href("event-series", "booked")}">Cancel</button>\n                '
+              if change else "")
     spots = "Series full" if full else f'{sr["capacity"] - sr["enrolled"]} of {sr["capacity"]} spots left'
     every_note = "Every place in the series is taken" if full else "Your spot is held each week"
     return f"""<div class="register__head"><h2 class="series-panel__title">Sign up</h2><p class="register__spots">{spots}</p></div>
@@ -107,16 +128,17 @@ def series_panel(sr: dict, mode: str, picked: tuple, kept: tuple = ()) -> str:
               </fieldset>
               <div class="register__state">
                 {error}<button class="btn btn--primary btn--lg btn--block" type="button"{disabled} data-mock-href="{target}">{label}</button>
-                <p class="register__note">One group chat for the whole series.</p>
+                {cancel}<p class="register__note">One group chat for the whole series.</p>
               </div>"""
 
 
-def series_page(sr: dict, mode: str, picked: tuple = (), kept: tuple = ()) -> str:
-    joined = mode == "joined"
-    pickable = mode in ("drop", "booking", "refused", "full")
+def series_page(sr: dict, mode: str, picked: tuple = (), kept: tuple = (), full: tuple = (), held: tuple | None = None) -> str:
+    joined = mode in ("joined", "joined-change")
+    pickable = mode in ("drop", "booking", "refused", "full", "change", "joined-change")
     remaining = sum(1 for x in sr["sessions"] if x["status"] in ("next", "upcoming"))
     past = sum(1 for x in sr["sessions"] if x["status"] == "past")
-    rows = "".join(session_row(x, joined=joined, pickable=pickable, picked=picked) for x in sr["sessions"])
+    rows = "".join(session_row(x, joined=joined, pickable=pickable, picked=picked, full=full,
+                               held=None if mode == "joined-change" else held) for x in sr["sessions"])
     return f"""    <div class="container page--detail">
       <a class="back-link" href="{href("events", "series")}">{icon("arrow-left")} All events</a>
       {image(sr["image"], "banner-image banner-image--wide")}
@@ -139,7 +161,7 @@ def series_page(sr: dict, mode: str, picked: tuple = (), kept: tuple = ()) -> st
         </div>
         <aside class="sticky-aside" aria-label="Sign up">
           <div class="card card--pad-sm">
-              {series_panel(sr, mode, picked, kept)}
+              {series_panel(sr, mode, picked, kept, held)}
           </div>
           {host_card(sr["host"], kind=False)}
         </aside>
@@ -198,14 +220,34 @@ def _():
     return member_shell("events", series_page(BOOTCAMP, "refused", (4, 6)))
 
 
+@s("booking", "Register for 2 dates pressed: the button reads \"Registering…\" and is busy, the two options read-only until the places are confirmed (ADR 0102).")
+def _():
+    return member_shell("events", series_page(BOOTCAMP, "booking", (4, 6)))
+
+
 @s("booked", "Registered for the two dates: which sessions, how to pay, and \"Change dates\".")
 def _():
     return member_shell("events", series_page(BOOTCAMP, "booked", (4, 6)))
 
 
-@s("full", "Every place in the series is taken: \"Series full\", the every-session option is unavailable, and dates can still be picked to drop in; no waitlist.")
+@s("change-dates", "\"Change dates\" pressed after booking sessions 4 and 6, then session 6 unticked: the held dates come back ticked and \"Save dates\" asks to stop going in a dialog; Cancel keeps them (L2-053 AC3, AC4; ADR 0102).")
 def _():
-    return member_shell("events", series_page(dict(BOOTCAMP, enrolled=50), "full"))
+    return member_shell("events", series_page(BOOTCAMP, "change", (4,)))
+
+
+@s("joined-change", "A joined member chose \"Change dates\" and unticked session 5: every date to come has a tick box, \"Save dates\" asks to stop going in a dialog (L2-053 AC6; ADR 0102).")
+def _():
+    return member_shell("events", series_page(dict(BOOTCAMP, joined=True, enrolled=39), "joined-change", (4, 6, 7, 8)))
+
+
+@s("joined-changed", "A joined member who stopped going to session 5: it reads \"Not going\" and the dates still held \"Registered\"; \"You're in for 4 of 5 sessions to come\" (L2-053 AC6; ADR 0102).")
+def _():
+    return member_shell("events", series_page(dict(BOOTCAMP, joined=True, enrolled=39), "joined", held=(4, 6, 7, 8)))
+
+
+@s("full", "Every place at session 6 is taken, so the series is full: \"Series full\", the every-session option is unavailable, session 6 reads \"Full\" with no tick box, and the other dates can still be picked to drop in; no waitlist (L2-053 AC7; ADR 0102).")
+def _():
+    return member_shell("events", series_page(dict(BOOTCAMP, enrolled=50), "full", full=(6,)))
 
 
 @s("loading", "Series loading: banner, title, facts, session rows and the sign-up panel as skeletons.")
@@ -276,11 +318,11 @@ def _():
 def stop_dates(*, busy: bool = False, failed: bool = False) -> str:
     alert = ('<div class="dialog__alert">' + form_alert("We couldn't take you off those dates", "You still have your places. Try again in a moment.") + "</div>"
              if failed else "")
-    keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("event-series", "drop-in")}"{" disabled" if busy else " autofocus"}>Keep my dates</button>'
+    keep = f'<button class="btn btn--secondary btn--grow" type="button" data-mock-href="{href("event-series", "change-dates")}"{" disabled" if busy else " autofocus"}>Keep my dates</button>'
     stop = (f'<button class="btn btn--primary btn--grow" type="submit" disabled aria-busy="true">{busy_label("Stopping…")}</button>' if busy
             else f'<button class="btn btn--primary btn--grow" type="submit" data-mock-href="{href("event-series", "booked")}">Stop going</button>')
     body = f'{alert}<p class="prose">Your place goes to someone else. You can register for these dates again while places are left.</p>'
-    return over_member("events", series_page(BOOTCAMP, "drop", (7,)),
+    return over_member("events", series_page(BOOTCAMP, "change", (7,)),
                        dialog("Stop going to 2 dates?", body, keep + stop, sub="Saturday Park Bootcamp · Sat Apr 25 and Sat May 9"))
 
 

@@ -3,10 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title Components — Drop in on dates of a series
 
-Container(web, "Member web app", "Angular", "EventSeriesPage, SessionList with Checkbox, PlanOption, dropInPickOf, HttpEventSeriesService")
+Container(web, "Member web app", "Angular", "EventSeriesPage, StopDatesDialog, SessionList with Checkbox, PlanOption, dropInPickOf, HttpEventSeriesService")
 Container_Boundary(api, "Christian Fitness API") {
   Component(ctrl, "SeriesController", "ASP.NET Core controller", "PUT /api/events/series/{id}/drop-ins")
-  Component(val, "SetDropInDatesValidator", "FluentValidation", "Distinct session ids, at most the series' session count")
   Component(h, "SetDropInDatesHandler", "MediatR handler", "Adds and removes drop-in Registrations all or none")
   Component(chat, "IChatChannel", "Application abstraction", "Leaves the series' group chat when no date is left")
   Component(ctx, "IAppDbContext", "Application abstraction", "One unit of work")
@@ -14,7 +13,6 @@ Container_Boundary(api, "Christian Fitness API") {
 ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Registrations; RegistrationVersion per session")
 Rel(web, ctrl, "PUT the ticked dates", "JSON/HTTPS")
 Rel(ctrl, h, "Sends SetDropInDatesCommand")
-Rel(h, val, "Validated by")
 Rel(h, ctx, "Adds and removes Registrations")
 Rel(h, chat, "LeaveAsync")
 Rel(ctx, db, "Reads and writes", "EF Core")

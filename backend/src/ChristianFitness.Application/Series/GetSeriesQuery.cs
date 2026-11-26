@@ -39,9 +39,11 @@ public sealed record SeriesDetailDto(
 /// <summary>
 /// One date of a series as its row shows it (L2-051 AC2 to AC5; ADR 0096): its position among all
 /// the dates (cancelled ones included; ADR 0080), its start, its end (none when unknown; ADR 0101), topic and ADR 0091's state by the
-/// API's clock, and whether the signed-in member holds a place at it (never at a cancelled date; ADR 0103).
+/// API's clock, whether the signed-in member holds a place at it (never at a cancelled date; ADR
+/// 0103), and whether it is full: still to come, not cancelled and every place taken (L2-053 AC7;
+/// ADR 0102).
 /// </summary>
-public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State, bool Held);
+public sealed record SeriesSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State, bool Held, bool Full);
 
 /// <summary>
 /// Opens one series for the signed-in member (L2-051; ADR 0096). A series opens while one of its
@@ -124,6 +126,14 @@ internal static class SeriesDetails
             spotsLeft,
             facts.Left,
             joined,
-            [.. sessions.Select((s, n) => new SeriesSessionDto(s.Id, n + 1, s.StartsAt, s.EndsAt, s.Topic, SessionStateNames.Of(states[n]), held.Contains(s.Id) && !s.Cancelled))]);
+            [.. sessions.Select((s, n) => new SeriesSessionDto(
+                s.Id,
+                n + 1,
+                s.StartsAt,
+                s.EndsAt,
+                s.Topic,
+                SessionStateNames.Of(states[n]),
+                held.Contains(s.Id) && !s.Cancelled,
+                !s.Cancelled && s.StartsAt > now && going.GetValueOrDefault(s.Id) >= series.Capacity))]);
     }
 }
