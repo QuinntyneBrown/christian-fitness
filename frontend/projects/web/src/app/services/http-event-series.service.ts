@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type {
   EventSeriesApi,
@@ -7,7 +7,8 @@ import type {
   SeriesListDto,
   SeriesSelection,
 } from '@cf/api';
-import type { Observable } from 'rxjs';
+import { apiErrorOf } from '@cf/domain';
+import { catchError, type Observable, throwError } from 'rxjs';
 
 /**
  * {@link EventSeriesApi} over HTTP: `GET /api/events/series?category=&q=&joined=true`,
@@ -38,9 +39,14 @@ export class HttpEventSeriesService implements EventSeriesApi {
   }
 
   join(id: string): Observable<SeriesDetailDto> {
-    return this.http.post<SeriesDetailDto>(
-      `/api/events/series/${encodeURIComponent(id)}/enrolment`,
-      null,
-    );
+    return this.http
+      .post<SeriesDetailDto>(`/api/events/series/${encodeURIComponent(id)}/enrolment`, null)
+      .pipe(catchError(asApiError));
   }
+}
+
+function asApiError(error: unknown): Observable<never> {
+  return throwError(() =>
+    error instanceof HttpErrorResponse ? apiErrorOf(error.status, error.error) : error,
+  );
 }

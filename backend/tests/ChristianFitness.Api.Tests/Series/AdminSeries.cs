@@ -65,7 +65,7 @@ internal static class AdminSeries
 internal sealed record SessionSeed(DateOnly Date, string? Topic = null, bool Cancelled = false, int StartHour = 18, int StartMinute = 30, int Minutes = 60);
 
 /// <summary>The API with a clock the tests move, starting at the mocks' today, and a way to add series.</summary>
-public sealed class AdminSeriesFactory : AdminEventsFactory
+public class AdminSeriesFactory : AdminEventsFactory
 {
     /// <summary>Puts <paramref name="series"/>, its <paramref name="sessions"/> and <paramref name="joined"/> enrolments in the store; answers the sessions' ids in the order given.</summary>
     internal async Task<IReadOnlyList<Guid>> AddSeriesAsync(EventSeries series, IReadOnlyList<SessionSeed> sessions, int joined = 0)

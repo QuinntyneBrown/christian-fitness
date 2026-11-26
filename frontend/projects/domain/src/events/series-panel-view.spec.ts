@@ -1,5 +1,5 @@
 import type { SeriesDetailDto } from '@cf/api';
-import { seriesPanelViewOf } from './series-panel-view';
+import { seriesJoinRefusalOf, seriesPanelViewOf } from './series-panel-view';
 
 type Panel = Pick<
   SeriesDetailDto,
@@ -195,5 +195,24 @@ describe('seriesPanelViewOf, the choice and the button', () => {
 
   it('nothing to come: no way to come and no button', () => {
     expect(seriesPanelViewOf({ ...BOOTCAMP, spotsLeft: null, sessionsLeft: 0 }).action).toBeNull();
+  });
+});
+
+// L2-052 AC5 to AC8 (ADR 0099): what a refused join shows, one case per row.
+describe('seriesJoinRefusalOf', () => {
+  it.each([
+    { why: 'series_full', error: { status: 409, code: 'series_full' }, shows: 'full' },
+    {
+      why: 'account_suspended',
+      error: { status: 403, code: 'account_suspended' },
+      shows: 'failed',
+    },
+    { why: 'series_not_found', error: { status: 404, code: 'series_not_found' }, shows: 'failed' },
+    { why: 'no answer', error: { status: 0, code: 'network' }, shows: 'failed' },
+    { why: 'a server error', error: { status: 500, code: 'error' }, shows: 'failed' },
+    { why: 'not an API error', error: new Error('series_full'), shows: 'failed' },
+    { why: 'nothing', error: null, shows: 'failed' },
+  ])('$why', ({ error, shows }) => {
+    expect(seriesJoinRefusalOf(error)).toBe(shows);
   });
 });

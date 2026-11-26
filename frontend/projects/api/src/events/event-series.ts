@@ -128,8 +128,8 @@ export interface EventSeriesApi {
   /**
    * The signed-in member joins the series (`POST /api/events/series/{id}/enrolment`, L2-052 AC2;
    * ADR 0099) and gets it back as they now see it; joining again changes nothing. Any failure
-   * errors with the `HttpErrorResponse`: 409 `series_full`, 403 `account_suspended`, 404
-   * `series_not_found`, or none (status 0).
+   * errors with an `ApiError`: 409 `series_full`, 403 `account_suspended`, 404
+   * `series_not_found`, or `network` (status 0).
    */
   join(id: string): Observable<SeriesDetailDto>;
 }

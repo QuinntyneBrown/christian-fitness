@@ -22,6 +22,7 @@ import {
   type SeriesPageView,
   seriesPageViewOf,
   type SeriesPlan,
+  seriesJoinRefusalOf,
   seriesPanelViewOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
@@ -113,7 +114,8 @@ export default class EventSeriesPage {
 
   /**
    * Joins the series with "Every session" chosen (L2-052 AC2; ADR 0099) and shows the answer in
-   * place; a refusal or no answer shows the generic failure and leaves the button usable (AC8).
+   * place. A `series_full` refusal shows the series as full (AC5, AC6); any other refusal or no
+   * answer shows the generic failure and leaves the button usable (AC7, AC8).
    */
   protected join(): void {
     const action = this.panel().action;
@@ -129,8 +131,13 @@ export default class EventSeriesPage {
           this.show(series);
           this.joining.set(false);
         },
-        error: () => {
-          this.joinFailed.set(true);
+        error: (error: unknown) => {
+          if (seriesJoinRefusalOf(error) === 'full') {
+            // The last place went meanwhile (AC5, AC6): show the series as full, asking nothing more.
+            this.detail.update((series) => series && { ...series, spotsLeft: 0 });
+          } else {
+            this.joinFailed.set(true);
+          }
           this.joining.set(false);
         },
       });
