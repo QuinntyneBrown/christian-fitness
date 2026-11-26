@@ -106,6 +106,14 @@ share of opens and clicks.
   (decided with `L2-067` AC8: the Privacy Policy promises no tracking). The Sent table therefore
   shows number, date, subject and recipient count only.
 
+### As built
+
+[ADR 0112](../../../adr/0112-newsletter-desk-sending-and-web-version.md) records where the build
+differs from the text above: sending is one job on the publishing clock rather than a separate
+`IssueSender` service, the send is audited as `newsletter_issue.sent_by_scheduler`, a missed issue
+is rescheduled with `sendTime`, the email is plain text, and Preview is at
+`/newsletter/preview?issue=<number>`.
+
 ### Open questions
 
 - **Bulk sending and the email queue.** `QueuedEmailSender` holds at most 500 messages and drops

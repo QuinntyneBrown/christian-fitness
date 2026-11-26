@@ -68,6 +68,12 @@ anyone else is not greeted.
   (`L2-059` AC1), except that the web response hides stories since unpublished. Dates and weekdays
   are shown in `America/Toronto`.
 
+### As built
+
+[ADR 0112](../../../adr/0112-newsletter-desk-sending-and-web-version.md): the page binds
+`ISSUES_SERVICE` (`HttpIssuesService`), the captured content is JSON on the issue
+(`NewsletterIssue.Captured`), and the mock's sign-off line is left out.
+
 ### Open questions
 
 - **Email body.** The web version and the email share `IssueContent`; whether the email itself is

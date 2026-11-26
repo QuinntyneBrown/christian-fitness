@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 79% (29 of 36 journeys; 89 of 113 days)
+**% complete:** 85% (31 of 36 journeys; 96 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3542,3 +3542,58 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   re-rendered with `C:\tools\plantuml.jar`.
 - Docker was not running, so the nginx `log_format` without the query string was reviewed, not run
   through `nginx -t`.
+
+## Journeys 28 and 29: Build and send the newsletter; read it on the web
+
+**What slowed it**
+
+- The session's container had no .NET SDK and its network refused the SDK's download host; an
+  environment that allows `dot.net` and `builds.dotnet.microsoft.com` had to be made first.
+- Its pre-installed Chromium is an older build than the project's Playwright expects. A local,
+  uncommitted config pointing `launchOptions.executablePath` at it ran the specs. The first "red"
+  run of the desk spec was the browser failing to start, not the missing route: read why a spec
+  is red before counting it.
+- The desk tests move the clock by days and a staff session ends after 30 idle minutes, so every
+  request after a jump answered 401. The tests sign in again after moving the clock.
+- A sent issue's audit query also matched the sign-in's own entry; it now filters by record type.
+- The web app's initial bundle grew twice from lazy code: a template's `@let` (0.22 kB) and the
+  first `NgTemplateOutlet` reaching two components the landing page shares (0.35 kB). Neither
+  string of the new feature was in `main`; removing the routes and rebuilding found it.
+- The mock words a story published 9 hours before 8:45 AM as "9 hours ago"; the shared age helper
+  says "Yesterday" once the Toronto day differs. The fixture's times were moved inside the day.
+- The table draws a `custom` cell's `sub` line itself, so the Issue cell showed its date twice.
+- A wildcard `rm` of the regenerated migration was refused by the session's safety check; a second
+  migration was added instead of regenerating the first.
+
+**New lessons**
+
+- A test that advances the clock past a session's idle timeout signs in again before its next
+  request; a 401 after a time jump is the fixture's, not the feature's.
+- A job that sends within a rate limit is proved by ticks at the same instant and a minute apart:
+  the first sends the limit, the second none, the third the rest.
+- When `main` grows and none of the feature's strings are in it, the growth is a runtime
+  instruction: take the new route out, rebuild, then put back one template feature at a time.
+  `@let` and a first `NgTemplateOutlet` both cost `main`; an `@if … as` and a repeated branch do not.
+- A rule guarded twice (only Sent issues are read, and only issues with captured content) cannot
+  be proved by breaking one guard; say so, or drop the second.
+- Keep one desk fixture answering every action of the screen and returning what was sent; each
+  spec then asserts the request bodies by exact value.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": five breaks of the send job, three of the web read, five of the store,
+  four of the desk page, four of the Newsletter page and one each of the test send and the
+  preview each failed their own test. The break that removed the Sent filter did not, for the
+  reason above.
+- "Read the initial total after each slice, against the base": admin reads 279.72 kB against
+  279.73 kB; web reads 279.05 kB, as on main.
+- "A new guard, default or call in a shared flow means running the whole suite": adding Newsletter
+  to the navigation failed six navigation specs, which were updated. Three other admin specs
+  (`create-series` host search, two `members` lists) fail in this container on their own and were
+  not touched by these journeys; they were not checked against main here.
+- "Re-rendering PlantUML is part of the slice" was not done: the container has no PlantUML. The
+  designs' diagrams still show the separate sender and the dropped open and click counting
+  (ADR 0112).
+- `EmailDeliveryTests`' unsubscribe-header test fails in this container before and after these
+  journeys; it reads a folded header from a fake SMTP server and was not changed.
+
