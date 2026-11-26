@@ -2914,3 +2914,45 @@ factory.Server.CreateHandler()`, passing the session cookie in `Headers["Cookie"
 - "Read the initial total after each build": web stayed at 278.21 kB through every slice. Admin
   read 280.52 kB before the rebase and 280.66 kB after. A build of main's own sources gave
   280.66 kB, so the growth is main's, not this journey's.
+
+## Journey 12: Join and leave a series
+
+**What slowed it**
+
+- The journey changed hands mid-slice. Slice 2's API work was on disk, uncommitted and already
+  green, so its acceptance tests proved nothing until each rule was broken alone (the route, the
+  held filter, the series price, the cancelled filter); every break failed its own test.
+- The scratchpad is shared by every agent of a session. Another journey's `brk.py` replaced this
+  one's mid-run, and two dev servers wrote the same `web-serve.log`, so a failed rebuild read as a
+  success. Scripts and logs now live in a folder named for the journey.
+- A `npm run e2e` against `ng serve` failed three unrelated specs on the Vite client's WebSocket
+  (`ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS`). The same specs pass against the built apps, as
+  CI serves them (`CF_SERVE_BUILT=1`), which the full runs then used.
+- Heredocs holding `\r\n`, `’` or `won't` broke in the Bash tool; file contents went through the
+  Write tool and small Python edit scripts instead.
+
+**New lessons**
+
+- A page object that extends `ErrorScreen` inherits `action(name)`; a locator named `action`
+  shadows it and fails another spec with "is not a function". Name screen locators for what they
+  are (`panelButton`).
+- Leaving a group must also take the member's open connections out of the hub group. The membership
+  rule alone refuses their next Join and Send but still pushes messages to a connection that
+  joined earlier; a test with a second member sending after the leave caught it.
+- A race test for a multi-row write can stand in the rival through the `IAppDbContext` decorator:
+  commit the rival's join in a second scope, then throw `DbUpdateConcurrencyException`. Breaking
+  the retry, the forget step and the concurrency token each failed a different test.
+- A download's text is read with `download.createReadStream()`, never from a path; the iCalendar
+  helper has its own case table (escaping, folding at 75 octets, which states are written).
+- A mock state added through the generator (`joined-drop-in`) changes only the series pages' state
+  bars, the manifest, the index and the README matrix; the generator wrote LF this time.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": every new rule failed its own test, among them the suspended and full
+  refusals, the repeat join, the past-session filter on leave, the cancelled places on leave, the
+  dialog's focus and failure, the kept-price note and All dates.
+- "Read every regression check by its exit status, written to a log": it caught a missing import
+  that a stale bundle hid, and a lint error on a type imported only for a doc comment.
+- "Read the initial total after each build": web stayed 278.21 kB through every slice; the plan
+  options, the calendar helper and the dialog load with the series route or on first use.
