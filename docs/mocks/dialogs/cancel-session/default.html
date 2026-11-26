@@ -8,7 +8,7 @@
 <meta name="mock:screen" content="cancel-session">
 <meta name="mock:state" content="default">
 <meta name="mock:source" content="Derived: the Manage Event Series frame&#x27;s &quot;Cancel date&quot; action, confirmed in a dialog as cancelling an event is (ADR 0035), since it notifies members.">
-<meta name="description" content="Confirm cancelling one date: who is told, what is refunded and that it can be restored; focus starts on &quot;Keep the date&quot;.">
+<meta name="description" content="Confirm cancelling one date: how many are going (joined and dropped in), who is told, that refunds are sorted out with the host and that it can be restored; focus starts on &quot;Keep the date&quot;.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -91,7 +91,7 @@
                 <span class="admin-session__topic">Twenty minutes without stopping</span><span class="admin-session__end"><button class="btn btn--link btn--link-quiet" type="button" data-mock-href="../../dialogs/cancel-session/default.html">Cancel date<span class="visually-hidden">: session 7, Tue May 19</span></button></span></li><li class="admin-session"><span class="admin-session__n" aria-hidden="true">8</span>
                 <span class="admin-session__date">Tue May 26</span>
                 <span class="admin-session__topic">Graduation 5K and potluck</span><span class="admin-session__end"><button class="btn btn--link btn--link-quiet" type="button" data-mock-href="../../dialogs/cancel-session/default.html">Cancel date<span class="visually-hidden">: session 8, Tue May 26</span></button></span></li></ol>
-          <p class="builder__note">Cancelling a date notifies everyone who joined the series and refunds drop-ins.</p>
+          <p class="builder__note">Cancelling a date tells everyone going to it; any refunds are sorted out with the host directly.</p>
         </section>
       </div>
     </div>
@@ -105,7 +105,7 @@
     <button class="icon-button dialog__close" type="button" aria-label="Close"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
   <div class="dialog__body">
-<p class="prose">The 31 members who joined the series are told, anyone who dropped in for this date is refunded, and the date shows as Cancelled on the series. You can restore it until it would have started.</p>
+<p class="prose">34 people are going to this date (31 joined, 3 dropped in). Everyone going is told in the series chat and in their notifications. If anyone paid for it, the host will sort out refunds with them directly.</p><p class="prose">You can restore the date until it would have started.</p>
   </div>
   <div class="dialog__foot">
 <button class="btn btn--secondary btn--grow" type="button" data-mock-href="../../pages/admin-series/default.html" autofocus>Keep the date</button><button class="btn btn--primary btn--grow" type="submit" data-mock-href="../../pages/admin-series/date-cancelled.html">Cancel date</button>
