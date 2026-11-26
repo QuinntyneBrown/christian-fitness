@@ -36,6 +36,9 @@
       [headline]="fields().headline"
       [summary]="fields().summary"
       [text]="fields().text"
+      [headlineInvalid]="!!marked()['headline']"
+      [textInvalid]="!!marked()['text']"
+      [readonly]="store.acting() !== null"
       (headlineChange)="edit({ headline: $event })"
       (summaryChange)="edit({ summary: $event })"
       (textChange)="edit({ text: $event })"
@@ -61,10 +64,29 @@
           >Preview</cf-button
         >
       }
+      @for (view of actions(); track view.action) {
+        <cf-button
+          slot="actions"
+          size="sm"
+          [variant]="view.primary ? 'primary' : 'secondary'"
+          [busy]="store.acting() === view.action"
+          [disabled]="store.acting() !== null && store.acting() !== view.action"
+          (click)="act(view.action)"
+          >{{ view.label }}</cf-button
+        >
+      }
 
       @if (store.saveState() === 'failed') {
         <cf-alert slot="alert" heading="We couldn't save your changes">
           What you wrote is still here. Try again in a moment.
+        </cf-alert>
+      }
+      @if (store.saveState() === 'invalid') {
+        <cf-alert slot="alert" [heading]="problem().title">{{ problem().text }}</cf-alert>
+      }
+      @if (store.saveState() === 'action-failed') {
+        <cf-alert slot="alert" heading="We couldn't change the story">
+          Nothing changed. Check your connection and try again.
         </cf-alert>
       }
       @if (store.saveState() === 'conflict') {
@@ -110,6 +132,7 @@
             name="section"
             prompt="Choose a section"
             [options]="sections"
+            [error]="marked()['section'] ? 'Choose a section' : null"
             [value]="fields().section ?? ''"
             (valueChange)="chooseSection($event)"
           />
@@ -119,6 +142,7 @@
             name="byline"
             prompt="Choose a byline"
             [options]="bylines()"
+            [error]="marked()['bylineId'] ? 'Choose a byline' : null"
             [value]="fields().bylineId ?? ''"
             (valueChange)="chooseByline($event)"
           />
@@ -162,3 +186,10 @@
     </cf-editor>
   }
 }
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

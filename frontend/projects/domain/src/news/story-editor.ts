@@ -9,7 +9,8 @@ import {
   type StoryPointerDto,
   type StoryStatusName,
 } from '@cf/api';
-import type { Subscription } from 'rxjs';
+import type { Observable, Subscription } from 'rxjs';
+import type { StoryAction } from './story-actions';
 
 /** How long after the last edit a Draft or a story In review is saved (L2-069 AC11). */
 export const STORY_AUTOSAVE_MS = 2_000;
@@ -80,8 +81,18 @@ export function storyPointerOf(value: string): StoryPointerDto | null {
 /** Where the editor's story is: being read, ready, missing (404) or not read (another failure). */
 export type StoryEditorLoad = 'loading' | 'ready' | 'missing' | 'failed';
 
-/** The last save: none pending, under way, failed, or refused over a newer version. */
-export type StorySaveState = 'idle' | 'saving' | 'failed' | 'conflict';
+/**
+ * The last save or action: none pending, a save under way, an action under way, a save that
+ * failed, an action that failed, Publish refused for its fields, or refused over a newer version.
+ */
+export type StorySaveState =
+  'idle' | 'saving' | 'acting' | 'failed' | 'action-failed' | 'invalid' | 'conflict';
+
+/** What an action did: the action and the status it was taken from, for the toast. */
+export interface StoryActed {
+  action: StoryAction;
+  from: StoryStatusName;
+}
 
 /**
  * The story editor's state (L2-069 AC1, AC11, AC12; ADR 0097): the fields as typed, the status,
@@ -105,6 +116,8 @@ export class StoryEditorStore implements OnDestroy {
     save: signal<StorySaveState>('idle'),
     options: signal<StoryOptionsDto | null>(null),
     now: signal(new Date()),
+    acting: signal<StoryAction | null>(null),
+    fieldCodes: signal<Record<string, string>>({}),
   };
   private version = 0;
   /** Edits made since the save under way began, so another save follows it. */
@@ -116,6 +129,9 @@ export class StoryEditorStore implements OnDestroy {
   /** Whether a save is under way; a synchronous answer ends it before `saving` is assigned. */
   private inFlight = false;
   private optionsRead: Subscription | undefined;
+  private actionRun: Subscription | undefined;
+  /** The action to take once the save under way ends, so it acts on what was typed. */
+  private afterSave: (() => void) | undefined;
   private created: ((id: string) => void) | undefined;
   private missing: (() => void) | undefined;
 
@@ -129,6 +145,10 @@ export class StoryEditorStore implements OnDestroy {
   readonly options = this.state.options.asReadonly();
   /** The time the bar words the last save against, moved on every {@link STORY_CLOCK_MS}. */
   readonly now = this.state.now.asReadonly();
+  /** The action under way, or none. */
+  readonly acting = this.state.acting.asReadonly();
+  /** The fields Publish refused, by their camel-case name, until each is edited (L2-069 AC7). */
+  readonly fieldCodes = this.state.fieldCodes.asReadonly();
 
   /** Starts an empty Draft; `created` hears its id once its first save keeps it. */
   openNew(created: (id: string) => void): void {
@@ -164,7 +184,14 @@ export class StoryEditorStore implements OnDestroy {
 
   /** Takes an edit; a Draft or a story In review is saved once typing pauses. */
   edit(patch: Partial<StoryFieldsDto>): void {
+    if (this.state.acting()) return;
     this.state.fields.update((fields) => ({ ...fields, ...patch }));
+    const marked = this.state.fieldCodes();
+    if (Object.keys(patch).some((field) => field in marked)) {
+      this.state.fieldCodes.set(
+        Object.fromEntries(Object.entries(marked).filter(([field]) => !(field in patch))),
+      );
+    }
     if (!this.autosaves()) return;
     if (this.inFlight) this.editedSince = true;
     clearTimeout(this.timer);
@@ -187,6 +214,56 @@ export class StoryEditorStore implements OnDestroy {
       this.state.load.set('ready');
       this.state.save.set('idle');
       this.save();
+    });
+  }
+
+  /**
+   * Takes a status action over the version read (L2-069 AC2, AC3, AC5, AC7): edits not yet saved
+   * are saved first, so a review or a return acts on what was typed; Publish and Update send the
+   * fields themselves. On success the story takes its new status and `acted` hears what happened;
+   * Publish refused for its fields marks them; `story_changed` offers the newer version.
+   */
+  act(action: StoryAction, acted: (done: StoryActed) => void): void {
+    const id = this.state.id();
+    if (!id || this.state.acting()) return;
+    const sendsFields = action === 'publish' || action === 'update';
+    if (!sendsFields && (this.timer !== undefined || this.inFlight)) {
+      this.afterSave = () => this.act(action, acted);
+      if (!this.inFlight) this.save();
+      return;
+    }
+    clearTimeout(this.timer);
+    this.timer = undefined;
+    this.editedSince = false;
+    const from = this.state.status();
+    this.state.acting.set(action);
+    this.state.save.set('acting');
+    this.state.fieldCodes.set({});
+    const save = { ...this.state.fields(), version: this.version };
+    const requests: Record<StoryAction, () => Observable<AdminStoryDto>> = {
+      submit: () => this.api.submit(id, this.version),
+      'return-to-draft': () => this.api.returnToDraft(id, this.version),
+      publish: () => this.api.publish(id, save),
+      update: () => this.api.update(id, save),
+      unpublish: () => this.api.unpublish(id, this.version),
+    };
+    this.actionRun = requests[action]().subscribe({
+      next: (story) => {
+        this.state.acting.set(null);
+        this.take(story);
+        acted({ action, from });
+      },
+      error: (error: ApiError) => {
+        this.state.acting.set(null);
+        if (error?.code === 'story_changed') {
+          this.state.save.set('conflict');
+        } else if (error?.code === 'validation_failed' && error.fieldCodes) {
+          this.state.fieldCodes.set(error.fieldCodes);
+          this.state.save.set('invalid');
+        } else {
+          this.state.save.set('action-failed');
+        }
+      },
     });
   }
 
@@ -224,10 +301,14 @@ export class StoryEditorStore implements OnDestroy {
           this.state.id.set(story.id);
           this.created?.(story.id);
         }
-        if (this.editedSince && this.autosaves()) this.save();
+        const then = this.afterSave;
+        this.afterSave = undefined;
+        if (then) then();
+        else if (this.editedSince && this.autosaves()) this.save();
       },
       error: (error: ApiError) => {
         this.inFlight = false;
+        this.afterSave = undefined;
         this.state.save.set(error?.code === 'story_changed' ? 'conflict' : 'failed');
       },
     });
@@ -274,7 +355,11 @@ export class StoryEditorStore implements OnDestroy {
     this.clock = undefined;
     this.reading?.unsubscribe();
     this.saving?.unsubscribe();
-    this.reading = this.saving = undefined;
+    this.actionRun?.unsubscribe();
+    this.reading = this.saving = this.actionRun = undefined;
+    this.afterSave = undefined;
+    this.state.acting.set(null);
+    this.state.fieldCodes.set({});
     this.created = undefined;
     this.missing = undefined;
     this.version = 0;

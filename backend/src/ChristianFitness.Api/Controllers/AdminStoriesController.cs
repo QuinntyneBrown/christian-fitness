@@ -49,4 +49,31 @@ public sealed class AdminStoriesController(ISender sender) : ControllerBase
         command.Id = id;
         return await sender.Send(command, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>Send for review (L2-069 AC2).</summary>
+    [HttpPost("{id:guid}/submit")]
+    public async Task<ActionResult<AdminStoryDto>> Submit(Guid id, SubmitStoryCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Back to draft (L2-069 AC3).</summary>
+    [HttpPost("{id:guid}/return-to-draft")]
+    public async Task<ActionResult<AdminStoryDto>> ReturnToDraft(Guid id, ReturnStoryToDraftCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Publish now, or Approve &amp; publish: saves the fields and publishes (L2-069 AC2, AC3, AC7).</summary>
+    [HttpPost("{id:guid}/publish")]
+    public async Task<ActionResult<AdminStoryDto>> Publish(Guid id, PublishStoryCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
 }

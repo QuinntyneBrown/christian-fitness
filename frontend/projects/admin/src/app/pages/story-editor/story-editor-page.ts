@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ADMIN_STORIES_SERVICE,
+  TOASTS_SERVICE,
   type StoryFieldsDto,
   type StoryPlacementName,
   type StorySectionName,
@@ -21,11 +22,18 @@ import {
   Select,
   Status,
   TextField,
+  ToastRegion,
+  type ToastData,
 } from '@cf/components';
 import {
   STORY_PLACEMENTS,
   STORY_SECTIONS,
   StoryEditorStore,
+  storyActions,
+  storyActionToast,
+  storyPublishProblem,
+  ToastStore,
+  type StoryAction,
   storyPointerOf,
   storyPointerOptions,
   storyPointerValue,
@@ -51,11 +59,24 @@ const NOT_FOUND = '/not-found';
  */
 @Component({
   selector: 'cf-story-editor-page',
-  imports: [Alert, Button, Card, Checkbox, Editor, EmptyState, Link, Select, Status, TextField],
+  imports: [
+    Alert,
+    Button,
+    Card,
+    Checkbox,
+    Editor,
+    EmptyState,
+    Link,
+    Select,
+    Status,
+    TextField,
+    ToastRegion,
+  ],
   templateUrl: './story-editor-page.html',
   styleUrl: './story-editor-page.scss',
   providers: [
     { provide: ADMIN_STORIES_SERVICE, useClass: HttpAdminStoriesService },
+    { provide: TOASTS_SERVICE, useClass: ToastStore },
     StoryEditorStore,
   ],
 })
@@ -64,6 +85,7 @@ export default class StoryEditorPage {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly title = inject(Title);
+  protected readonly toasts = inject(TOASTS_SERVICE);
 
   protected readonly isNew = computed(() => this.store.id() === null);
   protected readonly heading = computed(() => (this.isNew() ? 'New story' : 'Edit story'));
@@ -85,6 +107,21 @@ export default class StoryEditorPage {
     }
   });
   protected readonly fields = this.store.fields;
+  /** The bar's actions for the status, the primary last (L2-069 AC2, AC3, AC5). */
+  protected readonly actions = computed(() =>
+    this.isNew() ? [] : storyActions(this.store.status()),
+  );
+  /** What Publish refused, named above the story (L2-069 AC7). */
+  protected readonly problem = computed(() => storyPublishProblem(this.store.fieldCodes()));
+  protected readonly marked = computed(() => this.store.fieldCodes());
+  protected readonly toastViews = computed<ToastData[]>(() =>
+    this.toasts.toasts().map(({ id, title, text }) => ({
+      id: String(id),
+      tone: 'success',
+      heading: title,
+      text,
+    })),
+  );
   /** Preview opens a kept story with a headline in a new tab; otherwise it is unavailable (L2-069 AC13). */
   protected readonly previewHref = computed(() => {
     const id = this.store.id();
@@ -145,6 +182,17 @@ export default class StoryEditorPage {
 
   protected choosePointer(value: string): void {
     this.edit({ pointsTo: storyPointerOf(value) });
+  }
+
+  protected act(action: StoryAction): void {
+    this.store.act(action, ({ action: done, from }) => {
+      const toast = storyActionToast(done, from, this.store.fields().section);
+      this.toasts.show(toast.title, toast.text);
+    });
+  }
+
+  protected dismissToast(id: string): void {
+    this.toasts.dismiss(Number(id));
   }
 
   protected optional(value: string): string | null {

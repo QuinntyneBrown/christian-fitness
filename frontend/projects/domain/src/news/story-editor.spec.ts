@@ -283,3 +283,123 @@ describe('story pointers', () => {
     ]);
   });
 });
+
+// L2-069 AC2, AC3, AC7, AC12 (ADR 0097): a status action acts on what was typed, over the version
+// read; Publish refused for its fields marks them until each is edited.
+describe('StoryEditorStore actions', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.useRealTimers();
+  });
+
+  function withActions(fake: ReturnType<typeof fakeApi>) {
+    const asked: { action: string; version: number; save?: StorySaveDto }[] = [];
+    let refuse: { code: string; fieldCodes?: Record<string, string>; status: number } | null = null;
+    const answer = (
+      action: string,
+      version: number,
+      status: AdminStoryDto['status'],
+      save?: StorySaveDto,
+    ) => {
+      asked.push(save ? { action, version, save } : { action, version });
+      return refuse
+        ? throwError(() => refuse)
+        : of({ ...DRAFT, ...(save ?? {}), status, version: version + 1 });
+    };
+    Object.assign(fake.api, {
+      submit: (_id: string, version: number) => answer('submit', version, 'review'),
+      returnToDraft: (_id: string, version: number) => answer('return-to-draft', version, 'draft'),
+      publish: (_id: string, save: StorySaveDto) =>
+        answer('publish', save.version, 'published', save),
+    });
+    return { asked, refuse: (next: typeof refuse) => (refuse = next) };
+  }
+
+  it('saves edits not yet saved before sending for review, then acts over the saved version', () => {
+    const fake = fakeApi();
+    const actions = withActions(fake);
+    const store = storeWith(fake.api);
+    store.open('s1');
+    const acted: unknown[] = [];
+
+    store.edit({ summary: 'Typed just now' });
+    store.act('submit', (done) => acted.push(done));
+
+    expect(fake.saves.map((save) => [save.summary, save.version])).toEqual([['Typed just now', 3]]);
+    expect(actions.asked).toEqual([{ action: 'submit', version: 4 }]);
+    expect([store.status(), store.saveState(), acted]).toEqual([
+      'review',
+      'idle',
+      [{ action: 'submit', from: 'draft' }],
+    ]);
+  });
+
+  it('publishes the fields as typed over the version read, with no save first', () => {
+    const fake = fakeApi();
+    const actions = withActions(fake);
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.edit({ headline: 'Ready' });
+    store.act('publish', () => undefined);
+    vi.advanceTimersByTime(STORY_AUTOSAVE_MS);
+
+    expect(fake.saves).toEqual([]);
+    expect(actions.asked).toEqual([
+      { action: 'publish', version: 3, save: { ...BLANK_STORY, headline: 'Ready', version: 3 } },
+    ]);
+    expect(store.status()).toBe('published');
+  });
+
+  it('marks the fields Publish refused until each is edited, and keeps the status', () => {
+    const fake = fakeApi();
+    const actions = withActions(fake);
+    actions.refuse({
+      status: 400,
+      code: 'validation_failed',
+      fieldCodes: { headline: 'headline_required', section: 'section_required' },
+    });
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.act('publish', () => undefined);
+    expect([store.saveState(), store.status(), store.fieldCodes()]).toEqual([
+      'invalid',
+      'draft',
+      { headline: 'headline_required', section: 'section_required' },
+    ]);
+
+    store.edit({ headline: 'Now written' });
+    expect(store.fieldCodes()).toEqual({ section: 'section_required' });
+  });
+
+  it('offers the newer version when an action was refused with story_changed', () => {
+    const fake = fakeApi();
+    const actions = withActions(fake);
+    actions.refuse({ status: 409, code: 'story_changed' });
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.act('submit', () => undefined);
+
+    expect([store.saveState(), store.status(), store.acting()]).toEqual([
+      'conflict',
+      'draft',
+      null,
+    ]);
+  });
+
+  it('takes no edit while an action runs', () => {
+    const fake = fakeApi();
+    const pending = new Subject<AdminStoryDto>();
+    Object.assign(fake.api, { submit: () => pending });
+    const store = storeWith(fake.api);
+    store.open('s1');
+
+    store.act('submit', () => undefined);
+    store.edit({ headline: 'Changed meanwhile' });
+
+    expect([store.acting(), store.fields().headline]).toEqual(['submit', 'Pickleball']);
+  });
+});

@@ -17,6 +17,11 @@ export class StoryEditorPage {
   readonly previewLink: Locator;
   /** Preview while it cannot open: a disabled button. */
   readonly previewUnavailable: Locator;
+  /** The bar's action buttons, in order (Preview, when it can open, is a link). */
+  readonly actionButtons: Locator;
+  readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
   readonly headline: Locator;
   readonly summary: Locator;
   readonly story: Locator;
@@ -50,6 +55,10 @@ export class StoryEditorPage {
     this.actions = this.editor.locator('.editor__actions');
     this.previewLink = this.actions.getByRole('link', { name: /^Preview/ });
     this.previewUnavailable = this.actions.getByRole('button', { name: 'Preview' });
+    this.actionButtons = this.actions.getByRole('button');
+    this.toast = page.getByRole('region', { name: 'Notifications' }).locator('.toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
     this.headline = this.editor.getByRole('textbox', { name: 'Headline', exact: true });
     this.summary = this.editor.getByRole('textbox', { name: 'Summary', exact: true });
     this.story = this.editor.getByRole('textbox', { name: 'Story', exact: true });
@@ -72,6 +81,11 @@ export class StoryEditorPage {
     this.errorTitle = this.error.locator('.empty-state__title');
     this.tryAgainButton = this.error.getByRole('button', { name: 'Try again' });
     this.errorStoriesLink = this.error.getByRole('link', { name: 'Stories' });
+  }
+
+  /** One of the bar's actions, by its words. */
+  action(name: string): Locator {
+    return this.actions.getByRole('button', { name, exact: true });
   }
 
   async open(id: string): Promise<void> {
