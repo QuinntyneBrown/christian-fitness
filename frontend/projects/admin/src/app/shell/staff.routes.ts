@@ -20,6 +20,14 @@ const routes: Routes = [
     loadComponent: () => import('../pages/story-preview/story-preview-page'),
   },
   {
+    // The next issue as the web version will draw it, opened in a new tab outside the shell, for
+    // Admins and Moderators (journey 28; L2-070 AC9).
+    path: 'newsletter/preview',
+    title: titled('Issue preview'),
+    canActivate: [staffAuthGuard],
+    loadComponent: () => import('../pages/issue-preview/issue-preview-page'),
+  },
+  {
     path: '',
     canActivateChild: [staffAuthGuard],
     loadComponent: () => import('./admin-shell'),
