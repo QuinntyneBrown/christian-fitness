@@ -362,3 +362,42 @@ export function answerSeriesJoin(
   });
   return asked;
 }
+
+/**
+ * `detail` as the member sees it once they left (L2-052 AC9; ADR 0099): not joined, no place held
+ * at a session that has not started, and one place more left.
+ */
+export function leftOf(detail: SeriesDetail): SeriesDetail {
+  return {
+    ...detail,
+    joined: false,
+    spotsLeft: detail.spotsLeft === null ? null : detail.spotsLeft + 1,
+    sessions: detail.sessions.map((session) => ({
+      ...session,
+      held: session.held && session.state === 'done',
+    })),
+  };
+}
+
+/**
+ * Answers `DELETE /api/events/series/{id}/enrolment/me` (ADR 0099) with `leftOf` the series of that
+ * id among `series`, or 404 `series_not_found`; `reply` may answer a request, by its zero-based
+ * number, otherwise. Returns the ids left, in order.
+ */
+export function answerSeriesLeave(
+  api: ApiHandlers,
+  series: SeriesDetail[],
+  reply: (requestNumber: number) => ApiReply | Promise<ApiReply> | null = () => null,
+): string[] {
+  const asked: string[] = [];
+  api.on('DELETE', /^\/api\/events\/series\/[0-9a-f-]{36}\/enrolment\/me$/, async (request) => {
+    const id = new URL(request.url()).pathname.split('/').at(-3) ?? '';
+    const number = asked.length;
+    asked.push(id);
+    const own = await reply(number);
+    if (own) return own;
+    const found = series.find((row) => row.id === id);
+    return found ? { json: leftOf(found) } : { status: 404, json: { code: 'series_not_found' } };
+  });
+  return asked;
+}

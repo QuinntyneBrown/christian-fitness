@@ -134,6 +134,13 @@ export interface EventSeriesApi {
    * `series_not_found`, or `network` (status 0).
    */
   join(id: string): Observable<SeriesDetailDto>;
+
+  /**
+   * The signed-in member leaves the series (`DELETE /api/events/series/{id}/enrolment/me`, L2-052
+   * AC9; ADR 0099) and gets it back as they now see it; leaving one not joined changes nothing.
+   * Any failure errors, and nothing changed.
+   */
+  leave(id: string): Observable<SeriesDetailDto>;
 }
 
 /** Binds {@link EventSeriesApi}; the Events and Event series screens provide it on their own route components. */

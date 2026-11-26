@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import type { DialogRef } from '@angular/cdk/dialog';
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EVENT_SERIES_SERVICE, type SeriesDetailDto } from '@cf/api';
@@ -30,6 +31,10 @@ import {
   seriesPanelViewOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import type {
+  LeaveSeriesDialog,
+  LeaveSeriesResult,
+} from '../../dialogs/leave-series/leave-series-dialog';
 import { HttpEventSeriesService } from '../../services/http-event-series.service';
 
 /**
@@ -70,6 +75,9 @@ export default class EventSeriesPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
+  /** The Leave the series dialog while it shows, or `true` while its code loads: one at a time. */
+  private dialog: DialogRef<LeaveSeriesResult, LeaveSeriesDialog> | true | null = null;
   private id = '';
   private request: Subscription | null = null;
   private joinRequest: Subscription | null = null;
@@ -112,6 +120,9 @@ export default class EventSeriesPage {
   });
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.dialog && this.dialog !== true) this.dialog.close(null);
+    });
     inject(ActivatedRoute)
       .paramMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
@@ -180,6 +191,29 @@ export default class EventSeriesPage {
     } finally {
       URL.revokeObjectURL(url);
     }
+  }
+
+  /**
+   * Asks, in a dialog loaded on first use, whether to leave the series (L2-052 AC9; ADR 0099);
+   * confirming shows the series as the answer has it, in place.
+   */
+  protected async leave(): Promise<void> {
+    const series = this.detail();
+    if (!series?.joined || this.dialog) return;
+    this.dialog = true;
+    const { openLeaveSeriesDialog } =
+      await import('../../dialogs/leave-series/leave-series-dialog');
+    if (this.destroyRef.destroyed) return;
+    const dialog = openLeaveSeriesDialog(this.injector, series);
+    this.dialog = dialog;
+    dialog.closed.subscribe((left) => {
+      this.dialog = null;
+      if (left) {
+        this.keptNote.set(null);
+        this.plan.set(null);
+        this.show(left);
+      }
+    });
   }
 
   /** Opens an address of the app (the host's profile, a session's event page) in the app. */
