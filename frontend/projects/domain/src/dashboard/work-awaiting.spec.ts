@@ -17,6 +17,7 @@ const ADMIN: WorkAwaitingStaffDto = {
 };
 
 const NO_SUGGESTIONS = ADMIN.suggestions;
+const NOW = new Date('2026-04-15T12:45:00Z');
 
 const SUGGESTED: WorkAwaitingStaffDto = {
   ...ADMIN,
@@ -32,7 +33,7 @@ const SUGGESTED: WorkAwaitingStaffDto = {
 
 describe('awaitingRowsOf', () => {
   it('lists applications then flagged members, each linked to its screen', () => {
-    expect(awaitingRowsOf(ADMIN)).toEqual([
+    expect(awaitingRowsOf(ADMIN, NOW)).toEqual([
       {
         id: 'application-a1',
         title: 'Hannah applied to list services',
@@ -58,23 +59,26 @@ describe('awaitingRowsOf', () => {
   });
 
   it('has no application row when the answer has no applications (a Moderator)', () => {
-    const rows = awaitingRowsOf({
-      flaggedMembers: ADMIN.flaggedMembers,
-      suggestions: NO_SUGGESTIONS,
-    });
+    const rows = awaitingRowsOf(
+      {
+        flaggedMembers: ADMIN.flaggedMembers,
+        suggestions: NO_SUGGESTIONS,
+      },
+      NOW,
+    );
 
     expect(rows.map((r) => r.id)).toEqual(['member-m1', 'member-m2']);
   });
 
   it('puts the waiting suggestions first as one line naming them, with Check opening Listings', () => {
-    expect(awaitingRowsOf(SUGGESTED)[0]).toEqual({
+    expect(awaitingRowsOf(SUGGESTED, NOW)[0]).toEqual({
       id: 'suggestions',
       title: '4 listings suggested by members',
       meta: 'Rooted Physio, <b>Coach</b>, Eastside Lifters',
       href: '/listings',
       action: 'Check',
     });
-    expect(awaitingRowsOf(SUGGESTED).map((r) => r.id)).toEqual([
+    expect(awaitingRowsOf(SUGGESTED, NOW).map((r) => r.id)).toEqual([
       'suggestions',
       'application-a1',
       'member-m1',
@@ -85,7 +89,7 @@ describe('awaitingRowsOf', () => {
   it('words one suggestion as one', () => {
     const one = { total: 1, items: [{ id: 's1', name: 'Rooted Physio' }] };
 
-    expect(awaitingRowsOf({ ...ADMIN, suggestions: one })[0]?.title).toBe(
+    expect(awaitingRowsOf({ ...ADMIN, suggestions: one }, NOW)[0]?.title).toBe(
       '1 listing suggested by a member',
     );
   });
@@ -125,5 +129,52 @@ describe('seesApplications', () => {
     expect(
       seesApplications({ flaggedMembers: ADMIN.flaggedMembers, suggestions: NO_SUGGESTIONS }),
     ).toBe(false);
+  });
+});
+
+// Journey 22 (ADR 0097), mock admin-dashboard/default: each story In review first, opened in the editor.
+describe('awaitingRowsOf, stories in review', () => {
+  const WITH_STORIES: WorkAwaitingStaffDto = {
+    ...ADMIN,
+    stories: {
+      total: 5,
+      items: [
+        {
+          id: 'st 1',
+          headline: 'Fasting',
+          author: 'Priya Raman',
+          submittedAt: '2026-04-15T11:45:00Z',
+        },
+        { id: 'st2', headline: '<b>Bold</b>', author: null, submittedAt: '2026-04-14T15:00:00Z' },
+      ],
+    },
+  };
+
+  it('puts each story first with its byline and when it was submitted', () => {
+    expect(awaitingRowsOf(WITH_STORIES, NOW).slice(0, 3)).toEqual([
+      {
+        id: 'story-st 1',
+        title: '“Fasting” is ready for review',
+        meta: 'Priya Raman · Submitted 1 hour ago',
+        href: '/stories/st%201',
+        action: 'Review',
+      },
+      {
+        id: 'story-st2',
+        title: '“<b>Bold</b>” is ready for review',
+        meta: 'Submitted yesterday',
+        href: '/stories/st2',
+        action: 'Review',
+      },
+      expect.objectContaining({ id: 'application-a1' }),
+    ]);
+  });
+
+  it('counts every story and links to all of them when more wait than are named', () => {
+    expect(awaitingTotalOf(WITH_STORIES)).toBe(12);
+    expect(awaitingMoreOf(WITH_STORIES)[0]).toEqual({
+      label: 'All 5 stories in review',
+      href: '/stories?status=review',
+    });
   });
 });

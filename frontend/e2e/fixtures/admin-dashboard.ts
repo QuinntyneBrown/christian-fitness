@@ -81,6 +81,14 @@ export interface AwaitingSuggestionFixture {
   name: string;
 }
 
+/** One story In review as the same answer names it, for an Admin (ADR 0097). */
+export interface AwaitingStoryFixture {
+  id: string;
+  headline: string;
+  author: string | null;
+  submittedAt: string;
+}
+
 /**
  * What waits for staff; `applications` is absent in a Moderator's answer. Both roles' answers
  * carry `suggestions`; `answerAwaiting` sends none waiting when a fixture leaves it out.
@@ -89,6 +97,7 @@ export interface AwaitingFixture {
   applications?: { total: number; items: AwaitingApplicationFixture[] };
   flaggedMembers: { total: number; items: AwaitingFlaggedFixture[] };
   suggestions?: { total: number; items: AwaitingSuggestionFixture[] };
+  stories?: { total: number; items: AwaitingStoryFixture[] };
 }
 
 /** No suggestion waiting. */
@@ -99,6 +108,19 @@ export const NOTHING_AWAITING: AwaitingFixture = {
   applications: { total: 0, items: [] },
   flaggedMembers: { total: 0, items: [] },
   suggestions: NO_SUGGESTIONS_AWAITING,
+};
+
+/** The mock's story In review (admin-dashboard/default), submitted an hour before 8:45 AM Toronto. */
+export const ONE_STORY_IN_REVIEW = {
+  total: 1,
+  items: [
+    {
+      id: '0193b000-0000-7000-8000-000000005701',
+      headline: 'Fasting and training: what a dietitian wants you to know',
+      author: 'Priya Raman',
+      submittedAt: '2026-04-15T11:45:00Z',
+    },
+  ],
 };
 
 /** The mock's three suggestions, oldest first (admin-dashboard/default). */

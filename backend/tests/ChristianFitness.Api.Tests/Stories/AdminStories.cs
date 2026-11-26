@@ -108,6 +108,14 @@ public class StoriesFactory : BylinesFactory
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
+    /// <summary>How many stories are In review now.</summary>
+    internal async Task<int> InReviewCountAsync()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return await db.Stories.CountAsync(s => s.Status == StoryStatus.InReview, TestContext.Current.CancellationToken);
+    }
+
     /// <summary>The ids of the Published stories placed as the Lead.</summary>
     internal async Task<Guid[]> PublishedLeadsAsync()
     {

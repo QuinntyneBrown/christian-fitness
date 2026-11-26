@@ -2,6 +2,7 @@ using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Admin;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
+using ChristianFitness.Domain.News;
 using ChristianFitness.Domain.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,9 @@ public sealed record AwaitingFlaggedMemberDto(Guid Id, string Name, string? Note
 /// <summary>One listing suggestion waiting for review, as the Dashboard names it (L2-020 AC11; ADR 0090).</summary>
 public sealed record AwaitingSuggestionDto(Guid Id, string Name);
 
+/// <summary>One story In review as the Dashboard names it: its headline, byline and when it was submitted (journey 22; ADR 0097).</summary>
+public sealed record AwaitingStoryDto(Guid Id, string Headline, string? Author, DateTimeOffset SubmittedAt);
+
 /// <summary>How many wait in all and the oldest few of them.</summary>
 public sealed record AwaitingListDto<T>(int Total, IReadOnlyList<T> Items);
 
@@ -25,7 +29,9 @@ public sealed record WorkAwaitingStaffDto(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     AwaitingListDto<AwaitingApplicationDto>? Applications,
     AwaitingListDto<AwaitingFlaggedMemberDto> FlaggedMembers,
-    AwaitingListDto<AwaitingSuggestionDto> Suggestions);
+    AwaitingListDto<AwaitingSuggestionDto> Suggestions,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    AwaitingListDto<AwaitingStoryDto>? Stories = null);
 
 /// <summary>Staff ask what is waiting for them (L2-020 AC7 to AC10; ADR 0060).</summary>
 public sealed record GetWorkAwaitingStaffQuery : IRequest<WorkAwaitingStaffDto>;
@@ -35,6 +41,7 @@ public sealed record GetWorkAwaitingStaffQuery : IRequest<WorkAwaitingStaffDto>;
 /// submitted time, members by join time (no flag time is kept). A Moderator's answer has no applications, so none is read
 /// for them (ADR 0060). Name, role and the staff note are what the Services and Members screens already show their role.
 /// Both roles review listing suggestions, so both get the undecided ones, oldest submitted first (L2-020 AC11; ADR 0090).
+/// Only Admins review stories, so only they get the stories In review, longest waiting first (ADR 0097).
 /// </summary>
 internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMember current) : IRequestHandler<GetWorkAwaitingStaffQuery, WorkAwaitingStaffDto>
 {
@@ -74,9 +81,26 @@ internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMemb
             .Take(Shown)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+        var inReview = db.Stories.AsNoTracking().Where(s => s.Status == StoryStatus.InReview);
+        var storyTotal = await inReview.CountAsync(cancellationToken).ConfigureAwait(false);
+        var storyRows = await inReview
+            .OrderBy(s => s.SubmittedAt).ThenBy(s => s.Id)
+            .Take(Shown)
+            .Select(s => new { s.Id, s.Headline, s.BylineId, s.SubmittedAt })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var bylineIds = storyRows.Where(s => s.BylineId is not null).Select(s => s.BylineId!.Value).ToList();
+        var bylines = await db.Bylines.AsNoTracking()
+            .Where(b => bylineIds.Contains(b.Id))
+            .ToDictionaryAsync(b => b.Id, b => b.Name, cancellationToken)
+            .ConfigureAwait(false);
+        var stories = new AwaitingListDto<AwaitingStoryDto>(
+            storyTotal,
+            [.. storyRows.Select(s => new AwaitingStoryDto(s.Id, s.Headline, s.BylineId is { } b && bylines.TryGetValue(b, out var name) ? name : null, s.SubmittedAt ?? default))]);
         return new WorkAwaitingStaffDto(
             new AwaitingListDto<AwaitingApplicationDto>(total, [.. rows.Select(a => new AwaitingApplicationDto(a.Id, a.Name, a.Role, a.SubmittedAt))]),
             members,
-            suggestions);
+            suggestions,
+            stories);
     }
 }

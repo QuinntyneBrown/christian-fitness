@@ -79,7 +79,7 @@ export default class AdminDashboardPage {
   protected readonly attention = signal<AttentionState>({ kind: 'loading' });
   protected readonly attentionRows = computed(() => {
     const state = this.attention();
-    return state.kind === 'ready' ? awaitingRowsOf(state.awaiting) : [];
+    return state.kind === 'ready' ? awaitingRowsOf(state.awaiting, new Date()) : [];
   });
   protected readonly attentionMore = computed(() => {
     const state = this.attention();

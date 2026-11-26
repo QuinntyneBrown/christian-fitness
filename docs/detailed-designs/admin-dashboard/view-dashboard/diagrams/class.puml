@@ -57,8 +57,8 @@ class AwaitingCountDto <<new>> {
 }
 class AwaitingStoryDto <<new>> {
   +Guid Id
-  +string Title
-  +string Writer
+  +string Headline
+  +string? Author
   +DateTimeOffset SubmittedAt
 }
 class AwaitingSuggestionDto <<new>> {
