@@ -1,5 +1,4 @@
 import { expect, test } from '../fixtures/test';
-import { answerFeatured, answerLanding } from '../fixtures/public-events';
 import { WebLandingPage } from '../page-objects/web/landing.page';
 
 // L2-060 AC3 and L2-001 AC9 (journey 26; ADR 0108): the landing page names the feeds in its head
@@ -10,8 +9,6 @@ test.describe('Member app, RSS feeds', () => {
     { tag: '@critical' },
     async ({ page, api }) => {
       api.on('GET', '/api/session', () => ({ status: 401, json: { code: 'unauthenticated' } }));
-      answerLanding(api, []);
-      answerFeatured(api, []);
       const landing = new WebLandingPage(page);
 
       await landing.open();

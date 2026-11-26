@@ -1,0 +1,26 @@
+// The design system's join card (docs/design-system/assets/components.css: "News front page").
+:host {
+  display: block;
+}
+
+.join-card {
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+  padding: var(--space-6);
+}
+
+.join-card__title {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-none);
+}
+
+.join-card__text {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-on-brand-strong);
+}
+
+.join-card__action {
+  margin-top: var(--space-5);
+}

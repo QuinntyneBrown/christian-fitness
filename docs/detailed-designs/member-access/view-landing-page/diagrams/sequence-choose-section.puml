@@ -40,7 +40,7 @@ else Known section
   dom --> page : Training
   page --> actor : "Training" aria-current; skeleton for the river; rail kept
   page -> stories : frontPage(Training)
-  stories -> sctrl : GET /api/public/stories?section=<value>
+  stories -> sctrl : GET /api/public/stories?section=<name>
   sctrl -> front : Send ListFrontPageStoriesQuery(Training)
   front -> db : Published Training stories, newest first
   front --> sctrl : FrontPageDto: no lead, no headlines, latest

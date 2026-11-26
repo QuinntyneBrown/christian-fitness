@@ -26,17 +26,18 @@ package "Member web app and libraries" {
     +(publishedAt, now): string
   }
   class Masthead <<components>> {
-    +sections: input<SectionLink[]>
-    +current: input<NewsSection>
+    +sections: input<MastheadSection[]>
+    +navigate: output<string>
   }
   class StoryLead <<components>>
-  class Headline <<components>>
-  class StoryRow <<components>>
-  class NewsletterBox <<components>>
+  class HeadlineList <<components>>
+  class River <<components>>
+  class RankedList <<components>>
+  class JoinCard <<components>>
   class EventRow <<components>>
   interface StoriesApi <<api>> {
     +get(slug): Observable<PublishedStoryDto>
-    +frontPage(section: NewsSection): Observable<FrontPageDto>
+    +frontPage(section, skip): Observable<FrontPageDto>
     +mostRead(): Observable<StorySummaryDto[]>
   }
   interface PublicEventsApi <<api>> {
@@ -46,6 +47,7 @@ package "Member web app and libraries" {
     +lead: StorySummaryDto | null
     +headlines: StorySummaryDto[]
     +latest: StorySummaryDto[]
+    +more: boolean
   }
   class StorySummaryDto <<api>> {
     +id: string
@@ -53,9 +55,9 @@ package "Member web app and libraries" {
     +section: string
     +headline: string
     +summary: string | null
-    +byline: string
+    +author: string | null
     +publishedAt: string
-    +imageUrl: string
+    +image: StoryImageDto | null
   }
   class LandingEventDto <<api>> {
     +id: string
@@ -111,9 +113,10 @@ LandingPage ..> newsSectionOf
 LandingPage ..> storyAge
 LandingPage --> Masthead
 LandingPage --> StoryLead
-LandingPage --> Headline
-LandingPage --> StoryRow
-LandingPage --> NewsletterBox
+LandingPage --> HeadlineList
+LandingPage --> River
+LandingPage --> RankedList
+LandingPage --> JoinCard
 LandingPage --> EventRow
 StoriesApi ..> FrontPageDto
 FrontPageDto "1" *-- "*" StorySummaryDto

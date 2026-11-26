@@ -16,6 +16,24 @@ namespace ChristianFitness.Api.Controllers;
 [Route("api/public/stories")]
 public sealed class PublicStoriesController(ISender sender) : ControllerBase
 {
+    /// <summary>
+    /// The front page of a section, or of Latest without one, its river from the <paramref name="skip"/>th
+    /// story (L2-001 AC2, AC3; ADR 0107). An unknown section or a skip past 48 is 400 <c>validation_failed</c>.
+    /// </summary>
+    [HttpGet]
+    [EnableRateLimiting(PublicReads.Policy)]
+    public async Task<ActionResult<FrontPageDto>> FrontPage([FromQuery] string? section, [FromQuery] int? skip, CancellationToken cancellationToken) =>
+        await sender.Send(new ListFrontPageStoriesQuery(section, skip), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// "Most read": the five readable stories read most in the last 7 Toronto days, ties to the newer
+    /// (L2-001 AC5; ADR 0107). Its own address, so no story's link can hide it.
+    /// </summary>
+    [HttpGet("/api/public/most-read-stories")]
+    [EnableRateLimiting(PublicReads.Policy)]
+    public async Task<ActionResult<IReadOnlyList<StorySummaryDto>>> MostRead(CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new ListMostReadStoriesQuery(), cancellationToken).ConfigureAwait(false));
+
     /// <summary>The Published story at this link, current or former; else 404 <c>not_found</c>.</summary>
     [HttpGet("{slug}")]
     [EnableRateLimiting(PublicReads.Policy)]

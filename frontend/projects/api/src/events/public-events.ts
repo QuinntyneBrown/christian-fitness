@@ -10,13 +10,15 @@ export interface LandingEventDto {
   /** The start as an ISO instant in UTC, which the screen words in Toronto. */
   startsAt: string;
   place: string;
+  /** The area of the GTA, "Waterfront", shown in the rail (L2-001 AC5). */
+  area: string;
 }
 
 /** What a visitor with no session may read (L2-001; ADR 0037). */
 export interface PublicEventsApi {
   /**
    * The next published events that have not started, soonest first, at most `take` (never more
-   * than 3). A 5xx opens the server-error screen; any failure errors with the `HttpErrorResponse`.
+   * than 4). A 5xx opens the server-error screen; any failure errors with the `HttpErrorResponse`.
    */
   upcoming(take: number): Observable<LandingEventDto[]>;
 }

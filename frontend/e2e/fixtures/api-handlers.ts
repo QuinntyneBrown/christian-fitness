@@ -115,7 +115,12 @@ export class ApiHandlers {
       handler: () => ({ json: TEAM_HOST }),
     },
     { method: 'GET', path: '/api/public/events/upcoming', handler: () => ({ json: [] }) },
-    { method: 'GET', path: '/api/public/services/featured', handler: () => ({ json: [] }) },
+    {
+      method: 'GET',
+      path: '/api/public/stories',
+      handler: () => ({ json: { lead: null, headlines: [], latest: [], more: false } }),
+    },
+    { method: 'GET', path: '/api/public/most-read-stories', handler: () => ({ json: [] }) },
     { method: 'GET', path: '/api/admin/members', handler: () => ({ json: NO_ADMIN_MEMBERS }) },
     {
       method: 'GET',
