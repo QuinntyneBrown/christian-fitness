@@ -693,6 +693,10 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.Property<string>("GoogleSubject")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("HomeChurch")
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
@@ -734,6 +738,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GoogleSubject")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .IsUnique();
@@ -787,74 +794,6 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasKey("MemberId");
 
                     b.ToTable("StaffRoles");
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Members.StaffTwoStep", b =>
-                {
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("LastUsedStep")
-                        .HasColumnType("bigint");
-
-                    b.Property<byte[]>("Secret")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("bytea");
-
-                    b.Property<DateTimeOffset>("SetUpAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("MemberId");
-
-                    b.ToTable("StaffTwoSteps", (string)null);
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Members.TwoStepChallenge", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("IssuedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
-                    b.ToTable("TwoStepChallenges", (string)null);
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Members.TwoStepFailure", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("FailedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId", "FailedAt");
-
-                    b.ToTable("TwoStepFailures", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.News.Byline", b =>
@@ -1319,33 +1258,6 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithOne()
                         .HasForeignKey("ChristianFitness.Domain.Members.StaffRole", "MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Members.StaffTwoStep", b =>
-                {
-                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
-                        .WithOne()
-                        .HasForeignKey("ChristianFitness.Domain.Members.StaffTwoStep", "MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Members.TwoStepChallenge", b =>
-                {
-                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Members.TwoStepFailure", b =>
-                {
-                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
-                        .WithMany()
-                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

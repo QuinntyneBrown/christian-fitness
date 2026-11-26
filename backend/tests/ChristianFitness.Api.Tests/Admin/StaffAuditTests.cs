@@ -35,7 +35,7 @@ public sealed class StaffAuditTests(StaffAuditTests.Factory factory) : IClassFix
         factory.Time.Advance(TimeSpan.FromMinutes(3));
         var at = factory.Time.GetUtcNow();
 
-        using var response = await Staff.SignInWithCodeAsync(client, "dana.audit.in@example.org", at);
+        using var response = await Staff.SignInWithGoogleAsync(factory, client, "dana.audit.in@example.org");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal([(id, "staff_session.started", "StaffSession", id, at)], await EntriesOfAsync(id));
@@ -47,7 +47,7 @@ public sealed class StaffAuditTests(StaffAuditTests.Factory factory) : IClassFix
         using var client = Browser.CreateClient(factory);
         var id = Guid.Parse(await Staff.CreateAsync(factory, client, "sam.audit.out@example.org", StaffRoleName.Moderator));
         var signedInAt = factory.Time.GetUtcNow();
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "sam.audit.out@example.org", signedInAt);
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "sam.audit.out@example.org");
         factory.Time.Advance(TimeSpan.FromMinutes(7));
         var signedOutAt = factory.Time.GetUtcNow();
 
@@ -59,30 +59,19 @@ public sealed class StaffAuditTests(StaffAuditTests.Factory factory) : IClassFix
             await EntriesOfAsync(id));
     }
 
-    public static TheoryData<string, string, string, bool> Refused => new()
-    {
-        // why, email, password, whether a wrong code is sent after the password step
-        { "a wrong password", "dana.audit.password@example.org", "abundantlifE", false },
-        { "the password step alone, which starts no session", "dana.audit.pending@example.org", Staff.Password, false },
-        { "a wrong code", "dana.audit.code@example.org", Staff.Password, true },
-    };
-
     [Theory]
-    [MemberData(nameof(Refused))]
-    public async Task Given_staff_When_their_sign_in_is_refused_or_not_finished_Then_no_audit_entry_is_recorded(string why, string email, string password, bool wrongCode)
+    [InlineData("an account outside the team's domain", "dana.audit.domain@example.org", "other.org", true, HttpStatusCode.Forbidden)]
+    [InlineData("an unverified email", "dana.audit.unverified@example.org", Google.FakeGoogle.StaffDomain, false, HttpStatusCode.Unauthorized)]
+    public async Task Given_staff_When_their_sign_in_is_refused_Then_no_audit_entry_is_recorded(string why, string email, string hostedDomain, bool verified, HttpStatusCode refused)
     {
         Assert.NotNull(why);
         using var client = Browser.CreateClient(factory);
         var id = Guid.Parse(await Staff.CreateAsync(factory, client, email, StaffRoleName.Admin));
+        var google = new Google.GoogleAccount { Subject = Staff.WorkspaceAccount(email).Subject, Email = email, HostedDomain = hostedDomain, EmailVerified = verified };
 
-        using var passwordStep = await Staff.SignInAsync(client, email, password);
-        if (wrongCode)
-        {
-            var right = Staff.CodeAt(factory.Time.GetUtcNow());
-            using var codeStep = await Staff.VerifyAsync(client, Staff.StepCookie(passwordStep), right == "999999" ? "999998" : "999999");
-            Assert.Equal(HttpStatusCode.Unauthorized, codeStep.StatusCode);
-        }
+        using var response = await Staff.SignInWithGoogleAsync(factory, client, email, google);
 
+        Assert.Equal(refused, response.StatusCode);
         Assert.Empty(await EntriesOfAsync(id));
         Assert.DoesNotContain(await AllEntriesAsync(), entry => entry.RecordId == id);
     }

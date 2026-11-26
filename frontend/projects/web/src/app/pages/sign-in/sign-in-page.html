@@ -1,7 +1,7 @@
-<cf-auth-layout
+<cf-sign-in-layout
   heading="Welcome back"
-  lead="Sign in to see your events and messages."
-  altText="New here?"
+  lead="Sign in to see your events, groups and messages."
+  altText="New to Christian Fitness?"
   altLink="Create a profile"
   altHref="/join"
   (submitted)="submit()"
@@ -24,6 +24,8 @@
       >Something went wrong on our side. Try again in a moment.</cf-alert
     >
   }
+  <cf-google-button slot="sso" [busy]="leaving()" (chosen)="continueWithGoogle()" />
+  <cf-divider slot="sso" variant="label" label="or with email" />
   <cf-text-field
     slot="fields"
     fieldId="f-email"
@@ -35,24 +37,23 @@
     [readonly]="submitting()"
     (valueChange)="email.set($event)"
   />
-  <div slot="fields">
-    <cf-text-field
-      fieldId="f-password"
-      label="Password"
-      name="password"
-      type="password"
-      autocomplete="current-password"
-      [value]="password()"
-      [readonly]="submitting()"
-      (valueChange)="password.set($event)"
-    />
-    <p class="sign-in-page__forgot">
-      <cf-link variant="text" href="/forgot-password">Forgot your password?</cf-link>
-    </p>
-  </div>
+  <cf-text-field
+    slot="fields"
+    fieldId="f-password"
+    label="Password"
+    name="password"
+    type="password"
+    autocomplete="current-password"
+    [value]="password()"
+    [readonly]="submitting()"
+    (valueChange)="password.set($event)"
+  >
+    <cf-link slot="label-action" variant="text" href="/forgot-password">Forgot password?</cf-link>
+  </cf-text-field>
   <cf-button
     slot="submit"
     type="submit"
+    variant="neutral"
     size="lg"
     block
     [disabled]="submitting()"
@@ -64,4 +65,4 @@
       Sign in
     }
   </cf-button>
-</cf-auth-layout>
+</cf-sign-in-layout>

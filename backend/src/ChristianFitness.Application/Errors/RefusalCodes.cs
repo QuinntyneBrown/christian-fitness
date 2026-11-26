@@ -128,15 +128,6 @@ public static class RefusalCodes
     /// <summary>No account has this email and password (L2-004 AC2): one code for both.</summary>
     public const string InvalidCredentials = "invalid_credentials";
 
-    /// <summary>A second-step code is wrong, malformed or already used (L2-046 AC3).</summary>
-    public const string InvalidCode = "invalid_code";
-
-    /// <summary>No pending sign-in, or it is older than 5 minutes (L2-046 AC5).</summary>
-    public const string TwoStepExpired = "two_step_expired";
-
-    /// <summary>A staff account without two-step verification set up (L2-046 AC6).</summary>
-    public const string TwoStepNotSetUp = "two_step_not_set_up";
-
     /// <summary>The credentials are right but the account holds no staff role (L2-018 AC2).</summary>
     public const string NotFound = "not_found";
 
@@ -155,10 +146,22 @@ public static class RefusalCodes
     public const string ResetLinkExpired = "reset_link_expired";
 
     /// <summary>
-    /// 5 sign-ins for one email failed in the last 15 minutes (L2-004 AC3), or 5 second-step codes
-    /// for one staff account were wrong in 15 minutes (L2-046 AC4).
+    /// 5 sign-ins for one email failed in the last 15 minutes (L2-004 AC3), or more than 20 Google
+    /// sign-ins started from one network in 15 minutes (L2-049 AC7).
     /// </summary>
     public const string TooManyAttempts = "too_many_attempts";
+
+    /// <summary>Google is not configured, or cannot be reached, so a Google sign-in cannot start (L2-049 AC11; ADR 0099).</summary>
+    public const string GoogleUnavailable = "google_unavailable";
+
+    /// <summary>No checked Google account came back, or its email is not verified (L2-049 AC3, AC11; ADR 0099).</summary>
+    public const string GoogleEmailUnverified = "google_email_unverified";
+
+    /// <summary>No member account uses this Google account yet; the screen offers Join (L2-049 AC11, L2-004 AC9).</summary>
+    public const string NoAccount = "no_account";
+
+    /// <summary>A Google account outside the team's Workspace domain tried Staff sign in (L2-018 AC2; ADR 0100).</summary>
+    public const string WrongDomain = "wrong_domain";
 
     /// <summary>A profile names more than 5 goals (L2-006 AC3).</summary>
     public const string TooManyGoals = "too_many_goals";

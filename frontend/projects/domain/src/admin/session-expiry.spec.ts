@@ -8,12 +8,7 @@ import {
 import { Injector, runInInjectionContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom, type Observable, of, throwError } from 'rxjs';
-import {
-  isSessionExpired,
-  SESSION_EXPIRED_STATE,
-  sessionEndingOf,
-  sessionExpiredInterceptor,
-} from './session-expiry';
+import { isSessionExpired, sessionEndingOf, sessionExpiredInterceptor } from './session-expiry';
 
 interface Navigation {
   url: string;
@@ -57,9 +52,10 @@ async function intercept(options: {
   return { navigations, outcome };
 }
 
-const EXPIRED = { status: 401, code: 'session_expired' };
+const EXPIRED = { status: 401, code: 'session_expired', reason: 'idle' };
+const PAST_MAXIMUM = { status: 401, code: 'session_expired', reason: 'max_age' };
 
-// L2-018 AC5 (ADR 0016): which answers return staff to Staff sign in. One case per row.
+// L2-018 AC6, AC9 (ADR 0016, ADR 0100): which answers return staff to Staff sign in. One case per row.
 describe('sessionExpiredInterceptor', () => {
   it.each([
     { why: 'a GET of the staff session', method: 'GET', url: '/api/admin/session' },
@@ -69,8 +65,19 @@ describe('sessionExpiredInterceptor', () => {
   ])('$why refused session_expired opens Staff sign in saying why', async ({ method, url }) => {
     const { navigations, outcome } = await intercept({ method, url, status: 401, body: EXPIRED });
 
-    expect(navigations).toEqual([{ url: '/sign-in', extras: { state: SESSION_EXPIRED_STATE } }]);
+    expect(navigations).toEqual([{ url: '/sign-in', extras: { state: { session: 'idle' } } }]);
     expect(outcome).toBeInstanceOf(HttpErrorResponse);
+  });
+
+  it.each([
+    { why: 'past the 12-hour maximum', body: PAST_MAXIMUM, ending: 'max-age' },
+    { why: 'idle', body: EXPIRED, ending: 'idle' },
+    { why: 'with no reason', body: { code: 'session_expired' }, ending: 'idle' },
+    { why: 'with an unknown reason', body: { ...EXPIRED, reason: 'MAX_AGE' }, ending: 'idle' },
+  ])('a session ended $why says so in the state', async ({ body, ending }) => {
+    const { navigations } = await intercept({ url: '/api/admin/events', status: 401, body });
+
+    expect(navigations).toEqual([{ url: '/sign-in', extras: { state: { session: ending } } }]);
   });
 
   it.each([
@@ -82,10 +89,10 @@ describe('sessionExpiredInterceptor', () => {
     },
     { why: 'a 401 with no body', url: '/api/admin/session', status: 401, body: null },
     {
-      why: 'a wrong code at sign-in',
-      url: '/api/admin/session/two-step',
+      why: 'a refused Google finish at sign-in',
+      url: '/api/admin/session/google',
       status: 401,
-      body: { code: 'invalid_code' },
+      body: { code: 'google_email_unverified' },
     },
     {
       why: 'a 403 with the code',
@@ -131,10 +138,11 @@ describe('isSessionExpired', () => {
 
 describe('sessionEndingOf', () => {
   it.each([
-    { state: { session: 'expired' }, expected: 'expired' },
-    { state: { session: 'locked' }, expected: null },
-    { state: { session: 'Expired' }, expected: null },
-    { state: { twoStep: 'expired' }, expected: null },
+    { state: { session: 'idle' }, expected: 'idle' },
+    { state: { session: 'max-age' }, expected: 'max-age' },
+    { state: { session: 'expired' }, expected: null },
+    { state: { session: 'Idle' }, expected: null },
+    { state: { other: 'idle' }, expected: null },
     { state: 'expired', expected: null },
     { state: null, expected: null },
     { state: undefined, expected: null },

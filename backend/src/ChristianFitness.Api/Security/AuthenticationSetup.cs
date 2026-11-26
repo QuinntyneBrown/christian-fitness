@@ -1,6 +1,8 @@
 using ChristianFitness.Api.Errors;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Infrastructure.Security;
+using ChristianFitness.Infrastructure.Security.Google;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -93,12 +95,39 @@ internal static class AuthenticationSetup
                     context.ShouldRenew = true;
                     return Task.CompletedTask;
                 };
+
+                // The 12-hour maximum (L2-018 AC9; ADR 0100): the sign-in time is kept in the ticket,
+                // and a session past it, or with none recorded, ends on the server like an idle one.
+                options.Events.OnSigningIn = context =>
+                {
+                    StaffSessionAge.Record(context.Properties, context.Properties.IssuedUtc ?? context.HttpContext.RequestServices.GetRequiredService<TimeProvider>().GetUtcNow());
+                    return Task.CompletedTask;
+                };
+                options.Events.OnValidatePrincipal = async context =>
+                {
+                    if (StaffSessionAge.IsPast(context.Properties, context.HttpContext.RequestServices.GetRequiredService<TimeProvider>().GetUtcNow()))
+                    {
+                        DatabaseTicketStore.MarkExpired(context.HttpContext);
+                        StaffSessionAge.MarkPast(context.HttpContext);
+                        context.RejectPrincipal();
+                        await context.HttpContext.SignOutAsync(SessionSchemes.Staff).ConfigureAwait(false);
+                    }
+                };
                 options.Events.OnRedirectToLogin = context =>
                 {
-                    // A session the store found expired: staff must sign in again, and the cookie goes.
+                    // A session the store found expired: staff must sign in again, and the cookie goes
+                    // (unless signing out already expired it).
                     if (DatabaseTicketStore.FoundExpired(context.HttpContext))
                     {
-                        ProblemCodes.Override(context.HttpContext, ProblemCodes.SessionExpired);
+                        ProblemCodes.Override(
+                            context.HttpContext,
+                            ProblemCodes.SessionExpired,
+                            StaffSessionAge.FoundPast(context.HttpContext) ? ProblemCodes.MaxAgeReason : ProblemCodes.IdleReason);
+                        if (context.Response.Headers.SetCookie.Any(value => value?.StartsWith(StaffCookie + "=", StringComparison.Ordinal) == true))
+                        {
+                            return Refuse(context.Response, StatusCodes.Status401Unauthorized);
+                        }
+
                         context.Response.Cookies.Delete(StaffCookie, new CookieOptions
                         {
                             Path = "/",
@@ -110,7 +139,8 @@ internal static class AuthenticationSetup
 
                     return Refuse(context.Response, StatusCodes.Status401Unauthorized);
                 };
-            });
+            })
+            .AddGoogleSignIn(configuration);
 
         var authorization = services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());

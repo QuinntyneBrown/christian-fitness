@@ -55,5 +55,5 @@ The owner's other systems are on Azure and the domain is `christian.fitness`.
   rate limits before `maxReplicas` is raised.
 - Rolling back is activating the previous revision (`az containerapp revision activate`) or
   running `Deploy` by hand on an earlier commit; a migration is not rolled back by either.
-- `cf two-step <email>` is run by a person (docs/operations/deployment.md): its link is a secret
-  that no pipeline log may hold.
+- `cf two-step <email>` was run by a person: its link was a secret that no pipeline log could
+  hold. ADR 0100 removed it; staff two-step verification is Google Workspace's.

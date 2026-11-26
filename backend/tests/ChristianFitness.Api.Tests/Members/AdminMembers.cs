@@ -59,7 +59,7 @@ internal static class AdminMembers
     {
         factory.Time.Advance(TimeSpan.FromMinutes(1));
         await Staff.CreateAsync(factory, client, email, role);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email, factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
         return Staff.Cookie(signedIn);
     }
 

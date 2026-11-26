@@ -106,7 +106,7 @@ public sealed class CreateEventTests(AdminEventsFactory factory) : IClassFixture
     {
         using var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, "joel.create@example.org", Domain.Members.StaffRoleName.Moderator);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "joel.create@example.org", factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "joel.create@example.org");
         var body = AdminEvents.Retreat();
         body["title"] = "Made by a Moderator";
 

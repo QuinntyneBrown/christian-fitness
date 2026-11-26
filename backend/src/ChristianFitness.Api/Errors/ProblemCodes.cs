@@ -25,7 +25,15 @@ public static class ProblemCodes
     /// <summary>The staff cookie named a session that had expired (L2-018 AC5; ADR 0016).</summary>
     public const string SessionExpired = "session_expired";
 
+    /// <summary>A staff session ended after 30 idle minutes (<c>reason</c> of <see cref="SessionExpired"/>; ADR 0100).</summary>
+    public const string IdleReason = "idle";
+
+    /// <summary>A staff session ended 12 hours after sign-in (<c>reason</c> of <see cref="SessionExpired"/>; ADR 0100).</summary>
+    public const string MaxAgeReason = "max_age";
+
     private static readonly object OverrideKey = new();
+
+    private static readonly object ReasonKey = new();
 
     /// <summary>
     /// Gives the ProblemDetails the status-code page writes for this request <paramref name="code"/>
@@ -35,6 +43,20 @@ public static class ProblemCodes
     {
         ArgumentNullException.ThrowIfNull(context);
         context.Items[OverrideKey] = code;
+    }
+
+    /// <summary>Gives the overridden code a <c>reason</c> extension the client branches on (ADR 0100).</summary>
+    public static void Override(HttpContext context, string code, string reason)
+    {
+        Override(context, code);
+        context.Items[ReasonKey] = reason;
+    }
+
+    /// <summary>The <c>reason</c> an override gave this request's ProblemDetails, if any.</summary>
+    public static string? ReasonFor(HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return context.Items.TryGetValue(ReasonKey, out var reason) ? reason as string : null;
     }
 
     /// <summary>The code of this request's ProblemDetails: an override, or the status's own.</summary>

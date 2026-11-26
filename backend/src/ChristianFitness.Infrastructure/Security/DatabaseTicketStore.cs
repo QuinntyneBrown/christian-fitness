@@ -73,6 +73,13 @@ public sealed class DatabaseTicketStore(IServiceScopeFactory scopes, TimeProvide
         return context.Items.ContainsKey(ExpiredKey);
     }
 
+    /// <summary>Marks this request's session as expired by a rule outside the store (the staff maximum age, ADR 0100).</summary>
+    public static void MarkExpired(HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Items[ExpiredKey] = true;
+    }
+
     public Task<AuthenticationTicket?> RetrieveAsync(string key) => RetrieveAsync(key, CancellationToken.None);
 
     public async Task<AuthenticationTicket?> RetrieveAsync(string key, HttpContext httpContext, CancellationToken cancellationToken)

@@ -1,9 +1,11 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Sessions.Google;
 using ChristianFitness.Infrastructure.Health;
 using ChristianFitness.Infrastructure.Images;
 using ChristianFitness.Infrastructure.Persistence;
 using ChristianFitness.Infrastructure.Registrations;
 using ChristianFitness.Infrastructure.Security;
+using ChristianFitness.Infrastructure.Security.Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -52,7 +54,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<ISessionSignIn, CookieSessionSignIn>();
         services.AddScoped<IStaffSessionSignIn, CookieStaffSessionSignIn>();
-        services.AddScoped<ITwoStepCookie, CookieTwoStepCookie>();
+        services.AddScoped<IGoogleStaffDomain, GoogleSettingsStaffDomain>();
         services.AddScoped<ISessionRevocation, DatabaseSessionRevocation>();
         services.AddScoped<ICurrentMember, HttpCurrentMember>();
         services.AddScoped<IClientAddress, HttpClientAddress>();

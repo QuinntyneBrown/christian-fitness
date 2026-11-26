@@ -21,12 +21,10 @@ const string Usage = """
       announce-legal-change <privacy|terms> <yyyy-mm-dd>  Deliver a service notice to every member.
       migrate           Apply the pending database migrations.
       seed              Insert the seed data that is missing; a second run changes nothing.
-      two-step <email>  Give a staff account a new authenticator secret and print its
-                        otpauth:// link once, for the staff member's app (ADR 0013).
 
     Settings (environment variables): ConnectionStrings__Default; for seed also
-    Seed__StaffEmail, Seed__StaffPassword and Seed__StaffName; Seed__DirectorySamples=true
-    adds the sample directory listings.
+    Seed__AdminEmail (the first Admin's Google Workspace account) and optionally
+    Seed__AdminName; Seed__DirectorySamples=true adds the sample directory listings.
     """;
 
 var command = args.FirstOrDefault();
@@ -34,13 +32,13 @@ var announce = command == "announce-legal-change";
 var version = default(DateOnly);
 if ((announce && (args.Length != 3 || args[1] is not ("privacy" or "terms") ||
     !DateOnly.TryParseExact(args[2], "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out version))) ||
-    command is not ("migrate" or "seed" or "two-step" or "announce-legal-change") || (command == "two-step" && (args.Length < 2 || string.IsNullOrWhiteSpace(args[1]))))
+    command is not ("migrate" or "seed" or "announce-legal-change"))
 {
     await Console.Error.WriteLineAsync(Usage).ConfigureAwait(false);
     return 1;
 }
 
-var commandArguments = announce ? 3 : command == "two-step" ? 2 : 1;
+var commandArguments = announce ? 3 : 1;
 var builder = Host.CreateApplicationBuilder(args[commandArguments..]);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
@@ -55,7 +53,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 if (command == "seed")
 {
     var seed = builder.Configuration.GetSection("Seed");
-    var staff = new StaffSeedOptions(seed["StaffEmail"]!, seed["StaffPassword"]!, seed["StaffName"]!);
+    var staff = new StaffSeedOptions(seed["AdminEmail"]!, seed["AdminName"]);
     var missing = staff.MissingSettings().ToList();
     if (missing.Count > 0)
     {
@@ -87,11 +85,6 @@ if (command == "seed")
     }
 
     builder.Services.AddScoped<SeedRunner>();
-}
-
-if (command == "two-step")
-{
-    builder.Services.AddScoped<StaffTwoStepSetUp>();
 }
 
 if (announce)
@@ -128,19 +121,6 @@ else if (command == "migrate")
     var pending = (await db.Database.GetPendingMigrationsAsync().ConfigureAwait(false)).ToList();
     await db.Database.MigrateAsync().ConfigureAwait(false);
     Console.WriteLine($"Migrated: {pending.Count} migration(s) applied.");
-}
-else if (command == "two-step")
-{
-    // The link is the secret: it goes to the operator's terminal once and nowhere else.
-    var link = await scope.ServiceProvider.GetRequiredService<StaffTwoStepSetUp>().SetUpAsync(args[1], CancellationToken.None).ConfigureAwait(false);
-    if (link is null)
-    {
-        await Console.Error.WriteLineAsync("No staff account has that email; nothing was changed.").ConfigureAwait(false);
-        return 3;
-    }
-
-    Console.WriteLine("Two-step verification set up. Add this link to the staff member's authenticator app (as a QR code or by hand); it is not shown again:");
-    Console.WriteLine(link);
 }
 else
 {

@@ -1,4 +1,9 @@
-// The page is the staff layout; it adds no look of its own.
+// The page is the staff layout; it adds only the weight of the domain in its lead.
 :host {
   display: block;
+}
+
+strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-default);
 }

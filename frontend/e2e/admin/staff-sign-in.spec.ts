@@ -1,4 +1,5 @@
 import type { Request } from '@playwright/test';
+import { answerGoogleStart, FAKE_GOOGLE_PATH } from '../fixtures/google';
 import {
   expect,
   STAFF_SIGNED_IN,
@@ -8,12 +9,11 @@ import {
   type ApiReply,
 } from '../fixtures/test';
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
+import { AdminNotFoundPage } from '../page-objects/admin/not-found.page';
 import { AdminStaffSignInPage } from '../page-objects/admin/staff-sign-in.page';
-import { AdminTwoStepPage } from '../page-objects/admin/two-step.page';
 
-const EMAIL = 'dana@christianfitness.ca';
-const PASSWORD = 'abundantlife';
-const CODE = '481 920';
+const START_PATH = '/api/admin/session/google/start';
+const COMPLETE_PATH = '/api/admin/session/google';
 
 const NO_STAFF_SESSION: ApiReply = {
   status: 401,
@@ -22,156 +22,130 @@ const NO_STAFF_SESSION: ApiReply = {
 };
 
 interface Sent {
-  path: string;
   body: unknown;
   token: string | undefined;
 }
 
 /**
- * Starts signed out; the password step answers 202 with no session, as the API does with its step
- * cookie (ADR 0013), and the code answers Dana's staff session, which from then on is hers, as on
- * the server. Records each path, body and antiforgery header sent.
+ * Starts signed out; finishing Google sign-in answers Dana's staff session, which from then on is
+ * hers, as on the server. Records each finish's body and antiforgery header.
  */
-function answerSignIn(api: ApiHandlers): Sent[] {
+function answerComplete(api: ApiHandlers): Sent[] {
   const sent: Sent[] = [];
-  const record = (path: string) => (request: Request) =>
-    sent.push({ path, body: request.postDataJSON(), token: request.headers()['x-xsrf-token'] });
   api.on('GET', '/api/admin/session', () => NO_STAFF_SESSION);
-  api.on('POST', '/api/admin/session', (request) => {
-    record('/api/admin/session')(request);
-    return { status: 202 };
-  });
-  api.on('POST', '/api/admin/session/two-step', (request) => {
-    record('/api/admin/session/two-step')(request);
+  api.on('POST', COMPLETE_PATH, (request: Request) => {
+    sent.push({ body: request.postDataJSON(), token: request.headers()['x-xsrf-token'] });
     api.on('GET', '/api/admin/session', () => ({ json: STAFF_SIGNED_IN }));
     return { json: STAFF_SIGNED_IN };
   });
   return sent;
 }
 
-// L2-018 AC1, L2-046 AC1, AC2, L2-021 AC1, L2-030 AC3: staff sign in with their password, then the
-// code from their authenticator app, with the antiforgery token, and land on the Dashboard in the
-// admin layout. The cookies themselves are the API's (backend TwoStepTests).
-test.describe('Admin app, staff sign in', () => {
+// L2-018 AC1, AC2, L2-049 AC1, AC9, L2-021 AC1, L2-030 AC3: staff press "Sign in with Google", the
+// page leaves for Google in a full-page redirect, and on their return the API finishes the sign-in
+// and they land on the Dashboard. The domain, role and cookie checks are the API's (backend
+// StaffGoogleSignInTests); Google itself is faked at the address the start answers.
+test.describe('Admin app, staff sign in with Google', () => {
   test(
-    'staff sign in with their password and their code and land on the Dashboard',
+    'staff sign in with Google and land on the Dashboard',
     { tag: '@critical' },
     async ({ page, api }) => {
-      const sent = answerSignIn(api);
+      const starts = answerGoogleStart(api, undefined, START_PATH);
+      const finishes = answerComplete(api);
       const signIn = new AdminStaffSignInPage(page);
-      const twoStep = new AdminTwoStepPage(page);
       const shell = new AdminShell(page);
 
       await signIn.open();
       await expect.poll(() => signIn.title()).toBe('Staff sign in · Christian Fitness Admin');
-      await signIn.fill(EMAIL, PASSWORD);
-      await signIn.submit();
+      await signIn.chooseGoogle();
 
-      await expect(twoStep.heading).toHaveText('Enter your code');
-      expect(twoStep.location()).toBe('/sign-in/verify');
-      await expect.poll(() => twoStep.title()).toBe('Enter your code · Christian Fitness Admin');
-      await expect(shell.nav).toHaveCount(0);
-      await twoStep.fill(CODE);
-      await twoStep.submit();
+      await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+      expect(starts).toEqual([{ selectAccount: false }]);
+
+      await signIn.returnFromGoogle('returned');
 
       await expect(shell.heading).toHaveText('Dashboard');
       expect(shell.location()).toBe('/');
       await expect.poll(() => shell.title()).toBe('Dashboard · Christian Fitness Admin');
-      await expect(shell.navItems).toHaveText([
-        'Dashboard',
-        'Stories',
-        'Events',
-        'Event series',
-        'Listings',
-        'Services',
-        'Members',
-      ]);
-      await expect(shell.currentItem).toHaveText('Dashboard');
       await expect(shell.userName).toHaveText('Dana Reyes');
       await expect(shell.userRole).toHaveText('Admin');
-      await expect(shell.userInitials).toHaveText('DR');
-      expect(sent).toEqual([
-        {
-          path: '/api/admin/session',
-          body: { email: EMAIL, password: PASSWORD },
-          token: XSRF_TOKEN,
-        },
-        { path: '/api/admin/session/two-step', body: { code: CODE }, token: XSRF_TOKEN },
-      ]);
+      expect(finishes).toEqual([{ body: {}, token: XSRF_TOKEN }]);
     },
   );
 
-  test('shows the form the mock draws', async ({ page }) => {
+  test('shows the one action the mock draws, and no field', async ({ page }) => {
     const signIn = new AdminStaffSignInPage(page);
 
     await signIn.open();
 
     await expect(signIn.brandName).toHaveText('Christian Fitness');
     await expect(signIn.heading).toHaveText('Staff sign in');
-    await expect(signIn.lead).toHaveText('For the Christian Fitness team only.');
+    await expect(signIn.lead).toHaveText('Use your @christian.fitness Google Workspace account.');
+    await expect(signIn.leadDomain).toHaveText('@christian.fitness');
     await expect(signIn.main).toHaveCount(1);
-    await expect(signIn.inputs).toHaveCount(2);
-    await expect(signIn.email).toHaveAttribute('type', 'email');
-    await expect(signIn.email).toHaveAttribute('autocomplete', 'username');
-    await expect(signIn.password).toHaveAttribute('type', 'password');
-    await expect(signIn.password).toHaveAttribute('autocomplete', 'current-password');
-    await expect(signIn.submitButton).toHaveText('Sign in');
+    await expect(signIn.inputs).toHaveCount(0);
+    await expect(signIn.buttons).toHaveText(['Sign in with Google']);
+    await expect(signIn.googleButton).toBeEnabled();
     await expect(signIn.alert).toHaveCount(0);
-    // Every sign-in asks for a code now (L2-046, ADR 0013).
-    await expect(signIn.note).toHaveText('Two-step verification required');
+    await expect(signIn.notice).toHaveCount(0);
+    await expect(signIn.note).toHaveText(
+      'Passwords and two-step verification are managed by Google Workspace. Leaving the team ends console access the same day.',
+    );
   });
 
-  test('while signing in, the button reads "Signing in…" and is disabled', async ({
+  test('while Google opens, the button reads "Opening Google…" and is disabled', async ({
     page,
     api,
   }) => {
     let answer!: () => void;
-    const answered = new Promise<void>((resolve) => (answer = resolve));
-    api.on('POST', '/api/admin/session', async () => {
-      await answered;
-      return { status: 202 };
-    });
+    const held = new Promise<void>((resolve) => (answer = resolve));
+    answerGoogleStart(api, held, START_PATH);
     const signIn = new AdminStaffSignInPage(page);
-    const twoStep = new AdminTwoStepPage(page);
 
     await signIn.open();
-    await signIn.fill(EMAIL, PASSWORD);
-    await signIn.submit();
+    await signIn.chooseGoogle();
 
-    await expect(signIn.submitButton).toHaveText('Signing in…');
-    await expect(signIn.submitButton).toBeDisabled();
-    await expect(signIn.submitButton).toHaveAttribute('aria-busy', 'true');
-    for (const input of await signIn.inputs.all()) {
-      await expect(input).toHaveAttribute('readonly', '');
-    }
-    await expect(signIn.email).toHaveValue(EMAIL);
+    await expect(signIn.googleButton).toHaveText('Opening Google…');
+    await expect(signIn.googleButton).toBeDisabled();
+    await expect(signIn.googleButton).toHaveAttribute('aria-busy', 'true');
 
     answer();
-
-    await expect(twoStep.heading).toHaveText('Enter your code');
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
   });
 
   test('staff sign in with the keyboard alone', async ({ page, api }) => {
-    const sent = answerSignIn(api);
+    answerGoogleStart(api, undefined, START_PATH);
+    answerComplete(api);
     const signIn = new AdminStaffSignInPage(page);
-    const twoStep = new AdminTwoStepPage(page);
     const shell = new AdminShell(page);
 
     await signIn.open();
     await expect(signIn.heading).toHaveText('Staff sign in');
-    await signIn.signInByKeyboard(EMAIL, PASSWORD);
-    await expect(twoStep.heading).toHaveText('Enter your code');
-    await twoStep.verifyByKeyboard('481920');
+    await signIn.chooseGoogleByKeyboard();
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+    await signIn.returnFromGoogle('returned');
 
     await expect(shell.heading).toHaveText('Dashboard');
-    expect(sent.map((s) => s.body)).toEqual([
-      { email: EMAIL, password: PASSWORD },
-      { code: '481920' },
-    ]);
+  });
+
+  test('a cancel at Google returns to Staff sign in with no message', async ({ page, api }) => {
+    let finished = 0;
+    api.on('POST', COMPLETE_PATH, () => {
+      finished++;
+      return { json: STAFF_SIGNED_IN };
+    });
+    const signIn = new AdminStaffSignInPage(page);
+
+    await signIn.open();
+
+    await expect(signIn.googleButton).toHaveText('Sign in with Google');
+    await expect(signIn.alert).toHaveCount(0);
+    await expect(signIn.notice).toHaveCount(0);
+    expect(finished).toBe(0);
   });
 });
 
-// L2-018 AC4 in the app: a staff route opens only with a staff session (ADR 0011).
+// L2-018 AC5 in the app: a staff route opens only with a staff session (ADR 0011).
 test.describe('Admin app, staff routes need a staff session', () => {
   for (const path of ['/', '/members']) {
     test(`a visitor opening ${path} is sent to Staff sign in`, async ({ page, api }) => {
@@ -186,4 +160,14 @@ test.describe('Admin app, staff routes need a staff session', () => {
       await expect(shell.nav).toHaveCount(0);
     });
   }
+
+  // L2-046 AC1: no code screen remains.
+  test('/sign-in/verify is the not-found page', async ({ page }) => {
+    const notFound = new AdminNotFoundPage(page);
+
+    await notFound.open('/sign-in/verify');
+
+    await expect(notFound.heading).toHaveText('Page not found');
+    await expect.poll(() => notFound.title()).toBe('Page not found · Christian Fitness Admin');
+  });
 });

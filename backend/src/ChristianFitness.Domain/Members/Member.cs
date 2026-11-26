@@ -15,6 +15,9 @@ public sealed class Member
     public const int GoalMaxLength = 80;
     public const int ModerationNoteMaxLength = 500;
 
+    /// <summary>Google's subject identifier is at most 255 ASCII characters (OpenID Connect Core 2).</summary>
+    public const int GoogleSubjectMaxLength = 255;
+
     private Member()
     {
     }
@@ -42,6 +45,12 @@ public sealed class Member
     public string NormalizedEmail { get; private set; } = string.Empty;
 
     public string PasswordHash { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// The Google account this member signs in with: Google's subject, which never changes, unlike
+    /// the account's email (L2-049 AC4). None until the member first signs in with Google.
+    /// </summary>
+    public string? GoogleSubject { get; private set; }
 
     /// <summary>The congregation the member attends: optional, sensitive and never logged (L2-033 AC1, AC2).</summary>
     public string? HomeChurch { get; private set; }
@@ -194,6 +203,17 @@ public sealed class Member
     {
         ArgumentException.ThrowIfNullOrEmpty(passwordHash);
         PasswordHash = passwordHash;
+    }
+
+    /// <summary>
+    /// Links the Google account <paramref name="subject"/> names, found by this member's email; the
+    /// password, if any, is kept (L2-049 AC4).
+    /// </summary>
+    public void LinkGoogle(string subject)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(subject);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(subject.Length, GoogleSubjectMaxLength, nameof(subject));
+        GoogleSubject = subject;
     }
 
     private static string? NoneIfBlank(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();

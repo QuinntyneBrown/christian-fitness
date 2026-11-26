@@ -44,7 +44,7 @@ public sealed class StaffRoleTests(StaffRolesApiFactory factory) : IClassFixture
         using var client = Browser.CreateClient(factory);
         var email = $"{who}@example.org";
         await Staff.CreateAsync(factory, client, email, role);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, email);
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, email);
 
         using var response = await Browser.SendAsync(client, HttpMethod.Get, path, Staff.Cookie(signedIn));
 
@@ -61,7 +61,7 @@ public sealed class StaffRoleTests(StaffRolesApiFactory factory) : IClassFixture
     {
         using var client = Browser.CreateClient(factory);
         var id = await Staff.CreateAsync(factory, client, "joel.promoted@example.org", StaffRoleName.Moderator);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "joel.promoted@example.org");
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "joel.promoted@example.org");
         var cookie = Staff.Cookie(signedIn);
         using (var before = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/events", cookie))
         {
@@ -79,7 +79,7 @@ public sealed class StaffRoleTests(StaffRolesApiFactory factory) : IClassFixture
     {
         using var client = Browser.CreateClient(factory);
         var id = await Staff.CreateAsync(factory, client, "dana.demoted@example.org", StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.demoted@example.org");
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.demoted@example.org");
         var cookie = Staff.Cookie(signedIn);
         using (var before = await Browser.SendAsync(client, HttpMethod.Get, "/api/admin/services/probe", cookie))
         {
@@ -97,7 +97,7 @@ public sealed class StaffRoleTests(StaffRolesApiFactory factory) : IClassFixture
     {
         using var client = Browser.CreateClient(factory);
         var id = await Staff.CreateAsync(factory, client, "joel.removed@example.org", StaffRoleName.Moderator);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "joel.removed@example.org");
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "joel.removed@example.org");
 
         await SetRoleAsync(id, role: null);
 

@@ -1,0 +1,44 @@
+:host {
+  display: block;
+}
+
+// Google's branding: a surface fill, a neutral border, the full-colour G and Google's own wording.
+.google-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: var(--control-height-lg);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  padding: calc(var(--space-3-5) - var(--border-width-hairline))
+    calc(var(--space-5) - var(--border-width-hairline));
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.google-button:hover {
+  background: var(--color-bg-subtle);
+}
+
+.google-button:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  background: var(--color-bg-surface);
+}
+
+.google-button[aria-busy='true'] {
+  opacity: var(--opacity-busy);
+  cursor: progress;
+}
+
+.google-button .icon--spin {
+  width: var(--size-icon-lg);
+  height: var(--size-icon-lg);
+  color: var(--color-fg-muted);
+}

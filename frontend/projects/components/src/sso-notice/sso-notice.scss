@@ -1,0 +1,66 @@
+// The design system's sign-in notice (docs/design-system/assets/components.css, "sso-notice").
+:host {
+  display: block;
+}
+
+.sso-notice {
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-subtle);
+  padding: var(--space-5);
+}
+
+.sso-notice--spaced {
+  margin-top: var(--space-8);
+}
+
+.sso-notice__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+
+  .icon {
+    width: var(--size-icon-md);
+    height: var(--size-icon-md);
+    flex-shrink: 0;
+  }
+
+  + .sso-notice__account {
+    margin-top: var(--space-2);
+  }
+}
+
+.sso-notice__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  min-width: 0;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sso-notice__text {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-relaxed);
+}
+
+.sso-notice__actions {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+
+  // No actions projected: no room taken.
+  &:empty {
+    display: none;
+  }
+}

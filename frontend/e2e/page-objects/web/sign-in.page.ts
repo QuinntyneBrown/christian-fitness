@@ -1,8 +1,9 @@
 import type { Locator, Page } from '@playwright/test';
 
 /**
- * The member app's Sign in screen (mock `docs/mocks/pages/sign-in/`): the `auth` block with its
- * form. Owns the selectors of that screen.
+ * The member app's Sign in screen (mock `docs/mocks/pages/sign-in/`): the `signin` card with
+ * "Continue with Google" first, "or with email" and the email form. Owns the selectors of that
+ * screen.
  */
 export class WebSignInPage {
   readonly main: Locator;
@@ -14,7 +15,7 @@ export class WebSignInPage {
   /** The text inputs, in the order the form shows them. */
   readonly inputs: Locator;
   readonly submitButton: Locator;
-  /** The line that offers the other way in: "New here? Create a profile". */
+  /** The line that offers the other way in: "New to Christian Fitness? Create a profile". */
   readonly alt: Locator;
   readonly joinLink: Locator;
   /** The `form-alert` above the fields: wrong credentials or a failure. */
@@ -23,27 +24,40 @@ export class WebSignInPage {
   readonly alertText: Locator;
   /** Every link in the form, in order. */
   readonly links: Locator;
-  /** "Forgot your password?" under the password field. */
+  /** "Forgot password?" beside the Password label. */
   readonly forgotLink: Locator;
+  /** The Password label's row: the label, then "Forgot password?". */
+  readonly passwordLabelRow: Locator;
+  /** Google's way in: the button, then "or with email" (or the notice about the account). */
+  readonly sso: Locator;
+  readonly googleButton: Locator;
+  readonly divider: Locator;
+  /** The card's parts in the order they show: Google, the divider, the email form. */
+  readonly parts: Locator;
   /** "Reset your password" in the alert that says sign-in is paused. */
   readonly resetLink: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
-    this.form = this.main.locator('.auth__form');
+    this.form = this.main.locator('.signin__card');
     this.heading = this.form.getByRole('heading', { level: 1 });
     this.lead = this.form.locator('.auth__lead');
     this.email = this.form.getByLabel('Email', { exact: true });
     this.password = this.form.getByLabel('Password');
     this.inputs = this.form.locator('.field .input');
     this.submitButton = this.form.locator('.auth__submit .btn');
+    this.sso = this.form.locator('.auth__sso');
+    this.googleButton = this.sso.locator('.google-button');
+    this.divider = this.sso.getByRole('separator');
+    this.parts = this.form.locator('.google-button, [role=separator], .auth__fields');
     this.alt = this.form.locator('.auth__alt');
     this.joinLink = this.alt.getByRole('link', { name: 'Create a profile' });
     this.alert = this.form.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertText = this.alert.locator('.form-alert__text');
     this.links = this.form.getByRole('link');
-    this.forgotLink = this.form.getByRole('link', { name: 'Forgot your password?' });
+    this.forgotLink = this.form.getByRole('link', { name: 'Forgot password?' });
+    this.passwordLabelRow = this.form.locator('.field-row').filter({ hasText: 'Password' });
     this.resetLink = this.alert.getByRole('link', { name: 'Reset your password' });
   }
 
@@ -62,6 +76,11 @@ export class WebSignInPage {
   location(): string {
     const url = new URL(this.page.url());
     return url.pathname + url.search;
+  }
+
+  /** Presses "Continue with Google". */
+  async continueWithGoogle(): Promise<void> {
+    await this.googleButton.click();
   }
 
   async fill(email: string, password: string): Promise<void> {
@@ -88,6 +107,8 @@ export class WebSignInPage {
   async signInByKeyboard(email: string, password: string): Promise<void> {
     await this.email.focus();
     await this.page.keyboard.type(email);
+    // "Forgot password?" sits in the Password label's row, so it comes before the input.
+    await this.page.keyboard.press('Tab');
     await this.page.keyboard.press('Tab');
     await this.page.keyboard.type(password);
     await this.page.keyboard.press('Enter');

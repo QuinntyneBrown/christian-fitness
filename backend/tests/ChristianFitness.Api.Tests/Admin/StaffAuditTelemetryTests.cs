@@ -15,7 +15,7 @@ public sealed class StaffAuditTelemetryTests(TelemetryTests.Factory factory) : I
     {
         using var client = Browser.CreateClient(factory);
         var id = await Staff.CreateAsync(factory, client, "dana.audit.telemetry@example.org", StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.audit.telemetry@example.org");
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.audit.telemetry@example.org");
         using var signedOut = await Browser.SendAsync(client, HttpMethod.Delete, "/api/admin/session", Staff.Cookie(signedIn));
         Assert.Equal(HttpStatusCode.NoContent, signedOut.StatusCode);
 

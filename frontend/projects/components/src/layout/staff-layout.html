@@ -9,25 +9,34 @@
     </div>
     <form class="staff__form" novalidate (submit)="onSubmit($event)">
       <h1 class="display staff__title" tabindex="-1">{{ heading() }}</h1>
-      <p class="staff__lead">{{ lead() }}</p>
+      <p class="staff__lead">{{ lead() }}<ng-content select="[slot=lead]" /></p>
       <div class="auth__alert"><ng-content select="[slot=alert]" /></div>
+      <div class="staff__notice"><ng-content select="[slot=notice]" /></div>
+      <div class="staff__sso"><ng-content select="[slot=sso]" /></div>
       <div class="auth__fields"><ng-content select="[slot=fields]" /></div>
       <div class="auth__submit"><ng-content select="[slot=submit]" /></div>
       @if (note(); as text) {
-        <p class="staff__note">
-          @if (noteIcon() === 'smartphone') {
+        @if (noteIcon() === 'shield') {
+          <p class="staff__note staff__note--start">
             <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
-              <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
-              <path d="M12 18h.01" />
+              <path
+                d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+              />
+              <path d="m9 12 2 2 4-4" />
             </svg>
-          } @else if (noteIcon() === 'lock') {
-            <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          }
-          {{ text }}
-        </p>
+            <span>{{ text }}</span>
+          </p>
+        } @else {
+          <p class="staff__note">
+            @if (noteIcon() === 'lock') {
+              <svg class="icon icon--xs" viewBox="0 0 24 24" aria-hidden="true">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            }
+            {{ text }}
+          </p>
+        }
       }
     </form>
   </div>

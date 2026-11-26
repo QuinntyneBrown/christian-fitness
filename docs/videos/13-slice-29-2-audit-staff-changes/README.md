@@ -1,5 +1,9 @@
 # 13 · Slice 29.2: Audit staff changes
 
+> **Retired.** ADR 0100 removed the staff password and two-step code that this film shows (journey
+> 3, staff sign in with Google Workspace). Its `shots.ts` imports page objects that no longer exist
+> and is kept only as the record of that slice; it cannot be rerun.
+
 The second and last slice of journey 29, "Staff roles and audit". Every staff command that changes
 data carries a marker, `IAuditableCommand`, and passes through one MediatR pipeline behaviour: when
 it succeeds, an audit entry records who made the change, what it was, which record it changed and

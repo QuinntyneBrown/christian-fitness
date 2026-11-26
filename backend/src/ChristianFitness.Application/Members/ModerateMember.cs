@@ -173,8 +173,6 @@ internal sealed class SuspendMemberHandler(IAppDbContext db, ModerationTarget ta
         }
 
         await sessions.EndAllAsync(member.Id, cancellationToken).ConfigureAwait(false);
-        var pending = await db.TwoStepChallenges.Where(c => c.MemberId == member.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
-        db.TwoStepChallenges.RemoveRange(pending);
         target.Audit(member);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return await target.RowOfAsync(member, cancellationToken).ConfigureAwait(false);

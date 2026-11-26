@@ -109,6 +109,26 @@
   color: var(--color-fg-muted);
 }
 
+// Google first (the Google button and "or with email", or the Google account), above the fields.
+.auth__sso {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+
+  &:empty {
+    display: none;
+  }
+
+  &:not(:empty) + .auth__fields {
+    margin-top: var(--space-7);
+  }
+}
+
+.auth__alert:not(:empty) + .auth__sso {
+  margin-top: var(--space-6);
+}
+
 // The alert above the fields; empty, it takes no room.
 .auth__alert {
   margin-top: var(--space-6);

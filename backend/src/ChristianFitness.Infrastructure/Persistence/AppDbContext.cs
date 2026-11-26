@@ -21,12 +21,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<PasswordReset> PasswordResets => Set<PasswordReset>();
     public DbSet<SignInFailure> SignInFailures => Set<SignInFailure>();
 
-    public DbSet<StaffTwoStep> StaffTwoSteps => Set<StaffTwoStep>();
-
-    public DbSet<TwoStepChallenge> TwoStepChallenges => Set<TwoStepChallenge>();
-
-    public DbSet<TwoStepFailure> TwoStepFailures => Set<TwoStepFailure>();
-
     public DbSet<Event> Events => Set<Event>();
 
     public DbSet<Registration> Registrations => Set<Registration>();

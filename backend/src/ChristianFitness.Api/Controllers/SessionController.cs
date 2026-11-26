@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Sessions;
+using ChristianFitness.Application.Sessions.Google;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +25,31 @@ public sealed class SessionController(ISender sender) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Finishes a Google sign-in with the identity Google returned, kept in <c>__Host-cf-google</c>:
+    /// the member session, or a refusal the Sign in screen shows (L2-004 AC8; ADR 0099).
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("google")]
+    public async Task<IActionResult> CompleteGoogle(CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new CompleteGoogleSignInCommand(), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>
+    /// Starts a Google sign-in and answers Google's authorization address, for the screen to leave
+    /// for in a full-page redirect (L2-049 AC1; ADR 0099). Anonymous: a visitor has no session yet.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("google/start")]
+    public async Task<IActionResult> StartGoogle(StartGoogleSignInRequest request, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(
+            new StartGoogleSignInCommand { App = GoogleApp.Member, Intent = request?.Intent, ReturnUrl = request?.ReturnUrl, SelectAccount = request?.SelectAccount ?? false },
+            cancellationToken).ConfigureAwait(false));
+
     /// <summary>Who is signed in; a visitor is refused 401 by the fallback policy.</summary>
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
         Ok(await sender.Send(new GetSessionQuery(), cancellationToken).ConfigureAwait(false));
 }
+
+/// <summary>The member app's start: what it is for, where to return and whether to show Google's account chooser.</summary>
+public sealed record StartGoogleSignInRequest(string? Intent, string? ReturnUrl, bool SelectAccount);

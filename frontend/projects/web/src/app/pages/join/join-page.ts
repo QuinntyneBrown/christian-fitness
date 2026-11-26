@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import {
   Component,
   computed,
@@ -9,7 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpAccountService } from '../../services/http-account.service';
-import { ACCOUNT_SERVICE, INTERESTS, type InterestKey } from '@cf/api';
+import { ACCOUNT_SERVICE, INTERESTS, SESSION_SERVICE, type InterestKey } from '@cf/api';
 import {
   Alert,
   AuthLayout,
@@ -17,6 +18,8 @@ import {
   Interest,
   InterestList,
   Checkbox,
+  Divider,
+  GoogleButton,
   Link,
   TextField,
 } from '@cf/components';
@@ -42,17 +45,31 @@ import {
  * `invalid-fields`); editing a field clears its error. A refusal gives the form back as it was
  * with what `joinRefusalOf` says: a taken email on the email field (L2-003 AC2, mock `invalid`),
  * the generic "Check your details" (L2-032 AC1, mock `refused`) or "We couldn't create your
- * profile" (mock `error`).
+ * profile" (mock `error`). "Sign up with Google" comes first, above "or with email", and leaves for
+ * Google in a full-page redirect (L2-003 AC7; ADR 0099).
  */
 @Component({
   selector: 'cf-join-page',
-  imports: [Alert, AuthLayout, Button, Interest, InterestList, Checkbox, Link, TextField],
+  imports: [
+    Alert,
+    AuthLayout,
+    Button,
+    Interest,
+    InterestList,
+    Checkbox,
+    Divider,
+    GoogleButton,
+    Link,
+    TextField,
+  ],
   templateUrl: './join-page.html',
   styleUrl: './join-page.scss',
   providers: [{ provide: ACCOUNT_SERVICE, useClass: HttpAccountService }],
 })
 export default class JoinPage {
   private readonly account = inject(ACCOUNT_SERVICE);
+  private readonly session = inject(SESSION_SERVICE);
+  private readonly document = inject(DOCUMENT);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   /** Where to land once joined: a `returnUrl` inside the app, such as a claim link, else Home (ADR 0092). */
@@ -72,6 +89,8 @@ export default class JoinPage {
     this.fieldErrors.update((errors) => clearFieldError(errors, 'ageConfirmed'));
   }
   protected readonly submitting = signal(false);
+  /** On the way to Google: the button stays busy until the page unloads. */
+  protected readonly leaving = signal(false);
   protected readonly fieldErrors = signal<JoinFieldErrors>({});
   protected readonly summary = computed(() => errorSummaryOf(this.fieldErrors()));
   /** What the last answer refused, until the next submit (or, for a taken email, a new email). */
@@ -90,6 +109,23 @@ export default class JoinPage {
     password: this.password,
     homeChurch: this.homeChurch,
   };
+
+  /** Starts Google sign-up and leaves for Google in a full-page redirect (L2-003 AC7, L2-049 AC9). */
+  protected signUpWithGoogle(): void {
+    if (this.leaving()) return;
+    this.leaving.set(true);
+    this.refusal.set(null);
+    this.session
+      .startGoogle({ intent: 'join' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ location }) => this.document.location.assign(location),
+        error: () => {
+          this.leaving.set(false);
+          this.refusal.set('failed');
+        },
+      });
+  }
 
   protected toggle(key: InterestKey): void {
     this.interests.update((selected) => toggleInterest(selected, key));

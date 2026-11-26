@@ -113,7 +113,7 @@ dotnet build                                              # analysers on, warnin
 dotnet test                                               # Application and Api tests, EF Core InMemory
 export ConnectionStrings__Default="Host=localhost;Database=christian_fitness;Username=cf;Password=..."
 dotnet run --project src/ChristianFitness.Cli -- migrate  # the API never migrates on startup
-Seed__StaffEmail=admin@example.org Seed__StaffPassword=... Seed__StaffName="Community Admin"   dotnet run --project src/ChristianFitness.Cli -- seed   # idempotent: a second run changes nothing
+Seed__AdminEmail=admin@christian.fitness   dotnet run --project src/ChristianFitness.Cli -- seed   # idempotent: a second run changes nothing
 dotnet run --project src/ChristianFitness.Api             # http://localhost:5240/health
 dotnet ef migrations add <Name> --project src/ChristianFitness.Infrastructure   --startup-project src/ChristianFitness.Infrastructure --output-dir Persistence/Migrations
 ```

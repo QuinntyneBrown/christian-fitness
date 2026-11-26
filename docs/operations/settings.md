@@ -18,6 +18,10 @@ host's secret store. No setting is logged.
 | `DataProtection__KeysPath`   | Yes, with more than one instance or across restarts | The folder that keeps the ASP.NET Core Data Protection keys protecting the member and staff session cookies (ADR 0007, ADR 0011). Shared, persistent storage, readable and writable by every API instance. The same keys protect the antiforgery tokens (ADR 0009). Unset, the keys live in memory and every restart signs every member and staff member out. | `/var/lib/christian-fitness/keys` |
 | `Images__Directory`           | Yes, with more than one instance or across restarts | The folder that keeps event images, one file per image named by its key (ADR 0025). Shared, persistent storage, readable and writable by every API instance. Unset, images live in `images` next to the application and are lost with it. Images are public by key: `GET /api/events/images/{key}` serves them to anyone. | `/var/lib/christian-fitness/images` |
 | `MemberApp__BaseUrl`         | Yes, outside Development | The member app's public address. Every link in an email starts with it (the reset link is `{MemberApp__BaseUrl}/reset-password#token=…`); it is never taken from a request's `Host` header (ADR 0010). Defaults to `http://localhost:4200` in Development. | `https://www.christian.fitness` |
+| `AdminApp__BaseUrl`          | Yes, for staff Google sign-in | The admin app's public address. Google returns a staff sign-in to `{AdminApp__BaseUrl}/api/admin/session/google/callback`, the address registered with the Google client (ADR 0099). Unset, the address is the request's own origin, which only suits Development. | `https://admin.christian.fitness` |
+| `Google__ClientId`           | Yes, for Google sign-in | The OAuth client of "Continue with Google" in both apps (L2-049; ADR 0099). The client registers both callback addresses, `{MemberApp__BaseUrl}/api/session/google/callback` and `{AdminApp__BaseUrl}/api/admin/session/google/callback`, and a local one per app in Development. Unset, every Google start is refused `google_unavailable` (503) and the email form still works. | `1234-abc.apps.googleusercontent.com` |
+| `Google__ClientSecret`       | Yes, with `Google__ClientId` | The OAuth client's secret, from the secret store; never logged. The server alone exchanges Google's code with it. Unset, Google starts are refused `google_unavailable`. | (secret) |
+| `Google__StaffDomain`        | Yes, for staff Google sign-in | The team's Google Workspace domain. Staff sign-in asks Google to offer only its accounts (`hd`) and checks it again on the server. Unset, staff Google sign-in is refused `google_unavailable`; members are unaffected. | `christian.fitness` |
 | `Email__Smtp__Host`           | Yes, outside Development | The SMTP relay that delivers email (ADR 0010). Mail is queued in the API and delivered after the answer. Unset in Development, no mail is sent: messages are kept in memory only. To see them locally, run a mail catcher such as Mailpit and point this at it. | `smtp.sendgrid.net` |
 | `Email__Smtp__Port`           | No       | The relay's port. Defaults to `587` (STARTTLS); `465` uses TLS from the start.                             | `587`                                                                       |
 | `Email__Smtp__UseTls`         | No       | Whether TLS is required. Defaults to `true`; set `false` only for a local mail catcher.                    | `true`                                                                      |
@@ -42,7 +46,6 @@ features are deployed; values are not hard-coded.
 | `Organisation__PostalAddress` | For newsletter and marketing email | The postal address in every footer. Its production value is `2091 Hurontario Street, Mississauga, Ontario, L5A 4E6`. |
 | `Email__MaxPerMinute` | For the newsletter sender | The SMTP relay's sending limit per minute; the operator supplies the relay's limit. |
 | `Email__MaxPerDay` | For the newsletter sender | The SMTP relay's sending limit per day; the operator supplies the relay's limit. |
-| `Seed__AdminEmail` | For `cf seed` with Google Workspace staff sign-in | The first Admin's Google Workspace email at `@christian.fitness`. No value is hard-coded; if missing, `cf seed` refuses with a clear error before writing. |
 | `publicSiteOrigin` | For Community Pick | The public member site origin, `https://www.christian.fitness`, used for absolute links. |
 
 The relay limits govern the newsletter sender's rate and capacity; neither has a default. The
@@ -58,21 +61,17 @@ then `seed`, then start the API. The five starting bylines are added only while 
 bylines and no Admin has ever added, edited or removed one, so a byline an Admin removed is not brought back
 (ADR 0094).
 
-`cf two-step <email>` sets up two-step verification for a staff account (L2-046 AC6, ADR 0013):
-it stores a new authenticator secret and prints its `otpauth://` link once, for the staff member
-to add to their authenticator app (as a QR code or by hand). Staff cannot sign in to the admin app
-until it has been run for them, the first staff account from `cf seed` included. Running it again
-replaces the secret, which is what to do when a phone is lost. An email that is not a staff
-account's stops it with exit code 3 and changes nothing. It needs only
-`ConnectionStrings__Default`; the link is a secret, so run it where nobody else can read the
-terminal and never paste it into a ticket or a chat.
+`cf seed` creates the first Admin from `Seed__AdminEmail` with no password: staff sign in only
+with Google Workspace, and that Admin's first Google sign-in binds the account (L2-018, L2-049
+AC15, ADR 0100). Staff passwords and two-step verification belong to Google Workspace, where the
+team must enforce two-step verification for every account in the domain (L2-046 AC2); the
+application has no password or code of its own for staff.
 
 | Setting                      | Required          | Purpose                                                                                                     | Example                                                                     |
 | ---------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `ConnectionStrings__Default` | Yes               | The PostgreSQL database to migrate and seed, with a role that may change the schema.                       | `Host=db;Port=5432;Database=christian_fitness;Username=cf_owner;Password=…` |
-| `Seed__StaffEmail`           | For `cf seed`     | The email of the first staff account, an Admin. A second run with the same email changes nothing.          | `admin@example.org`                                                         |
-| `Seed__StaffPassword`        | For `cf seed`     | Its first password, stored only as a PBKDF2 hash. Change it after the first sign-in.                         | from the secret store                                                       |
-| `Seed__StaffName`            | For `cf seed`     | Its display name.                                                                                           | `Community Admin`                                                           |
+| `Seed__AdminEmail`           | For `cf seed`     | The first Admin's Google Workspace account, in the team's domain. A second run with the same email, in any case, changes nothing. | `admin@christian.fitness`                                                   |
+| `Seed__AdminName`            | No                | The first Admin's display name. Defaults to `Christian Fitness Admin`.                                     | `Dana Reyes`                                                                |
 | `Seed__DirectorySamples`     | No                | `true` adds the mocks' eleven sample directory listings beside the Christian Fitness team listing, which is always seeded, and the mocks' connections between them, which each profile's Connected lists (ADR 0082, ADR 0087). Leave it unset in production, so the directory shows only listings staff checked. | `true` on a demonstration system |
 
 `cf migrate` installs the `pg_trgm` extension for the directory's search index (ADR 0082); it is a
@@ -80,7 +79,7 @@ trusted extension, so the schema owner may create it without a superuser. Azure 
 PostgreSQL also requires it in the server parameter `azure.extensions` (`PG_TRGM`), or
 `CREATE EXTENSION` fails; the Deploy workflow adds it before migrating (docs/operations/deployment.md).
 
-A missing `Seed__*` setting stops `cf seed` with exit code 2, naming the setting, before anything
+A missing `Seed__AdminEmail` stops `cf seed` with exit code 2, naming the setting, before anything
 is written. A missing connection string stops either command with exit code 2.
 
 ## Static host (the built member and admin apps)

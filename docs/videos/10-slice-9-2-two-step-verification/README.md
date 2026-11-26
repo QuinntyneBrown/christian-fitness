@@ -1,5 +1,9 @@
 # 10 · Slice 9.2: Two-step verification
 
+> **Retired.** ADR 0100 removed the staff password and two-step code that this film shows (journey
+> 3, staff sign in with Google Workspace). Its `shots.ts` imports page objects that no longer exist
+> and is kept only as the record of that slice; it cannot be rerun.
+
 The second slice of journey 9, "Staff sign-in with two-step": after the right password, staff are
 not signed in yet. The API answers 202 with no body and a short pending sign-in named by its own
 `__Host-cf-admin-step` cookie, and the admin app opens "Enter your code" at `/sign-in/verify`.

@@ -234,25 +234,9 @@ public sealed class ModerateMemberTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var session = await Browser.SendAsync(_client, HttpMethod.Get, "/api/admin/session", joel);
         Assert.Equal(HttpStatusCode.Unauthorized, session.StatusCode);
-        using var signIn = await Staff.SignInAsync(_client, "joel@christianfitness.ca", Staff.Password);
+        using var signIn = await Staff.SignInWithGoogleAsync(_factory, _client, "joel@christianfitness.ca");
         await AssertRefusedAsync(signIn, HttpStatusCode.Forbidden, "account_suspended");
-        Assert.Null(Staff.StepSetCookie(signIn));
-    }
-
-    [Fact]
-    public async Task Given_staff_between_the_password_and_the_code_When_an_Admin_suspends_them_Then_the_code_opens_nothing()
-    {
-        await Staff.CreateAsync(_factory, _client, "joel.pending@christianfitness.ca", StaffRoleName.Moderator);
-        using var passwordStep = await Staff.SignInAsync(_client, "joel.pending@christianfitness.ca", Staff.Password);
-        var step = Staff.StepCookie(passwordStep);
-        var id = await IdOfAsync("joel.pending@christianfitness.ca");
-
-        using var response = await SuspendAsync(_dana, id, new { note = Note, confirmed = true });
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        using var verify = await Staff.VerifyAsync(_client, step, Staff.CodeAt(_factory.Time.GetUtcNow()));
-        Assert.Equal(HttpStatusCode.Unauthorized, verify.StatusCode);
-        Assert.Null(Staff.SetCookie(verify));
+        Assert.Null(Staff.SetCookie(signIn));
     }
 
     [Theory]

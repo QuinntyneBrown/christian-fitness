@@ -1,18 +1,18 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type {
-  SignInRequestDto,
+  GoogleRedirectDto,
+  StaffGoogleStartDto,
   StaffSessionApi,
   StaffSessionDto,
-  TwoStepRequestDto,
 } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, map, of, throwError, type Observable } from 'rxjs';
 
 /**
- * {@link StaffSessionApi} over HTTP: `GET`, `POST` and `DELETE /api/admin/session` and
- * `POST /api/admin/session/two-step` (ADR 0011, ADR 0013). A
- * failed write errors with an `ApiError` (`apiErrorOf`), so no screen handles an
+ * {@link StaffSessionApi} over HTTP: `GET` and `DELETE /api/admin/session`,
+ * `POST /api/admin/session/google/start` and `POST /api/admin/session/google` (ADR 0011, ADR
+ * 0100). A failed write errors with an `ApiError` (`apiErrorOf`), so no screen handles an
  * `HttpErrorResponse`. It holds no state.
  */
 @Injectable()
@@ -23,16 +23,15 @@ export class HttpStaffSessionService implements StaffSessionApi {
     return this.http.get<StaffSessionDto>('/api/admin/session');
   }
 
-  signIn(request: SignInRequestDto): Observable<void> {
-    return this.http.post<unknown>('/api/admin/session', request).pipe(
-      map(() => undefined),
-      catchError(asApiError),
-    );
+  startGoogle(request: StaffGoogleStartDto): Observable<GoogleRedirectDto> {
+    return this.http
+      .post<GoogleRedirectDto>('/api/admin/session/google/start', request)
+      .pipe(catchError(asApiError));
   }
 
-  verify(request: TwoStepRequestDto): Observable<StaffSessionDto> {
+  completeGoogle(): Observable<StaffSessionDto> {
     return this.http
-      .post<StaffSessionDto>('/api/admin/session/two-step', request)
+      .post<StaffSessionDto>('/api/admin/session/google', {})
       .pipe(catchError(asApiError));
   }
 

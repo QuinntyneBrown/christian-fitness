@@ -23,7 +23,7 @@ function answerReset(api: ApiHandlers): SentRequest[] {
 // their email. Whether the email has an account is the API's to keep (backend
 // PasswordResetDisclosureTests); the screen says the same either way.
 test.describe('Member app, request a reset link', () => {
-  test('"Forgot your password?" on Sign in opens the Forgot password screen', async ({ page }) => {
+  test('"Forgot password?" on Sign in opens the Forgot password screen', async ({ page }) => {
     const signIn = new WebSignInPage(page);
     const forgot = new WebForgotPasswordPage(page);
 

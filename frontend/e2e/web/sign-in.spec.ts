@@ -49,7 +49,7 @@ test.describe('Member app, sign in', () => {
     await signIn.open();
 
     await expect(signIn.heading).toHaveText('Welcome back');
-    await expect(signIn.lead).toHaveText('Sign in to see your events and messages.');
+    await expect(signIn.lead).toHaveText('Sign in to see your events, groups and messages.');
     await expect(signIn.main).toHaveCount(1);
     await expect(signIn.inputs).toHaveCount(2);
     await expect(signIn.email).toHaveAttribute('type', 'email');
@@ -57,9 +57,9 @@ test.describe('Member app, sign in', () => {
     await expect(signIn.password).toHaveAttribute('type', 'password');
     await expect(signIn.password).toHaveAttribute('autocomplete', 'current-password');
     await expect(signIn.submitButton).toHaveText('Sign in');
-    await expect(signIn.alt).toHaveText('New here? Create a profile');
+    await expect(signIn.alt).toHaveText('New to Christian Fitness? Create a profile');
     await expect(signIn.joinLink).toHaveAttribute('href', '/join');
-    await expect(signIn.links).toHaveText(['Forgot your password?', 'Create a profile']);
+    await expect(signIn.links).toHaveText(['Forgot password?', 'Create a profile']);
     await expect(signIn.forgotLink).toHaveAttribute('href', '/forgot-password');
     await expect(signIn.alert).toHaveCount(0);
   });

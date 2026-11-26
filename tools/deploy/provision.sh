@@ -27,8 +27,9 @@ DEPLOY_IDENTITY=id-christian-fitness-deploy
 ACS=acs-christian-fitness
 EMAIL_SERVICE=acs-email-christian-fitness
 SMTP_APP=christian-fitness-smtp
-STAFF_EMAIL=${STAFF_EMAIL:-quinntynebrown@gmail.com}
-STAFF_NAME=${STAFF_NAME:-Quinntyne Brown}
+# The first Admin's Google Workspace account (ADR 0100); `cf seed` refuses without it.
+ADMIN_EMAIL=${ADMIN_EMAIL:?Set ADMIN_EMAIL to the first Admin's @christian.fitness account}
+ADMIN_NAME=${ADMIN_NAME:-Christian Fitness Admin}
 PLACEHOLDER=docker.io/nginxinc/nginx-unprivileged:1.29-alpine
 
 az config set extension.use_dynamic_install=yes_without_prompt extension.dynamic_install_allow_preview=true --only-show-errors
@@ -192,9 +193,8 @@ if ! exists az containerapp job show --name "$RELEASE_JOB" --resource-group "$RG
     --image "$PLACEHOLDER" --cpu 0.25 --memory 0.5Gi \
     --user-assigned "$app_identity_id" --registry-server "$REGISTRY.azurecr.io" --registry-identity "$app_identity_id" \
     --secrets "db-owner-connection=Host=$host;Port=5432;Database=$DATABASE;Username=cf_owner;Password=$owner_password;SSL Mode=Require" \
-              "seed-staff-password=$(secret)" \
-    --env-vars "ConnectionStrings__Default=secretref:db-owner-connection" "Seed__StaffEmail=$STAFF_EMAIL" \
-               "Seed__StaffPassword=secretref:seed-staff-password" "Seed__StaffName=$STAFF_NAME" \
+    --env-vars "ConnectionStrings__Default=secretref:db-owner-connection" "Seed__AdminEmail=$ADMIN_EMAIL" \
+               "Seed__AdminName=$ADMIN_NAME" \
     --command /app/release.sh \
     --output none
 elif [ -n "$owner_password" ]; then

@@ -1,11 +1,13 @@
 using System.Net;
 using System.Security.Cryptography;
+using ChristianFitness.Api.Tests.Google;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Email;
 using ChristianFitness.Application.Seeding;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -43,6 +45,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Every event image the API kept, in memory (ADR 0025).</summary>
     public InMemoryImageStore Images { get; } = new();
 
+    /// <summary>Google, faked: both apps' OpenID Connect schemes talk to it, never to Google (ADR 0099).</summary>
+    public FakeGoogle Google { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Production");
@@ -51,6 +56,9 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Email:Smtp:Host", "smtp.unused.invalid");
         builder.UseSetting("Email:From", "Christian Fitness <hello@example.test>");
         builder.UseSetting("MemberApp:BaseUrl", MemberAppBaseUrl);
+        builder.UseSetting("Google:ClientId", FakeGoogle.ClientId);
+        builder.UseSetting("Google:ClientSecret", FakeGoogle.ClientSecret);
+        builder.UseSetting("Google:StaffDomain", FakeGoogle.StaffDomain);
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<DbContextOptions<AppDbContext>>();
@@ -68,6 +76,11 @@ public class ApiFactory : WebApplicationFactory<Program>
             }
 
             services.AddSingleton<IStartupFilter, ClientAddressStartupFilter>();
+            services.PostConfigureAll<OpenIdConnectOptions>(options =>
+            {
+                options.ConfigurationManager = Google;
+                options.Backchannel = Google.Backchannel;
+            });
             ConfigureServices(services);
         });
     }
@@ -89,6 +102,15 @@ public class ApiFactory : WebApplicationFactory<Program>
         }
 
         return host;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            Google.Dispose();
+        }
     }
 
     /// <summary>Where a derived fixture swaps or adds services (fault injection, exporters).</summary>

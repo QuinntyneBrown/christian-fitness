@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 namespace ChristianFitness.Application.Seeding;
 
 /// <summary>
-/// The first staff account: a member with the Admin role, keyed by its normalised email. An
-/// existing account is left as it is, password included.
+/// The first Admin (L2-049 AC15; ADR 0100): a member with the Admin role, keyed by its normalised
+/// email, with no password and no Google subject; its first Google sign-in binds it. An existing
+/// account is left as it is.
 /// </summary>
-public sealed class StaffAccountSeed(StaffSeedOptions options, IPasswordHasherService hasher, TimeProvider time) : ISeed
+public sealed class StaffAccountSeed(StaffSeedOptions options, TimeProvider time) : ISeed
 {
-    public string Key => "first staff account";
+    public string Key => "first Admin";
 
     public Task<bool> ExistsAsync(IAppDbContext db, CancellationToken cancellationToken)
     {
@@ -22,7 +23,8 @@ public sealed class StaffAccountSeed(StaffSeedOptions options, IPasswordHasherSe
     public void Apply(IAppDbContext db)
     {
         ArgumentNullException.ThrowIfNull(db);
-        var member = Member.Join(options.Name, options.Email, hasher.Hash(options.Password), time.GetUtcNow());
+        // No password hash: a password sign-in is refused as a wrong password (MemberCredentials).
+        var member = Member.Join(options.DisplayName, options.Email, string.Empty, time.GetUtcNow());
         db.Members.Add(member);
         db.StaffRoles.Add(StaffRole.Grant(member, StaffRoleName.Admin));
     }

@@ -44,9 +44,6 @@ public sealed class JoinSeriesRaceTests(JoinSeriesRaceTests.Factory factory) : I
         public DbSet<StaffRole> StaffRoles => db.StaffRoles;
         public DbSet<PasswordReset> PasswordResets => db.PasswordResets;
         public DbSet<SignInFailure> SignInFailures => db.SignInFailures;
-        public DbSet<StaffTwoStep> StaffTwoSteps => db.StaffTwoSteps;
-        public DbSet<TwoStepChallenge> TwoStepChallenges => db.TwoStepChallenges;
-        public DbSet<TwoStepFailure> TwoStepFailures => db.TwoStepFailures;
         public DbSet<Event> Events => db.Events;
         public DbSet<Registration> Registrations => db.Registrations;
         public DbSet<ChatMessage> ChatMessages => db.ChatMessages;

@@ -113,11 +113,13 @@ public sealed class SystemAccountTests(RegisterForEventFactory factory) : IClass
         using var client = Browser.CreateClient(factory);
 
         using var member = await Browser.SignInAsync(client, SystemMembers.ChristianFitnessEmail, "x");
-        using var staff = await Staff.SignInAsync(client, SystemMembers.ChristianFitnessEmail, "x");
+        using var staff = await Staff.SignInWithGoogleAsync(factory, client, SystemMembers.ChristianFitnessEmail);
 
         Assert.Equal(HttpStatusCode.Unauthorized, member.StatusCode);
         Assert.Equal("invalid_credentials", (await member.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)).GetProperty("code").GetString());
-        Assert.Equal(HttpStatusCode.Unauthorized, staff.StatusCode);
+        // Google cannot reach it either: it holds no console role.
+        Assert.Equal(HttpStatusCode.Forbidden, staff.StatusCode);
+        Assert.Equal("not_staff", (await staff.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)).GetProperty("code").GetString());
     }
 
     [Fact]
@@ -151,7 +153,7 @@ public sealed class SystemAccountTests(RegisterForEventFactory factory) : IClass
         await SystemAccount.SeedAsync(factory);
         using var client = Browser.CreateClient(factory);
         await Staff.CreateAsync(factory, client, "dana.system6@example.org", StaffRoleName.Admin);
-        using var signedIn = await Staff.SignInWithCodeAsync(client, "dana.system6@example.org", factory.Time.GetUtcNow());
+        using var signedIn = await Staff.SignInWithGoogleAsync(factory, client, "dana.system6@example.org");
         var cookie = Staff.Cookie(signedIn);
         var people = await InDbAsync(db => db.Members.CountAsync(m => m.Id != System, TestContext.Current.CancellationToken));
 
