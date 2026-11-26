@@ -151,6 +151,33 @@ describe('Table', () => {
     expect(el.querySelector('tbody td')?.textContent?.trim()).toBe('');
   });
 
+  it("puts a row's quiet link before its action, named after the row, and follows it in the app", async () => {
+    const { fixture, el } = await render({
+      rows: [
+        {
+          ...rows[0],
+          quietLink: { label: 'Make it a pick', href: '/community-pick?event=e1' },
+        },
+      ],
+    });
+    const followed: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => followed.push(href));
+
+    const links = Array.from(el.querySelectorAll('td.table__end .row-link'));
+    expect(links.map((link) => link.getAttribute('class'))).toEqual([
+      'row-link row-link--quiet',
+      'row-link',
+    ]);
+    const quiet = links[0] as HTMLAnchorElement;
+    expect(quiet.getAttribute('href')).toBe('/community-pick?event=e1');
+    expect(quiet.querySelector('.visually-hidden')?.textContent).toBe(`: ${rows[0].name}`);
+    expect(quiet.textContent).toBe(`Make it a pick: ${rows[0].name}`);
+
+    quiet.click();
+
+    expect(followed).toEqual(['/community-pick?event=e1']);
+  });
+
   it('leaves the action cell empty for a row that has no action, and keeps the column', async () => {
     const { el } = await render({
       rows: [rows[0], { id: 'retreat', name: 'Whole Life Retreat', cells: {}, noAction: true }],

@@ -88,7 +88,13 @@ describe('pickShadeFor', () => {
   const BLACK: Rgb = [0, 0, 0];
   const BRAND: Rgb = [110, 20, 40];
   it.each<{ why: string; samples: Rgb[]; overlay: Rgb; text: Rgb[]; expected: number }>([
-    { why: 'a dark photo needs none', samples: [BLACK], overlay: BLACK, text: [WHITE], expected: 0 },
+    {
+      why: 'a dark photo needs none',
+      samples: [BLACK],
+      overlay: BLACK,
+      text: [WHITE],
+      expected: 0,
+    },
     {
       why: 'a white photo needs 0.55 of black',
       samples: [WHITE],

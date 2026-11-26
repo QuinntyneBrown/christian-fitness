@@ -10,9 +10,11 @@ import {
   WHITE_PHOTO as WHITE,
   withPhoto,
 } from '../fixtures/community-pick';
+import { CAST_EVENTS, eventList, PUBLISHED_EVENTS } from '../fixtures/admin-events';
 import { expect, MODERATOR_SIGNED_IN, test } from '../fixtures/test';
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
 import { CommunityPickPage } from '../page-objects/admin/community-pick.page';
+import { AdminEventsPage } from '../page-objects/admin/events.page';
 
 // L2-072 AC1, AC2 and AC13 (ADR 0098): Community Pick lists the published events to come as one
 // radio group, soonest first, the first chosen, each with its date, title and area, and when it
@@ -602,5 +604,45 @@ test.describe('Admin app, Community Pick: the captions', () => {
     );
     await expect(pick.copyButton).toHaveAccessibleName('Copy caption', { timeout: 4000 });
     await expect(pick.copyStatus).toHaveText('');
+  });
+});
+
+// L2-072 AC1 (admin-events mocks): each published event still to come has "Make it a pick" in
+// Events, which opens Community Pick with that event chosen. Mon Apr 20, 8:00 AM in Toronto: the
+// Easter Sunrise 5K (Apr 18) has passed, three published events are to come, and one is a draft.
+test.describe('Admin app, Community Pick from Events', () => {
+  test('"Make it a pick" on a published event to come opens Community Pick with it chosen', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(new Date('2026-04-20T12:00:00Z'));
+    api.on('GET', '/api/admin/events', () => eventList(CAST_EVENTS, CAST_EVENTS));
+    const [, bootcamp, hoops, stretch] = PUBLISHED_EVENTS;
+    api.on('GET', '/api/admin/community-pick/events', () =>
+      pickableEvents([
+        { ...PARK_BOOTCAMP, id: bootcamp.id },
+        { ...HOOPS_NIGHT, id: hoops.id },
+      ]),
+    );
+    const events = new AdminEventsPage(page);
+    await events.open();
+
+    await expect(events.pickLinks).toHaveText([
+      `Make it a pick: ${bootcamp.title}`,
+      `Make it a pick: ${hoops.title}`,
+      `Make it a pick: ${stretch.title}`,
+    ]);
+    await expect(events.pickLink(hoops.title)).toHaveAttribute(
+      'href',
+      `/community-pick?event=${hoops.id}`,
+    );
+    await expect(events.editButton(hoops.title)).toBeVisible();
+
+    await events.pickLink(hoops.title).click();
+
+    await expect(page).toHaveURL(new RegExp(`/community-pick\\?event=${hoops.id}$`));
+    const pick = new CommunityPickPage(page);
+    await expect(pick.heading).toHaveText('Community Pick');
+    await expect(pick.radio(hoops.title)).toBeChecked();
   });
 });

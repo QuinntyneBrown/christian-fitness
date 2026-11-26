@@ -63,6 +63,8 @@
 
 .table__actions {
   display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: var(--space-4);
 }
 
@@ -123,6 +125,13 @@
     text-decoration: underline;
     text-underline-offset: var(--space-0-5);
   }
+}
+
+// A quieter link before the row's action ("Make it a pick"; table.html, "Two row actions").
+.row-link--quiet {
+  white-space: nowrap;
+  color: var(--color-fg-muted);
+  text-decoration: none;
 }
 
 @media (pointer: coarse) {
