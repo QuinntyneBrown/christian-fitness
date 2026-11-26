@@ -244,3 +244,53 @@ test.describe('Member app, Google sign-in refused', () => {
     await expect(signIn.alertTitle).toHaveText("Google sign-in didn't finish");
   });
 });
+
+// L2-004 AC9, L2-049 AC11, AC13: a Google account with no profile is refused `no_account`; Sign
+// in shows the notice in place of the Google button, naming the account as text, with "Create my
+// profile" (Join's "Finish your profile") and "Use another account" (Google's account chooser).
+test.describe('Member app, a Google account with no profile', () => {
+  test(
+    'Sign in names the account and offers to create a profile or use another account',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      answerGoogleFinish(api, {
+        status: 404,
+        json: { status: 404, code: 'no_account', account: 'grace@<b>gracefellowship</b>.ca' },
+      });
+      const started = answerGoogleStart(api);
+      const signIn = new WebSignInPage(page);
+
+      await page.goto('/sign-in?google=returned&returnUrl=%2Fevents');
+
+      await expect(signIn.ssoNotice).toHaveAttribute('role', 'alert');
+      await expect(signIn.ssoNotice).toBeFocused();
+      await expect(signIn.ssoNoticeAccount).toHaveText('grace@<b>gracefellowship</b>.ca');
+      await expect(signIn.ssoNoticeText).toHaveText(
+        "There's no Christian Fitness profile on this Google account yet. Create one now — we'll bring over your name and photo.",
+      );
+      await expect(signIn.googleButton).toHaveCount(0);
+      await expect(signIn.divider).toHaveText('or with email');
+      await expect(signIn.alert).toHaveCount(0);
+      await expect(signIn.createMyProfile).toHaveAttribute('href', '/join?google=finish');
+
+      await signIn.useAnotherAccount.click();
+      await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+      expect(started).toEqual([{ intent: 'sign-in', returnUrl: '/events', selectAccount: true }]);
+    },
+  );
+
+  test('"Use another account" works by keyboard', async ({ page, api }) => {
+    answerGoogleFinish(api, {
+      status: 404,
+      json: { status: 404, code: 'no_account', account: 'grace@gracefellowship.ca' },
+    });
+    answerGoogleStart(api);
+    const signIn = new WebSignInPage(page);
+
+    await page.goto('/sign-in?google=returned');
+    await signIn.useAnotherAccount.focus();
+    await page.keyboard.press('Enter');
+
+    await page.waitForURL((url) => url.pathname === FAKE_GOOGLE_PATH);
+  });
+});
