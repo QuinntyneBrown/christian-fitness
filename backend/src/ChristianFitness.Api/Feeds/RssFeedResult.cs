@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml;
 using ChristianFitness.Application.News;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace ChristianFitness.Api.Feeds;
 
@@ -11,6 +12,8 @@ namespace ChristianFitness.Api.Feeds;
 /// which escapes every value, so a headline or a summary is text, never markup. An item's author is
 /// <c>dc:creator</c>, the byline's name: RSS's own <c>author</c> needs an email address. Its
 /// <c>guid</c> is <c>urn:uuid:&lt;story id&gt;</c>, which stays the same when the story's link changes.
+/// Every answer carries the feed's <c>ETag</c>, <c>Last-Modified</c> and <c>Cache-Control: public,
+/// max-age=900</c>; when the request's validators still match it is 304 with no body (L2-060 AC2).
 /// </summary>
 public sealed class RssFeedResult(StoryFeed feed) : IActionResult
 {
@@ -23,6 +26,16 @@ public sealed class RssFeedResult(StoryFeed feed) : IActionResult
     {
         ArgumentNullException.ThrowIfNull(context);
         var response = context.HttpContext.Response;
+        var headers = response.GetTypedHeaders();
+        headers.CacheControl = new CacheControlHeaderValue { Public = true, MaxAge = FeedOutputCache.Duration };
+        headers.ETag = EntityTagHeaderValue.Parse(feed.ETag);
+        headers.LastModified = feed.LastModified;
+        if (feed.NotModified)
+        {
+            response.StatusCode = StatusCodes.Status304NotModified;
+            return;
+        }
+
         response.ContentType = ContentType;
         var settings = new XmlWriterSettings { Async = true, Encoding = new UTF8Encoding(false), Indent = false };
         await using var writer = XmlWriter.Create(response.Body, settings);

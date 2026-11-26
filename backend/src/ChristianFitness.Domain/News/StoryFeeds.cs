@@ -34,6 +34,10 @@ public static class StoryFeeds
     public static FeedDefinition? BySlug(string? slug) =>
         slug is not null && Sections.TryGetValue(slug, out var feed) ? feed : null;
 
+    /// <summary>The feed of <paramref name="section"/>, or none for Pros and for no section.</summary>
+    public static FeedDefinition? BySection(StorySection? section) =>
+        section is null ? null : Sections.Values.SingleOrDefault(f => f.Section == section);
+
     /// <summary>A section's name as readers see it, as a feed item's category.</summary>
     public static string SectionName(StorySection section) => section switch
     {

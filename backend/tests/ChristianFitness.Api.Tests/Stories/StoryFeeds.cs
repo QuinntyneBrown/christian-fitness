@@ -1,4 +1,6 @@
 using System.Xml.Linq;
+using ChristianFitness.Application.News;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChristianFitness.Api.Tests.Stories;
 
@@ -24,6 +26,10 @@ internal static class StoryFeeds
         headers?.Invoke(request);
         return await client.SendAsync(request, TestContext.Current.CancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>Evicts every feed the API keeps, so the next read renders what the store holds now.</summary>
+    public static Task EvictAllAsync(StoriesFactory factory) =>
+        factory.Services.GetRequiredService<IStoryFeedCache>().EvictAsync([.. Domain.News.StoryFeeds.Every.Select(f => f.Path)], TestContext.Current.CancellationToken);
 
     /// <summary>The RSS document of a feed answer.</summary>
     public static async Task<XDocument> DocumentAsync(HttpResponseMessage response) =>

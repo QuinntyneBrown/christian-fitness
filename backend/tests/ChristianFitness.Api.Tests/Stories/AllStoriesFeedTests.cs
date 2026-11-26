@@ -66,16 +66,17 @@ public sealed class AllStoriesFeedTests(StoriesFactory factory) : IClassFixture<
     }
 
     [Fact]
+    // Only the Community feed, which the other test never reads, so the feed it keeps is not this one's.
     public async Task Given_120_feed_reads_from_one_address_When_it_reads_again_Then_public_reads_refuses_it_with_too_many_requests()
     {
         var statuses = new List<HttpStatusCode>();
         for (var i = 0; i < 120; i++)
         {
-            using var read = await StoryFeeds.GetAsync(factory, i % 2 == 0 ? "/feed" : "/community/feed", clientAddress: "203.0.113.126");
+            using var read = await StoryFeeds.GetAsync(factory, "/community/feed", clientAddress: "203.0.113.126");
             statuses.Add(read.StatusCode);
         }
 
-        using var refused = await StoryFeeds.GetAsync(factory, "/feed", clientAddress: "203.0.113.126");
+        using var refused = await StoryFeeds.GetAsync(factory, "/community/feed", clientAddress: "203.0.113.126");
 
         Assert.All(statuses, status => Assert.Equal(HttpStatusCode.OK, status));
         Assert.Equal(HttpStatusCode.TooManyRequests, refused.StatusCode);
