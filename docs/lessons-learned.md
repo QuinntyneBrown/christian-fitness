@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 73% (27 of 36 journeys; 82 of 113 days)
+**% complete:** 75% (28 of 36 journeys; 85 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3436,3 +3436,47 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   `PublishedStories.At`, so a due Scheduled story counts at its time with no new code.
 - "Run the full suite against the built apps on free ports with two workers" kept the runs clear
   of the other sessions on the machine.
+
+## Journey 30: Send feedback
+
+**What slowed it**
+
+- The context ran out once, mid-way through slice 1; the summary and the uncommitted worktree
+  carried the work over.
+- `dotnet ef migrations add` with the API as the startup project fails (no Design package there);
+  the Infrastructure project works as both.
+- Theory rows carrying 5 MB byte arrays made xUnit's discovery serialise megabytes and the run
+  looked hung; naming the format and size in the row and building the bytes in the test fixed it.
+- Editing a source file while a Playwright run was under way against `ng serve` reloaded the page
+  mid-spec, twice: a stray "Failed to fetch dynamically imported module" and a missing chip. Wait
+  for the rebuild before starting a run, and never edit watched files while one is going.
+- A break that compared against a literal the compiler refuses (`=== 'nope'` against a union)
+  gave a build error, not a red; break with a value of the same type.
+- Stopping the background task that ran `timeout … npx ng serve` left the `ng serve` process
+  listening, and the "built apps" suite reused it on the same port; two specs then failed on the
+  dev server's reload socket. Check the ports' owners after stopping a server, and run the built
+  suite on ports nothing has used.
+
+**New lessons**
+
+- A field code that must not become the top-level code (`field_too_long` under
+  `validation_failed`) can say so in the failure's custom state (`FieldCodeOnly.State`), so one
+  rule set serves both Join's and Feedback's contracts without a per-endpoint whitelist.
+- Let the server resolve a label from an id the address carries (`about=page:<route template>` or
+  `story:<id>`), so the stored note and the screen cannot disagree and no client text is echoed.
+- A button that is disabled while sending cannot take focus in the same turn it is enabled again:
+  focus it in `afterNextRender` (already paid for by `cf-done` and the menu).
+- Put a new piece of a near-budget component in its own sub-component from the start
+  (`cf-story-correct`, as journey 24 did for Keep reading).
+- Parsing `multipart/form-data` in the fixture by hand is enough to assert every field and the
+  file's name, type and size exactly.
+
+**How earlier lessons worked**
+
+- "Honest red" by break scripts proved each rule: the busy label, the trimmed text, the no-email
+  thanks, both alerts, the note's server refusal, the screenshot's size and kind checks, the
+  in-app correction link, the rate window's edge and the device table's order.
+- "Grep the specs when a shared page object changes": the story page object's paragraphs had to
+  exclude the new correction line for read-story's exact list to hold.
+- "Read the initial total after each slice" kept `main` flat: the form, the screenshot field and
+  the correction link are in lazy chunks, and `afterNextRender` was already in the initial bundle.

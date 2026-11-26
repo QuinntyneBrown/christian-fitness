@@ -44,6 +44,9 @@ export class WebStoryPage extends ErrorScreen {
   readonly next: Locator;
   readonly nextLabel: Locator;
   readonly nextTitle: Locator;
+  /** "Spotted a mistake? Send a correction" at the end of the text (L2-061 AC5). */
+  readonly correction: Locator;
+  readonly sendCorrection: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -55,7 +58,7 @@ export class WebStoryPage extends ErrorScreen {
     this.backLink = this.article.locator('.back-link');
     this.headlines = page.getByRole('heading', { level: 1 });
     this.image = this.article.locator('.story__image');
-    this.paragraphs = this.article.locator('.story__body > p');
+    this.paragraphs = this.article.locator('.story__body > p:not(.story__correct)');
     this.quotes = this.article.locator('.story__quote');
     this.loading = page.locator('[aria-busy="true"]');
     this.failure = this.main.getByRole('alert').filter({ hasText: "This story didn't load" });
@@ -68,6 +71,8 @@ export class WebStoryPage extends ErrorScreen {
     this.next = this.article.locator('.story-next');
     this.nextLabel = this.next.locator('.story-next__label');
     this.nextTitle = this.next.locator('.story-next__title');
+    this.correction = this.article.locator('.story__correct');
+    this.sendCorrection = this.correction.getByRole('link', { name: 'Send a correction' });
   }
 
   /** The "Keep reading" section. */

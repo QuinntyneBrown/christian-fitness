@@ -16,6 +16,7 @@ import { Link } from '../link/link';
 import { isPlainClick } from '../link/plain-click';
 import { Skeleton } from '../skeleton/skeleton';
 import { SkeletonRegion } from '../skeleton/skeleton-region';
+import { StoryCorrect } from './story-correct';
 import { StoryMore, type StoryMoreCard } from './story-more';
 import { StoryRuns } from './story-runs';
 import { StorySubscribe } from './story-subscribe';
@@ -43,7 +44,8 @@ export interface StoryNextCard {
  * copied" with a `status` saying so (L2-061 AC3; mock `story/link-copied`). With `address` set (the
  * clipboard refused) the address shows in a read-only field, focused and selected (mock
  * `story/link-refused`). A plain click on a next step inside the app (`/…`) emits `navigate` with
- * its address; any other click is the browser's.
+ * its address; any other click is the browser's. With `correctionHref`, the text ends with "Spotted a
+ * mistake? Send a correction" (`cf-story-correct`; L2-061 AC5), routed the same way.
  *
  * After the article, `more` draws "Keep reading" (`cf-story-more`), whose cards route a plain
  * click the same way, and `subscribeHref` the Weekly box (`cf-story-subscribe`) leading to
@@ -51,7 +53,16 @@ export interface StoryNextCard {
  */
 @Component({
   selector: 'cf-story',
-  imports: [Button, Link, Skeleton, SkeletonRegion, StoryMore, StoryRuns, StorySubscribe],
+  imports: [
+    Button,
+    Link,
+    Skeleton,
+    SkeletonRegion,
+    StoryCorrect,
+    StoryMore,
+    StoryRuns,
+    StorySubscribe,
+  ],
   templateUrl: './story.html',
   styleUrl: './story.scss',
 })
@@ -78,6 +89,8 @@ export class Story implements OnChanges {
   readonly copied = input(false, { transform: booleanAttribute });
   /** The story's address, shown selected because the clipboard refused; none hides it. */
   readonly address = input<string | null>(null);
+  /** Where "Send a correction" leads, at the end of the text; none draws no way to send one. */
+  readonly correctionHref = input<string | null>(null);
   /** Keep reading's cards; none draws no section. */
   readonly more = input<readonly StoryMoreCard[]>([]);
   /** Where the Weekly box's Subscribe leads; none draws no box (the admin preview). */

@@ -69,6 +69,7 @@ public sealed class RecordAttendanceRaceTests(RecordAttendanceRaceTests.Factory 
         public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
         public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
         public DbSet<Attendance> Attendances => db.Attendances;
+        public DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes => db.FeedbackNotes;
         public DbSet<ChristianFitness.Domain.News.StoryReadTally> StoryReadTallies => db.StoryReadTallies;
         public DbSet<ChristianFitness.Domain.Events.CommunityPick> CommunityPicks => db.CommunityPicks;
 

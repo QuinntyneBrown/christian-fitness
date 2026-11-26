@@ -113,6 +113,41 @@ describe('Story', () => {
     expect([plain, modified, external, emitted]).toEqual([true, false, true, ['/x']]);
   });
 
+  // L2-061 AC5 (ADR 0109; mock story/default): the text ends with the way to send a correction.
+  it('ends the text with Send a correction when given its address, routing a plain click', async () => {
+    const fixture = TestBed.createComponent(Story);
+    const emitted: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => emitted.push(href));
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const before = host.querySelectorAll('.story__correct').length;
+    fixture.componentRef.setInput('correctionHref', '/feedback?about=story:1&kind=correction');
+    await fixture.whenStable();
+    const line = host.querySelector<HTMLElement>('.story__body .story__correct')!;
+    const link = line.querySelector<HTMLAnchorElement>('a')!;
+    const click = (init: MouseEventInit = {}) => {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      link.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    expect([
+      before,
+      line.textContent?.replace(/\s+/g, ' ').trim(),
+      link.getAttribute('href'),
+      click(),
+      click({ metaKey: true }),
+      emitted,
+    ]).toEqual([
+      0,
+      'Spotted a mistake? Send a correction',
+      '/feedback?about=story:1&kind=correction',
+      true,
+      false,
+      ['/feedback?about=story:1&kind=correction'],
+    ]);
+  });
+
   // L2-061 AC3 (ADR 0105; mocks story/link-copied, story/link-refused).
   it('shows Copy link, which emits copyRequested, and reads "Link copied" with a status while copied', async () => {
     const fixture = TestBed.createComponent(Story);

@@ -720,6 +720,69 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("SeriesEnrolments", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Feedback.FeedbackNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Browser")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Device")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<bool>("MayEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PageRouteTemplate")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("PageTitle")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("ScreenshotKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid?>("StoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId", "SentAt");
+
+                    b.HasIndex("Status", "SentAt");
+
+                    b.ToTable("FeedbackNotes", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.Member", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1371,6 +1434,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Events.EventSeries", null)
                         .WithMany()
                         .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Feedback.FeedbackNote", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

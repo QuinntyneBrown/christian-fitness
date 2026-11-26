@@ -47,6 +47,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Every event image the API kept, in memory (ADR 0025).</summary>
     public InMemoryImageStore Images { get; } = new();
 
+    /// <summary>Feedback screenshots, kept apart from the public images (ADR 0109).</summary>
+    public InMemoryImageStore Screenshots { get; } = new();
+
     /// <summary>Google, faked: both apps' OpenID Connect schemes talk to it, never to Google (ADR 0099).</summary>
     public FakeGoogle Google { get; } = new();
 
@@ -70,6 +73,8 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddSingleton<IEmailSender>(Emails);
             services.RemoveAll<IImageStore>();
             services.AddSingleton<IImageStore>(Images);
+            services.RemoveAll<IFeedbackScreenshotStore>();
+            services.AddSingleton<IFeedbackScreenshotStore>(Screenshots);
             services.AddHttpClient(GoogleAuthentication.PhotoClient).ConfigurePrimaryHttpMessageHandler(Google.PhotoHandler);
             // No background service in the shared host (AGENTS.md): nothing is queued to deliver, and
             // no publishing clock ticks unless a fixture runs one (PublishingClockTests).

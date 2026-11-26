@@ -25,7 +25,7 @@
   <router-outlet />
 </div>
 @if (current() !== 'messages') {
-  <cf-footer variant="member" />
+  <cf-footer variant="member" [feedbackHref]="feedbackHref()" (navigate)="navigate($event)" />
 }
 <cf-tab-bar
   [destinations]="destinations"
