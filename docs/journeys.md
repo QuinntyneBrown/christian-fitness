@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 58% (21 of 36 journeys; 63 of 113 days)
+**% complete:** 61% (22 of 36 journeys; 66 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -25,7 +25,7 @@ audit), so those are not listed on their own.
 | 10  | ✅ Browse event series                 | Member | A Series view on Events lists programs by next session, with progress and filters.                             | 3             |
 | 11  | ✅ View an event series                | Member | A series page with its sessions, host and sign-up panel; session events show their series.                     | 3             |
 | 12  | ✅ Join and leave a series             | Member | Hold a place at every remaining session and join the series' one group chat, or leave it.                      | 4             |
-| 13  | Drop in on series dates                | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
+| 13  | ✅ Drop in on series dates              | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
 | 14  | ✅ Get notifications in the app        | Member | A bell with an unread count and a Notifications screen, fed over the existing real-time connection.            | 3             |
 | 15  | ✅ Cancel and restore series dates     | Both   | Staff cancel or restore a session; members holding a place are told in chat and by notification.               | 2             |
 | 16  | Record event attendance                | Both   | Staff tick who came; members see "You came", "Missed" and "Came to n of m" on the series.                      | 3             |
