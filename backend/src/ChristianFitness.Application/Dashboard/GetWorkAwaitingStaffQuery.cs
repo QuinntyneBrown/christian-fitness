@@ -31,7 +31,12 @@ public sealed record WorkAwaitingStaffDto(
     AwaitingListDto<AwaitingFlaggedMemberDto> FlaggedMembers,
     AwaitingListDto<AwaitingSuggestionDto> Suggestions,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    AwaitingListDto<AwaitingStoryDto>? Stories = null);
+    AwaitingListDto<AwaitingStoryDto>? Stories = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    MissedIssueDto? MissedIssue = null);
+
+/// <summary>The newsletter issue that was not scheduled when its time passed, while it can still go out today (L2-070 AC8).</summary>
+public sealed record MissedIssueDto(int Number, DateTimeOffset WasDueAt);
 
 /// <summary>Staff ask what is waiting for them (L2-020 AC7 to AC10; ADR 0060).</summary>
 public sealed record GetWorkAwaitingStaffQuery : IRequest<WorkAwaitingStaffDto>;
@@ -68,9 +73,15 @@ internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMemb
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         var suggestions = new AwaitingListDto<AwaitingSuggestionDto>(suggestionTotal, suggestionRows);
+        // Both roles use the Newsletter desk (L2-070 AC12), so both are told of a missed issue.
+        var missedIssue = await db.NewsletterIssues.AsNoTracking()
+            .Where(i => i.MissedSend)
+            .OrderBy(i => i.Number)
+            .Select(i => new MissedIssueDto(i.Number, i.SendAt))
+            .FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
         if (role != StaffRoleName.Admin)
         {
-            return new WorkAwaitingStaffDto(null, members, suggestions);
+            return new WorkAwaitingStaffDto(null, members, suggestions, MissedIssue: missedIssue);
         }
 
         var pending = db.ProfessionalApplications.AsNoTracking().Where(a => a.Status == ApplicationStatus.Pending);
@@ -101,6 +112,7 @@ internal sealed class GetWorkAwaitingStaffHandler(IAppDbContext db, ICurrentMemb
             new AwaitingListDto<AwaitingApplicationDto>(total, [.. rows.Select(a => new AwaitingApplicationDto(a.Id, a.Name, a.Role, a.SubmittedAt))]),
             members,
             suggestions,
-            stories);
+            stories,
+            missedIssue);
     }
 }

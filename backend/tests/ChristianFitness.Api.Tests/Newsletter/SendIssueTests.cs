@@ -172,6 +172,8 @@ public sealed class MissedIssueTests(SendIssueFactory factory) : IClassFixture<S
 
         Assert.Equal(new IssueTick(false, 0, false, true), tick);
         Assert.Equal(before, factory.Emails.Sent().Count);
+        var awaiting = await AwaitingAsync(client, cookie);
+        Assert.Equal((number, sendAt), (awaiting.GetProperty("missedIssue").GetProperty("number").GetInt32(), awaiting.GetProperty("missedIssue").GetProperty("wasDueAt").GetDateTimeOffset()));
         var missed = (await Desk.ReadAsync(client, cookie)).GetProperty("nextIssue");
         Assert.Equal(("draft", true), (missed.GetProperty("status").GetString(), missed.GetProperty("missedSend").GetBoolean()));
 
@@ -185,10 +187,19 @@ public sealed class MissedIssueTests(SendIssueFactory factory) : IClassFixture<S
         Assert.Equal(HttpStatusCode.OK, rescheduled.StatusCode);
         var issue = await Desk.JsonAsync(rescheduled);
         Assert.Equal(("scheduled", sendAt.AddHours(4)), (issue.GetProperty("status").GetString(), issue.GetProperty("sendAt").GetDateTimeOffset()));
+        Assert.False((await AwaitingAsync(client, cookie)).TryGetProperty("missedIssue", out _));
 
         factory.Time.SetUtcNow(sendAt.AddHours(4));
         Assert.Equal(new IssueTick(true, 1, true, false), await factory.TickAsync());
         Assert.Equal("reader.missed@example.org", factory.Emails.Sent().Skip(before).Single().To);
+    }
+
+    /// <summary>The Dashboard's "Needs attention", as the console reads it.</summary>
+    private static async Task<JsonElement> AwaitingAsync(HttpClient client, string cookie)
+    {
+        using var response = await ChristianFitness.Api.Tests.Events.AdminEvents.SendAsync(client, HttpMethod.Get, "/api/admin/dashboard/awaiting", cookie);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return await Desk.JsonAsync(response);
     }
 }
 

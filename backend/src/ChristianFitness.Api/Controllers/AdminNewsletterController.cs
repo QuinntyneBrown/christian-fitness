@@ -36,6 +36,15 @@ public sealed class AdminNewsletterController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>Sends the issue as it stands to the caller's own address only (L2-070 AC9).</summary>
+    [HttpPost("issues/{number:int}/test")]
+    public async Task<ActionResult<TestSentDto>> SendTest(int number, SendTestIssueCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Number = number;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>Makes a Scheduled issue a Draft again (L2-070 AC6).</summary>
     [HttpPost("issues/{number:int}/unschedule")]
     public async Task<ActionResult<NextIssueDto>> Unschedule(int number, CancellationToken cancellationToken) =>
