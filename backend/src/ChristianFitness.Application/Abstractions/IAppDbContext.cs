@@ -3,6 +3,7 @@ using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.News;
+using ChristianFitness.Domain.Scheduling;
 using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
@@ -87,6 +88,9 @@ public interface IAppDbContext
 
     /// <summary>The stories Admins write; for now only each one's byline (ADR 0094).</summary>
     DbSet<Story> Stories { get; }
+
+    /// <summary>The exclusive, expiring rights to run scheduled work (ADR 0069, ADR 0104).</summary>
+    DbSet<SchedulerLease> SchedulerLeases { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

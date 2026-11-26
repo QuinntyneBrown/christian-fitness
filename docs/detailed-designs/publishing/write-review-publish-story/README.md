@@ -74,7 +74,7 @@ allows.
   indexed: it sends `X-Robots-Tag: noindex`.
 - **`AdminStoriesApi` / `ADMIN_STORIES_SERVICE`** — contract and token in the `api` library:
   `list` (`manage-stories`), `get`, `create`, `save`, `submit`, `returnToDraft`, `publish`,
-  `update`, `unschedule`, `unpublish`, `uploadImage`, `preview` and `options` (the bylines, the published events
+  `schedule`, `update`, `unschedule`, `unpublish`, `uploadImage`, `preview` and `options` (the bylines, the published events
   and listings a story may point to, and the next issue's number and date).
 
 ### Christian Fitness API
@@ -82,7 +82,7 @@ allows.
 - **`AdminStoriesController`** — under `api/admin/stories`; each action sends one MediatR request:
   `POST` (create a Draft), `GET {id}`, `PUT {id}` (save a Draft or a story In review),
   `POST {id}/submit`, `POST {id}/return-to-draft`, `POST {id}/publish`, `POST {id}/update`,
-  `POST {id}/unschedule`, `POST {id}/unpublish`,
+  `POST {id}/schedule`, `POST {id}/unschedule`, `POST {id}/unpublish`,
   `POST images`, `GET {id}/preview` and `GET options`. The `stories` segment maps to a new
   `StaffArea.Publishing` (with `newsletter`), which `StaffAccess` allows to Admins only; until it
   exists the segment falls to `StaffArea.Unlisted`, which refuses Moderators the same way
@@ -105,11 +105,16 @@ allows.
   same version check and the same rules as Publish, then `UpdatePublished`, live at once
   (`L2-069` AC5). Audited `story.updated`.
 - **`PublishStoryCommand`** with **`PublishStoryValidator`** — saves the fields, then requires a
-  headline, text, section and byline, and a scheduled time after now (`TimeProvider`), else 400
-  `validation_failed` with `fieldCodes` `headline_required`, `text_required`, `section_required`,
-  `byline_required` or `publish_at_in_past`, publishing nothing (`L2-069` AC7). With no time it
-  calls `Publish(now)`; with one it turns the Toronto date and time into UTC with the existing
-  `EventSchedule` and calls `Schedule(at, admin, now)` (`L2-069` AC2–AC4). Publishing or updating
+  headline, text, section and byline, else 400 `validation_failed` with `fieldCodes`
+  `headline_required`, `text_required`, `section_required` or `byline_required`, publishing
+  nothing (`L2-069` AC7), and calls `Publish(now)` on a Draft, a story In review or a Scheduled
+  story (Publish now, `L2-069` AC4).
+- **`ScheduleStoryCommand`** with **`ScheduleStoryValidator`** — the same fields and rules plus
+  `publishDate` (`yyyy-MM-dd`) and `publishTime` (`HH:mm`) in Toronto, turned into UTC with the
+  existing `EventSchedule`; a missing one is `publish_date_required` or `publish_time_required`,
+  and a time not after now (`TimeProvider`) is `publish_at_in_past` on `publishDate`. It calls
+  `Schedule(at, admin, now)` on a Draft or a story In review (`L2-069` AC2–AC4; ADR 0104).
+  Publishing or updating
   as Lead story makes it the front page's lead: every other Published Lead calls `GiveUpLead` and
   stays out as an ordinary story at its own publish time (`L2-069` AC6).
 - **`SubmitStoryCommand`**, **`ReturnStoryToDraftCommand`**, **`UnscheduleStoryCommand`**,
@@ -129,7 +134,8 @@ allows.
   [ADR 0069](../../../adr/0069-scheduled-work.md). Every 30 seconds, after taking the database
   lease, it sends **`PublishDueStoriesCommand`** in a new scope; its handler persists each due
   Scheduled story's Published status and audits `story.published` against the Admin who scheduled
-  it. It also runs due newsletter and daily maintenance jobs.
+  it. The lease is a `SchedulerLeases` row renewed each tick for 60 seconds (ADR 0104). Newsletter
+  and daily maintenance jobs join it in their own journeys.
 - **Effective story status** — with `TimeProvider`, every story read treats Scheduled with
   `PublishAt <= now` as Published even before the tick persists it. Landing, story, feed,
   newsletter selection and staff reads use the same rule, as do status-changing commands: a

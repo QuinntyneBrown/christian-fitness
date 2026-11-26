@@ -89,6 +89,8 @@ public sealed class LastPlaceRaceTests(LastPlaceRaceTests.Factory factory) : ICl
         public DbSet<ChristianFitness.Domain.News.Byline> Bylines => db.Bylines;
 
         public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
+
+        public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);

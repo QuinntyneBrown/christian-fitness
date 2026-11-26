@@ -10,6 +10,7 @@ import type {
   StoryOptionsDto,
   StoryPreviewDto,
   StorySaveDto,
+  StoryScheduleDto,
 } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
@@ -53,6 +54,14 @@ export class HttpAdminStoriesService implements AdminStoriesApi {
 
   publish(id: string, save: StorySaveDto): Observable<AdminStoryDto> {
     return this.act(id, 'publish', save);
+  }
+
+  schedule(id: string, save: StoryScheduleDto): Observable<AdminStoryDto> {
+    return this.act(id, 'schedule', save);
+  }
+
+  unschedule(id: string, version: number): Observable<AdminStoryDto> {
+    return this.act(id, 'unschedule', { version });
   }
 
   update(id: string, save: StorySaveDto): Observable<AdminStoryDto> {

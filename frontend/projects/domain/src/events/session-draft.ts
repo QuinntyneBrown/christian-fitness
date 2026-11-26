@@ -45,7 +45,7 @@ const ADDED_DAY = new Intl.DateTimeFormat('en-US', {
 });
 
 /** The Toronto wall clock of `instant`: its date (`yyyy-MM-dd`) and time (`HH:mm`). */
-function torontoClockOf(instant: Date): { date: string; time: string } {
+export function torontoClockOf(instant: Date): { date: string; time: string } {
   const parts = Object.fromEntries(PARTS.formatToParts(instant).map((p) => [p.type, p.value]));
   return {
     date: `${parts['year']}-${parts['month']}-${parts['day']}`,

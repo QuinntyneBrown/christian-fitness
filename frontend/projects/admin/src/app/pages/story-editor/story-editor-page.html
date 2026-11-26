@@ -117,6 +117,40 @@
       <cf-card slot="side" variant="pad-sm" element="section" labelledBy="publishing-title">
         <h2 class="section-title" id="publishing-title">Publishing</h2>
         <div class="panel__group">
+          <cf-radio-group
+            fieldId="f-when"
+            legend="When"
+            name="when"
+            [options]="whenChoices()"
+            [value]="store.when()"
+            (valueChange)="chooseWhen($event)"
+          />
+          @if (store.when() === 'schedule') {
+            <div class="panel__when">
+              <cf-text-field
+                fieldId="f-date"
+                label="Date"
+                name="publishDate"
+                type="date"
+                [disabled]="whenFixed()"
+                [error]="dateError()"
+                [value]="store.publishDate()"
+                (valueChange)="store.choosePublishDate($event)"
+              />
+              <cf-text-field
+                fieldId="f-time"
+                label="Time"
+                name="publishTime"
+                type="time"
+                [disabled]="whenFixed()"
+                [error]="marked()['publishTime'] ? 'Pick a time' : null"
+                [value]="store.publishTime()"
+                (valueChange)="store.choosePublishTime($event)"
+              />
+            </div>
+          }
+        </div>
+        <div class="panel__group panel__group--ruled">
           <cf-select
             fieldId="f-placement"
             label="Front page"

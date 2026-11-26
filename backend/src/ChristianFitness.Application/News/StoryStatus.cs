@@ -1,7 +1,11 @@
+using System.Globalization;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Errors;
+using ChristianFitness.Application.Events;
 using ChristianFitness.Application.Sessions;
+using ChristianFitness.Domain.Audit;
+using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.News;
 using FluentValidation;
 using MediatR;
@@ -51,6 +55,37 @@ public sealed class UpdateStoryCommand : StorySaveFields, IRequest<AdminStoryDto
     string IAuditableCommand.AuditAction => "story.updated";
 }
 
+/// <summary>
+/// Schedule, or Approve &amp; schedule (L2-069 AC2, AC3, AC7; ADR 0104): saves the fields over the
+/// version the editor read, then makes a Draft or a story In review Scheduled for the Toronto
+/// <see cref="PublishDate"/> (<c>yyyy-MM-dd</c>) and <see cref="PublishTime"/> (<c>HH:mm</c>), which
+/// must be after now. It has Publish's rules too. Audited <c>story.scheduled</c>.
+/// </summary>
+public sealed class ScheduleStoryCommand : StorySaveFields, IRequest<AdminStoryDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "story.scheduled";
+
+    public string? PublishDate { get; set; }
+
+    public string? PublishTime { get; set; }
+
+    internal DateOnly? ParsedDate() =>
+        DateOnly.TryParseExact(PublishDate, EventFields.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date : null;
+
+    internal TimeOnly? ParsedTime() =>
+        TimeOnly.TryParseExact(PublishTime, EventFields.TimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time) ? time : null;
+
+    /// <summary>The instant it goes out, or none while the date or time is missing.</summary>
+    internal DateTimeOffset? PublishAt() =>
+        ParsedDate() is { } date && ParsedTime() is { } time ? EventSchedule.StartOf(date, time) : null;
+}
+
+/// <summary>Unschedule: a Scheduled story whose time has not come becomes a Draft (L2-069 AC4). Audited <c>story.unscheduled</c>.</summary>
+public sealed class UnscheduleStoryCommand : StoryActionBody, IRequest<AdminStoryDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "story.unscheduled";
+}
+
 /// <summary>Unpublish: a Published story becomes a Draft and leaves readers at once (L2-069 AC5). Audited <c>story.unpublished</c>.</summary>
 public sealed class UnpublishStoryCommand : StoryActionBody, IRequest<AdminStoryDto>, IAuditableCommand
 {
@@ -73,6 +108,33 @@ internal sealed class UnpublishStoryValidator : AbstractValidator<UnpublishStory
 {
     public UnpublishStoryValidator() =>
         RuleFor(c => c.Version).NotNull().WithErrorCode(StoryRules.VersionRequired).WithMessage("Open the story again");
+}
+
+internal sealed class UnscheduleStoryValidator : AbstractValidator<UnscheduleStoryCommand>
+{
+    public UnscheduleStoryValidator() =>
+        RuleFor(c => c.Version).NotNull().WithErrorCode(StoryRules.VersionRequired).WithMessage("Open the story again");
+}
+
+/// <summary>
+/// Schedule's rules (L2-069 AC7): Publish's, then a Toronto date and a time, together after now,
+/// named on the date as Add a date names a start in the past.
+/// </summary>
+internal sealed class ScheduleStoryValidator : StoryGoesOutValidator<ScheduleStoryCommand>
+{
+    public ScheduleStoryValidator(IAppDbContext db, IImageStore images, TimeProvider time)
+        : base(db, images)
+    {
+        ArgumentNullException.ThrowIfNull(time);
+        RuleFor(c => c.PublishDate)
+            .Must((command, _) => command.ParsedDate() is not null)
+            .WithErrorCode(StoryRules.PublishDateRequired).WithMessage("Pick a date")
+            .Must((command, _) => command.PublishAt() is not { } at || at > time.GetUtcNow())
+            .WithErrorCode(StoryRules.PublishAtInPast).WithMessage("Pick a date and time after now");
+        RuleFor(c => c.PublishTime)
+            .Must((command, _) => command.ParsedTime() is not null)
+            .WithErrorCode(StoryRules.PublishTimeRequired).WithMessage("Pick a time");
+    }
 }
 
 internal sealed class PublishStoryValidator(IAppDbContext db, IImageStore images) : StoryGoesOutValidator<PublishStoryCommand>(db, images);
@@ -111,11 +173,33 @@ internal static class StoryActions
 {
     public const string RecordType = nameof(Story);
 
-    public static async Task<Story> FindAsync(IAppDbContext db, Guid id, int? version, CancellationToken cancellationToken)
+    /// <summary>The audit action of a publication, by an Admin or by the clock.</summary>
+    public const string PublishedAction = "story.published";
+
+    public static async Task<Story> FindAsync(IAppDbContext db, Guid id, int? version, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var story = await StoryAnswers.FindAsync(db, id, cancellationToken).ConfigureAwait(false);
         StoryAnswers.RequireVersion(story, version);
+        CatchUp(db, story, now);
         return story;
+    }
+
+    /// <summary>
+    /// A Scheduled story whose time has come is Published (ADR 0069): before a command acts on it,
+    /// the publication the clock has not stored yet is stored with the command, audited
+    /// <c>story.published</c> against the Admin who scheduled it, as the clock would. Its version
+    /// guards against the clock storing it too, so the publication is audited once (ADR 0104).
+    /// </summary>
+    public static void CatchUp(IAppDbContext db, Story story, DateTimeOffset now)
+    {
+        if (!story.IsDue(now))
+        {
+            return;
+        }
+
+        var by = story.ScheduledById ?? Guid.Empty;
+        story.PublishDue(now);
+        db.AuditEntries.Add(AuditEntry.Record(by, PublishedAction, RecordType, story.Id, now));
     }
 
     /// <summary>Runs a transition the domain allows; one it does not is 409 <c>status_conflict</c>.</summary>
@@ -179,11 +263,12 @@ internal sealed class SubmitStoryHandler(IAppDbContext db, TimeProvider time, IC
     public async Task<AdminStoryDto> Handle(SubmitStoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
-        StoryActions.Change(() => story.SendForReview(time.GetUtcNow()));
+        var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.SendForReview(now));
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
     }
 }
 
@@ -193,11 +278,12 @@ internal sealed class ReturnStoryToDraftHandler(IAppDbContext db, TimeProvider t
     public async Task<AdminStoryDto> Handle(ReturnStoryToDraftCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
-        StoryActions.Change(() => story.ReturnToDraft(time.GetUtcNow()));
+        var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.ReturnToDraft(now));
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
     }
 }
 
@@ -207,15 +293,15 @@ internal sealed class PublishStoryHandler(IAppDbContext db, TimeProvider time, I
     public async Task<AdminStoryDto> Handle(PublishStoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
         var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
         StoryActions.Change(() => story.Edit(request.ToContent(), now));
         story.SetSlug(await StoryActions.SlugOfAsync(db, story, cancellationToken).ConfigureAwait(false));
         StoryActions.Change(() => story.Publish(now));
         await StoryActions.TakeLeadAsync(db, story, cancellationToken).ConfigureAwait(false);
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
     }
 }
 
@@ -225,12 +311,13 @@ internal sealed class UpdateStoryHandler(IAppDbContext db, TimeProvider time, IC
     public async Task<AdminStoryDto> Handle(UpdateStoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
-        StoryActions.Change(() => story.UpdatePublished(request.ToContent(), time.GetUtcNow()));
+        var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.UpdatePublished(request.ToContent(), now));
         await StoryActions.TakeLeadAsync(db, story, cancellationToken).ConfigureAwait(false);
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
     }
 }
 
@@ -240,10 +327,48 @@ internal sealed class UnpublishStoryHandler(IAppDbContext db, TimeProvider time,
     public async Task<AdminStoryDto> Handle(UnpublishStoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
-        StoryActions.Change(() => story.Unpublish(time.GetUtcNow()));
+        var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.Unpublish(now));
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
+    }
+}
+
+internal sealed class ScheduleStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+    : IRequestHandler<ScheduleStoryCommand, AdminStoryDto>
+{
+    public async Task<AdminStoryDto> Handle(ScheduleStoryCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        if (story.Status is not (StoryStatus.Draft or StoryStatus.InReview))
+        {
+            throw StoryAnswers.StatusConflict();
+        }
+
+        StoryActions.Change(() => story.Edit(request.ToContent(), now));
+        story.SetSlug(await StoryActions.SlugOfAsync(db, story, cancellationToken).ConfigureAwait(false));
+        StoryActions.Change(() => story.Schedule(request.PublishAt()!.Value, current.Id, now));
+        audit.Record(current.Id, StoryActions.RecordType, story.Id);
+        await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        return StoryAnswers.Of(story, now);
+    }
+}
+
+internal sealed class UnscheduleStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+    : IRequestHandler<UnscheduleStoryCommand, AdminStoryDto>
+{
+    public async Task<AdminStoryDto> Handle(UnscheduleStoryCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var now = time.GetUtcNow();
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, now, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.Unschedule(now));
+        audit.Record(current.Id, StoryActions.RecordType, story.Id);
+        await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        return StoryAnswers.Of(story, now);
     }
 }

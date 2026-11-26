@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 53% (19 of 36 journeys; 59 of 113 days)
+**% complete:** 58% (21 of 36 journeys; 63 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3132,3 +3132,51 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   stayed flat. The dialog loads on the first Cancel date.
 - "Run the full suite against the built apps" (`CF_SERVE_BUILT=1`, free ports) was used for the
   final run.
+
+## Journey 23: Schedule stories
+
+**What slowed it**
+
+- The context ran out after the backend slices; the slice commits, the summary and the scratch
+  scripts in the journey's folder carried the frontend slice over.
+- The worktree guard refuses compound shell commands and `cd` before git, so every edit went
+  through a Python script in the scratchpad with an exact-match assert, and git ran alone. A
+  heredoc holding a Python string with an apostrophe broke the shell's quoting; the Write tool
+  was the way out for a whole file.
+- The machine ran short of memory: `ng serve` for both apps died (exit 127, a Rust allocation
+  failure), Playwright workers crashed, and one backend test host ran out of memory. Building the
+  apps and serving them with `CF_SERVE_BUILT=1` on free ports with two workers was steady.
+- InMemory raises `ArgumentException`, not `DbUpdateException`, on a duplicate key, so the lease
+  race double throws `DbUpdateException` itself, as PostgreSQL would.
+- Journeys 2 and 3 merged first: `ApiFactory` conflicted on its usings and its background-service
+  comment, the migration was regenerated on main's snapshot, and the generated race double still
+  listed the two-step tables journey 3 removed.
+
+**New lessons**
+
+- A `BackgroundService` that needs a `PeriodicTimer` on a `FakeTimeProvider` creates it in
+  `StartAsync`: .NET 10 runs `ExecuteAsync` on the thread pool, so a timer made there may miss the
+  test's first `Advance`. An event raised after each tick (`Ticked`) lets a test await the tick
+  through a channel with a timeout instead of sleeping.
+- A rule that is also enforced by a catch-up step (a past-due story read as Published, then
+  refused) does not go red through the API when only one guard is broken. Break both to see the
+  acceptance test fail, and prove each guard alone with its own direct test.
+- A read-time effective status in a `GROUP BY` and a `WHERE` is one conditional expression
+  (`Status == Scheduled && PublishAt <= now ? Published : Status`), which EF Core turns into a
+  `CASE`; the tests prove it on InMemory only.
+- A store keeps a choice that is not saved (When, its date and time) across saves and actions
+  unless the story's own state says otherwise: a Scheduled story shows its time, and one that
+  stops being Scheduled goes back to "now".
+- To measure the initial bundle against the base without stashing, commit the slice, check out the
+  previous commit's `frontend/projects`, build, and check out `HEAD` again.
+
+**How earlier lessons worked**
+
+- "Break each rule alone" proved the domain guard, the catch-up, the past-time check, the list's
+  counts, the lease expiry, the held check, the interval, the audit, the lease race and the
+  store's three new rules, through `brk.py` and `brk3.py`.
+- "Read the initial total after each slice, against main": both apps' initial totals are the same
+  as the base (admin 279.04 kB, web 278.26 kB); the new code is in the editor's lazy chunk.
+- "Run the full suite against the built apps": the 386 admin specs passed on built apps.
+- "Regenerate a colliding migration on main's snapshot" worked as written; the snapshot diff was
+  only the slice's 28 lines.

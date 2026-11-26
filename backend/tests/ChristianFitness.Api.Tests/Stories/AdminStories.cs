@@ -40,6 +40,8 @@ public class StoriesFactory : BylinesFactory
     /// <summary>
     /// Puts a story in the store, written at <paramref name="at"/> and taken to
     /// <paramref name="status"/> through the domain's own transitions, each a minute after the last.
+    /// A Scheduled story is scheduled for <paramref name="publishAt"/> (a day after it was written by
+    /// default) by <paramref name="scheduledBy"/>; a time before now makes it past due.
     /// </summary>
     internal async Task<Story> PutStoryAsync(
         string headline,
@@ -49,7 +51,9 @@ public class StoriesFactory : BylinesFactory
         StorySection? section = StorySection.Community,
         bool unpublished = false,
         StoryPlacement placement = StoryPlacement.Latest,
-        string? slug = null)
+        string? slug = null,
+        DateTimeOffset? publishAt = null,
+        Guid? scheduledBy = null)
     {
         var when = at ?? Time.GetUtcNow();
         using var scope = Services.CreateScope();
@@ -66,6 +70,9 @@ public class StoriesFactory : BylinesFactory
                 break;
             case StoryStatus.Published:
                 story.Publish(when.AddMinutes(1));
+                break;
+            case StoryStatus.Scheduled:
+                story.Schedule(publishAt ?? when.AddDays(1), scheduledBy ?? Guid.NewGuid(), when.AddMinutes(1));
                 break;
         }
 

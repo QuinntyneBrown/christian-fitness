@@ -66,6 +66,8 @@ public sealed class JoinSeriesRaceTests(JoinSeriesRaceTests.Factory factory) : I
         public DbSet<ChristianFitness.Domain.News.Byline> Bylines => db.Bylines;
         public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
 
+        public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
+
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)

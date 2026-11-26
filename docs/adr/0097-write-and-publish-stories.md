@@ -116,4 +116,5 @@ scheduling is journey 23). The requirement, the two designs (`publishing/manage-
 - Journey 24 renders the public story page with `storyBlocks` and the library's `story`, adding
   Copy link, the correction line and Keep reading to it.
 - Reads stay 0 until journey 24 counts them.
-- Journey 23 adds scheduling: the When choice, Schedule, Unschedule and the publishing clock.
+- Journey 23 adds scheduling: the When choice, Schedule, Unschedule and the publishing clock
+  ([ADR 0104](0104-schedule-stories.md)).

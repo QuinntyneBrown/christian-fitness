@@ -52,6 +52,15 @@ export interface StorySaveDto extends StoryFieldsDto {
   version: number;
 }
 
+/**
+ * Schedule (L2-069 AC2; ADR 0104): the fields, the version, and the Toronto date (`yyyy-MM-dd`) and
+ * time (`HH:mm`) the story goes out, which must be after now.
+ */
+export interface StoryScheduleDto extends StorySaveDto {
+  publishDate: string;
+  publishTime: string;
+}
+
 /** A story as the editor opens it. */
 export interface AdminStoryDto extends StoryFieldsDto {
   id: string;
@@ -59,8 +68,10 @@ export interface AdminStoryDto extends StoryFieldsDto {
   version: number;
   /** When it was last saved. */
   savedAt: string;
-  /** When it went out, while Published. */
+  /** When it went out, while Published (a Scheduled story's time, once it has come). */
   publishedAt: string | null;
+  /** When a Scheduled story goes out. */
+  publishAt: string | null;
 }
 
 /** How many stories each tab holds (L2-068 AC3). */
@@ -151,8 +162,8 @@ export function storyImageUrl(key: string): string {
 }
 
 /**
- * Admins list, write, review, preview, publish, update and unpublish stories (L2-068, L2-069; ADR
- * 0097). Every failure errors with an `ApiError`; a Moderator is refused `forbidden_role`. A save
+ * Admins list, write, review, preview, publish, schedule, update and unpublish stories (L2-068,
+ * L2-069; ADR 0097, ADR 0104). Every failure errors with an `ApiError`; a Moderator is refused `forbidden_role`. A save
  * over a version not seen errors with `story_changed` (409); an action the status does not allow
  * with `status_conflict` (409); fields with `validation_failed` (400) naming them in `fieldCodes`.
  */
@@ -167,6 +178,10 @@ export interface AdminStoriesApi {
   returnToDraft(id: string, version: number): Observable<AdminStoryDto>;
   /** Saves the fields, then publishes a Draft or a story In review. */
   publish(id: string, save: StorySaveDto): Observable<AdminStoryDto>;
+  /** Saves the fields, then schedules a Draft or a story In review for its date and time. */
+  schedule(id: string, save: StoryScheduleDto): Observable<AdminStoryDto>;
+  /** A Scheduled story whose time has not come becomes a Draft. */
+  unschedule(id: string, version: number): Observable<AdminStoryDto>;
   /** Update on a Published story: live at once. */
   update(id: string, save: StorySaveDto): Observable<AdminStoryDto>;
   unpublish(id: string, version: number): Observable<AdminStoryDto>;

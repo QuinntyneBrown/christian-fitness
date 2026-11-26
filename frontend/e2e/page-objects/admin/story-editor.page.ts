@@ -43,6 +43,12 @@ export class StoryEditorPage {
   readonly nextStepLink: Locator;
   readonly slug: Locator;
   readonly slugPrefix: Locator;
+  /** When: "As soon as it's published" or "Schedule" (L2-069 AC1, AC2). */
+  readonly when: Locator;
+  readonly whenNow: Locator;
+  readonly whenSchedule: Locator;
+  readonly publishDate: Locator;
+  readonly publishTime: Locator;
   readonly loading: Locator;
   readonly error: Locator;
   readonly errorTitle: Locator;
@@ -83,6 +89,11 @@ export class StoryEditorPage {
     this.nextStepLink = this.publishing.getByRole('textbox', { name: /^Next step link/ });
     this.slug = this.publishing.getByRole('textbox', { name: 'Link', exact: true });
     this.slugPrefix = this.publishing.locator('.input-group__prefix');
+    this.when = this.publishing.getByRole('group', { name: 'When' });
+    this.whenNow = this.when.getByRole('radio', { name: 'As soon as it’s published' });
+    this.whenSchedule = this.when.getByRole('radio', { name: 'Schedule' });
+    this.publishDate = this.publishing.getByLabel('Date', { exact: true });
+    this.publishTime = this.publishing.getByLabel('Time', { exact: true });
     this.loading = this.main.locator('[aria-busy="true"]');
     this.error = this.main.locator('.error-state');
     this.errorTitle = this.error.locator('.empty-state__title');

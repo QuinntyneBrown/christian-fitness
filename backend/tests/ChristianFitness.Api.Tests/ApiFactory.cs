@@ -1,5 +1,6 @@
 using System.Net;
 using System.Security.Cryptography;
+using ChristianFitness.Api.Scheduling;
 using ChristianFitness.Api.Tests.Google;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Email;
@@ -70,9 +71,10 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IImageStore>();
             services.AddSingleton<IImageStore>(Images);
             services.AddHttpClient(GoogleAuthentication.PhotoClient).ConfigurePrimaryHttpMessageHandler(Google.PhotoHandler);
-            // No background service in the shared host (AGENTS.md); nothing is queued to deliver.
+            // No background service in the shared host (AGENTS.md): nothing is queued to deliver, and
+            // no publishing clock ticks unless a fixture runs one (PublishingClockTests).
             services.RemoveAll<QueuedEmailSender>();
-            foreach (var dispatcher in services.Where(d => d.ImplementationType == typeof(EmailDispatcher)).ToList())
+            foreach (var dispatcher in services.Where(d => d.ImplementationType == typeof(EmailDispatcher) || d.ImplementationType == typeof(PublishingClock)).ToList())
             {
                 services.Remove(dispatcher);
             }

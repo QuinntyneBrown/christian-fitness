@@ -87,16 +87,23 @@ The secret settings are secrets of the container app (`db-connection`, `smtp-use
 `smtp-password`) and of the job (`db-owner-connection`). To change one:
 `az containerapp secret set`, then run `Deploy` so a new revision reads it.
 
-## Scheduled work (planned)
+## Scheduled work
 
 [ADR 0069](../adr/0069-scheduled-work.md) chooses a hosted scheduler in the API container, not
-another Container Apps job. It is not implemented yet: deploying the current release does not
-run these jobs. Once built, each API replica ticks every 30 seconds with `TimeProvider` and takes
-a short PostgreSQL lease before running due work. A replica without the lease skips the tick;
-after a restart or missed tick, due work is picked up again.
+another Container Apps job. `PublishingClock` runs in every API replica from journey 23
+([ADR 0104](../adr/0104-schedule-stories.md)); it needs no setting. Every 30 seconds it takes
+or renews the `publishing-clock` row of the `SchedulerLeases` table for 60 seconds, then
+publishes the Scheduled stories whose time has come, oldest first, at most 100 a tick, each
+audited `story.published`. A replica that cannot take the lease skips the tick; after a stopped
+replica's lease expires (at most 60 seconds), another takes it over. After a restart or missed
+tick, due stories are picked up again, and every admin read already shows them as Published.
 
-The scheduler publishes due stories and starts scheduled newsletter issues; a past-due Scheduled
-story also reads as Published before the status write. Daily jobs run newsletter upkeep (purging
+To see who holds the lease, read `SchedulerLeases` (`Holder` is the machine name and a random
+id per process; `Fence` counts changes of holder). Deleting the row is safe: the next tick
+makes it again. A failed tick is logged as `A publishing clock tick failed` with the
+exception's type only, and the next tick tries again.
+
+Still planned: the scheduler starts scheduled newsletter issues, and daily jobs run newsletter upkeep (purging
 unsubscribed addresses), data exports and account erasures. `cf export-data` and
 `cf erase-accounts` remain manual commands when implemented, coordinated with scheduled runs.
 The release job still runs only migrations and seed. Add-on emails have no trigger yet

@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted, 24 November 2026. The scheduler and its jobs are not built yet.
+Accepted, 24 November 2026. `PublishingClock`, its lease and the story job are built in journey 23
+([ADR 0104](0104-schedule-stories.md)); the newsletter and daily jobs are not built yet.
 
 ## Context
 

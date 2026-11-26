@@ -33,7 +33,7 @@ public sealed record StoryPreviewDto(
 /// <summary>Preview of one story, to Admins only; an unknown story is 404 <c>not_found</c>. Reads are not audited.</summary>
 public sealed record GetStoryPreviewQuery(Guid Id) : IRequest<StoryPreviewDto>;
 
-internal sealed class GetStoryPreviewHandler(IAppDbContext db) : IRequestHandler<GetStoryPreviewQuery, StoryPreviewDto>
+internal sealed class GetStoryPreviewHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetStoryPreviewQuery, StoryPreviewDto>
 {
     public async Task<StoryPreviewDto> Handle(GetStoryPreviewQuery request, CancellationToken cancellationToken)
     {
@@ -43,7 +43,7 @@ internal sealed class GetStoryPreviewHandler(IAppDbContext db) : IRequestHandler
         var author = story.BylineId is { } bylineId
             ? await db.Bylines.AsNoTracking().Where(b => b.Id == bylineId).Select(b => b.Name).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             : null;
-        var answer = StoryAnswers.Of(story);
+        var answer = StoryAnswers.Of(story, time.GetUtcNow());
         var next = await NextOfAsync(story, cancellationToken).ConfigureAwait(false);
         return new StoryPreviewDto(
             story.Id,
@@ -52,7 +52,7 @@ internal sealed class GetStoryPreviewHandler(IAppDbContext db) : IRequestHandler
             story.Headline,
             story.Summary,
             author,
-            story.PublishedAt,
+            answer.PublishedAt,
             story.Text,
             answer.Image,
             next);

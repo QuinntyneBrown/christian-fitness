@@ -1,5 +1,6 @@
 using ChristianFitness.Api.Chat;
 using ChristianFitness.Api.Errors;
+using ChristianFitness.Api.Scheduling;
 using ChristianFitness.Api.Security;
 using ChristianFitness.Api.Telemetry;
 using ChristianFitness.Application;
@@ -49,6 +50,8 @@ builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IChatChannel, HubChatChannel>();
 builder.Services.AddSingleton<INotificationChannel, HubNotificationChannel>();
+// The one scheduler: publishes scheduled stories when due, behind a database lease (ADR 0069, ADR 0104).
+builder.Services.AddPublishingClock();
 
 var app = builder.Build();
 

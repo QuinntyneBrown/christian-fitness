@@ -21,7 +21,11 @@ public sealed record StoryCropDto(int X, int Y, int Width, int Height);
 /// <summary>The lead image: its key and crop.</summary>
 public sealed record StoryImageDto(string Key, StoryCropDto Crop);
 
-/// <summary>A story as the editor reads it (L2-069; ADR 0097). <c>savedAt</c> is the last save.</summary>
+/// <summary>
+/// A story as the editor reads it (L2-069; ADR 0097, ADR 0104). <c>savedAt</c> is the last save;
+/// <c>publishAt</c> is a Scheduled story's time. A Scheduled story whose time has come reads as
+/// Published at that time (ADR 0069).
+/// </summary>
 public sealed record AdminStoryDto(
     Guid Id,
     string Status,
@@ -39,7 +43,8 @@ public sealed record AdminStoryDto(
     string? Slug,
     StoryImageDto? Image,
     DateTimeOffset SavedAt,
-    DateTimeOffset? PublishedAt);
+    DateTimeOffset? PublishedAt,
+    DateTimeOffset? PublishAt);
 
 /// <summary>A choice the editor offers: a byline, event or listing by its id and name.</summary>
 public sealed record StoryChoiceDto(Guid Id, string Name);
@@ -160,9 +165,9 @@ public sealed record GetStoryOptionsQuery : IRequest<StoryOptionsDto>
 /// <summary>Builds the editor's answer and the save every write shares.</summary>
 internal static partial class StoryAnswers
 {
-    public static AdminStoryDto Of(Story story) => new(
+    public static AdminStoryDto Of(Story story, DateTimeOffset now) => new(
         story.Id,
-        StoryNames.Of(story.Status),
+        StoryNames.Of(story.EffectiveStatus(now)),
         story.Version,
         story.Headline,
         story.Summary,
@@ -177,7 +182,8 @@ internal static partial class StoryAnswers
         story.Slug,
         story.ImageKey is { } key && story.ImageCrop is { } crop ? new StoryImageDto(key, new StoryCropDto(crop.X, crop.Y, crop.Width, crop.Height)) : null,
         story.EditedAt,
-        story.PublishedAt);
+        story.EffectivePublishedAt(now),
+        story.IsDue(now) ? null : story.PublishAt);
 
     public static async Task<Story> FindAsync(IAppDbContext db, Guid id, CancellationToken cancellationToken) =>
         await db.Stories.SingleOrDefaultAsync(s => s.Id == id, cancellationToken).ConfigureAwait(false)
@@ -328,10 +334,11 @@ internal sealed class CreateStoryHandler(IAppDbContext db, TimeProvider time) : 
     public async Task<AdminStoryDto> Handle(CreateStoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var story = Story.Create(request.ToContent(), time.GetUtcNow());
+        var now = time.GetUtcNow();
+        var story = Story.Create(request.ToContent(), now);
         db.Stories.Add(story);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
     }
 }
 
@@ -341,6 +348,7 @@ internal sealed class SaveStoryHandler(IAppDbContext db, TimeProvider time) : IR
     public async Task<AdminStoryDto> Handle(SaveStoryCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+        var now = time.GetUtcNow();
         var story = await StoryAnswers.FindAsync(db, request.Id, cancellationToken).ConfigureAwait(false);
         if (story.Status is not (StoryStatus.Draft or StoryStatus.InReview))
         {
@@ -348,20 +356,20 @@ internal sealed class SaveStoryHandler(IAppDbContext db, TimeProvider time) : IR
         }
 
         StoryAnswers.RequireVersion(story, request.Version);
-        story.Edit(request.ToContent(), time.GetUtcNow());
+        story.Edit(request.ToContent(), now);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, now);
     }
 }
 
-internal sealed class GetAdminStoryHandler(IAppDbContext db) : IRequestHandler<GetAdminStoryQuery, AdminStoryDto>
+internal sealed class GetAdminStoryHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetAdminStoryQuery, AdminStoryDto>
 {
     public async Task<AdminStoryDto> Handle(GetAdminStoryQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         var story = await db.Stories.AsNoTracking().SingleOrDefaultAsync(s => s.Id == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
-        return StoryAnswers.Of(story);
+        return StoryAnswers.Of(story, time.GetUtcNow());
     }
 }
 

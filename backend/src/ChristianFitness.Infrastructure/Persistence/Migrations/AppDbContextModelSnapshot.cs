@@ -898,6 +898,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("PublishedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("ScheduledById")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Section")
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
@@ -979,6 +982,31 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("MemberId", "CreatedAt");
 
                     b.ToTable("Notifications", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Scheduling.SchedulerLease", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Fence")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Holder")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("SchedulerLeases", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Services.ProfessionalApplication", b =>
