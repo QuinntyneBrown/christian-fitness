@@ -66,6 +66,8 @@ export interface WorkAwaitingStaffDto {
   suggestions: AwaitingListDto<AwaitingSuggestionDto>;
   /** The stories In review, for Admins only (ADR 0097). */
   stories?: AwaitingListDto<AwaitingStoryDto>;
+  /** The newsletter issue not scheduled when its time passed, while it can still go out today (L2-070 AC8). */
+  missedIssue?: { number: number; wasDueAt: string };
 }
 
 /** What the admin Dashboard reads (L2-020; ADR 0059, ADR 0060). */

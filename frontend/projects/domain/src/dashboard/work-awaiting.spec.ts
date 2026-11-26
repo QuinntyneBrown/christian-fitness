@@ -178,3 +178,26 @@ describe('awaitingRowsOf, stories in review', () => {
     });
   });
 });
+
+// L2-070 AC8: an issue still a Draft when its time passed is named first, while it can still go out today.
+describe('awaitingRowsOf, a missed issue', () => {
+  const MISSED: WorkAwaitingStaffDto = {
+    ...ADMIN,
+    missedIssue: { number: 49, wasDueAt: '2026-04-18T11:00:00+00:00' },
+  };
+
+  it('says the issue was not scheduled, first, and opens Newsletter', () => {
+    expect(awaitingRowsOf(MISSED, NOW)[0]).toEqual({
+      id: 'missed-issue',
+      title: 'Issue #49 was not scheduled',
+      meta: 'It was due Apr 18 at 7:00 AM Eastern. It can still go out later today.',
+      href: '/newsletter',
+      action: 'Review',
+    });
+    expect(awaitingRowsOf(ADMIN, NOW).some((row) => row.id === 'missed-issue')).toBe(false);
+  });
+
+  it('counts the missed issue as one thing waiting', () => {
+    expect(awaitingTotalOf(MISSED)).toBe(awaitingTotalOf(ADMIN) + 1);
+  });
+});

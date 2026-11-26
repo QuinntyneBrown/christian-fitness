@@ -72,7 +72,42 @@ export function awaitingRowsOf(awaiting: WorkAwaitingStaffDto, now: Date): Await
     href: FLAGGED_MEMBERS_HREF,
     action: 'Review' as const,
   }));
-  return [...stories, ...suggestionsRowOf(awaiting), ...applications, ...flagged];
+  return [
+    ...missedIssueRowOf(awaiting),
+    ...stories,
+    ...suggestionsRowOf(awaiting),
+    ...applications,
+    ...flagged,
+  ];
+}
+
+/** Where a missed issue is rescheduled (L2-070 AC8). */
+export const NEWSLETTER_HREF = '/newsletter';
+
+// Made once on first use, not at import: a formatter is costly to create.
+let dueFormat: Intl.DateTimeFormat | undefined;
+
+/** The newsletter issue that was not scheduled when its time passed, or none (L2-070 AC8). */
+function missedIssueRowOf(awaiting: WorkAwaitingStaffDto): AwaitingRow[] {
+  const missed = awaiting.missedIssue;
+  if (!missed) return [];
+  dueFormat ??= new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Toronto',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  const due = dueFormat.format(new Date(missed.wasDueAt)).replace(', ', ' at ');
+  return [
+    {
+      id: 'missed-issue',
+      title: `Issue #${missed.number} was not scheduled`,
+      meta: `It was due ${due} Eastern. It can still go out later today.`,
+      href: NEWSLETTER_HREF,
+      action: 'Review',
+    },
+  ];
 }
 
 /** The suggestions as one line naming the oldest few, or none when none waits (L2-020 AC11). */
@@ -97,7 +132,8 @@ export function awaitingTotalOf(awaiting: WorkAwaitingStaffDto): number {
     (awaiting.stories?.total ?? 0) +
     awaiting.suggestions.total +
     (awaiting.applications?.total ?? 0) +
-    awaiting.flaggedMembers.total
+    awaiting.flaggedMembers.total +
+    (awaiting.missedIssue ? 1 : 0)
   );
 }
 
