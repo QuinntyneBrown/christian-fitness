@@ -52,9 +52,16 @@ public static class IssueRules
 {
     public const string TooManyStories = "too_many_stories";
 
+    /// <summary>A story picked is not published now (L2-070 AC2).</summary>
+    public const string StoryUnavailable = "story_unavailable";
+
+    /// <summary>An event picked is not published or has started (L2-070 AC2).</summary>
+    public const string EventUnavailable = "event_unavailable";
+
     public static readonly IReadOnlySet<string> FieldCodes = new HashSet<string>(StringComparer.Ordinal)
     {
         "subject_too_long", "editors_note_too_long", "verse_too_long", "verse_reference_too_long", TooManyStories, "too_many_events",
+        "subject_required", "editors_note_required", "lead_story_required", StoryUnavailable, EventUnavailable,
     };
 }
 

@@ -91,6 +91,36 @@ public sealed class NewsletterIssue
         VerseReference = content.VerseReference;
     }
 
+    /// <summary>The Admin who scheduled the issue; empty while it is a Draft (L2-070 AC13).</summary>
+    public Guid? ScheduledById { get; private set; }
+
+    /// <summary>Locks a Draft to go out at its time (L2-070 AC6); any other status throws.</summary>
+    public void Schedule(Guid by)
+    {
+        if (!IsDraft)
+        {
+            throw new InvalidOperationException("Only a Draft issue can be scheduled.");
+        }
+
+        Status = IssueStatus.Scheduled;
+        ScheduledById = by;
+    }
+
+    /// <summary>Whether "Unschedule to edit" applies: only until sending starts (L2-070 AC6).</summary>
+    public bool CanUnschedule => Status == IssueStatus.Scheduled;
+
+    /// <summary>Makes a Scheduled issue a Draft again; once sending has started it throws.</summary>
+    public void Unschedule()
+    {
+        if (!CanUnschedule)
+        {
+            throw new InvalidOperationException("Only a Scheduled issue can be unscheduled.");
+        }
+
+        Status = IssueStatus.Draft;
+        ScheduledById = null;
+    }
+
     public static NewsletterIssue CreateDraft(int number, DateTimeOffset sendAt) =>
         new() { Id = Guid.NewGuid(), Number = number, Status = IssueStatus.Draft, SendAt = sendAt };
 }
