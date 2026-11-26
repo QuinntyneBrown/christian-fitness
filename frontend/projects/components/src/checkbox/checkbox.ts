@@ -12,7 +12,8 @@ export type CheckboxVariant = 'compact' | 'form' | 'choice';
  * inside its `label`, so the whole label toggles it and names it, description included. It takes
  * effect on submit; a setting that applies at once is a switch. `checked` sets it and
  * `checkedChange` reports each toggle. `indeterminate` marks a parent of a partly checked list,
- * `invalid` sets `aria-invalid` (the group's error says why), and `disabled` dims the label. Every
+ * `invalid` sets `aria-invalid` (the group's error says why), and `disabled` dims the label. A
+ * compact box that saves as it is ticked is `busy` while it saves and named by `ariaLabel`. Every
  * text is rendered as text.
  */
 @Component({
@@ -39,6 +40,16 @@ export class Checkbox {
   readonly required = input(false, { transform: booleanAttribute });
   readonly describedBy = input<string>();
   readonly invalid = input(false, { transform: booleanAttribute });
+  /**
+   * Compact only: the box's name when its words change, such as "Came: Grace Thompson" beside
+   * "Came" or "Saving…" (ADR 0106). Without it the label names the box.
+   */
+  readonly ariaLabel = input<string>();
+  /**
+   * Compact only: its change is being saved (`aria-busy`). It stays enabled, so focus stays on it
+   * and a failed save can put it back (ADR 0106).
+   */
+  readonly busy = input(false, { transform: booleanAttribute });
 
   readonly checkedChange = output<boolean>();
 

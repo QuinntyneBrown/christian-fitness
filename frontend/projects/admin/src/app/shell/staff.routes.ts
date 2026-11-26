@@ -49,6 +49,12 @@ const routes: Routes = [
         loadComponent: () => import('../pages/event-registrations/event-registrations-page'),
       },
       {
+        // Who came to one event, ticked by Admins and Moderators (journey 16; ADR 0106).
+        path: 'events/:id/attendance',
+        title: titled('Event attendance'),
+        loadComponent: () => import('../pages/event-attendance/event-attendance-page'),
+      },
+      {
         // Every series by its next session, the chosen one's summary and dates (journey 9; ADR 0091).
         path: 'series',
         title: titled('Event series'),

@@ -46,6 +46,9 @@ internal static class AuthenticationSetup
         ["community-pick"] = StaffArea.CommunityPick,
     };
 
+    /// <summary>The route of an event's attendance, the <see cref="StaffArea.Attendance"/> area (ADR 0106).</summary>
+    public const string AttendanceRoute = AdminRoutePrefix + "/events/{id:guid}/attendance";
+
     /// <summary>A member session lasts 14 days from the last request (ADR 0007).</summary>
     public static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(14);
 
@@ -175,6 +178,12 @@ internal static class AuthenticationSetup
         if (!template.StartsWith(AdminRoutePrefix + "/", StringComparison.OrdinalIgnoreCase))
         {
             return null;
+        }
+
+        // An event's attendance is its own area, open to Moderators, under the Admins-only Events (ADR 0106).
+        if (template.Equals(AttendanceRoute, StringComparison.OrdinalIgnoreCase))
+        {
+            return StaffArea.Attendance;
         }
 
         var segment = template[(AdminRoutePrefix.Length + 1)..].Split('/', 2)[0];

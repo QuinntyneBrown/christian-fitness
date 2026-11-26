@@ -97,6 +97,9 @@ public interface IAppDbContext
     /// <summary>Each Published story's reads per Toronto day (L2-061 AC12; ADR 0105).</summary>
     DbSet<StoryReadTally> StoryReadTallies { get; }
 
+    /// <summary>Whether each registered member came to each event, as staff recorded it (L2-080; ADR 0106).</summary>
+    DbSet<Attendance> Attendances { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

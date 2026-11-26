@@ -4,6 +4,7 @@ import {
   areasFor,
   adminPageIsFlush,
   canManage,
+  canOpen,
   currentAdminArea,
   type AdminAreaKey,
 } from './admin-areas';
@@ -118,6 +119,24 @@ describe('canManage', () => {
 
   it('refuses a role it does not know', () => {
     expect(canManage('Visitor' as StaffRoleName, 'dashboard')).toBe(false);
+  });
+});
+
+// L2-019 AC1 as amended (ADR 0106): an event's Attendance tab opens for Moderators too.
+describe('canOpen', () => {
+  it.each<{ role: StaffRoleName; url: string; allowed: boolean }>([
+    { role: 'Moderator', url: '/events/e1/attendance', allowed: true },
+    { role: 'Moderator', url: '/events/e1/attendance/?x=1#top', allowed: true },
+    { role: 'Admin', url: '/events/e1/attendance', allowed: true },
+    { role: 'Visitor' as StaffRoleName, url: '/events/e1/attendance', allowed: false },
+    { role: 'Moderator', url: '/events/e1/registrations', allowed: false },
+    { role: 'Moderator', url: '/events', allowed: false },
+    { role: 'Moderator', url: '/events/attendance', allowed: false },
+    { role: 'Moderator', url: '/members', allowed: true },
+    { role: 'Moderator', url: '/admins-only', allowed: true },
+    { role: 'Admin', url: '/stories', allowed: true },
+  ])('$role at $url: $allowed', ({ role, url, allowed }) => {
+    expect(canOpen(role, url)).toBe(allowed);
   });
 });
 
