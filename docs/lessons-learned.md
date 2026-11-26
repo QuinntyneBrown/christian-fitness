@@ -3342,3 +3342,46 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   278.49 kB. The page, its tracker and the toast region load with the route.
 - "Run the full suite against the built apps" with two workers was steady.
 
+## Journey 26: Follow stories by RSS
+
+**What slowed it**
+
+- The output cache is shared by every test of a class, and the story tests put stories straight in
+  the store, which evicts nothing. A rate-limit test that read `/feed` 120 times on an empty store
+  kept an empty feed for the next test, and an unpublish test kept a Training feed for the
+  conditional test. Each test now reads feeds no other test of its class keeps, or evicts every
+  feed first (`StoryFeeds.EvictAllAsync`).
+- Two break runs did not compile: removing the eviction call left the handler's `feeds` parameter
+  unread (CS9113, analysers run on every build). The break replaces the call with `_ = feeds;`.
+- The full e2e run on two workers failed two specs this journey does not touch
+  (`event-chat` "Earlier messages" and the admin Stories skeleton); both passed alone on one
+  worker while other sessions' builds and test hosts shared the machine.
+- The worktree guard refused heredocs that wrote files and multi-command lines; the Write tool and
+  small Python edit scripts with exact-match asserts did the edits.
+
+**New lessons**
+
+- A conditional-request rule has two paths: the output cache answers 304 itself for a kept feed,
+  so an API test that only repeats a kept request passes with the handler's rule broken. Evict
+  first to prove the handler's comparison, then repeat after a 200 to prove the cache's.
+- A `Last-Modified` taken as the newest of a feed's items can go back when an item leaves it
+  (unpublished or moved), and a reader sending only `If-Modified-Since` would get a wrong 304. Take
+  it over every story that has ever gone out; the fake clock must move on before the change, or
+  every change lands in the same second.
+- An endpoint outside `/api` sets no antiforgery cookie, because `UseAntiforgeryTokens` adds it
+  only to `/api` answers; widening that check alone turned the no-cookie assertion red.
+- A footer variant's link text read through `allTextContents()` keeps the space between the icon
+  and the word; trim it in the page object.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the published filter (future and due Scheduled stories), raw summary
+  markup, the section filter, the 30-story limit, the Pros feed, the rate limit, the antiforgery
+  path, the validators, the output cache, each eviction (publish, update's old section, unpublish,
+  the clock) and the unpublished `Last-Modified` each failed their own test.
+- "After rebasing onto a journey that changes what a status means at read time, grep every query":
+  the feed reads through `PublishedStories.At`, so a due Scheduled story is in it at its time.
+- "Read the initial total after each slice, against the base": web stayed at 278.49 kB and admin
+  at 279.11 kB; the footer's news variant reuses the `@if` blocks the footer already paid for.
+- Docker was not running again, so the two nginx feed locations were reviewed, not run through
+  `nginx -t`.

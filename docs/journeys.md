@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 69% (25 of 36 journeys; 77 of 113 days)
+**% complete:** 70% (26 of 36 journeys; 79 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -25,7 +25,7 @@ audit), so those are not listed on their own.
 | 10  | ✅ Browse event series                 | Member | A Series view on Events lists programs by next session, with progress and filters.                             | 3             |
 | 11  | ✅ View an event series                | Member | A series page with its sessions, host and sign-up panel; session events show their series.                     | 3             |
 | 12  | ✅ Join and leave a series             | Member | Hold a place at every remaining session and join the series' one group chat, or leave it.                      | 4             |
-| 13  | ✅ Drop in on series dates              | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
+| 13  | ✅ Drop in on series dates             | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
 | 14  | ✅ Get notifications in the app        | Member | A bell with an unread count and a Notifications screen, fed over the existing real-time connection.            | 3             |
 | 15  | ✅ Cancel and restore series dates     | Both   | Staff cancel or restore a session; members holding a place are told in chat and by notification.               | 2             |
 | 16  | ✅ Record event attendance             | Both   | Staff tick who came; members see "You came", "Missed" and "Came to n of m" on the series.                      | 3             |
@@ -38,7 +38,7 @@ audit), so those are not listed on their own.
 | 23  | ✅ Schedule stories                    | Admin  | A scheduled story publishes itself within a minute, run by the console's scheduler.                            | 2             |
 | 24  | ✅ Read a story                        | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
 | 25  | Read the news front page               | Member | The landing page becomes a news front page: sections, top stories, the rail and most read.                     | 3             |
-| 26  | Follow stories by RSS                  | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
+| 26  | ✅ Follow stories by RSS               | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
 | 27  | Subscribe to the newsletter            | Member | Anyone subscribes without an account, confirms by email and unsubscribes in one click.                         | 4             |
 | 28  | Build and send the newsletter          | Admin  | Staff build the weekly issue from stories and events, test it, schedule it and send it.                        | 5             |
 | 29  | Read the newsletter on the web         | Member | The latest and earlier issues read on the web as the email did.                                                | 2             |
@@ -123,7 +123,7 @@ under `detailed-designs/` and the mocks under `mocks/` (pages, dialogs and notif
   `listing-row`, `follow-button` (5); `host-card` (6–7); `side-navigation` (9); `series-card`
   (10); `session-list`, `plan-option`, `choice-card` (11–13); `suggestion`, `steps` (17–18);
   `review-card` (18); `section-heading`, `dropzone` (19–22); `editor`, `prose` (22); `story` (24);
-  `masthead`, `newsletter-box` (25); `feed-list` (26); `issue` (29); `feedback-row` (31);
+  `masthead`, `newsletter-box` (25); `feed-list` (27, with Subscribe's feed list; ADR 0108); `issue` (29); `feedback-row` (31);
   `pick-art`, `pick-list` (32); `preference-row`, `save-bar` (33).
 - **Not built here.** Web push (ADR 0068 leaves it to a later ADR), the newsletter's add-on emails
   (L2-057 AC2, L2-070 AC11), online payment (L2-052 AC4) and members checking themselves in

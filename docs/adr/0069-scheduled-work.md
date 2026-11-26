@@ -49,7 +49,8 @@ scheduler must also avoid concurrent ticks if a second replica or an overlapping
   these deadline and recovery gaps without shortening the 30-day restoration period.
 - RSS feeds are cacheable for 15 minutes (`L2-060`); a previously cached feed can remain stale
   past a story's scheduled time even though a fresh read evaluates it as Published. The
-  implementation must resolve that freshness tension with `L2-069`.
+  implementation must resolve that freshness tension with `L2-069`. Settled by
+  [ADR 0108](0108-follow-stories-by-rss.md): the clock's publication evicts the story's feeds.
 - The lease protects scheduler work, not the rest of the app. A second replica still needs the
   SignalR backplane, shared mail queue and rate-limit review of ADR 0047.
 - A scheduled Container Apps job would add a separate deployment and schedule; read-time evaluation
