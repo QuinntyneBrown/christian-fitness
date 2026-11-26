@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.Events;
 
-/// <summary>An event as the public landing page shows it: nothing about who is going or who made it (L2-001).</summary>
-public sealed record LandingEventDto(Guid Id, string Title, string Category, DateTimeOffset StartsAt, string Place);
+/// <summary>An event as the front page's rail shows it, with its area: nothing about who is going or who made it (L2-001 AC5; ADR 0107).</summary>
+public sealed record LandingEventDto(Guid Id, string Title, string Category, DateTimeOffset StartsAt, string Place, string Area);
 
-/// <summary>The next published events that have not started, soonest first, at most <see cref="MaxTake"/> (L2-001 AC1 to AC3).</summary>
+/// <summary>The next published events that have not started, soonest first, at most <see cref="MaxTake"/> (L2-001 AC5, AC6).</summary>
 public sealed record GetUpcomingEventsQuery(int Take) : IRequest<IReadOnlyList<LandingEventDto>>
 {
-    public const int MaxTake = 3;
+    public const int MaxTake = 4;
 }
 
 internal sealed class GetUpcomingEventsHandler(IAppDbContext db, TimeProvider time)
@@ -28,6 +28,6 @@ internal sealed class GetUpcomingEventsHandler(IAppDbContext db, TimeProvider ti
             .Take(take)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
-        return [.. found.Select(e => new LandingEventDto(e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place))];
+        return [.. found.Select(e => new LandingEventDto(e.Id, e.Title, EventNames.Of(e.Category), e.StartsAt, e.Place, e.Area))];
     }
 }
