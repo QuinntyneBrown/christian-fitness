@@ -139,6 +139,12 @@ export interface AdminSeriesApi {
    * a session not of the series with `not_found` (404).
    */
   cancelSession(id: string, sessionId: string): Observable<SessionChangeDto>;
+  /**
+   * Restore (L2-071 AC5): the session upcoming again and how many hold a place again. A date that
+   * started errors with `session_started` (409), one not cancelled with `event_not_cancelled` (409),
+   * and a session not of the series with `not_found` (404).
+   */
+  restoreSession(id: string, sessionId: string): Observable<SessionChangeDto>;
 
   /** The host a new series starts with: the Christian Fitness team listing (L2-071 AC10). */
   defaultHost(): Observable<EventHostDto>;

@@ -57,6 +57,15 @@ export class HttpAdminSeriesService implements AdminSeriesApi {
       .pipe(catchError(asApiError));
   }
 
+  restoreSession(id: string, sessionId: string): Observable<SessionChangeDto> {
+    return this.http
+      .post<SessionChangeDto>(
+        `/api/admin/series/${encodeURIComponent(id)}/sessions/${encodeURIComponent(sessionId)}/restore`,
+        null,
+      )
+      .pipe(catchError(asApiError));
+  }
+
   defaultHost(): Observable<EventHostDto> {
     return this.http
       .get<EventHostDto>('/api/admin/series/hosts/default')

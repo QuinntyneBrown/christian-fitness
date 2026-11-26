@@ -102,6 +102,9 @@ test.describe('Admin app, cancel a series date', () => {
         'Cancelled',
       ]);
       expect(await series.statTexts()).toContainEqual(['Sessions left', '4 of 6']);
+      // The row keeps its one button, now Restore, so focus comes back to it (ADR 0103).
+      expect((await series.sessionActions())[4]).toBe('Restore session 5, Tue May 05');
+      await expect(series.sessionAction(5)).toBeFocused();
     },
   );
 

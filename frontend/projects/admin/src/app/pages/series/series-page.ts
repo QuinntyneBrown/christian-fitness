@@ -23,6 +23,8 @@ import {
 import {
   adminSeriesViewOf,
   sessionAddedTitleOf,
+  isRestoreFailedTitle,
+  restoreFailedTitleOf,
   sessionChangeTitleOf,
   seriesPickCardOf,
   seriesRowOf,
@@ -92,6 +94,8 @@ export default class AdminSeriesPage {
 
   protected readonly list = signal<ListState>({ kind: 'loading' });
   protected readonly chosen = signal<SeriesState>({ kind: 'loading' });
+  /** The id of the date whose Restore is on its way, or none. */
+  protected readonly restoring = signal<string | null>(null);
   /** The id of the series shown, which its card marks current. */
   protected readonly currentId = signal<string | null>(null);
 
@@ -108,7 +112,7 @@ export default class AdminSeriesPage {
   protected readonly toastViews = computed<ToastData[]>(() =>
     this.toasts.toasts().map(({ id, title, text }) => ({
       id: String(id),
-      tone: 'success',
+      tone: isRestoreFailedTitle(title) ? 'danger' : 'success',
       heading: title,
       text,
     })),
@@ -255,6 +259,39 @@ export default class AdminSeriesPage {
           toldTextOf(change.told),
         );
         this.showSaved(change.series);
+      });
+  }
+
+  /**
+   * Restore (L2-071 AC5; ADR 0103): the row reads "Restoring…" while it waits; a restored date is
+   * shown as answered and a toast says how many were told; a failure says so in a toast and
+   * changes nothing.
+   */
+  protected restoreDate(sessionId: string): void {
+    const chosen = this.chosen();
+    if (this.restoring() !== null || chosen.kind !== 'ready') return;
+    const session = chosen.series.sessions.find((s) => s.id === sessionId);
+    if (!session) return;
+    this.restoring.set(sessionId);
+    this.api
+      .restoreSession(chosen.series.id, sessionId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (change) => {
+          this.restoring.set(null);
+          this.toasts.show(
+            sessionChangeTitleOf(session.startsAt, 'restored'),
+            toldTextOf(change.told),
+          );
+          this.showSaved(change.series);
+        },
+        error: () => {
+          this.restoring.set(null);
+          this.toasts.show(
+            restoreFailedTitleOf(session.startsAt),
+            'Nothing was changed. Try again in a moment.',
+          );
+        },
       });
   }
 

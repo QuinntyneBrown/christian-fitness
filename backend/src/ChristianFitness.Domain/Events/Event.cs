@@ -226,4 +226,21 @@ public sealed class Event
         Status = EventStatus.Cancelled;
         RegistrationVersion++;
     }
+
+    /// <summary>
+    /// Makes a cancelled series date published again (L2-071 AC5; ADR 0103), only while its start
+    /// is after <paramref name="now"/>; a standalone event's cancellation stays final (L2-023). The
+    /// registrations were kept, so every place held is held again; it marks the registrations token.
+    /// The handler refuses any other case before it asks.
+    /// </summary>
+    public void Restore(DateTimeOffset now)
+    {
+        if (SeriesId is null || Status != EventStatus.Cancelled || StartsAt <= now)
+        {
+            throw new InvalidOperationException("Only a cancelled series date that has not started can be restored.");
+        }
+
+        Status = EventStatus.Published;
+        RegistrationVersion++;
+    }
 }

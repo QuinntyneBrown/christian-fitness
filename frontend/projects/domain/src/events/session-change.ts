@@ -66,6 +66,18 @@ export function sessionChangeTitleOf(startsAt: string, change: 'cancelled' | 're
   return `${dayOf(startsAt)} ${change}`;
 }
 
+const RESTORE_FAILED = "We couldn't restore";
+
+/** The failed restore's toast title: "We couldn't restore Tue May 12" (mock `admin-series/restore-failed`). */
+export function restoreFailedTitleOf(startsAt: string): string {
+  return `${RESTORE_FAILED} ${dayOf(startsAt)}`;
+}
+
+/** Whether a toast's title is a failed restore's, which the page shows as danger. */
+export function isRestoreFailedTitle(title: string): boolean {
+  return title.startsWith(`${RESTORE_FAILED} `);
+}
+
 /** The toast's text: how many members were told (ADR 0103). */
 export function toldTextOf(told: number): string {
   if (told === 0) return 'Nobody held a place, so nobody was told.';

@@ -3,6 +3,8 @@ import {
   adminSessionActionOf,
   cancelSessionSubtitleOf,
   cancelSessionTextOf,
+  isRestoreFailedTitle,
+  restoreFailedTitleOf,
   sessionChangeTitleOf,
   toldTextOf,
 } from './session-change';
@@ -74,6 +76,21 @@ describe('sessionChangeTitleOf', () => {
   ])('$title', ({ change, startsAt, title }) => {
     expect(sessionChangeTitleOf(startsAt, change)).toBe(title);
   });
+});
+
+describe('restoreFailedTitleOf and isRestoreFailedTitle', () => {
+  it('words a failed restore and knows it again', () => {
+    const title = restoreFailedTitleOf('2026-05-12T22:30:00Z');
+    expect(title).toBe("We couldn't restore Tue May 12");
+    expect(isRestoreFailedTitle(title)).toBe(true);
+  });
+
+  it.each(['Tue May 12 restored', 'Tue May 5 cancelled', "We couldn't restore"])(
+    '"%s" is not a failed restore',
+    (title) => {
+      expect(isRestoreFailedTitle(title)).toBe(false);
+    },
+  );
 });
 
 describe('toldTextOf', () => {
