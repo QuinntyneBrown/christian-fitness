@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Meta, Title } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { type PublishedStoryDto, STORIES_SERVICE, storyImageUrl } from '@cf/api';
 import { Button, Container, EmptyState, ErrorPage, SkipLink, Story, TopBar } from '@cf/components';
@@ -28,7 +29,7 @@ import { HttpStoriesService } from '../../services/http-stories.service';
 export default class StoryPage {
   private readonly stories = inject(STORIES_SERVICE);
   private readonly title = inject(Title);
-  private readonly meta = inject(Meta);
+  private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private slug = '';
   private request: Subscription | null = null;
@@ -57,12 +58,31 @@ export default class StoryPage {
         this.load();
       });
     // The description belongs to this story; the next page starts without it.
-    this.destroyRef.onDestroy(() => this.meta.removeTag('name="description"'));
+    this.destroyRef.onDestroy(() => this.describedBy()?.remove());
   }
 
   /** Asks for the story again, in place. */
   protected retry(): void {
     this.load();
+  }
+
+  /** The document's `description` meta, which the server's shell may already hold (ADR 0073). */
+  private describedBy(): HTMLMetaElement | null {
+    return this.document.head.querySelector<HTMLMetaElement>('meta[name="description"]');
+  }
+
+  /**
+   * Sets the document's description to the story's summary. Written through the document rather
+   * than Angular's `Meta`, whose code would otherwise join the initial bundle.
+   */
+  private describe(text: string): void {
+    let meta = this.describedBy();
+    if (!meta) {
+      meta = this.document.createElement('meta');
+      meta.name = 'description';
+      this.document.head.appendChild(meta);
+    }
+    meta.content = text;
   }
 
   private load(): void {
@@ -77,7 +97,7 @@ export default class StoryPage {
           this.story.set(story);
           this.state.set('loaded');
           this.title.setTitle(story.headline);
-          this.meta.updateTag({ name: 'description', content: story.summary });
+          this.describe(story.summary);
         },
         // A 5xx has already opened the server-error screen; a 404 is "not found", anything else "failed".
         error: (error: unknown) =>
