@@ -103,6 +103,11 @@ scheduling is journey 23). The requirement, the two designs (`publishing/manage-
   file uploads. A refused or failed upload is an alert above the story, as the editor's other
   failures are.
 
+- **Initial bundle.** The library draws a story's words with `story-runs` and the text field's
+  input in each branch, not through `ngTemplateOutlet` with an object-literal context or an
+  `ng-container` in a component's own view: each pulled Angular runtime code into the apps'
+  initial bundle (about 0.5 kB each). The two new size tokens add about 0.05 kB of global styles.
+
 ## Consequences
 
 - A crop dialog needs a mock first; it then replaces `storyCenterCrop` as the source of the

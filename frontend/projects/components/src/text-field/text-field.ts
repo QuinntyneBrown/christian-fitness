@@ -1,5 +1,4 @@
 import { booleanAttribute, Component, computed, input, output } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { fieldDescribedBy, FormField } from '../form-field/form-field';
 
 /** The input types a text field renders: one line of typing, with the right keyboard. */
@@ -18,7 +17,7 @@ export type TextFieldType =
  */
 @Component({
   selector: 'cf-text-field',
-  imports: [FormField, NgTemplateOutlet],
+  imports: [FormField],
   templateUrl: './text-field.html',
   styleUrl: './text-field.scss',
 })

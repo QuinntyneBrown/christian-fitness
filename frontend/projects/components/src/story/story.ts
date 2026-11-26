@@ -1,8 +1,8 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, input } from '@angular/core';
-import type { StoryBlock, StoryRun } from '@cf/api';
+import type { StoryBlock } from '@cf/api';
 import { Skeleton } from '../skeleton/skeleton';
 import { SkeletonRegion } from '../skeleton/skeleton-region';
+import { StoryRuns } from './story-runs';
 
 /** The card after a story's text (L2-061 AC4): "In the directory", the words, and where it leads. */
 export interface StoryNextCard {
@@ -22,7 +22,7 @@ export interface StoryNextCard {
  */
 @Component({
   selector: 'cf-story',
-  imports: [NgTemplateOutlet, Skeleton, SkeletonRegion],
+  imports: [Skeleton, SkeletonRegion, StoryRuns],
   templateUrl: './story.html',
   styleUrl: './story.scss',
 })
@@ -40,19 +40,4 @@ export class Story {
   readonly next = input<StoryNextCard | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });
   readonly loadingLabel = input('Loading story');
-
-  /** The runs a template context carries, typed for the template. */
-  protected runs(value: unknown): readonly StoryRun[] {
-    return value as readonly StoryRun[];
-  }
-
-  /** The run a template context carries, typed for the template. */
-  protected run(value: unknown): StoryRun {
-    return value as StoryRun;
-  }
-
-  /** The card a template context carries, typed for the template. */
-  protected card(value: unknown): StoryNextCard {
-    return value as StoryNextCard;
-  }
 }

@@ -138,18 +138,6 @@
   list-style: decimal;
 }
 
-// Underlined, so a link never relies on colour alone.
-.story__link {
-  color: var(--color-fg-link);
-  text-decoration: underline;
-  text-underline-offset: var(--space-0-5);
-
-  &:hover {
-    color: var(--color-fg-link-hover);
-    text-decoration-thickness: var(--border-width-thick);
-  }
-}
-
 .story-next {
   margin-top: var(--space-10);
   display: flex;

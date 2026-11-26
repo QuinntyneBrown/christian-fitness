@@ -1,0 +1,29 @@
+@for (r of runs(); track $index) {
+  @if (r.href) {
+    <a class="story__link" [href]="r.href" rel="noopener">
+      @if (r.strong && r.em) {
+        <strong
+          ><em>{{ r.text }}</em></strong
+        >
+      } @else if (r.strong) {
+        <strong>{{ r.text }}</strong>
+      } @else if (r.em) {
+        <em>{{ r.text }}</em>
+      } @else {
+        <span>{{ r.text }}</span>
+      }
+    </a>
+  } @else if (r.strong && r.em) {
+    <strong
+      ><em>{{ r.text }}</em></strong
+    >
+  } @else if (r.strong) {
+    <strong>{{ r.text }}</strong>
+  } @else if (r.em) {
+    <em>{{ r.text }}</em>
+  } @else {
+    <!-- In an element of its own, so no space is added around the words (a span: an
+         ng-container here would grow the initial bundle). -->
+    <span>{{ r.text }}</span>
+  }
+}
