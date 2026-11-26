@@ -41,6 +41,9 @@ properties:
             value: /data/images
           - name: MemberApp__BaseUrl
             value: https://www.christian.fitness
+          # The member app's shell, from the web container of the same replica (ADR 0105).
+          - name: StoryShell__Url
+            value: http://127.0.0.1:8080/index.html
           - name: Email__Smtp__Host
             value: smtp.azurecomm.net
           - name: Email__Smtp__Port

@@ -57,18 +57,20 @@ az containerapp revision list -g rg-christian-fitness -n ca-christian-fitness -o
 az containerapp revision activate -g rg-christian-fitness -n ca-christian-fitness --revision <name>
 ```
 
-## Story shell (planned, ADR 0073)
+## Story shell (ADR 0073, ADR 0105)
 
-The story-preview slice will configure the member nginx host to proxy `/stories/*` to the
-anonymous API shell endpoint before the SPA fallback. The API container must have the built
-member `index.html`, copied into the image or mounted read-only, and read it once at startup.
-Release that shell and nginx's hashed frontend assets from the same build and revision; otherwise
-the shell can reference assets that are not present. The API must not silently serve a stale or
-mismatched shell if it is unavailable. The endpoint serves metadata for published stories, a
-301 for their former slugs, and a 404 shell for unknown or unpublished slugs. It uses
-`MemberApp__BaseUrl` for absolute preview URLs. Shell and redirect responses use
-`Cache-Control: no-store`, and nginx retains the member app's security headers. This routing
-and shell provisioning are not deployed yet.
+The member nginx host proxies `^/stories/[^/]+$` to the anonymous API endpoint
+`GET /stories/{slug}` before the SPA fallback (`frontend/deploy/nginx.conf`). The API reads the
+built member `index.html` over loopback from the web container of the same replica
+(`StoryShell__Url`, `http://127.0.0.1:8080/index.html` in `tools/deploy/containerapp.yaml`) the
+first time it needs it and keeps it, so the shell and nginx's hashed assets always come from the
+same image. The endpoint serves metadata for published stories, a 301 for their former slugs, and
+the unchanged shell with 404 for unknown or unpublished slugs, with absolute preview URLs from
+`MemberApp__BaseUrl`. Every answer is `Cache-Control: no-store`; nginx replaces the API's
+security headers with the static host's (`headers.conf`). When the API cannot read the shell it
+answers 503, and nginx serves its own `index.html` (as it does when the API is down), so a story
+still opens, without a link preview, and the next request reads the shell again. The endpoint is
+not held to `public-reads`.
 
 ## What runs where (resource group `rg-christian-fitness`, Canada Central)
 
