@@ -7,7 +7,8 @@ namespace ChristianFitness.Application.Seeding;
 /// <summary>
 /// The first Admin (L2-049 AC15; ADR 0100): a member with the Admin role, keyed by its normalised
 /// email, with no password and no Google subject; its first Google sign-in binds it. An existing
-/// account is left as it is.
+/// account is left as it is. With no <c>Seed__AdminEmail</c> there is no Admin to make, so the seed
+/// has nothing to do and the release goes on (ADR 0111).
 /// </summary>
 public sealed class StaffAccountSeed(StaffSeedOptions options, TimeProvider time) : ISeed
 {
@@ -16,6 +17,11 @@ public sealed class StaffAccountSeed(StaffSeedOptions options, TimeProvider time
     public Task<bool> ExistsAsync(IAppDbContext db, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(db);
+        if (!options.HasAdmin)
+        {
+            return Task.FromResult(true);
+        }
+
         var email = Member.NormalizeEmail(options.Email);
         return db.Members.AnyAsync(member => member.NormalizedEmail == email, cancellationToken);
     }

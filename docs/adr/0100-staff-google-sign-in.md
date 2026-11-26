@@ -52,7 +52,7 @@ application's two-step code (`L2-046`, ADR 0074). Several points were left open:
 - **Binding a staff account.** A staff `Member` is found by Google subject first; on its first
   Google sign-in, one with no subject is found by its email (case-insensitively) and bound to the
   subject. A member already bound to another subject is not matched by email.
-- **The first Admin.** `cf seed` reads `Seed__AdminEmail` (required) and `Seed__AdminName`
+- **The first Admin.** `cf seed` reads `Seed__AdminEmail` (required to make the Admin; ADR 0111 lets a release go on without it) and `Seed__AdminName`
   (optional, "Christian Fitness Admin" when unset) and creates that Admin with no password and no
   Google subject; the first Google sign-in binds it. A second run changes nothing. `Seed__StaffEmail`,
   `Seed__StaffPassword` and `Seed__StaffName` and the job secret `seed-staff-password` are removed.
