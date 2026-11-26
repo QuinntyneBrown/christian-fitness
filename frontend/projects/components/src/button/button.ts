@@ -3,9 +3,10 @@ import { booleanAttribute, Component, input } from '@angular/core';
 
 /**
  * The design system's button variants, from highest emphasis to lowest; `inverse` and `on-brand`
- * are the primary and secondary pair on bordeaux panels, and `quiet` is the borderless,
- * full-width text action. `neutral` is the near-black primary where bordeaux would compete, such as
- * the member Sign in submit under the Google button.
+ * are the primary and secondary pair on bordeaux panels, `quiet` is the borderless, full-width
+ * text action, and `link-quiet` the quiet link (`btn--link btn--link-quiet`) of a row action that
+ * should not shout, such as "Cancel date". `neutral` is the near-black primary where bordeaux would
+ * compete, such as the member Sign in submit under the Google button.
  */
 export type ButtonVariant =
   | 'primary'
@@ -14,6 +15,7 @@ export type ButtonVariant =
   | 'danger'
   | 'link'
   | 'neutral'
+  | 'link-quiet'
   | 'inverse'
   | 'on-brand'
   | 'quiet';
@@ -66,7 +68,8 @@ export class Button {
    */
   protected classes(): string {
     const size = this.size();
-    return `btn btn--${this.variant()}${size === 'default' ? '' : ` btn--${size}`}${
+    const variant = this.variant();
+    return `btn ${variant === 'link-quiet' ? 'btn--link btn--link-quiet' : `btn--${variant}`}${size === 'default' ? '' : ` btn--${size}`}${
       this.block() ? ' btn--block' : ''
     }${this.grow() ? ' btn--grow' : ''}`;
   }

@@ -25,6 +25,12 @@ export interface AdminSessionFixture {
   endsAt: string | null;
   topic: string | null;
   state: 'done' | 'live' | 'upcoming' | 'cancelled';
+  /** Whether it has started by the API's clock (ADR 0103). */
+  started: boolean;
+  /** Members holding a place who joined the series. */
+  joinedGoing: number;
+  /** Members holding a place who dropped in. */
+  droppedInGoing: number;
 }
 
 /** `GET /api/admin/series/{id}` (ADR 0091). */
@@ -49,15 +55,29 @@ function at(date: string, time = '22:30'): string {
   return `${date}T${time}:00+00:00`;
 }
 
-/** Session `n` of Couch to 5K: a Tuesday from 6:30 to 7:30 PM. */
+/**
+ * Session `n` of Couch to 5K: a Tuesday from 6:30 to 7:30 PM, started when done, held by the 31
+ * who joined and by `droppedIn` more.
+ */
 function couch(
   n: number,
   date: string,
   topic: string,
   state: AdminSessionFixture['state'],
+  droppedIn = 0,
 ): AdminSessionFixture {
   const id = `0190c0de-0000-7000-8000-0000000c5${String(n).padStart(3, '0')}`;
-  return { id, number: n, startsAt: at(date), endsAt: at(date, '23:30'), topic, state };
+  return {
+    id,
+    number: n,
+    startsAt: at(date),
+    endsAt: at(date, '23:30'),
+    topic,
+    state,
+    started: state === 'done',
+    joinedGoing: 31,
+    droppedInGoing: droppedIn,
+  };
 }
 
 /** Session `n` of the Bootcamp: a Saturday at 8:00 AM, with no end and perhaps no topic. */
@@ -68,7 +88,17 @@ function bootcamp(
   state: AdminSessionFixture['state'],
 ): AdminSessionFixture {
   const id = `0190c0de-0000-7000-8000-0000000b0${String(n).padStart(3, '0')}`;
-  return { id, number: n, startsAt: at(date, '12:00'), endsAt: null, topic, state };
+  return {
+    id,
+    number: n,
+    startsAt: at(date, '12:00'),
+    endsAt: null,
+    topic,
+    state,
+    started: state === 'done',
+    joinedGoing: 38,
+    droppedInGoing: 0,
+  };
 }
 
 /**
@@ -99,7 +129,8 @@ export const COUCH_TO_5K: AdminSeriesFixture = {
     couch(2, '2026-04-14', 'Run 90 seconds, walk 2 minutes', 'done'),
     couch(3, '2026-04-21', 'Same intervals, six times through', 'live'),
     couch(4, '2026-04-28', 'First 5-minute run', 'upcoming'),
-    couch(5, '2026-05-05', 'Two 8-minute runs', 'upcoming'),
+    // Mock cancel-session/default: 34 going, 31 joined and 3 dropped in.
+    couch(5, '2026-05-05', 'Two 8-minute runs', 'upcoming', 3),
     couch(6, '2026-05-12', 'No class: Victoria Day week', 'cancelled'),
     couch(7, '2026-05-19', 'Twenty minutes without stopping', 'upcoming'),
     couch(8, '2026-05-26', 'Graduation 5K and potluck', 'upcoming'),

@@ -52,7 +52,7 @@ public sealed class GetSeriesTests(AdminSeriesFactory factory) : IClassFixture<A
         Assert.Equal(7, series.GetProperty("sessionsHeld").GetInt32());
 
         var sessions = series.GetProperty("sessions").EnumerateArray().ToList();
-        Assert.Equal(["id", "number", "startsAt", "endsAt", "topic", "state"], AdminSeries.Keys(sessions[0]));
+        Assert.Equal(["id", "number", "startsAt", "endsAt", "topic", "state", "started", "joinedGoing", "droppedInGoing"], AdminSeries.Keys(sessions[0]));
         Assert.Equal(ids.Select(id => id.ToString()), sessions.Select(s => s.GetProperty("id").GetString()));
         Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8], sessions.Select(s => s.GetProperty("number").GetInt32()));
         Assert.Equal(

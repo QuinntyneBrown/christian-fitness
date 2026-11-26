@@ -31,6 +31,9 @@ const COUCH_WITH_JUNE_2: AdminSeriesFixture = {
       endsAt: '2026-06-02T23:30:00+00:00',
       topic: 'Make-up run for Victoria Day week',
       state: 'upcoming',
+      started: false,
+      joinedGoing: 0,
+      droppedInGoing: 0,
     },
   ],
 };

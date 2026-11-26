@@ -53,7 +53,30 @@ internal static class SeriesReads
             .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// The members holding a place at each of <paramref name="sessionIds"/> of <paramref name="seriesId"/>,
+    /// each marked whether they joined the series (else they dropped in; ADR 0103).
+    /// </summary>
+    public static async Task<ILookup<Guid, Holder>> HoldersAsync(IAppDbContext db, Guid seriesId, IReadOnlyCollection<Guid> sessionIds, CancellationToken cancellationToken)
+    {
+        var places = await db.Registrations.AsNoTracking()
+            .Where(r => sessionIds.Contains(r.EventId))
+            .Select(r => new { r.EventId, r.MemberId })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var memberIds = places.Select(p => p.MemberId).Distinct().ToList();
+        var joined = (await db.SeriesEnrolments.AsNoTracking()
+            .Where(e => e.SeriesId == seriesId && memberIds.Contains(e.MemberId))
+            .Select(e => e.MemberId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false)).ToHashSet();
+        return places.Distinct().ToLookup(p => p.EventId, p => new Holder(p.MemberId, joined.Contains(p.MemberId)));
+    }
 }
+
+/// <summary>A member holding a place at a session, and whether they joined its series (else they dropped in).</summary>
+internal sealed record Holder(Guid MemberId, bool Joined);
 
 /// <summary>One session as the reads above take it.</summary>
 internal sealed record SessionRow(Guid Id, Guid SeriesId, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, bool Cancelled)
@@ -117,6 +140,7 @@ internal static class AdminSeriesAnswer
         var times = sessions.Select(s => s.Times).ToList();
         var facts = SeriesFacts.Of(times, now);
         var states = SeriesSchedule.StatesOf(times, now);
+        var holders = await SeriesReads.HoldersAsync(db, series.Id, [.. sessions.Select(s => s.Id)], cancellationToken).ConfigureAwait(false);
 
         return new AdminSeriesDto(
             series.Id,
@@ -137,6 +161,15 @@ internal static class AdminSeriesAnswer
             joined,
             facts.Left,
             facts.Held,
-            [.. sessions.Select((s, n) => new AdminSessionDto(s.Id, n + 1, s.StartsAt, s.EndsAt, s.Topic, SessionStateNames.Of(states[n])))]);
+            [.. sessions.Select((s, n) => new AdminSessionDto(
+                s.Id,
+                n + 1,
+                s.StartsAt,
+                s.EndsAt,
+                s.Topic,
+                SessionStateNames.Of(states[n]),
+                s.StartsAt <= now,
+                holders[s.Id].Count(h => h.Joined),
+                holders[s.Id].Count(h => !h.Joined)))]);
     }
 }

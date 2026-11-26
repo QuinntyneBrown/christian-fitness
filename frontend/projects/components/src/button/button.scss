@@ -117,6 +117,13 @@
   text-underline-offset: var(--space-0-5);
 }
 
+.btn--link-quiet {
+  --btn-fg: var(--color-fg-muted);
+
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
 .btn--quiet {
   --btn-fg: var(--color-fg-muted);
   --btn-fg-hover: var(--color-fg-default);

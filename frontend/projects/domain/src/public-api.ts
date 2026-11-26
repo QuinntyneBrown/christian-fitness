@@ -50,6 +50,7 @@ export * from './events/admin-event-tabs';
 export * from './events/admin-series-view';
 export * from './events/series-draft';
 export * from './events/session-draft';
+export * from './events/session-change';
 export * from './events/admin-event-row';
 export * from './events/event-card-view';
 export * from './events/event-detail-view';

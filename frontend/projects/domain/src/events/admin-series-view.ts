@@ -3,6 +3,7 @@ import { capacityUsed } from './capacity-used';
 import { seriesCadenceText } from './series-cadence';
 import { eventImageSrc, priceOf } from './event-card-view';
 import { EVENT_TIME_ZONE } from './event-when';
+import { adminSessionActionOf, type AdminSessionAction } from './session-change';
 
 /** A series as its pick card shows it (mock `admin-series`, `pick-card`). */
 export interface SeriesPickCardView {
@@ -25,6 +26,10 @@ export interface AdminSessionView {
   /** The topic, or empty. */
   topic: string;
   state: AdminSessionState;
+  /** What the row offers: Cancel date, Restore or nothing (ADR 0103). */
+  action: AdminSessionAction;
+  /** "session 5, Tue May 05": what its action names, for assistive technology. */
+  name: string;
 }
 
 /** A series as its summary card and sessions show it (L2-071 AC2, AC3). */
@@ -137,12 +142,17 @@ export function adminSeriesViewOf(series: AdminSeriesDto): AdminSeriesView {
         : price,
     dropIn: series.dropInPriceCents === null ? null : `Drop-in ${priceOf(series.dropInPriceCents)}`,
     left: `${series.sessionsLeft} of ${series.sessionsHeld}`,
-    sessions: series.sessions.map((session) => ({
-      id: session.id,
-      number: String(session.number),
-      date: sessionDateOf(session.startsAt),
-      topic: session.topic ?? '',
-      state: session.state,
-    })),
+    sessions: series.sessions.map((session) => {
+      const date = sessionDateOf(session.startsAt);
+      return {
+        id: session.id,
+        number: String(session.number),
+        date,
+        topic: session.topic ?? '',
+        state: session.state,
+        action: adminSessionActionOf(session),
+        name: `session ${session.number}, ${date}`,
+      };
+    }),
   };
 }

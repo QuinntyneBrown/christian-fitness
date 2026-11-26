@@ -112,7 +112,10 @@
                   </cf-button>
                 </div>
                 @if (series.sessions.length > 0) {
-                  <cf-admin-sessions [sessions]="series.sessions" />
+                  <cf-admin-sessions
+                    [sessions]="series.sessions"
+                    (cancelDate)="cancelDate($event)"
+                  />
                 } @else {
                   <cf-empty-state
                     variant="tight"

@@ -23,8 +23,10 @@ import {
 import {
   adminSeriesViewOf,
   sessionAddedTitleOf,
+  sessionChangeTitleOf,
   seriesPickCardOf,
   seriesRowOf,
+  toldTextOf,
   ToastStore,
 } from '@cf/domain';
 import {
@@ -226,6 +228,33 @@ export default class AdminSeriesPage {
         if (!added) return;
         this.toasts.show(sessionAddedTitleOf(added.date), 'It is now listed under Events.');
         this.showSaved(added.series);
+      });
+  }
+
+  /**
+   * Cancel date (L2-071 AC4; ADR 0103): asks in a dialog; a cancelled date is shown as answered,
+   * and a toast says how many were told.
+   */
+  protected async cancelDate(sessionId: string): Promise<void> {
+    const chosen = this.chosen();
+    if (this.editorOpen || chosen.kind !== 'ready') return;
+    const session = chosen.series.sessions.find((s) => s.id === sessionId);
+    if (!session) return;
+    this.editorOpen = true;
+    // The dialog and CDK Dialog load on the first Cancel date, not with the page.
+    const { openCancelSession } =
+      await import('../../dialogs/cancel-session/cancel-session-dialog');
+    if (this.destroyRef.destroyed) return;
+    openCancelSession(this.injector, { series: chosen.series, session })
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((change) => {
+        this.editorOpen = false;
+        if (!change) return;
+        this.toasts.show(
+          sessionChangeTitleOf(session.startsAt, 'cancelled'),
+          toldTextOf(change.told),
+        );
+        this.showSaved(change.series);
       });
   }
 

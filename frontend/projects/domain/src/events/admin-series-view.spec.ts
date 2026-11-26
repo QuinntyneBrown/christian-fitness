@@ -80,6 +80,9 @@ const COUCH: AdminSeriesDto = {
       endsAt: '2026-04-07T23:30:00Z',
       topic: 'Walk, run 60 seconds, repeat',
       state: 'done',
+      started: true,
+      joinedGoing: 31,
+      droppedInGoing: 0,
     },
     {
       id: 's6',
@@ -88,6 +91,9 @@ const COUCH: AdminSeriesDto = {
       endsAt: null,
       topic: null,
       state: 'cancelled',
+      started: false,
+      joinedGoing: 31,
+      droppedInGoing: 2,
     },
   ],
 };
@@ -116,8 +122,18 @@ describe('adminSeriesViewOf', () => {
           date: 'Tue Apr 07',
           topic: 'Walk, run 60 seconds, repeat',
           state: 'done',
+          action: null,
+          name: 'session 1, Tue Apr 07',
         },
-        { id: 's6', number: '6', date: 'Tue May 12', topic: '', state: 'cancelled' },
+        {
+          id: 's6',
+          number: '6',
+          date: 'Tue May 12',
+          topic: '',
+          state: 'cancelled',
+          action: 'restore',
+          name: 'session 6, Tue May 12',
+        },
       ],
     });
   });

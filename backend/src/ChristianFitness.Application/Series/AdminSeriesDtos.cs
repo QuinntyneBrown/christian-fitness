@@ -23,10 +23,27 @@ public sealed record AdminSeriesRowDto(Guid Id, string Title, SeriesCadenceDto C
 public sealed record AdminSeriesListDto(IReadOnlyList<AdminSeriesRowDto> Series);
 
 /// <summary>
-/// One session as the console lists it (L2-071 AC3): its number among all the series' dates in date
-/// order (cancelled ones included; ADR 0080), its times, topic and the state the API's clock gives.
+/// One session as the console lists it (L2-071 AC3, AC4): its number among all the series' dates in
+/// date order (cancelled ones included; ADR 0080), its times, topic and the state the API's clock
+/// gives, whether it has started by that clock, and how many hold a place at it: those who joined
+/// the series and those who dropped in (ADR 0103).
 /// </summary>
-public sealed record AdminSessionDto(Guid Id, int Number, DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Topic, string State);
+public sealed record AdminSessionDto(
+    Guid Id,
+    int Number,
+    DateTimeOffset StartsAt,
+    DateTimeOffset? EndsAt,
+    string? Topic,
+    string State,
+    bool Started,
+    int JoinedGoing,
+    int DroppedInGoing);
+
+/// <summary>
+/// What cancelling or restoring a date answers (L2-071 AC4, AC5; ADR 0103): the series as the page
+/// now shows it and how many members were told.
+/// </summary>
+public sealed record SessionChangeDto(AdminSeriesDto Series, int Told);
 
 /// <summary>
 /// A series as its page shows it (L2-071 AC2, AC3): its details as the editor edits them, its

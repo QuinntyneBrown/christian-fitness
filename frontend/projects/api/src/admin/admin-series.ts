@@ -40,6 +40,21 @@ export interface AdminSessionDto {
   endsAt: string | null;
   topic: string | null;
   state: AdminSessionState;
+  /** Whether it has started by the API's clock: then it can be neither cancelled nor restored (ADR 0103). */
+  started: boolean;
+  /** Members holding a place who joined the series. */
+  joinedGoing: number;
+  /** Members holding a place who dropped in. */
+  droppedInGoing: number;
+}
+
+/**
+ * What Cancel date and Restore answer (L2-071 AC4, AC5; ADR 0103): the series as the page now shows
+ * it and how many members were told.
+ */
+export interface SessionChangeDto {
+  series: AdminSeriesDto;
+  told: number;
 }
 
 /** `GET /api/admin/series/{id}` (L2-071 AC2, AC3): the series, its facts and its sessions in date order. */
@@ -118,6 +133,12 @@ export interface AdminSeriesApi {
    * series with `not_found` (404).
    */
   addSession(id: string, session: AddSessionDto): Observable<AdminSeriesDto>;
+  /**
+   * Cancel date (L2-071 AC4): the session cancelled and how many were told. A date that started
+   * errors with `session_started` (409), one already cancelled with `event_not_published` (409), and
+   * a session not of the series with `not_found` (404).
+   */
+  cancelSession(id: string, sessionId: string): Observable<SessionChangeDto>;
 
   /** The host a new series starts with: the Christian Fitness team listing (L2-071 AC10). */
   defaultHost(): Observable<EventHostDto>;
