@@ -27,7 +27,7 @@ DEPLOY_IDENTITY=id-christian-fitness-deploy
 ACS=acs-christian-fitness
 EMAIL_SERVICE=acs-email-christian-fitness
 SMTP_APP=christian-fitness-smtp
-# The first Admin's Google Workspace account (ADR 0100); `cf seed` refuses without it.
+# The first Admin's Google Workspace account (ADR 0100); without it `cf seed` makes no Admin (ADR 0111).
 ADMIN_EMAIL=${ADMIN_EMAIL:?Set ADMIN_EMAIL to the first Admin's @christian.fitness account}
 ADMIN_NAME=${ADMIN_NAME:-Christian Fitness Admin}
 PLACEHOLDER=docker.io/nginxinc/nginx-unprivileged:1.29-alpine

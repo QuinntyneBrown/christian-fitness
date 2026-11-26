@@ -13,6 +13,9 @@ public sealed record StaffSeedOptions(string Email, string? Name)
     /// <summary>The Admin's display name: <see cref="Name"/>, or <see cref="DefaultName"/> when blank.</summary>
     public string DisplayName => string.IsNullOrWhiteSpace(Name) ? DefaultName : Name.Trim();
 
+    /// <summary>Whether an Admin is named: without <c>Seed__AdminEmail</c> the seed makes none (ADR 0111).</summary>
+    public bool HasAdmin => !string.IsNullOrWhiteSpace(Email);
+
     /// <summary>The settings that are missing or blank, by their environment-variable names.</summary>
     public IEnumerable<string> MissingSettings()
     {

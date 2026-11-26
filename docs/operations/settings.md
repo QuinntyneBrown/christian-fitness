@@ -81,8 +81,10 @@ trusted extension, so the schema owner may create it without a superuser. Azure 
 PostgreSQL also requires it in the server parameter `azure.extensions` (`PG_TRGM`), or
 `CREATE EXTENSION` fails; the Deploy workflow adds it before migrating (docs/operations/deployment.md).
 
-A missing `Seed__AdminEmail` stops `cf seed` with exit code 2, naming the setting, before anything
-is written. A missing connection string stops either command with exit code 2.
+A missing `Seed__AdminEmail` does not stop `cf seed`: it names the setting on standard error, makes
+no Admin and seeds the rest, so a release goes through before staff Google sign-in is set up
+(ADR 0111); set it and run the release again to make the first Admin. A missing connection string
+stops either command with exit code 2.
 
 ## Static host (the built member and admin apps)
 

@@ -23,8 +23,8 @@ const string Usage = """
       seed              Insert the seed data that is missing; a second run changes nothing.
 
     Settings (environment variables): ConnectionStrings__Default; for seed also
-    Seed__AdminEmail (the first Admin's Google Workspace account) and optionally
-    Seed__AdminName; Seed__DirectorySamples=true adds the sample directory listings.
+    Seed__AdminEmail (the first Admin's Google Workspace account; without it no
+    Admin is made and the rest is seeded) and optionally Seed__AdminName; Seed__DirectorySamples=true adds the sample directory listings.
     """;
 
 var command = args.FirstOrDefault();
@@ -57,8 +57,8 @@ if (command == "seed")
     var missing = staff.MissingSettings().ToList();
     if (missing.Count > 0)
     {
-        await Console.Error.WriteLineAsync($"Missing setting: {string.Join(", ", missing)}").ConfigureAwait(false);
-        return 2;
+        // Staff Google sign-in may not be set up yet; that must not stop a release (ADR 0111).
+        await Console.Error.WriteLineAsync($"Skipped the first Admin; missing setting: {string.Join(", ", missing)}").ConfigureAwait(false);
     }
 
     builder.Services.AddSingleton(staff);

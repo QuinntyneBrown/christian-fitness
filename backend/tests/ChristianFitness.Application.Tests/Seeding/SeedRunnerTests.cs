@@ -64,6 +64,20 @@ public sealed class SeedRunnerTests : IDisposable
         Assert.Single(await _db.Members.ToListAsync(TestContext.Current.CancellationToken));
     }
 
+    // ADR 0111: a deployment that has not set up staff Google sign-in yet still releases.
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  ")]
+    public async Task Given_no_admin_email_When_seed_runs_Then_it_adds_no_Admin_and_changes_nothing(string? email)
+    {
+        var changes = await RunnerFor(new StaffSeedOptions(email!, null)).RunAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(0, changes);
+        Assert.Empty(await _db.Members.ToListAsync(TestContext.Current.CancellationToken));
+        Assert.Empty(await _db.StaffRoles.ToListAsync(TestContext.Current.CancellationToken));
+    }
+
     public void Dispose() => _db.Dispose();
 
     private SeedRunner RunnerFor(StaffSeedOptions staff)
