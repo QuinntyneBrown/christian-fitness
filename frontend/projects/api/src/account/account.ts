@@ -14,6 +14,24 @@ export interface JoinRequestDto {
   interests: InterestKey[];
 }
 
+/**
+ * "Finish your profile" as the API takes it (`POST /api/account/join/google`, L2-003 AC9): the
+ * email is the Google account's, kept by the server, and there is no password.
+ */
+export interface GoogleJoinRequestDto {
+  ageConfirmed: boolean;
+  fullName: string;
+  /** Optional faith detail: `null` when the visitor left it blank (L2-003 AC4, L2-033 AC1). */
+  homeChurch: string | null;
+  interests: InterestKey[];
+}
+
+/** The Google account "Finish your profile" shows (`GET /api/account/google`, L2-003 AC8). */
+export interface GoogleAccountDto {
+  email: string;
+  name: string | null;
+}
+
 /** A request for a reset link (`POST /api/account/password-reset`, L2-044). */
 export interface PasswordResetRequestDto {
   email: string;
@@ -64,6 +82,23 @@ export interface AccountApi {
    * password shorter than 8 characters (AC4, AC5).
    */
   completePasswordReset(request: NewPasswordDto): Observable<void>;
+
+  /**
+   * The Google account the visitor came back with, to finish their profile (L2-003 AC8). A refusal
+   * errors with an `ApiError`: code `google_email_unverified` (401) when there is none, or its
+   * email is not verified (L2-049 AC3).
+   */
+  pendingGoogle(): Observable<GoogleAccountDto>;
+
+  /** "Change": forgets the Google account at once and completes on 204 (L2-049 AC12). */
+  forgetGoogle(): Observable<void>;
+
+  /**
+   * Creates the account from the Google account and signs the new member in (L2-003 AC9). A
+   * refusal errors with an `ApiError` as {@link join} does, plus `age_not_confirmed` (400) and
+   * `google_email_unverified` (401).
+   */
+  joinWithGoogle(request: GoogleJoinRequestDto): Observable<SessionDto>;
 }
 
 /** Binds {@link AccountApi}; the member app's `app.config.ts` provides it. */

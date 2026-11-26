@@ -1,6 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type {
+  GoogleAccountDto,
+  GoogleJoinRequestDto,
   AccountApi,
   JoinRequestDto,
   NewPasswordDto,
@@ -35,6 +37,23 @@ export class HttpAccountService implements AccountApi {
   checkPasswordReset(request: PasswordResetTokenDto): Observable<PasswordResetCheckDto> {
     return this.http
       .post<PasswordResetCheckDto>('/api/account/password-reset/check', request)
+      .pipe(catchError(asApiError));
+  }
+
+  pendingGoogle(): Observable<GoogleAccountDto> {
+    return this.http.get<GoogleAccountDto>('/api/account/google').pipe(catchError(asApiError));
+  }
+
+  forgetGoogle(): Observable<void> {
+    return this.http.delete<unknown>('/api/account/google').pipe(
+      map(() => undefined),
+      catchError(asApiError),
+    );
+  }
+
+  joinWithGoogle(request: GoogleJoinRequestDto): Observable<SessionDto> {
+    return this.http
+      .post<SessionDto>('/api/account/join/google', request)
       .pipe(catchError(asApiError));
   }
 

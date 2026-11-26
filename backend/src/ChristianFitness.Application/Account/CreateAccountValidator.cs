@@ -12,7 +12,7 @@ namespace ChristianFitness.Application.Account;
 /// </summary>
 public sealed partial class CreateAccountValidator : AbstractValidator<CreateAccountCommand>
 {
-    public const string NameRequired = "Enter your full name";
+    public const string NameRequired = "Enter your name.";
     public const string NameTooLong = "Use 100 characters or fewer";
     public const string EmailInvalid = "Enter an email address like name@example.com";
     public const string EmailTooLong = "Use 254 characters or fewer";

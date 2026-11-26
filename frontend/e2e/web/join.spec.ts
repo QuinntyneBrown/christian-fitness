@@ -64,6 +64,8 @@ test.describe('Member app, join with valid details', () => {
     await join.open();
 
     await expect(join.inputs).toHaveCount(4);
+    // L2-003 AC8: the email form labels its name field "Name", as "Finish your profile" does.
+    await expect(join.labels).toHaveText(['Name', 'Email', 'Password', 'Home church']);
     await expect(join.password).toHaveAttribute('type', 'password');
     await expect(join.password).toHaveAccessibleDescription('At least 8 characters');
     await expect(join.homeChurch).toHaveAccessibleDescription(

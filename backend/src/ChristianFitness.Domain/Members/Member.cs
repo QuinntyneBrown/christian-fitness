@@ -52,6 +52,12 @@ public sealed class Member
     /// </summary>
     public string? GoogleSubject { get; private set; }
 
+    /// <summary>
+    /// The key of the member's photo in the image store: the Google photo, copied once when they
+    /// joined with Google (L2-049 AC14). None otherwise.
+    /// </summary>
+    public string? PhotoKey { get; private set; }
+
     /// <summary>The congregation the member attends: optional, sensitive and never logged (L2-033 AC1, AC2).</summary>
     public string? HomeChurch { get; private set; }
 
@@ -203,6 +209,26 @@ public sealed class Member
     {
         ArgumentException.ThrowIfNullOrEmpty(passwordHash);
         PasswordHash = passwordHash;
+    }
+
+    /// <summary>
+    /// A new, active member who joined with Google (L2-003 AC9): the Google account's email, the
+    /// name they gave, no password (a password sign-in answers as a wrong password), linked to
+    /// <paramref name="googleSubject"/>, with the copied Google photo's key when there is one.
+    /// </summary>
+    public static Member JoinWithGoogle(
+        string name,
+        string email,
+        string googleSubject,
+        DateTimeOffset joinedAt,
+        string? homeChurch = null,
+        IEnumerable<string>? interests = null,
+        string? photoKey = null)
+    {
+        var member = Join(name, email, string.Empty, joinedAt, homeChurch, interests);
+        member.LinkGoogle(googleSubject);
+        member.PhotoKey = photoKey;
+        return member;
     }
 
     /// <summary>

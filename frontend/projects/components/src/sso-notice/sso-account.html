@@ -1,0 +1,10 @@
+<div class="sso-account">
+  <cf-avatar variant="solid" [name]="email()" [initials]="initial()" />
+  <div class="sso-account__body">
+    <p class="sso-account__email">{{ email() }}</p>
+    <p class="sso-account__via"><cf-google-mark size="sm" />Signing in with Google</p>
+  </div>
+  <a class="sso-account__change" [href]="changeHref()" (click)="change($event)"
+    >Change<span class="visually-hidden"> how you sign in</span></a
+  >
+</div>

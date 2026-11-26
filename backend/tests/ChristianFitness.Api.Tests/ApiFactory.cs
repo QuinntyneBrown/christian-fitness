@@ -7,6 +7,7 @@ using ChristianFitness.Application.Seeding;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Infrastructure.Email;
 using ChristianFitness.Infrastructure.Persistence;
+using ChristianFitness.Infrastructure.Security.Google;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -68,6 +69,7 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddSingleton<IEmailSender>(Emails);
             services.RemoveAll<IImageStore>();
             services.AddSingleton<IImageStore>(Images);
+            services.AddHttpClient(GoogleAuthentication.PhotoClient).ConfigurePrimaryHttpMessageHandler(Google.PhotoHandler);
             // No background service in the shared host (AGENTS.md); nothing is queued to deliver.
             services.RemoveAll<QueuedEmailSender>();
             foreach (var dispatcher in services.Where(d => d.ImplementationType == typeof(EmailDispatcher)).ToList())

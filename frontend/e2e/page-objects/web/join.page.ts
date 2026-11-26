@@ -20,6 +20,8 @@ export class WebJoinPage {
   readonly email: Locator;
   readonly password: Locator;
   readonly homeChurch: Locator;
+  /** The fields' labels, in the order the form shows them. */
+  readonly labels: Locator;
   /** The text inputs, in the order the form shows them. */
   readonly inputs: Locator;
   readonly interestLegend: Locator;
@@ -38,12 +40,20 @@ export class WebJoinPage {
   readonly alertTitle: Locator;
   /** The error summary's links, one per invalid field. */
   readonly alertLinks: Locator;
+  readonly lead: Locator;
+  /** "Finish your profile": the Google account the profile is made with, and its parts. */
+  readonly ssoAccount: Locator;
+  readonly ssoAccountEmail: Locator;
+  readonly ssoAccountVia: Locator;
+  readonly ssoAccountAvatar: Locator;
+  readonly change: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
     this.form = this.main.locator('.auth__form');
     this.heading = this.form.getByRole('heading', { level: 1 });
-    this.fullName = this.form.getByLabel('Full name');
+    this.fullName = this.form.getByLabel('Name', { exact: true });
+    this.labels = this.form.locator('.field__label');
     this.email = this.form.getByLabel('Email', { exact: true });
     this.password = this.form.getByLabel('Password');
     this.homeChurch = this.form.getByLabel('Home church');
@@ -61,6 +71,22 @@ export class WebJoinPage {
     this.alert = this.form.locator('.auth__alert .form-alert');
     this.alertTitle = this.alert.locator('.form-alert__title');
     this.alertLinks = this.alert.locator('.form-alert__list a');
+    this.lead = this.form.locator('.auth__lead');
+    this.ssoAccount = this.form.locator('.sso-account');
+    this.ssoAccountEmail = this.ssoAccount.locator('.sso-account__email');
+    this.ssoAccountVia = this.ssoAccount.locator('.sso-account__via');
+    this.ssoAccountAvatar = this.ssoAccount.locator('.avatar');
+    this.change = this.ssoAccount.getByRole('link', { name: 'Change how you sign in' });
+  }
+
+  /** The hint under the field labelled `label`. */
+  fieldHint(label: string): Locator {
+    return this.field(label).locator('.field__hint');
+  }
+
+  /** The error under "I'm 16 or older". */
+  get ageError(): Locator {
+    return this.form.locator('#f-age-error');
   }
 
   async open(): Promise<void> {

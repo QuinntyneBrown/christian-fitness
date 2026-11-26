@@ -32,6 +32,7 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
     private readonly OpenIdConnectConfiguration _configuration;
     private readonly ConcurrentDictionary<string, GoogleAccount> _answers = new(StringComparer.Ordinal);
     private readonly ConcurrentQueue<IReadOnlyDictionary<string, string>> _exchanges = new();
+    private readonly ConcurrentDictionary<string, int> _photoFetches = new(StringComparer.Ordinal);
 
     public FakeGoogle()
     {
@@ -56,6 +57,15 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
 
     /// <summary>The backchannel the OpenID Connect handler calls the token endpoint through.</summary>
     public HttpClient Backchannel { get; }
+
+    /// <summary>The photos Google serves, by address; any other address answers 404.</summary>
+    public ConcurrentDictionary<string, byte[]> Photos { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>How many times the server fetched <paramref name="url"/>.</summary>
+    public int PhotoFetches(string url) => _photoFetches.TryGetValue(url, out var count) ? count : 0;
+
+    /// <summary>A handler for the API's photo client, answering from <see cref="Photos"/>.</summary>
+    public HttpMessageHandler PhotoHandler() => new PhotoEndpoint(this);
 
     /// <summary>Every form the token endpoint was sent, oldest first.</summary>
     public IReadOnlyList<IReadOnlyDictionary<string, string>> Exchanges => [.. _exchanges];
@@ -117,6 +127,18 @@ public sealed class FakeGoogle : IConfigurationManager<OpenIdConnectConfiguratio
         Backchannel.Dispose();
         _rsa.Dispose();
         _foreignRsa.Dispose();
+    }
+
+    private sealed class PhotoEndpoint(FakeGoogle google) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var url = request.RequestUri!.OriginalString;
+            google._photoFetches.AddOrUpdate(url, 1, (_, count) => count + 1);
+            return Task.FromResult(google.Photos.TryGetValue(url, out var photo)
+                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(photo) }
+                : new HttpResponseMessage(HttpStatusCode.NotFound));
+        }
     }
 
     private sealed class TokenEndpointHandler(FakeGoogle google) : HttpMessageHandler

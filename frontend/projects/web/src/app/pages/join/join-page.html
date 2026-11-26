@@ -1,6 +1,10 @@
 <cf-auth-layout
-  heading="Create your profile"
-  lead="Free for everyone. Takes about a minute."
+  [heading]="googleAccount() ? 'Finish your profile' : 'Create your profile'"
+  [lead]="
+    googleAccount()
+      ? 'Google filled in the basics. Tell us a little more.'
+      : 'Free for everyone. Takes about a minute.'
+  "
   altText="Already a member?"
   altLink="Sign in"
   altHref="/sign-in"
@@ -20,6 +24,20 @@
     <cf-alert slot="alert" heading="Google sign-up didn't finish"
       >Nothing was created. Try again, or create your profile with your email below.</cf-alert
     >
+  } @else if (refusal() === 'google-unverified') {
+    <cf-alert slot="alert" heading="Your Google email isn't verified"
+      >Your Google account's email isn't verified. Verify it with Google, or join with
+      email.</cf-alert
+    >
+  } @else if (refusal() === 'suspended') {
+    <cf-alert slot="alert" heading="Your account is suspended"
+      >Contact the Christian Fitness team to talk it through.</cf-alert
+    >
+  } @else if (refusal() === 'email-taken' && googleAccount()) {
+    <cf-alert slot="alert" heading="This email already has a profile"
+      >Your Google account's email already has a Christian Fitness profile.
+      <cf-link href="/sign-in">Sign in</cf-link> instead.</cf-alert
+    >
   } @else if (refusal() === 'google-limited') {
     <cf-alert slot="alert" heading="Too many attempts"
       >Too many attempts. Try again in a few minutes.</cf-alert
@@ -30,54 +48,70 @@
       moment.</cf-alert
     >
   }
-  <cf-google-button
-    slot="sso"
-    label="Sign up with Google"
-    [busy]="leaving()"
-    (chosen)="signUpWithGoogle()"
-  />
-  <cf-divider slot="sso" variant="label" label="or with email" />
+  @if (googleAccount(); as account) {
+    <cf-sso-account
+      slot="sso"
+      [email]="account.email"
+      [name]="account.name"
+      (changeChosen)="changeAccount()"
+    />
+  } @else {
+    <cf-google-button
+      slot="sso"
+      label="Sign up with Google"
+      [busy]="leaving()"
+      (chosen)="signUpWithGoogle()"
+    />
+  }
+  @if (!googleAccount()) {
+    <cf-divider slot="sso" variant="label" label="or with email" />
+  }
   <cf-text-field
     slot="fields"
     fieldId="f-name"
-    label="Full name"
+    label="Name"
     name="name"
     autocomplete="name"
+    [hint]="googleAccount() ? 'From your Google account — change it if you like' : undefined"
     [value]="fullName()"
     [error]="fieldErrors().fullName"
     [readonly]="submitting()"
     (valueChange)="edit('fullName', $event)"
   />
-  <cf-text-field
-    slot="fields"
-    fieldId="f-email"
-    label="Email"
-    name="email"
-    type="email"
-    autocomplete="email"
-    [value]="email()"
-    [error]="
-      fieldErrors().email ??
-      (refusal() === 'email-taken' ? 'An account with this email already exists.' : null)
-    "
-    [errorLink]="refusal() === 'email-taken' ? 'Sign in instead?' : undefined"
-    errorHref="/sign-in"
-    [readonly]="submitting()"
-    (valueChange)="edit('email', $event)"
-  />
-  <cf-text-field
-    slot="fields"
-    fieldId="f-password"
-    label="Password"
-    name="password"
-    type="password"
-    autocomplete="new-password"
-    hint="At least 8 characters"
-    [value]="password()"
-    [error]="fieldErrors().password"
-    [readonly]="submitting()"
-    (valueChange)="edit('password', $event)"
-  />
+  @if (!googleAccount()) {
+    <cf-text-field
+      slot="fields"
+      fieldId="f-email"
+      label="Email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      [value]="email()"
+      [error]="
+        fieldErrors().email ??
+        (refusal() === 'email-taken' ? 'An account with this email already exists.' : null)
+      "
+      [errorLink]="refusal() === 'email-taken' ? 'Sign in instead?' : undefined"
+      errorHref="/sign-in"
+      [readonly]="submitting()"
+      (valueChange)="edit('email', $event)"
+    />
+  }
+  @if (!googleAccount()) {
+    <cf-text-field
+      slot="fields"
+      fieldId="f-password"
+      label="Password"
+      name="password"
+      type="password"
+      autocomplete="new-password"
+      hint="At least 8 characters"
+      [value]="password()"
+      [error]="fieldErrors().password"
+      [readonly]="submitting()"
+      (valueChange)="edit('password', $event)"
+    />
+  }
   <cf-text-field
     slot="fields"
     fieldId="f-church"

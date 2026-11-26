@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Security.Claims;
+using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Sessions.Google;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -34,6 +35,9 @@ public static class GoogleAuthentication
     public const string MemberCallbackPath = "/api/session/google/callback";
     public const string StaffCallbackPath = "/api/admin/session/google/callback";
 
+    /// <summary>The named HTTP client that fetches a Google account's photo at join (L2-049 AC14).</summary>
+    public const string PhotoClient = "google-photos";
+
     /// <summary>How long an attempt, and then the kept identity, lasts (L2-049 AC5, AC12).</summary>
     public static readonly TimeSpan AttemptLifetime = TimeSpan.FromMinutes(10);
 
@@ -58,6 +62,8 @@ public static class GoogleAuthentication
         builder.Services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.Section));
         builder.Services.AddScoped<IGoogleChallenge, OpenIdConnectGoogleChallenge>();
         builder.Services.AddScoped<IGoogleIdentityReader, ExternalCookieGoogleIdentityReader>();
+        builder.Services.AddHttpClient(PhotoClient, client => client.DefaultRequestHeaders.UserAgent.ParseAdd("ChristianFitness/1.0"));
+        builder.Services.AddScoped<IGooglePhotos, HttpGooglePhotos>();
 
         var settings = configuration.GetSection(GoogleSettings.Section).Get<GoogleSettings>() ?? new GoogleSettings();
         var memberBaseUrl = configuration["MemberApp:BaseUrl"];
