@@ -54,6 +54,24 @@ export class WebLandingPage {
     await this.professionalsHeading.scrollIntoViewIfNeeded();
   }
 
+  /** The feeds the document head names: each `<link rel="alternate">` of type RSS, in order. */
+  feeds(): Promise<{ title: string | null; href: string | null }[]> {
+    return this.page
+      .locator('head link[rel="alternate"][type="application/rss+xml"]')
+      .evaluateAll((links) =>
+        links.map((link) => ({
+          title: link.getAttribute('title'),
+          href: link.getAttribute('href'),
+        })),
+      );
+  }
+
+  /** The footer's links' words, in order. */
+  async footerLinks(): Promise<string[]> {
+    const words = await this.page.getByRole('contentinfo').getByRole('link').allTextContents();
+    return words.map((w) => w.trim());
+  }
+
   title(): Promise<string> {
     return this.page.title();
   }

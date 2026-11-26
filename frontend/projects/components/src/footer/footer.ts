@@ -5,7 +5,9 @@ import { Component, input } from '@angular/core';
  * the bottom of a public page, "© 2026 Christian Fitness · Toronto" and the seal's words
  * "Health · Energy · Abundant life", stacked on phones and on one row from 640 px. It is a
  * `<footer>` outside `main`, so it is the page's one `contentinfo` landmark; the screen places it
- * after its `main`. Member and admin screens have none.
+ * after its `main`. The `news` variant closes the news front page with the copyright and its links:
+ * RSS with its mark, which leads to the All stories feed until Subscribe exists, Privacy and Terms
+ * (L2-001 AC9, L2-060; ADR 0108). The `member` variant closes every scrolling member page.
  */
 @Component({
   selector: 'cf-footer',
@@ -14,6 +16,6 @@ import { Component, input } from '@angular/core';
 })
 export class Footer {
   /** The copyright year; this year unless the screen says otherwise. */
-  readonly variant = input<'site' | 'member'>('site');
+  readonly variant = input<'site' | 'news' | 'member'>('site');
   readonly year = input(new Date().getFullYear());
 }
