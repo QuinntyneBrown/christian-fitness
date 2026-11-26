@@ -8,6 +8,7 @@ import { memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/doma
 const titled = (page: string) => `${page} · Christian Fitness`;
 const eventChat = () => import('./pages/event-chat/event-chat-page');
 const offline = () => import('./pages/offline/offline-page');
+const story = () => import('./pages/story/story-page');
 
 const routes: Routes = [
   {
@@ -45,6 +46,15 @@ const routes: Routes = [
     title: titled('Claim a listing'),
     canMatch: [signedOutGuard],
     loadComponent: () => import('./pages/claim-listing/claim-sign-in-page'),
+  },
+  {
+    // A published story for a visitor, under the masthead (L2-061 AC13; ADR 0105). With a session
+    // it does not match, and the shell's child of the same address opens.
+    path: 'stories/:slug',
+    title: titled('Story'),
+    canMatch: [signedOutGuard],
+    data: { masthead: true },
+    loadComponent: story,
   },
   {
     // Every member route is a child of the shell, which opens only with a session (ADR 0009).
@@ -149,6 +159,12 @@ const routes: Routes = [
         path: 'notifications',
         title: titled('Notifications'),
         loadComponent: () => import('./pages/notifications/notifications-page'),
+      },
+      {
+        // A published story for a member, under the member navigation (L2-061 AC13; ADR 0105).
+        path: 'stories/:slug',
+        title: titled('Story'),
+        loadComponent: story,
       },
       {
         // The signed-in member's own profile (L2-005; ADR 0015).

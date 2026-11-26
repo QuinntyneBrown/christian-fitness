@@ -73,6 +73,8 @@ public sealed class JoinRaceTests(JoinRaceTests.Factory factory) : IClassFixture
         public DbSet<ChristianFitness.Domain.News.Story> Stories => db.Stories;
 
         public DbSet<ChristianFitness.Domain.Scheduling.SchedulerLease> SchedulerLeases => db.SchedulerLeases;
+
+        public DbSet<ChristianFitness.Domain.News.StoryReadTally> StoryReadTallies => db.StoryReadTallies;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);

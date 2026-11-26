@@ -103,3 +103,5 @@ export * from './news/story-list';
 export * from './news/story-editor';
 export * from './news/story-text';
 export * from './news/story-actions';
+export * from './news/copied-flag';
+export * from './news/story-reads';

@@ -34,3 +34,5 @@ export * from './services/public-professionals';
 export * from './services/services';
 export * from './legal/legal-notice';
 export * from './news/story-blocks';
+export * from './news/stories';
+export * from './clipboard/clipboard';

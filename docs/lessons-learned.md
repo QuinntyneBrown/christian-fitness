@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 61% (22 of 36 journeys; 66 of 113 days)
+**% complete:** 62% (23 of 36 journeys; 70 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3224,3 +3224,39 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   leaves behind) and restoring `HEAD`. The Stop going dialog loads on first use.
 - "Run the full suite against the built apps" was used for each slice's last run.
 
+## Journey 24: Read a story
+
+**What slowed it**
+
+- The context ran out twice; the slice commits and the summary carried the work over, and the
+  rebase onto journey 23 was resumed mid-way.
+- Journey 23 merged first and changed the same story code: `PutStoryAsync` gained parameters on
+  both sides, `StoryAnswers.Of` took `now`, and a past-due Scheduled story now reads as Published.
+  The story page, Keep reading, the shell and the read count all looked for `Status == Published`
+  only, so a due story was missing from each until one `PublishedStories.At(db, now)` query served
+  all four. Every hand-written `IAppDbContext` double needed both new sets.
+- The story component grew past the 4 kB component-style budget in slice 3, and only the
+  production build said so; Keep reading and the Weekly box became `cf-story-more` and
+  `cf-story-subscribe` inside `story/`, as `cf-story-runs` already was.
+- Docker was not running, so the nginx story location was reviewed but not run through `nginx -t`.
+
+**New lessons**
+
+- After rebasing onto a journey that changes what a status means at read time, grep every query
+  of that status in the new code, not only the conflicted files: the compiler caught `Of(story)`
+  but not `Status == Published`.
+- Build the production app after any slice that adds styles to an existing component: the
+  development server does not enforce `anyComponentStyle`.
+- A read counter for anonymous visitors works without a cookie: a per-browser log of hashed story
+  ids in local storage with a 24-hour window, and per-day tallies on the server with a concurrency
+  token and a retry, so a race adds rather than overwrites.
+- Playwright's `history.length` counts the initial `about:blank`; a `replaceState` leaves it at 2.
+
+**How earlier lessons worked**
+
+- "Regenerate a colliding migration on main's snapshot" worked again: take main's snapshot, drop
+  the slice's migration, regenerate and convert to LF.
+- "Honest red" caught a weak reads spec: the first version passed with the window check broken, and
+  reading another story after the in-window reload made it fail for the right reason.
+- "Read the initial total after each slice": web stayed at 278.49 kB against main's 278.46 kB; the
+  story page, its reads and Keep reading are in the lazy chunk.

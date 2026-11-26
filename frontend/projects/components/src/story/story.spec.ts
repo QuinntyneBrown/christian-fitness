@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { StoryBlock, StoryRun } from '@cf/api';
-import { Story, type StoryNextCard } from './story';
+import { Story, type StoryMoreCard, type StoryNextCard } from './story';
 
 const run = (text: string, marks: Partial<StoryRun> = {}): StoryRun => ({
   text,
@@ -80,6 +80,142 @@ describe('Story', () => {
     expect([plain.querySelector('a'), plain.querySelector('.story-next')?.textContent]).toEqual([
       null,
       'In the directoryBook',
+    ]);
+  });
+
+  it('routes a plain click on a next step inside the app, and leaves other clicks to the browser', async () => {
+    const fixture = TestBed.createComponent(Story);
+    const emitted: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => emitted.push(href));
+    fixture.componentRef.setInput('next', { label: 'In the directory', title: 'Book', href: '/x' });
+    await fixture.whenStable();
+    const card = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>(
+      'a.story-next',
+    )!;
+    const click = (init: MouseEventInit = {}) => {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      card.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    const plain = click();
+    const modified = click({ ctrlKey: true });
+    fixture.componentRef.setInput('next', {
+      label: 'In the directory',
+      title: 'Book',
+      href: 'https://example.org/clubs',
+    });
+    await fixture.whenStable();
+    const external = (fixture.nativeElement as HTMLElement)
+      .querySelector('a.story-next')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect([plain, modified, external, emitted]).toEqual([true, false, true, ['/x']]);
+  });
+
+  // L2-061 AC3 (ADR 0105; mocks story/link-copied, story/link-refused).
+  it('shows Copy link, which emits copyRequested, and reads "Link copied" with a status while copied', async () => {
+    const fixture = TestBed.createComponent(Story);
+    let copies = 0;
+    fixture.componentInstance.copyRequested.subscribe(() => copies++);
+    fixture.componentRef.setInput('copyable', true);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const button = () => host.querySelector<HTMLButtonElement>('.story__byline button')!;
+    const status = () => host.querySelector('.story__byline [role="status"]')!.textContent;
+
+    button().click();
+    const before = [button().textContent?.trim(), status()];
+    fixture.componentRef.setInput('copied', true);
+    await fixture.whenStable();
+
+    expect([copies, ...before, button().textContent?.trim(), status()]).toEqual([
+      1,
+      'Copy link',
+      '',
+      'Link copied',
+      'Link copied',
+    ]);
+  });
+
+  it('shows the address focused and selected when given one, and no Copy link unless copyable', async () => {
+    const fixture = TestBed.createComponent(Story);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.componentRef.setInput('address', 'https://www.christian.fitness/stories/rest');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const field = host.querySelector<HTMLInputElement>('.story__address')!;
+
+    expect([
+      host.querySelector('.story__byline button'),
+      field.value,
+      field.readOnly,
+      document.activeElement === field,
+      field.selectionStart,
+      field.selectionEnd,
+    ]).toEqual([null, 'https://www.christian.fitness/stories/rest', true, true, 0, 42]);
+    fixture.nativeElement.remove();
+  });
+
+  // L2-061 AC6 (mock story/default): Keep reading's cards, then the Weekly.
+  it('shows Keep reading with each card, routes a plain click on one, and the Weekly with Subscribe', async () => {
+    const fixture = TestBed.createComponent(Story);
+    const emitted: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => emitted.push(href));
+    const cards: StoryMoreCard[] = [
+      {
+        href: '/stories/walk',
+        image: '/a.jpg',
+        section: 'Community',
+        title: '<b>Walk</b>',
+        meta: 'Priya · Yesterday',
+      },
+      { href: '/stories/run', image: null, section: '', title: 'Run', meta: 'Yesterday' },
+    ];
+    fixture.componentRef.setInput('more', cards);
+    fixture.componentRef.setInput('subscribeHref', '/subscribe');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const views = [...host.querySelectorAll<HTMLAnchorElement>('.story-more .story-card')].map(
+      (a) => [
+        a.getAttribute('href'),
+        a.querySelector('img')?.getAttribute('src') ?? null,
+        a.querySelector('.story-card__section')?.textContent ?? null,
+        a.querySelector('.story-card__title')?.textContent,
+        a.querySelector('.story__meta')?.textContent,
+      ],
+    );
+    host.querySelector<HTMLAnchorElement>('.story-card')!.click();
+    const subscribe = host.querySelector('.story-subscribe a');
+
+    expect([
+      host.querySelector('.story-more h2')?.textContent,
+      views,
+      emitted,
+      host.querySelector('.story-subscribe h2')?.textContent?.trim(),
+      subscribe?.textContent?.trim(),
+      subscribe?.getAttribute('href'),
+    ]).toEqual([
+      'Keep reading',
+      [
+        ['/stories/walk', '/a.jpg', 'Community', '<b>Walk</b>', 'Priya · Yesterday'],
+        ['/stories/run', null, null, 'Run', 'Yesterday'],
+      ],
+      ['/stories/walk'],
+      'The Abundant Weekly',
+      'Subscribe free',
+      '/subscribe',
+    ]);
+  });
+
+  it('shows neither Keep reading with no cards nor the Weekly with no Subscribe address', async () => {
+    const fixture = TestBed.createComponent(Story);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect([host.querySelector('.story-more'), host.querySelector('.story-subscribe')]).toEqual([
+      null,
+      null,
     ]);
   });
 });

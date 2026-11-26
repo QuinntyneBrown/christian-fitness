@@ -1,0 +1,22 @@
+// The story page (mock docs/mocks/pages/story/): the masthead, the story, Keep reading and the
+// Weekly box are the library's; the page stacks them and keeps nothing wider than the screen.
+:host {
+  display: block;
+}
+
+.story-page {
+  display: block;
+  min-height: 100dvh;
+  overflow-wrap: anywhere;
+}
+
+// The error state sits at the story head's measure, as mock story/error draws it.
+.story-page__state {
+  max-width: var(--size-measure-story);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+}

@@ -1,0 +1,81 @@
+// Mock story/default (docs/design-system/assets/components.css, "Story"): Keep reading's three
+// cards (L2-061 AC6).
+:host {
+  display: block;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.story-more {
+  margin-top: var(--space-10);
+  border-top: var(--border-width-thick) solid var(--color-fg-default);
+}
+
+.story-more__inner {
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  padding: var(--space-10) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+}
+
+.story-more__title {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-3xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.story-more__list {
+  margin-top: var(--space-5);
+  display: grid;
+  gap: var(--space-8);
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.story-card {
+  display: flex;
+  flex-direction: column;
+
+  &:hover .story-card__title {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+}
+
+.story-card__image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.story-card__section {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.story-card__title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+}
+
+// The mock's class on the card's byline and age, kept for the e2e locators.
+.story__meta {
+  margin-top: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

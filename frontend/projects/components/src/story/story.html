@@ -18,6 +18,9 @@
 } @else {
   <article class="story">
     <header class="story__head">
+      @if (backHref(); as href) {
+        <cf-link [href]="href" variant="back">All stories</cf-link>
+      }
       @if (section()) {
         <p class="story__section story__kicker">{{ section() }}</p>
       }
@@ -34,7 +37,32 @@
             <p class="story__when">{{ when() }}</p>
           }
         </div>
+        @if (copyable()) {
+          <cf-button variant="secondary" size="sm" (click)="copyRequested.emit()">
+            @if (copied()) {
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5" /></svg
+              >Link copied
+            } @else {
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 17H7A5 5 0 0 1 7 7h2" />
+                <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
+                <line x1="8" x2="16" y1="12" y2="12" /></svg
+              >Copy link
+            }
+          </cf-button>
+          <p class="visually-hidden" role="status">{{ copied() ? 'Link copied' : '' }}</p>
+        }
       </div>
+      @if (address(); as shown) {
+        <input
+          class="story__address"
+          type="text"
+          readonly
+          aria-label="Story address"
+          [value]="shown"
+        />
+      }
     </header>
     @if (image(); as src) {
       <figure class="story__figure"><img class="story__image" [src]="src" alt="" /></figure>
@@ -88,7 +116,7 @@
       }
       @if (next(); as next) {
         @if (next.href) {
-          <a class="story-next" [href]="next.href"
+          <a class="story-next" [href]="next.href" (click)="follow($event, next.href)"
             ><span class="story-next__body"
               ><span class="story-next__label">{{ next.label }}</span
               ><span class="story-next__title">{{ next.title }}</span></span
@@ -112,4 +140,10 @@
       }
     </div>
   </article>
+  @if (more().length) {
+    <cf-story-more [cards]="more()" (navigate)="navigate.emit($event)" />
+  }
+  @if (subscribeHref(); as href) {
+    <cf-story-subscribe [href]="href" />
+  }
 }

@@ -9,6 +9,7 @@ actor "Visitor or member" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "StoryPage" as page
   participant "StoriesApi (STORIES_SERVICE)" as client
+  participant "LocalStoryReads (STORY_READS)" as reads
 end box
 box "Backend — Christian Fitness API" #D1FADF
   participant "public-reads policy" as limit
@@ -16,7 +17,6 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "GetPublishedStoryHandler" as h
-  participant "StoryText" as text
   participant "CountStoryReadHandler" as count
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
@@ -29,7 +29,7 @@ client -> limit : GET /api/public/stories/{slug}
 limit -> limit : Count one read for client IP (L2-034 AC4)
 limit -> ctrl : Allow request
 ctrl -> h : Send GetPublishedStoryQuery
-h -> db : Story by slug, else StorySlugRedirect by former slug
+h -> db : Published story by slug, else by a former slug
 db --> h : Story
 alt no story, or status is not Published
   h --> ctrl : RefusalException not_found
@@ -37,24 +37,27 @@ alt no story, or status is not Published
   client --> page : ApiError not_found
   page --> actor : Not-found view, address kept
 else published
-  h -> text : Paragraphs(text), ReadingMinutes(text)
-  text --> h : Paragraphs with IsQuote; max(1, ceil(words / 220)) (L2-061 AC2)
   h -> db : Pointed event or listing, if still published (L2-061 AC4)
   h -> db : 3 other published stories, same section first, newest first (L2-061 AC6)
   db --> h : Rows
-  h --> ctrl : PublishedStoryDto
+  h --> ctrl : PublishedStoryDto (text as written)
   ctrl --> client : 200 JSON
   client --> page : PublishedStoryDto
   opt dto.slug differs from the slug opened
-    page -> page : Replace the URL with /stories/<dto.slug> (L2-061 AC8)
+    page -> page : Location.replaceState(/stories/<dto.slug>) (L2-061 AC8)
   end
-  page -> page : Title and meta description from headline and summary (L2-061 AC11)
+  page -> page : Title and description from headline and summary (L2-061 AC11)
+  page -> page : storyBlocks(text); storyReadingMinutes(text) at 220 a minute (L2-061 AC2)
   page --> actor : Section, h1, summary, byline, age, reading time, image, text as text (L2-061 AC1, AC10)
-  page -> client : countRead(id)
-  client -> ctrl : POST /api/public/stories/{id}/reads
-  ctrl -> count : Send CountStoryReadCommand
-  count -> db : Add 1 to StoryReadTally(story, Toronto day)
-  count --> ctrl : Done
-  ctrl --> client : 204
+  page -> reads : count(id)
+  reads -> reads : SHA-256 of id; storyReadLog over cf-story-reads (L2-061 AC12)
+  opt not counted in the last 24 hours
+    reads -> ctrl : POST /api/public/stories/{id}/reads
+    ctrl -> count : Send CountStoryReadCommand(id, user agent)
+    opt Published, and not a crawler
+      count -> db : Add 1 to StoryReadTally(story, Toronto day)
+    end
+    ctrl --> reads : 204
+  end
 end
 @enduml

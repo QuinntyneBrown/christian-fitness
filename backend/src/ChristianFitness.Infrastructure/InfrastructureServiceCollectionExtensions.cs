@@ -1,7 +1,9 @@
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Sessions.Google;
 using ChristianFitness.Infrastructure.Health;
+using ChristianFitness.Application.News;
 using ChristianFitness.Infrastructure.Images;
+using ChristianFitness.Infrastructure.News;
 using ChristianFitness.Infrastructure.Persistence;
 using ChristianFitness.Infrastructure.Registrations;
 using ChristianFitness.Infrastructure.Security;
@@ -31,6 +33,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IRegistrationReader, DatabaseRegistrations>();
         services.AddSingleton<IImageStore, FileSystemImageStore>();
+        // The member app's shell for a story's address, read over loopback (ADR 0105).
+        services.AddHttpClient(HttpStoryShell.ClientName, client => client.Timeout = TimeSpan.FromSeconds(5));
+        services.AddSingleton<IStoryShell, HttpStoryShell>();
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database", tags: [HealthTags.Ready]);
         return services;
     }

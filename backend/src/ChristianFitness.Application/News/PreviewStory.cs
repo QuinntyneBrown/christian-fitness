@@ -44,7 +44,7 @@ internal sealed class GetStoryPreviewHandler(IAppDbContext db, TimeProvider time
             ? await db.Bylines.AsNoTracking().Where(b => b.Id == bylineId).Select(b => b.Name).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             : null;
         var answer = StoryAnswers.Of(story, time.GetUtcNow());
-        var next = await NextOfAsync(story, cancellationToken).ConfigureAwait(false);
+        var next = await StoryNext.OfAsync(db, story, cancellationToken).ConfigureAwait(false);
         return new StoryPreviewDto(
             story.Id,
             answer.Status,
@@ -57,12 +57,16 @@ internal sealed class GetStoryPreviewHandler(IAppDbContext db, TimeProvider time
             answer.Image,
             next);
     }
+}
 
+/// <summary>The card after a story's text, shared by Preview and the story page.</summary>
+internal static class StoryNext
+{
     /// <summary>
     /// The card after the text (L2-061 AC4): only with "Next step" words and a published event or
     /// listing to point to, leading to the editor's link or else that event's or listing's page.
     /// </summary>
-    private async Task<StoryNextDto?> NextOfAsync(Story story, CancellationToken cancellationToken)
+    public static async Task<StoryNextDto?> OfAsync(IAppDbContext db, Story story, CancellationToken cancellationToken)
     {
         if (story.NextStepText is not { } words || story.PointsToId is not { } id)
         {

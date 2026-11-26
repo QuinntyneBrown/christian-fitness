@@ -1,0 +1,65 @@
+@if (masthead) {
+  <cf-skip-link />
+  <cf-top-bar variant="site" homeHref="/" />
+}
+<main id="main" class="story-page">
+  @switch (state()) {
+    @case ('not-found') {
+      <cf-container page="default">
+        <cf-error-page
+          code="404"
+          heading="Page not found"
+          text="That link may be old, or the page has moved. Everything else is right where you left it."
+        >
+          <cf-button slot="actions" href="/" size="sm">Go to home</cf-button>
+          <cf-button slot="actions" href="/events" variant="secondary" size="sm"
+            >Browse events</cf-button
+          >
+        </cf-error-page>
+      </cf-container>
+    }
+    @case ('loading') {
+      <cf-story loading />
+    }
+    @case ('failed') {
+      <div class="story-page__state">
+        <h1 class="visually-hidden">Story</h1>
+        <cf-empty-state
+          variant="error"
+          heading="This story didn't load"
+          text="We couldn't reach Christian Fitness. Check your connection and try again."
+        >
+          <cf-button slot="actions" size="sm" (click)="retry()">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" /></svg
+            >Try again
+          </cf-button>
+          <cf-button slot="actions" size="sm" variant="secondary" href="/">All stories</cf-button>
+        </cf-empty-state>
+      </div>
+    }
+    @default {
+      @if (story(); as shown) {
+        <cf-story
+          backHref="/"
+          [section]="section()"
+          [headline]="shown.headline"
+          [summary]="shown.summary"
+          [author]="shown.author ?? ''"
+          [when]="when()"
+          [image]="image()"
+          [blocks]="blocks()"
+          [next]="next()"
+          [more]="more()"
+          subscribeHref="/subscribe"
+          copyable
+          [copied]="copied()"
+          [address]="address()"
+          (copyRequested)="copyLink()"
+          (navigate)="navigate($event)"
+        />
+      }
+    }
+  }
+</main>

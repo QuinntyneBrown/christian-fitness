@@ -1,0 +1,21 @@
+<section class="story-more" aria-labelledby="story-more-title">
+  <div class="story-more__inner">
+    <h2 class="display story-more__title" id="story-more-title">Keep reading</h2>
+    <ul class="story-more__list">
+      @for (card of cards(); track card.href) {
+        <li>
+          <a class="story-card" [href]="card.href" (click)="follow($event, card.href)">
+            @if (card.image; as src) {
+              <img class="story-card__image" [src]="src" alt="" loading="lazy" />
+            }
+            @if (card.section) {
+              <span class="story__section story-card__section">{{ card.section }}</span>
+            }
+            <span class="story-card__title">{{ card.title }}</span>
+            <span class="story__meta">{{ card.meta }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

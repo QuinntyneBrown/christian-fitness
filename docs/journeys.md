@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 61% (22 of 36 journeys; 66 of 113 days)
+**% complete:** 62% (23 of 36 journeys; 70 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -36,7 +36,7 @@ audit), so those are not listed on their own.
 | 21  | ✅ Manage bylines                      | Admin  | Admins add, edit and remove the names stories run under.                                                       | 2             |
 | 22  | ✅ Write and publish stories           | Admin  | Admins list, write, review, preview, publish, update and unpublish stories.                                    | 5             |
 | 23  | ✅ Schedule stories                    | Admin  | A scheduled story publishes itself within a minute, run by the console's scheduler.                            | 2             |
-| 24  | Read a story                           | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
+| 24  | ✅ Read a story                        | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
 | 25  | Read the news front page               | Member | The landing page becomes a news front page: sections, top stories, the rail and most read.                     | 3             |
 | 26  | Follow stories by RSS                  | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
 | 27  | Subscribe to the newsletter            | Member | Anyone subscribes without an account, confirms by email and unsubscribes in one click.                         | 4             |
