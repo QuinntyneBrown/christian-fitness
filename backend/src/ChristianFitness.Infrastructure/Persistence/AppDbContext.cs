@@ -4,6 +4,7 @@ using ChristianFitness.Domain.Audit;
 using ChristianFitness.Domain.Directory;
 using ChristianFitness.Domain.Members;
 using ChristianFitness.Domain.News;
+using ChristianFitness.Domain.Scheduling;
 using ChristianFitness.Domain.Notifications;
 using ChristianFitness.Domain.Services;
 using ChristianFitness.Domain.Sessions;
@@ -59,6 +60,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Byline> Bylines => Set<Byline>();
 
     public DbSet<Story> Stories => Set<Story>();
+
+    public DbSet<SchedulerLease> SchedulerLeases => Set<SchedulerLease>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();
