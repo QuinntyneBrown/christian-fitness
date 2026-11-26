@@ -1,14 +1,30 @@
+import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { type PublishedStoryDto, STORIES_SERVICE, storyImageUrl } from '@cf/api';
-import { Button, Container, EmptyState, ErrorPage, SkipLink, Story, TopBar } from '@cf/components';
-import { storyBlocks, storyReaderWhen, storySectionLabel } from '@cf/domain';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CLIPBOARD_SERVICE, type PublishedStoryDto, STORIES_SERVICE, storyImageUrl } from '@cf/api';
+import {
+  Button,
+  Container,
+  EmptyState,
+  ErrorPage,
+  SkipLink,
+  Story,
+  type StoryNextCard,
+  TopBar,
+} from '@cf/components';
+import {
+  CopiedFlag,
+  storyBlocks,
+  storyNextLabel,
+  storyReaderWhen,
+  storySectionLabel,
+} from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpStoriesService } from '../../services/http-stories.service';
+import { NavigatorClipboard } from '../../services/navigator-clipboard';
 
 /**
  * A published story at `/stories/:slug` (L2-061; ADR 0105; mock `story/`), for anyone. Routed
@@ -17,20 +33,29 @@ import { HttpStoriesService } from '../../services/http-stories.service';
  * and text; a slug that is no published story's shows the not-found view at its address; any other
  * failure shows "This story didn't load" with Try again and All stories (a 5xx is the
  * server-error screen's). Once shown, the document's title and description are the story's
- * headline and summary (AC11). Every word the story gives is rendered as text.
+ * headline and summary (AC11). Copy link puts the story's address on the clipboard and reads "Link
+ * copied" for 2 seconds, or shows the address selected when the clipboard refuses (AC3); a next
+ * step inside the app is followed through the router, so a visitor's guard takes them to sign in
+ * and back (AC4). Every word the story gives is rendered as text.
  */
 @Component({
   selector: 'cf-story-page',
   imports: [Button, Container, EmptyState, ErrorPage, SkipLink, Story, TopBar],
-  providers: [{ provide: STORIES_SERVICE, useClass: HttpStoriesService }],
+  providers: [
+    { provide: STORIES_SERVICE, useClass: HttpStoriesService },
+    { provide: CLIPBOARD_SERVICE, useClass: NavigatorClipboard },
+  ],
   templateUrl: './story-page.html',
   styleUrl: './story-page.scss',
 })
 export default class StoryPage {
   private readonly stories = inject(STORIES_SERVICE);
+  private readonly clipboard = inject(CLIPBOARD_SERVICE);
   private readonly title = inject(Title);
   private readonly document = inject(DOCUMENT);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly copiedFlag = new CopiedFlag();
   private slug = '';
   private request: Subscription | null = null;
 
@@ -49,6 +74,13 @@ export default class StoryPage {
     return image ? storyImageUrl(image.key) : null;
   });
   protected readonly blocks = computed(() => storyBlocks(this.story()?.text ?? ''));
+  protected readonly next = computed<StoryNextCard | null>(() => {
+    const next = this.story()?.next;
+    return next ? { label: storyNextLabel(next.kind), title: next.text, href: next.link } : null;
+  });
+  protected readonly copied = this.copiedFlag.copied;
+  /** The address shown selected after the clipboard refused; none until then. */
+  protected readonly address = signal<string | null>(null);
 
   constructor() {
     inject(ActivatedRoute)
@@ -57,8 +89,32 @@ export default class StoryPage {
         this.slug = params.get('slug') ?? '';
         this.load();
       });
-    // The description belongs to this story; the next page starts without it.
-    this.destroyRef.onDestroy(() => this.describedBy()?.remove());
+    this.destroyRef.onDestroy(() => {
+      // The description belongs to this story; the next page starts without it.
+      this.describedBy()?.remove();
+      this.copiedFlag.dispose();
+    });
+  }
+
+  /** Copies the story's current address (L2-061 AC3). */
+  protected async copyLink(): Promise<void> {
+    const story = this.story();
+    if (!story) return;
+    const address = new URL(
+      `/stories/${encodeURIComponent(story.slug)}`,
+      this.document.location.href,
+    ).href;
+    if (await this.clipboard.write(address)) {
+      this.address.set(null);
+      this.copiedFlag.raise();
+    } else {
+      this.address.set(address);
+    }
+  }
+
+  /** Follows a next step inside the app through the router. */
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
   }
 
   /** Asks for the story again, in place. */
@@ -88,6 +144,7 @@ export default class StoryPage {
   private load(): void {
     this.request?.unsubscribe();
     this.state.set('loading');
+    this.address.set(null);
     this.request = this.stories
       .get(this.slug)
       .pipe(takeUntilDestroyed(this.destroyRef))

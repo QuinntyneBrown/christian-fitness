@@ -1,6 +1,19 @@
-import { booleanAttribute, Component, input } from '@angular/core';
+import {
+  afterNextRender,
+  booleanAttribute,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  type OnChanges,
+  output,
+  type SimpleChanges,
+} from '@angular/core';
 import type { StoryBlock } from '@cf/api';
+import { Button } from '../button/button';
 import { Link } from '../link/link';
+import { isPlainClick } from '../link/plain-click';
 import { Skeleton } from '../skeleton/skeleton';
 import { SkeletonRegion } from '../skeleton/skeleton-region';
 import { StoryRuns } from './story-runs';
@@ -15,19 +28,29 @@ export interface StoryNextCard {
 
 /**
  * The design system's story page (docs/design-system/components/story.html, block `story`): the
- * head with the section, the headline as the page's `h1`, the dek and the byline; the body; and
- * the story next card. The body is the blocks the domain's one renderer made of the story text
- * (L2-069 AC10; ADR 0097): paragraphs, pull quotes, headings, lists, emphasis, strong and `https`
- * links, each rendered as text, never as HTML. While `loading`, skeletons stand in for the head,
- * the figure and the body (mock `admin-story-preview/loading`), with `loadingLabel` read out.
+ * head with the back link, the section, the headline as the page's `h1`, the dek and the byline
+ * with Copy link; the body; and the story next card. The body is the blocks the domain's one
+ * renderer made of the story text (L2-069 AC10; ADR 0097): paragraphs, pull quotes, headings,
+ * lists, emphasis, strong and `https` links, each rendered as text, never as HTML. While
+ * `loading`, skeletons stand in for the head, the figure and the body (mocks `story/loading`,
+ * `admin-story-preview/loading`), with `loadingLabel` read out.
+ *
+ * With `copyable`, the byline holds Copy link, which emits `copyRequested`; `copied` makes it read "Link
+ * copied" with a `status` saying so (L2-061 AC3; mock `story/link-copied`). With `address` set (the
+ * clipboard refused) the address shows in a read-only field, focused and selected (mock
+ * `story/link-refused`). A plain click on a next step inside the app (`/…`) emits `navigate` with
+ * its address; any other click is the browser's.
  */
 @Component({
   selector: 'cf-story',
-  imports: [Link, Skeleton, SkeletonRegion, StoryRuns],
+  imports: [Button, Link, Skeleton, SkeletonRegion, StoryRuns],
   templateUrl: './story.html',
   styleUrl: './story.scss',
 })
-export class Story {
+export class Story implements OnChanges {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+
   /** The section's name, "Nutrition"; empty for none. */
   readonly section = input('');
   readonly headline = input('');
@@ -41,6 +64,36 @@ export class Story {
   readonly next = input<StoryNextCard | null>(null);
   /** Where "All stories" leads, above the section; none draws no back link (the admin preview). */
   readonly backHref = input<string | null>(null);
+  /** Shows Copy link in the byline. */
+  readonly copyable = input(false, { transform: booleanAttribute });
+  /** Copy link reads "Link copied". */
+  readonly copied = input(false, { transform: booleanAttribute });
+  /** The story's address, shown selected because the clipboard refused; none hides it. */
+  readonly address = input<string | null>(null);
   readonly loading = input(false, { transform: booleanAttribute });
   readonly loadingLabel = input('Loading story');
+
+  /** Copy link was pressed. */
+  readonly copyRequested = output();
+  /** A plain click on a next step inside the app, with its address. */
+  readonly navigate = output<string>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['address'] && this.address()) {
+      afterNextRender(
+        () => {
+          const field = this.host.nativeElement.querySelector<HTMLInputElement>('.story__address');
+          field?.focus();
+          field?.select();
+        },
+        { injector: this.injector },
+      );
+    }
+  }
+
+  protected follow(event: MouseEvent, href: string): void {
+    if (!href.startsWith('/') || href.startsWith('//') || !isPlainClick(event)) return;
+    event.preventDefault();
+    this.navigate.emit(href);
+  }
 }

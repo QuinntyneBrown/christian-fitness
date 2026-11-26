@@ -50,6 +50,12 @@
           [when]="when()"
           [image]="image()"
           [blocks]="blocks()"
+          [next]="next()"
+          copyable
+          [copied]="copied()"
+          [address]="address()"
+          (copyRequested)="copyLink()"
+          (navigate)="navigate($event)"
         />
       }
     }

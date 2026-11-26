@@ -35,6 +35,15 @@ export class WebStoryPage extends ErrorScreen {
   readonly failure: Locator;
   readonly tryAgain: Locator;
   readonly allStories: Locator;
+  readonly copyLink: Locator;
+  /** The visually hidden `status` beside Copy link. */
+  readonly copyStatus: Locator;
+  /** The read-only address shown when the clipboard refuses. */
+  readonly address: Locator;
+  /** The `story-next` card, a link. */
+  readonly next: Locator;
+  readonly nextLabel: Locator;
+  readonly nextTitle: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -52,6 +61,36 @@ export class WebStoryPage extends ErrorScreen {
     this.failure = this.main.getByRole('alert').filter({ hasText: "This story didn't load" });
     this.tryAgain = this.failure.getByRole('button', { name: 'Try again' });
     this.allStories = this.failure.getByRole('link', { name: 'All stories' });
+    const byline = this.article.locator('.story__byline');
+    this.copyLink = byline.getByRole('button');
+    this.copyStatus = byline.getByRole('status');
+    this.address = this.article.getByRole('textbox', { name: 'Story address' });
+    this.next = this.article.locator('.story-next');
+    this.nextLabel = this.next.locator('.story-next__label');
+    this.nextTitle = this.next.locator('.story-next__title');
+  }
+
+  /** What the clipboard holds now. */
+  clipboard(): Promise<string> {
+    return this.page.evaluate(() => navigator.clipboard.readText());
+  }
+
+  /** The address field's selection, as [start, end]. */
+  addressSelection(): Promise<[number | null, number | null]> {
+    return this.address.evaluate((input: HTMLInputElement) => [
+      input.selectionStart,
+      input.selectionEnd,
+    ]);
+  }
+
+  /** Marks the document, so a later check can tell whether a click reloaded it. */
+  async markDocument(): Promise<void> {
+    await this.page.evaluate(() => document.documentElement.setAttribute('data-e2e-mark', '1'));
+  }
+
+  /** Whether the document marked by `markDocument` is still the one showing (no reload). */
+  isSameDocument(): Promise<boolean> {
+    return this.page.evaluate(() => document.documentElement.getAttribute('data-e2e-mark') === '1');
   }
 
   async open(slug: string): Promise<void> {

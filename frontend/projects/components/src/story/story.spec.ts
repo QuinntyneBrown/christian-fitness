@@ -82,4 +82,78 @@ describe('Story', () => {
       'In the directoryBook',
     ]);
   });
+
+  it('routes a plain click on a next step inside the app, and leaves other clicks to the browser', async () => {
+    const fixture = TestBed.createComponent(Story);
+    const emitted: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => emitted.push(href));
+    fixture.componentRef.setInput('next', { label: 'In the directory', title: 'Book', href: '/x' });
+    await fixture.whenStable();
+    const card = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>(
+      'a.story-next',
+    )!;
+    const click = (init: MouseEventInit = {}) => {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      card.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    const plain = click();
+    const modified = click({ ctrlKey: true });
+    fixture.componentRef.setInput('next', {
+      label: 'In the directory',
+      title: 'Book',
+      href: 'https://example.org/clubs',
+    });
+    await fixture.whenStable();
+    const external = (fixture.nativeElement as HTMLElement)
+      .querySelector('a.story-next')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect([plain, modified, external, emitted]).toEqual([true, false, true, ['/x']]);
+  });
+
+  // L2-061 AC3 (ADR 0105; mocks story/link-copied, story/link-refused).
+  it('shows Copy link, which emits copyRequested, and reads "Link copied" with a status while copied', async () => {
+    const fixture = TestBed.createComponent(Story);
+    let copies = 0;
+    fixture.componentInstance.copyRequested.subscribe(() => copies++);
+    fixture.componentRef.setInput('copyable', true);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const button = () => host.querySelector<HTMLButtonElement>('.story__byline button')!;
+    const status = () => host.querySelector('.story__byline [role="status"]')!.textContent;
+
+    button().click();
+    const before = [button().textContent?.trim(), status()];
+    fixture.componentRef.setInput('copied', true);
+    await fixture.whenStable();
+
+    expect([copies, ...before, button().textContent?.trim(), status()]).toEqual([
+      1,
+      'Copy link',
+      '',
+      'Link copied',
+      'Link copied',
+    ]);
+  });
+
+  it('shows the address focused and selected when given one, and no Copy link unless copyable', async () => {
+    const fixture = TestBed.createComponent(Story);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.componentRef.setInput('address', 'https://www.christian.fitness/stories/rest');
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const field = host.querySelector<HTMLInputElement>('.story__address')!;
+
+    expect([
+      host.querySelector('.story__byline button'),
+      field.value,
+      field.readOnly,
+      document.activeElement === field,
+      field.selectionStart,
+      field.selectionEnd,
+    ]).toEqual([null, 'https://www.christian.fitness/stories/rest', true, true, 0, 42]);
+    fixture.nativeElement.remove();
+  });
 });

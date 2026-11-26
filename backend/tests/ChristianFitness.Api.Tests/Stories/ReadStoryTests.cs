@@ -68,6 +68,34 @@ public sealed class ReadStoryTests(StoriesFactory factory) : IClassFixture<Stori
         Assert.DoesNotContain("Secret", body, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(true, "Run with us", "event")]
+    [InlineData(false, "Run with us", null)]
+    [InlineData(true, null, null)]
+    public async Task Given_a_story_pointing_to_an_event_When_it_is_read_Then_the_next_step_shows_only_with_words_and_a_published_event(bool published, string? words, string? kind)
+    {
+        var eventId = await factory.AddStoryEventAsync($"Read Sunrise {published} {words}", factory.Time.GetUtcNow().AddDays(5), published);
+        var slug = $"next-step-{published}-{words is null}".ToLowerInvariant();
+        await factory.PutStoryAsync(
+            $"Next step {slug}",
+            StoryStatus.Published,
+            slug: slug,
+            content: c => c with { PointsTo = StoryPointer.Event, PointsToId = eventId, NextStepText = words });
+        using var client = Browser.CreateClient(factory);
+
+        using var response = await ReadAsync(client, slug);
+
+        var next = (await AdminStories.JsonAsync(response)).GetProperty("next");
+        if (kind is null)
+        {
+            Assert.Equal(JsonValueKind.Null, next.ValueKind);
+        }
+        else
+        {
+            Assert.Equal((kind, words, $"/events/{eventId}"), (next.GetProperty("kind").GetString(), next.GetProperty("text").GetString(), next.GetProperty("link").GetString()));
+        }
+    }
+
     [Fact]
     public async Task Given_a_slug_no_story_has_When_it_is_read_Then_it_is_not_found()
     {
