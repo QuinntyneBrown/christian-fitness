@@ -1,0 +1,29 @@
+<fieldset>
+  <legend class="field__label">
+    {{ legend() }}
+    @if (count(); as count) {
+      <span class="field__optional">· {{ count }}</span>
+    }
+  </legend>
+  <ul class="pick-list">
+    @for (item of items(); track item.id) {
+      <li>
+        <label class="pick-row">
+          <input
+            class="check__box"
+            type="checkbox"
+            [name]="name()"
+            [value]="item.id"
+            [checked]="item.checked"
+            [disabled]="disabled() || item.disabled"
+            (change)="onChange(item.id, $event)"
+          />
+          <span
+            ><span class="pick-row__title">{{ item.title }}</span
+            ><span class="pick-row__meta">{{ item.meta }}</span></span
+          >
+        </label>
+      </li>
+    }
+  </ul>
+</fieldset>

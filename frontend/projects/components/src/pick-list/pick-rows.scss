@@ -1,0 +1,74 @@
+// The design system's pick list (docs/design-system/assets/components.css, "Pick list": pick-list,
+// pick-row, with the card list's frame and the form checkbox's row it is drawn on).
+:host {
+  display: block;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.field__label {
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.field__optional {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+.pick-list {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+
+  > li + li {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.pick-row {
+  display: flex;
+  cursor: pointer;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-ui);
+
+  &:has(.check__box:disabled) {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.check__box {
+  flex-shrink: 0;
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  margin: var(--space-1) 0 0;
+  accent-color: var(--color-accent);
+}
+
+.pick-row__title {
+  display: block;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.pick-row__meta {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
