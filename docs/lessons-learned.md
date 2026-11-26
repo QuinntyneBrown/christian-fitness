@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 67% (24 of 36 journeys; 74 of 113 days)
+**% complete:** 69% (25 of 36 journeys; 77 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3299,3 +3299,45 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   as main.
 - "Serve the built apps for e2e on free ports" (`CF_SERVE_BUILT=1`): the full run of 880 specs
   passed with no Vite socket failures.
+
+## Journey 16: Record event attendance
+
+**What slowed it**
+
+- The context ran out once; the slice commits, the summary and the scratchpad scripts (`rep.py`,
+  `brkb.py`, `brkui.py` for e2e breaks on the built apps, and a new `brku.py` for unit breaks)
+  carried the work over.
+- The worktree guard refused any Bash call that mixed `git` with other commands or edited files
+  through a long pipeline; git ran alone, and edits went through `rep.py` or the Edit tool.
+- A Moderator opening the Attendance tab saw "Admins only": the client guard decides by the first
+  path segment, so `events/:id/attendance` needed its own rule (`canOpen`) beside the server's
+  full-template area (ADR 0106).
+- Two unit breaks passed at first: restoring a failed box to "the opposite of what it shows" and a
+  looser attendance path. Each got a row that tells the two apart (a box ticked twice before its
+  save failed; a Moderator at `/events/attendance`).
+
+**New lessons**
+
+- A staff area narrower than a route's first segment is matched on the full route template on the
+  server, and the client guard needs the same rule; a test of each role at that path covers both.
+- A tick that saves itself needs one request per row in flight: a tick made while it is busy is
+  sent when the first answers, so the last tick wins and a failure restores the last saved value,
+  not the opposite of the box.
+- A page that recomputes its table rows on every tick redraws every box; keep the rows tied to the
+  loaded list and read each box's state through a lookup signal, so a tick redraws one box.
+- A checkbox in a table whose visible label repeats on every row ("Came") needs an accessible name
+  that says whose box it is (`aria-label="Came: <name>"`); the design system's checkbox gained
+  `ariaLabel` and `busy` rather than the page adding attributes.
+- A new nullable field on a DTO the member reads breaks every exact-keys test of it; add the key
+  there and assert the null in the same change.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": each handler guard (started, registered, unchanged, the race retry,
+  who recorded it, the audit action, the count's event filter), each tracker rule, each page rule
+  (busy, the danger toast, the per-row name) and each series row and progress case failed its own
+  test.
+- "Measure the initial bundle": admin stayed at 279.11 kB and web at 278.46 kB; the page, its
+  tracker and the toast region load with the route.
+- "Run the full suite against the built apps" with two workers was steady.
+

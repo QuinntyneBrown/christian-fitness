@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 67% (24 of 36 journeys; 74 of 113 days)
+**% complete:** 69% (25 of 36 journeys; 77 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -28,7 +28,7 @@ audit), so those are not listed on their own.
 | 13  | ✅ Drop in on series dates              | Member | Register for chosen dates of a series and change them later.                                                   | 3             |
 | 14  | ✅ Get notifications in the app        | Member | A bell with an unread count and a Notifications screen, fed over the existing real-time connection.            | 3             |
 | 15  | ✅ Cancel and restore series dates     | Both   | Staff cancel or restore a session; members holding a place are told in chat and by notification.               | 2             |
-| 16  | Record event attendance                | Both   | Staff tick who came; members see "You came", "Missed" and "Came to n of m" on the series.                      | 3             |
+| 16  | ✅ Record event attendance             | Both   | Staff tick who came; members see "You came", "Missed" and "Came to n of m" on the series.                      | 3             |
 | 17  | ✅ Suggest a listing                   | Member | A member suggests someone, or themselves, for the directory.                                                   | 2             |
 | 18  | ✅ Review listing suggestions          | Admin  | Staff record the four checks, approve or decline, edit listings; the sender hears back from Christian Fitness. | 4             |
 | 19  | ✅ Claim a listing                     | Member | The listed party opens a claim link and publishes their own listing, or says it isn't them.                    | 3             |
