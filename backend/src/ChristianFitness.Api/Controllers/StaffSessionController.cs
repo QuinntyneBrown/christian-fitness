@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Admin;
+using ChristianFitness.Application.Sessions.Google;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,18 @@ public sealed class StaffSessionController(ISender sender) : ControllerBase
     public async Task<IActionResult> VerifyTwoStep(VerifyTwoStepCommand command, CancellationToken cancellationToken) =>
         Ok(await sender.Send(command, cancellationToken).ConfigureAwait(false));
 
+    /// <summary>
+    /// Starts staff Google sign-in, limited to the team's domain, and answers Google's authorization
+    /// address for the page to leave for (L2-018 AC1, L2-049 AC1; ADR 0100). Anonymous: nobody is
+    /// signed in yet.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("google/start")]
+    public async Task<IActionResult> StartGoogle(StaffGoogleStartRequest request, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(
+            new StartGoogleSignInCommand { App = GoogleApp.Staff, Intent = GoogleIntents.SignIn, SelectAccount = request?.SelectAccount ?? false },
+            cancellationToken).ConfigureAwait(false));
+
     /// <summary>Who is signed in to the admin app.</summary>
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
@@ -45,3 +58,6 @@ public sealed class StaffSessionController(ISender sender) : ControllerBase
         return NoContent();
     }
 }
+
+/// <summary>The admin app's start: only whether to show Google's account chooser ("Try another Google account").</summary>
+public sealed record StaffGoogleStartRequest(bool SelectAccount);
