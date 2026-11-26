@@ -2,10 +2,12 @@ import {
   type AfterViewInit,
   booleanAttribute,
   Component,
+  computed,
   ElementRef,
   inject,
   input,
 } from '@angular/core';
+import { GoogleMark } from '../google-button/google-mark';
 
 /**
  * The design system's sign-in notice (docs/design-system/components/sso-notice.html), block
@@ -17,6 +19,7 @@ import {
  */
 @Component({
   selector: 'cf-sso-notice',
+  imports: [GoogleMark],
   templateUrl: './sso-notice.html',
   styleUrl: './sso-notice.scss',
 })
@@ -27,6 +30,11 @@ export class SsoNotice implements AfterViewInit {
   readonly account = input.required<string>();
   /** Spaced under the staff lead (`sso-notice--spaced`). */
   readonly spaced = input(false, { transform: booleanAttribute });
+
+  // One attribute binding, as the Google mark's: a class binding would add its runtime to `main`.
+  protected readonly classes = computed(() =>
+    this.spaced() ? 'sso-notice sso-notice--spaced' : 'sso-notice',
+  );
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
 

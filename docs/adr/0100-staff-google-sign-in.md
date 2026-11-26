@@ -40,7 +40,7 @@ application's two-step code (`L2-046`, ADR 0074). Several points were left open:
 - **Which ending.** The 12-hour ending's ProblemDetails carries `reason: "max_age"`; an idle
   ending carries `reason: "idle"`. Staff sign in shows "Your session expired" with "You were signed
   out after 12 hours. Sign in again to continue." for the first, and "You were signed out after 30
-  minutes without activity. Sign in again to continue." for the second.
+  minutes without activity. Sign in again to carry on." for the second.
 - **Staff sign-in.** `POST /api/admin/session/google/start` starts the shared Google sign-in with
   the `GoogleStaff` scheme, which asks Google for the team's domain (`hd`); `POST
   /api/admin/session/google` finishes it (`CompleteStaffGoogleSignInCommand`), in the design's

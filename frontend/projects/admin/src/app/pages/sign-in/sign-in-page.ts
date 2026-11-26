@@ -1,73 +1,110 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { STAFF_SESSION_SERVICE } from '@cf/api';
-import { Alert, Button, StaffLayout, TextField } from '@cf/components';
+import { Alert, GoogleButton, SsoNotice, StaffLayout } from '@cf/components';
 import {
+  googleReturnOf,
   sessionEndingOf,
   staffSignInRefusalOf,
-  twoStepEndingOf,
+  type SessionEnding,
   type StaffSignInRefusal,
 } from '@cf/domain';
 
-/**
- * The alert Staff sign in shows: a refusal of its own, how the code screen ended (ADR 0013), or a
- * session that expired while idle (ADR 0016).
- */
-type SignInAlert = StaffSignInRefusal | 'two-step-expired' | 'two-step-locked' | 'session-expired';
+/** What Staff sign in shows: a refusal, or how the last session ended (ADR 0016, ADR 0100). */
+type SignInMessage = StaffSignInRefusal | { kind: 'session-ended'; ending: SessionEnding };
 
 /**
- * The Staff sign in screen (mock docs/mocks/pages/admin-sign-in/): staff sign in with their work
- * email and password and go on to the code screen (L2-018 AC1, L2-046 AC1). One signal per field; while the
- * request is on its way the button reads "Signing in…" and is disabled, and the fields hold still.
- * A refusal shows one alert: wrong credentials name neither field (AC3), a member is told the
- * console is for the team (AC2), and anything else is a failure; the form stays as typed. The
- * note says a code comes next. Sent back from the code screen, it says why once: the pending
- * sign-in timed out or too many codes were tried (L2-046 AC4, AC5; ADR 0013). Sent here by
- * `sessionExpiredInterceptor`, it says the session expired (L2-018 AC5; ADR 0016).
+ * The Staff sign in screen (mock docs/mocks/pages/admin-sign-in/): the `staff` card with one "Sign
+ * in with Google" button and no field (L2-018 AC1; ADR 0100). The button starts the sign-in and
+ * leaves for Google in a full-page redirect, reading "Opening Google…" until the page unloads.
+ * Google sends staff back with `?google=returned`, read once and dropped from the address: the
+ * screen finishes the sign-in and opens the Dashboard; `?google=failed` says it didn't finish. A
+ * Google account from outside the team's domain, or one with no console role, shows the sign-in
+ * notice with that account and "Try another Google account", which asks Google for its chooser
+ * (L2-018 AC2, AC10). Anything else shows one form alert. Sent here by
+ * `sessionExpiredInterceptor`, it says the session ended while idle or after 12 hours.
  */
 @Component({
   selector: 'cf-sign-in-page',
-  imports: [Alert, Button, StaffLayout, TextField],
+  imports: [Alert, GoogleButton, SsoNotice, StaffLayout],
   templateUrl: './sign-in-page.html',
   styleUrl: './sign-in-page.scss',
 })
 export default class SignInPage {
   private readonly session = inject(STAFF_SESSION_SERVICE);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly email = signal('');
-  protected readonly password = signal('');
-  protected readonly submitting = signal(false);
-  protected readonly refusal = signal<SignInAlert | null>(this.endingAlert());
+  protected readonly message = signal<SignInMessage | null>(this.endingMessage());
+  /** How the last session ended, when that is the message. */
+  protected readonly ending = computed(() => {
+    const message = this.message();
+    return message?.kind === 'session-ended' ? message.ending : null;
+  });
+  /** The Google account the notice names, when the last sign-in refused one. */
+  protected readonly refusedAccount = computed(() => {
+    const message = this.message();
+    return message && 'account' in message ? message.account : null;
+  });
+  /** On the way to Google, or finishing on the way back: the button stays busy. */
+  protected readonly leaving = signal(false);
 
-  /** Why the app sent staff here, from the navigation that opened this screen; none on a fresh visit. */
-  private endingAlert(): SignInAlert | null {
+  constructor() {
+    const returned = googleReturnOf(this.route.snapshot.queryParamMap.get('google'));
+    if (!returned) return;
+    // Read once: a reload or Back neither finishes again nor repeats the message.
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { google: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+    if (returned === 'failed') this.message.set({ kind: 'failed' });
+    else this.finish();
+  }
+
+  /** Starts Google sign-in; after a refused account, Google shows its account chooser. */
+  protected signInWithGoogle(): void {
+    if (this.leaving()) return;
+    const selectAccount = this.refusedAccount() !== null;
+    this.leaving.set(true);
+    this.message.set(null);
+    this.session
+      .startGoogle({ selectAccount })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ location }) => this.document.location.assign(location),
+        error: (error: unknown) => {
+          this.leaving.set(false);
+          this.message.set(staffSignInRefusalOf(error));
+        },
+      });
+  }
+
+  private finish(): void {
+    this.leaving.set(true);
+    this.session
+      .completeGoogle()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => void this.router.navigateByUrl('/'),
+        error: (error: unknown) => {
+          this.leaving.set(false);
+          this.message.set(staffSignInRefusalOf(error));
+        },
+      });
+  }
+
+  /** How the last session ended, from the navigation that opened this screen; none on a visit. */
+  private endingMessage(): SignInMessage | null {
     const navigation = this.router.currentNavigation();
     // Only the app's own navigation counts: a reload or Back restores the state, not the reason.
     if (navigation?.trigger !== 'imperative' || !navigation.previousNavigation) return null;
-    const state = navigation.extras.state;
-    if (sessionEndingOf(state)) return 'session-expired';
-    const ending = twoStepEndingOf(state);
-    return ending ? `two-step-${ending}` : null;
-  }
-
-  protected submit(): void {
-    if (this.submitting()) return;
-    this.submitting.set(true);
-    this.refusal.set(null);
-    this.session
-      .signIn({ email: this.email(), password: this.password() })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        // The password was right: the code comes next (L2-046 AC1).
-        next: () => void this.router.navigateByUrl('/sign-in/verify'),
-        // The form comes back as it was, so staff can try again.
-        error: (error: unknown) => {
-          this.refusal.set(staffSignInRefusalOf(error));
-          this.submitting.set(false);
-        },
-      });
+    const ending = sessionEndingOf(navigation.extras.state);
+    return ending ? { kind: 'session-ended', ending } : null;
   }
 }

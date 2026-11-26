@@ -1,25 +1,28 @@
-import { signInRefusalOf } from '../account/sign-in-refusal';
-
 /**
- * What the Staff sign in screen shows for a failed sign-in (L2-018 AC2, AC3, L2-032 AC1; ADR 0011):
- * `invalid-credentials` as "Email or password is incorrect", naming neither field (mock `invalid`),
- * `not-staff` as "This account isn't on the team" (mock `not-staff`), `two-step-not-set-up` as
- * "Two-step verification isn't set up" (mock `two-step-not-set-up`, L2-046 AC6; ADR 0013),
- * `too-many-attempts` as "Sign-in paused for 15 minutes" (mock `error`, L2-018 AC3 with L2-004 AC3;
- * ADR 0016), and `failed` as "We couldn't sign you in" (mock `failed`) for anything else.
+ * What Staff sign in shows for a refused Google sign-in (L2-018 AC3, AC4, AC8, AC10, L2-049 AC5,
+ * AC7, AC11; ADR 0062, ADR 0100): `wrong-domain` and `not-staff` as a sign-in notice naming the
+ * account Google returned (mocks `wrong-domain`, `no-access`), `suspended` as "Your account is
+ * suspended" (mock `suspended`), `not-configured` as "Sign-in isn't set up yet" (mock
+ * `not-configured`), `too-many-attempts` as "Too many attempts" (mock `limited`) and `failed` as
+ * "Google sign-in didn't finish" (mock `error`) for anything else.
  */
 export type StaffSignInRefusal =
-  'invalid-credentials' | 'not-staff' | 'two-step-not-set-up' | 'too-many-attempts' | 'failed';
+  | { kind: 'wrong-domain' | 'not-staff'; account: string }
+  | { kind: 'suspended' | 'not-configured' | 'too-many-attempts' | 'failed' };
 
-/**
- * Wrong credentials and the pause read as on the member sign-in, whose window staff share (ADR
- * 0016); each 403 is known by its code. The member's suspension (ADR 0012) is not an answer of the
- * staff session, so it reads as a failure here.
- */
+/** Each refusal is its status and its code together; a notice also needs the account to name. */
 export function staffSignInRefusalOf(error: unknown): StaffSignInRefusal {
-  const { status, code } = (error ?? {}) as { status?: unknown; code?: unknown };
-  if (status === 403 && code === 'not_staff') return 'not-staff';
-  if (status === 403 && code === 'two_step_not_set_up') return 'two-step-not-set-up';
-  const shared = signInRefusalOf(error);
-  return shared === 'invalid-credentials' || shared === 'too-many-attempts' ? shared : 'failed';
+  const { status, code, account } = (typeof error === 'object' && error !== null ? error : {}) as {
+    status?: unknown;
+    code?: unknown;
+    account?: unknown;
+  };
+  const named = typeof account === 'string' && account.length > 0 ? account : null;
+  if (status === 403 && code === 'wrong_domain' && named)
+    return { kind: 'wrong-domain', account: named };
+  if (status === 403 && code === 'not_staff' && named) return { kind: 'not-staff', account: named };
+  if (status === 403 && code === 'account_suspended') return { kind: 'suspended' };
+  if (status === 503 && code === 'google_unavailable') return { kind: 'not-configured' };
+  if (status === 429 && code === 'too_many_attempts') return { kind: 'too-many-attempts' };
+  return { kind: 'failed' };
 }

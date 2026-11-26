@@ -94,6 +94,33 @@
 
 .auth__submit {
   margin-top: var(--space-8);
+
+  &:empty {
+    display: none;
+  }
+}
+
+// The Google button of Staff sign in; closer under a sign-in notice.
+.staff__sso {
+  margin-top: var(--space-8);
+
+  &:empty {
+    display: none;
+  }
+}
+
+// A sign-in notice under the lead (the design system's sso-notice--spaced gap); the Google button
+// sits closer under it.
+.staff__notice {
+  margin-top: var(--space-8);
+
+  &:empty {
+    display: none;
+  }
+
+  &:not(:empty) + .staff__sso {
+    margin-top: var(--space-5);
+  }
 }
 
 // The note under the button, with its small icon.
@@ -106,6 +133,21 @@
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);
   text-align: center;
+}
+
+// The shield's note: from the left, the icon at the first line.
+.staff__note--start {
+  margin-top: var(--space-6);
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  text-align: left;
+  line-height: var(--line-height-relaxed);
+
+  .icon {
+    margin-top: var(--space-0-5);
+    flex-shrink: 0;
+  }
 }
 
 .icon--xs {

@@ -29,7 +29,6 @@ export * from './dashboard/work-awaiting';
 export * from './admin/initials';
 export * from './admin/staff-sign-in-refusal';
 export * from './security/return-path';
-export * from './admin/two-step-refusal';
 export * from './chat/chat-window';
 export * from './chat/conversation-row';
 export * from './chat/report-message';

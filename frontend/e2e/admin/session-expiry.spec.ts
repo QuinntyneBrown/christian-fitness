@@ -2,21 +2,27 @@ import { expect, STAFF_SIGNED_IN, test, type ApiHandlers, type ApiReply } from '
 import { AdminShell } from '../page-objects/admin/admin-shell.page';
 import { AdminStaffSignInPage } from '../page-objects/admin/staff-sign-in.page';
 
-function problem(status: number, code: string): ApiReply {
+function problem(status: number, code: string, extra: Record<string, unknown> = {}): ApiReply {
   return {
     status,
     headers: { 'content-type': 'application/problem+json' },
-    json: { status, code, title: 'A sentence from the server the screen never shows' },
+    json: { status, code, title: 'A sentence from the server the screen never shows', ...extra },
   };
 }
 
-/** Answers the staff session as Dana's until `expire()` is called, then as expired. */
-function sessionThatExpires(api: ApiHandlers): { expire: () => void; asked: () => number } {
+/**
+ * Answers the staff session as Dana's until `expire()` is called, then as expired for `reason`:
+ * `idle` after 30 minutes, `max_age` 12 hours after sign-in (ADR 0100).
+ */
+function sessionThatExpires(
+  api: ApiHandlers,
+  reason: 'idle' | 'max_age' = 'idle',
+): { expire: () => void; asked: () => number } {
   let expired = false;
   let asked = 0;
   api.on('GET', '/api/admin/session', () => {
     asked++;
-    return expired ? problem(401, 'session_expired') : { json: STAFF_SIGNED_IN };
+    return expired ? problem(401, 'session_expired', { reason }) : { json: STAFF_SIGNED_IN };
   });
   return { expire: () => (expired = true), asked: () => asked };
 }
@@ -60,8 +66,30 @@ test.describe('Admin app, idle session expiry', () => {
     await expect(signIn.alert).toBeFocused();
     expect(signIn.location()).toBe('/sign-in');
     expect(await signIn.title()).toBe('Staff sign in · Christian Fitness Admin');
-    await expect(signIn.email).toHaveValue('');
-    await expect(signIn.submitButton).toBeEnabled();
+    await expect(signIn.googleButton).toHaveText('Sign in with Google');
+    await expect(signIn.googleButton).toBeEnabled();
+  });
+
+  // L2-018 AC9 (ADR 0062, ADR 0100): a session ends 12 hours after sign-in, however busy.
+  test('a session past 12 hours returns staff to Staff sign in saying so', async ({
+    page,
+    api,
+  }) => {
+    const session = sessionThatExpires(api, 'max_age');
+    const shell = new AdminShell(page);
+    const signIn = new AdminStaffSignInPage(page);
+
+    await shell.open('/');
+    await expect(shell.heading).toHaveText('Dashboard');
+    session.expire();
+    await shell.navItem('Events').click();
+
+    await expect(signIn.alertTitle).toHaveText('Your session expired');
+    await expect(signIn.alertText).toHaveText(
+      'You were signed out after 12 hours. Sign in again to continue.',
+    );
+    await expect(signIn.alert).toBeFocused();
+    expect(signIn.location()).toBe('/sign-in');
   });
 
   test('a reload of Staff sign in after the notice shows no notice', async ({ page, api }) => {

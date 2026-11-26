@@ -17,13 +17,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page'),
   },
   {
-    // The second step, after the password (L2-046; ADR 0013). The API decides whether a pending
-    // sign-in exists; without one the code is refused and staff go back to sign in.
-    path: 'sign-in/verify',
-    title: titled('Enter your code'),
-    loadComponent: () => import('./pages/two-step/two-step-page'),
-  },
-  {
     // Opened by forbiddenInterceptor on a 403 to a read, the URL asked for kept (L2-047; ADR 0016).
     path: 'forbidden',
     title: titled('Staff only'),

@@ -1,78 +1,61 @@
 <cf-staff-layout
   heading="Staff sign in"
-  lead="For the Christian Fitness team only."
-  note="Two-step verification required"
-  (submitted)="submit()"
+  noteIcon="shield"
+  note="Passwords and two-step verification are managed by Google Workspace. Leaving the team ends console access the same day."
 >
-  @if (refusal() === 'invalid-credentials') {
-    <cf-alert slot="alert" heading="Email or password is incorrect"
-      >Check both and try again.</cf-alert
-    >
-  } @else if (refusal() === 'not-staff') {
-    <cf-alert slot="alert" heading="This account isn't on the team"
-      >The admin console is for the Christian Fitness team. On the team? Ask a community director to
-      give you staff access.</cf-alert
-    >
-  } @else if (refusal() === 'two-step-not-set-up') {
-    <cf-alert slot="alert" heading="Two-step verification isn't set up"
-      >Ask an Admin to set it up for your account, then sign in again.</cf-alert
-    >
-  } @else if (refusal() === 'too-many-attempts') {
-    <cf-alert slot="alert" heading="Sign-in paused for 15 minutes"
-      >Too many attempts, so we paused sign-in to keep the account safe. Wait 15 minutes, then try
-      again.</cf-alert
-    >
-  } @else if (refusal() === 'two-step-expired') {
-    <cf-alert slot="alert" heading="Sign in again"
-      >Your sign-in timed out before a code was entered. Sign in again to get a new code.</cf-alert
-    >
-  } @else if (refusal() === 'two-step-locked') {
-    <cf-alert slot="alert" heading="Too many codes tried"
-      >For your security, wait 15 minutes, then sign in again.</cf-alert
-    >
-  } @else if (refusal() === 'session-expired') {
-    <cf-alert slot="alert" heading="Your session expired"
-      >You were signed out after 30 minutes without activity. Sign in again to carry on.</cf-alert
-    >
-  } @else if (refusal() === 'failed') {
-    <cf-alert slot="alert" heading="We couldn't sign you in"
-      >Something went wrong on our side. Try again in a moment.</cf-alert
-    >
-  }
-  <cf-text-field
-    slot="fields"
-    fieldId="f-email"
-    label="Work email"
-    name="email"
-    type="email"
-    autocomplete="username"
-    [value]="email()"
-    [readonly]="submitting()"
-    (valueChange)="email.set($event)"
-  />
-  <cf-text-field
-    slot="fields"
-    fieldId="f-password"
-    label="Password"
-    name="password"
-    type="password"
-    autocomplete="current-password"
-    [value]="password()"
-    [readonly]="submitting()"
-    (valueChange)="password.set($event)"
-  />
-  <cf-button
-    slot="submit"
-    type="submit"
-    size="lg"
-    block
-    [disabled]="submitting()"
-    [busy]="submitting()"
+  <span slot="lead"
+    >Use your <strong>&#64;christian.fitness</strong> Google Workspace account.</span
   >
-    @if (submitting()) {
-      Signing in…
-    } @else {
-      Sign in
+  @switch (message()?.kind) {
+    @case ('wrong-domain') {
+      <cf-sso-notice
+        slot="notice"
+        heading="That's not a staff account"
+        [account]="refusedAccount()!"
+        >Only &#64;christian.fitness accounts can open the console. Pick your work account
+        instead.</cf-sso-notice
+      >
     }
-  </cf-button>
+    @case ('not-staff') {
+      <cf-sso-notice slot="notice" heading="No admin access yet" [account]="refusedAccount()!"
+        >Your Workspace account is fine, but it hasn’t been given a console role. Ask an Admin to
+        add you to the team.</cf-sso-notice
+      >
+    }
+    @case ('suspended') {
+      <cf-alert slot="alert" heading="Your account is suspended"
+        >This account can't open the console.</cf-alert
+      >
+    }
+    @case ('not-configured') {
+      <cf-alert slot="alert" heading="Sign-in isn't set up yet"
+        >Ask the person who runs Christian Fitness.</cf-alert
+      >
+    }
+    @case ('too-many-attempts') {
+      <cf-alert slot="alert" heading="Too many attempts"
+        >Too many attempts. Try again in a few minutes.</cf-alert
+      >
+    }
+    @case ('failed') {
+      <cf-alert slot="alert" heading="Google sign-in didn't finish"
+        >You're not signed in. Try again in a moment.</cf-alert
+      >
+    }
+    @case ('session-ended') {
+      <cf-alert slot="alert" heading="Your session expired">
+        @if (ending() === 'max-age') {
+          You were signed out after 12 hours. Sign in again to continue.
+        } @else {
+          You were signed out after 30 minutes without activity. Sign in again to carry on.
+        }
+      </cf-alert>
+    }
+  }
+  <cf-google-button
+    slot="sso"
+    [label]="refusedAccount() ? 'Try another Google account' : 'Sign in with Google'"
+    [busy]="leaving()"
+    (chosen)="signInWithGoogle()"
+  />
 </cf-staff-layout>
