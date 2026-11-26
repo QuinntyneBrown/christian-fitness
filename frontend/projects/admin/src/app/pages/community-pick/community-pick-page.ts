@@ -8,22 +8,28 @@ import {
   EventChoices,
   PickArt,
   PickAsset,
+  PickCaption,
   PickEmpty,
   SegmentedControl,
   type SegmentedOption,
   Skeleton,
   SkeletonRegion,
+  SlackPreview,
   Textarea,
 } from '@cf/components';
 import {
   PICK_ASSETS,
+  PICK_CAPTION_HINTS,
   PICK_NOTE_MAX,
   PICK_PLATFORMS,
   pickArtTextOf,
+  pickCaptionOf,
   pickChoiceOf,
   pickFileNameOf,
   pickNoteHintOf,
   pickPlatformOf,
+  pickSlackPostOf,
+  torontoPartsOf,
   type PickArtText,
   type PickAssetSpec,
 } from '@cf/domain';
@@ -45,8 +51,11 @@ interface MadeImage {
 
 /** The assets last made, and the event and note they were made from. */
 interface Made {
-  eventId: string;
+  event: PickableEventDto;
   note: string;
+  siteOrigin: string;
+  /** When they were made, "9:02 AM" in Toronto, as the Slack preview says it. */
+  time: string;
   art: PickArtText;
   images: readonly MadeImage[];
 }
@@ -68,10 +77,12 @@ interface Made {
     EventChoices,
     PickArt,
     PickAsset,
+    PickCaption,
     PickEmpty,
     SegmentedControl,
     Skeleton,
     SkeletonRegion,
+    SlackPreview,
     Textarea,
   ],
   templateUrl: './community-pick-page.html',
@@ -111,7 +122,7 @@ export default class CommunityPickPage {
   /** The event or the note differs from what the assets shown were made from. */
   protected readonly changed = computed(() => {
     const made = this.made();
-    return made !== null && (made.eventId !== this.chosenId() || made.note !== this.note().trim());
+    return made !== null && (made.event.id !== this.chosenId() || made.note !== this.note().trim());
   });
   private readonly platformKey = toSignal(
     inject(ActivatedRoute).queryParamMap.pipe(map((params) => params.get('platform'))),
@@ -136,6 +147,26 @@ export default class CommunityPickPage {
     const keys = new Set(this.platform().assets.map((asset) => asset.key));
     return made.images.filter((image) => keys.has(image.spec.key));
   });
+  /** The caption of the platform shown and its hint (L2-072 AC6). */
+  protected readonly caption = computed(() => {
+    const made = this.made();
+    if (!made) return null;
+    const platform = this.platform().key;
+    return {
+      text: pickCaptionOf(platform, made.event, made.note, made.siteOrigin),
+      hint: PICK_CAPTION_HINTS[platform],
+    };
+  });
+  /** The post as Slack shows it, when Slack is the platform shown. */
+  protected readonly slackPost = computed(() => {
+    const made = this.made();
+    const image = this.shown()[0];
+    if (!made || !image || this.platform().key !== 'slack') return null;
+    return { ...pickSlackPostOf(made.event, made.note, made.siteOrigin), time: made.time, image };
+  });
+  /** Copy's "Copied", for 2 seconds after the clipboard took the caption (L2-072 AC7). */
+  protected readonly copied = signal(false);
+  private copiedTimer: ReturnType<typeof setTimeout> | undefined;
   protected readonly preview = computed(() => {
     const event = this.chosen();
     if (!event) return null;
@@ -148,6 +179,7 @@ export default class CommunityPickPage {
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.abort.abort();
+      clearTimeout(this.copiedTimer);
       this.release();
     });
     this.reload
@@ -202,8 +234,10 @@ export default class CommunityPickPage {
     if (this.abort.signal.aborted) return;
     this.release();
     this.made.set({
-      eventId: chosen.id,
+      event: chosen,
       note,
+      siteOrigin: list.kind === 'ready' ? list.siteOrigin : '',
+      time: torontoPartsOf(new Date().toISOString()).time,
       art,
       images: PICK_ASSETS.map((spec, i) => ({
         spec,
@@ -228,6 +262,18 @@ export default class CommunityPickPage {
     link.href = image.url;
     link.download = image.fileName;
     link.click();
+  }
+
+  /** Puts the caption shown on the clipboard, and says so for 2 seconds. */
+  protected async copy(text: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      return;
+    }
+    clearTimeout(this.copiedTimer);
+    this.copied.set(true);
+    this.copiedTimer = setTimeout(() => this.copied.set(false), 2000);
   }
 
   protected showPlatform(href: string): void {

@@ -470,3 +470,137 @@ test.describe('Admin app, Community Pick: creating the assets', () => {
     expect((await pick.downloadPng('Post')).width).toBe(1080);
   });
 });
+
+// L2-072 AC4, AC6 and AC7 (ADR 0098): each platform's caption, in its own form, with the title,
+// the note, when, the place, the price and the event's link; Copy puts it on the clipboard and
+// says so; Slack also shows the post as a channel shows it. The texts are the mocks' captions,
+// worked from the fixture's event (Sat Apr 18 at 6:45 AM in Toronto, free, 58 places left).
+test.describe('Admin app, Community Pick: the captions', () => {
+  const LINK = `https://www.christian.fitness/e/${SUNRISE_5K.id}`;
+
+  test('each platform shows its caption in its own form, and Slack a preview of the post', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', '/api/admin/community-pick/events', () => pickableEvents());
+    answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+    await pick.writeNote(SUNRISE_NOTE);
+    await pick.create();
+
+    await expect(pick.captionText).toHaveText(
+      [
+        'Community Pick: Easter Sunrise 5K',
+        '',
+        SUNRISE_NOTE,
+        '',
+        'Sat, Apr 18 at 6:45 AM',
+        'Martin Goodman Trail, Marilyn Bell Park',
+        `Free. Link in bio, or register at www.christian.fitness/e/${SUNRISE_5K.id}`,
+        '',
+        '#ChristianFitness #CommunityPick #TorontoFitness #FaithAndFitness',
+      ].join('\n'),
+      { useInnerText: true },
+    );
+    await expect(pick.caption.getByRole('heading', { level: 3 })).toHaveText('Caption');
+    await expect(pick.captionHint).toHaveCount(0);
+    await expect(pick.slackPreview).toHaveCount(0);
+
+    await pick.showPlatform('Facebook');
+
+    await expect(pick.captionText).toHaveText(
+      [
+        'This week’s Community Pick: Easter Sunrise 5K.',
+        '',
+        SUNRISE_NOTE,
+        '',
+        'Sat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park',
+        'Free, 58 spots left.',
+        '',
+        `Register: ${LINK}`,
+      ].join('\n'),
+      { useInnerText: true },
+    );
+    await expect(pick.captionHint).toHaveCount(0);
+
+    await pick.showPlatform('WhatsApp');
+
+    await expect(pick.captionText).toHaveText(
+      [
+        '*Community Pick: Easter Sunrise 5K*',
+        `_${SUNRISE_NOTE}_`,
+        '',
+        'Sat, Apr 18 at 6:45 AM',
+        'Martin Goodman Trail, Marilyn Bell Park',
+        'Free',
+        '',
+        `Register: ${LINK}`,
+      ].join('\n'),
+      { useInnerText: true },
+    );
+    await expect(pick.captionHint).toHaveText(
+      'Asterisks and underscores format as bold and italic in WhatsApp.',
+    );
+
+    await pick.showPlatform('Slack');
+
+    await expect(pick.captionText).toHaveText(
+      [
+        `*Community Pick:* <${LINK}|Easter Sunrise 5K>`,
+        SUNRISE_NOTE,
+        'Sat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park · Free',
+      ].join('\n'),
+      { useInnerText: true },
+    );
+    await expect(pick.captionHint).toHaveText('Slack formatting: the title becomes a link.');
+    await expect(pick.slackPreview).toBeVisible();
+    await expect(pick.slackPreviewLines).toHaveText([
+      /^Christian Fitness \d{1,2}:\d{2} [AP]M$/,
+      'Community Pick: Easter Sunrise 5K',
+      SUNRISE_NOTE,
+      'Sat, Apr 18 at 6:45 AM · Martin Goodman Trail, Marilyn Bell Park · Free',
+      'www.christian.fitness',
+    ]);
+    await expect(pick.slackPreviewImage).toHaveAttribute('src', /^blob:/);
+    await expect(pick.slackPreview.locator('.pick-art')).toHaveAttribute(
+      'aria-label',
+      'Community Pick graphic: Easter Sunrise 5K, Sat Apr 18',
+    );
+  });
+
+  test('Copy puts the caption on the clipboard and reads "Copied" for about 2 seconds', async ({
+    page,
+    api,
+  }) => {
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    api.on('GET', '/api/admin/community-pick/events', () => pickableEvents());
+    answerPicks(api);
+    const pick = new CommunityPickPage(page);
+    await pick.open();
+    await pick.writeNote(SUNRISE_NOTE);
+    await pick.create();
+    await pick.showPlatform('WhatsApp');
+    await expect(pick.copyButton).toHaveAccessibleName('Copy caption');
+    await expect(pick.copyStatus).toHaveText('');
+
+    await pick.copyButton.click();
+
+    await expect(pick.copyButton).toHaveAccessibleName('Copied caption');
+    await expect(pick.copyStatus).toHaveText('Caption copied');
+    expect(await pick.clipboard()).toBe(
+      [
+        '*Community Pick: Easter Sunrise 5K*',
+        `_${SUNRISE_NOTE}_`,
+        '',
+        'Sat, Apr 18 at 6:45 AM',
+        'Martin Goodman Trail, Marilyn Bell Park',
+        'Free',
+        '',
+        `Register: ${LINK}`,
+      ].join('\n'),
+    );
+    await expect(pick.copyButton).toHaveAccessibleName('Copy caption', { timeout: 4000 });
+    await expect(pick.copyStatus).toHaveText('');
+  });
+});

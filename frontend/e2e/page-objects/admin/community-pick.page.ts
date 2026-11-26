@@ -37,6 +37,8 @@ export class CommunityPickPage {
   readonly copyButton: Locator;
   readonly copyStatus: Locator;
   readonly slackPreview: Locator;
+  readonly slackPreviewLines: Locator;
+  readonly slackPreviewImage: Locator;
   readonly loading: Locator;
   readonly loadingLabel: Locator;
   readonly skeletons: Locator;
@@ -80,6 +82,10 @@ export class CommunityPickPage {
     this.copyButton = this.caption.getByRole('button', { name: /^(Copy|Copied) caption$/ });
     this.copyStatus = this.caption.locator('[role="status"]');
     this.slackPreview = this.assetsRegion.getByLabel('How the post will look in Slack');
+    this.slackPreviewLines = this.slackPreview.locator(
+      '.slack-preview__body > p, .slack-preview__site',
+    );
+    this.slackPreviewImage = this.slackPreview.locator('.pick-art img');
     this.loading = this.main.locator('.skeleton-region[aria-busy="true"]');
     this.loadingLabel = this.loading.locator('.visually-hidden');
     this.skeletons = this.loading.locator('.skeleton');
@@ -203,6 +209,12 @@ export class CommunityPickPage {
       },
       [from, to],
     );
+  }
+
+  /** What the clipboard holds, its line ends as written (a Windows clipboard reads `\r\n`). */
+  async clipboard(): Promise<string> {
+    const text = await this.page.evaluate(() => navigator.clipboard.readText());
+    return text.replace(/\r\n/g, '\n');
   }
 
   /** The preview art's text: its label, title, when line and note. */

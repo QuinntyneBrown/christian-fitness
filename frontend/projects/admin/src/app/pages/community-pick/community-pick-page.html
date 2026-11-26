@@ -99,6 +99,17 @@
               (navigate)="showPlatform($event)"
             />
             <div class="pick-assets">
+              @if (slackPost(); as post) {
+                <cf-slack-preview
+                  [time]="post.time"
+                  [title]="post.title"
+                  [note]="post.note"
+                  [details]="post.details"
+                  [site]="post.site"
+                  [artLabel]="made.art.label"
+                  [src]="post.image.url"
+                />
+              }
               <div [attr.class]="assetsClass()">
                 @for (image of shown(); track image.spec.key) {
                   <cf-pick-asset
@@ -110,7 +121,23 @@
                     (save)="save(image)"
                   />
                 }
+                @if (platform().key !== 'instagram' && caption(); as caption) {
+                  <cf-pick-caption
+                    [text]="caption.text"
+                    [hint]="caption.hint"
+                    [copied]="copied()"
+                    (copyCaption)="copy(caption.text)"
+                  />
+                }
               </div>
+              @if (platform().key === 'instagram' && caption(); as caption) {
+                <cf-pick-caption
+                  [text]="caption.text"
+                  [hint]="caption.hint"
+                  [copied]="copied()"
+                  (copyCaption)="copy(caption.text)"
+                />
+              }
             </div>
           } @else if (preview(); as art) {
             <cf-pick-empty

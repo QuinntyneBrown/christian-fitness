@@ -1,0 +1,23 @@
+<cf-card variant="pad-sm">
+  <div class="slack-preview" role="group" aria-label="How the post will look in Slack">
+    <cf-avatar name="Christian Fitness" initials="CF" size="sm" variant="group" />
+    <div class="slack-preview__body">
+      <p>
+        <strong>Christian Fitness</strong>&ngsp;<span class="slack-preview__time">{{
+          time()
+        }}</span>
+      </p>
+      <p>
+        <strong>Community Pick:</strong>&ngsp;<span class="slack-preview__link">{{ title() }}</span>
+      </p>
+      @if (note()) {
+        <p>{{ note() }}</p>
+      }
+      <p>{{ details() }}</p>
+      <div class="slack-preview__unfurl">
+        <p class="slack-preview__site">{{ site() }}</p>
+        <cf-pick-art shape="landscape" [label]="artLabel()" [rendered]="src()" />
+      </div>
+    </div>
+  </div>
+</cf-card>
