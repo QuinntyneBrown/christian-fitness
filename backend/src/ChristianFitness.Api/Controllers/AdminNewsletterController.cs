@@ -17,4 +17,13 @@ public sealed class AdminNewsletterController(ISender sender) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<NewsletterDeskDto>> Desk(CancellationToken cancellationToken) =>
         await sender.Send(new GetNewsletterDeskQuery(), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>Saves a Draft issue as it stands and answers when (L2-070 AC14).</summary>
+    [HttpPut("issues/{number:int}")]
+    public async Task<ActionResult<IssueSavedDto>> Save(int number, SaveIssueCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Number = number;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
 }

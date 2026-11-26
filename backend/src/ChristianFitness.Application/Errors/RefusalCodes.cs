@@ -30,6 +30,9 @@ public static class RefusalCodes
     /// <summary>The member holds no registration at the event, so their attendance cannot be recorded (ADR 0106).</summary>
     public const string NotRegistered = "not_registered";
 
+    /// <summary>No issue of the newsletter has the number asked for (L2-070).</summary>
+    public const string IssueNotFound = "issue_not_found";
+
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
     public const string EventNotFound = "event_not_found";
 

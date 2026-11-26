@@ -29,6 +29,12 @@ internal sealed class NewsletterIssueConfiguration : IEntityTypeConfiguration<Ne
         builder.HasKey(i => i.Id);
         builder.Property(i => i.Id).ValueGeneratedNever();
         builder.Property(i => i.Status).HasConversion<string>().HasMaxLength(16);
+        builder.Property(i => i.Subject).HasMaxLength(NewsletterIssue.SubjectMaxLength).IsRequired();
+        builder.Property(i => i.EditorsNote).HasMaxLength(NewsletterIssue.EditorsNoteMaxLength).IsRequired();
+        builder.Property(i => i.Verse).HasMaxLength(NewsletterIssue.VerseMaxLength).IsRequired();
+        builder.Property(i => i.VerseReference).HasMaxLength(NewsletterIssue.VerseReferenceMaxLength).IsRequired();
+        builder.PrimitiveCollection(i => i.AlsoStoryIds).IsRequired();
+        builder.PrimitiveCollection(i => i.EventIds).IsRequired();
         builder.HasIndex(i => i.Number).IsUnique();
     }
 }

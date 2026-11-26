@@ -30,7 +30,32 @@ public sealed record DeskStoryDto(Guid Id, string Headline, string? Section, Dat
 public sealed record DeskEventDto(Guid Id, string Title, DateTimeOffset StartsAt);
 
 /// <summary>The issue the screen builds: its number, <c>draft</c> or <c>scheduled</c>, and its send time.</summary>
-public sealed record NextIssueDto(int Number, string Status, DateTimeOffset SendAt);
+public sealed record NextIssueDto(
+    int Number,
+    string Status,
+    DateTimeOffset SendAt,
+    string Subject,
+    string EditorsNote,
+    Guid? LeadStoryId,
+    IReadOnlyList<Guid> AlsoStoryIds,
+    IReadOnlyList<Guid> EventIds,
+    string Verse,
+    string VerseReference)
+{
+    internal static NextIssueDto Of(NewsletterIssue issue) => new(
+        issue.Number,
+#pragma warning disable CA1308 // A wire name, not a comparison.
+        issue.Status.ToString().ToLowerInvariant(),
+#pragma warning restore CA1308
+        issue.SendAt,
+        issue.Subject,
+        issue.EditorsNote,
+        issue.LeadStoryId,
+        issue.AlsoStoryIds,
+        issue.EventIds,
+        issue.Verse,
+        issue.VerseReference);
+}
 
 internal sealed class GetNewsletterDeskHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<GetNewsletterDeskQuery, NewsletterDeskDto>
 {
@@ -72,7 +97,7 @@ internal sealed class GetNewsletterDeskHandler(IAppDbContext db, TimeProvider ti
             NewsletterEmails.NewsletterName,
             confirmed,
             next.SendAt,
-            new NextIssueDto(next.Number, next.Status.ToString().ToLowerInvariant(), next.SendAt),
+            NextIssueDto.Of(next),
             [.. stories.Select(x => new DeskStoryDto(x.Id, x.Headline, StoryNames.Of(x.Section), x.PublishedAt!.Value, x.IncludeInWeekly))],
             [.. events.Select(e => new DeskEventDto(e.Id, e.Title, e.StartsAt))]);
     }
