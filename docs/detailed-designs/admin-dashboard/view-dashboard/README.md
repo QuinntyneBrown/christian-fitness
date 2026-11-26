@@ -89,8 +89,8 @@ questions).
 - **`GetWorkAwaitingStaffHandler`** — reads the caller's staff role through `StaffRoles`. For every
   caller it counts Flagged members and names the oldest three (`Shown` = 3). For an Admin it also:
   - counts Pending applications and names the oldest three by `SubmittedAt`;
-  - counts stories in review and names the oldest `Shown` by submitted time, with id, title, writer
-    and submitted time;
+  - counts stories in review and names the oldest `Shown` by submitted time, with id, headline,
+    byline (`author`, none when the story has none) and submitted time (journey 22; ADR 0097);
   - counts listing suggestions waiting and names the oldest `Shown`, with id and name;
   - counts new feedback notes, and reads no note's text.
 
@@ -98,7 +98,8 @@ questions).
   AC11; ADR 0064). Each count is a `CountAsync` through `IAppDbContext` with `AsNoTracking`.
 - **`WorkAwaitingStaffDto`** — gains three keys; `stories` is omitted for a Moderator as
   `Applications` is, while `suggestions` and `feedback` are sent to both roles:
-  - `stories: AwaitingListDto<AwaitingStoryDto>` — `{ id, title, writer, submittedAt }`;
+  - `stories: AwaitingListDto<AwaitingStoryDto>` — `{ id, headline, author, submittedAt }`, the
+    story's own words, as the stories endpoints name them;
   - `suggestions: AwaitingListDto<AwaitingSuggestionDto>` — `{ id, name }`;
   - `feedback: AwaitingCountDto` — `{ total }` only.
 

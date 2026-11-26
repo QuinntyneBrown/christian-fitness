@@ -8,19 +8,42 @@
   [errorHref]="errorHref()"
 >
   <ng-content select="[slot=label-action]" ngProjectAs="[slot=label-action]" />
-  <input
-    [attr.class]="code() ? 'input input--code' : 'input'"
-    [id]="fieldId()"
-    [name]="name()"
-    [type]="type()"
-    [attr.autocomplete]="autocomplete() ?? null"
-    [attr.inputmode]="inputmode() ?? null"
-    [attr.min]="min() ?? null"
-    [attr.aria-describedby]="describedBy()"
-    [attr.aria-invalid]="error() ? 'true' : null"
-    [value]="value()"
-    [readOnly]="readonly()"
-    [disabled]="disabled()"
-    (input)="onInput($event)"
-  />
+  <!-- The input is written in each branch, not shown through a template outlet, which would grow
+       the initial bundle (ADR 0097). -->
+  @if (prefix(); as fixed) {
+    <div class="input-group" [attr.aria-invalid]="error() ? 'true' : null">
+      <span class="input-group__prefix" [id]="prefixId()">{{ fixed }}</span>
+      <input
+        class="input-group__input"
+        [id]="fieldId()"
+        [name]="name()"
+        [type]="type()"
+        [attr.autocomplete]="autocomplete() ?? null"
+        [attr.inputmode]="inputmode() ?? null"
+        [attr.min]="min() ?? null"
+        [attr.aria-describedby]="describedBy()"
+        [attr.aria-invalid]="error() ? 'true' : null"
+        [value]="value()"
+        [readOnly]="readonly()"
+        [disabled]="disabled()"
+        (input)="onInput($event)"
+      />
+    </div>
+  } @else {
+    <input
+      [attr.class]="code() ? 'input input--code' : 'input'"
+      [id]="fieldId()"
+      [name]="name()"
+      [type]="type()"
+      [attr.autocomplete]="autocomplete() ?? null"
+      [attr.inputmode]="inputmode() ?? null"
+      [attr.min]="min() ?? null"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="error() ? 'true' : null"
+      [value]="value()"
+      [readOnly]="readonly()"
+      [disabled]="disabled()"
+      (input)="onInput($event)"
+    />
+  }
 </cf-form-field>

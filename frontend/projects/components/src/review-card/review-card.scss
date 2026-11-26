@@ -1,0 +1,75 @@
+// The design system's review card (docs/design-system/assets/components.css: "Admin: stories and
+// the story editor", `review-card`). The action is a span drawn as the inverse button
+// (`btn btn--inverse btn--md`), since the whole card is the link.
+:host {
+  display: block;
+  width: 100%;
+}
+
+.review-card {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome);
+  padding: var(--space-5);
+
+  @media (min-width: 40rem) {
+    padding: var(--space-6);
+  }
+
+  &:focus-visible {
+    outline-color: var(--color-focus-ring-on-dark, var(--color-focus-ring));
+  }
+
+  &:hover .review-card__action {
+    background: var(--color-bg-brand-inverse-hover);
+  }
+}
+
+.review-card__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.review-card__label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-highlight);
+}
+
+.review-card__title {
+  margin-top: var(--space-1);
+  display: block;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+}
+
+.review-card__meta {
+  margin-top: var(--space-1);
+  display: block;
+  color: var(--color-fg-on-chrome-muted);
+}
+
+.review-card__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-md);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  padding: calc(var(--space-3) - var(--border-width-hairline))
+    calc(var(--space-5) - var(--border-width-hairline));
+  background: var(--color-bg-brand-inverse);
+  color: var(--color-fg-brand-inverse);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}

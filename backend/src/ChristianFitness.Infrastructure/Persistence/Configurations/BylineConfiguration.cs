@@ -25,20 +25,34 @@ internal sealed class BylineConfiguration : IEntityTypeConfiguration<Byline>
 }
 
 /// <summary>
-/// A story, as far as journey 21 needs one (ADR 0094): its byline is a required foreign key the
-/// database will not let go, so no story ever loses its byline (L2-077 AC7).
+/// A story (ADR 0094, ADR 0097): its byline is a foreign key the database will not let go, so no
+/// story ever loses its byline (L2-077 AC7); its link is unique among stories, and its former links
+/// are kept beside it; <see cref="Story.Version"/> is the concurrency token, so two editors cannot
+/// both save over one version (L2-069 AC12). Enums are stored by name.
 /// </summary>
 internal sealed class StoryConfiguration : IEntityTypeConfiguration<Story>
 {
-    /// <summary>The longest headline kept, until the story editor sets its own limit (issue 172).</summary>
-    private const int HeadlineMaxLength = 200;
-
     public void Configure(EntityTypeBuilder<Story> builder)
     {
         builder.ToTable("Stories");
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Id).ValueGeneratedNever();
-        builder.Property(s => s.Headline).HasMaxLength(HeadlineMaxLength).IsRequired();
+        builder.Property(s => s.Status).HasConversion<string>().HasMaxLength(16);
+        builder.Property(s => s.Section).HasConversion<string>().HasMaxLength(16);
+        builder.Property(s => s.Placement).HasConversion<string>().HasMaxLength(16);
+        builder.Property(s => s.PointsTo).HasConversion<string>().HasMaxLength(16);
+        builder.Property(s => s.Headline).HasMaxLength(Story.HeadlineMaxLength).IsRequired();
+        builder.Property(s => s.Summary).HasMaxLength(Story.SummaryMaxLength).IsRequired();
+        builder.Property(s => s.Text).HasMaxLength(Story.TextMaxLength).IsRequired();
+        builder.Property(s => s.NextStepText).HasMaxLength(Story.NextStepTextMaxLength);
+        builder.Property(s => s.NextStepLink).HasMaxLength(Story.NextStepLinkMaxLength);
+        builder.Property(s => s.Slug).HasMaxLength(Story.SlugMaxLength);
+        builder.HasIndex(s => s.Slug).IsUnique();
+        builder.PrimitiveCollection(s => s.FormerSlugs).IsRequired();
+        builder.Property(s => s.ImageKey).HasMaxLength(Event.ImageKeyMaxLength);
+        builder.OwnsOne(s => s.ImageCrop);
+        builder.Property(s => s.Version).IsConcurrencyToken();
+        builder.HasIndex(s => new { s.Status, s.ActivityAt });
         builder.HasOne<Byline>().WithMany().HasForeignKey(s => s.BylineId).OnDelete(DeleteBehavior.Restrict);
     }
 }

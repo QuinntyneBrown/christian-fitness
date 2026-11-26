@@ -63,6 +63,8 @@
 <li><b>Hover</b>: headline links and card titles underline (<code>--space-0-5</code> offset); story next deepens to <code>--color-accent-subtle-hover</code>.</li>
 <li><b>Focus</b>: the shared ring around the link: just the headline for rows and headlines, the whole card for story cards and story next.</li>
 <li><b>Link copied</b> is announced through a <code>role="status"</code> region, not just the changed label.</li>
+<li><b>Loading</b>: the story page holds skeletons for its head, figure and body in one <code>aria-busy</code> region, as the admin preview draws them.</li>
+<li><b>Next step without a link</b>: in the admin preview the card is a <code>div.story-next</code>, since the reader's address belongs to the member app; it keeps the look but has no hover.</li>
 <li><b>Plain story</b>: a story with no dek and nothing to point to drops the dek and the story next; nothing leaves a gap.</li>
 </ul>
     </section>
@@ -93,6 +95,7 @@
 <li>Headlines in sentence case, specific and complete: "Easter Sunrise 5K hits a record 142 sign-ups with ten days to go". No clickbait, no all caps.</li>
 <li>Deks add what the headline left out, one sentence: "Rowers, kettlebells and a Thursday prayer circle: how St. Anne’s made fitness the front door to its parish."</li>
 <li>Meta: author, then a relative age ("2 hours ago", "Yesterday", "3 days ago"); story pages add reading time ("6 min read").</li>
+<li>Story body: written in a small Markdown subset (ADR 0097) and drawn as paragraphs, pull quotes (<code>.story__quote</code>), <code>##</code> headings (<code>.story__heading</code>), <code>###</code> subheadings (<code>.story__subheading</code>), bulleted and numbered lists (<code>.story__list</code>, <code>.story__list--numbered</code>), <em>emphasis</em>, <strong>strong</strong> and underlined <code>https</code> links (<code>.story__link</code>). Raw HTML is shown as typed, never rendered.</li>
 <li>Story next labels: "From this story" (an event) or "In the directory" (a listing); the title is a verb phrase: "Register for the Easter Sunrise 5K".</li>
 <li>Empty: "No stories in Training yet this week." Error: "Stories didn't load. Check your connection, then try again."</li>
 </ul>

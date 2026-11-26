@@ -1,0 +1,60 @@
+// docs/design-system/components/dropzone.html: a dashed 16:9 frame, content centred, no fill.
+:host {
+  display: block;
+}
+
+.dropzone {
+  display: flex;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thick) dashed var(--color-border-default);
+  background: none;
+  color: var(--color-fg-muted);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-fg-default);
+  }
+
+  // The design's proposed drag-over: the hover border in the accent colour.
+  &[data-state='dragover'] {
+    border-color: var(--color-accent);
+    color: var(--color-fg-default);
+  }
+
+  // The design's proposed disabled, as buttons: while the story is read-only.
+  &:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  &[aria-busy='true'] {
+    opacity: var(--opacity-busy);
+    cursor: progress;
+  }
+}
+
+.dropzone__icon {
+  width: var(--space-7);
+  height: var(--space-7);
+}
+
+.dropzone__title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.dropzone__hint {
+  font-size: var(--font-size-sm);
+}

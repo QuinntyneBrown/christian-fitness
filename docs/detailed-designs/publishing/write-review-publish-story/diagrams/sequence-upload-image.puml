@@ -24,16 +24,16 @@ actor -> page : "Add a lead image" or "Replace image", choose a file
 page -> client : uploadImage(file)
 client -> ctrl : POST /api/admin/stories/images (multipart)
 ctrl -> h : Send UploadStoryImageCommand
-h -> keys : Detect(first bytes); WidthOf(header)
+h -> keys : Detect(first bytes); SizeOf(header)
 alt not JPEG, PNG or WebP, over 5 MB, or under 1600 px wide
   h --> ctrl : 400 validation_failed, fieldCodes.image = image_invalid (L2-069 AC9)
   ctrl --> client : ProblemDetails
-  page --> actor : Message under the image; previous image kept
+  page --> actor : "Choose another image" above the story; previous image kept
 else valid
   h -> store : SaveAsync(new key, bytes)
-  h --> ctrl : { imageKey }; audited story_image.uploaded
+  h --> ctrl : { imageKey, width, height }; audited story_image.uploaded
   ctrl --> client : 201 JSON
-  page -> page : Set the image key in the fields; next save keeps it
+  page -> page : Image key and the centre 16:9 crop in the fields; next save keeps them (ADR 0097)
   page --> actor : Image shown in a 16:9 frame
 end
 @enduml

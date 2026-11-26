@@ -38,7 +38,8 @@ internal sealed class ListBylinesHandler(IAppDbContext db) : IRequestHandler<Lis
             .OrderBy(b => b.NameKey).ThenBy(b => b.Id)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         var counts = await db.Stories.AsNoTracking()
-            .GroupBy(s => s.BylineId)
+            .Where(s => s.BylineId != null)
+            .GroupBy(s => s.BylineId!.Value)
             .Select(g => new { BylineId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(g => g.BylineId, g => g.Count, cancellationToken).ConfigureAwait(false);
         return new BylineListDto([.. bylines.Select(b => BylineAnswers.Of(b, counts.GetValueOrDefault(b.Id)))]);

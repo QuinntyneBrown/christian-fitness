@@ -18,3 +18,40 @@
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
+
+// Fixed text before the typed part (components.css, "Admin: stories and the story editor":
+// input-group): the group draws the control's border and ring; the input inside draws none.
+.input-group {
+  margin-top: var(--space-1-5);
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  font-size: var(--font-size-ui);
+
+  &:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent-ring);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger-fg);
+  }
+}
+
+.input-group__prefix {
+  padding-left: var(--space-3);
+  white-space: nowrap;
+  color: var(--color-fg-muted);
+}
+
+.input-group__input {
+  min-width: 0;
+  min-height: var(--control-height-md);
+  flex: 1 1 0%;
+  border: 0;
+  background: transparent;
+  padding: var(--space-2-5) var(--space-1);
+  outline: none;
+}

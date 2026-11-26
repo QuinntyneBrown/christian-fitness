@@ -39,3 +39,18 @@
     padding-block: var(--space-10);
   }
 }
+
+// A screen with a bar of its own, edge to edge: the story editor (components.css,
+// `admin__page--flush`; ADR 0097).
+.admin__page--flush {
+  max-width: none;
+  padding: 0;
+
+  @media (min-width: 40rem) {
+    padding-inline: 0;
+  }
+
+  @media (min-width: 64rem) {
+    padding-block: 0;
+  }
+}

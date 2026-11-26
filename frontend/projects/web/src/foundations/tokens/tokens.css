@@ -273,6 +273,8 @@
   --layout-dialog-max: 32rem;         /* dialogs and drawers */
   --layout-lead-max: 32rem;           /* landing lead paragraph */
   --layout-measure: 42rem;            /* prose */
+  --size-measure-story: 48rem;        /* story head */
+  --size-measure-figure: 64rem;       /* story figure */
   --layout-measure-narrow: 36rem;
   --layout-measure-tight: 24rem;
   --layout-table-min: 40rem;          /* tables scroll below this width */

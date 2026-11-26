@@ -3,6 +3,7 @@ import {
   answerActivity,
   answerAwaiting,
   BUSY_WEEKS,
+  ONE_STORY_IN_REVIEW,
   SOME_AWAITING,
   THREE_SUGGESTIONS,
   type AwaitingFixture,
@@ -186,6 +187,54 @@ test.describe('Admin app, the Dashboard work awaiting staff', () => {
       'Review Kevin Brooks was flagged',
     ]);
     await expect(dashboard.seeAllLinks).toHaveCount(0);
+  });
+
+  // Journey 22 (ADR 0097), mock admin-dashboard/default: each story In review first, with its
+  // byline and when it was submitted, and Review opens it in the editor.
+  test('names each story in review first, and Review opens it in the editor', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.install({ time: new Date('2026-04-15T12:45:00Z') });
+    answerAwaiting(api, {
+      ...SOME_AWAITING,
+      suggestions: THREE_SUGGESTIONS,
+      stories: ONE_STORY_IN_REVIEW,
+    });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 8');
+    expect((await dashboard.attentionTexts()).slice(0, 2)).toEqual([
+      {
+        title: '“Fasting and training: what a dietitian wants you to know” is ready for review',
+        meta: 'Priya Raman · Submitted 1 hour ago',
+        href: `/stories/${ONE_STORY_IN_REVIEW.items[0].id}`,
+      },
+      {
+        title: '3 listings suggested by members',
+        meta: 'Eastside Ladies Who Lift, Coach Marcus Delaney, Rooted Physio',
+        href: '/listings',
+      },
+    ]);
+    expect((await dashboard.attentionActions())[0]).toBe(
+      'Review “Fasting and training: what a dietitian wants you to know” is ready for review',
+    );
+  });
+
+  test('with more stories in review than shown, links to all of them', async ({ page, api }) => {
+    answerAwaiting(api, {
+      ...SOME_AWAITING,
+      stories: { total: 4, items: ONE_STORY_IN_REVIEW.items },
+    });
+    const dashboard = new AdminDashboardPage(page);
+
+    await dashboard.open();
+
+    await expect(dashboard.attentionHeading).toHaveText('Needs attention 8');
+    await expect(dashboard.seeAllLinks).toHaveText(['All 4 stories in review']);
+    await expect(dashboard.seeAllLinks).toHaveAttribute('href', '/stories?status=review');
   });
 
   test('with more waiting than shown, says how many and links to all of them', async ({

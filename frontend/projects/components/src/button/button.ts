@@ -34,6 +34,8 @@ export type ButtonType = 'button' | 'submit';
 })
 export class Button {
   readonly href = input<string>();
+  /** A link that opens in a new tab (`target="_blank"`, `rel="noopener"`). */
+  readonly newTab = input(false, { transform: booleanAttribute });
   /** The `<button>`'s own id, for a link that moves focus to it (a field's error summary). */
   readonly buttonId = input<string>();
   /** The id of the text that describes the button, as `aria-describedby`. */

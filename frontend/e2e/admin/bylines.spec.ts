@@ -98,20 +98,6 @@ test.describe('Admin app, the Bylines page', () => {
     await expect(shell.navItem('Stories')).toHaveAttribute('href', '/stories');
   });
 
-  // ADR 0094: until the Stories list exists, Stories opens Bylines.
-  test('Stories opens Bylines until the Stories list exists', async ({ page, api }) => {
-    answerBylines(api);
-    const shell = new AdminShell(page);
-    const bylines = new AdminBylinesPage(page);
-
-    await shell.open('/');
-    await expect(shell.heading).toHaveText('Dashboard');
-    await shell.navItem('Stories').click();
-
-    await expect(bylines.heading).toHaveText('Bylines');
-    expect(bylines.location()).toBe('/stories/bylines');
-  });
-
   // Mock admin-bylines/loading: a gate holds the answer, so no clock is needed.
   test('while the bylines load, skeleton rows are busy', async ({ page, api }) => {
     let release = (): void => undefined;

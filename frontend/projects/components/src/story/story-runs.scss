@@ -1,0 +1,12 @@
+// The story's words (docs/design-system/assets/components.css, "Story"): its links, inline.
+// Underlined, so a link never relies on colour alone.
+.story__link {
+  color: var(--color-fg-link);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+
+  &:hover {
+    color: var(--color-fg-link-hover);
+    text-decoration-thickness: var(--border-width-thick);
+  }
+}

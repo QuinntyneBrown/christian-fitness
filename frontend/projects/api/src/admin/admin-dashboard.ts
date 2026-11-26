@@ -40,6 +40,15 @@ export interface AwaitingFlaggedMemberDto {
   note: string | null;
 }
 
+/** One story In review as the Dashboard names it (`AwaitingStoryDto`, ADR 0097). */
+export interface AwaitingStoryDto {
+  id: string;
+  headline: string;
+  author: string | null;
+  /** An ISO instant. */
+  submittedAt: string;
+}
+
 /** How many wait in all, and the oldest few of them. */
 export interface AwaitingListDto<T> {
   total: number;
@@ -55,6 +64,8 @@ export interface WorkAwaitingStaffDto {
   flaggedMembers: AwaitingListDto<AwaitingFlaggedMemberDto>;
   /** The listing suggestions waiting for review, for both roles (L2-020 AC11; ADR 0090). */
   suggestions: AwaitingListDto<AwaitingSuggestionDto>;
+  /** The stories In review, for Admins only (ADR 0097). */
+  stories?: AwaitingListDto<AwaitingStoryDto>;
 }
 
 /** What the admin Dashboard reads (L2-020; ADR 0059, ADR 0060). */

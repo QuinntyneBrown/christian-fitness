@@ -1,0 +1,21 @@
+// The story preview page (mock docs/mocks/pages/admin-story-preview/): the banner and the story
+// are the library's; the page lays them out at the reader's width and keeps room below.
+:host {
+  display: block;
+}
+
+.story-preview {
+  display: block;
+  padding-bottom: var(--space-10);
+}
+
+// The error state sits at the story head's measure, as mock admin-story-preview/error draws it.
+.story-preview__state {
+  max-width: var(--size-measure-story);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) 0;
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+}

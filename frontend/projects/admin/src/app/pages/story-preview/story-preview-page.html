@@ -1,0 +1,49 @@
+<main id="main" class="story-preview">
+  <cf-banner
+    tone="warning"
+    icon="eye"
+    [lead]="notice().lead"
+    [text]="notice().text"
+    actionLabel="Close preview"
+    [actionHref]="editorHref"
+  />
+  @switch (state()) {
+    @case ('loading') {
+      <cf-story loading loadingLabel="Loading preview" />
+    }
+    @case ('failed') {
+      <div class="story-preview__state">
+        <h1 class="visually-hidden">Story preview</h1>
+        <cf-empty-state
+          variant="error"
+          heading="The preview didn't load"
+          text="We couldn't reach Christian Fitness. Check your connection and try again."
+        >
+          <cf-button slot="actions" size="sm" (click)="load()">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" /></svg
+            >Try again
+          </cf-button>
+          <cf-button slot="actions" size="sm" variant="secondary" [href]="editorHref"
+            >Back to the editor</cf-button
+          >
+        </cf-empty-state>
+      </div>
+    }
+    @default {
+      @if (preview(); as story) {
+        <cf-story
+          [section]="section()"
+          [headline]="story.headline"
+          [summary]="story.summary"
+          [author]="story.author ?? ''"
+          [when]="when()"
+          [image]="image()"
+          [blocks]="blocks()"
+          [next]="next()"
+        />
+      }
+    }
+  }
+</main>

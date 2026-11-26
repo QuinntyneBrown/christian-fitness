@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 42% (15 of 36 journeys; 43 of 113 days)
+**% complete:** 47% (17 of 36 journeys; 52 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -2955,3 +2955,50 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   that a stale bundle hid, and a lint error on a type imported only for a doc comment.
 - "Read the initial total after each build": web stayed 278.21 kB through every slice; the plan
   options, the calendar helper and the dialog load with the series route or on first use.
+
+## Journey 22: Write and publish stories
+
+**What slowed it**
+
+- The journey was seven slices across two apps' worth of surface: the Stories list, the editor
+  with autosave and `story_changed`, the preview, the five status actions, the lead image and the
+  Dashboard rows. The context ran out mid-journey; the slice commits and their ADR sections were
+  what carried it over.
+- The text field's link prefix and the story's runs went through `ngTemplateOutlet` with an
+  object-literal context, and plain runs sat in an `ng-container`. Each pulled Angular runtime
+  code into `main` (web +0.47 kB, admin +0.42 kB), found only at the end. A diff of the
+  `--stats-json` inputs named `_debug_node-chunk` and `_pending_tasks-chunk`, and a diff of the
+  `ɵɵ` instructions in development builds named `ɵɵdomElementContainerStart`.
+- The crop dialog has no mock, so the lead image uses a centre 16:9 crop, a stand-in recorded in
+  ADR 0097. The server keeps the upload whole and the page crops it.
+- `dotnet ef migrations add` writes CRLF with a BOM, so an edit script with an LF anchor wrote
+  nothing. The analysers also refuse its `new string[0]` default (CA1825).
+- `npm run e2e` against `ng serve` failed `legal-change.spec.ts` on the Vite client's WebSocket
+  again. One rerun used a port that another session's server held (`reuseExistingServer`). On
+  free ports against the built apps (`CF_SERVE_BUILT=1`) the spec passes.
+
+**New lessons**
+
+- To find what grew `main`, diff the `ɵɵ` instructions in two development builds
+  (`-c development`, `grep -o "ɵɵ[a-zA-Z0-9]*"`). The new instruction names the template feature.
+  Measure main with the branch's new files moved aside, or its old imports fail to build.
+- In library templates, write a repeated fragment as a small component, such as `cf-story-runs`,
+  or repeat the markup in each branch. A template outlet with an object context and an
+  `ng-container` both cost initial bytes once any initial screen uses them.
+- An image's size is read from its header bytes (PNG IHDR, the WebP VP8, VP8L and VP8X chunks,
+  the JPEG SOF walk) with one case table. A VP8L header is shorter than VP8's, so the minimum
+  length is checked per chunk.
+- A store action that changes status saves pending edits first (submit and return) or sends the
+  fields with it (publish and update). A failed field check comes back as `validation_failed`
+  with field codes, which mark the fields and name only the missing ones.
+- A Dashboard count shared with other tests of the class is read before and after the test's
+  writes (`InReviewCountAsync`). The test's rows sit before anything the others add.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": every status action, the lead rule, the image checks and the Dashboard
+  order failed their own tests when broken, through the `brk.py` and `brkb.py` scripts in a folder
+  named for the journey.
+- "Read the initial total after each build" caught the growth only at the end. It should be read
+  after each slice, against main, not against the previous slice.
+- "Run the full suite against the built apps": the Vite WebSocket failures did not recur there.

@@ -13,6 +13,8 @@
   />
   <main id="main" class="admin__main">
     <ng-content select="[slot=banner]" />
-    <div class="admin__page"><ng-content /></div>
+    <div [attr.class]="flush() ? 'admin__page admin__page--flush' : 'admin__page'">
+      <ng-content />
+    </div>
   </main>
 </div>

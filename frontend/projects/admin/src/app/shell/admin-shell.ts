@@ -12,6 +12,7 @@ import {
 import { AdminLayout, type AdminNavItem, Banner } from '@cf/components';
 import {
   adminNavOf,
+  adminPageIsFlush,
   currentAdminArea,
   initialsOf,
   NetworkStatus,
@@ -56,6 +57,8 @@ export default class AdminShell implements AdminCountsRefresh {
     return staff ? adminNavOf(staff.role, this.counts()) : [];
   });
   protected readonly current = signal(currentAdminArea(this.urlNow()));
+  /** The story editor fills the page edge to edge (ADR 0097). */
+  protected readonly flush = signal(adminPageIsFlush(this.urlNow()));
   protected readonly staff = signal<StaffSessionDto | null>(null);
   protected readonly initials = signal('');
   /** An Admin's navigation names its groups; a Moderator's one list does not (L2-021 AC1). */
@@ -73,7 +76,10 @@ export default class AdminShell implements AdminCountsRefresh {
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => this.current.set(currentAdminArea(this.router.url)));
+      .subscribe(() => {
+        this.current.set(currentAdminArea(this.router.url));
+        this.flush.set(adminPageIsFlush(this.router.url));
+      });
     this.session
       .current()
       .pipe(takeUntilDestroyed(this.destroyRef))

@@ -1,0 +1,115 @@
+@if (loading()) {
+  <cf-skeleton-region [label]="loadingLabel()" [heading]="true">
+    <div class="story">
+      <div class="story__head story__skeletons">
+        <cf-skeleton shape="text-sm" width="20" />
+        <cf-skeleton shape="title-lg" />
+        <cf-skeleton shape="title-lg" width="80" />
+        <cf-skeleton width="40" />
+      </div>
+      <div class="story__figure"><cf-skeleton shape="image-16x9" /></div>
+      <div class="story__body story__skeletons">
+        <cf-skeleton width="90" />
+        <cf-skeleton width="90" />
+        <cf-skeleton width="80" />
+      </div>
+    </div>
+  </cf-skeleton-region>
+} @else {
+  <article class="story">
+    <header class="story__head">
+      @if (section()) {
+        <p class="story__section story__kicker">{{ section() }}</p>
+      }
+      <h1 class="story__title">{{ headline() }}</h1>
+      @if (summary()) {
+        <p class="story__dek">{{ summary() }}</p>
+      }
+      <div class="story__byline">
+        <div class="story__byline-body">
+          @if (author()) {
+            <p class="story__author">{{ author() }}</p>
+          }
+          @if (when()) {
+            <p class="story__when">{{ when() }}</p>
+          }
+        </div>
+      </div>
+    </header>
+    @if (image(); as src) {
+      <figure class="story__figure"><img class="story__image" [src]="src" alt="" /></figure>
+    }
+    <div class="story__body">
+      @for (block of blocks(); track $index) {
+        @switch (block.kind) {
+          @case ('quote') {
+            <blockquote class="story__quote">
+              <p>
+                <cf-story-runs [runs]="block.runs" />
+              </p>
+            </blockquote>
+          }
+          @case ('heading') {
+            @if (block.level === 2) {
+              <h2 class="story__heading">
+                <cf-story-runs [runs]="block.runs" />
+              </h2>
+            } @else {
+              <h3 class="story__subheading">
+                <cf-story-runs [runs]="block.runs" />
+              </h3>
+            }
+          }
+          @case ('list') {
+            @if (block.ordered) {
+              <ol class="story__list story__list--numbered">
+                @for (item of block.items; track $index) {
+                  <li>
+                    <cf-story-runs [runs]="item" />
+                  </li>
+                }
+              </ol>
+            } @else {
+              <ul class="story__list">
+                @for (item of block.items; track $index) {
+                  <li>
+                    <cf-story-runs [runs]="item" />
+                  </li>
+                }
+              </ul>
+            }
+          }
+          @default {
+            <p>
+              <cf-story-runs [runs]="block.runs" />
+            </p>
+          }
+        }
+      }
+      @if (next(); as next) {
+        @if (next.href) {
+          <a class="story-next" [href]="next.href"
+            ><span class="story-next__body"
+              ><span class="story-next__label">{{ next.label }}</span
+              ><span class="story-next__title">{{ next.title }}</span></span
+            >
+            <svg class="icon icon--lg story-next__arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" /></svg
+          ></a>
+        } @else {
+          <div class="story-next">
+            <span class="story-next__body"
+              ><span class="story-next__label">{{ next.label }}</span
+              ><span class="story-next__title">{{ next.title }}</span></span
+            >
+            <svg class="icon icon--lg story-next__arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </div>
+        }
+      }
+    </div>
+  </article>
+}

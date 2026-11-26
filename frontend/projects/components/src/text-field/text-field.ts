@@ -38,6 +38,11 @@ export class TextField {
   readonly optional = input(false, { transform: booleanAttribute });
   readonly hint = input<string>();
   readonly value = input('');
+  /**
+   * Fixed text before the typed part (the design system's `input-group`): the story editor's link
+   * `/stories/` + slug. It is read with the field, through `aria-describedby`.
+   */
+  readonly prefix = input<string>();
   readonly readonly = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
   /** What is wrong with the value; none when it is fine. */
@@ -46,9 +51,13 @@ export class TextField {
   readonly errorLink = input<string>();
   readonly errorHref = input<string>();
 
-  protected readonly describedBy = computed(() =>
-    fieldDescribedBy(this.fieldId(), this.hint(), this.error()),
-  );
+  protected readonly describedBy = computed(() => {
+    const described = fieldDescribedBy(this.fieldId(), this.hint(), this.error());
+    if (!this.prefix()) return described;
+    return [this.prefixId(), described].filter((id) => id).join(' ');
+  });
+
+  protected readonly prefixId = computed(() => `${this.fieldId()}-prefix`);
 
   readonly valueChange = output<string>();
 

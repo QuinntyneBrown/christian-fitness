@@ -80,6 +80,22 @@
   color: var(--color-fg-muted);
 }
 
+// A long title that wraps (components.css, "Admin: grouped navigation, statuses, shared bits").
+.table__wrap {
+  max-width: var(--layout-table-wrap-narrow, 22.5rem);
+}
+
+// A record's title as its link (a story's headline).
+.row-title {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+}
+
 .table__sub {
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);

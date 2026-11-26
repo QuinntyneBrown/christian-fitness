@@ -51,8 +51,8 @@ else Unschedule or Publish now (Scheduled)
   client -> ctrl : POST …/unschedule or …/publish
   ctrl -> h : Draft, or Published now (L2-069 AC4)
 else Update or Unpublish (Published)
-  page -> client : save(id, fields) or unpublish(id)
-  client -> ctrl : PUT /api/admin/stories/{id} or POST …/unpublish
+  page -> client : update(id, fields) or unpublish(id)
+  client -> ctrl : POST …/update or …/unpublish
   ctrl -> h : Changes live at once, or Draft and off the front page, feeds and its address (L2-069 AC5)
 end
 h -> db : Story by id; Version must match, else 409 story_changed

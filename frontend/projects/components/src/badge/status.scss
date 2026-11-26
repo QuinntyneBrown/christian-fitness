@@ -36,6 +36,21 @@
   color: var(--color-fg-default);
 }
 
+// A story in review waits for a decision: the highlight (components.css, "Admin: grouped
+// navigation, statuses, shared bits").
+.status--review {
+  background: var(--color-highlight);
+  // The token is read with its design-system value as the fallback, so no app pays for it in its
+  // global stylesheet until it needs it there (ADR 0097).
+  color: var(--color-fg-on-highlight, var(--palette-stone-1000));
+}
+
+.status--scheduled {
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-strong);
+}
+
 .status--cancelled {
   background: var(--color-danger-bg);
   color: var(--color-danger-fg);

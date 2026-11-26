@@ -8,7 +8,7 @@
     <thead>
       <tr>
         @for (column of columns(); track column.key) {
-          <th scope="col">{{ column.label }}</th>
+          <th scope="col" [attr.class]="column.end ? 'table__end' : null">{{ column.label }}</th>
         }
         @if (actionLabel()) {
           <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
@@ -60,6 +60,17 @@
                         }
                       </div>
                     </div>
+                  }
+                  @case ('title') {
+                    <a
+                      class="row-title"
+                      [href]="row.cells[column.key]?.href"
+                      (click)="follow($event, row.cells[column.key]?.href ?? '')"
+                      >{{ row.cells[column.key]?.text }}</a
+                    >
+                    @if (row.cells[column.key]?.sub; as sub) {
+                      <p class="table__sub">{{ sub }}</p>
+                    }
                   }
                   @case ('primary') {
                     <p class="table__strong">{{ row.cells[column.key]?.text }}</p>
