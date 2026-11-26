@@ -29,25 +29,32 @@ so a reader finds them from the site's address (`L2-060` AC3).
 - **`FeedsController`** — `[AllowAnonymous]` controller mapped at the site's root, not under
   `api/`: `GET feed` and `GET {section}/feed`. Each sends one **`GetStoryFeedQuery`** with the
   section slug and the request's `If-None-Match` and `If-Modified-Since` values, and returns an
-  **`RssFeedResult`**. It is excluded from `UseAntiforgeryTokens`, which today adds antiforgery
-  cookies to every API response, so a feed sets no cookie (`L2-060` AC7).
+  **`RssFeedResult`**. `UseAntiforgeryTokens` sets its token cookie only on `/api` answers, so a
+  feed, outside `/api`, sets no cookie (`L2-060` AC7).
 - **`public-reads` policy** — the named ASP.NET Core policy limits covered requests per client IP
   to 120 per minute in a six-segment sliding window. A refusal is 429 ProblemDetails with code
   `too_many_requests` and `Retry-After` (`L2-034` AC4–5). Requests reaching the API count even
   when the feed output cache serves them.
 - **Feed output cache** — keeps each rendered feed for 15 minutes. Publishing, unpublishing or
-  editing a published story evicts affected feeds by tag. Cached responses retain the conditional
-  request behaviour; `ETag` and `Last-Modified` are refreshed on the next render. A reader or
-  intermediary may retain a fresh response for up to 900 seconds after API eviction (ADR 0072).
+  editing a published story evicts `/feed` and the feeds of the story's section before and after
+  the change, by tag (the lower-cased path), through **`IStoryFeedCache`**. The publishing clock
+  evicts the same when it stores a due Scheduled story as Published, so a kept feed shows it within
+  a tick ([ADR 0108](../../../adr/0108-follow-stories-by-rss.md)). Only a 200 without a cookie is
+  kept, keyed by its path alone. Cached responses retain the conditional request behaviour; `ETag`
+  and `Last-Modified` are refreshed on the next render. A reader or intermediary may retain a fresh
+  response for up to 900 seconds after API eviction (ADR 0072).
 - **`GetStoryFeedHandler`** — an unknown section is 404 `not_found`. It reads the 30
   newest effectively Published stories (of the section, or all), including Scheduled stories
   whose `PublishAt` has passed ([ADR 0069](../../../adr/0069-scheduled-work.md)), newest effective
   publication time first
-  (`L2-060` AC1, AC6). Its `ETag` is a strong hash of the items' ids and `EditedAt` values, so an
-  edit, a new story or an unpublished one changes it; `Last-Modified` is the newest of those
-  instants, including the scheduled publication time for a story that became visible on read.
-  When the request's validators match it answers `NotModified` and the result writes 304
-  with no body (`L2-060` AC2).
+  (`L2-060` AC1, AC6). Its `ETag` is a strong hash of the items' ids, `EditedAt`, publication times
+  and author names, so an edit, a new story, an unpublished one or a renamed byline changes it;
+  `Last-Modified` is the newest change (`ActivityAt`, or the scheduled time of a story that became
+  visible on read) of any story that has ever gone out, in any section, so a story leaving a feed
+  still moves its date on (ADR 0108). When the request's validators match
+  (**`FeedValidators.NotModified`**: `If-None-Match` decides alone when sent, else
+  `If-Modified-Since` to the second) it answers `NotModified` and the result writes 304 with no
+  body (`L2-060` AC2).
 - **`RssFeedResult`** — `IActionResult` in the Api layer that writes RSS 2.0 with
   `System.Xml.XmlWriter` (which escapes every value) as `application/rss+xml; charset=utf-8`, with
   `Cache-Control: public, max-age=900`, `ETag` and `Last-Modified` (`L2-060` AC2). The channel
@@ -69,10 +76,13 @@ so a reader finds them from the site's address (`L2-060` AC3).
 
 - **Document head** — `projects/web/src/index.html` carries one
   `<link rel="alternate" type="application/rss+xml" title="Christian Fitness: All stories"
-  href="/feed">` and one per section feed. Every page of the member app, the landing page and
+href="/feed">` and one per section feed. Every page of the member app, the landing page and
   Subscribe included, is served from that file, so the head names the feeds whichever address a
   reader starts from (`L2-060` AC3).
-- **Feeds section of `SubscribePage`** — the page (`subscribe-to-newsletter`) also binds
+- **Footer** — the landing page closes with the footer's news variant (`cf-footer variant="news"`,
+  block `site-footer`): the copyright line, then RSS with its mark, Privacy and Terms. RSS leads to
+  `/feed` until Subscribe exists, then to `/subscribe#rss` (ADR 0108).
+- **Feeds section of `SubscribePage`** (journey 27) — the page (`subscribe-to-newsletter`) also binds
   `FEEDS_SERVICE` to `HttpFeedsService` and `CLIPBOARD_SERVICE` to `NavigatorClipboard` on its
   `providers` and asks `list()`. The section (block `rss`, heading "Prefer RSS?", with the
   `id="rss"` the landing page's link targets) renders **`FeedList`** and **`FeedItem`**
@@ -107,8 +117,8 @@ The feature realizes the following level-2 (L2) requirement. Each L2 requirement
 (L1) requirement, cited by identifier. The specification states its requirements as acceptance
 criteria; the text below condenses those criteria faithfully.
 
-| L2 ID    | Refines (L1) | Requirement |
-| -------- | ------------ | ----------- |
+| L2 ID    | Refines (L1) | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `L2-060` | `L1-018`     | `/feed` shall answer a valid RSS 2.0 document (`application/rss+xml`) of the 30 newest published stories with title, link, summary, section, author, publication date and a permanent id; `/events/feed`, `/training/feed`, `/nutrition/feed`, `/faith-body/feed` and `/community/feed` shall answer the same for one section. Pros shall have no separate feed. A repeated request with the feed's `ETag` or `Last-Modified` shall be answered 304 with no body while nothing changed. Each rendered feed shall be output-cached for 15 minutes with `Cache-Control: public, max-age=900`, and affected entries shall be evicted by tag on publication, unpublication or edits to published stories. The landing page and Subscribe shall name the feeds in the document head (`<link rel="alternate" type="application/rss+xml">`). Subscribe's feeds shall show "All stories" first and standing out, and each feed's name, about how many stories a week, its address as text, "Copy URL" and "Open in Feedly", which opens the reader in a new tab with the feed's address. "Copy URL" shall put the address on the clipboard, read "Copied" for about 2 seconds with a `status` message, and select the address when the clipboard refuses. A draft or removed story shall not be in a feed, and a feed shall carry nothing that identifies or reaches a member. A feed shall need no account, set no cookie and be rate limited per client IP by `public-reads` (L2-034). |
 
 ## Diagrams

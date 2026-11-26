@@ -22,9 +22,10 @@ public sealed record PublishDueStoriesCommand : IRequest<int>
 /// other Lead, and the change is audited <c>story.published</c> against the Admin who scheduled it,
 /// stored with it. A story is saved over the version read, so a command or another clock that
 /// stored it first wins, and this tick stops; the next tick reads what is still due. Reads already
-/// showed it as Published since its time, so a late tick delays nothing a reader sees.
+/// showed it as Published since its time, so a late tick delays nothing a reader sees, except a feed
+/// the API kept from before that time: each publication evicts its feeds, as an Admin's does (ADR 0108).
 /// </summary>
-internal sealed class PublishDueStoriesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<PublishDueStoriesCommand, int>
+internal sealed class PublishDueStoriesHandler(IAppDbContext db, TimeProvider time, IStoryFeedCache feeds) : IRequestHandler<PublishDueStoriesCommand, int>
 {
     public async Task<int> Handle(PublishDueStoriesCommand request, CancellationToken cancellationToken)
     {
@@ -50,6 +51,7 @@ internal sealed class PublishDueStoriesHandler(IAppDbContext db, TimeProvider ti
                 return published;
             }
 
+            await feeds.EvictAsync(cancellationToken, story.Section).ConfigureAwait(false);
             published++;
         }
 

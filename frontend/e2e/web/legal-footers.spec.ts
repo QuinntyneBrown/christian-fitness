@@ -10,8 +10,8 @@ test('Visitors find both documents in the landing footer', async ({ page, api })
   answerFeatured(api, []);
   const landing = new WebLandingPage(page);
   await landing.open();
-  await expect(landing.footerLink('Privacy Policy')).toHaveAttribute('href', '/privacy');
-  await expect(landing.footerLink('Terms of Service')).toHaveAttribute('href', '/terms');
+  await expect(landing.footerLink('Privacy')).toHaveAttribute('href', '/privacy');
+  await expect(landing.footerLink('Terms')).toHaveAttribute('href', '/terms');
 });
 test('Members find both documents and settings at the end of Home', async ({ page, api }) => {
   answerHome(api, { nextEvent: null, suggested: [] });

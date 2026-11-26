@@ -1,5 +1,6 @@
 using ChristianFitness.Api.Chat;
 using ChristianFitness.Api.Errors;
+using ChristianFitness.Api.Feeds;
 using ChristianFitness.Api.Scheduling;
 using ChristianFitness.Api.Security;
 using ChristianFitness.Api.Telemetry;
@@ -23,6 +24,8 @@ builder.Services.AddEmail(builder.Configuration, builder.Environment.IsDevelopme
 builder.Services.AddRequestAntiforgery();
 builder.Services.AddSecurityHeaders();
 builder.Services.AddPublicReads();
+// Each rendered RSS feed is kept 15 minutes and evicted by tag when its stories change (ADR 0108).
+builder.Services.AddFeedOutputCache();
 // Missing fields reach the validators, which name them (L2-032 AC1); a body that cannot be read at
 // all is refused without repeating any of it.
 builder.Services.AddControllers(options =>
@@ -60,6 +63,8 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseRateLimiter();
+// After the rate limiter, so a kept feed still counts against public-reads (ADR 0072).
+app.UseOutputCache();
 app.UseAuthorization();
 app.UseAntiforgeryTokens();
 
