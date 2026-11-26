@@ -3224,3 +3224,38 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   leaves behind) and restoring `HEAD`. The Stop going dialog loads on first use.
 - "Run the full suite against the built apps" was used for each slice's last run.
 
+## Journey 25: Read the news front page (partly done)
+
+**What slowed it**
+
+- The request was "implement the landing page"; the app still drew the old hero layout, and the
+  news page's API, its story page (journey 24) and the pages its rail and footer link to (26, 27,
+  29, 30) did not exist. The scope had to be asked before any code: the page and its two reads
+  were built, and what would lead nowhere was left out (ADR 0105). The journey stays unticked.
+- The container had no .NET SDK at the pinned feature band and a newer Playwright than the
+  installed browser: the backend was built with a local, uncommitted `global.json` edit and the
+  browser by a symlink to the installed build. Neither is in the repository.
+- Under `ng serve`, `legal-change` and two admin specs failed on Vite's hot-reload socket; against
+  the built apps they passed.
+
+**New lessons**
+
+- When a mock sync finds the HTML already at parity, look at the rendered pixels before saying
+  there is nothing to do: the differences were three CSS values, invisible in the markup.
+- Check what a journey's links lead to before building them. A box or link whose page is a later
+  journey is left out and named in the ADR, not shipped pointing at Not found.
+- A front-end and a back-end slice can be built side by side once the JSON contract is written
+  down first, field by field, with the refusals; the fixtures and the handler tests then meet.
+- Story image keys in fixtures must be shaped like real ones (32 hex and an extension), or the
+  shared image handler does not answer them and every spec fails on an unanswered request.
+- New tokens the app needs are added to the app's own `tokens.css`; it is a copy that trails the
+  design system's, and six tokens cost the initial bundle 0.14 kB.
+
+**How earlier lessons worked**
+
+- "Measure the initial bundle against the base": 278.46 kB to 278.60 kB, measured by building the
+  base commit in a worktree with its own `npm ci`; `main` itself shrank by 0.02 kB and the growth
+  is the six new tokens in the global stylesheet.
+- "Run the full suite against the built apps" settled the three dev-server failures.
+- "A new default in the shared fixture means running the whole suite": `/api/public/stories` is
+  answered empty by default, and the professionals default went with its section.

@@ -149,6 +149,15 @@ The slice runs from the landing route to the stories and events tables. The mock
 
 ### Open questions
 
+- **Settled by [ADR 0105](../../../adr/0105-news-front-page-reads.md).** Where this design and the
+  ADR differ, the ADR is what was built: one read, `GET /api/public/stories?section=&cursor=`,
+  answers the lead, the headlines, 12 river stories at a time (60 at most) and `mostRead` together,
+  so there is no separate most-read read; a story carries `imageKey`, not `imageUrl`; the story
+  placed Lead leads and stories placed Top are headlines, with the newest filling what staff left
+  open; `mostRead` is empty until read counts exist (journey 24); the event's `area` is the area
+  staff wrote; the page leaves out the newsletter box and the footer's Newsletter, RSS and Send
+  feedback links until their pages exist; and the professionals section is gone from the app.
+
 - **Existing code contradicts the amended requirement.** `LandingPage` still renders the old
   layout (`TopBar`, the hero, three "Coming up" events with `place` in place of the area, and
   "Meet our professionals"). `LandingProfessionals`, `LandingProfessionalsOnView`,

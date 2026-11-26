@@ -39,11 +39,12 @@ public sealed class BrowseEventsFactory : ApiFactory
         EventCategory category = EventCategory.Run,
         int priceCents = 0,
         int capacity = 50,
-        string? imageKey = null)
+        string? imageKey = null,
+        string area = "Waterfront, Toronto")
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var e = Event.CreateDraft(title, category, startsAt, "Martin Goodman Trail", "Waterfront, Toronto", priceCents, capacity, "Come run with us.", Now, imageKey);
+        var e = Event.CreateDraft(title, category, startsAt, "Martin Goodman Trail", area, priceCents, capacity, "Come run with us.", Now, imageKey);
         if (published)
         {
             e.Publish();

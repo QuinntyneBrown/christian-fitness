@@ -53,7 +53,9 @@ public class StoriesFactory : BylinesFactory
         StoryPlacement placement = StoryPlacement.Latest,
         string? slug = null,
         DateTimeOffset? publishAt = null,
-        Guid? scheduledBy = null)
+        Guid? scheduledBy = null,
+        string summary = "",
+        string? imageKey = null)
     {
         var when = at ?? Time.GetUtcNow();
         using var scope = Services.CreateScope();
@@ -61,7 +63,7 @@ public class StoriesFactory : BylinesFactory
         bylineId ??= await db.Bylines.Select(b => (Guid?)b.Id).FirstOrDefaultAsync(TestContext.Current.CancellationToken)
             ?? await AddBylineAsync($"Story Writer {Guid.NewGuid():N}"[..30]);
         var story = Story.Create(
-            Story.Blank with { Headline = headline, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug },
+            Story.Blank with { Headline = headline, Summary = summary, Text = "Some words.", Section = section, BylineId = bylineId, Placement = placement, Slug = slug, ImageKey = imageKey },
             when);
         switch (status)
         {
@@ -100,6 +102,15 @@ public class StoriesFactory : BylinesFactory
         db.Events.Add(e);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return e.Id;
+    }
+
+    /// <summary>Empties the store of stories, so a front-page test starts with only its own.</summary>
+    internal async Task ClearStoriesAsync()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Stories.RemoveRange(await db.Stories.ToListAsync(TestContext.Current.CancellationToken));
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     /// <summary>Makes every Lead story in the store an ordinary one, so a test starts with none.</summary>
