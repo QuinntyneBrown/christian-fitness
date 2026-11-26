@@ -32,7 +32,7 @@ h -> db : Member, series, its sessions, going per session, caller's registration
 alt member suspended
   h --> ctrl : account_suspended
 else
-  h -> h : Each id must be a session of the series, not cancelled, not started
+  h -> h : Each id must be a session of the series, not cancelled, not started unless held; else sessions_invalid
   loop each picked session without the caller's place
     alt going >= Capacity
       h -> h : Collect session number

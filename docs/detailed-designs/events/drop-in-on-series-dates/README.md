@@ -10,7 +10,7 @@ Christian Fitness is a Christian community for health in body and spirit in the 
 - **drop-in price** — price of one session to a member who drops in, stored as the session event's `PriceCents`
 - **open session** — session that has neither started nor been cancelled and has a place left
 
-This feature covers the sign-up panel and the session list of the Event series screen when "Pick dates to drop in" is chosen (mocks `docs/mocks/pages/event-series/drop-in-none.html`, `drop-in.html`, `booked.html` and `full.html`). The member ticks dates in the session list and registers for all of them at once, then may change those dates. Each drop-in follows the event rules of `L2-011` and `L2-012`. There is no online payment: a priced drop-in is reserved and the panel says to pay the host in person (`docs/mocks/README.md`, "Series and paid").
+This feature covers the sign-up panel and the session list of the Event series screen when "Pick dates to drop in" is chosen or dates are changed (mocks `docs/mocks/pages/event-series/drop-in-none.html`, `drop-in.html`, `booking.html`, `drop-in-full.html`, `booked.html`, `change-dates.html`, `joined-change.html`, `joined-changed.html` and `full.html`, and `docs/mocks/dialogs/stop-dates/`). Decisions the requirement left open are recorded in ADR 0102. The member ticks dates in the session list and registers for all of them at once, then may change those dates. Each drop-in follows the event rules of `L2-011` and `L2-012`. There is no online payment: a priced drop-in is reserved and the panel says to pay the host in person (`docs/mocks/README.md`, "Series and paid").
 
 **How a drop-in reuses `Event` and `Registration`.** A drop-in is an ordinary `Registration` at the session's `Event`, created with `Registration.Of(sessionId, memberId, session.PriceCents, now)`, so a priced date is `Reserved`. Capacity is the session's own `Capacity`, checked against its count of registrations, and `Event.TakePlace()` / `ReleasePlace()` bump its `RegistrationVersion` token (ADR 0033). A drop-in therefore competes for the same places as an enrolment (`join-and-leave-series`) and as a registration made from the session's Event detail screen.
 
@@ -18,29 +18,28 @@ This feature covers the sign-up panel and the session list of the Event series s
 
 The feature is a vertical slice from the session list's tick boxes to the database.
 
-- **`EventSeriesPage`** — holds `picked` (a set of session ids) and `changingDates` as signals. With "Pick dates to drop in" chosen it gives each open session a "Drop in" tick box named "Drop in on <weekday>, <date>", and a session with no place left reads "Full" with no tick box (`L2-053` AC1, AC6). "Register for <n> date(s)" calls `setDropIns(id, picked)`. On success it shows the booked panel; on `event_full` it names the full date(s) in an `alert` and keeps the ticks; on any other failure it shows the generic message above a usable button. "Change dates" shows the tick boxes again with the held dates ticked; the button then sends the new set (`L2-053` AC3, AC4).
-- **`SessionList`** — the `session-row` end slot holds the design system's `Checkbox` (block `check`) or the word "Full". Each tick box keeps a 44 × 44 px hit area.
+- **`EventSeriesPage`** — holds `plan`, `picked` (a set of session ids) and `changing` as signals. With "Pick dates to drop in" chosen it gives each session to come that is not cancelled a "Drop in" tick box named "Drop in on <weekday>, <date>"; one with no place left (`full`) that the member does not hold reads "Full" with no tick box (`L2-053` AC1, AC7). "Register for <n> date(s)" ("Registering…" while it waits) calls `setDropIns(id, held ∪ picked)`. On success it shows the booked panel; on `event_full` it names the full date(s) in an `alert` above the button and keeps the ticks; on any other failure it shows the generic message above a usable button. "Change dates" shows the tick boxes again with the dates held to come ticked; the button reads "Save dates", disabled until the ticks differ from what is held. A change that unticks a held date opens the stop-dates dialog; one that only adds is saved at once (`L2-053` AC3, AC4, AC6).
+- **`StopDatesDialog`** — a CDK Dialog loaded on first use (mock `docs/mocks/dialogs/stop-dates/`): "Stop going to <n> date(s)?", "<title> · Sat Apr 25 and Sat May 9", focus on "Keep my dates"; "Stop going" ("Stopping…") sends the whole set; a failure says so and changes nothing; `event_full` closes it and the page names the date.
+- **`SessionList`** — the `session-row` end slot holds the design system's `Checkbox` (block `check`) or the word "Full"; each tick box keeps a 44 × 44 px hit area. Once a joined member holds fewer than every session to come, each session to come reads "· Registered" or "· Not going" after its weekday (`L2-053` AC6).
 - **`PlanOption`** — the drop-in option's note reads "Tick dates in the list" or "<n> picked below".
-- **`dropInPickOf`** — pure helper in `domain/src/events/drop-in-pick.ts`. It gives the option's note, the button text ("Pick a date first", disabled, until one is ticked; then "Register for 1 date" or "Register for <n> dates"), and the booked panel's "Registered for <n> date(s)", "Sessions 4, 6" and the payment line from the drop-in price ("Pay $10 to the host at each session; online payment is not available yet."). It has a case table with one test per row.
-- **`EventSeriesApi.setDropIns(id, sessionIds)`** — `HttpEventSeriesService` calls `PUT /api/events/series/{id}/drop-ins` with `{ sessionIds }` and answers the series as the caller now sees it.
+- **`dropInPickOf`** — pure helper in `domain/src/events/drop-in-pick.ts`. It gives the option's note, the button ("Pick a date first", disabled, until one is ticked; then "Register for 1 date" or "Register for <n> dates"; "Save dates" while changing), the booked panel's "Registered for <n> date(s)", "Sessions 4, 6. You can add more dates any time." and the payment line from the drop-in price ("Pay $10 to the host at each session; online payment is not available yet."), and the refusal's words by date. It has a case table with one test per row.
+- **`EventSeriesApi.setDropIns(id, sessionIds)`** — `HttpEventSeriesService` calls `PUT /api/events/series/{id}/drop-ins` with `{ sessionIds }` and answers the series as the caller now sees it; a refusal errors with an `ApiError` carrying the `sessions` numbers of `event_full`.
 - **`SeriesController.SetDropIns`** — sends one `SetDropInDatesCommand`.
-- **`SetDropInDatesValidator`** — refuses ids that repeat, or more ids than the series has sessions, with 400 `validation_failed` and `fieldCodes.sessionIds` = `sessions_invalid`.
-- **`SetDropInDatesCommand / SetDropInDatesHandler`** — the set is the whole of the member's drop-in dates after the change, so one command both adds and removes, all or none (`L2-053` AC2, AC4). The handler:
-  - refuses a suspended member with 403 `account_suspended` and an unknown or unpublished series with 404 `series_not_found`;
-  - refuses an id that is not a session of the series, or is cancelled or started, with 400 `validation_failed` and `fieldCodes.sessionIds` = `sessions_invalid`;
-  - for each newly ticked session where the member holds no place, refuses the whole change if `going >= Capacity`, naming every full session; otherwise it calls `TakePlace()` and adds a `Registration`;
-  - for each unticked session where the member holds a drop-in registration, refuses with 409 `event_started` once it has started (as `L2-012` AC2); otherwise it calls `ReleasePlace()` and removes the registration;
-  - leaves untouched the registrations an enrolment holds; a joined member changes dates by leaving the series;
-  - saves once; a `DbUpdateConcurrencyException` detaches or restores the changed rows, reloads and decides again (ADR 0033);
-  - after saving, when the member holds no registration left at any session of the series, calls `IChatChannel.LeaveAsync` for the series chat (`L2-053` AC4). A first drop-in makes the member a member of the series chat (see `join-and-leave-series` on the chat key).
-- **Refusal naming full dates** — the refusal is 409 ProblemDetails with code `event_full`, the code `L2-011` uses, and a `sessions` extension listing the full session numbers. The screen words them ("Session 6 filled up. Untick it and try again."). The extension's name and the copy are `<TO SUPPLY>` in an ADR.
+- **`SetDropInDatesCommand / SetDropInDatesHandler`** — the set is every date still to come that the member holds after the change, so one command both adds and removes, all or none (`L2-053` AC2, AC4; ADR 0102). The handler:
+  - refuses an unknown or unpublished series with 404 `series_not_found`, and a suspended member who adds a date with 403 `account_suspended`;
+  - refuses an id that repeats, is not a session of the series, is cancelled, or has started and is not held with 400 `sessions_invalid`, and so a member who has not joined adding a date to a series with no drop-in price;
+  - for each newly ticked session, refuses the whole change if `going >= Capacity`, naming every full session; otherwise it calls `TakePlace()` and adds a `Registration` at the session's price (the series price for a joined member);
+  - for each held session to come that is not in the set, calls `ReleasePlace()` and removes the registration, whether a drop-in or an enrolment took it; a held session that has started is kept whatever the set says (`L2-012`);
+  - saves once; a `DbUpdateException` detaches or restores the changed rows, reloads and decides again (ADR 0033, ADR 0101);
+  - after saving, when the member is no longer in the series chat by ADR 0101's rule (no enrolment, no date not ended), calls `IChatChannel.LeaveAsync` (`L2-053` AC4). A first drop-in puts the member in the series chat by the same rule.
+- **Refusal naming full dates** — 409 ProblemDetails with code `event_full`, the code `L2-011` uses, and a `sessions` extension listing the full session numbers. The screen words them by date ("Sat May 9 is full. Untick it and try again."; ADR 0102).
 - **Join after drop-ins** — `JoinSeriesHandler` keeps the drop-in registrations and adds the rest, with no second place at any session, since it skips sessions the member already holds and the unique (`EventId`, `MemberId`) index forbids a duplicate (`L2-053` AC5).
+- **A joined member's dates** — the joined panel offers "Change dates"; unticking keeps the enrolment and removes only those places. The confirmation reads "You're in for every session" while every session to come is held, otherwise "You're in for <h> of <n> sessions to come" (ADR 0102).
 
 ### Open questions
 
-- The mocks draw the `event_full` refusal naming a date (`docs/mocks/pages/event-series/drop-in-full.html`: "Sat May 9 is full. Untick it and try again.") and the confirmation when unticking dates (`docs/mocks/dialogs/stop-dates/`: "Stop going to 2 dates?", "Your place goes to someone else.").
-- Resolved (#89): a joined member may untick single dates after the `L2-053` AC4 confirmation; dates still held read "Registered" in the list and unticked ones "Not going". The `booked` mock state needs these marks added.
-- Whether a joined member may also untick single dates, rather than leave the whole series, is not stated; the design does not allow it.
+- Resolved (ADR 0102): the refusal's extension is `sessions` (numbers) and its words name the dates; the stop-dates dialog confirms unticking; `event_started` is not needed, since a started date is always kept.
+- Resolved (#89, ADR 0102): a joined member may untick single dates after the stop-dates confirmation; dates still held read "Registered" in the list and unticked ones "Not going" (mock states `joined-change`, `joined-changed`).
 - Payment copy for a priced drop-in follows the `booked` mock; the instructions themselves are `<TO SUPPLY>`, as for events (`register-for-event`).
 
 ## Requirements
@@ -69,7 +68,7 @@ The Member web app puts the ticked dates to the Christian Fitness API, which add
 
 ### Components
 
-`SeriesController` sends `SetDropInDatesCommand`; `SetDropInDatesValidator` checks its shape and `SetDropInDatesHandler` changes the registrations, then leaves the series chat through `IChatChannel` when no date is left.
+`SeriesController` sends `SetDropInDatesCommand`; `SetDropInDatesHandler` checks the set and changes the registrations, then leaves the series chat through `IChatChannel` when no date is left.
 
 ![C4 component view: drop in on dates of a series](diagrams/c4-component.png)
 
@@ -87,6 +86,6 @@ The member ticks two dates and registers; the handler registers both or, when on
 
 ### Behaviour — change drop-in dates
 
-The member unticks a date; the handler removes that registration, refuses a date that has started, and leaves the series chat when no date is left.
+The member unticks a date and confirms in the stop-dates dialog; the handler removes that registration, keeps a date that has started, and leaves the series chat when nothing keeps the member in it.
 
 ![Sequence diagram: change drop-in dates](diagrams/sequence-change-dates.png)

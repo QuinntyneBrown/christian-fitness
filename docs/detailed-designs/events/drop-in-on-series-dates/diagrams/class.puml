@@ -18,7 +18,6 @@ class Event {
   +int PriceCents
   +EventStatus Status
   +Guid? SeriesId
-  +int? SessionNumber
   +int RegistrationVersion
   +TakePlace(): void
   +ReleasePlace(): void
@@ -33,37 +32,40 @@ class SetDropInDatesCommand {
   +Guid SeriesId
   +Guid[] SessionIds
 }
-class SetDropInDatesValidator
 class SetDropInDatesHandler {
   +Handle(c: SetDropInDatesCommand): Task<SeriesDetailDto>
 }
-class SessionsFullRefusal {
+class RefusalException {
   +string Code = "event_full"
-  +int[] Sessions
+  +Extensions: sessions = int[]
 }
 interface EventSeriesApi {
   +setDropIns(id, sessionIds): Observable<SeriesDetailDto>
 }
 class EventSeriesPage {
-  +plan: Signal<'every' | 'drop-in'>
+  +plan: Signal<'all' | 'drop'>
   +picked: Signal<ReadonlySet<string>>
-  +changingDates: Signal<boolean>
-  +toggle(sessionId): void
+  +changing: Signal<boolean>
+  +tick(sessionId, on): void
   +register(): void
   +changeDates(): void
+  +saveDates(): void
 }
 class DropInPick <<domain>> {
   +note: string
-  +buttonText: string
-  +disabled: boolean
-  +bookedText: string
+  +button: label, disabled, busy
+  +booked: confirmed, sessions, pay
 }
+class StopDatesDialog {
+  +stop(): void
+}
+EventSeriesPage ..> StopDatesDialog : opens when a held date is unticked
+StopDatesDialog ..> EventSeriesApi
 EventSeriesPage ..> EventSeriesApi : EVENT_SERIES_SERVICE
 EventSeriesPage ..> DropInPick
 SetDropInDatesHandler ..> SetDropInDatesCommand : handles
-SetDropInDatesValidator ..> SetDropInDatesCommand : validates
 SetDropInDatesHandler ..> Registration : adds and removes
 SetDropInDatesHandler ..> Event : TakePlace / ReleasePlace
-SetDropInDatesHandler ..> SessionsFullRefusal : throws
+SetDropInDatesHandler ..> RefusalException : throws
 Event "1" o-- "*" Registration
 @enduml
