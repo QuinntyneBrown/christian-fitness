@@ -1,0 +1,19 @@
+<cf-dialog
+  heading="Leave the series?"
+  titleId="dlg-title"
+  [subtitle]="words.subtitle"
+  (closed)="stay()"
+>
+  @if (failed()) {
+    <cf-alert heading="We couldn't take you out of the series"
+      ><p>You still have your place. Try again in a moment.</p></cf-alert
+    >
+  }
+  <p class="leave-series__text">{{ words.text }}</p>
+  <cf-button slot="foot" variant="secondary" grow [disabled]="leaving()" (click)="stay()"
+    >Stay in the series</cf-button
+  >
+  <cf-button slot="foot" grow [disabled]="leaving()" [busy]="leaving()" (click)="leave()">{{
+    leaving() ? 'Leaving…' : 'Leave the series'
+  }}</cf-button>
+</cf-dialog>

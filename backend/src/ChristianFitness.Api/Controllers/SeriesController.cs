@@ -42,4 +42,12 @@ public sealed class SeriesController(ISender sender) : ControllerBase
     [HttpPost("{id:guid}/enrolment")]
     public async Task<ActionResult<SeriesDetailDto>> Join(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new JoinSeriesCommand(id), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// The signed-in member leaves the series: the places still to come go back and they leave its
+    /// chat (L2-052 AC9; ADR 0099). Answers the series as they now see it; 404 <c>series_not_found</c>.
+    /// </summary>
+    [HttpDelete("{id:guid}/enrolment/me")]
+    public async Task<ActionResult<SeriesDetailDto>> Leave(Guid id, CancellationToken cancellationToken) =>
+        await sender.Send(new LeaveSeriesCommand(id), cancellationToken).ConfigureAwait(false);
 }
