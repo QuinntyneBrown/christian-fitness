@@ -1,0 +1,25 @@
+@if (loading()) {
+  <div class="story-lead story-lead--loading">
+    <cf-skeleton shape="image-16x9" />
+    <cf-skeleton shape="text-sm" width="20" />
+    <cf-skeleton shape="title-lg" />
+    <cf-skeleton width="90" />
+    <cf-skeleton shape="text-sm" width="30" />
+  </div>
+} @else {
+  <article class="story-lead">
+    @if (image(); as src) {
+      <img class="story-lead__image" [src]="src" alt="" width="1376" height="774" />
+    }
+    <p class="story__section story-lead__section">{{ section() }}</p>
+    <h1 class="story-lead__title">
+      <a class="story-link" [href]="href()">{{ heading() }}</a>
+    </h1>
+    @if (summary()) {
+      <p class="story-lead__dek">{{ summary() }}</p>
+    }
+    <p class="story__meta story-lead__meta">
+      <strong>{{ author() }}</strong> · {{ age() }}
+    </p>
+  </article>
+}

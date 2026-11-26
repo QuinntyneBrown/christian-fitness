@@ -1,0 +1,23 @@
+@if (loading()) {
+  <div class="headline">
+    <div class="headline__body headline__lines">
+      <cf-skeleton shape="text-sm" width="20" />
+      <cf-skeleton width="90" />
+      <cf-skeleton shape="text-sm" width="40" />
+    </div>
+    <span class="headline__image"><cf-skeleton shape="tile" /></span>
+  </div>
+} @else {
+  <div class="headline">
+    <div class="headline__body">
+      <p class="story__section">{{ section() }}</p>
+      <h2 class="headline__title">
+        <a class="story-link" [href]="href()">{{ heading() }}</a>
+      </h2>
+      <p class="story__meta">{{ author() }} · {{ age() }}</p>
+    </div>
+    @if (image(); as src) {
+      <img class="headline__image" [src]="src" alt="" width="160" height="160" loading="lazy" />
+    }
+  </div>
+}

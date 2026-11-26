@@ -30,7 +30,7 @@ export * from './notifications/notifications';
 export * from './profile/profile';
 export * from './reports/reports';
 export * from './services/professional-applications';
-export * from './services/public-professionals';
 export * from './services/services';
 export * from './legal/legal-notice';
 export * from './news/story-blocks';
+export * from './news/public-stories';

@@ -213,6 +213,17 @@ export function storyReadsText(reads: number | null): string | null {
   return countFormat.format(reads);
 }
 
+/**
+ * A published story's age as readers see it, in Toronto: "Just now", "25 min ago", "2 hours ago"
+ * the same day, "Yesterday", else "Apr 8". Empty for a value that is not an instant.
+ */
+export function storyAge(publishedAt: string, now: Date): string {
+  const instant = new Date(publishedAt);
+  if (Number.isNaN(instant.getTime())) return '';
+  const when = ago(instant, now).replace(/^on /, '');
+  return `${when.charAt(0).toUpperCase()}${when.slice(1)}`;
+}
+
 /** How many words a reader reads a minute, for "6 min read". */
 const WORDS_A_MINUTE = 200;
 
@@ -226,8 +237,7 @@ export function storyReaderWhen(publishedAt: string | null, text: string, now: D
   const read = `${Math.max(1, Math.ceil(words / WORDS_A_MINUTE))} min read`;
   const instant = publishedAt ? new Date(publishedAt) : null;
   if (!instant || Number.isNaN(instant.getTime())) return `Not published yet · ${read}`;
-  const when = ago(instant, now).replace(/^on /, '');
-  return `${when.charAt(0).toUpperCase()}${when.slice(1)} · ${read}`;
+  return `${storyAge(instant.toISOString(), now)} · ${read}`;
 }
 
 /**

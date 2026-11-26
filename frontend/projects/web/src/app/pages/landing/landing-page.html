@@ -1,87 +1,143 @@
-<cf-top-bar variant="site" homeHref="/" />
+<cf-masthead [sections]="sections()" (navigate)="go($event)" />
 <main id="main" class="landing">
-  <section class="hero" aria-labelledby="hero-title">
-    <div>
-      <h1 class="display hero__title" id="hero-title">Life to the full.</h1>
-      <p class="hero__lead">
-        A Christian community for health in body and spirit. Find events, train with friends, and
-        meet professionals who share your faith.
-      </p>
-      <div class="hero__actions">
-        <cf-button size="lg" href="/join">Join the community</cf-button>
-      </div>
-    </div>
-    <div class="hero__media">
-      <img
-        class="hero__image"
-        src="/images/events/run.jpg"
-        alt="A group running together along the Toronto waterfront at sunrise"
-        width="1376"
-        height="768"
+  @if (showsTop()) {
+    @if (storiesState() === 'loading') {
+      <h1 class="visually-hidden">Christian Fitness news</h1>
+      <cf-skeleton-region label="Loading top stories">
+        <div class="top-stories">
+          <cf-story-lead loading />
+          <ul class="headline-list">
+            @for (n of headlineSkeletons; track n) {
+              <li><cf-headline loading /></li>
+            }
+          </ul>
+        </div>
+      </cf-skeleton-region>
+    } @else if (lead(); as story) {
+      <section class="top-stories" aria-label="Top stories">
+        <cf-story-lead
+          [href]="story.href"
+          [section]="story.section"
+          [heading]="story.heading"
+          [summary]="story.summary"
+          [author]="story.author"
+          [age]="story.age"
+          [image]="story.image"
+        />
+        @if (headlines().length) {
+          <ul class="headline-list">
+            @for (story of headlines(); track story.id) {
+              <li>
+                <cf-headline
+                  [href]="story.href"
+                  [section]="story.section"
+                  [heading]="story.heading"
+                  [author]="story.author"
+                  [age]="story.age"
+                  [image]="story.image"
+                />
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+  <div [attr.class]="showsTop() ? 'news' : 'news news--flush'">
+    <section class="river" aria-label="Stories">
+      @if (showsTop()) {
+        <h2 class="display river__title">{{ riverTitle() }}</h2>
+      } @else {
+        <h1 class="display river__title">{{ riverTitle() }}</h1>
+      }
+      @if (storiesState() === 'loading') {
+        <cf-skeleton-region label="Loading stories">
+          <ul class="river__list">
+            @for (n of riverSkeletons; track n) {
+              <li><cf-story-row loading /></li>
+            }
+          </ul>
+        </cf-skeleton-region>
+      } @else if (storiesState() === 'failed') {
+        <div class="river__message">
+          <cf-inline-message
+            heading="Stories didn't load."
+            text="Check your connection, then try again."
+            (retry)="loadStories()"
+          />
+        </div>
+      } @else if (river().length === 0 && !lead()) {
+        <p class="river__empty">{{ emptyText() }}</p>
+      } @else {
+        <ul class="river__list">
+          @for (story of river(); track story.id) {
+            <li>
+              <cf-story-row
+                [href]="story.href"
+                [section]="story.section"
+                [heading]="story.heading"
+                [summary]="story.summary"
+                [author]="story.author"
+                [age]="story.age"
+                [image]="story.image"
+              />
+            </li>
+          }
+        </ul>
+        @if (capped()) {
+          <div class="feed-end">
+            <p>That's the latest 60 stories. Choose a section above to see older ones.</p>
+          </div>
+        } @else if (more() === 'ready') {
+          <div class="feed-end">
+            <cf-button variant="secondary" (click)="loadMore()">More stories</cf-button>
+          </div>
+        } @else if (more() === 'loading') {
+          <div class="feed-end"><cf-spinner label="Loading more stories…" /></div>
+        } @else if (more() === 'failed') {
+          <div class="feed-end">
+            <cf-inline-message
+              heading="More stories didn't load."
+              text="The ones above are still here."
+              (retry)="loadMore()"
+            />
+          </div>
+        }
+      }
+    </section>
+    <aside class="rail" aria-label="Join, events and most read">
+      <cf-join-card
+        heading="Life to the full."
+        text="A Christian community for health in body and spirit. Find events, train with friends, and meet professionals who share your faith."
       />
-    </div>
-  </section>
-
-  <section class="band" aria-labelledby="coming-title">
-    <div class="band__inner">
-      <div>
-        <h2 class="display band__title" id="coming-title">Coming up</h2>
-        <p class="subtitle">Runs, workouts and gatherings posted by our team every week.</p>
-        <div class="landing-list">
-          @if (state() === 'loading') {
-            <cf-skeleton-region label="Loading upcoming events">
-              <cf-list [items]="skeletons" [template]="skeletonRow" />
-            </cf-skeleton-region>
-          } @else if (state() === 'failed') {
+      <section class="rail__events" aria-labelledby="rail-events">
+        <cf-rule-title heading="Upcoming events" headingId="rail-events" />
+        @if (eventsState() === 'loading') {
+          <cf-skeleton-region label="Loading upcoming events">
+            <cf-list variant="divided" [items]="eventSkeletons" [template]="skeletonRow" />
+          </cf-skeleton-region>
+        } @else if (eventsState() === 'failed') {
+          <div class="rail__message">
             <cf-inline-message
               heading="Upcoming events didn't load."
               text="Check your connection, then try again."
-              (retry)="load()"
+              (retry)="loadEvents()"
             />
-          } @else if (rows().length === 0) {
-            <cf-empty-state
-              variant="inline"
-              headingTag="p"
-              heading="No events posted yet."
-              text="Check back soon."
-            >
-              <cf-button slot="actions" variant="ghost" size="sm" href="/join"
-                >Join to hear first</cf-button
-              >
-            </cf-empty-state>
-          } @else {
-            <cf-list [items]="rows()" [template]="eventRow" />
-          }
-        </div>
-      </div>
-      <div class="band__aside">
-        <div>
-          <h3 class="display band__point-title">Train together</h3>
-          <p class="band__point-text">
-            Build a profile, find people at your pace, and keep each other going in group chats for
-            every event.
-          </p>
-        </div>
-        <div>
-          <h3 class="display band__point-title">Trusted professionals</h3>
-          <p class="band__point-text">
-            Trainers, dietitians, physios and counsellors, each one vetted and listed by our team.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="band" aria-labelledby="pros-title">
-    <div class="band__inner">
-      <div>
-        <h2 class="display band__title" id="pros-title">Meet our professionals</h2>
-        <p class="subtitle">Trainers, dietitians, physios and counsellors, vetted by our team.</p>
-        <div class="landing-pros-placeholder" cfLandingProfessionalsOnView></div>
-      </div>
-    </div>
-  </section>
-
+          </div>
+        } @else if (rows().length === 0) {
+          <p class="rail__empty">No events posted yet. Check back soon.</p>
+        } @else {
+          <cf-list variant="divided" [items]="rows()" [template]="eventRow" />
+        }
+      </section>
+      @if (mostRead().length) {
+        <section aria-labelledby="rail-most-read">
+          <cf-rule-title heading="Most read" headingId="rail-most-read" />
+          <cf-ranked [items]="mostRead()" />
+        </section>
+      }
+    </aside>
+  </div>
   <section class="verse" aria-label="Scripture">
     <div class="verse__inner">
       <cf-seal size="verse" light />
@@ -96,7 +152,6 @@
 <ng-template #eventRow let-row>
   <cf-event-row
     href="/join"
-    large
     [month]="row.month"
     [day]="row.day"
     [heading]="row.heading"
@@ -104,11 +159,5 @@
   />
 </ng-template>
 <ng-template #skeletonRow>
-  <div class="landing-skeleton">
-    <cf-skeleton shape="date" />
-    <div class="landing-skeleton__body">
-      <cf-skeleton width="55" />
-      <cf-skeleton shape="text-sm" width="80" />
-    </div>
-  </div>
+  <cf-event-row loading />
 </ng-template>

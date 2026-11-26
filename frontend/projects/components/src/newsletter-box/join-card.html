@@ -1,0 +1,12 @@
+<div class="join-card">
+  <p class="display join-card__title">{{ heading() }}</p>
+  <p class="join-card__text">{{ text() }}</p>
+  <div class="join-card__action">
+    <cf-button variant="inverse" [href]="href()"
+      >{{ action() }}
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14" />
+        <path d="m12 5 7 7-7 7" /></svg
+    ></cf-button>
+  </div>
+</div>

@@ -1,0 +1,163 @@
+// The design system's story teasers (docs/design-system/assets/components.css, "Stories"): the
+// lead, a headline and a river row. Photos keep square corners, as in the print style.
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.story__section {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.story__ago {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-muted);
+}
+
+.story__meta {
+  margin-top: var(--space-1-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+
+  strong {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-default);
+  }
+}
+
+.story-link {
+  color: inherit;
+  border-radius: var(--radius-xs);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-5);
+  }
+}
+
+.story-lead__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.story-lead__section {
+  margin-top: var(--space-4);
+}
+
+.story-lead__title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-lead);
+  letter-spacing: var(--letter-spacing-tight);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-4xl);
+  }
+
+  @media (min-width: 64rem) {
+    font-size: var(--font-size-lead);
+  }
+}
+
+.story-lead__dek {
+  margin-top: var(--space-3);
+  max-width: var(--layout-measure);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+}
+
+.story-lead__meta {
+  margin-top: var(--space-4);
+}
+
+.story-lead--loading,
+.headline__lines,
+.story-row__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.headline {
+  display: flex;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+}
+
+.headline__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.headline__title {
+  margin-top: var(--space-0-5);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  text-wrap: pretty;
+}
+
+.headline__image {
+  width: var(--size-thumb-sm);
+  height: var(--size-thumb-sm);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.story-row {
+  display: flex;
+  gap: var(--space-5);
+  padding-block: var(--space-6);
+
+  @media (min-width: 40rem) {
+    gap: var(--space-8);
+  }
+}
+
+.story-row__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.story-row__title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  text-wrap: pretty;
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+.story-row__dek {
+  margin-top: var(--space-2);
+  display: none;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+
+  @media (min-width: 40rem) {
+    display: block;
+  }
+}
+
+.story-row__image {
+  width: var(--size-thumb-story);
+  height: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+
+  @media (min-width: 40rem) {
+    width: 14rem;
+  }
+}
