@@ -3498,6 +3498,13 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   and the headline list already read it. The newsletter box's frame made it visible.
 - The design-system build script rewrote every page's line endings; only the rebuilt
   `newsletter-box.html` was kept, the rest restored.
+- After the rebase, one full backend run failed "an old unsubscribe link unsubscribes again" with
+  400 on a subscribe, and the class passed alone. The test that proves a link survives "every key
+  revoked" called `IKeyManager.RevokeAllKeys` on the default key ring, which lives in the user
+  profile and is shared by every fixture, every test process and any API running on the machine:
+  an antiforgery token issued in between was refused. The newsletter fixture now keeps its keys in
+  a temporary folder of its own (`DataProtection:KeysPath`), and the 18 revocations the runs had
+  written to the profile were removed.
 - The worktree guard refused compound and heredoc shell commands; small Python edit scripts with
   exact-match asserts, run one per command, did the edits.
 
@@ -3513,6 +3520,9 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   log or `Referer` then carries it, and a reload simply drops it.
 - A token in a fragment leaves the address bar with `Location.replaceState` before the request
   goes out; prove it by reading the URL while the request is held open.
+- A test that revokes, rotates or writes Data Protection keys gives its fixture a key folder of its
+  own; without `DataProtection:KeysPath` the keys are the user profile's, shared across processes,
+  and the failure lands in some other test, intermittently.
 - One copied flag naming the address last copied is simpler than a flag per item and keeps a
   single "Copied" on screen.
 
