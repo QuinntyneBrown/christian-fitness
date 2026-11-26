@@ -37,9 +37,9 @@ Telemetry records the route templates only; no member id, name or price enters a
 
 ### Open questions
 
-- Keying the group chat by `SeriesId` changes `ChatMessage.EventId`, `ChatReadMarker`, `ChatMembership` and `IChatChannel` from an event id to a chat id. ADR 0080 decides it: a conversation scope (event or series) replaces the event id, and existing rows are migrated.
+- Resolved (ADR 0099): keying the group chat by `SeriesId` changes `ChatMessage.EventId`, `ChatReadMarker`, `ChatMembership` and `IChatChannel` from an event id to a conversation scope (event or series); `AddConversationScope` migrates every message, marker and membership. A member who leaves stops receiving the chat on connections already open.
 - Resolved (#89): a joined paid series reads "Pay the host at your first session, by cash or e-transfer. You won't be charged online." (mock `event-series/joined`).
-- The "spots left" rule (smallest places left among remaining sessions, or capacity minus enrolments) needs an ADR; see `view-event-series`.
+- Resolved (ADR 0096): "spots left" is the smallest number of places left among the sessions still to come (`SeriesPlaces.SpotsLeft`); joining is refused `series_full` at 0 or with no session to come (ADR 0099).
 - `L2-052` AC9 keeps sessions recorded as attended in the history; staff record attendance (`L2-080`, design `admin-events/record-attendance`). "Came to <attended> of <recorded>" counts only past sessions with attendance recorded, and the panel reads "Attendance not recorded yet" when none is.
 - Resolved (#89): a date already dropped in for keeps its drop-in price and the remaining dates are at the series price; the join confirmation says so.
 - The mock's "Join the waitlist" is replaced by "Series full" (`docs/mocks/README.md`); `series_full` refuses a join that arrives anyway.
