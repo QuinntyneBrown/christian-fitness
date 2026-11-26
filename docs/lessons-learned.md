@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 62% (23 of 36 journeys; 70 of 113 days)
+**% complete:** 67% (24 of 36 journeys; 74 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3260,3 +3260,42 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   reading another story after the in-window reload made it fail for the right reason.
 - "Read the initial total after each slice": web stayed at 278.49 kB against main's 278.46 kB; the
   story page, its reads and Keep reading are in the lazy chunk.
+## Journey 32: Make a Community Pick
+
+**What slowed it**
+
+- The journey changed hands after the first agent stalled for hours with nothing committed past
+  slice 2. Its `ng serve` processes for both apps were still running in the worktree and held
+  `node_modules` open, so `npm ci` failed with `EBUSY`; listing the processes whose command line
+  named the worktree and stopping them cleared it.
+- Main moved twice during the journey (journeys 2, 3, 12, 15, 22 and 23). Each rebase replayed the
+  first, stale migration commit and needed the migration generated again after main's newest one,
+  and every `IAppDbContext` test double added since (the series race, the lease race) needed the
+  new `DbSet`. Journey 3 also removed `Staff.SignInWithCodeAsync`, which the pick tests used.
+- The design-system generator rewrites every page with CRLF; only the page that changed was kept.
+
+**New lessons**
+
+- A clipboard read in Playwright on Windows answers `\r\n` line ends; the page object turns them
+  back into `\n` before comparing with the caption the page wrote.
+- A lazily imported module is proven lazy by the scripts the page loads: collect each script
+  response's text and look for a call only that module makes (`toBlob`) before and after the
+  action. A static import of the renderer failed it at once.
+- An output named after a DOM event (`copy`) fails angular-eslint's `no-output-native`; the
+  caption's output is `copyCaption`.
+- A row of `cf-table` can carry a quiet link before its action (`quietLink`), followed in the app
+  through `navigate`; "Make it a pick" uses it rather than a second table.
+- An "upcoming" rule in a list read with the real clock needs `page.clock.setFixedTime` in the
+  spec, since the cast's fixtures are dated April 2026; `setFixedTime` keeps timers running, so
+  zoneless rendering is unaffected.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the singular spot, the Slack `|` escape and the date's day each failed
+  their own caption case; the Copied timer, the past-event filter on "Make it a pick", Join's kept
+  return address, the guard's Join redirect and the lazy renderer each failed their own spec.
+- "Read the initial total against main, not the previous slice": admin 279.12 kB against main's
+  279.11 kB (the Community Pick navigation item, as ADR 0098 expects) and web 278.46 kB, the same
+  as main.
+- "Serve the built apps for e2e on free ports" (`CF_SERVE_BUILT=1`): the full run of 880 specs
+  passed with no Vite socket failures.
