@@ -85,6 +85,7 @@ public sealed class LeaseRaceTests(LeaseRaceTests.Factory factory) : IClassFixtu
         public DbSet<ChristianFitness.Domain.Events.CommunityPick> CommunityPicks => db.CommunityPicks;
 
         public DbSet<ChristianFitness.Domain.News.StoryReadTally> StoryReadTallies => db.StoryReadTallies;
+        public DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes => db.FeedbackNotes;
 
         public DbSet<ChristianFitness.Domain.Events.Attendance> Attendances => db.Attendances;
 

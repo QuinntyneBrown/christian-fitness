@@ -1,0 +1,52 @@
+<main id="main" class="feedback-page">
+  <cf-container page="default">
+    <cf-form-page
+      heading="Send feedback"
+      lead="Tell us what’s working, what isn’t, and what you wish was here."
+      asideHeading="You said, we did"
+      flush
+      (send)="send()"
+    >
+      <cf-choice-card-group
+        legend="What’s it about?"
+        name="kind"
+        [columns]="4"
+        [options]="kinds"
+        [value]="kind()"
+        (valueChange)="chooseKind($event)"
+      />
+      @if (aboutLabel(); as label) {
+        <cf-context-chip
+          label="About this page"
+          [value]="label"
+          removeLabel="Remove page"
+          (removed)="removeAbout()"
+        />
+      }
+      <div class="feedback__section">
+        <cf-textarea
+          fieldId="f-text"
+          [label]="question().question"
+          name="text"
+          rows="6"
+          [hint]="question().hint ?? undefined"
+          [value]="text()"
+          [error]="noteError()"
+          (valueChange)="edit($event)"
+        />
+      </div>
+      @if (email(); as address) {
+        <div class="feedback__section">
+          <cf-checkbox
+            [label]="'You can email me at ' + address + ' about this'"
+            name="reply"
+            [checked]="mayEmail()"
+            (checkedChange)="mayEmail.set($event)"
+          />
+        </div>
+      }
+      <cf-button slot="actions" type="submit" size="md">Send feedback</cf-button>
+      <cf-said slot="aside" lead="Recent changes that started as member feedback." [items]="said" />
+    </cf-form-page>
+  </cf-container>
+</main>

@@ -1,4 +1,4 @@
-<div [attr.class]="asideHeading() ? 'form-page' : 'form-page form-page--flush'">
+<div [attr.class]="asideHeading() && !flush() ? 'form-page' : 'form-page form-page--flush'">
   @if (done()) {
     <div class="form-page__main"><ng-content select="[slot=done]" /></div>
   } @else {
@@ -18,7 +18,10 @@
     </form>
   }
   @if (asideHeading(); as heading) {
-    <aside class="form-page__aside form-page__aside--low" [attr.aria-labelledby]="asideTitleId">
+    <aside
+      [attr.class]="flush() ? 'form-page__aside' : 'form-page__aside form-page__aside--low'"
+      [attr.aria-labelledby]="asideTitleId"
+    >
       <h2 class="display section-title" [id]="asideTitleId">{{ heading }}</h2>
       <ng-content select="[slot=aside]" />
     </aside>

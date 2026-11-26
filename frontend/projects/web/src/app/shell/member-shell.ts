@@ -3,7 +3,7 @@ import { legalNoticeProvider } from '../legal/legal-notice';
 import { Footer } from '@cf/components';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { type ActivatedRouteSnapshot, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import {
   CHAT_CONNECTION,
   CONVERSATIONS,
@@ -19,7 +19,7 @@ import {
   TabBar,
   TopBar,
 } from '@cf/components';
-import { initialsOf, NetworkStatus } from '@cf/domain';
+import { initialsOf, NetworkStatus, routeTemplateOf } from '@cf/domain';
 import { filter } from 'rxjs';
 import { HttpConversationsService } from '../services/http-conversations.service';
 import { HttpNotificationsService } from '../services/http-notifications.service';
@@ -88,6 +88,8 @@ export default class MemberShell {
   protected readonly current = signal<MemberDestinationKey | null>(placeOf(this.urlNow()));
   /** True on the Notifications screen, where the bell is current. */
   protected readonly onNotifications = signal(isNotifications(this.urlNow()));
+  /** The footer's Send feedback, about the page showing (L2-063 AC1; ADR 0109). */
+  protected readonly feedbackHref = signal('/feedback');
 
   constructor() {
     let lastUrl = this.urlNow();
@@ -105,6 +107,7 @@ export default class MemberShell {
       .subscribe(() => {
         this.current.set(placeOf(this.router.url));
         this.onNotifications.set(isNotifications(this.router.url));
+        this.feedbackHref.set(this.feedbackHrefNow());
         if (this.router.url !== lastUrl) {
           lastUrl = this.router.url;
           this.inbox.refresh();
@@ -134,6 +137,20 @@ export default class MemberShell {
         next: () => void this.router.navigateByUrl('/'),
         error: () => this.signingOut.set(false),
       });
+  }
+
+  /** Send feedback about the route showing, named by its template, such as `events/:id`. */
+  private feedbackHrefNow(): string {
+    const paths: (string | undefined)[] = [];
+    let route: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
+    while (route) {
+      paths.push(route.routeConfig?.path);
+      route = route.firstChild;
+    }
+    const about = `page:${routeTemplateOf(paths)}`;
+    return this.router.serializeUrl(
+      this.router.createUrlTree(['/feedback'], { queryParams: { about } }),
+    );
   }
 
   /** Where the navigation that is creating the shell is going, or else where the router is. */

@@ -3,8 +3,9 @@
     <div class="app-footer__inner">
       <p>© {{ year() }} Christian Fitness · Toronto</p>
       <p class="app-footer__links">
-        <a href="/feedback">Send feedback</a><a href="/preferences">Preferences</a
-        ><a href="/privacy">Privacy</a><a href="/terms">Terms</a>
+        <a [href]="feedbackHref()" (click)="followFeedback($event)">Send feedback</a
+        ><a href="/preferences">Preferences</a><a href="/privacy">Privacy</a
+        ><a href="/terms">Terms</a>
       </p>
     </div>
   </footer>

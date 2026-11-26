@@ -174,6 +174,12 @@ const routes: Routes = [
         loadComponent: story,
       },
       {
+        // Send feedback, about the page in the address (L2-063; ADR 0109).
+        path: 'feedback',
+        title: titled('Send feedback'),
+        loadComponent: () => import('./pages/feedback/feedback-page'),
+      },
+      {
         // The signed-in member's own profile (L2-005; ADR 0015).
         path: 'profile',
         title: titled('Profile'),

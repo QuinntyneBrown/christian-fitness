@@ -18,7 +18,7 @@ test('Members find both documents and settings at the end of Home', async ({ pag
     ['Privacy', '/privacy'],
     ['Terms', '/terms'],
     ['Preferences', '/preferences'],
-    ['Send feedback', '/feedback'],
+    ['Send feedback', '/feedback?about=page:home'],
   ]) {
     await expect(home.footerLink(name)).toHaveAttribute('href', href);
   }

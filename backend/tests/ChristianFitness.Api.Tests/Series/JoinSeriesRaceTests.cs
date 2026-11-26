@@ -71,6 +71,7 @@ public sealed class JoinSeriesRaceTests(JoinSeriesRaceTests.Factory factory) : I
 
         public DbSet<ChristianFitness.Domain.News.StoryReadTally> StoryReadTallies => db.StoryReadTallies;
         public DbSet<ChristianFitness.Domain.Events.Attendance> Attendances => db.Attendances;
+        public DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes => db.FeedbackNotes;
 
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken) => db.Database.CanConnectAsync(cancellationToken);
 

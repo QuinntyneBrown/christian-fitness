@@ -99,6 +99,8 @@ public interface IAppDbContext
 
     /// <summary>Whether each registered member came to each event, as staff recorded it (L2-080; ADR 0106).</summary>
     DbSet<Attendance> Attendances { get; }
+    /// <summary>The notes members sent the team; only staff read them (L2-063; ADR 0109).</summary>
+    DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

@@ -25,6 +25,11 @@ export class FormPage {
   readonly sentAs = input<string | null>(null);
   /** The aside's heading; none leaves the aside out (the mock's `form-page--flush`, the claim screen). */
   readonly asideHeading = input<string>();
+  /**
+   * Starts the page flush with the aside level with the form, as a screen with no back link above
+   * it does (mock `feedback/default`); without an aside the page is always flush.
+   */
+  readonly flush = input(false, { transform: booleanAttribute });
   /** Replaces the form with the `done` slot. */
   readonly done = input(false, { transform: booleanAttribute });
 

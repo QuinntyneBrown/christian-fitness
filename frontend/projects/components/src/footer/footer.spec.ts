@@ -45,4 +45,30 @@ describe('Footer', () => {
       `© ${new Date().getFullYear()} Christian Fitness · Toronto`,
     );
   });
+
+  it('links Send feedback to the page it is about and hands a plain click to the app', async () => {
+    const fixture = TestBed.createComponent(Footer);
+    fixture.componentRef.setInput('variant', 'member');
+    fixture.componentRef.setInput('feedbackHref', '/feedback?about=page:events%2F:id');
+    const navigated: string[] = [];
+    fixture.componentInstance.navigate.subscribe((href) => navigated.push(href));
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    const link = [...el.querySelectorAll('a')].find((a) => a.textContent === 'Send feedback')!;
+
+    const plain = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    link.dispatchEvent(plain);
+    const modified = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    });
+    link.dispatchEvent(modified);
+
+    expect(link.getAttribute('href')).toBe('/feedback?about=page:events%2F:id');
+    expect(navigated).toEqual(['/feedback?about=page:events%2F:id']);
+    expect(plain.defaultPrevented).toBe(true);
+    expect(modified.defaultPrevented).toBe(false);
+  });
 });

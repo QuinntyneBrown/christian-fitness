@@ -1,0 +1,34 @@
+// The design system's context chip (docs/design-system/assets/components.css, "Steps":
+// context-chip, context-chip__body, context-chip__label, context-chip__value).
+:host {
+  display: block;
+}
+
+.context-chip {
+  margin-top: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-default);
+}
+
+.context-chip__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.context-chip__label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+}
+
+.context-chip__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
