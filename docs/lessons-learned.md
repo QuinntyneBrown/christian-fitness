@@ -3094,3 +3094,41 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 - "Read the initial total after each build" and the `--stats-json` inputs showed nothing of Join
   in `main`; the total stayed under the 280 kB budget.
 - "Serve the built apps for e2e" kept the full run clear of Vite's HMR socket.
+
+## Journey 15: Cancel and restore series dates
+
+**What slowed it**
+
+- The context ran out mid-journey, after slice 1. The slice commits, ADR 0103 and the journey's
+  scratchpad folder (`j15/`, with `brk.py` and `brkui.py`) carried it over.
+- Measuring the bundle by checking out `origin/main` into the worktree pulled in another
+  journey's newer files, because worktrees share origin refs and main had moved. Measure against
+  the branch's base commit, not `origin/main`.
+- `brk.py` printed nothing when a break did not compile, because it kept only test summary
+  lines. It now prints the tail of the output when no line matches.
+- `dotnet test --filter` on a freshly added test file sometimes found no tests until the project
+  was rebuilt. An exit status of 0 with "No test matches" is not a pass.
+
+**New lessons**
+
+- A system notice (the series chat line) is added in the same unit of work as the change and
+  pushed only after the save, so a failure leaves neither. Post it only when the Christian
+  Fitness account exists, because the chat history looks up author names in Members.
+- A row that changes its action (Cancel date becomes Restore) keeps one button, so focus comes
+  back to the same element after the dialog closes or the request answers.
+- A read that answers "holds a place" must also check the date's state. Cancelling keeps
+  registrations (so a restore can hold them again), so `held` is the registration and not
+  cancelled.
+- A danger toast on a screen whose toast store has no tone is chosen by its title, through a
+  domain helper (`isRestoreFailedTitle`), as manage-listings already did.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the started check, the series filter, the counts, the audit, the
+  notification fan-out, the chat push, the restore's started check and notice, the domain's
+  standalone and starting-now rows, the busy state and the danger tone each failed their own
+  test.
+- "Read the initial total after each slice, against the base": web 278.26 kB and admin 279.04 kB
+  stayed flat. The dialog loads on the first Cancel date.
+- "Run the full suite against the built apps" (`CF_SERVE_BUILT=1`, free ports) was used for the
+  final run.
