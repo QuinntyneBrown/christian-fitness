@@ -1,5 +1,6 @@
 import {
   DRAFT_STORY,
+  PUBLISHED_STORY,
   REVIEW_STORY,
   STORIES_NOW,
   STORY_OPTIONS,
@@ -31,6 +32,8 @@ function answerActions(
     submit: 'review',
     'return-to-draft': 'draft',
     publish: 'published',
+    update: 'published',
+    unpublish: 'draft',
   };
   api.on('GET', `${BASE}/options`, () => ({ json: STORY_OPTIONS }));
   api.on('GET', `${BASE}/${story.id}`, () => ({ json: story }));
@@ -46,7 +49,12 @@ function answerActions(
           status: statusAfter[action],
           version: story.version + 1,
           savedAt: STORIES_NOW.toISOString(),
-          publishedAt: action === 'publish' ? STORIES_NOW.toISOString() : null,
+          publishedAt:
+            action === 'publish'
+              ? STORIES_NOW.toISOString()
+              : action === 'update'
+                ? story.publishedAt
+                : null,
         },
       }
     );
@@ -226,5 +234,47 @@ test.describe('Admin app, story status actions', () => {
     await expect(editor.alertTitle).toHaveText("We couldn't change the story");
     await expect(editor.status).toHaveText('Draft');
     await expect(editor.action('Send for review')).toBeEnabled();
+  });
+
+  // Mock admin-story-editor/published; L2-069 AC5.
+  test('a Published story offers Unpublish and Update, and Update sends what is written', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerActions(api, PUBLISHED_STORY);
+    const editor = new StoryEditorPage(page);
+    await editor.open(PUBLISHED_STORY.id);
+    await expect(editor.actionButtons).toHaveText(['Unpublish', 'Update']);
+    await editor.summary.fill('A sharper summary.');
+
+    await editor.action('Update').click();
+
+    await expectToast(editor, 'Update published', 'Readers see the changes now.');
+    await expect(editor.status).toHaveText('Published');
+    expect(asked.map((a) => a.action)).toEqual(['update']);
+    expect(asked[0].body).toMatchObject({
+      summary: 'A sharper summary.',
+      version: PUBLISHED_STORY.version,
+    });
+  });
+
+  test('Unpublish makes a Published story a Draft again, with the Draft actions', async ({
+    page,
+    api,
+  }) => {
+    const asked = answerActions(api, PUBLISHED_STORY);
+    const editor = new StoryEditorPage(page);
+    await editor.open(PUBLISHED_STORY.id);
+
+    await editor.action('Unpublish').click();
+
+    await expect(editor.status).toHaveText('Draft');
+    await expectToast(
+      editor,
+      'Unpublished',
+      'It is a Draft again, off the front page, the feeds and its address.',
+    );
+    await expect(editor.actionButtons).toHaveText(['Send for review', 'Publish now']);
+    expect(asked).toEqual([{ action: 'unpublish', body: { version: PUBLISHED_STORY.version } }]);
   });
 });

@@ -95,6 +95,27 @@ public class StoriesFactory : BylinesFactory
         return e.Id;
     }
 
+    /// <summary>Makes every Lead story in the store an ordinary one, so a test starts with none.</summary>
+    internal async Task ClearLeadsAsync()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        foreach (var story in await db.Stories.Where(s => s.Placement == StoryPlacement.Lead).ToListAsync(TestContext.Current.CancellationToken))
+        {
+            story.GiveUpLead();
+        }
+
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>The ids of the Published stories placed as the Lead.</summary>
+    internal async Task<Guid[]> PublishedLeadsAsync()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return await db.Stories.Where(s => s.Status == StoryStatus.Published && s.Placement == StoryPlacement.Lead).Select(s => s.Id).ToArrayAsync(TestContext.Current.CancellationToken);
+    }
+
     /// <summary>The story as stored now, or none.</summary>
     internal async Task<Story?> FindStoryAsync(Guid id)
     {

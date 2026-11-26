@@ -74,14 +74,15 @@ allows.
   indexed: it sends `X-Robots-Tag: noindex`.
 - **`AdminStoriesApi` / `ADMIN_STORIES_SERVICE`** — contract and token in the `api` library:
   `list` (`manage-stories`), `get`, `create`, `save`, `submit`, `returnToDraft`, `publish`,
-  `unschedule`, `unpublish`, `uploadImage`, `preview` and `options` (the bylines, the published events
+  `update`, `unschedule`, `unpublish`, `uploadImage`, `preview` and `options` (the bylines, the published events
   and listings a story may point to, and the next issue's number and date).
 
 ### Christian Fitness API
 
 - **`AdminStoriesController`** — under `api/admin/stories`; each action sends one MediatR request:
-  `POST` (create a Draft), `GET {id}`, `PUT {id}` (save or Update), `POST {id}/submit`,
-  `POST {id}/return-to-draft`, `POST {id}/publish`, `POST {id}/unschedule`, `POST {id}/unpublish`,
+  `POST` (create a Draft), `GET {id}`, `PUT {id}` (save a Draft or a story In review),
+  `POST {id}/submit`, `POST {id}/return-to-draft`, `POST {id}/publish`, `POST {id}/update`,
+  `POST {id}/unschedule`, `POST {id}/unpublish`,
   `POST images`, `GET {id}/preview` and `GET options`. The `stories` segment maps to a new
   `StaffArea.Publishing` (with `newsletter`), which `StaffAccess` allows to Admins only; until it
   exists the segment falls to `StaffArea.Unlisted`, which refuses Moderators the same way
@@ -97,22 +98,26 @@ allows.
   and hyphens (`slug_invalid`) and is unique among stories and former slugs (`slug_taken`); when
   empty, `StorySlug.From(headline)` makes it, adding a number on a clash (`L2-069` AC8).
 - **`SaveStoryCommand`** / handler — refuses a `Version` other than the stored one with 409
-  `story_changed` (`L2-069` AC12), else applies `Edit`. A slug changed on a story that has been
-  published adds a `StorySlugRedirect` from the earlier slug (`L2-069` AC8; `L2-061` AC8). On a
-  Published story this is Update, live at once (`L2-069` AC5).
+  `story_changed` (`L2-069` AC12), else applies `Edit`; a Scheduled or Published story is 409
+  `status_conflict`. A slug changed on a story that has been published keeps the earlier slug in
+  the story's `FormerSlugs`, which no other story may take (`L2-069` AC8; `L2-061` AC8; ADR 0097).
+- **`UpdateStoryCommand`** with **`UpdateStoryValidator`** — Update on a Published story: the
+  same version check and the same rules as Publish, then `UpdatePublished`, live at once
+  (`L2-069` AC5). Audited `story.updated`.
 - **`PublishStoryCommand`** with **`PublishStoryValidator`** — saves the fields, then requires a
   headline, text, section and byline, and a scheduled time after now (`TimeProvider`), else 400
   `validation_failed` with `fieldCodes` `headline_required`, `text_required`, `section_required`,
   `byline_required` or `publish_at_in_past`, publishing nothing (`L2-069` AC7). With no time it
   calls `Publish(now)`; with one it turns the Toronto date and time into UTC with the existing
-  `EventSchedule` and calls `Schedule(at, admin, now)` (`L2-069` AC2–AC4). Publishing as Lead
-  story makes it the front page's lead (`L2-069` AC6).
+  `EventSchedule` and calls `Schedule(at, admin, now)` (`L2-069` AC2–AC4). Publishing or updating
+  as Lead story makes it the front page's lead: every other Published Lead calls `GiveUpLead` and
+  stays out as an ordinary story at its own publish time (`L2-069` AC6).
 - **`SubmitStoryCommand`**, **`ReturnStoryToDraftCommand`**, **`UnscheduleStoryCommand`**,
   **`UnpublishStoryCommand`** — one status change each. Unpublish makes the story a Draft, so the
   landing page, the feeds and `/stories/<slug>` stop showing it at once (`L2-069` AC5).
 - **Audit** — each status command is an `IAuditableCommand`: `story.submitted`,
-  `story.returned_to_draft`, `story.published`, `story.scheduled`, `story.unscheduled` and
-  `story.unpublished`, recorded by `AuditTrail` with the Admin and the story's id in the same unit
+  `story.returned_to_draft`, `story.published`, `story.updated`, `story.scheduled`,
+  `story.unscheduled` and `story.unpublished`, recorded by `AuditTrail` with the Admin and the story's id in the same unit
   of work (`L2-069` AC14; ADR 0023).
 - **`UploadStoryImageCommand`** / handler — the event image rules reused: `ImageKeys.Detect` reads
   the type from the first bytes, at most 5 MB, stored through `IImageStore`; a new

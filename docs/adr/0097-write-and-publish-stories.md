@@ -71,6 +71,21 @@ scheduling is journey 23). The requirement, the two designs (`publishing/manage-
   button. It stays available during an autosave, which changes nothing Preview reads that the
   next read would not show.
 
+- **Update and Unpublish.** Update on a Published story is its own action,
+  `POST /api/admin/stories/{id}/update`, not a save: it has Publish's rules (a headline, text, a
+  section and a byline) and is audited `story.updated`, as it changes what readers see.
+  `POST …/unpublish` makes the story a Draft (`story.unpublished`); its first publication and
+  link are kept. A link changed after the story was first published keeps the earlier link in
+  the story's former links, which no other story may take; the public story page (journey 24)
+  sends a former link to the current one. Publishing or updating a story as the Lead makes any
+  other Published Lead an ordinary story. Unpublish asks for no confirmation: it is undone by
+  publishing again, and the mock has none.
+- **Status actions in the editor.** The bar shows the actions the status allows (a Scheduled
+  story none until journey 23). Send for review and Back to draft first save edits not yet saved;
+  Publish and Update send the fields themselves. While an action runs its button is busy, the
+  others are disabled and the story is read-only. Publish refused for its fields names what is
+  missing above the story (the alert takes focus) and marks each field until it is edited.
+
 ## Consequences
 
 - Journey 24 renders the public story page with `storyBlocks` and the library's `story`, adding

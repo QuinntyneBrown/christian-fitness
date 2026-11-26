@@ -5,6 +5,7 @@ using ChristianFitness.Application.Sessions;
 using ChristianFitness.Domain.News;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChristianFitness.Application.News;
 
@@ -40,6 +41,22 @@ public sealed class PublishStoryCommand : StorySaveFields, IRequest<AdminStoryDt
     string IAuditableCommand.AuditAction => "story.published";
 }
 
+/// <summary>
+/// Update on a Published story (L2-069 AC5, AC6, AC8): saves the fields over the version the editor
+/// read and the changes are live at once; a changed link keeps the earlier one working. Audited
+/// <c>story.updated</c>.
+/// </summary>
+public sealed class UpdateStoryCommand : StorySaveFields, IRequest<AdminStoryDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "story.updated";
+}
+
+/// <summary>Unpublish: a Published story becomes a Draft and leaves readers at once (L2-069 AC5). Audited <c>story.unpublished</c>.</summary>
+public sealed class UnpublishStoryCommand : StoryActionBody, IRequest<AdminStoryDto>, IAuditableCommand
+{
+    string IAuditableCommand.AuditAction => "story.unpublished";
+}
+
 internal sealed class SubmitStoryValidator : AbstractValidator<SubmitStoryCommand>
 {
     public SubmitStoryValidator() =>
@@ -52,13 +69,25 @@ internal sealed class ReturnStoryToDraftValidator : AbstractValidator<ReturnStor
         RuleFor(c => c.Version).NotNull().WithErrorCode(StoryRules.VersionRequired).WithMessage("Open the story again");
 }
 
-/// <summary>
-/// What a story needs to go out (L2-069 AC7; ADR 0097): a headline, text, a section and a byline,
-/// named in that order, on top of every field's own rule. Nothing is saved when one is missing.
-/// </summary>
-internal sealed class PublishStoryValidator : StoryFieldsValidator<PublishStoryCommand>
+internal sealed class UnpublishStoryValidator : AbstractValidator<UnpublishStoryCommand>
 {
-    public PublishStoryValidator(IAppDbContext db, IImageStore images)
+    public UnpublishStoryValidator() =>
+        RuleFor(c => c.Version).NotNull().WithErrorCode(StoryRules.VersionRequired).WithMessage("Open the story again");
+}
+
+internal sealed class PublishStoryValidator(IAppDbContext db, IImageStore images) : StoryGoesOutValidator<PublishStoryCommand>(db, images);
+
+internal sealed class UpdateStoryValidator(IAppDbContext db, IImageStore images) : StoryGoesOutValidator<UpdateStoryCommand>(db, images);
+
+/// <summary>
+/// What a story needs to go out, by Publish or Update (L2-069 AC5, AC7; ADR 0097): a headline,
+/// text, a section and a byline, named in that order, on top of every field's own rule. Nothing is
+/// saved when one is missing.
+/// </summary>
+internal abstract class StoryGoesOutValidator<T> : StoryFieldsValidator<T>
+    where T : StorySaveFields
+{
+    protected StoryGoesOutValidator(IAppDbContext db, IImageStore images)
         : base(db, images)
     {
         RuleFor(c => c.Version).NotNull().WithErrorCode(StoryRules.VersionRequired).WithMessage("Open the story again");
@@ -122,6 +151,26 @@ internal static class StoryActions
 
         return slug;
     }
+
+    /// <summary>
+    /// Only one story is the Lead (L2-069 AC6): when <paramref name="story"/> goes out as the Lead,
+    /// every other Published Lead becomes an ordinary story at its own publish time.
+    /// </summary>
+    public static async Task TakeLeadAsync(IAppDbContext db, Story story, CancellationToken cancellationToken)
+    {
+        if (story.Placement != StoryPlacement.Lead)
+        {
+            return;
+        }
+
+        var others = await db.Stories
+            .Where(s => s.Id != story.Id && s.Status == StoryStatus.Published && s.Placement == StoryPlacement.Lead)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var other in others)
+        {
+            other.GiveUpLead();
+        }
+    }
 }
 
 internal sealed class SubmitStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
@@ -163,6 +212,36 @@ internal sealed class PublishStoryHandler(IAppDbContext db, TimeProvider time, I
         StoryActions.Change(() => story.Edit(request.ToContent(), now));
         story.SetSlug(await StoryActions.SlugOfAsync(db, story, cancellationToken).ConfigureAwait(false));
         StoryActions.Change(() => story.Publish(now));
+        await StoryActions.TakeLeadAsync(db, story, cancellationToken).ConfigureAwait(false);
+        audit.Record(current.Id, StoryActions.RecordType, story.Id);
+        await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        return StoryAnswers.Of(story);
+    }
+}
+
+internal sealed class UpdateStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+    : IRequestHandler<UpdateStoryCommand, AdminStoryDto>
+{
+    public async Task<AdminStoryDto> Handle(UpdateStoryCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.UpdatePublished(request.ToContent(), time.GetUtcNow()));
+        await StoryActions.TakeLeadAsync(db, story, cancellationToken).ConfigureAwait(false);
+        audit.Record(current.Id, StoryActions.RecordType, story.Id);
+        await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
+        return StoryAnswers.Of(story);
+    }
+}
+
+internal sealed class UnpublishStoryHandler(IAppDbContext db, TimeProvider time, ICurrentMember current, AuditTrail audit)
+    : IRequestHandler<UnpublishStoryCommand, AdminStoryDto>
+{
+    public async Task<AdminStoryDto> Handle(UnpublishStoryCommand request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var story = await StoryActions.FindAsync(db, request.Id, request.Version, cancellationToken).ConfigureAwait(false);
+        StoryActions.Change(() => story.Unpublish(time.GetUtcNow()));
         audit.Record(current.Id, StoryActions.RecordType, story.Id);
         await StoryAnswers.SaveAsync(db, story, cancellationToken).ConfigureAwait(false);
         return StoryAnswers.Of(story);

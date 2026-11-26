@@ -76,4 +76,22 @@ public sealed class AdminStoriesController(ISender sender) : ControllerBase
         command.Id = id;
         return await sender.Send(command, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>Update a Published story: the changes are live at once (L2-069 AC5).</summary>
+    [HttpPost("{id:guid}/update")]
+    public async Task<ActionResult<AdminStoryDto>> Update(Guid id, UpdateStoryCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Unpublish: the story becomes a Draft and leaves readers at once (L2-069 AC5).</summary>
+    [HttpPost("{id:guid}/unpublish")]
+    public async Task<ActionResult<AdminStoryDto>> Unpublish(Guid id, UnpublishStoryCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        command.Id = id;
+        return await sender.Send(command, cancellationToken).ConfigureAwait(false);
+    }
 }
