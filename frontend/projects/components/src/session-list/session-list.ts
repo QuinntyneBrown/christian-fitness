@@ -1,5 +1,6 @@
 import { booleanAttribute, Component, input, output } from '@angular/core';
 import { Button } from '../button/button';
+import { Checkbox } from '../checkbox/checkbox';
 import { isPlainClick } from '../link/plain-click';
 import { Skeleton } from '../skeleton/skeleton';
 
@@ -9,10 +10,20 @@ export type SessionRowState = 'past' | 'next' | 'upcoming' | 'cancelled';
 /**
  * What a row ends with (design system "End"): `details`, a link to the session's event page named
  * "Details of session <n>"; `status`, a state in plain words ("Done", "Not recorded",
- * "Cancelled"); or nothing.
+ * "Cancelled", "Full"); `pick`, a "Drop in" tick box whose hidden words complete its name
+ * (" on Sat, Apr 25"; ADR 0102); or nothing.
  */
 export type SessionRowEnd =
-  { kind: 'details'; href: string; number: number } | { kind: 'status'; text: string } | null;
+  | { kind: 'details'; href: string; number: number }
+  | { kind: 'status'; text: string }
+  | { kind: 'pick'; label: string; hidden: string; value: string; checked: boolean }
+  | null;
+
+/** A tick box was ticked or unticked: the session's id (the box's value) and whether it is ticked. */
+export interface SessionTick {
+  value: string;
+  checked: boolean;
+}
 
 /** One date as its row shows it; the screen words it. */
 export interface SessionListRow {
@@ -36,12 +47,13 @@ export interface SessionListRow {
  * (decorative; the date is repeated in hidden text), "Session <n> · <weekday>", "· Next up" on
  * the next one, the topic, and an end chosen by data, so each end is declared once (ADR 0096).
  * The state is a row modifier (`--past`, `--next`, `--cancelled`) and is also said in words.
- * Rows are not focusable; a plain click on Details emits `navigate` for the app's router. With
- * `loading` it shows four skeleton rows. Words are rendered as text.
+ * Rows are not focusable; a plain click on Details emits `navigate` for the app's router, and a
+ * tick box emits `tick` (the design system's compact checkbox). With `loading` it shows four
+ * skeleton rows. Words are rendered as text.
  */
 @Component({
   selector: 'cf-session-list',
-  imports: [Button, Skeleton],
+  imports: [Button, Checkbox, Skeleton],
   templateUrl: './session-list.html',
   styleUrl: './session-list.scss',
 })
@@ -49,6 +61,7 @@ export class SessionList {
   readonly sessions = input<readonly SessionListRow[]>([]);
   readonly loading = input(false, { transform: booleanAttribute });
   readonly navigate = output<string>();
+  readonly tick = output<SessionTick>();
 
   protected readonly skeletons = [1, 2, 3, 4];
 

@@ -178,6 +178,8 @@ export interface SeriesSession {
   state: 'done' | 'live' | 'upcoming' | 'cancelled';
   /** The member holds a place at it. */
   held: boolean;
+  /** Still to come, not cancelled and every place taken (ADR 0102). */
+  full: boolean;
 }
 
 const COUCH_DATES: [string, string][] = [
@@ -200,6 +202,7 @@ export const COUCH_SESSIONS: SeriesSession[] = COUCH_DATES.map(([date, topic], n
   topic,
   state: n < 2 ? 'done' : n === 2 ? 'live' : n === 5 ? 'cancelled' : 'upcoming',
   held: n === 0,
+  full: false,
 }));
 
 /**
@@ -297,6 +300,7 @@ export const PARK_BOOTCAMP_DETAIL: SeriesDetail = {
     topic: null,
     state: n < 3 ? 'done' : n === 3 ? 'live' : 'upcoming',
     held: false,
+    full: false,
   })),
 };
 

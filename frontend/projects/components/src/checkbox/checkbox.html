@@ -37,6 +37,11 @@
       [attr.aria-invalid]="invalid() ? 'true' : null"
       (change)="onChange($event)"
     />
-    {{ label() }}
+    <span
+      >{{ label() }}
+      @if (hiddenLabel(); as hidden) {
+        <span class="visually-hidden">{{ hidden }}</span>
+      }
+    </span>
   </label>
 }

@@ -67,7 +67,11 @@
                 <h2 class="section-title" id="sessions-title">Sessions</h2>
                 <p class="section-head__note">{{ series.sessions.note }}</p>
               </div>
-              <cf-session-list [sessions]="series.sessions.rows" (navigate)="open($event)" />
+              <cf-session-list
+                [sessions]="sessionRows()"
+                (navigate)="open($event)"
+                (tick)="tick($event)"
+              />
             </section>
           </div>
           <aside class="event-series__aside" aria-label="Sign up">

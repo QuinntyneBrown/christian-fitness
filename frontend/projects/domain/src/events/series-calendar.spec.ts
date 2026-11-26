@@ -11,6 +11,7 @@ const session = (over: Partial<Session>): Session => ({
   topic: null,
   state: 'upcoming',
   held: true,
+  full: false,
   ...over,
 });
 

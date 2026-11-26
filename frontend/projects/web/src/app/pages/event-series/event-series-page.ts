@@ -17,6 +17,7 @@ import {
   Link,
   SeriesPanel,
   SessionList,
+  type SessionTick,
   Skeleton,
   SkeletonRegion,
 } from '@cf/components';
@@ -29,6 +30,7 @@ import {
   seriesJoinRefusalOf,
   seriesKeptNoteOf,
   seriesPanelViewOf,
+  seriesSessionsViewOf,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import type {
@@ -88,6 +90,8 @@ export default class EventSeriesPage {
   private readonly detail = signal<SeriesDetailDto | null>(null);
   /** The way the member chose on the panel, none until they choose. */
   private readonly plan = signal<SeriesPlan | null>(null);
+  /** The ids of the dates ticked to drop in on (L2-053 AC1; ADR 0102). */
+  private readonly picked = signal<ReadonlySet<string>>(new Set());
   protected readonly joining = signal(false);
   protected readonly joinFailed = signal(false);
   /** Right after a join, which dates already booked keep the drop-in price (AC4). */
@@ -98,7 +102,11 @@ export default class EventSeriesPage {
   protected readonly panel = computed(() => {
     const detail = this.detail();
     return detail
-      ? seriesPanelViewOf(detail, { plan: this.plan(), joining: this.joining() })
+      ? seriesPanelViewOf(detail, {
+          plan: this.plan(),
+          joining: this.joining(),
+          picked: this.picked().size,
+        })
       : {
           joined: false,
           payNote: null,
@@ -108,6 +116,18 @@ export default class EventSeriesPage {
           action: null,
           note: '',
         };
+  });
+  /** Whether the session list shows tick boxes: drop-in is the way chosen on the panel. */
+  private readonly picking = computed(() =>
+    this.panel().plans.some((p) => p.value === 'drop' && p.checked),
+  );
+  /** The session rows, with "Drop in" tick boxes while dates are picked (ADR 0102). */
+  protected readonly sessionRows = computed(() => {
+    const detail = this.detail();
+    return detail
+      ? seriesSessionsViewOf(detail.sessions, this.picking() ? { picked: this.picked() } : null)
+          .rows
+      : [];
   });
   protected readonly facts = computed<DescriptionItem[]>(() => {
     const view = this.view();
@@ -139,6 +159,16 @@ export default class EventSeriesPage {
   /** The member chose a way to come. */
   protected choose(value: string): void {
     this.plan.set(value === 'drop' ? 'drop' : 'all');
+  }
+
+  /** The member ticked or unticked a date (L2-053 AC1). */
+  protected tick(change: SessionTick): void {
+    this.picked.update((picked) => {
+      const next = new Set(picked);
+      if (change.checked) next.add(change.value);
+      else next.delete(change.value);
+      return next;
+    });
   }
 
   /**

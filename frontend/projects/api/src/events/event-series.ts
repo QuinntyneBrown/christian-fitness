@@ -104,6 +104,8 @@ export interface SeriesSessionDto {
   state: AdminSessionState;
   /** The signed-in member holds a place at it. */
   held: boolean;
+  /** Still to come, not cancelled and every place taken (L2-053 AC7; ADR 0102). */
+  full: boolean;
 }
 
 /** The event series a member browses (L2-050; ADR 0093). */

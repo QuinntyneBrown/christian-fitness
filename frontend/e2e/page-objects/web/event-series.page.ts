@@ -121,6 +121,21 @@ export class WebEventSeriesPage extends ErrorScreen {
     return this.session(n).locator('.session-row__end');
   }
 
+  /** The "Drop in" tick box of session `n`, named "Drop in on <weekday>, <date>" (ADR 0102). */
+  dropInBox(n: number): Locator {
+    return this.session(n).getByRole('checkbox');
+  }
+
+  /** Every "Drop in" tick box in the list. */
+  get dropInBoxes(): Locator {
+    return this.sessionList.getByRole('checkbox');
+  }
+
+  /** The note of the way to come at `index` (0: Every session, 1: Pick dates to drop in). */
+  planNote(index: number): Locator {
+    return this.plans.nth(index).locator('.plan-option__note');
+  }
+
   /** The "Details" link of session `n`, named "Details of session <n>". */
   details(n: number): Locator {
     return this.session(n).getByRole('link', { name: `Details of session ${n}` });

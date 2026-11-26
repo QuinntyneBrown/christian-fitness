@@ -22,6 +22,7 @@ const held = (n: number, cancelled = 0): SeriesDetailDto['sessions'] =>
     topic: null,
     state: i < cancelled ? 'cancelled' : 'upcoming',
     held: false,
+    full: false,
   }));
 
 /** Saturday Park Bootcamp as the mock `event-series/not-joined` draws it. */

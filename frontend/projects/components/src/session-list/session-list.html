@@ -42,6 +42,16 @@
                   <path d="M5 12h14" />
                   <path d="m12 5 7 7-7 7" /></svg
               ></cf-button>
+            } @else if (end.kind === 'pick') {
+              <cf-checkbox
+                variant="compact"
+                name="dates"
+                [label]="end.label"
+                [hiddenLabel]="end.hidden"
+                [value]="end.value"
+                [checked]="end.checked"
+                (checkedChange)="tick.emit({ value: end.value, checked: $event })"
+              />
             } @else {
               <span class="session-row__status">{{ end.text }}</span>
             }

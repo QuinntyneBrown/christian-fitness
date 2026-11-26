@@ -68,7 +68,7 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         var series = await OpenAsync(client, cookie, couch.Id);
 
         var sessions = series.GetProperty("sessions").EnumerateArray().ToList();
-        Assert.Equal(["id", "number", "startsAt", "endsAt", "topic", "state", "held"], AdminSeries.Keys(sessions[0]));
+        Assert.Equal(["id", "number", "startsAt", "endsAt", "topic", "state", "held", "full"], AdminSeries.Keys(sessions[0]));
         Assert.Equal(ids.Select(id => id.ToString()), sessions.Select(s => s.GetProperty("id").GetString()));
         Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8], sessions.Select(s => s.GetProperty("number").GetInt32()));
         Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 7)), sessions[0].GetProperty("startsAt").GetDateTimeOffset());
@@ -105,6 +105,28 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         Assert.Equal(37, series.GetProperty("spotsLeft").GetInt32());
         // April 21, 28, May 5, 19 and 26 are to come; May 12 is cancelled.
         Assert.Equal(5, series.GetProperty("sessionsLeft").GetInt32());
+    }
+
+    [Fact]
+    public async Task Given_sessions_whose_places_are_all_taken_When_a_member_opens_the_series_Then_only_those_still_to_come_and_not_cancelled_are_full()
+    {
+        var now = factory.Time.GetUtcNow();
+        var (client, cookie) = await MemberSeries.MemberAsync(factory, "rio.series.view@example.org");
+        var couch = AdminSeries.NewSeries("Couch to 5K Full Dates", now, capacity: 4);
+        var ids = await factory.AddCouchTo5KAsync(couch);
+        // Four of four hold the past April 14, the cancelled May 12 and April 28; three of four hold May 5 (L2-053 AC7; ADR 0102).
+        await factory.AddRegistrationsAsync([
+            .. Enumerable.Range(0, 4).Select(_ => (ids[1], Guid.NewGuid())),
+            .. Enumerable.Range(0, 4).Select(_ => (ids[5], Guid.NewGuid())),
+            .. Enumerable.Range(0, 4).Select(_ => (ids[3], Guid.NewGuid())),
+            .. Enumerable.Range(0, 3).Select(_ => (ids[4], Guid.NewGuid())),
+        ]);
+
+        var series = await OpenAsync(client, cookie, couch.Id);
+
+        Assert.Equal(
+            [false, false, false, true, false, false, false, false],
+            series.GetProperty("sessions").EnumerateArray().Select(s => s.GetProperty("full").GetBoolean()));
     }
 
     [Fact]

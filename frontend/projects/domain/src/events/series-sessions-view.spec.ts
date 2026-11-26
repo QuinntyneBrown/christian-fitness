@@ -10,6 +10,7 @@ const session = (over: Partial<SeriesSessionDto>): SeriesSessionDto => ({
   topic: 'Same intervals, six times through',
   state: 'upcoming',
   held: false,
+  full: false,
   ...over,
 });
 
@@ -71,6 +72,57 @@ describe('seriesSessionRowOf', () => {
 
   it('a date with no topic reads none', () => {
     expect(seriesSessionRowOf(session({ topic: null })).topic).toBe('');
+  });
+});
+
+// L2-053 AC1, AC6 and AC7 (ADR 0102): while dates are picked, what each row ends with, one case per row.
+describe('seriesSessionRowOf while picking dates', () => {
+  const box = (checked: boolean) => ({
+    kind: 'pick',
+    label: 'Drop in',
+    hidden: ' on Tue, Apr 21',
+    value: 's3',
+    checked,
+  });
+  it.each([
+    { why: 'the next date gets a tick box', state: 'live', picked: false, end: box(false) },
+    { why: 'a later date ticked', state: 'upcoming', picked: true, end: box(true) },
+    {
+      why: 'a full date the member does not hold reads Full, with no tick box',
+      state: 'upcoming',
+      full: true,
+      end: { kind: 'status', text: 'Full' },
+    },
+    {
+      why: 'a full date the member holds keeps its tick box, to untick it',
+      state: 'upcoming',
+      full: true,
+      held: true,
+      picked: true,
+      end: box(true),
+    },
+    {
+      why: 'a past date still reads Done',
+      state: 'done',
+      end: { kind: 'status', text: 'Done' },
+    },
+    {
+      why: 'a cancelled date still reads Cancelled',
+      state: 'cancelled',
+      end: { kind: 'status', text: 'Cancelled' },
+    },
+  ] as const)('$why', (row) => {
+    const picked = new Set('picked' in row && row.picked ? ['s3'] : []);
+    const view = seriesSessionRowOf(
+      session({
+        state: row.state,
+        full: 'full' in row && row.full,
+        held: 'held' in row && row.held,
+      }),
+      { picked },
+    );
+
+    expect(view.end).toEqual(row.end);
   });
 });
 
