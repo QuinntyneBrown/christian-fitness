@@ -45,10 +45,11 @@ journey 22 left.
   step), `link-copied` and `error` ("This story didn't load" with Try again and All stories,
   `L2-061` AC9). A 404 shows the app's not-found view in place, keeping the address (`L2-043` AC1);
   a 5xx opens the server-error screen as every read does (`L2-043` AC4). When the answer's `slug`
-  differs from the one opened, the page replaces the URL with the current address (`L2-061` AC8).
-  It sets the document title to the headline and the `description` meta to the summary through
-  Angular's `Title` and `Meta` services (`L2-061` AC11). After the story shows it counts one read
-  through `STORY_READS`.
+  differs from the one opened, the page replaces the address and its history entry with the
+  current one through `Location.replaceState`, without asking again (`L2-061` AC8). It sets the
+  document title to the headline through `Title`, and the `description` meta to the summary
+  through the document (Angular's `Meta` would join the initial bundle), removing it on destroy
+  (`L2-061` AC11). After the story shows it counts one read through `STORY_READS`.
 - **`Story`** — the components library's `cf-story` (block `story`, built for the preview in
   journey 22): the back link "All stories", section, headline as the `h1`, dek, byline with
   author, "age · reading time" and Copy link, the figure, the body drawn from `storyBlocks` as
@@ -56,29 +57,33 @@ journey 22 left.
   AC1, AC4, AC10). The text column is at most 42 rem wide. Copy link is the library's `Button`;
   its words come from the `copied` input and a `p role="status"` carries "Link copied" (`L2-061`
   AC3); with `address` set (the clipboard refused) a read-only field shows the address, focused
-  and selected. Outputs: `copy` and `navigate` (a plain click on an internal next step).
-- **`StoryCard`** — presentation component (block `story-card`) for each "Keep reading" item:
-  image, section, title, author and age, as one link (`L2-061` AC6). The surrounding blocks
-  `story-more` and `story-subscribe` ("The Abundant Weekly", "Every Saturday, 7 AM.", Subscribe
-  free to `/subscribe`, journey 27) sit in the page template, built from the library's `Button`.
+  and selected. After the article, `more` draws "Keep reading" (blocks `story-more` and
+  `story-card`, each card image, section, title and "author · age" as one link) and
+  `subscribeHref` the Weekly box (`story-subscribe`: "The Abundant Weekly", "Every Saturday, 7
+  AM.", the library's inverse `Button` "Subscribe free" to `/subscribe`, which journey 27 builds;
+  `L2-061` AC6). The design system documents these blocks on the story page, so they are parts of
+  `cf-story`, not components of their own; the admin preview passes neither. Outputs:
+  `copyRequested` and `navigate` (a plain click on an internal next step or a card).
 - **`StoriesApi` / `STORIES_SERVICE`** — contract and token in the `api` library: `get(slug)`
-  answers a `PublishedStoryDto`; `countRead(id)` answers nothing. **`HttpStoriesService`**
-  implements it.
+  answers a `PublishedStoryDto`. **`HttpStoriesService`** implements it.
 - **`ClipboardApi` / `CLIPBOARD_SERVICE`** — contract and token in the `api` library:
   `write(text)` resolves `true` when the clipboard took the text and `false` when it refused.
   **`NavigatorClipboard`** implements it with `navigator.clipboard.writeText`. The same contract
   serves Copy URL on Subscribe (`publish-rss-feeds`).
 - **`StoryReadsApi` / `STORY_READS`** — contract and token in the `api` library: `count(id)`.
-  **`LocalStoryReads`** in the domain library keeps, under `cf-story-reads` in local storage, the
-  SHA-256 of each story id counted with when it was counted; a story counted in the last 24 hours
-  is not sent again, and older entries are dropped on each write (`L2-061` AC12). No cookie.
+  **`LocalStoryReads`** in the web app keeps, under `cf-story-reads` in local storage, the
+  SHA-256 (Web Crypto) of each story id counted with when it was counted, and posts the read. The
+  domain helper **`storyReadLog`** decides: a story counted in the last 24 hours is not sent
+  again, and older entries are dropped on each write (`L2-061` AC12). No cookie; a failed post is
+  dropped unseen.
 - **`CopiedFlag`** — helper in the `domain` library: `raise()` sets `copied` for 2,000 ms and
   restarts the timer on a second press; `dispose()` clears the timer. The page disposes it on
   destroy (`L2-037` AC2). Unit tests advance a fake clock.
 - **`storyReadingMinutes`** and **`storyReaderWhen`** — pure helpers in the `domain` library: the
   words of the text (white-space separated runs holding a letter or digit) at 220 a minute, rounded
   up, at least 1 (`L2-061` AC2), and the byline's "2 hours ago · 6 min read" in `America/Toronto`.
-  The admin preview uses the same helpers.
+  The admin preview uses the same helpers. **`storyCardMeta`** words a card's "Priya Raman ·
+  Yesterday".
 
 ### Christian Fitness API
 
@@ -94,7 +99,9 @@ journey 22 left.
   loopback from the same replica's web container (`StoryShell__Url`), and each response is derived
   from it independently; when it cannot be read the endpoint answers 503 and nginx serves its own
   `index.html`. Every answer uses `Cache-Control: no-store`. It is not under `public-reads`: the
-  page's API read is the one counted read (`L2-034` AC4).
+  page's API read is the one counted read (`L2-034` AC4). **`StoryShellController`** sends
+  **`GetStoryShellQuery`**; its handler reads the shell through **`IStoryShell`**, which
+  **`HttpStoryShell`** implements in Infrastructure.
 - **`PublicStoriesController`** — `[AllowAnonymous]` under `api/public/stories`; each action sends
   one MediatR request. `GET {slug}` (`public-reads`) answers `PublishedStoryDto`; `POST
   {id:guid}/reads` answers 204. The lead image is the one `api/stories/images/{key}` serves.
@@ -107,10 +114,14 @@ journey 22 left.
   `StoryCardDto` of other published stories, the same section first, then newest first).
 - **`CountStoryReadCommand`** / handler — adds one to the `StoryReadTally` of the story and the
   current Toronto day (`TimeProvider`), only for a Published story and not for a known crawler's
-  user agent; anything else is a silent no-op, so the answer reveals nothing. No member, address
+  or link previewer's user agent, nor a request naming none (**`StoryReaders`**, a domain rule);
+  anything else is a silent no-op, so the answer reveals nothing. A read that loses a race to
+  another (the day's row added first, or its count moved on) reads the tally again and adds
+  itself, up to three times. No member, address
   or cookie is recorded. The tallies feed the Reads column of Stories (`L2-068` AC1) and, later,
   "Most read" on the landing page (`L2-001` AC5).
-- **`StoryReadTally`** — entity (`StoryId`, `Day`, `Count`), one row per story per Toronto day.
+- **`StoryReadTally`** — entity (`StoryId`, `Day`, `Count`), one row per story per Toronto day,
+  keyed by both; `Count` is the concurrency token.
 - **`public-reads`** — the named ASP.NET Core rate-limiter policy for anonymous story, section,
   directory and feed reads. It counts by client IP in a sliding window of 120 requests per minute
   with six segments. A refusal is 429 ProblemDetails with code `too_many_requests` and
@@ -164,16 +175,17 @@ API reads the database and the image store.
 
 ### Components
 
-`StoryPage` calls `STORIES_SERVICE` and `CLIPBOARD_SERVICE`; `PublicStoriesController` sends
-`GetPublishedStoryQuery` and `CountStoryReadCommand`. The `public-reads` policy limits story
-requests before the handler uses `StoryText`.
+`StoryPage` calls `STORIES_SERVICE`, `CLIPBOARD_SERVICE` and `STORY_READS`;
+`PublicStoriesController` sends `GetPublishedStoryQuery` and `CountStoryReadCommand`, and
+`StoryShellController` sends `GetStoryShellQuery`. The `public-reads` policy limits story requests
+only.
 
 ![C4 component view for reading a story](diagrams/c4-component.png)
 
 ### Class structure
 
-`GetPublishedStoryHandler` reads a published `Story`, resolves a `StorySlugRedirect` and answers a
-`PublishedStoryDto`; `StoryReadTally` counts reads per day.
+`GetPublishedStoryHandler` and `GetStoryShellHandler` find a published `Story` by its current or
+a former slug (`PublishedStories`); `StoryReadTally` counts reads per day.
 
 ![Class diagram for reading a story](diagrams/class.png)
 
