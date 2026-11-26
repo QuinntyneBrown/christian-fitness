@@ -64,11 +64,11 @@ so a reader finds them from the site's address (`L2-060` AC3).
   (RFC 1123) and `guid isPermaLink="false"` set to `urn:uuid:<story id>`, which stays the same when
   the slug changes (`L2-060` AC1). Addresses come from `MemberAppAddress`, never from the request's
   `Host`.
-- **`PublicFeedsController`** — `[AllowAnonymous]` under `api/public/feeds`; `GET` sends
-  **`ListFeedsQuery`**, whose handler answers six `FeedSummaryDto` (`name`, absolute `url`,
-  `storiesPerWeek`, `isAll`), All stories first. `storiesPerWeek` is the number of stories
-  published in the feed over a recent window divided by its weeks, rounded; the window is
-  `<TO SUPPLY>` (the mock shows "~20 a week").
+- **`PublicStoriesController`** — `[AllowAnonymous]`, rate limited by `public-reads`;
+  `GET /api/public/feeds` sends **`ListFeedsQuery`**, whose handler answers six `FeedSummaryDto`
+  (`name`, absolute `url`, `storiesPerWeek`, `isAll`), All stories first. `storiesPerWeek` is the
+  number of stories readers see in the feed published over the last 28 days, divided by 4 and
+  rounded half up; All stories counts every section, Pros included, as `/feed` does (ADR 0110).
 - **Telemetry** — routes are recorded as their templates (`feed`, `{section}/feed`); no
   validator, query string or address is recorded.
 
@@ -80,20 +80,22 @@ href="/feed">` and one per section feed. Every page of the member app, the landi
   Subscribe included, is served from that file, so the head names the feeds whichever address a
   reader starts from (`L2-060` AC3).
 - **Footer** — the landing page closes with the footer's news variant (`cf-footer variant="news"`,
-  block `site-footer`): the copyright line, then RSS with its mark, Privacy and Terms. RSS leads to
-  `/feed` until Subscribe exists, then to `/subscribe#rss` (ADR 0108).
+  block `site-footer`): the copyright line, then RSS with its mark, Privacy and Terms. With
+  Subscribe (journey 27) the variant reads Newsletter (`/subscribe`), RSS (`/subscribe#rss`),
+  Privacy and Terms (ADR 0108, ADR 0110).
 - **Feeds section of `SubscribePage`** (journey 27) — the page (`subscribe-to-newsletter`) also binds
   `FEEDS_SERVICE` to `HttpFeedsService` and `CLIPBOARD_SERVICE` to `NavigatorClipboard` on its
   `providers` and asks `list()`. The section (block `rss`, heading "Prefer RSS?", with the
-  `id="rss"` the landing page's link targets) renders **`FeedList`** and **`FeedItem`**
-  (components library, blocks `feed-list` and `feed`, `feed--all` for All stories, which comes
-  first and stands out) with name, "~N a week", the address as text (`feed__url`), Copy URL and
+  `id="rss"` the landing page's link targets) renders **`cf-feed-list`**
+  (components library, blocks `rss`, `feed-list` and `feed`, `feed--all` for All stories, which
+  comes first and stands out) with name, "~N a week", the address as text (`feed__url`), Copy URL and
   Open in Feedly (`L2-060` AC4). At XS each feed's actions sit under its address (`L2-057` AC9).
-- **Copy URL** — writes the feed's address through `CLIPBOARD_SERVICE`. On success that feed's
-  **`CopiedFlag`** (`news/read-story`) makes its button read "Copied" for 2,000 ms and a
-  `p role="status"` says "Feed address copied"; when the clipboard refuses, the page selects the
-  address text so it can be copied by hand (`L2-060` AC5). The page keeps one flag per feed and
-  disposes them on destroy.
+- **Copy URL** — writes the feed's address through `CLIPBOARD_SERVICE`. On success one
+  **`CopiedFlag`** (`news/read-story`) with the address last copied makes that feed's button read
+  "Copied" for 2,000 ms, and a `p role="status"` says "Feed address copied"; copying another feed
+  moves "Copied" to it. When the clipboard refuses, the list selects the address text so it can be
+  copied by hand (`L2-060` AC5). The page disposes the flag on destroy. If the feeds get no
+  answer, the section shows its heading and text without a list (ADR 0110).
 - **Open in Feedly** — a link built by **`feedlyUrl(feedUrl)`** (pure helper in the `domain`
   library: `https://feedly.com/i/subscription/feed/` followed by the encoded address), with
   `target="_blank"` and `rel="noopener noreferrer"`, and visually hidden text naming the feed and

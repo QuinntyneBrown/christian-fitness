@@ -9,13 +9,13 @@ actor "Visitor" as actor
 box "Frontend — Member web app" #E0F2FE
   participant "LandingPage" as landing
   participant "SubscribePage" as page
-  participant "NewsletterApi (NEWSLETTER_SERVICE)" as client
+  participant "FeedsApi (FEEDS_SERVICE)" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "PublicNewsletterController" as ctrl
+  participant "PublicStoriesController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "GetNewsletterSummaryHandler" as h
+  participant "ListFeedsHandler" as h
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
@@ -28,15 +28,17 @@ else "Or follow by RSS"
   landing -> page : Navigate to /subscribe#rss
 end
 page -> page : Fill the email field from navigation state; never from the URL
-page -> client : summary()
-client -> ctrl : GET /api/public/newsletter
-ctrl -> h : Send GetNewsletterSummaryQuery
-h -> db : Latest Sent issue with lead and two more stories
-db --> h : Rows
-h --> ctrl : NewsletterSummaryDto
+page --> actor : Name, contents, cadence and the email form; no extras or reader count (L2-057 AC2)
+page -> client : list()
+client -> ctrl : GET /api/public/feeds
+ctrl -> h : Send ListFeedsQuery
+h -> db : Stories readers see from the last 28 days, by section
+db --> h : Counts
+h --> ctrl : FeedSummaryDto[], All stories first
 ctrl --> client : 200 JSON
-client --> page : NewsletterSummaryDto
-page --> actor : Name, contents, cadence, email form, latest issue and feeds; no extras or reader count (L2-057 AC2)
+client --> page : Feeds
+page --> actor : The feed list (publish-rss-feeds); none if it gets no answer
+note over page : The latest issue preview waits for journey 29 (ADR 0110)
 opt opened at #rss
   page -> page : Scroll to the feeds and move focus to their heading
 end

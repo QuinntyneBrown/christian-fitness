@@ -1676,12 +1676,6 @@ a.listing-row__link:hover .listing-row__name, .listing-row__link[data-state="hov
 .subscribe__row { margin-top: var(--space-2); display: flex; flex-direction: column; gap: var(--space-2); }
 @media (min-width: 40rem) { .subscribe__row { flex-direction: row; } }
 .subscribe__row .input { min-width: 0; flex: 1 1 0%; }
-.subscribe__addons { margin-top: var(--space-8); border: 0; }
-.subscribe__addons .list-ruled { margin-top: var(--space-2); }
-.subscribe__addon { align-items: flex-start; gap: var(--space-4); padding-block: var(--space-3-5); }
-.subscribe__addon .check__box { margin-top: var(--space-1); flex-shrink: 0; }
-.subscribe__addon-label { display: block; font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); }
-.subscribe__addon-detail { display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-regular); color: var(--color-fg-muted); }
 .subscribe__note { margin-top: var(--space-4); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
 .subscribe__panel { border-left: var(--border-width-thick) solid var(--color-accent); background: var(--color-accent-subtle); padding: var(--space-6); }
 .subscribe__panel-icon { width: var(--space-7); height: var(--space-7); color: var(--color-fg-accent); }

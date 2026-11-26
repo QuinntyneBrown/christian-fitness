@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System Context — Confirm and unsubscribe
 
 Person(sub, "Subscriber", "Owner of an email address, no account needed")
-System(cf, "Christian Fitness", "The Abundant Weekly and its extras")
+System(cf, "Christian Fitness", "The Abundant Weekly")
 System_Ext(mail, "Email delivery", "SMTP relay")
 System_Ext(client, "Subscriber's mail client", "Offers one-click unsubscribe from List-Unsubscribe headers")
 Rel(cf, mail, "Sends confirmation and newsletter emails via", "SMTP")

@@ -7,11 +7,11 @@ Person(visitor, "Visitor", "Opens /subscribe")
 System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular", "LandingPage newsletter box, SubscribePage")
   Container(api, "Christian Fitness API", "ASP.NET Core", "PublicNewsletterController, SubscribeHandler, QueuedEmailSender")
-  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "NewsletterSubscriptions, SubscriptionConfirmations, issues")
+  ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "NewsletterSubscriptions, SubscriptionConfirmations, NewsletterUnsubscribeTokens")
 }
 System_Ext(mail, "Email delivery", "SMTP relay")
 Rel(visitor, web, "Uses", "HTTPS")
-Rel(web, api, "GET /api/public/newsletter, POST /api/public/newsletter/subscriptions", "JSON/HTTPS")
+Rel(web, api, "POST /api/public/newsletter/subscriptions", "JSON/HTTPS")
 Rel(api, db, "Reads and writes", "EF Core")
 Rel(api, mail, "Delivers the queued email", "SMTP")
 @enduml

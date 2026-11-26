@@ -16,7 +16,7 @@ box "Backend — Christian Fitness API" #D1FADF
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "UnsubscribeHandler" as h
-  participant "INewsletterTokens" as tokens
+  participant "NewsletterUnsubscribeTokens" as tokens
   participant "NewsletterSubscription" as sub
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
@@ -24,7 +24,7 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
 end box
 alt Unsubscribe link in the email footer
   actor -> page : Follow /subscribe#unsubscribe=<token>
-  page -> page : takeFragmentToken("unsubscribe"); replace URL with /subscribe (L2-058 AC7)
+  page -> page : fragmentTokenOf(fragment); replace URL with /subscribe (L2-058 AC7)
   page -> client : unsubscribe(token)
   client -> ctrl : POST /api/public/newsletter/unsubscriptions { token }
 else one-click from the mail client
@@ -41,7 +41,7 @@ alt token unknown or subscription purged
 else token names an existing subscription
   tokens --> h : subscriptionId
   h -> db : Subscription by id
-  h -> sub : Unsubscribe(now): Weekly and every extra off, UnsubscribedAt kept from the first time (L2-058 AC5)
+  h -> sub : Unsubscribe(now): Unsubscribed, UnsubscribedAt kept from the first time; open confirmations spent (L2-058 AC5)
   h -> db : Save
   h --> ctrl : UnsubscribedDto(email)
   ctrl --> client : 200 JSON (one-click: 200, no body)

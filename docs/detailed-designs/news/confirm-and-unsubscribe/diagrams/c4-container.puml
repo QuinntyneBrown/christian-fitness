@@ -7,7 +7,7 @@ Person(sub, "Subscriber", "Follows a link from an email")
 System_Ext(client, "Mail client", "One-click unsubscribe")
 System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular", "SubscribePage reads the token from the fragment")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "PublicNewsletterController, NewsletterUpkeep")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "PublicNewsletterController, PublishingClock")
   ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Subscriptions and token hashes")
 }
 Rel(sub, web, "Opens /subscribe#confirm=… or #unsubscribe=…", "HTTPS")

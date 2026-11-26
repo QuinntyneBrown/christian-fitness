@@ -8,7 +8,7 @@ System_Ext(rss, "Feed reader", "Polls feeds")
 System_Boundary(cf, "Christian Fitness") {
   Container(nginx, "Web front", "nginx (frontend/Dockerfile)", "Serves the member app; proxies /api/ and the feed paths to the API")
   Container(web, "Member web app", "Angular", "SubscribePage feeds section; index.html names the feeds")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "FeedsController, PublicFeedsController")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "FeedsController, PublicStoriesController")
   ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Published stories")
 }
 Rel(reader, nginx, "Uses", "HTTPS")

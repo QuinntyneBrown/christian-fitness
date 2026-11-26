@@ -26,22 +26,24 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
 
 - **`SubscribePage`** — the page of `subscribe-to-newsletter`. On open it reads at most one token
   from the route's fragment, `#confirm=<token>` or `#unsubscribe=<token>`, with
-  **`takeFragmentToken`** (pure helper in the `domain` library) and at once replaces the URL with
+  **`fragmentTokenOf`** (pure helper in the `domain` library) and at once replaces the URL with
   `/subscribe` (`Location.replaceState`), so the token leaves the address bar and is never sent to
   a server in a URL or a `Referer` (`L2-058` AC7; the pattern of ADR 0014). It then calls
   `confirm(token)` or `unsubscribe(token)` on `NEWSLETTER_SERVICE` and shows:
   - `confirmed` — a `role="status"` region that takes focus: "You're subscribed", the address as
-    text and when the first issue arrives,
-    and "Read last week's issue" (`L2-058` AC2);
+    text and when the first issue arrives, worded in Toronto time ("on Saturday at 7 AM";
+    `L2-058` AC2); "Read last week's issue" waits for journey 29 (ADR 0110);
   - `link-expired` — the library's `Alert` "That link has expired. Confirmation links last 7 days.
-    Enter your email again and we'll send a new one." above the form (`L2-058` AC3);
-  - `unsubscribed` — "You're unsubscribed" and Subscribe again, which shows the form
-    (`L2-058` AC5); a purged or unknown token shows the same without an address.
+    Enter your email again and we'll send a new one." above the empty form (`L2-058` AC3);
+  - `unsubscribed` — "You're unsubscribed" and Subscribe again, which shows the form with the
+    address (`L2-058` AC5); a purged or unknown token shows the same with "We won't email you
+    again." in place of the address.
 
-  While the request runs the page shows its loading state (`<TO SUPPLY>`: no mock state is drawn
-  for it). A 5xx or no answer shows the `error` alert.
-- **Email footer links** — Manage preferences and Follow by RSS lead to Subscribe and its feeds;
-  only the Unsubscribe link carries a token (`L2-059` AC3).
+  While the request runs the state area reads "Checking your link…" with `aria-busy="true"`, a
+  stand-in recorded in ADR 0110 since no mock state is drawn for it. A 5xx or no answer shows the
+  `error` alert above the empty form.
+- **Email footer links** — only the Unsubscribe link carries a token. The issue's Manage
+  preferences and Follow by RSS links come with the issue email in journey 29 (`L2-059` AC3).
 
 ### Christian Fitness API
 
@@ -49,57 +51,56 @@ The states after each link are states of the Subscribe screen (mock `docs/mocks/
   sends one MediatR request:
   - `POST confirmations` (`{ token }`) sends `ConfirmSubscriptionCommand`;
   - `POST unsubscriptions` (`{ token }`) sends `UnsubscribeCommand` and answers the address;
-  - `POST unsubscribe?token=…` is the one-click address named in `List-Unsubscribe`. It reads the
-    form body `List-Unsubscribe=One-Click`, sends the same `UnsubscribeCommand` and answers 200
-    with no body. A mail provider posts it from no page of the app, so it is exempt from the
-    antiforgery filter (`AntiforgerySetup`); the token is its only credential.
+  - `POST unsubscribe?token=…` is the one-click address named in `List-Unsubscribe`. Whatever its
+    body (RFC 8058's `List-Unsubscribe=One-Click`), it sends the same `UnsubscribeCommand` and
+    answers 200 with no body. A mail provider posts it from no page of the app, so it carries
+    `[IgnoreAntiforgeryToken]`, which the antiforgery filter (`AntiforgerySetup`) honours for it
+    alone; the token is its only credential.
 - **`ConfirmSubscriptionCommand`** / **`ConfirmSubscriptionHandler`** — hashes the token and finds
   the `SubscriptionConfirmation`. None, expired (`ExpiresAt` from `TimeProvider`) or already used
   is refused with 400 and the new code `subscription_link_expired`, changing nothing (`L2-058`
-  AC3). A usable one calls `NewsletterSubscription.Confirm(extras, now)`: Status Subscribed, the
-  Weekly on, the extras chosen with that request, `ConsentedAt` = now (`L2-058` AC2). It marks
-  this and every other open confirmation of the subscription used, and answers
-  `SubscriptionConfirmedDto` (`email`, `firstIssueAt` — the next send time of the Weekly in
-  `America/Toronto` — and `extras`).
-- **`UnsubscribeCommand`** / **`UnsubscribeHandler`** — hashes the token and looks up its
-  subscription through **`INewsletterTokens`**. `NewsletterSubscription.Unsubscribe(now)` turns the Weekly and all
-  three extras off at once and sets `UnsubscribedAt` the first time only, so a second visit
-  answers the same and does not delay the purge (`L2-058` AC5). A subscription already purged
-  is an idempotent no-op, as is an unknown token; neither reveals an address.
-- **`INewsletterTokens`** — Application contract for generating a cryptographically random token
-  for each email and storing only its hash linked to the subscription. Links have no expiry;
-  hashes survive resubscription of the same record and are deleted when it is purged. They do not
-  depend on Data Protection keys, which are retained for 90 days after retirement (ADR 0078).
+  AC3). A usable one calls `NewsletterSubscription.Confirm(now)`: Status Subscribed, `ConsentedAt` =
+  now and `ConsentSource` "Confirmation link" (`L2-058` AC2). It marks this and every other open
+  confirmation of the subscription used, and answers `SubscriptionConfirmedDto` (`email` and
+  `firstIssueAt`, the next Saturday at 7 AM in `America/Toronto`, `WeeklyIssue.NextAfter`).
+- **`UnsubscribeCommand`** / **`UnsubscribeHandler`** — hashes the token and finds its
+  subscription through a **`NewsletterUnsubscribeToken`**. `NewsletterSubscription.Unsubscribe(now)`
+  makes it Unsubscribed (the extras, deferred, go with it) and sets `UnsubscribedAt` the first time
+  only, so a second visit answers the same and does not delay the purge (`L2-058` AC5); it also
+  spends the subscription's open confirmation links. A subscription already purged is an
+  idempotent no-op, as is an unknown token; neither reveals an address.
+- **`NewsletterUnsubscribeToken`** — entity: the SHA-256 hash of a cryptographically random token
+  issued for each email, linked to its subscription. Links have no expiry; hashes survive
+  resubscription of the same record and are deleted when it is purged. They do not depend on Data
+  Protection keys, so a link works after every key is revoked (ADR 0078, ADR 0110).
 - **`NewsletterEmails`** — Application service (introduced in `subscribe-to-newsletter`) that also
   writes the part every newsletter email shares (`L2-058` AC4): a footer that names Christian
   Fitness and its postal address (setting `Organisation:PostalAddress`), the Unsubscribe link
   `<MemberApp:BaseUrl>/subscribe#unsubscribe=<token>`, and two headers:
   `List-Unsubscribe: <https://…/api/public/newsletter/unsubscribe?token=…>` and
-  `List-Unsubscribe-Post: List-Unsubscribe=One-Click`. The existing `EmailMessage` has no headers;
-  this slice adds them (see Open questions).
+  `List-Unsubscribe-Post: List-Unsubscribe=One-Click`. `EmailMessage` carries headers from an
+  allow-list of these two, and `SmtpEmailTransport` writes them (ADR 0110).
 - **Recipients** — every sender of an issue or an extra selects only Subscribed addresses with that
   kind switched on, so nothing reaches an unsubscribed address (`L2-058` AC6;
   `publishing/build-and-schedule-newsletter`).
-- **`NewsletterUpkeep`** — daily job of the shared, leased `PublishingClock` scheduler
-  ([ADR 0069](../../../adr/0069-scheduled-work.md)), not a separate hosted service. It sends
-  **`PurgeUnsubscribedCommand`**,
-  whose handler deletes every subscription whose `UnsubscribedAt` is at least 29 days old, with its
-  confirmations, allowing a day for the daily run before 30 days (`L2-058` AC6). After an outage
-  the next available tick picks up overdue work. Tests advance `FakeTimeProvider` and run the
-  command directly.
+- **Purge** — each tick of the shared, leased `PublishingClock` scheduler
+  ([ADR 0069](../../../adr/0069-scheduled-work.md)), after the due stories, sends
+  **`PurgeNewsletterSubscriptionsCommand`**, whose handler deletes every Pending subscription 30
+  days after its most recent request and every Unsubscribed one whose `UnsubscribedAt` is at least
+  29 days old, with their confirmations and unsubscribe tokens, keeping a day's margin inside the
+  30 days (`L2-058` AC6, AC9). Two indexed reads find them; most ticks delete nothing. After an
+  outage the next tick picks up overdue work. Tests advance `FakeTimeProvider` and run one tick.
 - **Telemetry** — the one-click route is recorded as its template
   (`api/public/newsletter/unsubscribe`) without its query string; no log or span carries a token or
   an address (`L2-058` AC7, `L2-033` AC2). The purge logs a count only.
 
 ### Open questions
 
-- **Email headers and HTML.** `EmailMessage` carries `To`, `Subject` and `Text` only and
-  `SmtpEmailTransport` sends plain text. One-click unsubscribe needs custom headers, and the issue
-  "as the email reads" (`L2-059` AC1) suggests an HTML body. Both change the shared email contract
-  and need an ADR next to ADR 0010.
-- **Access logs.** The one-click URL carries the token in its query string. nginx and ingress
-  access logs must omit query strings, or be disabled if they cannot (ADR 0078 and deployment
-  settings).
+- **HTML email.** The issue "as the email reads" (`L2-059` AC1) suggests an HTML body; it is
+  designed with journey 29. The headers are settled by ADR 0110.
+- **Access logs.** The one-click URL carries the token in its query string. The static host's
+  nginx logs the path without the query (`frontend/deploy/nginx.conf`, ADR 0110); an ingress
+  access log, if one is ever enabled, must omit query strings too.
 - **Link scanners.** Mail security scanners that fetch links do not run the page's script, so
   they neither confirm nor unsubscribe. A scanner that runs scripts would confirm a subscription;
   no defence beyond the page's POST is specified.
@@ -134,14 +135,14 @@ unsubscribe to the API directly. The API looks up a hash of the opaque unsubscri
 ### Components
 
 `PublicNewsletterController` sends `ConfirmSubscriptionCommand` and `UnsubscribeCommand`;
-`NewsletterUpkeep` sends `PurgeUnsubscribedCommand` once a day.
+`PublishingClock` sends `PurgeNewsletterSubscriptionsCommand` each tick.
 
 ![C4 component view for confirming and unsubscribing](diagrams/c4-component.png)
 
 ### Class structure
 
 A `NewsletterSubscription` is confirmed through one `SubscriptionConfirmation` and unsubscribed
-through a token `INewsletterTokens` reads; `NewsletterEmails` builds the shared footer and headers.
+through a `NewsletterUnsubscribeToken`; `NewsletterEmails` builds the shared footer and headers.
 
 ![Class diagram for confirming and unsubscribing](diagrams/class.png)
 
@@ -161,7 +162,7 @@ everything off at once and answers the same on a second visit (`L2-058` AC4, AC5
 
 ### Behaviour — skip and delete unsubscribed addresses
 
-Senders select only subscribed addresses; a daily purge deletes addresses unsubscribed for 29
-days or more (`L2-058` AC6).
+Senders select only subscribed addresses; each scheduler tick deletes addresses unsubscribed for
+29 days or more and requests never confirmed for 30 (`L2-058` AC6, AC9).
 
 ![Sequence diagram for skipping and deleting unsubscribed addresses](diagrams/sequence-purge.png)

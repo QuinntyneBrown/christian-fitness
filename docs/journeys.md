@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 75% (28 of 36 journeys; 85 of 113 days)
+**% complete:** 79% (29 of 36 journeys; 89 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -39,7 +39,7 @@ audit), so those are not listed on their own.
 | 24  | ✅ Read a story                        | Member | Anyone reads a published story at its own address, with link previews and a correction link.                   | 4             |
 | 25  | ✅ Read the news front page            | Member | The landing page becomes a news front page: sections, top stories, the rail and most read.                     | 3             |
 | 26  | ✅ Follow stories by RSS               | Member | RSS feeds of all stories and of each section, cached and rate limited.                                         | 2             |
-| 27  | Subscribe to the newsletter            | Member | Anyone subscribes without an account, confirms by email and unsubscribes in one click.                         | 4             |
+| 27  | ✅ Subscribe to the newsletter         | Member | Anyone subscribes without an account, confirms by email and unsubscribes in one click.                         | 4             |
 | 28  | Build and send the newsletter          | Admin  | Staff build the weekly issue from stories and events, test it, schedule it and send it.                        | 5             |
 | 29  | Read the newsletter on the web         | Member | The latest and earlier issues read on the web as the email did.                                                | 2             |
 | 30  | ✅ Send feedback                       | Member | Send an idea, a problem, a correction or thanks from any page, with an optional screenshot.                    | 3             |
