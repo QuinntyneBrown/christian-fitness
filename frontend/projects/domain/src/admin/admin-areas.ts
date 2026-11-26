@@ -81,6 +81,21 @@ export function canManage(role: StaffRoleName, area: AdminAreaKey): boolean {
   }
 }
 
+/** An event's Attendance tab: Moderators open it, though Events is for Admins only (L2-019 AC1 as amended; ADR 0106). */
+const ATTENDANCE_PATH = /^\/events\/[^/]+\/attendance$/;
+
+/**
+ * Whether `role` may open the screen at `url` (L2-019 AC1, AC5; ADR 0020, ADR 0106): the area's
+ * rule ({@link canManage}), except an event's Attendance tab, which Admins and Moderators open. A
+ * screen in no area opens for any staff role.
+ */
+export function canOpen(role: StaffRoleName, url: string): boolean {
+  const path = pathOf(url).replace(/\/+$/, '');
+  if (ATTENDANCE_PATH.test(path)) return role === 'Admin' || role === 'Moderator';
+  const area = currentAdminArea(url);
+  return area === null || canManage(role, area);
+}
+
 /** The areas the navigation lists for `role`, in {@link ADMIN_AREAS} order (L2-019 AC5). */
 export function areasFor(role: StaffRoleName): readonly AdminArea[] {
   return ADMIN_AREAS.filter((area) => canManage(role, area.key));

@@ -11,6 +11,7 @@ const session = (over: Partial<SeriesSessionDto>): SeriesSessionDto => ({
   state: 'upcoming',
   held: false,
   full: false,
+  attended: null,
   ...over,
 });
 
@@ -30,6 +31,30 @@ describe('seriesSessionRowOf', () => {
       held: true,
       row: 'past',
       end: { kind: 'status', text: 'Not recorded' },
+    },
+    {
+      why: 'a past date staff recorded the member came to reads You came',
+      state: 'done',
+      held: true,
+      attended: true,
+      row: 'past',
+      end: { kind: 'came' },
+    },
+    {
+      why: 'a past date staff recorded the member missed reads Missed',
+      state: 'done',
+      held: true,
+      attended: false,
+      row: 'past',
+      end: { kind: 'status', text: 'Missed' },
+    },
+    {
+      why: 'a past date the member held no place at reads Done, whatever is recorded',
+      state: 'done',
+      held: false,
+      attended: true,
+      row: 'past',
+      end: { kind: 'status', text: 'Done' },
     },
     {
       why: 'the next date is Next up with Details',
@@ -52,8 +77,9 @@ describe('seriesSessionRowOf', () => {
       row: 'cancelled',
       end: { kind: 'status', text: 'Cancelled' },
     },
-  ] as const)('$why', ({ state, held, row, end }) => {
-    const view = seriesSessionRowOf(session({ state, held }));
+  ] as const)('$why', ({ state, held, row, end, ...recorded }) => {
+    const attended = 'attended' in recorded ? recorded.attended : null;
+    const view = seriesSessionRowOf(session({ state, held, attended }));
 
     expect(view.state).toBe(row);
     expect(view.end).toEqual(end);

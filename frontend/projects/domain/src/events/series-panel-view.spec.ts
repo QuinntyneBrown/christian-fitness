@@ -23,6 +23,7 @@ const held = (n: number, cancelled = 0): SeriesDetailDto['sessions'] =>
     state: i < cancelled ? 'cancelled' : 'upcoming',
     held: false,
     full: false,
+    attended: null,
   }));
 
 /** Saturday Park Bootcamp as the mock `event-series/not-joined` draws it. */
@@ -326,6 +327,50 @@ describe('seriesPanelViewOf, progress', () => {
       bars: ['upcoming', 'upcoming', 'next', 'upcoming', 'cancelled'],
       label: 'Session 3 of 5 is next',
     });
+  });
+
+  // L2-052 AC3, L2-080 AC7 (ADR 0106): one case per row of what staff recorded on the past dates.
+  it.each<{ why: string; attended: (boolean | null)[]; count: string; bars: string[] }>([
+    {
+      why: 'nothing recorded reads "Attendance not recorded yet"',
+      attended: [null, null],
+      count: 'Attendance not recorded yet',
+      bars: ['upcoming', 'upcoming'],
+    },
+    {
+      why: 'came to one, missed one',
+      attended: [true, false],
+      count: 'Came to 1 of 2',
+      bars: ['done', 'upcoming'],
+    },
+    {
+      why: 'one came, one not recorded: only the recorded date counts',
+      attended: [true, null],
+      count: 'Came to 1 of 1',
+      bars: ['done', 'upcoming'],
+    },
+    {
+      why: 'missed the only recorded date',
+      attended: [null, false],
+      count: 'Came to 0 of 1',
+      bars: ['upcoming', 'upcoming'],
+    },
+  ])('$why', ({ attended, count, bars }) => {
+    const sessions = (['done', 'done', 'live', 'cancelled'] as const).map((state, n) => ({
+      ...held(1)[0]!,
+      id: `s${n}`,
+      number: n + 1,
+      state,
+      held: true,
+      attended: attended[n] ?? null,
+    }));
+    // A date still to come is never counted, whatever it carries.
+    sessions[2] = { ...sessions[2]!, attended: true };
+
+    const view = seriesPanelViewOf({ ...BOOTCAMP, joined: true, sessions });
+
+    expect(view.progress?.count).toBe(count);
+    expect(view.progress?.bars).toEqual([...bars, 'next', 'cancelled']);
   });
 
   it('has no progress before joining', () => {

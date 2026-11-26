@@ -9,12 +9,14 @@ export type SessionRowState = 'past' | 'next' | 'upcoming' | 'cancelled';
 
 /**
  * What a row ends with (design system "End"): `details`, a link to the session's event page named
- * "Details of session <n>"; `status`, a state in plain words ("Done", "Not recorded",
+ * "Details of session <n>"; `came`, "You came" with a tick where staff recorded that the member
+ * came (ADR 0106); `status`, a state in plain words ("Done", "Missed", "Not recorded",
  * "Cancelled", "Full"); `pick`, a "Drop in" tick box whose hidden words complete its name
  * (" on Sat, Apr 25"; ADR 0102); or nothing.
  */
 export type SessionRowEnd =
   | { kind: 'details'; href: string; number: number }
+  | { kind: 'came' }
   | { kind: 'status'; text: string }
   | { kind: 'pick'; label: string; hidden: string; value: string; checked: boolean }
   | null;

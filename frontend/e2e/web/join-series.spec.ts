@@ -2,6 +2,7 @@ import { expect, test } from '../fixtures/test';
 import type { Download } from '@playwright/test';
 import { answerPhotos } from '../fixtures/directory';
 import {
+  COUCH_TO_5K_RECORDED,
   answerSeriesDetail,
   answerSeriesJoin,
   COUCH_TO_5K_DETAIL,
@@ -208,6 +209,29 @@ test.describe('Member app, join a series: the joined panel', () => {
       `/events/series/${COUCH_TO_5K_DETAIL.id}/chat`,
     );
     await expect(series.leaveButton).toBeVisible();
+  });
+
+  // L2-052 AC3 and L2-080 AC7 (ADR 0106): progress counts only the dates staff recorded.
+  test('Once staff record attendance the progress reads Came to <attended> of <recorded>, the meter marking those attended', async ({
+    page,
+    api,
+  }) => {
+    answerSeriesDetail(api, [COUCH_TO_5K_RECORDED]);
+    const series = new WebEventSeriesPage(page);
+
+    await series.open(COUCH_TO_5K_RECORDED.id);
+
+    await expect(series.progressCount).toHaveText('Came to 1 of 2');
+    expect(await series.meterBars()).toEqual([
+      'done',
+      'upcoming',
+      'next',
+      'upcoming',
+      'upcoming',
+      'cancelled',
+      'upcoming',
+      'upcoming',
+    ]);
   });
 
   test('All dates downloads one calendar file with every session still to come', async ({

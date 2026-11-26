@@ -12,8 +12,9 @@ import {
   Table,
   type TableColumn,
   type TableRow,
+  Tabs,
 } from '@cf/components';
-import { capacityUsed, eventWhen } from '@cf/domain';
+import { capacityUsed, eventTabsOf, eventWhen } from '@cf/domain';
 import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { HttpAdminEventsService } from '../../services/http-admin-events.service';
 
@@ -37,7 +38,8 @@ type PageState =
 
 /**
  * An event's registrations (mock docs/mocks/pages/admin-event-registrations/; L2-024 AC1; ADR 0036):
- * the capacity used and each registered member's name and registration date, oldest first. While
+ * the event's tabs (Registrations and Attendance; ADR 0106), the capacity used and each
+ * registered member's name and registration date, oldest first. While
  * it loads, skeleton rows; with none, the empty state; when it does not load, the error state with
  * Try again. It holds one answer at a time (at most 500 rows) and nothing else about a member.
  * Every part is the design system's: breadcrumb, progress bar, table, skeleton region and empty state.
@@ -45,7 +47,7 @@ type PageState =
  */
 @Component({
   selector: 'cf-event-registrations-page',
-  imports: [Breadcrumb, Button, EmptyState, ProgressBar, SkeletonRegion, Table],
+  imports: [Breadcrumb, Button, EmptyState, ProgressBar, SkeletonRegion, Table, Tabs],
   templateUrl: './event-registrations-page.html',
   styleUrl: './event-registrations-page.scss',
   providers: [{ provide: ADMIN_EVENTS_SERVICE, useClass: HttpAdminEventsService }],
@@ -54,10 +56,14 @@ export default class EventRegistrationsPage {
   private readonly events = inject(ADMIN_EVENTS_SERVICE);
   private readonly router = inject(Router);
   private readonly reload = new Subject<void>();
+  private readonly id = signal('');
 
   protected readonly columns = COLUMNS;
   protected readonly trail = TRAIL;
   protected readonly state = signal<PageState>({ kind: 'loading' });
+  /** Registrations and Attendance, this one current (L2-080 AC1; ADR 0106). */
+  protected readonly tabs = computed(() => eventTabsOf(this.id()));
+  protected readonly current = computed(() => this.tabs()[0].href);
 
   private readonly registrations = computed(() => {
     const state = this.state();
@@ -83,8 +89,9 @@ export default class EventRegistrationsPage {
     const id$ = inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('id') ?? ''));
     id$
       .pipe(
-        switchMap((id) =>
-          this.reload.pipe(
+        switchMap((id) => {
+          this.id.set(id);
+          return this.reload.pipe(
             startWith(undefined),
             switchMap(() => {
               this.state.set({ kind: 'loading' });
@@ -93,8 +100,8 @@ export default class EventRegistrationsPage {
                 catchError(() => of({ registrations: null })),
               );
             }),
-          ),
-        ),
+          );
+        }),
         takeUntilDestroyed(),
       )
       .subscribe(({ registrations }) =>

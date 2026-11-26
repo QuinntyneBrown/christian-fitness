@@ -9,6 +9,8 @@
   </div>
 </div>
 
+<cf-tabs label="Event" [tabs]="tabs()" [current]="current()" (navigate)="navigate($event)" />
+
 @switch (state().kind) {
   @case ('loading') {
     <cf-skeleton-region label="Loading registrations">

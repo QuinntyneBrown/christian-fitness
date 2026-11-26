@@ -25,6 +25,8 @@ public enum StaffArea
 
     /// <summary>Community Pick, <c>api/admin/community-pick</c> (L2-072 AC11; ADR 0098): open to Moderators too.</summary>
     CommunityPick,
+    /// <summary>An event's attendance, <c>api/admin/events/{id}/attendance</c> (L2-080; ADR 0106): open to Moderators too.</summary>
+    Attendance,
 
     /// <summary>An admin endpoint in no area above yet: closed to Moderators until a slice names its area.</summary>
     Unlisted,

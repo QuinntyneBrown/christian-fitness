@@ -68,7 +68,7 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
         var series = await OpenAsync(client, cookie, couch.Id);
 
         var sessions = series.GetProperty("sessions").EnumerateArray().ToList();
-        Assert.Equal(["id", "number", "startsAt", "endsAt", "topic", "state", "held", "full"], AdminSeries.Keys(sessions[0]));
+        Assert.Equal(["id", "number", "startsAt", "endsAt", "topic", "state", "held", "full", "attended"], AdminSeries.Keys(sessions[0]));
         Assert.Equal(ids.Select(id => id.ToString()), sessions.Select(s => s.GetProperty("id").GetString()));
         Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8], sessions.Select(s => s.GetProperty("number").GetInt32()));
         Assert.Equal(AdminSeries.At(new DateOnly(2026, 4, 7)), sessions[0].GetProperty("startsAt").GetDateTimeOffset());
@@ -80,6 +80,8 @@ public sealed class ViewSeriesTests(AdminSeriesFactory factory) : IClassFixture<
             ["done", "done", "live", "upcoming", "upcoming", "cancelled", "upcoming", "upcoming"],
             sessions.Select(s => s.GetProperty("state").GetString()));
         Assert.Equal([true, false, false, true, false, false, false, false], sessions.Select(s => s.GetProperty("held").GetBoolean()));
+        // Nothing is recorded yet, so no date reads as came or missed (L2-080 AC7; ADR 0106).
+        Assert.All(sessions, s => Assert.Equal(JsonValueKind.Null, s.GetProperty("attended").ValueKind));
     }
 
     [Fact]

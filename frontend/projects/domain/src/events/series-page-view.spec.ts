@@ -45,6 +45,7 @@ const COUCH: SeriesDetailDto = {
     state: state as SeriesDetailDto['sessions'][number]['state'],
     held: false,
     full: false,
+    attended: null,
   })),
 };
 

@@ -357,6 +357,36 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("SuggestionChecks", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Attendance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Came")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId", "MemberId")
+                        .IsUnique();
+
+                    b.HasIndex("MemberId", "EventId");
+
+                    b.ToTable("Attendances", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Events.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1285,6 +1315,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Directory.ListingSuggestion", null)
                         .WithMany()
                         .HasForeignKey("SuggestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.Attendance", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -52,6 +52,8 @@ export * from './events/admin-series-view';
 export * from './events/series-draft';
 export * from './events/session-draft';
 export * from './events/session-change';
+export * from './events/attendance-view';
+export * from './events/attendance-tracker';
 export * from './events/admin-event-row';
 export * from './events/event-card-view';
 export * from './events/event-detail-view';
