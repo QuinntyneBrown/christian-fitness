@@ -99,6 +99,7 @@
   --font-size-2xl: 1.5rem;     /* 24px  section titles, date numerals */
   --font-size-3xl: 1.875rem;   /* 30px  dialog and card titles */
   --font-size-4xl: 2.25rem;    /* 36px  mobile page titles */
+  --font-size-lead: 2.6rem;    /* 41.6px  front-page lead headline from 1024px (the prototype's size) */
   --font-size-5xl: 3rem;       /* 48px  page titles */
   --font-size-6xl: 3.75rem;    /* 60px  detail titles, stat hero */
   --font-size-7xl: 4.5rem;     /* 72px  landing hero (sm) */
@@ -111,6 +112,7 @@
 
   --line-height-display: 0.9;  /* condensed display headings */
   --line-height-none: 1;
+  --line-height-lead: 1.12;    /* front-page lead headline */
   --line-height-tight: 1.25;
   --line-height-snug: 1.375;
   --line-height-normal: 1.5;
@@ -123,6 +125,7 @@
   --line-height-3xl: 2.25rem;  /* with --font-size-3xl */
   --line-height-4xl: 2.5rem;   /* with --font-size-4xl */
 
+  --letter-spacing-tight: -0.01em;  /* front-page lead headline */
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.025em;   /* display headings, wordmark, overlines */
   --letter-spacing-wider: 0.14em;   /* "Admin console" eyebrow */
@@ -139,11 +142,11 @@
   --color-bg-backdrop: rgb(17 17 17 / 0.4);
   --color-bg-skeleton: var(--palette-stone-150);
   --color-skeleton-shine: rgb(255 255 255 / 0.35);
-  --color-bg-brand: var(--palette-bordeaux-700);           /* verse, join aside, stat hero, report */
+  --color-bg-brand: var(--palette-bordeaux-700);           /* join card and aside, stat hero, report */
   --color-bg-brand-inverse: var(--palette-stone-0);        /* white button on a brand panel */
   --color-bg-brand-inverse-hover: var(--palette-bordeaux-50);
   --color-bg-on-brand-hover: rgb(255 255 255 / 0.1);
-  --color-bg-chrome: var(--palette-stone-950);             /* admin sidebar, staff sign-in */
+  --color-bg-chrome: var(--palette-stone-950);             /* admin sidebar, staff sign-in, verse band */
   --color-bg-chrome-current: var(--palette-bordeaux-700);
   --color-bg-chrome-badge: var(--palette-borealis-300);
   --color-bg-on-chrome-hover: rgb(255 255 255 / 0.1);
@@ -182,6 +185,7 @@
   --color-accent-subtle-hover: var(--palette-bordeaux-100);
   --color-accent-ring: rgb(108 29 54 / 0.15);              /* input focus halo */
   --color-highlight: var(--palette-borealis-300);
+  --color-fg-on-highlight: var(--palette-stone-1000);
 
   --color-focus-ring: var(--palette-bordeaux-700);
   --color-focus-ring-on-dark: var(--palette-borealis-300);
@@ -273,8 +277,6 @@
   --layout-dialog-max: 32rem;         /* dialogs and drawers */
   --layout-lead-max: 32rem;           /* landing lead paragraph */
   --layout-measure: 42rem;            /* prose */
-  --size-measure-story: 48rem;        /* story head */
-  --size-measure-figure: 64rem;       /* story figure */
   --layout-measure-narrow: 36rem;
   --layout-measure-tight: 24rem;
   --layout-table-min: 40rem;          /* tables scroll below this width */
@@ -289,10 +291,29 @@
   --layout-meter-width: 14rem;
   --layout-schedule-time: 5.5rem;
   --layout-sticky-offset: 6rem;
+  --size-measure-story: 48rem;        /* story head */
+  --size-measure-figure: 64rem;       /* story figure */
+  --size-measure-chooser: 65rem;      /* Google account chooser card */
+  --size-column-builder: 20rem;       /* newsletter builder side column */
+  --size-column-picker: 17.5rem;
+  --size-column-picker-wide: 18.75rem;
+  --size-column-pick: 21.25rem;       /* pick list and inbox list columns */
   --size-column-area: 9rem;           /* listing row area */
   --size-column-hosting: 7rem;        /* listing row hosting; feed copy button */
   --size-column-follow: 6.75rem;      /* listing row follow button */
-  --size-column-date: 5.5rem;         /* feed row leading column; hosting row picture below 640px */
+  --size-column-date: 5.5rem;         /* feed row leading column */
+  --size-column-session-date: 5rem;
+  --size-basis-topic: 12rem;
+  --size-thumb-sm: 5rem;              /* headline square */
+  --size-thumb-story: 7rem;           /* story row image */
+  --size-thumb-series-w: 8rem;
+  --size-thumb-series-h: 6rem;
+  --size-thumb-event-w: 4rem;
+  --size-thumb-event-h: 3.5rem;
+  --size-card-pick: 16rem;
+  --size-pick-empty-h: 26rem;
+  --size-pick-art: 12rem;
+  --layout-table-wrap-narrow: 22.5rem;
 
   /* ---------- Semantic: sizes ------------------------------------------ */
   --size-icon-xs: 0.875rem;  /* 14px */
@@ -307,7 +328,7 @@
   --size-avatar-3xl: 7rem;   /* 112px profile hero */
   --size-seal-lockup: 2.125rem;
   --size-seal-signin: 2.75rem;
-  --size-seal-verse: 8.75rem;
+  --size-seal-verse: 7.5rem;
   --size-seal-hero: 11.25rem;
   --size-dot: 0.5rem;
   --size-dot-lg: 0.625rem;
@@ -331,6 +352,7 @@
 
   --border-width-hairline: 1px;
   --border-width-thick: 2px;
+  --border-width-rule: 4px;   /* editorial rules: headline list, ruled titles, newsletter frame */
 
   /* ---------- Semantic: elevation -------------------------------------- */
   --shadow-1: 0 1px 0 rgb(17 17 17 / 0.04);      /* resting cards */
@@ -424,9 +446,9 @@
   --color-border-strong: var(--palette-stone-450);
   --color-border-hover: rgb(247 245 244 / 0.35);
   --color-border-inverse: var(--palette-stone-300);
-  --color-accent: var(--palette-bordeaux-600);
-  --color-accent-hover: var(--palette-bordeaux-500);
-  --color-accent-active: var(--palette-bordeaux-400);
+  --color-accent: #b54465;
+  --color-accent-hover: var(--palette-bordeaux-400);
+  --color-accent-active: #c34a71;
   --color-accent-subtle: var(--palette-wine-950);
   --color-accent-subtle-hover: var(--palette-wine-900);
   --color-accent-ring: rgb(240 168 191 / 0.25);
@@ -492,9 +514,9 @@
     --color-border-strong: var(--palette-stone-450);
     --color-border-hover: rgb(247 245 244 / 0.35);
     --color-border-inverse: var(--palette-stone-300);
-    --color-accent: var(--palette-bordeaux-600);
-    --color-accent-hover: var(--palette-bordeaux-500);
-    --color-accent-active: var(--palette-bordeaux-400);
+    --color-accent: #b54465;
+    --color-accent-hover: var(--palette-bordeaux-400);
+    --color-accent-active: #c34a71;
     --color-accent-subtle: var(--palette-wine-950);
     --color-accent-subtle-hover: var(--palette-wine-900);
     --color-accent-ring: rgb(240 168 191 / 0.25);
