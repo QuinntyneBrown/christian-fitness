@@ -3452,6 +3452,10 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   for the rebuild before starting a run, and never edit watched files while one is going.
 - A break that compared against a literal the compiler refuses (`=== 'nope'` against a union)
   gave a build error, not a red; break with a value of the same type.
+- Stopping the background task that ran `timeout … npx ng serve` left the `ng serve` process
+  listening, and the "built apps" suite reused it on the same port; two specs then failed on the
+  dev server's reload socket. Check the ports' owners after stopping a server, and run the built
+  suite on ports nothing has used.
 
 **New lessons**
 
