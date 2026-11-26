@@ -12,6 +12,14 @@ const titled = (page: string) => `${page} · Christian Fitness Admin`;
  */
 const routes: Routes = [
   {
+    // A story as readers will see it, opened in a new tab outside the shell, for Admins only
+    // (journey 22; L2-069 AC13; ADR 0097).
+    path: 'stories/:id/preview',
+    title: titled('Preview'),
+    canActivate: [staffAuthGuard],
+    loadComponent: () => import('../pages/story-preview/story-preview-page'),
+  },
+  {
     path: '',
     canActivateChild: [staffAuthGuard],
     loadComponent: () => import('./admin-shell'),

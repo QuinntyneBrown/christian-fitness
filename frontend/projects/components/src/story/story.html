@@ -1,0 +1,159 @@
+<ng-template #marked let-value>
+  @let r = run(value);
+  @if (r.strong && r.em) {
+    <strong
+      ><em>{{ r.text }}</em></strong
+    >
+  } @else if (r.strong) {
+    <strong>{{ r.text }}</strong>
+  } @else if (r.em) {
+    <em>{{ r.text }}</em>
+  } @else {
+    <!-- In an element of its own, so no space is added around the words. -->
+    <ng-container>{{ r.text }}</ng-container>
+  }
+</ng-template>
+<ng-template #words let-value>
+  @for (r of runs(value); track $index) {
+    @if (r.href) {
+      <a class="story__link" [href]="r.href" rel="noopener"
+        ><ng-container [ngTemplateOutlet]="marked" [ngTemplateOutletContext]="{ $implicit: r }"
+      /></a>
+    } @else {
+      <ng-container [ngTemplateOutlet]="marked" [ngTemplateOutletContext]="{ $implicit: r }" />
+    }
+  }
+</ng-template>
+<ng-template #cardBody let-value>
+  <span class="story-next__body"
+    ><span class="story-next__label">{{ card(value).label }}</span
+    ><span class="story-next__title">{{ card(value).title }}</span></span
+  >
+  <svg class="icon icon--lg story-next__arrow" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
+  </svg>
+</ng-template>
+
+@if (loading()) {
+  <cf-skeleton-region [label]="loadingLabel()" [heading]="true">
+    <div class="story">
+      <div class="story__head story__skeletons">
+        <cf-skeleton shape="text-sm" width="20" />
+        <cf-skeleton shape="title-lg" />
+        <cf-skeleton shape="title-lg" width="80" />
+        <cf-skeleton width="40" />
+      </div>
+      <div class="story__figure"><cf-skeleton shape="image-16x9" /></div>
+      <div class="story__body story__skeletons">
+        <cf-skeleton width="90" />
+        <cf-skeleton width="90" />
+        <cf-skeleton width="80" />
+      </div>
+    </div>
+  </cf-skeleton-region>
+} @else {
+  <article class="story">
+    <header class="story__head">
+      @if (section()) {
+        <p class="story__section story__kicker">{{ section() }}</p>
+      }
+      <h1 class="story__title">{{ headline() }}</h1>
+      @if (summary()) {
+        <p class="story__dek">{{ summary() }}</p>
+      }
+      <div class="story__byline">
+        <div class="story__byline-body">
+          @if (author()) {
+            <p class="story__author">{{ author() }}</p>
+          }
+          @if (when()) {
+            <p class="story__when">{{ when() }}</p>
+          }
+        </div>
+      </div>
+    </header>
+    <div class="story__body">
+      @for (block of blocks(); track $index) {
+        @switch (block.kind) {
+          @case ('quote') {
+            <blockquote class="story__quote">
+              <p>
+                <ng-container
+                  [ngTemplateOutlet]="words"
+                  [ngTemplateOutletContext]="{ $implicit: block.runs }"
+                />
+              </p>
+            </blockquote>
+          }
+          @case ('heading') {
+            @if (block.level === 2) {
+              <h2 class="story__heading">
+                <ng-container
+                  [ngTemplateOutlet]="words"
+                  [ngTemplateOutletContext]="{ $implicit: block.runs }"
+                />
+              </h2>
+            } @else {
+              <h3 class="story__subheading">
+                <ng-container
+                  [ngTemplateOutlet]="words"
+                  [ngTemplateOutletContext]="{ $implicit: block.runs }"
+                />
+              </h3>
+            }
+          }
+          @case ('list') {
+            @if (block.ordered) {
+              <ol class="story__list story__list--numbered">
+                @for (item of block.items; track $index) {
+                  <li>
+                    <ng-container
+                      [ngTemplateOutlet]="words"
+                      [ngTemplateOutletContext]="{ $implicit: item }"
+                    />
+                  </li>
+                }
+              </ol>
+            } @else {
+              <ul class="story__list">
+                @for (item of block.items; track $index) {
+                  <li>
+                    <ng-container
+                      [ngTemplateOutlet]="words"
+                      [ngTemplateOutletContext]="{ $implicit: item }"
+                    />
+                  </li>
+                }
+              </ul>
+            }
+          }
+          @default {
+            <p>
+              <ng-container
+                [ngTemplateOutlet]="words"
+                [ngTemplateOutletContext]="{ $implicit: block.runs }"
+              />
+            </p>
+          }
+        }
+      }
+      @if (next(); as next) {
+        @if (next.href) {
+          <a class="story-next" [href]="next.href"
+            ><ng-container
+              [ngTemplateOutlet]="cardBody"
+              [ngTemplateOutletContext]="{ $implicit: next }"
+          /></a>
+        } @else {
+          <div class="story-next">
+            <ng-container
+              [ngTemplateOutlet]="cardBody"
+              [ngTemplateOutletContext]="{ $implicit: next }"
+            />
+          </div>
+        }
+      }
+    </div>
+  </article>
+}

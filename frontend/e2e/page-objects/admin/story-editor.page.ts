@@ -13,6 +13,10 @@ export class StoryEditorPage {
   readonly status: Locator;
   readonly saved: Locator;
   readonly actions: Locator;
+  /** Preview, a link that opens a new tab. */
+  readonly previewLink: Locator;
+  /** Preview while it cannot open: a disabled button. */
+  readonly previewUnavailable: Locator;
   readonly headline: Locator;
   readonly summary: Locator;
   readonly story: Locator;
@@ -44,6 +48,8 @@ export class StoryEditorPage {
     this.status = this.editor.locator('.editor__bar .status');
     this.saved = this.editor.locator('.editor__saved');
     this.actions = this.editor.locator('.editor__actions');
+    this.previewLink = this.actions.getByRole('link', { name: /^Preview/ });
+    this.previewUnavailable = this.actions.getByRole('button', { name: 'Preview' });
     this.headline = this.editor.getByRole('textbox', { name: 'Headline', exact: true });
     this.summary = this.editor.getByRole('textbox', { name: 'Summary', exact: true });
     this.story = this.editor.getByRole('textbox', { name: 'Story', exact: true });

@@ -42,6 +42,25 @@
       (navigate)="navigate($event)"
     >
       <cf-status slot="status" [variant]="store.status()">{{ statusLabel() }}</cf-status>
+      @if (previewHref(); as href) {
+        <cf-button slot="actions" size="sm" variant="secondary" [href]="href" newTab
+          ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+            />
+            <circle cx="12" cy="12" r="3" /></svg
+          >Preview<span class="visually-hidden"> (opens in a new tab)</span></cf-button
+        >
+      } @else {
+        <cf-button slot="actions" size="sm" variant="secondary" disabled
+          ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+            />
+            <circle cx="12" cy="12" r="3" /></svg
+          >Preview</cf-button
+        >
+      }
 
       @if (store.saveState() === 'failed') {
         <cf-alert slot="alert" heading="We couldn't save your changes">

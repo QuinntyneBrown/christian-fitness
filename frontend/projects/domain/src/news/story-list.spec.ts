@@ -1,6 +1,9 @@
 import type { StoryStatusName } from '@cf/api';
 import {
   storyByline,
+  storyNextLabel,
+  storyPreviewNotice,
+  storyReaderWhen,
   storyListHref,
   storyListQueryOf,
   storyReadsText,
@@ -129,5 +132,47 @@ describe('storyReadsText', () => {
     [3412, '3,412'],
   ])('shows %s reads as %s', (reads, text) => {
     expect(storyReadsText(reads)).toBe(text);
+  });
+});
+
+// Mock admin-story-preview/default (L2-069 AC13).
+describe('storyReaderWhen', () => {
+  const words = (n: number) => Array.from({ length: n }, () => 'word').join(' ');
+  it.each([
+    ['not yet published, one word', null, 'word', 'Not published yet · 1 min read'],
+    ['no words at all', null, '', 'Not published yet · 1 min read'],
+    ['200 words is a minute', null, words(200), 'Not published yet · 1 min read'],
+    ['201 words is two', null, words(201), 'Not published yet · 2 min read'],
+    ['marks alone are not words', null, `${words(200)} > - ##`, 'Not published yet · 1 min read'],
+    ['published 2 hours ago', '2026-04-15T10:45:00Z', words(1100), '2 hours ago · 6 min read'],
+    ['published yesterday', '2026-04-14T14:00:00Z', 'word', 'Yesterday · 1 min read'],
+    ['published on Apr 8', '2026-04-08T14:00:00Z', 'word', 'Apr 8 · 1 min read'],
+  ])('%s', (_why, publishedAt, text, expected) => {
+    expect(storyReaderWhen(publishedAt, text, NOW)).toBe(expected);
+  });
+});
+
+describe('storyPreviewNotice', () => {
+  it.each([
+    ['draft', 'Preview · Draft.'],
+    ['review', 'Preview · In review.'],
+    ['scheduled', 'Preview · Scheduled.'],
+    ['published', 'Preview · Published.'],
+    ['loading', 'Preview · loading.'],
+    ['failed', 'Preview · not loaded.'],
+  ] as const)('names a %s story', (status, lead) => {
+    expect(storyPreviewNotice(status)).toEqual({
+      lead,
+      text: 'Only Admins can see this page. Readers see the story once it is published.',
+    });
+  });
+});
+
+describe('storyNextLabel', () => {
+  it.each([
+    ['event', 'From this story'],
+    ['listing', 'In the directory'],
+  ] as const)('labels a card that points to a %s', (kind, label) => {
+    expect(storyNextLabel(kind)).toBe(label);
   });
 });

@@ -85,6 +85,13 @@ export default class StoryEditorPage {
     }
   });
   protected readonly fields = this.store.fields;
+  /** Preview opens a kept story with a headline in a new tab; otherwise it is unavailable (L2-069 AC13). */
+  protected readonly previewHref = computed(() => {
+    const id = this.store.id();
+    return id && this.fields().headline.trim()
+      ? `/stories/${encodeURIComponent(id)}/preview`
+      : null;
+  });
   protected readonly placements = STORY_PLACEMENTS;
   protected readonly sections = STORY_SECTIONS;
   protected readonly bylines = computed(() =>

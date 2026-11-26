@@ -4,7 +4,7 @@ import { booleanAttribute, Component, input, output } from '@angular/core';
 export type BannerTone = 'info' | 'success' | 'warning' | 'danger' | 'brand';
 
 /** The icon that names the banner's condition; each tone has a default. */
-export type BannerIcon = 'info' | 'mail' | 'check' | 'wifi-off' | 'alert' | 'wrench';
+export type BannerIcon = 'info' | 'mail' | 'check' | 'wifi-off' | 'alert' | 'wrench' | 'eye';
 
 const defaultIcon: Record<BannerTone, BannerIcon> = {
   info: 'info',

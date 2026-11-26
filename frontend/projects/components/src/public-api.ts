@@ -107,6 +107,7 @@ export * from './stat/fill-list';
 export * from './stat/stat-grid';
 export * from './stat/stat-hero';
 export * from './steps/done';
+export * from './story/story';
 export * from './steps/steps';
 export * from './switch/switch';
 export * from './tab-bar/tab-bar';

@@ -212,3 +212,41 @@ export function storyReadsText(reads: number | null): string | null {
   countFormat ??= new Intl.NumberFormat('en-US');
   return countFormat.format(reads);
 }
+
+/** How many words a reader reads a minute, for "6 min read". */
+const WORDS_A_MINUTE = 200;
+
+/**
+ * The story page's byline line (mock `admin-story-preview/default`): "2 hours ago · 6 min read",
+ * "Yesterday · 1 min read" or "Apr 8 · …", and "Not published yet · …" before it goes out. The
+ * reading time counts the text's words at 200 a minute, at least 1 minute.
+ */
+export function storyReaderWhen(publishedAt: string | null, text: string, now: Date): string {
+  const words = text.split(/\s+/).filter((word) => /[\p{L}\p{N}]/u.test(word)).length;
+  const read = `${Math.max(1, Math.ceil(words / WORDS_A_MINUTE))} min read`;
+  const instant = publishedAt ? new Date(publishedAt) : null;
+  if (!instant || Number.isNaN(instant.getTime())) return `Not published yet · ${read}`;
+  const when = ago(instant, now).replace(/^on /, '');
+  return `${when.charAt(0).toUpperCase()}${when.slice(1)} · ${read}`;
+}
+
+/**
+ * The preview's bar (L2-069 AC13; mocks `admin-story-preview/*`): its bold lead names the status,
+ * or "loading" and "not loaded" before there is one; the rest says who can see it.
+ */
+export function storyPreviewNotice(state: StoryStatusName | 'loading' | 'failed'): {
+  lead: string;
+  text: string;
+} {
+  const named =
+    state === 'loading' ? 'loading' : state === 'failed' ? 'not loaded' : storyStatusLabel(state);
+  return {
+    lead: `Preview · ${named}.`,
+    text: 'Only Admins can see this page. Readers see the story once it is published.',
+  };
+}
+
+/** The next step card's label (L2-061 AC4): "From this story" for an event, "In the directory" for a listing. */
+export function storyNextLabel(kind: 'event' | 'listing'): string {
+  return kind === 'event' ? 'From this story' : 'In the directory';
+}

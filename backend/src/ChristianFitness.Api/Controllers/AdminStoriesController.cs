@@ -33,6 +33,14 @@ public sealed class AdminStoriesController(ISender sender) : ControllerBase
     public async Task<ActionResult<AdminStoryDto>> Get(Guid id, CancellationToken cancellationToken) =>
         await sender.Send(new GetAdminStoryQuery(id), cancellationToken).ConfigureAwait(false);
 
+    /// <summary>The story as readers will see it, whatever its status, never indexed (L2-069 AC13).</summary>
+    [HttpGet("{id:guid}/preview")]
+    public async Task<ActionResult<StoryPreviewDto>> Preview(Guid id, CancellationToken cancellationToken)
+    {
+        Response.Headers["X-Robots-Tag"] = "noindex";
+        return await sender.Send(new GetStoryPreviewQuery(id), cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>The autosave of a Draft or a story In review (L2-069 AC8, AC12).</summary>
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<AdminStoryDto>> Save(Guid id, SaveStoryCommand command, CancellationToken cancellationToken)

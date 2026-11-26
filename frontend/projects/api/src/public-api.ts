@@ -33,3 +33,4 @@ export * from './services/professional-applications';
 export * from './services/public-professionals';
 export * from './services/services';
 export * from './legal/legal-notice';
+export * from './news/story-blocks';

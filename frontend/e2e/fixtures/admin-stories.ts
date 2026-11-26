@@ -262,3 +262,45 @@ export function newStory(fields: Partial<StoryFixture> = {}): StoryFixture {
     ...fields,
   };
 }
+
+/** One story as Preview reads it (`GET /api/admin/stories/{id}/preview`; L2-069 AC13). */
+export interface StoryPreviewFixture {
+  id: string;
+  status: 'draft' | 'review' | 'scheduled' | 'published';
+  section: string | null;
+  headline: string;
+  summary: string;
+  author: string | null;
+  publishedAt: string | null;
+  text: string;
+  image: StoryFixture['image'];
+  next: { kind: 'event' | 'listing'; text: string; link: string } | null;
+}
+
+/**
+ * Mock `admin-story-preview/default`, for the story in review: its text holds every block of the
+ * Markdown subset, an https link, a link that is not https and raw HTML typed as words.
+ */
+export const REVIEW_PREVIEW: StoryPreviewFixture = {
+  id: REVIEW_STORY.id,
+  status: 'review',
+  section: 'nutrition',
+  headline: REVIEW_STORY.headline,
+  summary: REVIEW_STORY.summary,
+  author: PRIYA_RAMAN.name,
+  publishedAt: null,
+  text: [
+    'For many members, Lent means giving *something* up.',
+    '> “Fasting and training can live together.”',
+    '## Before you start',
+    '- Drink **water** first\n- Ask [Lena](https://example.org/lena)',
+    '1. Rest\n2. Eat [after](javascript:alert)',
+    '<b>Not bold</b>',
+  ].join('\n\n'),
+  image: null,
+  next: {
+    kind: 'listing',
+    text: 'Book a session with Lena',
+    link: `/directory/${STORY_OPTIONS.listings[0].id}`,
+  },
+};

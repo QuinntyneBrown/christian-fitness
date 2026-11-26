@@ -1,0 +1,202 @@
+// The design system's story page (docs/design-system/assets/components.css, "Story": story,
+// story__*, story-next). Headings, lists and links in the body keep the story's reading measure.
+:host {
+  display: block;
+}
+
+.story__head {
+  max-width: var(--size-measure-story);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) 0;
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+
+  @media (min-width: 64rem) {
+    padding-top: var(--space-10);
+  }
+}
+
+.story__kicker {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.story__title {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+.story__dek {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-fg-muted);
+}
+
+.story__byline {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+  padding-block: var(--space-4);
+}
+
+.story__byline-body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.story__author {
+  font-weight: var(--font-weight-semibold);
+}
+
+.story__when {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.story__body {
+  max-width: var(--layout-measure);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4) var(--space-4);
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+
+  > p,
+  > .story__list {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+  }
+
+  > p + p,
+  > blockquote + p,
+  > p + .story__list,
+  > .story__list + p,
+  > .story__list + .story__list {
+    margin-top: var(--space-5);
+  }
+}
+
+.story__quote {
+  margin-block: var(--space-8);
+  border-left: var(--border-width-thick) solid var(--color-fg-accent);
+  padding-left: var(--space-5);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-style: italic;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+}
+
+.story__heading,
+.story__subheading {
+  margin-top: var(--space-8);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+}
+
+.story__subheading {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-xl);
+}
+
+.story__heading + *,
+.story__subheading + * {
+  margin-top: var(--space-3);
+}
+
+.story__list {
+  padding-left: var(--space-6);
+  list-style: disc;
+
+  > li + li {
+    margin-top: var(--space-2);
+  }
+}
+
+.story__list--numbered {
+  list-style: decimal;
+}
+
+// Underlined, so a link never relies on colour alone.
+.story__link {
+  color: var(--color-fg-link);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+
+  &:hover {
+    color: var(--color-fg-link-hover);
+    text-decoration-thickness: var(--border-width-thick);
+  }
+}
+
+.story-next {
+  margin-top: var(--space-10);
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--color-accent-subtle);
+  padding: var(--space-5);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+a.story-next:hover {
+  background: var(--color-accent-subtle-hover);
+}
+
+.story-next__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.story-next__label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.story-next__title {
+  margin-top: var(--space-0-5);
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+}
+
+.story-next__arrow {
+  flex-shrink: 0;
+  color: var(--color-fg-accent);
+}
+
+.story__figure {
+  max-width: var(--size-measure-figure);
+  margin: var(--space-8) auto 0;
+
+  @media (min-width: 40rem) {
+    padding-inline: var(--space-6);
+  }
+}
+
+// Mock admin-story-preview/loading: the head's and body's skeletons, stacked.
+.story__skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

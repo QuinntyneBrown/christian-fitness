@@ -121,11 +121,14 @@ export interface StoryImageUploadDto {
   height: number;
 }
 
-/** The card at the end of a story (L2-061 AC4): what it points to and the "Next step" words. */
+/**
+ * The card at the end of a story (L2-061 AC4), only with "Next step" words and a published event
+ * or listing: what it points to, the words, and the editor's link or else that page's address.
+ */
 export interface StoryNextDto {
   kind: 'event' | 'listing';
   text: string;
-  link: string | null;
+  link: string;
 }
 
 /** `GET /api/admin/stories/{id}/preview`: the story as readers will see it, whatever its status (L2-069 AC13). */

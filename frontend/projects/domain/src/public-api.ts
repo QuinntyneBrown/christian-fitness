@@ -97,3 +97,4 @@ export * from './news/bylines';
 export * from './directory/own-listing';
 export * from './news/story-list';
 export * from './news/story-editor';
+export * from './news/story-text';
