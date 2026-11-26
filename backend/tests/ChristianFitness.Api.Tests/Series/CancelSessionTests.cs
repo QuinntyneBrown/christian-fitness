@@ -32,7 +32,7 @@ public sealed class CancelSessionTests(AdminSeriesFactory factory) : IClassFixtu
     {
         var series = AdminSeries.NewSeries(title, factory.Time.GetUtcNow());
         var sessions = await factory.AddCouchTo5KAsync(series);
-        var tag = title.Replace(' ', '.').ToLowerInvariant();
+        var tag = Guid.NewGuid().ToString("N")[..12];
         var joinedA = await MemberAsync(factory, $"ada.{tag}@example.org");
         var joinedB = await MemberAsync(factory, $"ben.{tag}@example.org");
         var droppedIn = await MemberAsync(factory, $"cy.{tag}@example.org");

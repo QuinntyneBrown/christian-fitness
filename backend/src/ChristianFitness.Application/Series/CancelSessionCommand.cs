@@ -19,7 +19,7 @@ public sealed record CancelSessionCommand(Guid SeriesId, Guid SessionId) : IRequ
     string IAuditableCommand.AuditAction => "series.session_cancelled";
 }
 
-internal sealed class CancelSessionHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit, TimeProvider time)
+internal sealed class CancelSessionHandler(IAppDbContext db, ICurrentMember current, AuditTrail audit, SeriesDateNotices notices, TimeProvider time)
     : IRequestHandler<CancelSessionCommand, SessionChangeDto>
 {
     public async Task<SessionChangeDto> Handle(CancelSessionCommand request, CancellationToken cancellationToken)
@@ -37,6 +37,8 @@ internal sealed class CancelSessionHandler(IAppDbContext db, ICurrentMember curr
         var now = time.GetUtcNow();
         Refuse(session, now);
         audit.Record(current.Id, nameof(Event), session.Id);
+        // The chat notice is saved with the change, so a failure leaves neither (L2-071 AC4).
+        await notices.AddNoticeAsync(session, cancelled: true, cancellationToken).ConfigureAwait(false);
         while (true)
         {
             session.Cancel();
@@ -53,9 +55,14 @@ internal sealed class CancelSessionHandler(IAppDbContext db, ICurrentMember curr
             }
         }
 
-        var holders = await SeriesReads.HoldersAsync(db, series.Id, [session.Id], cancellationToken).ConfigureAwait(false);
+        // Every member holding a place there is told in the chat and in their inbox (L2-052 AC10).
+        await notices.PushNoticeAsync(cancellationToken).ConfigureAwait(false);
+        var holders = (await SeriesReads.HoldersAsync(db, series.Id, [session.Id], cancellationToken).ConfigureAwait(false))[session.Id]
+            .Select(h => h.MemberId)
+            .ToList();
+        await notices.NotifyCancelledAsync(series, session, holders, cancellationToken).ConfigureAwait(false);
         var answer = await AdminSeriesAnswer.OfAsync(db, series, now, cancellationToken).ConfigureAwait(false);
-        return new SessionChangeDto(answer, holders[session.Id].Count());
+        return new SessionChangeDto(answer, holders.Count);
     }
 
     private static void Refuse(Event session, DateTimeOffset now)

@@ -33,6 +33,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ModerationTarget>();
         services.AddScoped<INotifier, Notifier>();
         services.AddScoped<Chat.SystemMessages>();
+        services.AddScoped<Series.SeriesDateNotices>();
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, includeInternalTypes: true);
         services.AddSingleton<AccountCreationLimiter>();
         services.AddSingleton<PasswordResetRequestLimiter>();
