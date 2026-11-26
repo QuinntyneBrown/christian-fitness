@@ -1,4 +1,5 @@
 using ChristianFitness.Application.Abstractions;
+using ChristianFitness.Application.Chat;
 using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Events;
 using MediatR;
@@ -16,7 +17,7 @@ namespace ChristianFitness.Application.Series;
 /// </summary>
 public sealed record LeaveSeriesCommand(Guid SeriesId) : IRequest<SeriesDetailDto>;
 
-internal sealed class LeaveSeriesHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, TimeProvider time)
+internal sealed class LeaveSeriesHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, TimeProvider time, IChatChannel chat)
     : IRequestHandler<LeaveSeriesCommand, SeriesDetailDto>
 {
     /// <summary>How many times a leave that lost a race reads the series again before it gives up.</summary>
@@ -32,6 +33,13 @@ internal sealed class LeaveSeriesHandler(IAppDbContext db, IRegistrationReader r
             try
             {
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                var scope = ChatScope.OfSeries(request.SeriesId);
+                if (touched is not null && !await ChatMembership.InAsync(db, scope, memberId, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
+                {
+                    // Nothing keeps them in the series chat now: its connections stop receiving it (ADR 0041).
+                    await chat.LeaveAsync(memberId, scope, cancellationToken).ConfigureAwait(false);
+                }
+
                 return await SeriesDetails.OfAsync(db, registrations, request.SeriesId, memberId, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
             }
             catch (DbUpdateConcurrencyException) when (attempt < Attempts)

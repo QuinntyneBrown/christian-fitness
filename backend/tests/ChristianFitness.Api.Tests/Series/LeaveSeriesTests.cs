@@ -79,6 +79,33 @@ public sealed class LeaveSeriesTests(AdminSeriesFactory factory) : IClassFixture
     }
 
     [Fact]
+    public async Task Given_a_joined_member_connected_to_the_chat_When_they_leave_Then_they_receive_nothing_more()
+    {
+        var series = AdminSeries.NewSeries("Couch to 5K Leave Push", factory.Time.GetUtcNow());
+        await factory.AddCouchTo5KAsync(series);
+        var (graceClient, graceCookie) = await MemberSeries.MemberAsync(factory, "grace.series.push@example.org");
+        var (hopeClient, hopeCookie) = await MemberSeries.MemberAsync(factory, "hope.series.push@example.org");
+        foreach (var (client, cookie) in new[] { (graceClient, graceCookie), (hopeClient, hopeCookie) })
+        {
+            using var joined = await JoinSeriesTests.JoinAsync(client, cookie, series.Id);
+            Assert.Equal(HttpStatusCode.OK, joined.StatusCode);
+        }
+
+        await using var grace = await SeriesHub.ConnectAsync(factory, graceCookie);
+        await using var hope = await SeriesHub.ConnectAsync(factory, hopeCookie);
+        Assert.Null((await grace.JoinAsync(series.Id)).Code);
+        Assert.Null((await hope.JoinAsync(series.Id)).Code);
+
+        using var left = await LeaveAsync(graceClient, graceCookie, series.Id);
+        Assert.Equal(HttpStatusCode.OK, left.StatusCode);
+        Assert.Null((await hope.SendAsync(series.Id, "Grace has left")).Code);
+
+        // Hope, still in the chat, is the proof the message has gone out; Grace, who left, has none.
+        Assert.Equal("Grace has left", (await hope.NextAsync("Hope, who is still in the chat")).Text);
+        Assert.False(grace.Received.Reader.TryRead(out var stray), $"Grace received after leaving: {stray?.Text}");
+    }
+
+    [Fact]
     public async Task Given_a_member_who_has_not_joined_When_they_leave_Then_the_series_is_answered_unchanged()
     {
         var series = AdminSeries.NewSeries("Couch to 5K Not Joined Leave", factory.Time.GetUtcNow());
