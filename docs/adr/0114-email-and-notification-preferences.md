@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, 27 November 2026. Builds on [ADR 0083](0083-notifications-in-the-app.md) and
+Accepted, 27 November 2026. Builds on [ADR 0083](0083-notification-inbox-and-shared-real-time-client.md) and
 [ADR 0110](0110-subscribe-to-the-newsletter.md).
 
 ## Context
