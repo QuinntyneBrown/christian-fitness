@@ -117,12 +117,10 @@ test.describe('Member app, Preferences: email and notifications', () => {
 
     await preferences.turnOffAllEmail.click();
 
-    expect((await preferences.switchValues(preferences.email)).map(([, on]) => on)).toEqual([
-      false,
-      false,
-      false,
-      false,
-    ]);
+    // What the press changes is drawn on the next render: poll it, never read it once.
+    await expect
+      .poll(async () => (await preferences.switchValues(preferences.email)).map(([, on]) => on))
+      .toEqual([false, false, false, false]);
     await expect(preferences.emailSummary).toHaveText(
       'You won’t get any email from us except security and service notices.',
     );
