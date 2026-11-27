@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 94% (34 of 36 journeys; 106 of 113 days)
+**% complete:** 96% (35 of 36 journeys; 109 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3749,3 +3749,55 @@ home church" in Preferences only, a followed listing's events new until opened, 
 - "Prove an absence by exact keys": the Edit profile request is asserted whole, so no
   `showHomeChurch` key can return unnoticed.
 
+## Journey 35: Download my data
+
+"Request download" in Preferences' new Your data section records and audits the request, and the
+confirmation stands in place of the button for 24 hours. The scheduler builds the .zip on its next
+tick and emails the link; `/preferences/download/:id` downloads it only for its own member, for 7
+days, and the archive is removed after (ADR 0117). Journey 36's parts of the same design are left.
+
+**What slowed it**
+
+- The first download spec saw a file called `archive.html`: a browser download of an address (a
+  link with `download`, or a navigation answered as an attachment) bypasses Playwright's routing,
+  so the request reached the static server, which answered the app's shell. The page now reads the
+  archive with `HttpClient` and saves it through an object URL, which the fixture answers.
+- The design's table put staff replies and the suggested person's email in the archive, which the
+  requirement's "no other person's messages, email" forbids. The requirement's words were built and
+  the design's table corrected.
+- `ng build` does not type-check specs: a field added to `PreferencesDto` broke a domain spec that
+  only `ng test domain` found.
+- A test class whose tests move a shared clock by 7 days made another test's expected email date
+  depend on the order they ran in; the expiry test moved to a class (and fixture) of its own.
+- The worktree guard refused heredocs, compound `cd … && git` commands and relative `cd`; edits
+  went through Python scripts in the scratchpad with exact-match asserts, and git ran alone.
+
+**New lessons**
+
+- Never let a browser download an address in an e2e-tested flow: Playwright cannot route it. Read
+  the bytes with the app's HTTP client and save them through an object URL revoked straight after.
+- Before building an export, check each field against the requirement's privacy words; a design's
+  table of "what goes in" can carry another person's data by accident (an email someone typed about
+  a third person, a reply written by staff).
+- When a uniform 404 hides whose an id is, give the screen one state for every 404; do not ask the
+  API to tell "expired" from "not yours".
+- A shared fixture's clock is shared state: a test that moves it by days gets its own class, or
+  every date another test expects must be worked from the clock it reads.
+- Run `ng test` for every library whose types a change touches, not only the one that has the new
+  spec.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": eight backend breaks (received messages in the archive, the expiry edge,
+  rebuilding a ready request, every group message, the email's date, another member's link, the
+  link's last second, the 24-hour window) and four on the pages (no download started, `not_found`
+  not read as expired, the confirmation on arrival, the failure not kept) each failed their own
+  test. The telemetry test was not broken on purpose: no code path logs the archive.
+- "Read the initial total after each slice, against the base": web stays at 279.06 kB after each
+  slice; the download page and the row's new variants load with their routes.
+- "`@let` and a first `NgTemplateOutlet` cost `main`": the preference row's `NgTemplateOutlet` was
+  already paid for by `cf-button`; the total did not move.
+- "Re-rendering PlantUML is part of the slice": the three diagrams that named a daily export job or
+  `cf export-data` were changed and re-rendered.
+- "Prove an absence by exact keys": the request's answer, the link's answer and the archive's
+  profile, suggestion and direct-message objects are asserted by their exact keys.
