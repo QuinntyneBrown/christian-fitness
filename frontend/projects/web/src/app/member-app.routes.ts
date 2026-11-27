@@ -16,6 +16,7 @@ const titled = (page: string) => `${page} · Christian Fitness`;
 const eventChat = () => import('./pages/event-chat/event-chat-page');
 const offline = () => import('./pages/offline/offline-page');
 const story = () => import('./pages/story/story-page');
+const memberProfile = () => import('./pages/member-profile/member-profile-page');
 
 const routes: Routes = [
   {
@@ -62,6 +63,16 @@ const routes: Routes = [
     canMatch: [signedOutGuard],
     data: { masthead: true },
     loadComponent: story,
+  },
+  {
+    // A member's profile for a visitor, under the masthead: an Anyone profile, or the not-found
+    // view (L2-065 AC13; ADR 0075). With a session it does not match, and the shell's child of the
+    // same address opens under the visibility rules.
+    path: 'members/:id',
+    title: titled('Member'),
+    canMatch: [signedOutGuard],
+    data: { visitor: true },
+    loadComponent: memberProfile,
   },
   {
     // The newsletter and the feeds, for members and visitors alike, outside the shell (L2-057;
@@ -185,7 +196,7 @@ const routes: Routes = [
         // Another member's public profile (L2-005 AC3; ADR 0038).
         path: 'members/:id',
         title: titled('Member'),
-        loadComponent: () => import('./pages/member-profile/member-profile-page'),
+        loadComponent: memberProfile,
       },
       {
         // The member's in-app inbox, opened from the bell (ADR 0068, ADR 0083).

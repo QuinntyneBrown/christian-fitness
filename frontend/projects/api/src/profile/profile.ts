@@ -50,6 +50,14 @@ export interface PublicProfileDto {
   messagesRestricted?: boolean;
 }
 
+/** An Anyone profile as a visitor reads it (L2-005 AC4, L2-065 AC3): never an email or home church. */
+export interface VisitorProfileDto {
+  name: string;
+  bio: string | null;
+  /** Interest keys, as in `INTERESTS`. */
+  interests: string[];
+}
+
 /**
  * A member's profile as the Edit profile dialog saves it (`PUT /api/members/{memberId}/profile`,
  * L2-006; ADR 0024): every value trimmed, a blank optional one `null`, goals without blank lines.
@@ -75,6 +83,13 @@ export interface ProfileApi {
 
   /** Another member's public profile; a 404 `not_found` when nobody has the id (ADR 0038). */
   member(memberId: string): Observable<PublicProfileDto>;
+
+  /**
+   * An Anyone profile as a visitor without a session reads it (`GET /api/public/members/{id}`,
+   * L2-065 AC12; ADR 0075): name, bio and interests only. A malformed or unknown id and a profile
+   * that is not Anyone error with the same 404 `not_found`.
+   */
+  visitor(memberId: string): Observable<VisitorProfileDto>;
 
   /**
    * Saves the member's own profile and answers it as saved (L2-006 AC2). A refusal or no answer

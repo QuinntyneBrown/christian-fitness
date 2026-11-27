@@ -1,5 +1,19 @@
+@if (visitor) {
+  <cf-skip-link />
+  <cf-masthead />
+}
 <main id="main" class="member-profile-page">
-  @if (state() === 'loading') {
+  @if (state() === 'not-found') {
+    <cf-container page="default">
+      <cf-error-page
+        code="404"
+        heading="Page not found"
+        text="That link may be old, or the page has moved. Everything else is right where you left it."
+      >
+        <cf-button slot="actions" href="/" size="sm">Go to home</cf-button>
+      </cf-error-page>
+    </cf-container>
+  } @else if (state() === 'loading') {
     <cf-skeleton-region label="Loading profile" heading>
       <cf-profile-hero loading />
       <cf-container page="default">
@@ -23,10 +37,13 @@
   } @else {
     @if (member(); as m) {
       <cf-profile-hero [name]="m.name" [initials]="m.initials" [homeChurch]="m.homeChurch">
-        @if (m.messagesNote; as note) {
+        @if (visitor) {
+          <cf-button slot="action" href="/join">Join to message</cf-button>
+        }
+        @if (!visitor && m.messagesNote; as note) {
           <p slot="action" class="member-profile__restricted">{{ note }}</p>
         }
-        @if (!m.messagesNote) {
+        @if (!visitor && !m.messagesNote) {
           <cf-button slot="action" [href]="'/messages/' + m.id">Message</cf-button>
         }
       </cf-profile-hero>
@@ -47,3 +64,6 @@
     }
   }
 </main>
+@if (visitor) {
+  <cf-footer />
+}

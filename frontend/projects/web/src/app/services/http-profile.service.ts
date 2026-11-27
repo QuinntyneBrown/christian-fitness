@@ -1,12 +1,19 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { OwnProfileDto, ProfileApi, PublicProfileDto, UpdateProfileDto } from '@cf/api';
+import type {
+  OwnProfileDto,
+  ProfileApi,
+  PublicProfileDto,
+  UpdateProfileDto,
+  VisitorProfileDto,
+} from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
 import { catchError, throwError, type Observable } from 'rxjs';
 
 /**
  * {@link ProfileApi} over HTTP: `GET /api/profile/me` (ADR 0015) and
- * `PUT /api/members/{memberId}/profile` (ADR 0024). A 5xx to the GET opens the server-error screen
+ * `PUT /api/members/{memberId}/profile` (ADR 0024), and a visitor's `GET /api/public/members/{id}`
+ * (ADR 0075). A 5xx to the GET opens the server-error screen
  * through the interceptor; every failure passes on to the screen, and a failed save errors with an
  * `ApiError`. It holds no state, and is provided on the Profile screen, so it lives only while the
  * screen does.
@@ -21,6 +28,10 @@ export class HttpProfileService implements ProfileApi {
 
   member(memberId: string): Observable<PublicProfileDto> {
     return this.http.get<PublicProfileDto>(`/api/members/${encodeURIComponent(memberId)}/profile`);
+  }
+
+  visitor(memberId: string): Observable<VisitorProfileDto> {
+    return this.http.get<VisitorProfileDto>(`/api/public/members/${encodeURIComponent(memberId)}`);
   }
 
   update(memberId: string, profile: UpdateProfileDto): Observable<OwnProfileDto> {
