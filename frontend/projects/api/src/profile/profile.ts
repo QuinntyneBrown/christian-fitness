@@ -46,6 +46,8 @@ export interface PublicProfileDto {
   /** Interest keys, as in `INTERESTS`. */
   interests: string[];
   homeChurch?: string;
+  /** True when the viewer may not start a conversation: the member takes messages only from their groups (L2-065 AC5). */
+  messagesRestricted?: boolean;
 }
 
 /**

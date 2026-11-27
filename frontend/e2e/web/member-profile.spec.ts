@@ -46,6 +46,34 @@ test.describe('Member app, another member profile', () => {
     await expect(member.facts).toHaveText(['Grace Fellowship, Scarborough']);
   });
 
+  // L2-065 AC5 (journey 34): a member who takes messages only from their groups says so, where
+  // Message would have been, to a member who shares none with them.
+  test('says when a member only takes messages from people in their groups, in place of Message', async ({
+    page,
+    api,
+  }) => {
+    api.on('GET', `/api/members/${MICHAEL}/profile`, () => ({
+      json: { name: 'Michael Chen', bio: null, interests: [], messagesRestricted: true },
+    }));
+    api.on('GET', `/api/members/${GRACE}/profile`, () => ({
+      json: { name: 'Grace Thompson', bio: null, interests: [] },
+    }));
+    const member = new WebMemberProfilePage(page);
+
+    await member.open(MICHAEL);
+
+    await expect(member.heading).toHaveText('Michael Chen');
+    await expect(member.messagesNote).toHaveText(
+      'Michael only takes messages from people in their groups.',
+    );
+    await expect(member.messageLink).toHaveCount(0);
+
+    await member.open(GRACE);
+
+    await expect(member.messageLink).toHaveAttribute('href', `/messages/${GRACE}`);
+    await expect(member.messagesNote).toHaveCount(0);
+  });
+
   test('a profile that does not load shows one generic message', async ({ page, api }) => {
     api.on('GET', `/api/members/${MICHAEL}/profile`, () => ({
       status: 404,
