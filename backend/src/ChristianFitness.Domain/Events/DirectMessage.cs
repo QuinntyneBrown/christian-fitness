@@ -29,4 +29,14 @@ public sealed class DirectMessage
         Text = text,
         SentAt = sentAt,
     };
+
+    /// <summary>Erases a message its erased sender wrote (L2-066 AC7; ADR 0078): no text, and a sender id that names nobody.</summary>
+    public void EraseSent(Guid formerId)
+    {
+        SenderId = formerId;
+        Text = string.Empty;
+    }
+
+    /// <summary>Detaches an erased recipient (ADR 0078): the message stays intact for its sender, written to an id that names nobody.</summary>
+    public void DetachRecipient(Guid formerId) => RecipientId = formerId;
 }

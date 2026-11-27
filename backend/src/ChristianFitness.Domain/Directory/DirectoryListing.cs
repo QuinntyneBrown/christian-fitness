@@ -232,6 +232,9 @@ public sealed class DirectoryListing
         ListedAt = at;
     }
 
+    /// <summary>Its owner's account was erased (ADR 0118): the listing stays in the directory, owned by nobody.</summary>
+    public void ReleaseOwner() => MemberId = null;
+
     /// <summary>Staff declined a listing still waiting for their check, or the listed party said it isn't them (ADR 0092).</summary>
     public void Decline()
     {

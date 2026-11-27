@@ -4,7 +4,8 @@ namespace ChristianFitness.Domain.Audit;
 /// One staff change that succeeded (L2-019 AC3; ADR 0023): who made it (the staff member's id), what
 /// it was (a stable action name such as <c>staff_session.started</c>), which record it changed (its
 /// type and id) and when. Nothing else is kept: no name, email, field value or request text. An
-/// entry is never changed or deleted, and outlives the member it names.
+/// entry is never changed or deleted, and outlives the member it names, except that an erased
+/// member's id is removed from it (ADR 0078, ADR 0118).
 /// </summary>
 public sealed class AuditEntry
 {
@@ -46,5 +47,24 @@ public sealed class AuditEntry
             RecordId = recordId,
             OccurredAt = occurredAt,
         };
+    }
+
+    /// <summary>
+    /// Removes the erased member <paramref name="memberId"/> from the entry (ADR 0078): as actor, the
+    /// actor and the record it names, which was the member's own; as the record, the record's id.
+    /// The action and its time remain.
+    /// </summary>
+    public void Detach(Guid memberId)
+    {
+        if (ActorMemberId == memberId)
+        {
+            ActorMemberId = Guid.Empty;
+            RecordId = Guid.Empty;
+        }
+
+        if (RecordId == memberId)
+        {
+            RecordId = Guid.Empty;
+        }
     }
 }

@@ -36,4 +36,11 @@ public sealed class MessageReport
         Reason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim(),
         ReportedAt = reportedAt,
     };
+
+    /// <summary>Replaces an erased member's id, as reporter or sender, with <paramref name="formerId"/>, which names nobody (ADR 0078).</summary>
+    public void Detach(Guid memberId, Guid formerId)
+    {
+        ReporterId = ReporterId == memberId ? formerId : ReporterId;
+        SenderId = SenderId == memberId ? formerId : SenderId;
+    }
 }
