@@ -229,8 +229,14 @@ internal sealed class ReplyToFeedbackHandler(
         var note = await FeedbackNotes.FindAsync(db, request.Id, cancellationToken).ConfigureAwait(false);
         var member = await db.Members.AsNoTracking()
             .Where(m => m.Id == note.MemberId)
-            .Select(m => new { m.Email, m.Name })
+            .Select(m => new { m.Email, m.Name, m.DeletionRequestedAt })
             .SingleAsync(cancellationToken).ConfigureAwait(false);
+        if (member.DeletionRequestedAt is not null)
+        {
+            // Nobody is there to read it: nothing is sent or kept (L2-074 AC12; ADR 0118).
+            throw new RefusalException(RefusalCodes.MemberDeleting, RefusalKind.Conflict);
+        }
+
         var staff = await db.Members.AsNoTracking().Where(m => m.Id == current.Id).Select(m => m.Name).SingleAsync(cancellationToken).ConfigureAwait(false);
         var now = time.GetUtcNow();
         var reply = FeedbackReply.To(note.Id, current.Id, request.Text!, now);

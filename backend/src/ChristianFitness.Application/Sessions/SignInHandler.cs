@@ -15,7 +15,9 @@ namespace ChristianFitness.Application.Sessions;
 /// (L2-004 AC2);</item>
 /// <item>a suspended member with the right password is refused <c>account_suspended</c>, so the
 /// suspension is told only to whoever knows the password (L2-004 AC4);</item>
-/// <item>otherwise the email's failures are cleared and the member is signed in.</item>
+/// <item>otherwise the email's failures are cleared; a deleting account is refused
+/// <c>account_deleting</c> with no session, so the screen can offer Restore (L2-066 AC8; ADR 0118);</item>
+/// <item>otherwise the member is signed in.</item>
 /// </list>
 /// </summary>
 internal sealed class SignInHandler(MemberCredentials credentials, ISessionSignIn session)
@@ -30,6 +32,11 @@ internal sealed class SignInHandler(MemberCredentials credentials, ISessionSignI
         }
 
         await credentials.ForgetFailuresAsync(request.Email, cancellationToken).ConfigureAwait(false);
+        if (member.IsDeleting)
+        {
+            throw Account.AccountDeleting.Refusal(member);
+        }
+
         await session.SignInAsync(member).ConfigureAwait(false);
         return new SessionDto(member.Id, member.Name);
     }
