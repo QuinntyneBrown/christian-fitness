@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 88% (32 of 36 journeys; 99 of 113 days)
+**% complete:** 90% (33 of 36 journeys; 102 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3628,4 +3628,42 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   `members` specs that fail in this container without these journeys' code being involved.
 - "`@let` and a first `NgTemplateOutlet` cost `main`" (journeys 28 and 29): the new components use
   `@if … as` and `@switch` only.
+
+## Journey 33: Set email and notification preferences
+
+**What slowed it**
+
+- The mock's notification switches are not the requirement's four. The requirement's words were
+  built and the difference recorded (ADR 0114).
+- "An issue goes only where the Weekly is on" passed every existing test with the rule removed: no
+  test had an address subscribed to an extra alone. One was added, and it took both of the rule's
+  guards out to see it fail.
+- The leave test first clicked the back link and met the browser's `beforeunload` question, whose
+  message is empty: links made by `cf-link` load a page. A move inside the app (the header's bell)
+  meets the route guard instead; the spec now proves both.
+- "Preferences saved" for about 2 seconds passed with the timer at 6: a locator assertion waits 5
+  seconds of its own, and an installed clock keeps running. The assertion is given 1 second.
+
+**New lessons**
+
+- After adding a column a rule depends on, look for a test whose data makes the rule matter; if
+  every row has the default, the rule is unproven.
+- A test of "gone after N seconds" gives its assertion less patience than the wrong timer would
+  need, or it proves only "gone eventually".
+- Know which links move inside the app before testing a leave guard: here only what the shell
+  routes (the header, the tab bar) does; a `cf-link` loads a page.
+- A column added to a table with rows needs its backfill in the migration when the default is not
+  what existing rows mean.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": five backend breaks and five on the page each failed a test, after the
+  two fixes above.
+- "Read the initial total after each slice, against the base": web reads 279.07 kB against
+  279.05 kB (ADR 0114 says why); admin is unchanged.
+- "`@let` and a first `NgTemplateOutlet` cost `main`": neither is used.
+- "A requirement's exact words beat the mock" decided the notification switches.
+- The whole web suite ran: 562 of 567 pass here. The five that fail (three of the feedback form's
+  multipart posts, two `legal-change` specs that trip on the dev server's blocked websocket) fail
+  alone in this container and touch nothing these journeys changed.
 
