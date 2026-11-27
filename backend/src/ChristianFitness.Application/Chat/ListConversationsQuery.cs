@@ -75,10 +75,7 @@ internal sealed class ListConversationsHandler(IAppDbContext db, ICurrentMember 
             .GroupBy(m => m.ScopeId)
             .ToDictionary(g => g.Key, g => g.OrderByDescending(m => m.Id).First());
         var authorIds = newest.Values.Select(m => m.AuthorId).Distinct().ToList();
-        var names = await db.Members.AsNoTracking()
-            .Where(m => authorIds.Contains(m.Id))
-            .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
-            .ConfigureAwait(false);
+        var names = await ChatAuthors.NamesAsync(db, authorIds, cancellationToken).ConfigureAwait(false);
 
         var unread = await (
             from m in db.ChatMessages.AsNoTracking()
@@ -98,7 +95,7 @@ internal sealed class ListConversationsHandler(IAppDbContext db, ICurrentMember 
             c.Scope.Id,
             c.Title,
             members.GetValueOrDefault(c.Scope.Id),
-            newest.TryGetValue(c.Scope.Id, out var message) ? new LastMessageDto(names[message.AuthorId], message.Text, message.SentAt) : null,
+            newest.TryGetValue(c.Scope.Id, out var message) ? new LastMessageDto(names[message.AuthorId], ChatAuthors.TextOf(message.Text), message.SentAt) : null,
             unread.GetValueOrDefault(c.Scope.Id),
             c.ActivityAt)).ToList();
         var direct = await DirectRowsAsync(me, cancellationToken).ConfigureAwait(false);
@@ -122,10 +119,7 @@ internal sealed class ListConversationsHandler(IAppDbContext db, ICurrentMember 
             .Take(Window)
             .ToList();
         var ids = partners.Select(p => p.Partner).ToList();
-        var names = await db.Members.AsNoTracking()
-            .Where(m => ids.Contains(m.Id))
-            .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
-            .ConfigureAwait(false);
+        var names = await ChatAuthors.NamesAsync(db, ids, cancellationToken).ConfigureAwait(false);
         var unread = await (
             from m in db.DirectMessages.AsNoTracking()
             where m.RecipientId == me && ids.Contains(m.SenderId)
@@ -152,7 +146,7 @@ internal sealed class ListConversationsHandler(IAppDbContext db, ICurrentMember 
                 other,
                 names.GetValueOrDefault(other, string.Empty),
                 null,
-                new LastMessageDto(author, last.Text, last.SentAt),
+                new LastMessageDto(author, ChatAuthors.TextOf(last.Text), last.SentAt),
                 unread.GetValueOrDefault(other),
                 partner.SentAt));
         }

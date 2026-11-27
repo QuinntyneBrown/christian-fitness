@@ -42,6 +42,17 @@ public sealed class AccountController(ISender sender) : ControllerBase
         Created("/api/session", await sender.Send(command, cancellationToken).ConfigureAwait(false));
 
     /// <summary>
+    /// "Delete my account" (L2-066 AC6; ADR 0118): the member's own account, under the fallback
+    /// policy. Answers 204; the session has ended.
+    /// </summary>
+    [HttpPost("deletion")]
+    public async Task<IActionResult> Delete(DeleteAccountCommand command, CancellationToken cancellationToken)
+    {
+        await sender.Send(command, cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
+    /// <summary>
     /// Sends a reset link when the email has an account (L2-044; ADR 0010). The answer is 202 with
     /// no body either way, so it never says whether the email is registered.
     /// </summary>

@@ -89,6 +89,27 @@ public sealed class Member
 
     public DateTimeOffset JoinedAt { get; private set; }
 
+    /// <summary>How long a deleting account can be restored before it is erased (L2-066 AC7, AC8; ADR 0078).</summary>
+    public static readonly TimeSpan DeletionGracePeriod = TimeSpan.FromDays(30);
+
+    /// <summary>
+    /// When the member asked to delete the account (L2-066 AC6; ADR 0118): from then on it is hidden
+    /// from everyone and cannot sign in until restored. None while the account is in use.
+    /// </summary>
+    public DateTimeOffset? DeletionRequestedAt { get; private set; }
+
+    /// <summary>Whether the account is deleting: asked to be deleted and not restored.</summary>
+    public bool IsDeleting => DeletionRequestedAt is not null;
+
+    /// <summary>When a deleting account is erased: <see cref="DeletionGracePeriod"/> after the request.</summary>
+    public DateTimeOffset? ErasesAt => DeletionRequestedAt + DeletionGracePeriod;
+
+    /// <summary>Marks the account deleting from <paramref name="now"/>; a second request changes nothing.</summary>
+    public void RequestDeletion(DateTimeOffset now) => DeletionRequestedAt ??= now;
+
+    /// <summary>Restores a deleting account (L2-066 AC8): it is in use again and will not be erased.</summary>
+    public void RestoreFromDeletion() => DeletionRequestedAt = null;
+
     /// <summary>
     /// An account the system owns, not a person (ADR 0065): it has no password, cannot sign in, is in
     /// no member list and takes no replies.

@@ -87,6 +87,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<IssueDelivery> IssueDeliveries => Set<IssueDelivery>();
 
     public DbSet<ChristianFitness.Domain.Members.DataExportRequest> DataExportRequests => Set<ChristianFitness.Domain.Members.DataExportRequest>();
+    public DbSet<ChristianFitness.Domain.Members.AccountDeletionAttempt> AccountDeletionAttempts => Set<ChristianFitness.Domain.Members.AccountDeletionAttempt>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>
     public DbSet<SessionRecord> Sessions => Set<SessionRecord>();

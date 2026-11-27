@@ -61,7 +61,7 @@ internal static class ProfileAccess
             throw NotFound();
         }
 
-        return await db.Members.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id && !m.IsSystem, cancellationToken).ConfigureAwait(false)
+        return await db.Members.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id && !m.IsSystem && m.DeletionRequestedAt == null, cancellationToken).ConfigureAwait(false)
             ?? throw NotFound();
     }
 
