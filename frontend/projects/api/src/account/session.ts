@@ -58,7 +58,8 @@ export interface SessionApi {
   /**
    * Finishes the Google sign-in the API's callback kept, signing the member in. A refusal errors
    * with an `ApiError`: `google_email_unverified` (401), `no_account` (404, with the `account`),
-   * `account_suspended` (403) (L2-004 AC8 to AC10, L2-049 AC11).
+   * `account_suspended` (403) (L2-004 AC8 to AC10, L2-049 AC11), `account_deleting` (409, with the
+   * `account` and `erasesAt`; L2-066 AC6).
    */
   completeGoogle(): Observable<SessionDto>;
 }

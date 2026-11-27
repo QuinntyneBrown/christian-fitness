@@ -4,6 +4,7 @@
   altText="New to Christian Fitness?"
   altLink="Create a profile"
   altHref="/join"
+  [formless]="deleting() !== null"
   (submitted)="submit()"
 >
   @if (refusal() === 'invalid-credentials') {
@@ -37,7 +38,21 @@
       >Something went wrong on our side. Try again in a moment.</cf-alert
     >
   }
-  @if (noAccount(); as account) {
+  @if (deleting(); as deleting) {
+    <cf-sso-notice slot="sso" plain [heading]="deleting.heading" [account]="deleting.account"
+      >Restore it to sign in again. Places you held at events went back to other members and aren't
+      restored.
+      <cf-button
+        slot="actions"
+        size="sm"
+        [disabled]="restoring()"
+        [busy]="restoring()"
+        (click)="restore()"
+        >Restore my account</cf-button
+      >
+      <cf-button slot="actions" variant="ghost" size="sm" href="/">Keep it deleted</cf-button>
+    </cf-sso-notice>
+  } @else if (noAccount(); as account) {
     <cf-sso-notice slot="sso" [account]="account"
       >There's no Christian Fitness profile on this Google account yet. Create one now — we'll bring
       over your name and photo.
@@ -54,7 +69,9 @@
   } @else {
     <cf-google-button slot="sso" [busy]="leaving()" (chosen)="continueWithGoogle()" />
   }
-  <cf-divider slot="sso" variant="label" label="or with email" />
+  @if (!deleting()) {
+    <cf-divider slot="sso" variant="label" label="or with email" />
+  }
   <cf-text-field
     slot="fields"
     fieldId="f-email"
