@@ -38,7 +38,7 @@ public sealed class EventRestoreTests
             : Event.CreateDraft("Retreat", EventCategory.Retreat, startsAt, "Muskoka", "Muskoka", 0, 40, "Rest.", Now.AddDays(-30));
         if (!session)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         if (cancelled)

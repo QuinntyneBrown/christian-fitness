@@ -50,6 +50,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<ListingFollow> ListingFollows => Set<ListingFollow>();
 
+    public DbSet<EventView> EventViews => Set<EventView>();
+
     public DbSet<SuggestionCheck> SuggestionChecks => Set<SuggestionCheck>();
 
     public DbSet<ListingClaim> ListingClaims => Set<ListingClaim>();

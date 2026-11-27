@@ -49,7 +49,7 @@ public sealed class MessagingRuleTests(RegisterForEventFactory factory) : IClass
             {
                 case Tie.SharedGroup:
                     var shared = Event.CreateDraft("Shared run", EventCategory.Run, now.AddDays(3), "Marilyn Bell Park", "Waterfront, Toronto", 0, 50, "A summary.", now, null);
-                    shared.Publish();
+                    shared.Publish(shared.CreatedAt);
                     db.Events.Add(shared);
                     db.Registrations.Add(Registration.Of(shared.Id, recipient, 0, now));
                     db.Registrations.Add(Registration.Of(shared.Id, sender, 0, now));

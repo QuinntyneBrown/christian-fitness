@@ -102,7 +102,7 @@ public class StoriesFactory : BylinesFactory
         var e = ChristianFitness.Domain.Events.Event.CreateDraft(title, ChristianFitness.Domain.Events.EventCategory.Run, startsAt, "Martin Goodman Trail", "Waterfront, Toronto", 0, 50, "Come run with us.", Time.GetUtcNow(), null);
         if (published)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         db.Events.Add(e);

@@ -148,7 +148,7 @@ public sealed class DirectoryFactory : ApiFactory
         e.HostedBy(host);
         if (status != EventStatus.Draft)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         if (status == EventStatus.Cancelled)

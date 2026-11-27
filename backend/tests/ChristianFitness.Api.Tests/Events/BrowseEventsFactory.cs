@@ -46,7 +46,7 @@ public sealed class BrowseEventsFactory : ApiFactory
         var e = Event.CreateDraft(title, category, startsAt, "Martin Goodman Trail", "Waterfront, Toronto", priceCents, capacity, "Come run with us.", Now, imageKey);
         if (published)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         db.Events.Add(e);

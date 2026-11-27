@@ -32,7 +32,7 @@ public sealed class HomeFactory : ApiFactory
         var e = Event.CreateDraft(title, category, Now + startsIn, "Martin Goodman Trail", "Waterfront, Toronto", 0, 50, "Come run with us.", Now.AddDays(-30));
         if (status != EventStatus.Draft)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         if (status == EventStatus.Cancelled)

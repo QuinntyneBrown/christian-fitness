@@ -128,7 +128,7 @@ public sealed class ProfileVisibilityTests(RegisterForEventFactory factory) : IC
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var now = factory.Time.GetUtcNow();
         var shared = Event.CreateDraft("Shared run", EventCategory.Run, now.AddDays(3), "Marilyn Bell Park", "Waterfront, Toronto", 0, 50, "A summary.", now, null);
-        shared.Publish();
+        shared.Publish(shared.CreatedAt);
         db.Events.Add(shared);
         db.Registrations.Add(Registration.Of(shared.Id, a, 0, now));
         db.Registrations.Add(Registration.Of(shared.Id, b, 0, now));

@@ -40,7 +40,7 @@ public sealed class LastPlaceRaceTests(LastPlaceRaceTests.Factory factory) : ICl
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var now = DateTimeOffset.UtcNow;
             var e = Event.CreateDraft(title, EventCategory.Run, now.AddDays(3), "Martin Goodman Trail", "Waterfront, Toronto", 0, capacity, "Come run with us.", now);
-            e.Publish();
+            e.Publish(e.CreatedAt);
             db.Events.Add(e);
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
             return e.Id;
@@ -101,6 +101,7 @@ public sealed class LastPlaceRaceTests(LastPlaceRaceTests.Factory factory) : ICl
         public DbSet<ChristianFitness.Domain.Newsletter.NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens => db.NewsletterUnsubscribeTokens;
         public DbSet<ChristianFitness.Domain.Newsletter.NewsletterIssue> NewsletterIssues => db.NewsletterIssues;
         public DbSet<ChristianFitness.Domain.Members.MemberPreferences> MemberPreferences => db.MemberPreferences;
+        public DbSet<ChristianFitness.Domain.Events.EventView> EventViews => db.EventViews;
         public DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies => db.FeedbackReplies;
         public DbSet<ChristianFitness.Domain.Newsletter.IssueDelivery> IssueDeliveries => db.IssueDeliveries;
         public DbSet<AuditEntry> AuditEntries => db.AuditEntries;

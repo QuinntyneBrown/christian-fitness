@@ -33,7 +33,7 @@ public sealed class RegisterForEventFactory : ApiFactory
         var e = Event.CreateDraft(title, EventCategory.Run, Now + (startsIn ?? TimeSpan.FromDays(3)), "Martin Goodman Trail", "Waterfront, Toronto", priceCents, capacity, "Come run with us.", Now);
         if (published)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         db.Events.Add(e);

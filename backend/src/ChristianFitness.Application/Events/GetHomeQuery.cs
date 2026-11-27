@@ -59,11 +59,14 @@ internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, I
             .ConfigureAwait(false);
         var area = await db.MemberPreferences.AsNoTracking().Where(p => p.MemberId == memberId).Select(p => p.Area)
             .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-        var followed = await db.ListingFollows.AsNoTracking().Where(f => f.MemberId == memberId).Select(f => f.ListingId)
+        var follows = await db.ListingFollows.AsNoTracking().Where(f => f.MemberId == memberId)
+            .ToDictionaryAsync(f => f.ListingId, f => f.FollowedAt, cancellationToken).ConfigureAwait(false);
+        var candidateIds = candidates.Select(e => e.Id).ToList();
+        var seen = await db.EventViews.AsNoTracking().Where(v => v.MemberId == memberId && candidateIds.Contains(v.EventId)).Select(v => v.EventId)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         var byId = candidates.ToDictionary(e => e.Id);
         var suggested = HomeSuggestions
-            .Rank(candidates.Select(e => new HomeSuggestions.Candidate(e.Id, e.Title, e.StartsAt, e.SuggestionArea, e.HostListingId, e.Category)), area, followed, categories)
+            .Rank(candidates.Select(e => new HomeSuggestions.Candidate(e.Id, e.Title, e.StartsAt, e.SuggestionArea, e.HostListingId, e.Category, e.PublishedAt)), area, follows, seen, categories)
             .Take(GetHomeQuery.MaxSuggested)
             .Select(c => byId[c.Id])
             .ToList();

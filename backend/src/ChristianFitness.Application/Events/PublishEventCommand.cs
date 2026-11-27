@@ -38,7 +38,7 @@ internal sealed class PublishEventHandler(IAppDbContext db, TimeProvider time, I
             throw new ValidationException([new ValidationFailure(nameof(EventFields.Date), "Pick a start after now") { ErrorCode = EventFieldCodes.StartInPast }]);
         }
 
-        stored.Publish();
+        stored.Publish(time.GetUtcNow());
         audit.Record(current.Id, nameof(Event), stored.Id);
         var going = await registrations.GoingAsync(stored.Id, cancellationToken).ConfigureAwait(false);
         var series = await AdminEventSeriesDto.OfAsync(db, [stored], cancellationToken).ConfigureAwait(false);
