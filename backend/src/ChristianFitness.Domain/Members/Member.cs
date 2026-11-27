@@ -139,13 +139,13 @@ public sealed class Member
     /// <summary>
     /// Replaces what the member says about themselves (L2-006 AC2; ADR 0024). Each value is trimmed;
     /// a blank city, home church or bio is stored as none, blank goals are dropped and each interest
-    /// is kept once, in the order given. The limits are the validator's, checked before this.
+    /// is kept once, in the order given. The limits are the validator's, checked before this. Whether
+    /// the home church is shown is not Edit profile's: Preferences sets it (L2-006 AC4, L2-065 AC10).
     /// </summary>
     public void EditProfile(
         string name,
         string? city,
         string? homeChurch,
-        bool showHomeChurch,
         string? bio,
         IEnumerable<string> goals,
         IEnumerable<string> interests)
@@ -156,7 +156,6 @@ public sealed class Member
         Name = name.Trim();
         City = NoneIfBlank(city);
         HomeChurch = NoneIfBlank(homeChurch);
-        ShowHomeChurch = showHomeChurch;
         Bio = NoneIfBlank(bio);
         Goals = [.. goals.Where(goal => !string.IsNullOrWhiteSpace(goal)).Select(goal => goal.Trim())];
         Interests = [.. interests.Distinct(StringComparer.Ordinal)];

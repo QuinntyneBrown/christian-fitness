@@ -79,6 +79,32 @@ test.describe('Member app, direct messages', () => {
     await chat.openDirect(MICHAEL);
 
     await expect(chat.unavailable).toBeVisible();
+    await expect(chat.unavailableText).toHaveText(
+      "This member isn't available to message right now.",
+    );
+    await expect(chat.composerInput).toHaveCount(0);
+    expect(hub.sent).toEqual([]);
+  });
+
+  // L2-065 AC5 (journey 34): a member who takes messages only from their groups, and shares none
+  // with the sender, refuses a new conversation with `messages_restricted`; the chat says why.
+  test('a member who only takes messages from their groups says so and shows no composer', async ({
+    page,
+    api,
+  }) => {
+    const hub = await FakeChatHub.install(page, api, {
+      code: 'messages_restricted',
+      title: null,
+      memberId: null,
+    });
+    const chat = new WebEventChatPage(page);
+
+    await chat.openDirect(MICHAEL);
+
+    await expect(chat.unavailable).toBeVisible();
+    await expect(chat.unavailableText).toHaveText(
+      'This member only takes messages from people in their groups.',
+    );
     await expect(chat.composerInput).toHaveCount(0);
     expect(hub.sent).toEqual([]);
   });

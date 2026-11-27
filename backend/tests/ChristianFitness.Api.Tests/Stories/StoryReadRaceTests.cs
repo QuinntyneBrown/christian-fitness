@@ -94,6 +94,7 @@ public sealed class StoryReadRaceTests(StoryReadRaceTests.Factory factory) : ICl
         public DbSet<ChristianFitness.Domain.Newsletter.NewsletterUnsubscribeToken> NewsletterUnsubscribeTokens => db.NewsletterUnsubscribeTokens;
         public DbSet<ChristianFitness.Domain.Newsletter.NewsletterIssue> NewsletterIssues => db.NewsletterIssues;
         public DbSet<ChristianFitness.Domain.Members.MemberPreferences> MemberPreferences => db.MemberPreferences;
+        public DbSet<ChristianFitness.Domain.Events.EventView> EventViews => db.EventViews;
         public DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies => db.FeedbackReplies;
         public DbSet<ChristianFitness.Domain.Newsletter.IssueDelivery> IssueDeliveries => db.IssueDeliveries;
 

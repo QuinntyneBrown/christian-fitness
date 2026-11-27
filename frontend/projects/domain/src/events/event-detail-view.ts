@@ -1,4 +1,5 @@
 import type { EventDetailDto } from '@cf/api';
+import { attendeeLabelOf } from './attendee-label';
 import { CATEGORY_LABELS, eventImageSrc, priceOf } from './event-card-view';
 import { EVENT_TIME_ZONE } from './event-when';
 
@@ -27,6 +28,10 @@ export interface EventDetailView {
   registered: boolean;
   /** How to pay, for a reserved place of a paid event; otherwise none. */
   payNote: string | null;
+  /** The names the avatar stack pictures, five at most (L2-065 AC4). */
+  attendees: string[];
+  /** "Michael, Danielle and 140 others"; none when nobody is named, and then no stack shows. */
+  attendeeLabel: string | null;
 }
 
 const PAY_NOTE =
@@ -64,5 +69,7 @@ export function eventDetailViewOf(event: EventDetailDto): EventDetailView {
     full: event.registration === null && left === 0,
     registered: event.registration !== null,
     payNote: event.registration === 'reserved' ? PAY_NOTE : null,
+    attendees: event.attendees,
+    attendeeLabel: attendeeLabelOf(event.attendees, event.going),
   };
 }

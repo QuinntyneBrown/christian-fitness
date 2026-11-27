@@ -21,7 +21,7 @@ public sealed class MemberEditProfileTests
     {
         var member = Joined();
 
-        member.EditProfile("Grace Thompson", given, given, showHomeChurch: false, given, [], []);
+        member.EditProfile("Grace Thompson", given, given, given, [], []);
 
         Assert.Equal(stored, member.City);
         Assert.Equal(stored, member.HomeChurch);
@@ -33,7 +33,7 @@ public sealed class MemberEditProfileTests
     {
         var member = Joined();
 
-        member.EditProfile("  Grace T. Thompson ", null, null, showHomeChurch: false, null, [], []);
+        member.EditProfile("  Grace T. Thompson ", null, null, null, [], []);
 
         Assert.Equal("Grace T. Thompson", member.Name);
     }
@@ -47,7 +47,7 @@ public sealed class MemberEditProfileTests
     {
         var member = Joined();
 
-        member.EditProfile("Grace Thompson", null, null, showHomeChurch: false, null, given, []);
+        member.EditProfile("Grace Thompson", null, null, null, given, []);
 
         Assert.Equal(stored, member.Goals);
     }
@@ -59,7 +59,7 @@ public sealed class MemberEditProfileTests
     {
         var member = Joined();
 
-        member.EditProfile("Grace Thompson", null, null, showHomeChurch: false, null, [], given);
+        member.EditProfile("Grace Thompson", null, null, null, [], given);
 
         Assert.Equal(stored, member.Interests);
     }
@@ -73,11 +73,12 @@ public sealed class MemberEditProfileTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void Given_a_visibility_choice_When_the_profile_is_edited_Then_it_is_kept(bool show)
+    public void Given_a_visibility_choice_made_in_preferences_When_the_profile_is_edited_Then_it_is_kept(bool show)
     {
         var member = Joined();
+        member.ChangeFromPreferences(null, show);
 
-        member.EditProfile("Grace Thompson", null, "Grace Fellowship, Scarborough", show, null, [], []);
+        member.EditProfile("Grace Thompson", null, "Grace Fellowship, Scarborough", null, [], []);
 
         Assert.Equal(show, member.ShowHomeChurch);
     }

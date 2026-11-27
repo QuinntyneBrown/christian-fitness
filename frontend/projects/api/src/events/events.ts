@@ -92,6 +92,11 @@ export interface EventDetailDto extends Omit<EventSummaryDto, 'series'> {
    * one, or `null` when they are not registered.
    */
   registration: 'confirmed' | 'reserved' | null;
+  /**
+   * Up to five members going who show themselves on attendee lists, by name, in the order they took
+   * their places (L2-065 AC4; ADR 0116). Every member going is in `going`, named or not.
+   */
+  attendees: string[];
 }
 
 /**

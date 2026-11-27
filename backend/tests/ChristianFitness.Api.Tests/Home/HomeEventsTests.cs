@@ -32,7 +32,7 @@ public sealed class HomeFactory : ApiFactory
         var e = Event.CreateDraft(title, category, Now + startsIn, "Martin Goodman Trail", "Waterfront, Toronto", 0, 50, "Come run with us.", Now.AddDays(-30));
         if (status != EventStatus.Draft)
         {
-            e.Publish();
+            e.Publish(e.CreatedAt);
         }
 
         if (status == EventStatus.Cancelled)
@@ -146,6 +146,9 @@ public sealed class HomeEventsTests(HomeFactory factory) : IClassFixture<HomeFac
         var going = await factory.AddEventAsync("Going Run", 1 * Day + TimeSpan.FromHours(1));
         var run = await factory.AddEventAsync("Matching Run", 2 * Day);
         var workout = await factory.AddEventAsync("Matching Workout", 3 * Day, EventCategory.Workout);
+        // A third match, so three events that match always outrank the one that does not, whichever
+        // of the class's tests ran first.
+        await factory.AddEventAsync("Another Matching Run", 4 * Day);
         await factory.AddEventAsync("Basketball Night", 1 * Day, EventCategory.Basketball);
         await factory.AddEventAsync("Draft Run", 1 * Day, status: EventStatus.Draft);
         await factory.AddEventAsync("Cancelled Run", 1 * Day, status: EventStatus.Cancelled);
@@ -158,8 +161,8 @@ public sealed class HomeEventsTests(HomeFactory factory) : IClassFixture<HomeFac
         Assert.Equal([run.ToString(), workout.ToString()], Ids(home).Where(id => id == run.ToString() || id == workout.ToString()));
         Assert.DoesNotContain(going.ToString(), Ids(home));
         var titles = home.GetProperty("suggested").EnumerateArray().Select(e => e.GetProperty("title").GetString()).ToList();
-        // An event matching no interest ranks after every one that does (L2-065 AC7; ADR 0076): with
-        // the class's other matching events in the store, it never reaches the three suggested.
+        // An event matching no interest ranks after every one that does (L2-065 AC7; ADR 0076), so
+        // with three that match it never reaches the three suggested.
         Assert.DoesNotContain("Basketball Night", titles);
         Assert.DoesNotContain("Draft Run", titles);
         Assert.DoesNotContain("Cancelled Run", titles);

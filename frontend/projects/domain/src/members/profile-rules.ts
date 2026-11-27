@@ -11,7 +11,6 @@ export interface ProfileForm {
   name: string;
   city: string;
   homeChurch: string;
-  showHomeChurch: boolean;
   bio: string;
   /** The goals as typed: one per line. */
   goals: string;
@@ -46,7 +45,6 @@ export function profileFormOf(profile: OwnProfileDto): ProfileForm {
     name: profile.name,
     city: profile.city ?? '',
     homeChurch: profile.homeChurch ?? '',
-    showHomeChurch: profile.showHomeChurch,
     bio: profile.bio ?? '',
     goals: profile.goals.join('\n'),
     interests: INTERESTS.map((interest) => interest.key).filter((key) =>
@@ -97,14 +95,14 @@ export function bioHintOf(bio: string): string | undefined {
 
 /**
  * The request the dialog sends (L2-006 AC2): every value trimmed, a blank city, home church or bio
- * sent as `null`, the goals one per line without blank lines.
+ * sent as `null`, the goals one per line without blank lines. It never says whether the home
+ * church shows: Preferences does (L2-006 AC4, L2-065 AC10).
  */
 export function profileRequestOf(form: ProfileForm): UpdateProfileDto {
   return {
     name: form.name.trim(),
     city: noneIfBlank(form.city),
     homeChurch: noneIfBlank(form.homeChurch),
-    showHomeChurch: form.showHomeChurch,
     bio: noneIfBlank(form.bio),
     goals: goalsOf(form.goals),
     interests: [...form.interests],

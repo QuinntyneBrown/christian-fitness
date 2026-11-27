@@ -37,6 +37,8 @@ export class WebProfilePage {
   readonly skeletons: Locator;
   /** The hero's Edit profile button. */
   readonly editButton: Locator;
+  /** Preferences, beside Edit profile (L2-005 AC1, L2-064 AC1). */
+  readonly preferencesLink: Locator;
   /** The empty About section's "Add a bio". */
   readonly addBioButton: Locator;
   readonly error: Locator;
@@ -71,6 +73,9 @@ export class WebProfilePage {
     this.editButton = this.main
       .locator('.profile-hero__action')
       .getByRole('button', { name: 'Edit profile' });
+    this.preferencesLink = this.main
+      .locator('.profile-hero__action')
+      .getByRole('link', { name: 'Preferences' });
     this.addBioButton = this.main
       .locator('.empty-inline')
       .getByRole('button', { name: 'Add a bio' });

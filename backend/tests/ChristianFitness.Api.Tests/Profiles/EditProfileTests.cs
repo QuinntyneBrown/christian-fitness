@@ -8,7 +8,7 @@ namespace ChristianFitness.Api.Tests.Profiles;
 /// <summary>
 /// L2-006 AC2, AC4 and AC5: a member saves their own profile at
 /// <c>PUT /api/members/{memberId}/profile</c> and reads the saved values back; the home church
-/// stays hidden until they show it; any other member's id is refused 403 and nothing changes
+/// stays hidden until they show it in Preferences; any other member's id is refused 403 and nothing changes
 /// (ADR 0024).
 /// </summary>
 public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<ProfileApiFactory>
@@ -27,7 +27,6 @@ public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<
             name = "  Grace T. Thompson ",
             city = " Toronto, ON ",
             homeChurch = "Grace Fellowship, Scarborough",
-            showHomeChurch = true,
             bio = " Mom of two, recovering couch-to-5K runner. ",
             goals = new List<string> { "Half marathon in the fall", "   ", " Sleep before 11 " },
             interests = new List<string> { "running", "cycling", "pickleball", "running" },
@@ -46,7 +45,8 @@ public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<
             Assert.Equal("Grace T. Thompson", answer.GetProperty("name").GetString());
             Assert.Equal("Toronto, ON", answer.GetProperty("city").GetString());
             Assert.Equal("Grace Fellowship, Scarborough", answer.GetProperty("homeChurch").GetString());
-            Assert.True(answer.GetProperty("showHomeChurch").GetBoolean());
+            // Edit profile does not show the church: Preferences does (L2-006 AC4).
+            Assert.False(answer.GetProperty("showHomeChurch").GetBoolean());
             Assert.Equal("Mom of two, recovering couch-to-5K runner.", answer.GetProperty("bio").GetString());
             // A blank line is not a goal; each goal is trimmed.
             Assert.Equal(["Half marathon in the fall", "Sleep before 11"], answer.GetProperty("goals").EnumerateArray().Select(g => g.GetString()));
@@ -68,7 +68,6 @@ public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<
             name = "Grace Thompson",
             city = "  ",
             homeChurch = "",
-            showHomeChurch = false,
             bio = " ",
             goals = Array.Empty<string>(),
             interests = Array.Empty<string>(),
@@ -117,7 +116,6 @@ public sealed class EditProfileTests(ProfileApiFactory factory) : IClassFixture<
             name = "Not Michael",
             city = "Elsewhere",
             homeChurch = "Another church",
-            showHomeChurch = true,
             bio = "Changed by someone else.",
             goals = new List<string> { "Changed" },
             interests = new List<string> { "cycling" },

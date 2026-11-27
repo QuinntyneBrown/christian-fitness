@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 90% (33 of 36 journeys; 102 of 113 days)
+**% complete:** 94% (34 of 36 journeys; 106 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3703,4 +3703,49 @@ the event editor's area choice are built. Attendee lists and a visitor's profile
   two edit scripts above.
 - "Read the initial total after each slice, against the base": web stays at 279.07 kB.
 - "A rule with a table of cases also gets a direct test": Home's order has one, a row per case.
+
+## Journey 34: Set privacy and suggestion preferences (completed)
+
+The visitor's profile page, the attendee list, the not-found view for a hidden profile, "Show my
+home church" in Preferences only, a followed listing's events new until opened, and
+`messages_restricted` in the chat finish the journey (ADR 0116). Checking journeys 28, 29, 31 and
+33 against their criteria found Preferences missing from Profile (`L2-064` AC1), added here.
+
+**What slowed it**
+
+- Reading each criterion of the journey's six requirement references word for word found four
+  gaps the partial build had not listed: the Edit profile switch, the not-found view, "new" in
+  `L2-056` AC7 and the chat's word for `messages_restricted`.
+- `IAppDbContext` has ten test doubles; a new `DbSet` reaches all of them. An edit script that
+  added the line beside each `MemberPreferences` one did it in one pass.
+- `Event.Publish()` gained the time of publishing: thirteen test callers, changed mechanically to
+  publish at the event's creation.
+- A Home test from the partial build passed or failed by the order its class ran in: it relied on
+  other tests' events to push one out of the three suggested. It now adds its own third match.
+- `getByRole('link', { name: 'Message' })` also matched "Join to message"; the page object asks
+  for an exact name.
+- The session's sandbox refused shell commands that wrote files through heredocs; files were
+  written with the editor instead.
+
+**New lessons**
+
+- A "partly built" journey's list of what is missing is a starting point, not the list: re-read
+  every criterion before calling the rest done.
+- A role locator by name matches substrings; ask for `exact: true` when one action's name is
+  inside another's.
+- When a ranking rule says "new until seen", record both ends as facts (when published, when
+  opened) and keep the rule a pure function over them, with a row per case.
+- A test that counts on other tests' data to make its rule matter is order-dependent; give it the
+  data it needs.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the visitor's church guard, the attendee filter and the seen check each
+  failed their own test when broken; the route guard and the not-found branch were red before they
+  were written.
+- "Read the initial total after each slice, against the base": web reads 279.06 kB against
+  279.07 kB.
+- "`@let` and a first `NgTemplateOutlet` cost `main`": the new markup uses `@if … as` only.
+- "Prove an absence by exact keys": the Edit profile request is asserted whole, so no
+  `showHomeChurch` key can return unnoticed.
 

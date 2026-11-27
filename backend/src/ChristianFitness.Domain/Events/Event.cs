@@ -61,6 +61,13 @@ public sealed class Event
 
     public DateTimeOffset CreatedAt { get; private set; }
 
+    /// <summary>
+    /// When it was published: none for a draft, or for one published before this was recorded. A
+    /// followed listing's event counts as new on Home only when published after the follow
+    /// (L2-056 AC7; ADR 0116).
+    /// </summary>
+    public DateTimeOffset? PublishedAt { get; private set; }
+
     /// <summary>The series this event is a session of, or none for a standalone event (ADR 0080, ADR 0091).</summary>
     public Guid? SeriesId { get; private set; }
 
@@ -166,6 +173,7 @@ public sealed class Event
             SeriesId = series.Id,
             Status = EventStatus.Published,
             CreatedAt = createdAt,
+            PublishedAt = createdAt,
         };
         session.FollowSeries(series);
         return session;
@@ -206,10 +214,10 @@ public sealed class Event
     public void SuggestIn(string? area) => SuggestionArea = string.IsNullOrWhiteSpace(area) ? null : area;
 
     /// <summary>
-    /// Makes a draft visible to members (L2-023 AC3; ADR 0026). Only a draft can be published; the
-    /// handler refuses any other status before it asks.
+    /// Makes a draft visible to members at <paramref name="at"/> (L2-023 AC3; ADR 0026). Only a draft
+    /// can be published; the handler refuses any other status before it asks.
     /// </summary>
-    public void Publish()
+    public void Publish(DateTimeOffset at)
     {
         if (Status != EventStatus.Draft)
         {
@@ -217,6 +225,7 @@ public sealed class Event
         }
 
         Status = EventStatus.Published;
+        PublishedAt = at;
     }
 
     /// <summary>

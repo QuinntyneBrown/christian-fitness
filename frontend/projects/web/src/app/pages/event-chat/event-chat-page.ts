@@ -74,6 +74,8 @@ export default class EventChatPage {
 
   protected readonly eventHref = signal('/events');
   protected readonly state = signal<'connecting' | 'open' | 'refused' | 'failed'>('connecting');
+  /** The refusal was `messages_restricted`: the member takes messages only from their groups. */
+  protected readonly restricted = signal(false);
   protected readonly title = signal('');
   /** True once staff cancelled the event: a notice replaces the composer (ADR 0041). */
   protected readonly cancelled = signal(false);
@@ -261,10 +263,15 @@ export default class EventChatPage {
     this.cancelled.set(false);
     this.system.set(false);
     this.systemRefused.set(false);
+    this.restricted.set(false);
     try {
       const answer = await this.chat.join(this.id, this.direct);
       if (this.destroyRef.destroyed) return;
       if (answer.code === 'not_a_participant' || answer.code === 'recipient_unavailable') {
+        this.state.set('refused');
+      } else if (answer.code === 'messages_restricted') {
+        // Only their groups may start a conversation with them (L2-065 AC5).
+        this.restricted.set(true);
         this.state.set('refused');
       } else if (answer.code !== null) {
         this.state.set('failed');

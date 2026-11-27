@@ -103,6 +103,9 @@
                 }
               </div>
               <p class="event-detail__going">{{ view.going }}</p>
+              @if (view.attendeeLabel; as label) {
+                <cf-avatar-stack [names]="view.attendees" [label]="label" />
+              }
             </cf-card>
             @if (host(); as by) {
               <cf-host-card

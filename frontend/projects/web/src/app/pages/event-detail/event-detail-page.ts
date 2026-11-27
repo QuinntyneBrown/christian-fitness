@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EVENTS_SERVICE, type EventDetailDto } from '@cf/api';
 import {
+  AvatarStack,
   Button,
   Card,
   Container,
@@ -55,6 +56,7 @@ import { HttpEventsService } from '../../services/http-events.service';
 @Component({
   selector: 'cf-event-detail-page',
   imports: [
+    AvatarStack,
     Button,
     Card,
     Container,

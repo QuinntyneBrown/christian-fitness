@@ -5,7 +5,6 @@ import { INTERESTS, type InterestKey, type OwnProfileDto, PROFILE_SERVICE } from
 import {
   Alert,
   Button,
-  Checkbox,
   Dialog,
   FormLayout,
   Interest,
@@ -34,7 +33,7 @@ export type EditProfileResult = OwnProfileDto | null;
 /**
  * The Edit profile dialog (L2-006; ADR 0024; mock `docs/mocks/dialogs/edit-profile/`), a CDK
  * Dialog that renders the library's `cf-dialog` shell around the library's form controls. It
- * opens with the current values, the home church hidden unless the member showed it (AC1, AC4).
+ * opens with the current values (AC1); whether the home church shows is Preferences' (AC4).
  * Before sending, `validateProfile` names each field to fix and nothing is sent (AC6, mock
  * `invalid`, `invalid-limits`). While the save is on its way the button reads "Saving…", the fields
  * hold still and Cancel is disabled; Close, Escape and the scrim do nothing (mock `busy`). A
@@ -44,17 +43,7 @@ export type EditProfileResult = OwnProfileDto | null;
  */
 @Component({
   selector: 'cf-edit-profile-dialog',
-  imports: [
-    Alert,
-    Button,
-    Checkbox,
-    Dialog,
-    FormLayout,
-    Interest,
-    InterestList,
-    Textarea,
-    TextField,
-  ],
+  imports: [Alert, Button, Dialog, FormLayout, Interest, InterestList, Textarea, TextField],
   templateUrl: './edit-profile-dialog.html',
   styleUrl: './edit-profile-dialog.scss',
 })
@@ -88,10 +77,6 @@ export class EditProfileDialog {
   protected edit(field: ProfileField, value: string): void {
     this.form.update((form) => ({ ...form, [field]: value }));
     this.fieldErrors.update((errors) => clearProfileError(errors, field));
-  }
-
-  protected show(checked: boolean): void {
-    this.form.update((form) => ({ ...form, showHomeChurch: checked }));
   }
 
   protected toggle(key: InterestKey): void {

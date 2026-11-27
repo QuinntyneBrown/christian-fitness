@@ -16,6 +16,7 @@ const BOOTCAMP: EventDetailDto = {
   imageKey: null,
   registration: null,
   series: null,
+  attendees: ['Grace Thompson'],
   host: {
     id: 'h1',
     kind: 'organization',
@@ -43,6 +44,8 @@ describe('eventDetailViewOf', () => {
       full: false,
       registered: false,
       payNote: null,
+      attendees: ['Grace Thompson'],
+      attendeeLabel: 'Grace and 37 others',
     });
   });
 

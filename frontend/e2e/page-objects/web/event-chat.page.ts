@@ -26,6 +26,8 @@ export class WebEventChatPage {
   /** A direct conversation (slice 14.1): the way back to Messages, and the refusal for a member who cannot be messaged. */
   readonly messagesLink: Locator;
   readonly unavailable: Locator;
+  /** Why a direct conversation was refused, under "You can't message this member". */
+  readonly unavailableText: Locator;
   /** Report on received messages (slice 25.1; ADR 0000): one button per message from another member. */
   readonly reportButtons: Locator;
   /** The Christian Fitness account (ADR 0065): the note that replaces the composer, its link and a refused send. */
@@ -40,6 +42,7 @@ export class WebEventChatPage {
     this.cancelledNotice = page.getByRole('status').filter({ hasText: 'This event was cancelled' });
     this.messagesLink = page.getByRole('link', { name: 'Back to messages' });
     this.unavailable = page.getByRole('heading', { name: "You can't message this member" });
+    this.unavailableText = page.locator('.error-state .empty-state__text');
     this.reportButtons = page.getByRole('button', { name: /^Report message from / });
     this.chatTitle = page.locator('.chat-page__name');
     this.subtitle = page.locator('.chat-page__sub');

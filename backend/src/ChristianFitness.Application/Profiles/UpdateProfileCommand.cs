@@ -21,9 +21,6 @@ public sealed class UpdateProfileCommand : IRequest<OwnProfileDto>
     /// <summary>Optional and sensitive (L2-033 AC1): blank or missing is stored as none.</summary>
     public string? HomeChurch { get; init; }
 
-    /// <summary>Whether other members may see the home church; hidden unless sent true (L2-006 AC4).</summary>
-    public bool ShowHomeChurch { get; init; }
-
     public string? Bio { get; init; }
 
     public IReadOnlyList<string> Goals { get; init; } = [];
@@ -40,7 +37,6 @@ public sealed class UpdateProfileCommand : IRequest<OwnProfileDto>
             Name = body.Name,
             City = body.City,
             HomeChurch = body.HomeChurch,
-            ShowHomeChurch = body.ShowHomeChurch,
             Bio = body.Bio,
             Goals = body.Goals,
             Interests = body.Interests,

@@ -17,6 +17,10 @@ export class WebEventDetailPage extends ErrorScreen {
   readonly price: Locator;
   readonly spots: Locator;
   readonly going: Locator;
+  /** The avatar stack of the members going who show themselves (L2-065 AC4; mock `event-detail/default`). */
+  readonly attendeeStack: Locator;
+  readonly attendeeAvatars: Locator;
+  readonly attendeeLabel: Locator;
   readonly registerButton: Locator;
   readonly confirmed: Locator;
   readonly full: Locator;
@@ -57,6 +61,9 @@ export class WebEventDetailPage extends ErrorScreen {
     this.price = page.locator('.event-detail__price');
     this.spots = page.locator('.event-detail__spots');
     this.going = page.locator('.event-detail__going');
+    this.attendeeStack = page.locator('.event-detail__aside .avatar-stack');
+    this.attendeeAvatars = this.attendeeStack.locator('.avatar');
+    this.attendeeLabel = this.attendeeStack.locator('.avatar-stack__label');
     this.registerButton = page.getByRole('button', { name: /^Register/ });
     this.confirmed = page.locator('.event-detail__confirmed');
     this.full = page.locator('.event-detail__full');

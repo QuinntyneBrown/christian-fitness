@@ -37,7 +37,7 @@ public class AttendanceFactory : ApiFactory
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var now = Time.GetUtcNow();
         var e = Event.CreateDraft(title, EventCategory.Mobility, now + startsIn, "Trinity Bellwoods Park", "West End, Toronto", 0, 30, "Stretch and pray together.", now - TimeSpan.FromDays(7));
-        e.Publish();
+        e.Publish(e.CreatedAt);
         db.Events.Add(e);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return e.Id;

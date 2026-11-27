@@ -62,6 +62,35 @@ public sealed class PrivacyPreferencesTests(RegisterForEventFactory factory) : I
         Assert.Equal("""{"area":null,"interests":[]}""", (await Prefs.GetAsync(client, cookie)).GetProperty("suggestions").GetRawText());
     }
 
+    // L2-006 AC4, L2-065 AC10: "Show my home church" is Preferences' alone. Saving Edit profile,
+    // even with a showHomeChurch an older page still sends, keeps the choice Preferences made.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Given_the_home_church_choice_made_in_preferences_When_Edit_profile_saves_Then_the_choice_is_kept(bool shown)
+    {
+        using var client = Browser.CreateClient(factory);
+        var (cookie, id) = await Prefs.JoinAsync(factory, client, $"grace.privacy.church.{shown}@example.org");
+        var body = Prefs.Body();
+        body["privacy"] = new { visibility = "members", showHomeChurch = shown, showOnAttendeeLists = true, letAnyoneMessage = false };
+        using var saved = await Prefs.SaveAsync(client, cookie, body);
+        Assert.Equal(HttpStatusCode.OK, saved.StatusCode);
+
+        using var edited = await Profiles.EditProfileTests.PutAsync(client, $"/api/members/{id}/profile", cookie, new
+        {
+            name = "Grace Thompson",
+            homeChurch = "Grace Fellowship, Scarborough",
+            showHomeChurch = !shown,
+            goals = Array.Empty<string>(),
+            interests = new List<string> { "running" },
+        });
+
+        Assert.Equal(HttpStatusCode.OK, edited.StatusCode);
+        var answer = await edited.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal(shown, answer.GetProperty("showHomeChurch").GetBoolean());
+        Assert.Equal(shown, (await Prefs.GetAsync(client, cookie)).GetProperty("privacy").GetProperty("showHomeChurch").GetBoolean());
+    }
+
     [Theory]
     [InlineData("visibility", "everyone", "scarborough", "running", "privacy.visibility", "visibility_invalid")]
     [InlineData("area", "members", "the-moon", "running", "suggestions.area", "area_invalid")]

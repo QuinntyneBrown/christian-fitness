@@ -1,7 +1,9 @@
 import { expect, test, type ApiHandlers } from '../fixtures/test';
+import { answerPreferences } from '../fixtures/preferences';
 import { FULL_PROFILE, NEW_PROFILE, TODAY } from '../fixtures/profiles';
 import { WebHomePage } from '../page-objects/web/home.page';
 import { WebMemberShell } from '../page-objects/web/member-shell.page';
+import { PreferencesPage } from '../page-objects/web/preferences.page';
 import { WebProfilePage } from '../page-objects/web/profile.page';
 import { WebServerErrorPage } from '../page-objects/web/server-error.page';
 
@@ -18,6 +20,27 @@ function answerProfile(api: ApiHandlers, profile: unknown): { count: number } {
 // L2-005 AC1: a signed-in member opening Profile sees their name, initials avatar, city, join date,
 // bio, home church, goals, interests and the events they are going to (ADR 0015).
 test.describe('Member app, my profile', () => {
+  // L2-005 AC1, L2-064 AC1 (journey 33): Preferences opens from the member's own profile, beside
+  // Edit profile, as well as from the footer.
+  test('Profile offers Preferences beside Edit profile, and it opens Preferences', async ({
+    page,
+    api,
+  }) => {
+    answerProfile(api, FULL_PROFILE);
+    answerPreferences(api);
+    const profile = new WebProfilePage(page);
+    const preferences = new PreferencesPage(page);
+
+    await profile.open();
+
+    await expect(profile.editButton).toBeVisible();
+    await expect(profile.preferencesLink).toHaveAttribute('href', '/preferences');
+    await profile.preferencesLink.click();
+
+    await expect(page).toHaveURL('/preferences');
+    await expect(preferences.heading).toHaveText('Preferences');
+  });
+
   test('Profile shows every field of the member and the events they are going to', async ({
     page,
     api,

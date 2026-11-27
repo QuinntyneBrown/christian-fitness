@@ -24,7 +24,8 @@ public sealed record EventHostCardDto(Guid Id, string Kind, string Name, bool Is
 /// <summary>
 /// An event as a member's detail screen shows it (L2-010 AC1, AC4 to AC6; ADR 0031, ADR 0089,
 /// ADR 0096); the app words the date and the price. <see cref="Series"/> is a session's series
-/// card, none for a standalone event.
+/// card, none for a standalone event. <see cref="Attendees"/> names up to five members going who
+/// show themselves on attendee lists (L2-065 AC4; <see cref="AttendeeList"/>).
 /// </summary>
 public sealed record EventDetailDto(
     Guid Id,
@@ -40,10 +41,11 @@ public sealed record EventDetailDto(
     string? ImageKey,
     string? Registration,
     EventHostCardDto Host,
-    EventSeriesCardDto? Series)
+    EventSeriesCardDto? Series,
+    IReadOnlyList<string> Attendees)
 {
     /// <summary>The event as the caller sees it: <paramref name="mine"/> is their registration, if any (L2-010 AC3).</summary>
-    public static EventDetailDto Of(Event e, int going, RegistrationStatus? mine, DirectoryListing host, EventSeriesCardDto? series)
+    public static EventDetailDto Of(Event e, int going, RegistrationStatus? mine, DirectoryListing host, EventSeriesCardDto? series, IReadOnlyList<string> attendees)
     {
         ArgumentNullException.ThrowIfNull(e);
         return new(
@@ -55,14 +57,15 @@ public sealed record EventDetailDto(
                 _ => null,
             },
             EventHostCardDto.Of(host),
-            series);
+            series,
+            attendees);
     }
 }
 
 /// <summary>Opens one published event; an unknown or unpublished id is 404 <c>event_not_found</c> (L2-010 AC2).</summary>
 public sealed record GetEventQuery(Guid Id) : IRequest<EventDetailDto>;
 
-internal sealed class GetEventHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current) : IRequestHandler<GetEventQuery, EventDetailDto>
+internal sealed class GetEventHandler(IAppDbContext db, IRegistrationReader registrations, ICurrentMember current, TimeProvider time) : IRequestHandler<GetEventQuery, EventDetailDto>
 {
     public async Task<EventDetailDto> Handle(GetEventQuery request, CancellationToken cancellationToken)
     {
@@ -82,6 +85,32 @@ internal sealed class GetEventHandler(IAppDbContext db, IRegistrationReader regi
             .SingleAsync(l => l.Id == e.HostListingId, cancellationToken)
             .ConfigureAwait(false);
         var series = await EventSeriesCards.OfAsync(db, e, memberId, cancellationToken).ConfigureAwait(false);
-        return EventDetailDto.Of(e, going, mine, host, series);
+        var attendees = await AttendeeList.NamesAsync(db, e.Id, cancellationToken).ConfigureAwait(false);
+        await SeeAsync(e.Id, memberId, cancellationToken).ConfigureAwait(false);
+        return EventDetailDto.Of(e, going, mine, host, series, attendees);
+    }
+
+    /// <summary>
+    /// Records that the member has opened the event, once: from then on it is not new to them on
+    /// Home (L2-056 AC7; ADR 0116). A second opening at the same moment that loses the race is the
+    /// same fact, so it is let go.
+    /// </summary>
+    private async Task SeeAsync(Guid eventId, Guid memberId, CancellationToken cancellationToken)
+    {
+        if (await db.EventViews.AnyAsync(v => v.MemberId == memberId && v.EventId == eventId, cancellationToken).ConfigureAwait(false))
+        {
+            return;
+        }
+
+        var view = EventView.Of(memberId, eventId, time.GetUtcNow());
+        db.EventViews.Add(view);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateException)
+        {
+            db.EventViews.Entry(view).State = EntityState.Detached;
+        }
     }
 }

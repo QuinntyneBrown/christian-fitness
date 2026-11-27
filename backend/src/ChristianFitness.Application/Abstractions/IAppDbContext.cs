@@ -72,6 +72,9 @@ public interface IAppDbContext
     /// <summary>Which members follow which directory listings (L2-056; ADR 0088).</summary>
     DbSet<ListingFollow> ListingFollows { get; }
 
+    /// <summary>Which events each member has opened, and when first (L2-056 AC7; ADR 0116).</summary>
+    DbSet<ChristianFitness.Domain.Events.EventView> EventViews { get; }
+
     /// <summary>The checks staff set on a suggestion (L2-073 AC4; ADR 0090).</summary>
     DbSet<SuggestionCheck> SuggestionChecks { get; }
 

@@ -39,7 +39,6 @@ public sealed class EditProfileRefusalTests(ProfileApiFactory factory) : IClassF
             name = "Changed Name",
             city = "Changed City",
             homeChurch = "Changed Church",
-            showHomeChurch = true,
             bio = new string('b', bioLength),
             goals,
             interests = new List<string> { "cycling" },

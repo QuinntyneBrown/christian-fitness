@@ -68,7 +68,7 @@ public class CommunityPickFactory : AdminEventsFactory
         var added = Event.CreateDraft(title, EventCategory.Run, now + startsIn, place, area, priceCents, capacity, "A summary.", now, imageKey);
         if (status != EventStatus.Draft)
         {
-            added.Publish();
+            added.Publish(added.CreatedAt);
         }
 
         if (status == EventStatus.Cancelled)

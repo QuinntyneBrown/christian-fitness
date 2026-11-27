@@ -63,7 +63,7 @@ public sealed class SessionsByDateTests(AdminSeriesFactory factory) : IClassFixt
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var e = Event.CreateDraft(title, EventCategory.Run, startsAt, "Martin Goodman Trail", "Waterfront, Toronto", 0, 50, "Come run with us.", factory.Time.GetUtcNow());
-        e.Publish();
+        e.Publish(e.CreatedAt);
         db.Events.Add(e);
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         return e.Id;

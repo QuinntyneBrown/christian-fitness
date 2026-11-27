@@ -531,6 +531,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<int>("PriceCents")
                         .HasColumnType("integer");
 
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("RegistrationVersion")
                         .IsConcurrencyToken()
                         .HasColumnType("integer");
@@ -634,6 +637,24 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("HostListingId");
 
                     b.ToTable("EventSeries", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.EventView", b =>
+                {
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("SeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MemberId", "EventId");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("EventViews", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Events.MessageReport", b =>
@@ -1704,6 +1725,21 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("HostListingId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Events.EventView", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

@@ -38,7 +38,7 @@ internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember
             var going = await db.Registrations.CountAsync(r => r.EventId == e.Id, cancellationToken).ConfigureAwait(false);
             if (mine is null)
             {
-                return EventDetailDto.Of(e, going, null, host, series);
+                return EventDetailDto.Of(e, going, null, host, series, await AttendeeList.NamesAsync(db, e.Id, cancellationToken).ConfigureAwait(false));
             }
 
             if (time.GetUtcNow() >= e.StartsAt)
@@ -58,7 +58,7 @@ internal sealed class CancelRegistrationHandler(IAppDbContext db, ICurrentMember
                     await chat.LeaveAsync(memberId, scope, cancellationToken).ConfigureAwait(false);
                 }
 
-                return EventDetailDto.Of(e, going - 1, null, host, series);
+                return EventDetailDto.Of(e, going - 1, null, host, series, await AttendeeList.NamesAsync(db, e.Id, cancellationToken).ConfigureAwait(false));
             }
             catch (DbUpdateConcurrencyException)
             {

@@ -23,7 +23,7 @@ public class NewsletterCandidatesFactory : StoriesFactory
         var added = Event.CreateDraft(title, EventCategory.Run, now + startsIn, "Marilyn Bell Park", "Waterfront, Toronto", 0, 50, "A summary.", now, null);
         if (status != EventStatus.Draft)
         {
-            added.Publish();
+            added.Publish(added.CreatedAt);
         }
 
         db.Events.Add(added);
