@@ -43,6 +43,42 @@ test.describe('Member app, event detail', () => {
     await expect(detail.image).toHaveAttribute('src', '/images/events/bootcamp.jpg');
   });
 
+  // L2-065 AC4 (journey 34; ADR 0116): the members going who show themselves are pictured, five at
+  // most, the first two named and the rest counted; a member who switched "Show me on attendee
+  // lists" off is in the count but never named. With nobody to name, only the count shows.
+  test('names up to five members going in a stack, the first two by name and the rest counted', async ({
+    page,
+    api,
+  }) => {
+    answerEvent(api, [
+      SUNRISE_DETAIL,
+      { ...BOOTCAMP_DETAIL, going: 3, attendees: ['Grace Thompson'] },
+    ]);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(SUNRISE_DETAIL.id);
+
+    await expect(detail.going).toHaveText('142 going');
+    await expect(detail.attendeeAvatars).toHaveText(['MC', 'DO', 'PN', 'AK', 'JR']);
+    await expect(detail.attendeeLabel).toHaveText('Michael, Danielle and 140 others');
+
+    await detail.open(BOOTCAMP_DETAIL.id);
+
+    await expect(detail.going).toHaveText('3 going');
+    await expect(detail.attendeeAvatars).toHaveText(['GT']);
+    await expect(detail.attendeeLabel).toHaveText('Grace and 2 others');
+  });
+
+  test('with nobody to name, only the count shows', async ({ page, api }) => {
+    answerEvent(api, [BOOTCAMP_DETAIL]);
+    const detail = new WebEventDetailPage(page);
+
+    await detail.open(BOOTCAMP_DETAIL.id);
+
+    await expect(detail.going).toHaveText('38 going');
+    await expect(detail.attendeeStack).toHaveCount(0);
+  });
+
   test('a full event says no spots are left', async ({ page, api }) => {
     answerEvent(api, [FULL]);
     const detail = new WebEventDetailPage(page);

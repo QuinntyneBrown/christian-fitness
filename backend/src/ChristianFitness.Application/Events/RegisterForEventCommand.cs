@@ -44,7 +44,7 @@ internal sealed class RegisterForEventHandler(IAppDbContext db, ICurrentMember c
             var going = await db.Registrations.CountAsync(r => r.EventId == e.Id, cancellationToken).ConfigureAwait(false);
             if (mine is not null)
             {
-                return EventDetailDto.Of(e, going, mine.Status, host, series);
+                return EventDetailDto.Of(e, going, mine.Status, host, series, await AttendeeList.NamesAsync(db, e.Id, cancellationToken).ConfigureAwait(false));
             }
 
             if (going >= e.Capacity)
@@ -58,7 +58,7 @@ internal sealed class RegisterForEventHandler(IAppDbContext db, ICurrentMember c
             try
             {
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                return EventDetailDto.Of(e, going + 1, mine.Status, host, series);
+                return EventDetailDto.Of(e, going + 1, mine.Status, host, series, await AttendeeList.NamesAsync(db, e.Id, cancellationToken).ConfigureAwait(false));
             }
             catch (DbUpdateConcurrencyException)
             {

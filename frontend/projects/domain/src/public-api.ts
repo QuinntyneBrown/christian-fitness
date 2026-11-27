@@ -56,6 +56,7 @@ export * from './events/attendance-view';
 export * from './events/attendance-tracker';
 export * from './events/admin-event-row';
 export * from './events/event-card-view';
+export * from './events/attendee-label';
 export * from './events/event-detail-view';
 export * from './events/event-full';
 export * from './events/event-category-filter';

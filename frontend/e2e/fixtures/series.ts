@@ -269,6 +269,7 @@ export const COUCH_SESSION_3: EventDetail = {
   imageKey: null,
   summary: 'Run 90 seconds, walk two minutes, six times through.',
   registration: null,
+  attendees: [],
   host: hostCardOf(LAKESHORE),
   series: {
     id: COUCH_TO_5K.id,

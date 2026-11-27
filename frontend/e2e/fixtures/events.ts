@@ -179,6 +179,11 @@ export interface EventDetail extends Omit<EventSummary, 'series'> {
   registration: 'confirmed' | 'reserved' | null;
   /** Its host (ADR 0089): every event has one. */
   host: EventHostCard;
+  /**
+   * Up to five members going who show themselves on attendee lists, in the order they took their
+   * places (L2-065 AC4; ADR 0116).
+   */
+  attendees: string[];
 }
 
 /** The first event in full: the mock `event-detail/unregistered`, 12 of 50 spots left. */
@@ -188,15 +193,20 @@ export const BOOTCAMP_DETAIL: EventDetail = {
   registration: null,
   series: null,
   host: hostCardOf(TEAM),
+  attendees: [],
 };
 
-/** A free event in full, 142 of 200 going and the member not yet registered. */
+/**
+ * A free event in full, 142 of 200 going and the member not yet registered; five of them named, as
+ * the mock `event-detail/default` draws them.
+ */
 export const SUNRISE_DETAIL: EventDetail = {
   ...SUNRISE_5K,
   summary: 'Run the waterfront together at sunrise.',
   registration: null,
   series: null,
   host: hostCardOf(TEAM),
+  attendees: ['Michael Chen', 'Danielle Okafor', 'Priya Nair', 'Ama Kwarteng', 'Jordan Reyes'],
 };
 
 /**
