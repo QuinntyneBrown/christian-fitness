@@ -40,7 +40,7 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 
 ### Enforcement: attendee lists (AC4)
 
-- No attendee list exists in the code: `EventDetailDto` carries only `Going`. The event page mock (`docs/mocks/pages/event-detail/`) draws an `avatar-stack`, and the series designs (`L2-050`, `L2-051`) will draw more. Each query that names or pictures attendees shall exclude members whose `ShowOnAttendeeLists` is off and still count them in going, through `IRegistrationReader`, which shall gain one attendee method so every list applies the rule in one place.
+- `EventDetailDto` carries `Attendees`: up to five members going, by name, in the order they took their places, which the event page (`docs/mocks/pages/event-detail/`) draws as an `avatar-stack`. Each query that names or pictures attendees excludes members whose `ShowOnAttendeeLists` is off and still counts them in going, through one helper, `AttendeeList` in `Application/Events/`, so every list applies the rule in one place (ADR 0116).
 - `GetEventRegistrationsQuery` (staff, `L2-024`) is unaffected: staff still see every member. A host's view of its attendees is not built and no requirement places it yet.
 
 ### Enforcement: suggestions (AC6, AC7)
@@ -50,7 +50,7 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 
 ### As built
 
-[ADR 0115](../../../adr/0115-privacy-and-suggestion-preferences.md) records the defaults chosen, the listing-owner rule that replaces per-request listing context, and what is not built yet: attendee lists, a visitor's profile page and the event editor's area choice.
+[ADR 0115](../../../adr/0115-privacy-and-suggestion-preferences.md) records the defaults chosen and the listing-owner rule that replaces per-request listing context. [ADR 0116](../../../adr/0116-privacy-preferences-completed.md) records the rest: the visitor's `/members/:id`, the not-found view for a hidden profile, "Show my home church" only in Preferences, the attendee list (`AttendeeList`; `attendees` on an event, drawn as an avatar stack), a followed listing's event new from its `PublishedAt` until the member opens it (`EventView`), and `messages_restricted` said in the chat.
 
 ### Open questions
 

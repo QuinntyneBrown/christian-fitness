@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted, 27 November 2026; journey 34 is partly built (see "Not built yet"). Builds on
+Accepted, 27 November 2026; journey 34 is partly built (see "Not built yet"), and
+[ADR 0116](0116-privacy-preferences-completed.md) completes it. Builds on
 [ADR 0075](0075-public-profiles-and-privacy.md), [ADR 0076](0076-home-suggestion-order.md)
 and [ADR 0114](0114-email-and-notification-preferences.md).
 
@@ -50,6 +51,8 @@ that could not be built as written.
 - **Interest toggles** show a check mark as well as colour while pressed.
 
 ## Not built yet
+
+Both are built now; ADR 0116 records how.
 
 - **Attendee lists.** No screen names or pictures an event's attendees to other members; only
   counts are served. "Show me on attendee lists" is stored, and the first feature that lists
