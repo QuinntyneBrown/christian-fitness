@@ -163,6 +163,23 @@ public sealed class Member
     }
 
     /// <summary>
+    /// Sets from Preferences what the profile also holds (L2-065 AC7, AC10): the interests, each kept
+    /// once in the order given, and whether the home church is shown.
+    /// </summary>
+    public void ChangeFromPreferences(IEnumerable<string>? interests, bool? showHomeChurch)
+    {
+        if (interests is not null)
+        {
+            Interests = [.. interests.Distinct(StringComparer.Ordinal)];
+        }
+
+        if (showHomeChurch is { } show)
+        {
+            ShowHomeChurch = show;
+        }
+    }
+
+    /// <summary>
     /// Flags an Active member with <paramref name="note"/> (L2-029 AC1). Answers false, changing
     /// nothing, for a member already Flagged or Suspended.
     /// </summary>
