@@ -3771,6 +3771,11 @@ days, and the archive is removed after (ADR 0117). Journey 36's parts of the sam
   depend on the order they ran in; the expiry test moved to a class (and fixture) of its own.
 - The worktree guard refused heredocs, compound `cd … && git` commands and relative `cd`; edits
   went through Python scripts in the scratchpad with exact-match asserts, and git ran alone.
+- The full suite found `GET /api/preferences`' exact keys asserted in a journey 34 test, and
+  "Turn off all email" read the switches once straight after the press, which failed under four
+  workers; it polls now. `not-found`, `server-error`, admin `members` and `create-series` fail
+  here on main's build too; `suggest-listing` and the newsletter desk's missed issue read once
+  after a press and fail now and then under load. None of them was touched.
 
 **New lessons**
 
