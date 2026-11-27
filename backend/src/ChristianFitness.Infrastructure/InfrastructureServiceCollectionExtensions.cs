@@ -35,6 +35,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IImageStore, FileSystemImageStore>();
         // Feedback screenshots, private to staff (ADR 0109).
         services.AddSingleton<IFeedbackScreenshotStore, FileSystemFeedbackScreenshotStore>();
+        // Members' data archives, private to each member (ADR 0117).
+        services.AddSingleton<IArchiveStore, FileSystemArchiveStore>();
         // The member app's shell for a story's address, read over loopback (ADR 0105).
         services.AddHttpClient(HttpStoryShell.ClientName, client => client.Timeout = TimeSpan.FromSeconds(5));
         services.AddSingleton<IStoryShell, HttpStoryShell>();

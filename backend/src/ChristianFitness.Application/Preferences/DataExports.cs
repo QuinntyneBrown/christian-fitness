@@ -1,5 +1,8 @@
+using System.Globalization;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Audit;
+using ChristianFitness.Application.Email;
+using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Members;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -49,5 +52,80 @@ internal sealed class RequestDataExportHandler(IAppDbContext db, ICurrentMember 
         audit.Record(current.Id, nameof(DataExportRequest), asked.Id);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return new DataExportRequestedDto(asked.RequestedAt);
+    }
+}
+
+/// <summary>
+/// The scheduler's data export job (L2-066 AC1, AC2, AC10; ADR 0069, ADR 0117), run on every tick:
+/// it removes each archive whose 7 days are over, then builds the archive of each request not yet
+/// ready, oldest first and at most <see cref="BuildDataExportsHandler.BatchSize"/> a tick, keeps it
+/// in the private <see cref="IArchiveStore"/>, and emails the member's address its link once the
+/// request is saved as ready, so a second tick builds and sends nothing again. Answers how many it
+/// built; nothing it reads reaches a log or a span.
+/// </summary>
+public sealed record BuildDataExportsCommand : IRequest<int>;
+
+internal sealed class BuildDataExportsHandler(IAppDbContext db, IArchiveStore archives, IEmailSender email, MemberAppAddress app, TimeProvider time)
+    : IRequestHandler<BuildDataExportsCommand, int>
+{
+    /// <summary>How many archives one tick builds; the rest wait for the next tick, 30 seconds on.</summary>
+    public const int BatchSize = 10;
+
+    public const string Subject = "Your Christian Fitness data is ready";
+
+    public async Task<int> Handle(BuildDataExportsCommand request, CancellationToken cancellationToken)
+    {
+        var now = time.GetUtcNow();
+        var expired = await db.DataExportRequests
+            .Where(r => r.ArchiveKey != null && r.ExpiresAt <= now)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var done in expired)
+        {
+            await archives.DeleteAsync(done.ArchiveKey!, cancellationToken).ConfigureAwait(false);
+            done.Expire();
+        }
+
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        var due = await db.DataExportRequests
+            .Where(r => r.ReadyAt == null)
+            .OrderBy(r => r.RequestedAt)
+            .Take(BatchSize)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var asked in due)
+        {
+            var key = ArchiveKeys.New();
+            var zip = await DataExportArchive.BuildAsync(db, asked.MemberId, now, cancellationToken).ConfigureAwait(false);
+            await archives.SaveAsync(key, zip, cancellationToken).ConfigureAwait(false);
+            asked.Ready(key, now);
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            var member = await db.Members.AsNoTracking()
+                .Where(m => m.Id == asked.MemberId)
+                .Select(m => new { m.Name, m.Email })
+                .SingleAsync(cancellationToken).ConfigureAwait(false);
+            await email.SendAsync(new EmailMessage(member.Email, Subject, Text(member.Name, app.DownloadLink(asked.Id), asked.ExpiresAt!.Value)), cancellationToken).ConfigureAwait(false);
+        }
+
+        return due.Count;
+    }
+
+    /// <summary>The words of mock <c>email-download-ready</c>, with the link and its last day in Toronto.</summary>
+    private static string Text(string name, string link, DateTimeOffset expiresAt)
+    {
+        var first = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        var until = EventSchedule.TorontoOf(expiresAt).Date.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture);
+        return $"""
+            Hi {(string.IsNullOrEmpty(first) ? "there" : first)},
+
+            You asked for a copy of your data. It's a .zip of your profile, preferences, registrations, follows, suggestions, feedback and the messages you sent.
+
+            The link works for 7 days, until {until}, and only when you're signed in as you. After that you can request a new one in Preferences.
+
+            Download your data: {link}
+
+            {Organisation.Name}
+
+            If you didn't ask for this, you can ignore this email. Nobody can open the link without signing in as you.
+            """;
     }
 }

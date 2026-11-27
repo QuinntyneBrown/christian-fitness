@@ -1,12 +1,16 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ChristianFitness.Api.Tests.Events;
+using ChristianFitness.Api.Tests.Telemetry;
 using ChristianFitness.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Time.Testing;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Trace;
 
 namespace ChristianFitness.Api.Tests.Preferences;
 
@@ -17,10 +21,17 @@ public sealed class DataExportFactory : ApiFactory
 
     public FakeTimeProvider Time { get; } = new(Now);
 
+    /// <summary>Every span and log, so a test can prove an archive's contents reach neither (L2-066 AC10).</summary>
+    public ExportedCollection<Activity> Spans { get; } = new();
+
+    public ExportedCollection<LogRecord> Logs { get; } = new();
+
     protected override void ConfigureServices(IServiceCollection services)
     {
         services.RemoveAll<TimeProvider>();
         services.AddSingleton<TimeProvider>(Time);
+        services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddInMemoryExporter(Spans));
+        services.ConfigureOpenTelemetryLoggerProvider(logging => logging.AddInMemoryExporter(Logs));
     }
 }
 

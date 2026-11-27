@@ -27,6 +27,10 @@ public sealed class MemberAppAddress
     public string ClaimLink(string token) =>
         $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/claim/{token}";
 
+    /// <summary>The download page of a member's data export (L2-066 AC1; ADR 0117): <c>/preferences/download/{id}</c>.</summary>
+    public string DownloadLink(Guid id) =>
+        $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/preferences/download/{id}";
+
     public string ResetPasswordLink(string token) =>
         $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/reset-password#token={token}";
 }

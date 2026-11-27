@@ -1,19 +1,21 @@
 using ChristianFitness.Application.News;
 using ChristianFitness.Application.Newsletter;
+using ChristianFitness.Application.Preferences;
 using ChristianFitness.Application.Scheduling;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ChristianFitness.Api.Scheduling;
 
-/// <summary>What one tick did: whether this replica held the lease, and how many stories it published.</summary>
-public sealed record PublishingTick(bool Held, int Published, int Purged = 0);
+/// <summary>What one tick did: whether this replica held the lease, how many stories it published, subscriptions it purged and data archives it built.</summary>
+public sealed record PublishingTick(bool Held, int Published, int Purged = 0, int Exported = 0);
 
 /// <summary>
 /// The API's one scheduler (ADR 0069, ADR 0104): every <see cref="Interval"/> of its
 /// <see cref="TimeProvider"/> it takes or renews the scheduler lease and, only while it holds it,
 /// runs each due job in a scope of its own: <see cref="PublishDueStoriesCommand"/>, then
-/// <see cref="PurgeNewsletterSubscriptionsCommand"/> (ADR 0110). A
+/// <see cref="PurgeNewsletterSubscriptionsCommand"/> (ADR 0110), then the newsletter's due issue,
+/// then <see cref="BuildDataExportsCommand"/> (ADR 0117). A
 /// replica that cannot take the lease skips the tick, and one that loses it starts no more work.
 /// The lease lasts <see cref="LeaseDuration"/> from the holder's last tick, so another replica takes
 /// over within a minute of the holder stopping. A failed tick is logged by the exception's type only
@@ -76,7 +78,10 @@ public sealed partial class PublishingClock : BackgroundService
             using var issueScope = _scopes.CreateScope();
             await issueScope.ServiceProvider.GetRequiredService<ISender>()
                 .Send(new SendDueIssueCommand(), cancellationToken).ConfigureAwait(false);
-            return new PublishingTick(true, published, purged);
+            using var exportScope = _scopes.CreateScope();
+            var exported = await exportScope.ServiceProvider.GetRequiredService<ISender>()
+                .Send(new BuildDataExportsCommand(), cancellationToken).ConfigureAwait(false);
+            return new PublishingTick(true, published, purged, exported);
         }
     }
 
@@ -121,6 +126,11 @@ public sealed partial class PublishingClock : BackgroundService
                 LogPurged(_logger, tick.Purged);
             }
 
+            if (tick.Exported > 0)
+            {
+                LogExported(_logger, tick.Exported);
+            }
+
             Ticked?.Invoke(this, tick);
         }
     }
@@ -133,6 +143,10 @@ public sealed partial class PublishingClock : BackgroundService
 
     [LoggerMessage(Level = LogLevel.Information, Message = "The publishing clock purged {Count} newsletter subscriptions")]
     private static partial void LogPurged(ILogger logger, int count);
+
+    // The count only: never whose archive, nor what it holds (L2-066 AC10).
+    [LoggerMessage(Level = LogLevel.Information, Message = "The publishing clock built {Count} data archives")]
+    private static partial void LogExported(ILogger logger, int count);
 }
 
 /// <summary>Registers the publishing clock as the API's hosted scheduler (ADR 0069).</summary>
