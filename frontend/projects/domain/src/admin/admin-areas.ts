@@ -11,7 +11,8 @@ export type AdminAreaKey =
   | 'community-pick'
   | 'listings'
   | 'services'
-  | 'members';
+  | 'members'
+  | 'feedback';
 
 /** One area: its key, the navigation's label and the path it opens. */
 export interface AdminArea {
@@ -31,6 +32,7 @@ export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: 'listings', label: 'Listings', path: '/listings' },
   { key: 'services', label: 'Services', path: '/services' },
   { key: 'members', label: 'Members', path: '/members' },
+  { key: 'feedback', label: 'Feedback', path: '/feedback' },
 ];
 
 /**
@@ -66,6 +68,7 @@ const MODERATOR_AREAS: readonly AdminAreaKey[] = [
   'community-pick',
   'listings',
   'members',
+  'feedback',
 ];
 
 /**

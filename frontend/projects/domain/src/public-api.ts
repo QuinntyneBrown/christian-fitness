@@ -117,3 +117,4 @@ export * from './news/subscribe';
 export * from './news/feeds';
 export * from './newsletter/issue-builder';
 export * from './newsletter/issue-view';
+export * from './feedback/feedback-inbox';

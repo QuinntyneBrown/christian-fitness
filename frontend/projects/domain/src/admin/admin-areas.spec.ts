@@ -22,6 +22,7 @@ describe('ADMIN_AREAS', () => {
       ['Listings', '/listings'],
       ['Services', '/services'],
       ['Members', '/members'],
+      ['Feedback', '/feedback'],
     ]);
   });
 });
@@ -107,6 +108,13 @@ describe('canManage', () => {
     { role: 'Moderator', area: 'series', allowed: true, why: 'a Moderator manages event series' },
     { role: 'Admin', area: 'community-pick', allowed: true, why: 'an Admin makes Community Picks' },
     { role: 'Admin', area: 'newsletter', allowed: true, why: 'an Admin builds the newsletter' },
+    { role: 'Admin', area: 'feedback', allowed: true, why: 'an Admin answers feedback' },
+    {
+      role: 'Moderator',
+      area: 'feedback',
+      allowed: true,
+      why: 'a Moderator answers feedback as an Admin does (L2-074; ADR 0064)',
+    },
     {
       role: 'Moderator',
       area: 'newsletter',
@@ -165,6 +173,7 @@ describe('areasFor', () => {
       'listings',
       'services',
       'members',
+      'feedback',
     ]);
   });
 
@@ -176,6 +185,7 @@ describe('areasFor', () => {
       'community-pick',
       'listings',
       'members',
+      'feedback',
     ]);
   });
 });

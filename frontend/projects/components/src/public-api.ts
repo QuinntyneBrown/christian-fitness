@@ -152,3 +152,5 @@ export * from './top-bar/top-bar';
 export * from './prose/prose';
 export * from './side-navigation/side-navigation';
 export * from './feedback-row/said';
+export * from './feedback-row/feedback-row';
+export * from './feedback-row/feedback-detail';

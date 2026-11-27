@@ -1,0 +1,100 @@
+// The design system's feedback row (docs/design-system/assets/components.css, "feedback-row").
+:host {
+  display: block;
+}
+
+.feedback-row {
+  display: flex;
+  width: 100%;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  padding: var(--space-4);
+  color: inherit;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--color-bg-canvas);
+  }
+
+  &[aria-current='page'] {
+    background: var(--color-accent-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: calc(-1 * var(--focus-ring-width));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.icon {
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feedback-row__icon {
+  margin-top: var(--space-0-5);
+  color: var(--color-fg-muted);
+
+  .feedback-row[aria-current='page'] & {
+    color: var(--color-fg-accent);
+  }
+}
+
+.feedback-row__body {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.feedback-row__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.feedback-row__from {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
+
+.feedback-row__from--new {
+  font-weight: var(--font-weight-bold);
+}
+
+.feedback-row__when {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
+.feedback-row__text {
+  margin-top: var(--space-0-5);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
