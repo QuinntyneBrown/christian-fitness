@@ -115,7 +115,7 @@ export function suggestionList(
 export const NO_SUGGESTIONS = { waiting: 0, listed: 0, suggestions: [], next: null };
 
 /** `GET /api/admin/counts` with nothing waiting: the fixture's default answer (ADR 0090). */
-export const NO_COUNTS = { suggestions: 0, storiesInReview: 0 };
+export const NO_COUNTS = { suggestions: 0, storiesInReview: 0, newFeedback: 0 };
 
 /** A published listing as `GET /api/admin/directory/listings` answers it (ADR 0090). */
 export interface ListedListingFixture {

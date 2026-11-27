@@ -255,7 +255,9 @@ test.describe('Admin app, the Stories page', () => {
   // L2-068 AC5: the navigation counts the stories in review, in words for assistive technology.
   test('the navigation counts the stories in review', async ({ page, api }) => {
     answerStories(api);
-    api.on('GET', '/api/admin/counts', () => ({ json: { suggestions: 0, storiesInReview: 1 } }));
+    api.on('GET', '/api/admin/counts', () => ({
+      json: { suggestions: 0, storiesInReview: 1, newFeedback: 0 },
+    }));
     const shell = new AdminShell(page);
 
     await shell.open('/stories');

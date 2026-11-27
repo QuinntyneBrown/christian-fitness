@@ -46,6 +46,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
       'Listings',
       'Services',
       'Members',
+      'Feedback',
     ]);
     expect(
       await shell.navItems.evaluateAll((items) => items.map((i) => i.getAttribute('href'))),
@@ -59,6 +60,7 @@ test.describe('Admin app, navigation at LG and wider', () => {
       '/listings',
       '/services',
       '/members',
+      '/feedback',
     ]);
     await expect(shell.currentItem).toHaveCount(1);
     await expect(shell.currentItem).toHaveText('Dashboard');
@@ -80,7 +82,12 @@ test.describe('Admin app, navigation at LG and wider', () => {
       'Event series',
       'Community Pick',
     ]);
-    await expect(shell.navGroupLinks('Community')).toHaveText(['Listings', 'Services', 'Members']);
+    await expect(shell.navGroupLinks('Community')).toHaveText([
+      'Listings',
+      'Services',
+      'Members',
+      'Feedback',
+    ]);
     expect(await shell.navListNames()).toEqual([null, 'Publish', 'Gather', 'Community']);
   });
 

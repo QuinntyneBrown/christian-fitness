@@ -75,6 +75,12 @@ const routes: Routes = [
         loadComponent: () => import('../pages/newsletter-desk/newsletter-desk-page'),
       },
       {
+        // What members sent the team, read and answered (journey 31; L2-074), for both roles.
+        path: 'feedback',
+        title: titled('Feedback'),
+        loadComponent: () => import('../pages/feedback/feedback-page'),
+      },
+      {
         // A published event made into branded posts for four platforms (journey 32; ADR 0098).
         path: 'community-pick',
         title: titled('Community Pick'),

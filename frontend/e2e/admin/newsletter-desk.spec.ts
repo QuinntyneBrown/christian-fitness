@@ -347,9 +347,10 @@ test.describe('Admin app, Newsletter: scheduling and testing', () => {
 
     await desk.scheduleButton.click();
 
-    expect(await desk.errorOf(desk.lead)).toBe(
-      'A story chosen is no longer published. Choose another.',
-    );
+    // The refusal arrives from the server: wait for it rather than read once.
+    await expect
+      .poll(() => desk.errorOf(desk.lead))
+      .toBe('A story chosen is no longer published. Choose another.');
     await expect(desk.status).toHaveText('Draft');
   });
 
