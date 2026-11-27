@@ -12,7 +12,7 @@ namespace ChristianFitness.Application.Admin;
 /// suggestions wait for review (L2-073 AC1; ADR 0090) and how many stories wait in review
 /// (L2-068 AC5; ADR 0097). Later journeys add the other areas.
 /// </summary>
-public sealed record AdminCountsDto(int Suggestions, int StoriesInReview);
+public sealed record AdminCountsDto(int Suggestions, int StoriesInReview, int NewFeedback);
 
 /// <summary>Staff ask what waits behind the navigation's areas.</summary>
 public sealed record GetAdminCountsQuery : IRequest<AdminCountsDto>;
@@ -31,6 +31,9 @@ internal sealed class GetAdminCountsHandler(IAppDbContext db, ICurrentMember cur
         var stories = role == StaffRoleName.Admin
             ? await db.Stories.AsNoTracking().CountAsync(s => s.Status == StoryStatus.InReview, cancellationToken).ConfigureAwait(false)
             : 0;
-        return new AdminCountsDto(suggestions, stories);
+        // Both roles answer feedback (L2-074 AC1), so both get the New notes.
+        var newFeedback = await db.FeedbackNotes.AsNoTracking()
+            .CountAsync(n => n.Status == Domain.Feedback.FeedbackStatus.New, cancellationToken).ConfigureAwait(false);
+        return new AdminCountsDto(suggestions, stories, newFeedback);
     }
 }

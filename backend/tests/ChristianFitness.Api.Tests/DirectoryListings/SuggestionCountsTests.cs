@@ -32,7 +32,7 @@ public sealed class SuggestionCountsTests(RegisterForEventFactory factory) : ICl
         await _review.DecideAsync(arrived.Id, SuggestionStatus.Declined);
         var after = await CountsAsync(staff, cookie);
 
-        Assert.Equal(["suggestions", "storiesInReview"], waiting.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["suggestions", "storiesInReview", "newFeedback"], waiting.EnumerateObject().Select(p => p.Name));
         Assert.Equal(before.GetProperty("suggestions").GetInt32() + 1, waiting.GetProperty("suggestions").GetInt32());
         Assert.Equal(before.GetProperty("suggestions").GetInt32(), after.GetProperty("suggestions").GetInt32());
         Assert.Equal(await WaitingAsync(), after.GetProperty("suggestions").GetInt32());

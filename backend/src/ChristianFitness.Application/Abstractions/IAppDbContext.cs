@@ -103,6 +103,9 @@ public interface IAppDbContext
     /// <summary>The notes members sent the team; only staff read them (L2-063; ADR 0109).</summary>
     DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes { get; }
 
+    /// <summary>The replies staff sent, kept with their notes (L2-074 AC5).</summary>
+    DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies { get; }
+
     /// <summary>Each address's subscription to The Abundant Weekly (L2-057, L2-058; ADR 0110).</summary>
     DbSet<NewsletterSubscription> NewsletterSubscriptions { get; }
 

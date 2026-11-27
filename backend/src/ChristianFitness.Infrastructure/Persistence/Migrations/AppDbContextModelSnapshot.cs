@@ -754,6 +754,12 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
+                    b.Property<DateTimeOffset?>("RepliedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ScreenshotKey")
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
@@ -781,6 +787,32 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "SentAt");
 
                     b.ToTable("FeedbackNotes", (string)null);
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Feedback.FeedbackReply", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("NoteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NoteId", "SentAt");
+
+                    b.ToTable("FeedbackReplies", (string)null);
                 });
 
             modelBuilder.Entity("ChristianFitness.Domain.Members.Member", b =>
@@ -1637,6 +1669,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Members.Member", null)
                         .WithMany()
                         .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Feedback.FeedbackReply", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Feedback.FeedbackNote", null)
+                        .WithMany()
+                        .HasForeignKey("NoteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

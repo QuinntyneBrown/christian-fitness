@@ -78,6 +78,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<NewsletterIssue> NewsletterIssues => Set<NewsletterIssue>();
 
+    public DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies => Set<ChristianFitness.Domain.Feedback.FeedbackReply>();
+
     public DbSet<IssueDelivery> IssueDeliveries => Set<IssueDelivery>();
 
     /// <summary>The signed-in sessions (<see cref="Security.DatabaseTicketStore"/>); only the cookie scheme reads them.</summary>

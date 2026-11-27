@@ -30,6 +30,12 @@ public static class RefusalCodes
     /// <summary>The member holds no registration at the event, so their attendance cannot be recorded (ADR 0106).</summary>
     public const string NotRegistered = "not_registered";
 
+    /// <summary>
+    /// A feedback reply cannot reach its member: they did not allow email and, being suspended, get
+    /// no direct messages (L2-074 AC7; ADR 0113).
+    /// </summary>
+    public const string MemberUnreachable = "member_unreachable";
+
     /// <summary>No issue of the newsletter has the number asked for (L2-070).</summary>
     public const string IssueNotFound = "issue_not_found";
 

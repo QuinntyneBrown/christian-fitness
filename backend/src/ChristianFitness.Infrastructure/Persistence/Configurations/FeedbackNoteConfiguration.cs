@@ -28,3 +28,17 @@ internal sealed class FeedbackNoteConfiguration : IEntityTypeConfiguration<Feedb
         builder.HasIndex(n => new { n.Status, n.SentAt });
     }
 }
+
+internal sealed class FeedbackReplyConfiguration : IEntityTypeConfiguration<FeedbackReply>
+{
+    public void Configure(EntityTypeBuilder<FeedbackReply> builder)
+    {
+        builder.ToTable("FeedbackReplies");
+        builder.HasKey(r => r.Id);
+        builder.Property(r => r.Id).ValueGeneratedNever();
+        builder.Property(r => r.Text).HasMaxLength(FeedbackReply.TextMaxLength).IsRequired();
+        builder.HasIndex(r => new { r.NoteId, r.SentAt });
+        // A reply goes with its note, and so with the member who sent the note (L2-074 AC5).
+        builder.HasOne<FeedbackNote>().WithMany().HasForeignKey(r => r.NoteId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
