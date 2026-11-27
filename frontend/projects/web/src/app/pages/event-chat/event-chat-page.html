@@ -66,7 +66,11 @@
       <cf-empty-state
         variant="error"
         heading="You can't message this member"
-        text="This member isn't available to message right now."
+        [text]="
+          restricted()
+            ? 'This member only takes messages from people in their groups.'
+            : 'This member isn\'t available to message right now.'
+        "
       >
         <cf-button slot="actions" size="sm" [href]="eventHref()">Back to messages</cf-button>
       </cf-empty-state>
