@@ -123,6 +123,12 @@ public static class RefusalCodes
     /// <summary>A chat message is empty or longer than 2,000 characters (L2-016; ADR 0039).</summary>
     public const string MessageInvalid = "message_invalid";
 
+    /// <summary>
+    /// The member takes messages only from people in their groups, and the sender shares none
+    /// (L2-065 AC5; ADR 0115).
+    /// </summary>
+    public const string MessagesRestricted = "messages_restricted";
+
     /// <summary>The member a direct message goes to is unknown, suspended or the sender (L2-014; ADR 0043).</summary>
     public const string RecipientUnavailable = "recipient_unavailable";
 

@@ -49,6 +49,7 @@ public sealed class DirectMessageTests(RegisterForEventFactory factory) : IClass
         var id = await scope.ServiceProvider.GetRequiredService<AppDbContext>().Members
             .Where(m => m.NormalizedEmail == normalized).Select(m => m.Id)
             .SingleAsync(TestContext.Current.CancellationToken);
+        await Messaging.AllowAnyoneAsync(factory, id);
         return new Person(cookie, id, name, hub, inbox);
     }
 
@@ -213,5 +214,22 @@ public sealed class DirectMessageTests(RegisterForEventFactory factory) : IClass
         Assert.Equal(HttpStatusCode.NoContent, await PostAsync(hope, $"/api/messages/{grace.Id}/read"));
         var after = (await GetAsync(hope, "/api/conversations")).Body.GetProperty("conversations").EnumerateArray().Single();
         Assert.Equal(0, after.GetProperty("unreadCount").GetInt32());
+    }
+}
+
+/// <summary>
+/// Switches "Let anyone message me" on for a member (L2-065 AC5): these tests are about how messages
+/// travel, not about who may start a conversation, which <c>MessagingRuleTests</c> covers.
+/// </summary>
+internal static class Messaging
+{
+    public static async Task AllowAnyoneAsync(ApiFactory factory, Guid memberId)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var preferences = ChristianFitness.Domain.Members.MemberPreferences.DefaultsFor(memberId);
+        preferences.SetPrivacy(ChristianFitness.Domain.Members.ProfileVisibility.Members, showOnAttendeeLists: true, letAnyoneMessage: true);
+        db.MemberPreferences.Add(preferences);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 }

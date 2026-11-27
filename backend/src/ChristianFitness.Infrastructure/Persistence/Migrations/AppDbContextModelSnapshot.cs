@@ -910,6 +910,10 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Area")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<bool>("EventChanges")
                         .HasColumnType("boolean");
 
@@ -919,8 +923,19 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<bool>("FollowedListingDates")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("LetAnyoneMessage")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("Messages")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("ShowOnAttendeeLists")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.HasKey("MemberId");
 
