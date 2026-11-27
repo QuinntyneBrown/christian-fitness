@@ -1,0 +1,27 @@
+// The download page's own layout (mock `download/`; docs/design-system/assets/components.css:
+// "page-title", "page-title--after-back"): the heading under the way back while the link is
+// checked or did not answer, and the skeleton lines. The done block, the error state and the
+// skeletons are the library's.
+:host {
+  display: block;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.download-page__lines {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}

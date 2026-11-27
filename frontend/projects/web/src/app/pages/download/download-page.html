@@ -1,0 +1,50 @@
+<main id="main" class="download-page">
+  <cf-container page="default">
+    <cf-link variant="back" href="/preferences">Preferences</cf-link>
+    @switch (phase()) {
+      @case ('ready') {
+        <cf-done heading="Your download is ready"
+          >{{ readyText() }}
+          <cf-button slot="actions" size="md" (click)="start()"
+            ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" x2="12" y1="15" y2="3" /></svg
+            >Download again</cf-button
+          >
+          <cf-button slot="actions" size="md" variant="secondary" href="/preferences"
+            >Back to preferences</cf-button
+          >
+        </cf-done>
+      }
+      @case ('expired') {
+        <cf-done heading="This download has expired" alert
+          >This download has expired. Request a new one.
+          <cf-button slot="actions" size="md" href="/preferences">Request a new download</cf-button>
+        </cf-done>
+      }
+      @default {
+        <h1 class="display page-title">Your download</h1>
+        @if (phase() === 'failed') {
+          <cf-empty-state
+            variant="error"
+            heading="Your download didn't start"
+            text="We couldn't reach Christian Fitness. Check your connection and try again."
+          >
+            <cf-button slot="actions" size="sm" (click)="check()">Try again</cf-button>
+            <cf-button slot="actions" size="sm" variant="secondary" href="/preferences"
+              >Back to preferences</cf-button
+            >
+          </cf-empty-state>
+        } @else {
+          <cf-skeleton-region label="Checking your download">
+            <div class="download-page__lines">
+              <cf-skeleton width="55" />
+              <cf-skeleton shape="text-sm" width="80" />
+            </div>
+          </cf-skeleton-region>
+        }
+      }
+    }
+  </cf-container>
+</main>

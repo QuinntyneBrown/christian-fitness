@@ -2,6 +2,7 @@ using System.Globalization;
 using ChristianFitness.Application.Abstractions;
 using ChristianFitness.Application.Audit;
 using ChristianFitness.Application.Email;
+using ChristianFitness.Application.Errors;
 using ChristianFitness.Domain.Events;
 using ChristianFitness.Domain.Members;
 using MediatR;
@@ -127,5 +128,51 @@ internal sealed class BuildDataExportsHandler(IAppDbContext db, IArchiveStore ar
 
             If you didn't ask for this, you can ignore this email. Nobody can open the link without signing in as you.
             """;
+    }
+}
+
+/// <summary>
+/// The download page's question (L2-066 AC2; ADR 0117): when the link of the caller's own built
+/// archive stops working. Any other id, another member's, one not built yet or one past its 7 days
+/// is the same 404 <c>not_found</c> (L2-031 AC3).
+/// </summary>
+public sealed record GetDataExportQuery(Guid Id) : IRequest<DataExportDto>;
+
+public sealed record DataExportDto(DateTimeOffset ExpiresAt);
+
+/// <summary>The caller's own archive while its link works, as a stream the caller disposes; else 404 <c>not_found</c>.</summary>
+public sealed record GetDataExportArchiveQuery(Guid Id) : IRequest<Stream>;
+
+internal static class DownloadableExports
+{
+    public static async Task<DataExportRequest> FindAsync(IAppDbContext db, ICurrentMember current, TimeProvider time, Guid id, CancellationToken cancellationToken)
+    {
+        var request = await db.DataExportRequests.AsNoTracking()
+            .SingleOrDefaultAsync(r => r.Id == id && r.MemberId == current.Id, cancellationToken).ConfigureAwait(false);
+        return request is not null && request.IsDownloadableAt(time.GetUtcNow())
+            ? request
+            : throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
+    }
+}
+
+internal sealed class GetDataExportHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<GetDataExportQuery, DataExportDto>
+{
+    public async Task<DataExportDto> Handle(GetDataExportQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var found = await DownloadableExports.FindAsync(db, current, time, request.Id, cancellationToken).ConfigureAwait(false);
+        return new DataExportDto(found.ExpiresAt!.Value);
+    }
+}
+
+internal sealed class GetDataExportArchiveHandler(IAppDbContext db, ICurrentMember current, TimeProvider time, IArchiveStore archives)
+    : IRequestHandler<GetDataExportArchiveQuery, Stream>
+{
+    public async Task<Stream> Handle(GetDataExportArchiveQuery request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var found = await DownloadableExports.FindAsync(db, current, time, request.Id, cancellationToken).ConfigureAwait(false);
+        return await archives.OpenAsync(found.ArchiveKey!, cancellationToken).ConfigureAwait(false)
+            ?? throw new RefusalException(RefusalCodes.NotFound, RefusalKind.NotFound);
     }
 }
