@@ -3667,3 +3667,40 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   multipart posts, two `legal-change` specs that trip on the dev server's blocked websocket) fail
   alone in this container and touch nothing these journeys changed.
 
+## Journey 34: Set privacy and suggestion preferences (partly built)
+
+The settings, their enforcement in the API, the two sections of Preferences and the profile's note
+are built. Attendee lists, a visitor's profile page and the event editor's area choice are not
+(ADR 0115), so the journey is not ticked and the % complete is unchanged.
+
+**What slowed it**
+
+- A new default, messages from a member's groups only, failed eight tests of how messages travel.
+  They now switch the recipient's "Let anyone message me" on first; the rule has its own tests.
+- The design's listing exemption needs a context the hub does not carry. The rule built is one the
+  server can check: a listing's owner takes messages from anyone.
+- Home's rule lets an event matching no interest be suggested, which an earlier test forbade. It
+  now asserts the order instead.
+- Two breaks passed because a second guard covers the same case (a member opening their own
+  profile; an address with the Weekly off). Both guards were removed together to see red.
+- An edit script asserted a string Prettier had since rewrapped and stopped half way, twice. Each
+  half was reapplied after reading the file as it stood.
+
+**New lessons**
+
+- Changing a default is a change to a shared flow: run the whole suite and expect the tests that
+  relied on the old default, not only the new rule's.
+- When a design asks the server to trust a context the transport cannot carry, replace it with a
+  rule the server can verify from stored facts, and record the difference.
+- A rule that widens what a query answers (suggestions that match no interest) will contradict an
+  older test that asserted the narrower rule; read the older test before deciding it is wrong.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": three settings breaks, four of visibility, five of messaging and three
+  of ranking failed their tests; the two double-guarded ones are named above.
+- "Take old text from the file as it is now (formatters rewrap)" was the lesson not applied in the
+  two edit scripts above.
+- "Read the initial total after each slice, against the base": web stays at 279.07 kB.
+- "A rule with a table of cases also gets a direct test": Home's order has one, a row per case.
+
