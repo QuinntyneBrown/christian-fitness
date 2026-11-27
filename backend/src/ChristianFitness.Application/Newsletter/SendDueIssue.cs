@@ -55,7 +55,7 @@ internal sealed class SendDueIssueHandler(IAppDbContext db, TimeProvider time, I
         {
             due.StartSending((await IssueCapture.ReadAsync(db, due, now, cancellationToken).ConfigureAwait(false)).ToJson());
             var subscribers = await db.NewsletterSubscriptions
-                .Where(s => s.Status == SubscriptionStatus.Subscribed)
+                .Where(s => s.Status == SubscriptionStatus.Subscribed && s.Weekly)
                 .Select(s => s.Id)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
             db.IssueDeliveries.AddRange(subscribers.Select(id => IssueDelivery.For(due.Id, id)));
@@ -128,7 +128,7 @@ internal sealed class SendDueIssueHandler(IAppDbContext db, TimeProvider time, I
         foreach (var delivery in batch)
         {
             // An address that unsubscribed since sending started is sent nothing.
-            if (!subscriptions.TryGetValue(delivery.SubscriptionId, out var subscription) || subscription.Status != SubscriptionStatus.Subscribed)
+            if (!subscriptions.TryGetValue(delivery.SubscriptionId, out var subscription) || subscription.Status != SubscriptionStatus.Subscribed || !subscription.Weekly)
             {
                 db.IssueDeliveries.Remove(delivery);
                 continue;

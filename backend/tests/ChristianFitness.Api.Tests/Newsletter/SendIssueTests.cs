@@ -231,3 +231,40 @@ public sealed class MissedDayPassedTests(SendIssueFactory factory) : IClassFixtu
         Assert.Equal(before, factory.Emails.Sent().Count);
     }
 }
+
+/// <summary>
+/// L2-064 AC8 with L2-070 AC7: an address subscribed only to an extra, the Weekly switched off on
+/// Preferences, is not counted among the issue's readers and is sent no issue.
+/// </summary>
+public sealed class WeeklyOffTests(SendIssueFactory factory) : IClassFixture<SendIssueFactory>
+{
+    [Fact]
+    public async Task Given_an_address_with_the_Weekly_off_When_an_issue_is_sent_Then_it_is_not_counted_and_gets_no_issue()
+    {
+        using var client = Browser.CreateClient(factory);
+        var cookie = await Desk.SignInAsync(factory, client, "dana.weekly.off@example.org");
+        await factory.AddSubscriberAsync("reader.weekly.on@example.org");
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var extraOnly = NewsletterSubscription.ForAccount("reader.weekly.off@example.org", factory.Time.GetUtcNow());
+            extraOnly.SetEmails(weekly: false, eventAlerts: false, trainingPlan: false, devotion: true, factory.Time.GetUtcNow());
+            db.NewsletterSubscriptions.Add(extraOnly);
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        var lead = await factory.PutStoryAsync("Weekly off lead", StoryStatus.Published);
+        var desk = await Desk.ReadAsync(client, cookie);
+        var number = desk.GetProperty("nextIssue").GetProperty("number").GetInt32();
+        Assert.Equal(1, desk.GetProperty("confirmedSubscribers").GetInt32());
+        using var scheduled = await Desk.PostAsync(client, cookie, number, "schedule", Desk.Fields(lead.Id));
+        Assert.Equal(HttpStatusCode.OK, scheduled.StatusCode);
+        var before = factory.Emails.Sent().Count;
+
+        factory.Time.SetUtcNow(desk.GetProperty("nextIssue").GetProperty("sendAt").GetDateTimeOffset());
+        var tick = await factory.TickAsync();
+
+        Assert.Equal(new IssueTick(true, 1, true, false), tick);
+        Assert.Equal(["reader.weekly.on@example.org"], factory.Emails.Sent().Skip(before).Select(e => e.To));
+    }
+}

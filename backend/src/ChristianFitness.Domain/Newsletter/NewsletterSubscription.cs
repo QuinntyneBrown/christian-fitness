@@ -28,6 +28,9 @@ public sealed class NewsletterSubscription
     /// <summary>What a confirmation link records as the source of consent (L2-058 AC2).</summary>
     public const string ConfirmationLinkSource = "Confirmation link";
 
+    /// <summary>What Preferences records as the source of consent (L2-064 AC8).</summary>
+    public const string PreferencesSource = "Preferences, signed in";
+
     /// <summary>A never-confirmed request is purged this long after the most recent one (L2-058 AC9; ADR 0078).</summary>
     public static readonly TimeSpan PendingLifetime = TimeSpan.FromDays(30);
 
@@ -97,8 +100,59 @@ public sealed class NewsletterSubscription
     }
 
     /// <summary>The owner followed a valid confirmation link at <paramref name="now"/> (L2-058 AC2).</summary>
+    /// <summary>The Weekly itself: on for every address that confirms; a member may keep an extra with it off (L2-064 AC2).</summary>
+    public bool Weekly { get; private set; }
+
+    /// <summary>The three extras of L2-057 AC2; they do not send until their writing is owned.</summary>
+    public bool EventAlerts { get; private set; }
+
+    public bool TrainingPlan { get; private set; }
+
+    public bool Devotion { get; private set; }
+
+    /// <summary>A subscription a signed-in member makes for their own address on Preferences: no confirmation is needed.</summary>
+    public static NewsletterSubscription ForAccount(string email, DateTimeOffset now) => new()
+    {
+        Id = Guid.CreateVersion7(now),
+        Email = Normalize(email),
+        Status = SubscriptionStatus.Pending,
+        RequestedAt = now,
+    };
+
+    /// <summary>
+    /// Sets the four emails from Preferences at <paramref name="now"/> (L2-064 AC8): any on subscribes
+    /// the address, recording consent when it was not subscribed; all off unsubscribes it.
+    /// </summary>
+    public void SetEmails(bool weekly, bool eventAlerts, bool trainingPlan, bool devotion, DateTimeOffset now)
+    {
+        if (!(weekly || eventAlerts || trainingPlan || devotion))
+        {
+            Weekly = EventAlerts = TrainingPlan = Devotion = false;
+            if (Status == SubscriptionStatus.Subscribed)
+            {
+                Unsubscribe(now);
+            }
+
+            return;
+        }
+
+        if (Status != SubscriptionStatus.Subscribed)
+        {
+            Status = SubscriptionStatus.Subscribed;
+            ConsentedAt = now;
+            ConsentSource = PreferencesSource;
+            UnsubscribedAt = null;
+        }
+
+        Weekly = weekly;
+        EventAlerts = eventAlerts;
+        TrainingPlan = trainingPlan;
+        Devotion = devotion;
+    }
+
     public void Confirm(DateTimeOffset now)
     {
+        Weekly = true;
         Status = SubscriptionStatus.Subscribed;
         ConsentedAt = now;
         ConsentSource = ConfirmationLinkSource;
@@ -118,6 +172,7 @@ public sealed class NewsletterSubscription
 
         Status = SubscriptionStatus.Unsubscribed;
         UnsubscribedAt = now;
+        Weekly = EventAlerts = TrainingPlan = Devotion = false;
     }
 
     /// <summary>Whether scheduled work deletes this subscription at <paramref name="now"/> (L2-058 AC6, AC9).</summary>

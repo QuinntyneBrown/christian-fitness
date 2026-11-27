@@ -77,7 +77,7 @@ internal sealed class GetNewsletterDeskHandler(IAppDbContext db, TimeProvider ti
     public async Task<NewsletterDeskDto> Handle(GetNewsletterDeskQuery request, CancellationToken cancellationToken)
     {
         var confirmed = await db.NewsletterSubscriptions.AsNoTracking()
-            .CountAsync(s => s.Status == SubscriptionStatus.Subscribed, cancellationToken).ConfigureAwait(false);
+            .CountAsync(s => s.Status == SubscriptionStatus.Subscribed && s.Weekly, cancellationToken).ConfigureAwait(false);
         var next = await db.NewsletterIssues
             .Where(i => i.Status == IssueStatus.Draft || i.Status == IssueStatus.Scheduled)
             .OrderBy(i => i.Number)

@@ -43,11 +43,12 @@ public sealed record NotificationListDto(IReadOnlyList<NotificationDto> Notifica
 public interface INotifier
 {
     /// <summary>
-    /// Notifies the member and answers what was stored. A request that is not well formed (an unknown
+    /// Notifies the member and answers what was stored, or none when the member switched that kind off
+    /// (L2-064 AC10). A request that is not well formed (an unknown
     /// member, an empty or too long title, too long a text, a path that is not inside the app) throws
     /// <see cref="ArgumentException"/>: senders are the application's own code.
     /// </summary>
-    Task<NotificationDto> NotifyAsync(NotificationRequest request, CancellationToken cancellationToken);
+    Task<NotificationDto?> NotifyAsync(NotificationRequest request, CancellationToken cancellationToken);
 }
 
 /// <summary>Where a notification goes live; the API implements it over the hub (ADR 0083).</summary>

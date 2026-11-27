@@ -78,6 +78,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<NewsletterIssue> NewsletterIssues => Set<NewsletterIssue>();
 
+    public DbSet<ChristianFitness.Domain.Members.MemberPreferences> MemberPreferences => Set<ChristianFitness.Domain.Members.MemberPreferences>();
+
     public DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies => Set<ChristianFitness.Domain.Feedback.FeedbackReply>();
 
     public DbSet<IssueDelivery> IssueDeliveries => Set<IssueDelivery>();
