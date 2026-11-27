@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 85% (31 of 36 journeys; 96 of 113 days)
+**% complete:** 88% (32 of 36 journeys; 99 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3596,4 +3596,36 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   (ADR 0112).
 - `EmailDeliveryTests`' unsubscribe-header test fails in this container before and after these
   journeys; it reads a folded header from a fake SMTP server and was not changed.
+
+## Journey 31: Answer feedback
+
+**What slowed it**
+
+- The screenshot test asked for `Cache-Control: private, no-store`; the antiforgery layer writes
+  `no-cache, no-store` on the answer. The rule that matters, `no-store`, is what the test asserts.
+- One desk test from journey 28 failed once in the full parallel run: it read a field's error once,
+  straight after the click, though the refusal comes from the server. It polls now.
+- A break written as `if (true)` did not compile under the analysers; a break has to be code the
+  build accepts, or it proves nothing.
+- `L2-074` AC12 names an account that is deleting, which cannot exist before journey 36.
+
+**New lessons**
+
+- An assertion on what a server answer changes is a polling one (`expect.poll`, or a locator
+  assertion); only what a click changes on its own may be read once.
+- When a requirement names a state a later journey creates, build up to it, say so in the ADR and
+  carry the criterion into that journey rather than fake the state.
+- Assert a response header by the directive the rule needs, not by the whole value: other layers
+  add their own.
+- A screen that needs the staff role asks the session it already has a token for; no new endpoint.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": six backend breaks and five on the page each failed their own test.
+- "Read the initial total after each slice, against the base": admin stays at 279.72 kB.
+- "A new area in the navigation means running the whole suite": the six navigation specs were
+  updated again; 442 of 445 admin specs pass here, the other three being the `create-series` and
+  `members` specs that fail in this container without these journeys' code being involved.
+- "`@let` and a first `NgTemplateOutlet` cost `main`" (journeys 28 and 29): the new components use
+  `@if … as` and `@switch` only.
 
