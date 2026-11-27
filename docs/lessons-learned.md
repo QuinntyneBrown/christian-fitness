@@ -3669,8 +3669,8 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
 
 ## Journey 34: Set privacy and suggestion preferences (partly built)
 
-The settings, their enforcement in the API, the two sections of Preferences and the profile's note
-are built. Attendee lists, a visitor's profile page and the event editor's area choice are not
+The settings, their enforcement in the API, the two sections of Preferences, the profile's note and
+the event editor's area choice are built. Attendee lists and a visitor's profile page are not
 (ADR 0115), so the journey is not ticked and the % complete is unchanged.
 
 **What slowed it**

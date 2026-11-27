@@ -69,6 +69,7 @@ describe('eventDraftOf', () => {
         imageName: null,
         hostListingId: 'h1',
         hostName: 'Lakeshore Runners Fellowship',
+        suggestionArea: '',
       }),
     ).toEqual({
       title: 'Whole Life Retreat',
@@ -100,6 +101,7 @@ describe('eventDraftOf', () => {
       imageName: null,
       hostListingId: null,
       hostName: '',
+      suggestionArea: '',
     });
     expect(eventDraftOf(EMPTY_EVENT_EDITOR)).toEqual({
       title: '',
@@ -165,6 +167,7 @@ describe('eventEditorValuesOf', () => {
       imageName: null,
       hostListingId: 'h4',
       hostName: 'Danielle Okafor',
+      suggestionArea: '',
     });
   });
 
@@ -175,5 +178,39 @@ describe('eventEditorValuesOf', () => {
       imageKey: key,
       imageName: 'Current image',
     });
+  });
+});
+
+// L2-065 AC7 (ADR 0076, ADR 0115): the suggestion area is sent only when one is chosen; none is GTA-wide.
+describe('the suggestion area', () => {
+  it('is sent when chosen and left out for GTA-wide', () => {
+    expect(
+      eventDraftOf({ ...EMPTY_EVENT_EDITOR, suggestionArea: 'scarborough' }).suggestionArea,
+    ).toBe('scarborough');
+    expect('suggestionArea' in eventDraftOf(EMPTY_EVENT_EDITOR)).toBe(false);
+  });
+
+  it('opens with the saved area, or GTA-wide when the event has none', () => {
+    const saved = {
+      id: 'e1',
+      title: 'Run',
+      category: 'run' as const,
+      date: '2026-05-22',
+      startTime: '16:00',
+      place: 'Park',
+      area: 'Scarborough, Toronto',
+      priceCents: 0,
+      capacity: 10,
+      summary: 'A run.',
+      going: 0,
+      status: 'draft' as const,
+      host: { id: 'h4', kind: 'instructor' as const, name: 'Danielle Okafor' },
+    };
+
+    expect(eventEditorValuesOf({ ...saved, suggestionArea: 'durham' }).suggestionArea).toBe(
+      'durham',
+    );
+    expect(eventEditorValuesOf(saved).suggestionArea).toBe('');
+    expect(eventEditorValuesOf({ ...saved, suggestionArea: null }).suggestionArea).toBe('');
   });
 });

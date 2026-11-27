@@ -43,6 +43,8 @@ export class EventEditorDialog {
   readonly startTime: Locator;
   readonly place: Locator;
   readonly area: Locator;
+  /** The suggestion area: GTA-wide until one of the eight is chosen (ADR 0076). */
+  readonly suggestionArea: Locator;
   readonly price: Locator;
   readonly priceHint: Locator;
   readonly capacity: Locator;
@@ -86,7 +88,8 @@ export class EventEditorDialog {
     this.date = this.dialog.getByLabel('Date');
     this.startTime = this.dialog.getByLabel('Start time');
     this.place = this.dialog.getByLabel('Place');
-    this.area = this.dialog.getByLabel('Area');
+    this.area = this.dialog.getByLabel('Area', { exact: true });
+    this.suggestionArea = this.dialog.getByLabel('Suggestion area');
     this.price = this.dialog.getByLabel('Price');
     this.priceHint = this.dialog.locator('#f-price-hint');
     this.capacity = this.dialog.getByLabel('Capacity');

@@ -40,8 +40,8 @@ that could not be built as written.
   published directory listing, or a service listing, may be written to by anyone: the same people
   who could open the listing and press Message. Booking requests reach them the same way.
 - **The suggestion area of an event** is one of the eight areas or none, which is GTA-wide. Staff
-  send it as `suggestionArea` when creating or editing an event; one off the list is
-  `suggestion_area_invalid`. Every existing event is GTA-wide until staff choose.
+  choose it in the event editor, which sends `suggestionArea` only when one is chosen; one off the
+  list is `suggestion_area_invalid`. Every existing event is GTA-wide until staff choose.
 - **Home's order** is a pure function (`HomeSuggestions.Rank`) with one test case per row: the
   member's area or GTA-wide before another area; within each, a followed listing's events, then
   those matching an interest, then the rest; ties by date. With no area chosen, the first step is
@@ -57,11 +57,11 @@ that could not be built as written.
 - **A visitor's profile page.** The API serves an Anyone profile to a visitor; `/members/:id` in
   the member app still sits behind the member guard, so a visitor is sent to sign in
   (`L2-065` AC13).
-- **The suggestion area in the event editor.** The API accepts and returns it; the admin event
-  editor does not yet offer the choice, so every event stays GTA-wide.
 
 ## Consequences
 
 - Two members who share no group can no longer start a conversation by default. Tests of how
   messages travel switch the recipient's "Let anyone message me" on first.
-- Until the event editor offers the area, the area step orders nothing: every event is GTA-wide.
+- Existing events are GTA-wide until staff choose an area in the event editor ("Suggestion area",
+  where no choice is GTA-wide), so the area step orders nothing for them yet. A series' sessions
+  have no area choice of their own.
