@@ -16,6 +16,8 @@ export interface PreferencesFixture {
     letAnyoneMessage: boolean;
   };
   suggestions: { area: string | null; interests: string[] };
+  /** When a download was asked for, while that is within 24 hours (L2-066 AC3). */
+  downloadRequestedAt?: string | null;
 }
 
 /**
@@ -41,6 +43,7 @@ export const GRACE_PREFERENCES: PreferencesFixture = {
     area: 'scarborough',
     interests: ['running', 'strength', 'basketball', 'nutrition'],
   },
+  downloadRequestedAt: null,
 };
 
 /**

@@ -222,6 +222,12 @@ const routes: Routes = [
         loadComponent: () => import('./pages/preferences/preferences-page'),
       },
       {
+        // The emailed link to a member's own data (L2-066 AC2; ADR 0117): signed in first.
+        path: 'preferences/download/:id',
+        title: titled('Download your data'),
+        loadComponent: () => import('./pages/download/download-page'),
+      },
+      {
         // Send feedback, about the page in the address (L2-063; ADR 0109).
         path: 'feedback',
         title: titled('Send feedback'),

@@ -22,6 +22,13 @@ export class PreferencesPage {
   readonly area: Locator;
   readonly interests: Locator;
   readonly switches: Locator;
+  /** Your data (L2-066): the download row, its confirmation or failure, and the Privacy Policy. */
+  readonly yourData: Locator;
+  readonly downloadRow: Locator;
+  readonly requestDownload: Locator;
+  readonly downloadRequested: Locator;
+  readonly downloadFailed: Locator;
+  readonly privacyPolicy: Locator;
   readonly saveBar: Locator;
   readonly saveBarText: Locator;
   readonly saveButton: Locator;
@@ -51,6 +58,14 @@ export class PreferencesPage {
     this.area = this.suggestions.getByRole('combobox', { name: 'Your area' });
     this.interests = this.suggestions.locator('.interest');
     this.switches = this.main.getByRole('switch');
+    this.yourData = this.main.getByRole('region', { name: 'Your data' });
+    this.downloadRow = this.yourData.locator('.pref__row--split', {
+      hasText: 'Download your data',
+    });
+    this.requestDownload = this.downloadRow.getByRole('button', { name: 'Request download' });
+    this.downloadRequested = this.downloadRow.locator('.pref__done');
+    this.downloadFailed = this.yourData.locator('.inline-error');
+    this.privacyPolicy = this.yourData.getByRole('link', { name: 'Privacy Policy' });
     this.saveBar = page.locator('.save-bar');
     this.saveBarText = this.saveBar.locator('.save-bar__text');
     this.saveButton = this.saveBar.getByRole('button');

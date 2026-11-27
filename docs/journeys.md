@@ -9,7 +9,7 @@ Angular screen, and acceptance tests (ATDD). Each journey also carries its share
 cross-cutting requirements in `specs/L2.md` (security, performance, accessibility, telemetry,
 audit), so those are not listed on their own.
 
-**% complete:** 94% (34 of 36 journeys; 106 of 113 days)
+**% complete:** 96% (35 of 36 journeys; 109 of 113 days)
 
 | #   | Journey                                | App    | Description                                                                                                    | Effort (days) |
 | --- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -47,7 +47,7 @@ audit), so those are not listed on their own.
 | 32  | ✅ Make a Community Pick               | Both   | Staff pick an event and make branded images and captions for four platforms; `/e/<id>` links land on it.       | 4             |
 | 33  | ✅ Set email and notification preferences | Member | Choose which emails and in-app notifications to get, saved together from a save bar.                           | 3             |
 | 34  | ✅ Set privacy and suggestion preferences | Member | Choose who sees my profile, lists me and messages me, and what orders Home's suggestions.                      | 4             |
-| 35  | Download my data                       | Member | Request a .zip of my data and download it from a private link.                                                 | 3             |
+| 35  | ✅ Download my data                    | Member | Request a .zip of my data and download it from a private link.                                                 | 3             |
 | 36  | Delete my account                      | Member | Delete my account, restore it within 30 days, and have it erased after.                                        | 4             |
 
 ## Where each journey is specified

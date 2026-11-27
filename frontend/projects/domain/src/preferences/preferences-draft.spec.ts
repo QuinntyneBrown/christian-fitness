@@ -112,7 +112,9 @@ describe('preferencesDiffer', () => {
   });
 
   it('takes the values out of what the API answers, without the name', () => {
-    expect(valuesOf({ name: 'Grace Thompson', ...SAVED })).toEqual(SAVED);
+    expect(valuesOf({ name: 'Grace Thompson', downloadRequestedAt: null, ...SAVED })).toEqual(
+      SAVED,
+    );
   });
 });
 

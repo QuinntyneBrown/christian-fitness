@@ -120,3 +120,4 @@ export * from './newsletter/issue-builder';
 export * from './newsletter/issue-view';
 export * from './feedback/feedback-inbox';
 export * from './preferences/preferences-draft';
+export * from './preferences/data-download';

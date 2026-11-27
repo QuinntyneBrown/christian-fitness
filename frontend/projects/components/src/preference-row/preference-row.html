@@ -1,1 +1,25 @@
-<div [attr.class]="action() ? 'pref__action' : 'pref__row'"><ng-content /></div>
+<ng-template #content><ng-content /></ng-template>
+@if (split()) {
+  <div class="pref__row pref__row--split">
+    <div>
+      <p class="pref__legend">{{ legend() }}</p>
+      @if (description(); as text) {
+        <p class="pref__desc">{{ text }}</p>
+      }
+    </div>
+    @if (done(); as text) {
+      <p class="pref__done" role="status">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg
+        >{{ text }}
+      </p>
+    } @else {
+      <ng-container [ngTemplateOutlet]="content" />
+    }
+  </div>
+} @else if (note()) {
+  <p class="pref__note"><ng-container [ngTemplateOutlet]="content" /></p>
+} @else {
+  <div [attr.class]="action() ? 'pref__action' : 'pref__row'">
+    <ng-container [ngTemplateOutlet]="content" />
+  </div>
+}

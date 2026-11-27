@@ -34,13 +34,13 @@ alt none
 else one exists
   req -> req : Answer the existing request (AC3)
 end
-req --> ctrl : DataExportStatusDto(requestedAt)
+req --> ctrl : DataExportRequestedDto(requestedAt)
 ctrl --> client : 200 JSON
 client --> page : Requested
 page --> actor : "Requested. We'll email you a link within 24 hours." (role=status, AC1)
 == Scheduled run, within 24 hours ==
 clock -> db : Take lease on TimeProvider tick
-clock -> builder : Run daily export job when due
+clock -> builder : Run export job on every tick (30 s)
 builder -> db : Requests without an archive; member's own data
 db --> builder : Profile, preferences, registrations, follows, suggestions, feedback, sent messages
 builder -> store : Save .zip (no other person's messages, email or profile, AC2)
@@ -48,7 +48,7 @@ builder -> db : ReadyAt, ArchiveKey, ExpiresAt = ReadyAt + 7 days
 builder -> mail : Link /preferences/download/{id} to the account's address
 == Member follows the link ==
 actor -> page : Open /preferences/download/{id} (sign in first if needed)
-page -> ctrl : GET /api/data-exports/{id}/archive
+page -> ctrl : GET /api/data-exports/{id} (expiresAt), then GET /api/data-exports/{id}/archive
 ctrl -> get : Send GetDataExportArchiveQuery
 get -> db : Request by id
 alt caller's own and not expired

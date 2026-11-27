@@ -39,5 +39,6 @@ export * from './news/story-blocks';
 export * from './news/stories';
 export * from './news/newsletter';
 export * from './preferences/preferences';
+export * from './account/data';
 export * from './clipboard/clipboard';
 export * from './feedback/feedback';

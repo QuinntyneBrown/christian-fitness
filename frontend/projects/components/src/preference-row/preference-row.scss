@@ -1,5 +1,6 @@
 // The design system's preference row (docs/design-system/assets/components.css: "pref__row",
-// "pref__action"). The rule between two rows is the host's.
+// "pref__row--split", "pref__legend", "pref__desc", "pref__done", "pref__action", "pref__note").
+// The rule between two rows is the host's.
 :host {
   display: block;
   font-size: var(--font-size-md);
@@ -15,4 +16,36 @@
 
 .pref__action {
   padding-top: var(--space-2);
+}
+
+.pref__row--split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pref__legend {
+  font-weight: var(--font-weight-semibold);
+}
+
+.pref__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.pref__done {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.pref__note {
+  padding-top: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
 }

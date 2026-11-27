@@ -839,6 +839,38 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("FeedbackReplies", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Members.DataExportRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReadyAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("ReadyAt");
+
+                    b.HasIndex("MemberId", "RequestedAt");
+
+                    b.ToTable("DataExportRequests", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.Member", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1766,6 +1798,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Feedback.FeedbackNote", null)
                         .WithMany()
                         .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Members.DataExportRequest", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

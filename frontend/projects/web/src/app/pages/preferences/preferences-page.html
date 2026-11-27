@@ -149,6 +149,43 @@
                   </cf-interest-list>
                 </cf-preference-row>
               </cf-preference-section>
+              <cf-preference-section
+                sectionId="account"
+                heading="Your data"
+                sub="It’s yours. Take it with you or take it down."
+              >
+                <cf-preference-row
+                  split
+                  legend="Download your data"
+                  description="Your profile, events, messages and follows, as a .zip"
+                  [done]="download() === 'asked' ? downloadRequested : null"
+                >
+                  <cf-button
+                    size="sm"
+                    variant="secondary"
+                    [busy]="download() === 'asking'"
+                    (click)="requestDownload()"
+                    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" x2="12" y1="15" y2="3" /></svg
+                    >Request download</cf-button
+                  >
+                </cf-preference-row>
+                @if (download() === 'failed') {
+                  <cf-preference-row>
+                    <cf-inline-message
+                      heading="Your download wasn't requested."
+                      text="Nothing was sent. Try again in a moment."
+                      (retry)="requestDownload()"
+                    />
+                  </cf-preference-row>
+                }
+                <cf-preference-row note
+                  >Read how we handle your information in our
+                  <cf-link href="/privacy">Privacy Policy</cf-link>.</cf-preference-row
+                >
+              </cf-preference-section>
             </div>
           </form>
         }

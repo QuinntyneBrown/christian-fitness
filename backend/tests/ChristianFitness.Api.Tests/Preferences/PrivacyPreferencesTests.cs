@@ -22,7 +22,7 @@ public sealed class PrivacyPreferencesTests(RegisterForEventFactory factory) : I
 
         var preferences = await Prefs.GetAsync(client, cookie);
 
-        Assert.Equal(["name", "email", "notifications", "privacy", "suggestions"], preferences.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["name", "email", "notifications", "privacy", "suggestions", "downloadRequestedAt"], preferences.EnumerateObject().Select(p => p.Name));
         Assert.Equal(
             """{"visibility":"members","showHomeChurch":false,"showOnAttendeeLists":true,"letAnyoneMessage":false}""",
             preferences.GetProperty("privacy").GetRawText());

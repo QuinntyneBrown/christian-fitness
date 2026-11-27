@@ -42,9 +42,13 @@ export interface PreferencesValuesDto {
   suggestions: SuggestionPreferencesDto;
 }
 
-/** `GET /api/preferences`: the member's name and their settings. */
+/**
+ * `GET /api/preferences`: the member's name and their settings, and when they asked for their data
+ * while that is within the last 24 hours (L2-066 AC3), else `null`.
+ */
 export interface PreferencesDto extends PreferencesValuesDto {
   name: string;
+  downloadRequestedAt: string | null;
 }
 
 /**
