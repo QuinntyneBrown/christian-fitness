@@ -88,6 +88,67 @@
                   </cf-preference-row>
                 }
               </cf-preference-section>
+              <cf-preference-section
+                sectionId="privacy"
+                heading="Privacy"
+                sub="Who can see you on Christian Fitness."
+              >
+                <cf-preference-row>
+                  <cf-radio-group
+                    fieldId="f-visibility"
+                    legend="Who can see your profile"
+                    name="visibility"
+                    [options]="visibilityOptions"
+                    [value]="draft.privacy.visibility"
+                    (valueChange)="setVisibility($event)"
+                  />
+                </cf-preference-row>
+                @for (item of privacySwitches; track item.key) {
+                  <cf-preference-row>
+                    <cf-switch
+                      [label]="item.label"
+                      [description]="item.description"
+                      [name]="item.name"
+                      [checked]="draft.privacy[item.key]"
+                      [disabled]="locked()"
+                      (checkedChange)="setPrivacy(item.key, $event)"
+                    />
+                  </cf-preference-row>
+                }
+              </cf-preference-section>
+              <cf-preference-section
+                sectionId="suggestions"
+                heading="Suggestions"
+                sub="What we use to pick events and stories for you."
+              >
+                <cf-preference-row>
+                  <div class="prefs__select">
+                    <cf-select
+                      fieldId="f-area"
+                      label="Your area"
+                      name="area"
+                      prompt="Choose your area"
+                      [options]="areaOptions"
+                      [value]="draft.suggestions.area ?? ''"
+                      [disabled]="locked()"
+                      (valueChange)="setArea($event)"
+                    />
+                  </div>
+                </cf-preference-row>
+                <cf-preference-row>
+                  <cf-interest-list fieldId="f-interests" legend="Interests">
+                    @for (interest of interestOptions; track interest.key) {
+                      <cf-interest
+                        check
+                        [pressed]="draft.suggestions.interests.includes(interest.key)"
+                        [disabled]="locked()"
+                        (pressedChange)="pressInterest(interest.key)"
+                        >{{ interest.label }}</cf-interest
+                      >
+                    }
+                  </cf-interest-list>
+                </cf-preference-row>
+              </cf-preference-section>
             </div>
           </form>
         }

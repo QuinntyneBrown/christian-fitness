@@ -16,6 +16,11 @@ export class PreferencesPage {
   readonly emailSummary: Locator;
   readonly turnOffAllEmail: Locator;
   readonly notifications: Locator;
+  readonly privacy: Locator;
+  readonly visibility: Locator;
+  readonly suggestions: Locator;
+  readonly area: Locator;
+  readonly interests: Locator;
   readonly switches: Locator;
   readonly saveBar: Locator;
   readonly saveBarText: Locator;
@@ -40,6 +45,11 @@ export class PreferencesPage {
     this.emailSummary = this.email.locator('.pref__sub');
     this.turnOffAllEmail = this.email.getByRole('button', { name: 'Turn off all email' });
     this.notifications = this.main.getByRole('region', { name: 'Notifications' });
+    this.privacy = this.main.getByRole('region', { name: 'Privacy' });
+    this.visibility = this.privacy.getByRole('group', { name: 'Who can see your profile' });
+    this.suggestions = this.main.getByRole('region', { name: 'Suggestions' });
+    this.area = this.suggestions.getByRole('combobox', { name: 'Your area' });
+    this.interests = this.suggestions.locator('.interest');
     this.switches = this.main.getByRole('switch');
     this.saveBar = page.locator('.save-bar');
     this.saveBarText = this.saveBar.locator('.save-bar__text');
@@ -59,6 +69,25 @@ export class PreferencesPage {
 
   path(): string {
     return new URL(this.page.url()).pathname;
+  }
+
+  visibilityChoice(name: string): Locator {
+    return this.visibility.getByRole('radio', { name: new RegExp(`^${name}`) });
+  }
+
+  interest(name: string): Locator {
+    return this.suggestions.getByRole('button', { name, exact: true });
+  }
+
+  /** Each interest: its name, whether it is pressed, and whether it carries a check mark. */
+  interestValues(): Promise<[string, boolean, boolean][]> {
+    return this.interests.evaluateAll((toggles) =>
+      toggles.map((t) => [
+        t.textContent?.trim() ?? '',
+        t.getAttribute('aria-pressed') === 'true',
+        t.querySelector('svg') !== null,
+      ]),
+    );
   }
 
   switch(name: string): Locator {

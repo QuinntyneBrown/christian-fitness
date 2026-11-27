@@ -2,18 +2,26 @@ import { DOCUMENT } from '@angular/common';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import {
   type EmailPreferencesDto,
+  type InterestKey,
+  INTERESTS,
   type NotificationPreferencesDto,
   PREFERENCES_SERVICE,
   type PreferencesValuesDto,
+  type PrivacyPreferencesDto,
+  type ProfileVisibilityName,
 } from '@cf/api';
 import {
   Button,
   Container,
   EmptyState,
+  Interest,
+  InterestList,
   Link,
   PreferenceRow,
   PreferenceSection,
+  RadioGroup,
   SaveBar,
+  Select,
   SideNavigation,
   Skeleton,
   SkeletonRegion,
@@ -26,11 +34,15 @@ import {
   NOTIFICATION_SWITCHES,
   offersTurnOffAllEmail,
   preferencesDiffer,
+  PRIVACY_SWITCHES,
   saveBarOf,
   SAVED_MS,
   type SavePhase,
+  SUGGESTION_AREAS,
+  toggleInterest,
   turnOffAllEmail,
   valuesOf,
+  VISIBILITY_OPTIONS,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
 import { HttpPreferencesService } from '../../services/http-preferences.service';
@@ -49,10 +61,14 @@ import { HttpPreferencesService } from '../../services/http-preferences.service'
     Button,
     Container,
     EmptyState,
+    Interest,
+    InterestList,
     Link,
     PreferenceRow,
     PreferenceSection,
+    RadioGroup,
     SaveBar,
+    Select,
     SideNavigation,
     Skeleton,
     SkeletonRegion,
@@ -70,9 +86,15 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
 
   protected readonly emailSwitches = EMAIL_SWITCHES;
   protected readonly notificationSwitches = NOTIFICATION_SWITCHES;
+  protected readonly privacySwitches = PRIVACY_SWITCHES;
+  protected readonly visibilityOptions = VISIBILITY_OPTIONS;
+  protected readonly areaOptions = SUGGESTION_AREAS;
+  protected readonly interestOptions = INTERESTS;
   protected readonly sections = [
     { id: 'email', title: 'Email' },
     { id: 'notifications', title: 'Notifications' },
+    { id: 'privacy', title: 'Privacy' },
+    { id: 'suggestions', title: 'Suggestions' },
   ];
   protected readonly skeletonSections = [0, 1];
   protected readonly skeletonRows = [0, 1, 2];
@@ -143,6 +165,32 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
 
   protected setNotification(key: keyof NotificationPreferencesDto, on: boolean): void {
     this.edit((draft) => ({ ...draft, notifications: { ...draft.notifications, [key]: on } }));
+  }
+
+  protected setVisibility(visibility: string): void {
+    this.edit((draft) => ({
+      ...draft,
+      privacy: { ...draft.privacy, visibility: visibility as ProfileVisibilityName },
+    }));
+  }
+
+  protected setPrivacy(key: Exclude<keyof PrivacyPreferencesDto, 'visibility'>, on: boolean): void {
+    this.edit((draft) => ({ ...draft, privacy: { ...draft.privacy, [key]: on } }));
+  }
+
+  /** The member's area, or none for the prompt. */
+  protected setArea(area: string): void {
+    this.edit((draft) => ({ ...draft, suggestions: { ...draft.suggestions, area: area || null } }));
+  }
+
+  protected pressInterest(key: InterestKey): void {
+    this.edit((draft) => ({
+      ...draft,
+      suggestions: {
+        ...draft.suggestions,
+        interests: toggleInterest(draft.suggestions.interests as InterestKey[], key),
+      },
+    }));
   }
 
   protected turnOffAllEmail(): void {

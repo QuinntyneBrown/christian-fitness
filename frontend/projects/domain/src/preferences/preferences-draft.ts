@@ -3,6 +3,8 @@ import type {
   NotificationPreferencesDto,
   PreferencesDto,
   PreferencesValuesDto,
+  PrivacyPreferencesDto,
+  ProfileVisibilityName,
 } from '@cf/api';
 
 /** One switch on Preferences: the setting it changes, its name and its description. */
@@ -72,11 +74,68 @@ export const NOTIFICATION_SWITCHES: readonly PreferenceSwitch<keyof Notification
     },
   ];
 
+/** "Who can see your profile" (L2-065 AC1; mock `preferences/default`). */
+export const VISIBILITY_OPTIONS: readonly {
+  value: ProfileVisibilityName;
+  label: string;
+  description: string;
+}[] = [
+  { value: 'anyone', label: 'Anyone', description: 'Including people who aren’t signed in' },
+  { value: 'members', label: 'Members', description: 'Anyone signed in to Christian Fitness' },
+  {
+    value: 'groups',
+    label: 'Just my groups',
+    description: 'People in the group chats you’re part of',
+  },
+];
+
+/** The three privacy switches (L2-065 AC4, AC5, AC10). */
+export const PRIVACY_SWITCHES: readonly PreferenceSwitch<
+  Exclude<keyof PrivacyPreferencesDto, 'visibility'>
+>[] = [
+  {
+    key: 'showHomeChurch',
+    label: 'Show my home church',
+    description:
+      'Only signed-in members who can see your profile can see it. Never shown to visitors.',
+    name: 'privacy-church',
+  },
+  {
+    key: 'showOnAttendeeLists',
+    label: 'Show me on attendee lists',
+    description: 'Others going to an event can see you’re going',
+    name: 'privacy-attendee',
+  },
+  {
+    key: 'letAnyoneMessage',
+    label: 'Let anyone message me',
+    description: 'When off, only people in your groups can start a chat',
+    name: 'privacy-dms',
+  },
+];
+
+/** The eight areas a member chooses from (L2-065 AC6), by the codes the API takes. */
+export const SUGGESTION_AREAS: readonly { value: string; label: string }[] = [
+  { value: 'toronto-east', label: 'Toronto East' },
+  { value: 'toronto-west', label: 'Toronto West' },
+  { value: 'downtown-toronto', label: 'Downtown Toronto' },
+  { value: 'scarborough', label: 'Scarborough' },
+  { value: 'north-york', label: 'North York' },
+  { value: 'mississauga', label: 'Mississauga' },
+  { value: 'brampton', label: 'Brampton' },
+  { value: 'durham', label: 'Durham' },
+];
+
 /** The settings of what the API answers, without the member's name. */
 export function valuesOf(preferences: PreferencesDto): PreferencesValuesDto {
   return {
     email: { ...preferences.email },
     notifications: { ...preferences.notifications },
+    privacy: { ...preferences.privacy },
+    suggestions: {
+      area: preferences.suggestions.area,
+      interests: [...preferences.suggestions.interests],
+    },
   };
 }
 
@@ -106,9 +165,16 @@ export function preferencesDiffer(
   saved: PreferencesValuesDto,
   draft: PreferencesValuesDto,
 ): boolean {
+  const interests = (values: PreferencesValuesDto) =>
+    [...values.suggestions.interests].sort().join();
   return (
     EMAIL_SWITCHES.some((s) => saved.email[s.key] !== draft.email[s.key]) ||
-    NOTIFICATION_SWITCHES.some((s) => saved.notifications[s.key] !== draft.notifications[s.key])
+    NOTIFICATION_SWITCHES.some((s) => saved.notifications[s.key] !== draft.notifications[s.key]) ||
+    saved.privacy.visibility !== draft.privacy.visibility ||
+    PRIVACY_SWITCHES.some((s) => saved.privacy[s.key] !== draft.privacy[s.key]) ||
+    saved.suggestions.area !== draft.suggestions.area ||
+    // The same interests in another order are no change.
+    interests(saved) !== interests(draft)
   );
 }
 

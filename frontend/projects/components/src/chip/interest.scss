@@ -5,6 +5,8 @@
 
 .interest {
   display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
   white-space: nowrap;
   border-radius: var(--radius-full);
   border: var(--border-width-hairline) solid var(--color-border-default);
@@ -46,4 +48,15 @@
       height: max(100%, var(--target-comfortable));
     }
   }
+}
+
+.icon {
+  width: var(--size-icon-xs);
+  height: var(--size-icon-xs);
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

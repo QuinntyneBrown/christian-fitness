@@ -6,9 +6,12 @@ import {
   NOTIFICATION_SWITCHES,
   offersTurnOffAllEmail,
   preferencesDiffer,
+  PRIVACY_SWITCHES,
   saveBarOf,
+  SUGGESTION_AREAS,
   turnOffAllEmail,
   valuesOf,
+  VISIBILITY_OPTIONS,
 } from './preferences-draft';
 
 const SAVED: PreferencesValuesDto = {
@@ -19,6 +22,13 @@ const SAVED: PreferencesValuesDto = {
     followedListingDates: true,
     eventChanges: true,
   },
+  privacy: {
+    visibility: 'members',
+    showHomeChurch: false,
+    showOnAttendeeLists: true,
+    letAnyoneMessage: false,
+  },
+  suggestions: { area: 'scarborough', interests: ['running', 'strength'] },
 };
 
 // L2-064 AC2, AC4: the four emails and the four notification switches, each with a name and a description.
@@ -65,8 +75,8 @@ describe('email', () => {
 
   it('turns all four off and leaves the notifications as they are', () => {
     expect(turnOffAllEmail(SAVED)).toEqual({
+      ...SAVED,
       email: { weekly: false, eventAlerts: false, trainingPlan: false, devotion: false },
-      notifications: SAVED.notifications,
     });
   });
 });
@@ -80,6 +90,22 @@ describe('preferencesDiffer', () => {
       'a notification switch',
       { ...SAVED, notifications: { ...SAVED.notifications, messages: false } },
       true,
+    ],
+    ['the visibility', { ...SAVED, privacy: { ...SAVED.privacy, visibility: 'groups' } }, true],
+    ['a privacy switch', { ...SAVED, privacy: { ...SAVED.privacy, letAnyoneMessage: true } }, true],
+    ['the area', { ...SAVED, suggestions: { ...SAVED.suggestions, area: null } }, true],
+    [
+      'an interest more',
+      {
+        ...SAVED,
+        suggestions: { ...SAVED.suggestions, interests: ['running', 'strength', 'cycling'] },
+      },
+      true,
+    ],
+    [
+      'the same interests in another order',
+      { ...SAVED, suggestions: { ...SAVED.suggestions, interests: ['strength', 'running'] } },
+      false,
     ],
   ])('%s: %s', (_why, draft, differs) => {
     expect(preferencesDiffer(SAVED, draft)).toBe(differs);
@@ -138,5 +164,31 @@ describe('mayLeave', () => {
     expect(mayLeave({ hasUnsavedChanges: () => unsaved }, ask)).toBe(leaves);
     expect(questions).toHaveLength(asked);
     if (asked) expect(questions[0]).toBe('You have unsaved changes. Leave without saving?');
+  });
+});
+
+// L2-065 AC1, AC5, AC6: the choices of Privacy and Suggestions.
+describe('privacy and suggestions', () => {
+  it('offers Anyone, Members and Just my groups, the three privacy switches and the eight areas', () => {
+    expect(VISIBILITY_OPTIONS.map((o) => [o.value, o.label])).toEqual([
+      ['anyone', 'Anyone'],
+      ['members', 'Members'],
+      ['groups', 'Just my groups'],
+    ]);
+    expect(PRIVACY_SWITCHES.map((s) => [s.key, s.label])).toEqual([
+      ['showHomeChurch', 'Show my home church'],
+      ['showOnAttendeeLists', 'Show me on attendee lists'],
+      ['letAnyoneMessage', 'Let anyone message me'],
+    ]);
+    expect(SUGGESTION_AREAS.map((a) => [a.value, a.label])).toEqual([
+      ['toronto-east', 'Toronto East'],
+      ['toronto-west', 'Toronto West'],
+      ['downtown-toronto', 'Downtown Toronto'],
+      ['scarborough', 'Scarborough'],
+      ['north-york', 'North York'],
+      ['mississauga', 'Mississauga'],
+      ['brampton', 'Brampton'],
+      ['durham', 'Durham'],
+    ]);
   });
 });

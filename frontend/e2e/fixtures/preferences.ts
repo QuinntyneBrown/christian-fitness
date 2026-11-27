@@ -9,9 +9,19 @@ export interface PreferencesFixture {
     followedListingDates: boolean;
     eventChanges: boolean;
   };
+  privacy: {
+    visibility: 'anyone' | 'members' | 'groups';
+    showHomeChurch: boolean;
+    showOnAttendeeLists: boolean;
+    letAnyoneMessage: boolean;
+  };
+  suggestions: { area: string | null; interests: string[] };
 }
 
-/** Grace's preferences as mock `preferences/default` draws them: three of four emails on. */
+/**
+ * Grace's preferences as mock `preferences/default` draws them: three of four emails on, her
+ * profile for Members, in Scarborough, with four interests.
+ */
 export const GRACE_PREFERENCES: PreferencesFixture = {
   name: 'Grace Thompson',
   email: { weekly: true, eventAlerts: true, trainingPlan: false, devotion: true },
@@ -20,6 +30,16 @@ export const GRACE_PREFERENCES: PreferencesFixture = {
     messages: true,
     followedListingDates: true,
     eventChanges: true,
+  },
+  privacy: {
+    visibility: 'members',
+    showHomeChurch: false,
+    showOnAttendeeLists: true,
+    letAnyoneMessage: false,
+  },
+  suggestions: {
+    area: 'scarborough',
+    interests: ['running', 'strength', 'basketball', 'nutrition'],
   },
 };
 

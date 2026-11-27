@@ -22,7 +22,12 @@ test.describe('Member app, Preferences: email and notifications', () => {
         'What we send you, what other members see, and what we suggest. Signed in as Grace Thompson.',
       );
       await expect(preferences.backLink).toHaveAttribute('href', '/profile');
-      await expect(preferences.sectionLinks).toHaveText(['Email', 'Notifications']);
+      await expect(preferences.sectionLinks).toHaveText([
+        'Email',
+        'Notifications',
+        'Privacy',
+        'Suggestions',
+      ]);
       await expect(preferences.sectionLinks.first()).toHaveAttribute('href', '/preferences#email');
       await expect(preferences.emailSummary).toHaveText('3 of 4 emails on.');
       expect(await preferences.switchValues(preferences.email)).toEqual([
@@ -88,6 +93,8 @@ test.describe('Member app, Preferences: email and notifications', () => {
       {
         email: { ...GRACE_PREFERENCES.email, trainingPlan: true },
         notifications: NOTIFICATIONS_OFF,
+        privacy: GRACE_PREFERENCES.privacy,
+        suggestions: GRACE_PREFERENCES.suggestions,
       },
     ]);
     await page.clock.fastForward(1_900);
@@ -212,7 +219,7 @@ test.describe('Member app, Preferences: email and notifications', () => {
     await expect(preferences.backToProfile).toHaveAttribute('href', '/profile');
     fail = false;
     await preferences.tryAgainButton.click();
-    await expect(preferences.switches).toHaveCount(8);
+    await expect(preferences.switches).toHaveCount(11);
   });
 
   // L2-064 AC12: at XS the section list is hidden, each switch keeps a 44 px target and the save
@@ -226,11 +233,110 @@ test.describe('Member app, Preferences: email and notifications', () => {
     const preferences = new PreferencesPage(page);
     await preferences.open();
 
-    await expect(preferences.switches).toHaveCount(8);
+    await expect(preferences.switches).toHaveCount(11);
     await expect(preferences.sectionNav).toBeHidden();
     expect(await preferences.smallestSwitchTarget()).toBeGreaterThanOrEqual(44);
     await preferences.switch('Messages').uncheck();
     await expect(preferences.saveBarText).toHaveText('Unsaved changes');
     expect(await preferences.saveBarClearsTabBar()).toBe(true);
+  });
+});
+
+// L2-065 AC1, AC6 and AC8 (journey 34): who sees the member, who may message them, their area and
+// their interests, changed and saved with the rest of the page.
+test.describe('Member app, Preferences: privacy and suggestions', () => {
+  test('shows who can see the profile, the three switches, the area and the interests with a check mark on each one on', async ({
+    page,
+    api,
+  }) => {
+    answerPreferences(api);
+    const preferences = new PreferencesPage(page);
+
+    await preferences.open();
+
+    await expect(preferences.visibilityChoice('Members')).toBeChecked();
+    await expect(preferences.visibilityChoice('Anyone')).not.toBeChecked();
+    await expect(preferences.visibilityChoice('Just my groups')).not.toBeChecked();
+    expect(await preferences.switchValues(preferences.privacy)).toEqual([
+      ['Show my home church', false],
+      ['Show me on attendee lists', true],
+      ['Let anyone message me', false],
+    ]);
+    await expect(preferences.area).toHaveValue('scarborough');
+    expect(
+      (await preferences.area.locator('option').allTextContents()).map((o) => o.trim()),
+    ).toEqual([
+      'Choose your area',
+      'Toronto East',
+      'Toronto West',
+      'Downtown Toronto',
+      'Scarborough',
+      'North York',
+      'Mississauga',
+      'Brampton',
+      'Durham',
+    ]);
+    // Pressed is said by the attribute and shown by a check mark as well as colour (AC6).
+    expect(await preferences.interestValues()).toEqual([
+      ['Running', true, true],
+      ['Strength', true, true],
+      ['Basketball', true, true],
+      ['Walking groups', false, false],
+      ['Mobility', false, false],
+      ['Nutrition', true, true],
+      ['Cycling', false, false],
+      ['Retreats', false, false],
+      ['Pickleball', false, false],
+    ]);
+  });
+
+  test('a privacy or suggestion change uses the save bar and is saved with the rest', async ({
+    page,
+    api,
+  }) => {
+    const saves = answerPreferences(api);
+    const preferences = new PreferencesPage(page);
+    await preferences.open();
+
+    await preferences.visibilityChoice('Just my groups').check();
+    await preferences.switch('Let anyone message me').check();
+    await preferences.area.selectOption('durham');
+    await preferences.interest('Cycling').click();
+    await preferences.interest('Running').click();
+
+    await expect(preferences.saveBarText).toHaveText('Unsaved changes');
+    await expect(preferences.interest('Cycling')).toHaveAttribute('aria-pressed', 'true');
+    await preferences.saveButton.click();
+    await expect(preferences.saveBarText).toHaveText('Preferences saved');
+    expect(saves).toEqual([
+      {
+        email: GRACE_PREFERENCES.email,
+        notifications: GRACE_PREFERENCES.notifications,
+        privacy: { ...GRACE_PREFERENCES.privacy, visibility: 'groups', letAnyoneMessage: true },
+        // The interests keep the order the screen lists them in.
+        suggestions: {
+          area: 'durham',
+          interests: ['strength', 'basketball', 'nutrition', 'cycling'],
+        },
+      },
+    ]);
+    await expect(preferences.visibilityChoice('Just my groups')).toBeChecked();
+  });
+
+  test('a member with no area yet is asked to choose one, and choosing it is an unsaved change', async ({
+    page,
+    api,
+  }) => {
+    answerPreferences(api, {
+      ...GRACE_PREFERENCES,
+      suggestions: { area: null, interests: [] },
+    });
+    const preferences = new PreferencesPage(page);
+    await preferences.open();
+
+    await expect(preferences.area).toHaveValue('');
+    await expect(preferences.saveBar).toHaveCount(0);
+    await preferences.area.selectOption('mississauga');
+    await expect(preferences.saveBarText).toHaveText('Unsaved changes');
   });
 });
