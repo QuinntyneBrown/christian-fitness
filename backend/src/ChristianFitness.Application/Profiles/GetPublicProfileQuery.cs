@@ -22,6 +22,13 @@ public sealed record PublicProfileDto(
     IReadOnlyList<string> Interests,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? HomeChurch)
 {
+    /// <summary>
+    /// True when the viewer may not start a conversation with the member, who takes messages only
+    /// from people in their groups (L2-065 AC5); omitted otherwise.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool MessagesRestricted { get; init; }
+
     /// <summary>The public view of <paramref name="member"/>.</summary>
     public static PublicProfileDto Of(Member member)
     {
@@ -77,7 +84,9 @@ internal sealed class GetPublicProfileHandler(IAppDbContext db, ICurrentMember c
             throw ProfileAccess.NotFound();
         }
 
-        return PublicProfileDto.Of(member);
+        var restricted = viewer != member.Id
+            && !await DirectChat.MayStartAsync(db, viewer, member.Id, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
+        return PublicProfileDto.Of(member) with { MessagesRestricted = restricted };
     }
 }
 

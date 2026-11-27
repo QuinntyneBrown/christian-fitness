@@ -24,7 +24,8 @@ public sealed class PublicProfileTests(ProfileApiFactory factory) : IClassFixtur
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var profile = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
-        Assert.Equal(["bio", "interests", "name"], profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        // A new member takes messages only from their groups, and these two share none (L2-065 AC5).
+        Assert.Equal(["bio", "interests", "messagesRestricted", "name"], profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal("Michael Chen", profile.GetProperty("name").GetString());
         Assert.Equal("Weekend long-runner.", profile.GetProperty("bio").GetString());
         Assert.Equal(["running", "strength"], profile.GetProperty("interests").EnumerateArray().Select(i => i.GetString()));
@@ -44,7 +45,7 @@ public sealed class PublicProfileTests(ProfileApiFactory factory) : IClassFixtur
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var profile = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
-        Assert.Equal(["bio", "homeChurch", "interests", "name"], profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(["bio", "homeChurch", "interests", "messagesRestricted", "name"], profile.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.Equal("Grace Fellowship, Scarborough", profile.GetProperty("homeChurch").GetString());
     }
 

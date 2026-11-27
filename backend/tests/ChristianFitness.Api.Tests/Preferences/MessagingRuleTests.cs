@@ -92,6 +92,11 @@ public sealed class MessagingRuleTests(RegisterForEventFactory factory) : IClass
         }
 
         using var history = await Browser.SendAsync(client, HttpMethod.Get, $"/api/messages/{recipient}/messages", senderCookie);
+        using var profile = await Browser.SendAsync(client, HttpMethod.Get, $"/api/members/{recipient}/profile", senderCookie);
+        var shown = await profile.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+        // The profile says so before a conversation is tried, and only when it is restricted (AC5).
+        Assert.Equal(code is not null, shown.TryGetProperty("messagesRestricted", out var restricted) && restricted.GetBoolean());
 
         Assert.Equal((code, code), (joined.Code, sent.Code));
         if (code is null)
