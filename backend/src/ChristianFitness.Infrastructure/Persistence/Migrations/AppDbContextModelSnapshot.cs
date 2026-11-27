@@ -546,6 +546,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<string>("SuggestionArea")
+                        .HasColumnType("text");
+
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasMaxLength(1000)

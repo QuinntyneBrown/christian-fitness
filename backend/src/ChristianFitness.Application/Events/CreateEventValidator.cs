@@ -22,6 +22,7 @@ public static class EventFieldCodes
     public const string PlaceTooLong = "place_too_long";
     public const string AreaRequired = "area_required";
     public const string AreaTooLong = "area_too_long";
+    public const string SuggestionAreaInvalid = "suggestion_area_invalid";
     public const string PriceInvalid = "price_invalid";
     public const string CapacityRequired = "capacity_required";
     public const string CapacityOutOfRange = "capacity_out_of_range";
@@ -40,7 +41,7 @@ public static class EventFieldCodes
     public static readonly IReadOnlySet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         TitleRequired, TitleTooLong, CategoryRequired, DateRequired, StartTimeRequired, StartInPast, PlaceRequired,
-        PlaceTooLong, AreaRequired, AreaTooLong, PriceInvalid, CapacityRequired, CapacityOutOfRange,
+        PlaceTooLong, AreaRequired, AreaTooLong, SuggestionAreaInvalid, PriceInvalid, CapacityRequired, CapacityOutOfRange,
         SummaryRequired, SummaryTooLong, ImageInvalid, CursorInvalid, CategoryInvalid, HostRequired, HostNotListed,
         EndTimeRequired, EndNotAfterStart, TopicTooLong,
     };
@@ -104,6 +105,11 @@ public abstract class EventFieldsValidator<T> : AbstractValidator<T>
             .Must(host => host is not null).WithErrorCode(EventFieldCodes.HostRequired).WithMessage("Choose a Listed host")
             .MustAsync((host, cancellationToken) => db.DirectoryListings.AnyAsync(l => l.Id == host && l.Status == ListingStatus.Published, cancellationToken))
             .WithErrorCode(EventFieldCodes.HostNotListed).WithMessage("Choose a Listed host");
+
+        // The suggestion area is one of the eight a member chooses from, or none for GTA-wide (ADR 0076).
+        RuleFor(c => c.SuggestionArea)
+            .Must(area => string.IsNullOrEmpty(area) || Domain.Members.SuggestionAreas.All.Contains(area, StringComparer.Ordinal))
+            .WithErrorCode(EventFieldCodes.SuggestionAreaInvalid).WithMessage("Choose an area from the list, or GTA-wide");
 
         RuleFor(c => c.ImageKey)
             .MustAsync((key, cancellationToken) => images.ExistsAsync(key!, cancellationToken))

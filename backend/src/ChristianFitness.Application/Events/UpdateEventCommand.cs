@@ -68,6 +68,7 @@ internal sealed class UpdateEventHandler(IAppDbContext db, TimeProvider time, IR
             request.Summary,
             request.ImageKey);
         stored.HostedBy(request.HostListingId ?? throw new InvalidOperationException("The validator lets no missing host through."));
+        stored.SuggestIn(request.SuggestionArea);
 
         audit.Record(current.Id, nameof(Event), stored.Id);
         var series = await AdminEventSeriesDto.OfAsync(db, [stored], cancellationToken).ConfigureAwait(false);

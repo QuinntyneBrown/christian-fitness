@@ -158,6 +158,8 @@ public sealed class HomeEventsTests(HomeFactory factory) : IClassFixture<HomeFac
         Assert.Equal([run.ToString(), workout.ToString()], Ids(home).Where(id => id == run.ToString() || id == workout.ToString()));
         Assert.DoesNotContain(going.ToString(), Ids(home));
         var titles = home.GetProperty("suggested").EnumerateArray().Select(e => e.GetProperty("title").GetString()).ToList();
+        // An event matching no interest ranks after every one that does (L2-065 AC7; ADR 0076): with
+        // the class's other matching events in the store, it never reaches the three suggested.
         Assert.DoesNotContain("Basketball Night", titles);
         Assert.DoesNotContain("Draft Run", titles);
         Assert.DoesNotContain("Cancelled Run", titles);

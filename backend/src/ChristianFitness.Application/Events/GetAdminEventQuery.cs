@@ -26,7 +26,8 @@ public sealed record AdminEventDetailDto(
     string? ImageKey,
     int Going,
     string Status,
-    EventHostDto Host);
+    EventHostDto Host,
+    string? SuggestionArea = null);
 
 /// <summary>Opens one event for editing (L2-022 AC7); an unknown id is 404 <c>not_found</c>.</summary>
 public sealed record GetAdminEventQuery(Guid Id) : IRequest<AdminEventDetailDto>;
@@ -57,6 +58,7 @@ internal sealed class GetAdminEventHandler(IAppDbContext db, IRegistrationReader
             e.ImageKey,
             going,
             EventNames.Of(e.Status),
-            EventHostDto.Of(host));
+            EventHostDto.Of(host),
+            e.SuggestionArea);
     }
 }

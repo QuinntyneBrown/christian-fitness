@@ -18,6 +18,9 @@ public sealed record GetHomeQuery : IRequest<HomeDto>
 {
     /// <summary>The most events Home suggests.</summary>
     public const int MaxSuggested = 3;
+
+    /// <summary>The soonest events ranked for suggestions: enough to order, bounded so Home stays cheap.</summary>
+    public const int CandidateLimit = 200;
 }
 
 /// <summary>
@@ -46,12 +49,24 @@ internal sealed class GetHomeHandler(IAppDbContext db, ICurrentMember current, I
             .OrderBy(e => e.StartsAt).ThenBy(e => e.Id)
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
-        var suggested = await upcoming
-            .Where(e => categories.Contains(e.Category) && !mine.Contains(e.Id))
+        // Every published event to come that the member is not going to is a candidate; the rule of
+        // ADR 0076 orders them and the first three are suggested (L2-065 AC7).
+        var candidates = await upcoming
+            .Where(e => !mine.Contains(e.Id))
             .OrderBy(e => e.StartsAt).ThenBy(e => e.Id)
-            .Take(GetHomeQuery.MaxSuggested)
+            .Take(GetHomeQuery.CandidateLimit)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+        var area = await db.MemberPreferences.AsNoTracking().Where(p => p.MemberId == memberId).Select(p => p.Area)
+            .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+        var followed = await db.ListingFollows.AsNoTracking().Where(f => f.MemberId == memberId).Select(f => f.ListingId)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var byId = candidates.ToDictionary(e => e.Id);
+        var suggested = HomeSuggestions
+            .Rank(candidates.Select(e => new HomeSuggestions.Candidate(e.Id, e.Title, e.StartsAt, e.SuggestionArea, e.HostListingId, e.Category)), area, followed, categories)
+            .Take(GetHomeQuery.MaxSuggested)
+            .Select(c => byId[c.Id])
+            .ToList();
 
         // The group chats the member is in: standalone events' and series' (ADR 0101).
         var chats = (await ChatMembership.RoomsOfAsync(db, memberId, now, cancellationToken).ConfigureAwait(false))
