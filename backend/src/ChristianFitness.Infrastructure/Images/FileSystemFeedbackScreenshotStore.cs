@@ -33,4 +33,14 @@ internal sealed class FileSystemFeedbackScreenshotStore(IConfiguration configura
             ? new StoredImage(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true), ImageKeys.ContentTypeOf(key))
             : null);
     }
+
+    public Task DeleteAsync(string key, CancellationToken cancellationToken)
+    {
+        if (ImageKeys.IsKey(key))
+        {
+            File.Delete(Path.Combine(_directory, key));
+        }
+
+        return Task.CompletedTask;
+    }
 }

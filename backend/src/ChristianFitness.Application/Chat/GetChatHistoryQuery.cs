@@ -50,11 +50,8 @@ internal sealed class GetChatHistoryHandler(IAppDbContext db, ICurrentMember cur
         var hasMore = newest.Count > PageSize;
         var held = newest.Take(PageSize).Reverse().ToList();
         var authorIds = held.Select(m => m.AuthorId).Distinct().ToList();
-        var names = await db.Members.AsNoTracking()
-            .Where(m => authorIds.Contains(m.Id))
-            .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
-            .ConfigureAwait(false);
-        var page = held.Select(m => new ChatMessageDto(m.Id, m.ScopeId, m.AuthorId, names[m.AuthorId], m.Text, m.SentAt)).ToList();
+        var names = await ChatAuthors.NamesAsync(db, authorIds, cancellationToken).ConfigureAwait(false);
+        var page = held.Select(m => new ChatMessageDto(m.Id, m.ScopeId, m.AuthorId, names[m.AuthorId], ChatAuthors.TextOf(m.Text), m.SentAt)).ToList();
         return new ChatHistoryDto(page, hasMore, seat.Cancelled);
     }
 }

@@ -63,6 +63,27 @@ describe('apiErrorOf', () => {
       body: { code: 'no_account', account: { email: 'grace@gmail.com' } },
       expected: { status: 404, code: 'no_account' },
     },
+    {
+      why: 'a deleting account with the day it is erased (ADR 0118)',
+      status: 409,
+      body: {
+        code: 'account_deleting',
+        account: 'grace@gmail.com',
+        erasesAt: '2026-05-10T12:45:00Z',
+      },
+      expected: {
+        status: 409,
+        code: 'account_deleting',
+        account: 'grace@gmail.com',
+        erasesAt: '2026-05-10T12:45:00Z',
+      },
+    },
+    {
+      why: 'an erasure day that is not a string',
+      status: 409,
+      body: { code: 'account_deleting', erasesAt: 20260510 },
+      expected: { status: 409, code: 'account_deleting' },
+    },
   ])('$why', ({ status, body, expected }) => {
     expect(apiErrorOf(status, body)).toEqual(expected);
   });

@@ -11,11 +11,10 @@ box "Frontend — Member web app" #E0F2FE
   participant "DataApi (DATA_SERVICE)" as client
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "DataController" as ctrl
+  participant "AccountController" as ctrl
   participant "ChatHub" as hub
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
-  participant "DeleteAccountValidator" as val
   participant "DeleteAccountHandler" as h
   participant "Member" as m
 end box
@@ -23,17 +22,17 @@ box "Backend — Christian Fitness Infrastructure" #FFF4E5
   database "Christian Fitness database" as db
   participant "ISessionRevocation" as rev
 end box
-actor -> dlg : Delete account (dialog opens, focus in the field, AC4)
+actor -> dlg : Delete account (dialog opens, focus on "Keep my account", AC4)
 actor -> dlg : Type a word and press "Delete my account"
 alt word is not "delete"
   dlg --> actor : Field aria-invalid "Type the word delete to confirm."; nothing sent (AC5)
 else "delete"
   dlg --> actor : "Deleting…", buttons disabled
   dlg -> client : deleteAccount("delete")
-  client -> ctrl : DELETE /api/account
+  client -> ctrl : POST /api/account/deletion
   ctrl -> h : Send DeleteAccountCommand
-  h -> val : confirm == "delete"
-  val --> h : Valid
+  h -> db : Record the attempt (5 an hour, else 429 too_many_attempts)
+  h -> h : confirm is "delete" in any case, else 400 validation_failed
   h -> db : Caller and StaffRole
   alt staff
     h --> ctrl : RefusalException staff_account 403 (AC9)
@@ -43,7 +42,7 @@ else "delete"
     h -> db : Unsubscribe account address; delete resets and archives
     h -> rev : EndAllAsync(member): every session ends
     h -> db : SaveChanges with AuditEntry account.deletion_requested (AC10)
-    h -> hub : LeaveAsync per chat; DisconnectMemberAsync
+    h -> hub : LeaveAllAsync: every connection leaves every chat group
     h --> ctrl : Done
   end
   ctrl --> client : 204, or ProblemDetails

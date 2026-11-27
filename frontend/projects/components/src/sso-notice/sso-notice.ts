@@ -13,7 +13,8 @@ import { GoogleMark } from '../google-button/google-mark';
  * The design system's sign-in notice (docs/design-system/components/sso-notice.html), block
  * `sso-notice`: the Google account a person came back with could not be used, and why. It is an
  * alert (`role="alert"`) that takes focus when it appears (`tabindex="-1"`), so the refusal is read
- * first. An optional title (Staff sign in), the account Google returned, the projected text that
+ * first. An optional title (Staff sign in, or the day a deleting account is erased), the account
+ * Google returned (with the Google mark unless `plain`), the projected text that
  * says what to do, and optional projected actions (`[slot=actions]`). `spaced` adds the gap it
  * needs under the staff lead. Words are rendered as text.
  */
@@ -28,6 +29,11 @@ export class SsoNotice implements AfterViewInit {
   readonly heading = input<string>();
   /** The email of the Google account that could not be used. */
   readonly account = input.required<string>();
+  /**
+   * The account named as text alone, with no Google mark, when the person did not come back from
+   * Google, such as an account that is deleting (mock `sign-in/deleting`; ADR 0118).
+   */
+  readonly plain = input(false, { transform: booleanAttribute });
   /** Spaced under the staff lead (`sso-notice--spaced`). */
   readonly spaced = input(false, { transform: booleanAttribute });
 

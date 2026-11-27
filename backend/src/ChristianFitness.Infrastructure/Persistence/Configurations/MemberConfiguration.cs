@@ -26,5 +26,7 @@ internal sealed class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.PrimitiveCollection(member => member.Goals).IsRequired();
         builder.Property(member => member.Status).HasConversion<string>().HasMaxLength(16);
         builder.Property(member => member.ModerationNote).HasMaxLength(Member.ModerationNoteMaxLength);
+        // The scheduler finds the deleting accounts whose 30 days are over (ADR 0118).
+        builder.HasIndex(member => member.DeletionRequestedAt);
     }
 }

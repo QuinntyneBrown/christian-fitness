@@ -839,6 +839,24 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("FeedbackReplies", (string)null);
                 });
 
+            modelBuilder.Entity("ChristianFitness.Domain.Members.AccountDeletionAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AttemptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId", "AttemptedAt");
+
+                    b.ToTable("AccountDeletionAttempts", (string)null);
+                });
+
             modelBuilder.Entity("ChristianFitness.Domain.Members.DataExportRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -892,6 +910,9 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("DeletionRequestedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -951,6 +972,8 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeletionRequestedAt");
 
                     b.HasIndex("GoogleSubject")
                         .IsUnique();
@@ -1798,6 +1821,15 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.Feedback.FeedbackNote", null)
                         .WithMany()
                         .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ChristianFitness.Domain.Members.AccountDeletionAttempt", b =>
+                {
+                    b.HasOne("ChristianFitness.Domain.Members.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

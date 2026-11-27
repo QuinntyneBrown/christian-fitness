@@ -130,6 +130,9 @@ public interface IAppDbContext
     /// <summary>Members' requests for a copy of their data, and their archives' keys (L2-066 AC1 to AC3; ADR 0117).</summary>
     DbSet<ChristianFitness.Domain.Members.DataExportRequest> DataExportRequests { get; }
 
+    /// <summary>Each member's presses of "Delete my account" in the last hour (L2-066 AC11; ADR 0118).</summary>
+    DbSet<ChristianFitness.Domain.Members.AccountDeletionAttempt> AccountDeletionAttempts { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

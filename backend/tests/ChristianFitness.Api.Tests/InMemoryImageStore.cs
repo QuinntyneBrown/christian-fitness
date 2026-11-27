@@ -30,4 +30,10 @@ public sealed class InMemoryImageStore : IImageStore, IFeedbackScreenshotStore
         Task.FromResult(ImageKeys.IsKey(key) && _images.TryGetValue(key, out var bytes)
             ? new StoredImage(new MemoryStream(bytes), ImageKeys.ContentTypeOf(key))
             : null);
+
+    public Task DeleteAsync(string key, CancellationToken cancellationToken)
+    {
+        _images.TryRemove(key, out _);
+        return Task.CompletedTask;
+    }
 }

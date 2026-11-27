@@ -17,6 +17,7 @@ export * from './account/email-rule';
 export * from './account/reset-request-refusal';
 export * from './account/new-password-rules';
 export * from './account/reset-password-refusal';
+export * from './account/account-deletion';
 export * from './errors/api-error';
 export * from './security/antiforgery-interceptor';
 export * from './security/app-path';

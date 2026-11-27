@@ -14,12 +14,14 @@ export function apiErrorOf(status: number, body: unknown): ApiError {
   const errors = problem['errors'];
   const fieldCodes = problem['fieldCodes'];
   const account = problem['account'];
+  const erasesAt = problem['erasesAt'];
   return {
     status,
     code,
     ...(isFieldErrors(errors) ? { errors } : {}),
     ...(isFieldCodes(fieldCodes) ? { fieldCodes } : {}),
     ...(typeof account === 'string' ? { account } : {}),
+    ...(typeof erasesAt === 'string' ? { erasesAt } : {}),
   };
 }
 

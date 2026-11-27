@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   DATA_SERVICE,
   type EmailPreferencesDto,
@@ -47,6 +48,8 @@ import {
   VISIBILITY_OPTIONS,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import type { DeleteAccountDialog } from '../../dialogs/delete-account/delete-account-dialog';
+import type { DialogRef } from '@angular/cdk/dialog';
 import { HttpDataService } from '../../services/http-data.service';
 import { HttpPreferencesService } from '../../services/http-preferences.service';
 
@@ -88,6 +91,11 @@ import { HttpPreferencesService } from '../../services/http-preferences.service'
 export default class PreferencesPage implements HoldsUnsavedChanges {
   private readonly api = inject(PREFERENCES_SERVICE);
   private readonly data = inject(DATA_SERVICE);
+  private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  /** The open Delete your account dialog, or true while it loads; one at a time. */
+  private deleteDialog: DialogRef<boolean, DeleteAccountDialog> | true | null = null;
   private downloadRequest: Subscription | undefined;
   private readonly window = inject(DOCUMENT).defaultView;
   private request: Subscription | undefined;
@@ -112,6 +120,8 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
 
   protected readonly state = signal<'loading' | 'loaded' | 'failed'>('loading');
   protected readonly name = signal('');
+  /** The account's address, which the Delete your account dialog names. */
+  private readonly accountEmail = signal('');
   private readonly saved = signal<PreferencesValuesDto | null>(null);
   protected readonly draft = signal<PreferencesValuesDto | null>(null);
   private readonly phase = signal<SavePhase>('clean');
@@ -150,11 +160,12 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
 
   constructor() {
     this.window?.addEventListener('beforeunload', this.beforeUnload);
-    inject(DestroyRef).onDestroy(() => {
+    this.destroyRef.onDestroy(() => {
       this.window?.removeEventListener('beforeunload', this.beforeUnload);
       this.request?.unsubscribe();
       this.downloadRequest?.unsubscribe();
       clearTimeout(this.savedTimer);
+      if (this.deleteDialog && this.deleteDialog !== true) this.deleteDialog.close(false);
     });
     this.load();
   }
@@ -169,6 +180,7 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
     this.request = this.api.get().subscribe({
       next: (preferences) => {
         this.name.set(preferences.name);
+        this.accountEmail.set(preferences.accountEmail);
         this.saved.set(valuesOf(preferences));
         this.draft.set(valuesOf(preferences));
         this.download.set(preferences.downloadRequestedAt ? 'asked' : 'ask');
@@ -241,6 +253,30 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
     this.downloadRequest = this.data.requestDownload().subscribe({
       next: () => this.download.set('asked'),
       error: () => this.download.set('failed'),
+    });
+  }
+
+  /**
+   * Asks, in a dialog loaded on first use, whether to delete the account (L2-066 AC4, AC5; ADR
+   * 0118); once it is deleting the member is signed out and lands on the front page.
+   */
+  protected async deleteAccount(): Promise<void> {
+    if (this.deleteDialog) return;
+    this.deleteDialog = true;
+    const { openDeleteAccountDialog } =
+      await import('../../dialogs/delete-account/delete-account-dialog');
+    if (this.destroyRef.destroyed) return;
+    const dialog = openDeleteAccountDialog(this.injector, {
+      name: this.name(),
+      email: this.accountEmail(),
+    });
+    this.deleteDialog = dialog;
+    dialog.closed.subscribe((deleted) => {
+      this.deleteDialog = null;
+      if (!deleted) return;
+      // The account is gone: nothing on the page is left to save.
+      this.draft.set(this.saved());
+      void this.router.navigateByUrl('/');
     });
   }
 

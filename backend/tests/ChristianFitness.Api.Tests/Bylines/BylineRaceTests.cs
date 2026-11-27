@@ -104,6 +104,7 @@ public sealed class BylineRaceTests(BylineRaceTests.Factory factory) : IClassFix
         public DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies => db.FeedbackReplies;
 
         public DbSet<ChristianFitness.Domain.Members.DataExportRequest> DataExportRequests => db.DataExportRequests;
+        public DbSet<ChristianFitness.Domain.Members.AccountDeletionAttempt> AccountDeletionAttempts => db.AccountDeletionAttempts;
         public DbSet<ChristianFitness.Domain.Newsletter.IssueDelivery> IssueDeliveries => db.IssueDeliveries;
 
         public DbSet<ChristianFitness.Domain.Directory.ListingFollowChange> ListingFollowChanges => db.ListingFollowChanges;

@@ -29,6 +29,9 @@ export class PreferencesPage {
   readonly downloadRequested: Locator;
   readonly downloadFailed: Locator;
   readonly privacyPolicy: Locator;
+  /** The Delete your account row and its button, which opens the dialog (L2-066 AC4). */
+  readonly deleteRow: Locator;
+  readonly deleteAccount: Locator;
   readonly saveBar: Locator;
   readonly saveBarText: Locator;
   readonly saveButton: Locator;
@@ -66,6 +69,10 @@ export class PreferencesPage {
     this.downloadRequested = this.downloadRow.locator('.pref__done');
     this.downloadFailed = this.yourData.locator('.inline-error');
     this.privacyPolicy = this.yourData.getByRole('link', { name: 'Privacy Policy' });
+    this.deleteRow = this.yourData.locator('.pref__row--split', {
+      hasText: 'Delete your account',
+    });
+    this.deleteAccount = this.deleteRow.getByRole('button', { name: 'Delete account' });
     this.saveBar = page.locator('.save-bar');
     this.saveBarText = this.saveBar.locator('.save-bar__text');
     this.saveButton = this.saveBar.getByRole('button');

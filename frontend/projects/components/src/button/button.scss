@@ -75,6 +75,12 @@
   --btn-fg: var(--color-fg-on-danger);
 }
 
+// The secondary button in danger colours (components.css, "pref__delete"; ADR 0118).
+.btn--danger-outline {
+  --btn-fg: var(--color-danger-fg);
+  --btn-border: var(--color-danger-border);
+}
+
 // The primary and secondary pair on bordeaux panels, with the borealis focus ring.
 .btn--neutral {
   --btn-bg: var(--color-bg-inverse);

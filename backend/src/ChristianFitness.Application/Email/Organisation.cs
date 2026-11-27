@@ -9,5 +9,8 @@ public sealed class Organisation(string postalAddress)
 {
     public const string Name = "Christian Fitness";
 
+    /// <summary>Where members write about their personal data, as the Privacy Policy names it (L2-067).</summary>
+    public const string PrivacyEmail = "privacy@christian.fitness";
+
     public string PostalAddress { get; } = postalAddress;
 }

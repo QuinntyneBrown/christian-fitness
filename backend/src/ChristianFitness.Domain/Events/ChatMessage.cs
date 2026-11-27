@@ -37,4 +37,14 @@ public sealed class ChatMessage
         Text = text,
         SentAt = sentAt,
     };
+
+    /// <summary>
+    /// Erases the message of an erased author in place (L2-066 AC7; ADR 0078): the text is gone and
+    /// the author is <paramref name="formerId"/>, an id that names nobody, so the thread keeps its row.
+    /// </summary>
+    public void Erase(Guid formerId)
+    {
+        AuthorId = formerId;
+        Text = string.Empty;
+    }
 }

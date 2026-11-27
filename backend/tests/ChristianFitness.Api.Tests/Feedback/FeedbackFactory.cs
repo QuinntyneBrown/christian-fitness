@@ -28,6 +28,17 @@ public sealed class FeedbackFactory : StoriesFactory
             .ToListAsync(TestContext.Current.CancellationToken);
     }
 
+    /// <summary>Marks the account of <paramref name="email"/> deleting, as "Delete my account" does (journey 36).</summary>
+    public async Task DeletingAsync(string email)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var normalized = Member.NormalizeEmail(email);
+        var member = await db.Members.SingleAsync(m => m.NormalizedEmail == normalized, TestContext.Current.CancellationToken);
+        member.RequestDeletion(Time.GetUtcNow());
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     /// <summary>Marks the member with <paramref name="email"/> Suspended, as a moderator's change does.</summary>
     public async Task SuspendAsync(string email)
     {

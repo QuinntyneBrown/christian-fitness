@@ -2,11 +2,11 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type { DataApi, DataExportDto, DataExportRequestedDto } from '@cf/api';
 import { apiErrorOf } from '@cf/domain';
-import { catchError, throwError, type Observable } from 'rxjs';
+import { catchError, map, throwError, type Observable } from 'rxjs';
 
 /**
  * {@link DataApi} over HTTP: `POST /api/data-exports`, `GET /api/data-exports/{id}` and its
- * `/archive` (L2-066). A failure errors with an `ApiError`. It holds no state, and is provided on
+ * `/archive`, and `POST /api/account/deletion` (L2-066). A failure errors with an `ApiError`. It holds no state, and is provided on
  * each screen that uses it.
  */
 @Injectable()
@@ -29,6 +29,13 @@ export class HttpDataService implements DataApi {
     return this.http
       .get(`/api/data-exports/${encodeURIComponent(id)}/archive`, { responseType: 'blob' })
       .pipe(catchError(asApiError));
+  }
+
+  deleteAccount(confirm: string): Observable<void> {
+    return this.http.post<unknown>('/api/account/deletion', { confirm }).pipe(
+      map(() => undefined),
+      catchError(asApiError),
+    );
   }
 }
 

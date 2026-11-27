@@ -36,10 +36,14 @@ export class WebSignInPage {
   readonly parts: Locator;
   /** The notice about the Google account that has no profile, in place of the Google button. */
   readonly ssoNotice: Locator;
+  readonly ssoNoticeTitle: Locator;
   readonly ssoNoticeAccount: Locator;
   readonly ssoNoticeText: Locator;
   readonly createMyProfile: Locator;
   readonly useAnotherAccount: Locator;
+  /** The deleting account's notice (L2-066 AC6): "Restore my account" and "Keep it deleted". */
+  readonly restore: Locator;
+  readonly keepItDeleted: Locator;
   /** "Reset your password" in the alert that says sign-in is paused. */
   readonly resetLink: Locator;
 
@@ -57,10 +61,13 @@ export class WebSignInPage {
     this.divider = this.sso.getByRole('separator');
     this.parts = this.form.locator('.google-button, [role=separator], .auth__fields');
     this.ssoNotice = this.sso.locator('.sso-notice');
+    this.ssoNoticeTitle = this.ssoNotice.locator('.sso-notice__title');
     this.ssoNoticeAccount = this.ssoNotice.locator('.sso-notice__account');
     this.ssoNoticeText = this.ssoNotice.locator('.sso-notice__text');
     this.createMyProfile = this.ssoNotice.getByRole('link', { name: 'Create my profile' });
     this.useAnotherAccount = this.ssoNotice.getByRole('button', { name: 'Use another account' });
+    this.restore = this.ssoNotice.getByRole('button', { name: 'Restore my account' });
+    this.keepItDeleted = this.ssoNotice.getByRole('link', { name: 'Keep it deleted' });
     this.alt = this.form.locator('.auth__alt');
     this.joinLink = this.alt.getByRole('link', { name: 'Create a profile' });
     this.alert = this.form.locator('.auth__alert .form-alert');

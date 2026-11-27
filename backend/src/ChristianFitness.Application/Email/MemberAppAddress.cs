@@ -31,6 +31,10 @@ public sealed class MemberAppAddress
     public string DownloadLink(Guid id) =>
         $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/preferences/download/{id}";
 
+    /// <summary>The Sign in screen, where a deleting account is restored (L2-066 AC8; ADR 0118): <c>/sign-in</c>.</summary>
+    public string SignInLink() =>
+        $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/sign-in";
+
     public string ResetPasswordLink(string token) =>
         $"{BaseUrl.GetLeftPart(UriPartial.Authority)}{BaseUrl.AbsolutePath.TrimEnd('/')}/reset-password#token={token}";
 }

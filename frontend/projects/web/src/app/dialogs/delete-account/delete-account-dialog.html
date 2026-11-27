@@ -1,0 +1,47 @@
+<form class="delete-account" novalidate (submit)="delete($event)">
+  <cf-dialog
+    heading="Delete your account?"
+    titleId="dlg-title"
+    descriptionId="dlg-desc"
+    [subtitle]="subtitle"
+    (closed)="keep()"
+  >
+    @if (refusal() === 'failed') {
+      <cf-alert heading="We couldn't delete your account"
+        ><p>Nothing was changed. Try again in a moment.</p></cf-alert
+      >
+    } @else if (refusal() === 'staff') {
+      <cf-alert heading="We can't delete this account"
+        ><p>Staff accounts can't be deleted here. Ask an Admin.</p></cf-alert
+      >
+    }
+    <p class="delete-account__text">
+      If you delete your account, you'll be signed out immediately and your event places will go
+      back to other members. Your profile, registrations and follows are removed after 30 days.
+      Messages you sent will show as removed. Messages others sent you aren't affected. You can
+      restore your account during the 30 days; after that, deletion can't be undone.
+    </p>
+    <cf-text-field
+      fieldId="f-confirm"
+      label='Type "delete" to confirm'
+      name="confirm"
+      autocomplete="off"
+      [value]="word()"
+      [readonly]="deleting()"
+      [error]="refusal() === 'invalid' ? 'Type the word delete to confirm.' : null"
+      (valueChange)="type($event)"
+    />
+    <cf-button slot="foot" variant="secondary" grow [disabled]="deleting()" (click)="keep()"
+      >Keep my account</cf-button
+    >
+    <cf-button
+      slot="foot"
+      type="submit"
+      variant="danger"
+      grow
+      [disabled]="deleting()"
+      [busy]="deleting()"
+      >{{ deleting() ? 'Deleting…' : 'Delete my account' }}</cf-button
+    >
+  </cf-dialog>
+</form>

@@ -1,0 +1,12 @@
+// The dialog's layout is the library's: `cf-dialog` draws the scrim and the panel. The form only
+// groups the field and the buttons, so Enter in the field deletes.
+:host {
+  display: block;
+}
+
+// The mock's `prose` paragraph: what happens, in the body's reading size.
+.delete-account__text {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+  margin-block-end: var(--space-4);
+}

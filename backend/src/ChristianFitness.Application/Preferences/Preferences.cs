@@ -10,8 +10,13 @@ namespace ChristianFitness.Application.Preferences;
 /// <summary>The signed-in member's preferences (L2-064 AC2, AC4): their name, the four emails and the four notification switches.</summary>
 public sealed record GetPreferencesQuery : IRequest<PreferencesDto>;
 
+/// <summary>
+/// The member's preferences as Preferences shows them, with their name and the account's address,
+/// which the Delete your account dialog names (L2-066 AC4; ADR 0118).
+/// </summary>
 public sealed record PreferencesDto(
     string Name,
+    string AccountEmail,
     EmailPreferencesDto Email,
     NotificationPreferencesDto Notifications,
     PrivacyPreferencesDto Privacy,
@@ -93,7 +98,7 @@ internal static class PreferencesReader
     {
         var member = await db.Members.AsNoTracking()
             .Where(m => m.Id == memberId)
-            .Select(m => new { m.Name, m.NormalizedEmail, m.Interests, m.ShowHomeChurch })
+            .Select(m => new { m.Name, m.Email, m.NormalizedEmail, m.Interests, m.ShowHomeChurch })
             .SingleAsync(cancellationToken).ConfigureAwait(false);
         var preferences = await db.MemberPreferences.AsNoTracking().SingleOrDefaultAsync(p => p.MemberId == memberId, cancellationToken).ConfigureAwait(false)
             ?? MemberPreferences.DefaultsFor(memberId);
@@ -106,6 +111,7 @@ internal static class PreferencesReader
         var download = await DataExportRequests.RecentAsync(db, memberId, now, cancellationToken).ConfigureAwait(false);
         return new PreferencesDto(
             member.Name,
+            member.Email,
             new EmailPreferencesDto(on && subscription!.Weekly, on && subscription!.EventAlerts, on && subscription!.TrainingPlan, on && subscription!.Devotion),
             new NotificationPreferencesDto(preferences.EventReminders, preferences.Messages, preferences.FollowedListingDates, preferences.EventChanges),
             new PrivacyPreferencesDto(PreferenceRules.Of(preferences.Visibility), member.ShowHomeChurch, preferences.ShowOnAttendeeLists, preferences.LetAnyoneMessage),

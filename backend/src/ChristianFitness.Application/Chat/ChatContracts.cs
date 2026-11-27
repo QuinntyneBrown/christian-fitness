@@ -37,6 +37,9 @@ public interface IChatChannel
     /// <summary>Takes every connection of the member out of the chat (slice 12.3; ADR 0041).</summary>
     Task LeaveAsync(Guid memberId, ChatScope scope, CancellationToken cancellationToken);
 
+    /// <summary>Takes every connection of the member out of every chat they joined: their account is deleting (ADR 0118).</summary>
+    Task LeaveAllAsync(Guid memberId, CancellationToken cancellationToken);
+
     /// <summary>Tells every connection in a standalone event's chat that the event was cancelled.</summary>
     Task NotifyCancelledAsync(ChatScope scope, CancellationToken cancellationToken);
 

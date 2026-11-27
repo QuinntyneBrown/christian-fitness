@@ -91,6 +91,12 @@ internal static class ChatMembership
     /// <summary>The chat whose id is <paramref name="chatId"/> when the member is in it, else <c>null</c>.</summary>
     public static async Task<ChatSeat?> SeatAsync(IAppDbContext db, Guid chatId, Guid memberId, DateTimeOffset now, CancellationToken cancellationToken)
     {
+        // A deleting member has left every group chat (L2-066 AC6; ADR 0118).
+        if (await db.Members.AsNoTracking().AnyAsync(m => m.Id == memberId && m.DeletionRequestedAt != null, cancellationToken).ConfigureAwait(false))
+        {
+            return null;
+        }
+
         var series = await db.EventSeries.AsNoTracking()
             .Where(s => s.Id == chatId)
             .Select(s => s.Title)

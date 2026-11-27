@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 96% (35 of 36 journeys; 109 of 113 days)
+**% complete:** 100% (36 of 36 journeys; 113 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3806,3 +3806,71 @@ days, and the archive is removed after (ADR 0117). Journey 36's parts of the sam
   `cf export-data` were changed and re-rendered.
 - "Prove an absence by exact keys": the request's answer, the link's answer and the archive's
   profile, suggestion and direct-message objects are asserted by their exact keys.
+
+## Journey 36: Delete my account
+
+"Delete account" in Preferences' Your data opens the dialog that asks for the word "delete"; the
+account is hidden at once, its places, series and subscription given up, every session ended and
+its connections taken out of every chat, and the member lands signed out on the front page.
+Signing in within 30 days, by password or by Google, shows the notice with the day it is erased
+and "Restore my account". On the scheduler tick after 30 days the account is erased: what only the
+member owned is deleted, their messages are emptied in place under an id that names nobody, and
+the email can join again (ADR 0118). Replies to a deleting member's feedback are refused
+`member_deleting`. Every journey is now built.
+
+**What slowed it**
+
+- EF Core InMemory cascades only to tracked dependents: a break that stopped deleting feedback
+  replies still passed, because loading them to delete the notes tracked them. Only removing the
+  whole line proved the test. A rule guarded twice (the account's subscription, which the
+  newsletter purge also removes after 29 days) passed its break too, until both were broken.
+- A test that advanced the shared clock 29 days found the member's cookie expired; the member signs
+  in again after the advance. Expected `erasesAt` values had to come from the clock read before the
+  deletion, not from the factory's start time.
+- Two breaks did not build (an unread primary-constructor parameter, CS9113; a method that became
+  static, CA1822): break a rule with a value, not by removing a line the analysers then flag.
+- The design's endpoint (`DELETE` with a body), its validator (which could not count refused
+  attempts) and its `DisconnectMemberAsync` (no such hub API is needed once every hub call refuses
+  a member with no seat) were each replaced and the design corrected.
+- Adding `restore` to the root session service grew the web app's initial bundle by 250 bytes;
+  the restore calls moved to a service of the Sign in screen's own, and the total came back.
+- The mocks drew three things the library did not have: `pref__delete`'s danger outline, the
+  notice's account without the Google mark, and a sign-in card without its form. Each became an
+  input of the existing component, not a new one.
+- The worktree guard again refused heredocs and compound git commands; edits went through one
+  scratchpad script that asserts every match in every file before writing any.
+- The full suite against `ng serve` failed `legal-change` and admin `add-session` on the dev
+  server's own websocket being blocked; against the built apps (`CF_SERVE_BUILT=1`, as CI runs)
+  they pass. `feedback` (3), admin `create-series` and `members` fail as on main; none was touched.
+
+**New lessons**
+
+- When erasing a person from others' records, give each erased person one new random id rather
+  than the empty id: conversations, read markers and reports keep their shape for the people left,
+  and the id names nobody.
+- Count attempts before validating them: a rate limit that must count refused attempts belongs in
+  the handler, before the check, not in a validator that runs first.
+- A method added to a service bound in `app.config.ts` is paid for by every visitor; a call only
+  one screen makes belongs in a contract that screen provides.
+- In a test that defaults a parameter, `undefined` takes the default: pass `null` to test an
+  absent field.
+- Before keeping a break's green as proof, ask what else enforces the rule (a cascade, a purge, a
+  second handler) and break that too.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": the backend breaks (sessions, places, series, archives, chat groups,
+  messages, markers, reports, audit, listing, the 30th day, the word, the staff account, the rate,
+  `member_deleting`) and the frontend breaks (the word check, the Google restore) each failed their
+  own test once the double guards above were found.
+- "Read the initial total after each slice, against the base": web went from 279.06 kB to
+  279.12 kB (the button's variant and the error's `erasesAt`), and back to 279.12 kB after the
+  restore service moved out of `main`.
+- "A shared fixture's clock is shared state" (journey 35): the restore and erasure tests read the
+  clock they advance instead of the factory's start time.
+- "Run `ng test` for every library whose types a change touches": `accountEmail` on
+  `PreferencesDto` broke a domain spec that the build did not type-check; `ng test domain` found it.
+- "Re-rendering PlantUML is part of the slice": five diagrams that named a daily erasure,
+  `cf erase-accounts`, `DELETE /api/account` or the validator were changed and re-rendered.
+- "Prove an absence by exact keys": `GET /api/preferences`' keys, the erasure's counts of what the
+  member owned (all zero) and the refusals' bodies are asserted exactly.

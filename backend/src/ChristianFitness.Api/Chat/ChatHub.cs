@@ -85,6 +85,14 @@ internal sealed class HubChatChannel(IHubContext<ChatHub> hub) : IChatChannel
         }
     }
 
+    public async Task LeaveAllAsync(Guid memberId, CancellationToken cancellationToken)
+    {
+        foreach (var scope in joined.Keys.Where(k => k.MemberId == memberId).Select(k => k.Scope).ToList())
+        {
+            await LeaveAsync(memberId, scope, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
     public Task NotifyCancelledAsync(ChatScope scope, CancellationToken cancellationToken) =>
         hub.Clients.Group(GroupOf(scope)).SendAsync("EventCancelled", scope.Id, cancellationToken);
 

@@ -21,7 +21,7 @@ public static class AttendeeList
         return await db.Registrations.AsNoTracking()
             .Where(r => r.EventId == eventId && !hidden.Contains(r.MemberId))
             .OrderBy(r => r.CreatedAt).ThenBy(r => r.Id)
-            .Join(db.Members, r => r.MemberId, m => m.Id, (_, m) => m.Name)
+            .Join(db.Members.Where(m => m.DeletionRequestedAt == null), r => r.MemberId, m => m.Id, (_, m) => m.Name)
             .Take(Max)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);

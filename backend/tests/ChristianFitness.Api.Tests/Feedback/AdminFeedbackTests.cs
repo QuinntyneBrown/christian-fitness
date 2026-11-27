@@ -257,6 +257,30 @@ public sealed class AnswerFeedbackTests(FeedbackFactory factory) : IClassFixture
         Assert.Equal(0, (await Inbox.GetAsync(client, cookie, $"/{sent.Id}")).GetProperty("replies").GetArrayLength());
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Given_a_note_from_a_member_whose_account_is_deleting_When_staff_reply_Then_it_is_refused_member_deleting_and_nothing_is_delivered_or_kept(bool mayEmail)
+    {
+        using var client = Browser.CreateClient(factory);
+        var cookie = await Inbox.SignInAsync(factory, client, $"dana.reply.deleting.{mayEmail}@example.org");
+        var email = $"grace.reply.deleting.{mayEmail}@example.org";
+        var member = await Inbox.MemberAsync(factory, email);
+        var sent = await Inbox.NoteAsync(factory, member, "Please delete my data.", factory.Time.GetUtcNow().AddHours(-1), FeedbackKind.Idea, mayEmail: mayEmail);
+        await factory.DeletingAsync(email);
+
+        using var response = await Inbox.PostAsync(client, cookie, sent.Id, "replies", new { text = "We will look into it." });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal("member_deleting", (await Inbox.JsonAsync(response)).GetProperty("code").GetString());
+        Assert.Equal(FeedbackStatus.New, (await Inbox.StoredAsync(factory, sent.Id)).Status);
+        Assert.Equal(0, (await Inbox.GetAsync(client, cookie, $"/{sent.Id}")).GetProperty("replies").GetArrayLength());
+        Assert.DoesNotContain(factory.Emails.Sent(), e => e.To == email);
+        using var scope = factory.Services.CreateScope();
+        Assert.False(await scope.ServiceProvider.GetRequiredService<AppDbContext>().DirectMessages
+            .AnyAsync(m => m.RecipientId == member, TestContext.Current.CancellationToken));
+    }
+
     [Fact]
     public async Task Given_a_note_When_it_is_resolved_and_reopened_Then_its_status_moves_and_each_change_is_audited()
     {

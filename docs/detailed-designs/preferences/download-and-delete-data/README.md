@@ -26,15 +26,15 @@ This feature supersedes the export and deletion parts of [protect personal data]
 
 ### Christian Fitness API
 
-- **`DataController`** — `POST /api/data-exports` sends `RequestDataExportCommand`; `GET /api/data-exports/{id}` sends `GetDataExportQuery` (the link's `expiresAt`); `GET /api/data-exports/{id}/archive` sends `GetDataExportArchiveQuery` (built as `DataExportsController`); `DELETE /api/account` sends `DeleteAccountCommand`; `POST /api/account/restore` sends `RestoreAccountCommand`. Each requires a member session except restore (see the restore behaviour).
+- **`DataController`** — `POST /api/data-exports` sends `RequestDataExportCommand`; `GET /api/data-exports/{id}` sends `GetDataExportQuery` (the link's `expiresAt`); `GET /api/data-exports/{id}/archive` sends `GetDataExportArchiveQuery` (built as `DataExportsController`); `AccountController`'s `POST /api/account/deletion` sends `DeleteAccountCommand` (a `POST` with the `confirm` body, not a `DELETE` with a body; [ADR 0118](../../../adr/0118-delete-my-account.md)); `POST /api/account/restore` sends `RestoreAccountCommand` and `POST /api/account/restore/google` `RestoreGoogleAccountCommand`. Each requires a member session except the two restores (see the restore behaviour).
 - **`RequestDataExportCommand` / handler** — an `IAuditableCommand` (`data_export.requested`). When a request of the caller's is younger than 24 hours it answers that one and adds nothing; otherwise it adds a `DataExportRequest`. It records the audit entry with the member as actor (AC10).
 - **`DataExportBuilder`** — built as `BuildDataExportsCommand`, run on every tick of the shared scheduler ([ADR 0069](../../../adr/0069-scheduled-work.md)), so an archive is ready within a minute; no CLI command runs it ([ADR 0117](../../../adr/0117-download-my-data.md)). For each request without an archive, at most 10 a tick, it assembles the member's own data (below) into a .zip, stores it through a private `IArchiveStore`, sets `ReadyAt` and `ExpiresAt = ReadyAt + 7 days`, and sends one `EmailMessage` to the account's address with the link `{MemberAppAddress}/preferences/download/{id}` (AC1). The same run deletes archives past their expiry. Neither the email nor any span carries what the archive holds (AC10).
 - **`GetDataExportArchiveQuery` / handler** — streams the archive only when the request's `MemberId` is the caller's and `ExpiresAt` is in the future; any other id, an expired one or another member's is the same 404 `not_found` (AC2, `L2-031` AC3).
-- **`DeleteAccountCommand` / `DeleteAccountValidator` / handler** — an `IAuditableCommand` (`account.deletion_requested`). The validator refuses a `confirm` other than "delete" with 400 `validation_failed`. The handler refuses a member who holds a `StaffRole` with 403 `staff_account` (AC9), then, in one unit of work: marks the member deleting (`Member.RequestDeletion(now)`, which sets `DeletionRequestedAt`); removes their registrations at events (and later series sessions) that have not started, so the places go back (AC6); unsubscribes the account subscription; deletes unused password resets and every archive; ends every session through `ISessionRevocation.EndAllAsync` (AC6, "signed out everywhere at once"). After the save it calls `IChatChannel.LeaveAsync` for each event chat the member was in and a new `IChatChannel.DisconnectMemberAsync`, so open hub connections close too.
-- **Deleting accounts in other handlers** — from the moment of deletion: `GetPublicProfileHandler` answers `not_found`; group and direct chat history and the conversation list name the author "A former member" (AC7); `ChatMembership.SeatAsync` and `GroupMembership.ShareAGroupAsync` ignore the member, so they leave every group chat (AC6); `DirectChat.OtherNameAsync` treats them as unavailable; going counts exclude them.
-- **`AccountErasureService`** — application service run daily by the shared scheduler ([ADR 0069](../../../adr/0069-scheduled-work.md)), or manually by `cf erase-accounts`. With `TimeProvider`, it finds members whose `DeletionRequestedAt` is 30 days or more in the past and erases them as the table below states (AC7). After erasure the email is free, so it can join as new (AC8).
-- **`RestoreAccountCommand`** — sign-in by password (`SignInHandler`) or by Google (`L2-049` design) for a deleting account answers 409 `account_deleting` with no session; the screen then offers Restore, which re-proves the credentials, clears `DeletionRequestedAt` and signs the member in (AC8). Places that went back are not restored.
-- **`DataExportRequest`** — new entity (`Id`, `MemberId`, `RequestedAt`, `ReadyAt?`, `ArchiveKey?`, `ExpiresAt?`) with a cascade from `Member`; migration `AddDataExportsAndDeletion` adds it and `Member.DeletionRequestedAt`.
+- **`DeleteAccountCommand` / handler** — an `IAuditableCommand` (`account.deletion_requested`). The handler first records the attempt (`AccountDeletionAttempt`, five an hour, the sixth refused 429 `too_many_attempts` and not counted), then refuses a `confirm` other than "delete" (any case, trimmed) with 400 `validation_failed`; a validator could not count the refused attempts (ADR 0118). The handler refuses a member who holds a `StaffRole` with 403 `staff_account` (AC9), then, in one unit of work: marks the member deleting (`Member.RequestDeletion(now)`, which sets `DeletionRequestedAt`); removes their registrations at events that have not started and every series place, so the places go back (AC6); unsubscribes the account subscription; deletes unused password resets and every archive; ends every session through `ISessionRevocation.EndAllAsync` (AC6, "signed out everywhere at once"). After the save it deletes the archive files, signs the caller's cookie out, calls `IChatChannel.LeaveAllAsync`, so every open hub connection of the member leaves every chat group, and sends the deletion-requested email (mock `email-deletion-requested`). Every later hub call of theirs is refused, since they hold no seat (ADR 0118).
+- **Deleting accounts in other handlers** — from the moment of deletion: `GetPublicProfileHandler` answers `not_found`; group and direct chat history and the conversation list name the author "A former member" (AC7); `ChatMembership.SeatAsync` and `GroupMembership.ShareAGroupAsync` ignore the member, so they leave every group chat (AC6); `DirectChat.OtherNameAsync` treats them as unavailable; attendee lists leave them out. A going count of a past event still counts their kept registration until erasure (ADR 0118).
+- **`EraseAccountsCommand` / handler** — run on every tick of the shared scheduler ([ADR 0069](../../../adr/0069-scheduled-work.md)), 30 seconds under its lease, at most 10 accounts a tick, oldest first; no CLI command runs it ([ADR 0118](../../../adr/0118-delete-my-account.md)). With `TimeProvider`, it finds members whose `DeletionRequestedAt` is 30 days or more in the past and erases each in one unit of work as the table below states (AC7), then sends the deletion-done email (mock `email-deletion-done`). After erasure the email is free, so it can join as new (AC8).
+- **`RestoreAccountCommand`** — sign-in by password (`SignInHandler`) or by Google (`L2-049` design) for a deleting account answers 409 `account_deleting` with no session; the problem carries the `account` and `erasesAt`, and Sign in shows the notice of mock `sign-in/deleting` in place of the form. Restore re-proves the credentials (the password again, or the Google identity the callback kept), clears `DeletionRequestedAt`, records `account.restored` and signs the member in (AC8). Places that went back and the subscription are not restored.
+- **`DataExportRequest`** — new entity (`Id`, `MemberId`, `RequestedAt`, `ReadyAt?`, `ArchiveKey?`, `ExpiresAt?`) with a cascade from `Member` (journey 35). Migration `AddAccountDeletion` adds `Member.DeletionRequestedAt` and `AccountDeletionAttempt` (journey 36).
 - **Settings** — the archive store's directory (`Exports__Directory`, on the `/data` share of [ADR 0047](../../../adr/0047-continuous-deployment-to-azure-container-apps.md)) and any scheduler settings shall be documented in `docs/operations/settings.md` in the same change as implementation.
 - **Archive and rate limit** — [ADR 0078](../../../adr/0078-personal-data-erasure-and-retention.md) fixes the seven JSON sections and README, display-name-only participants, and five deletion attempts per member per rolling hour, counting invalid and refused attempts. The sixth receives 429 `too_many_attempts`.
 
@@ -59,7 +59,7 @@ The table lists every store of member data in the code today, then the stores th
 | `MessageReport` filed by the member (reason) | No | Kept for staff | Detach member identity; purge 12 months after decision |
 | `MessageReport` about the member's messages | No | Kept for staff | Detach member identity and erased text; purge 12 months after decision |
 | `AuditEntry` (ids only) | No | `account.deletion_requested` added | Remove identifying actor and record references; purge two years after occurrence |
-| `ProfessionalApplication`, `ServiceListing` of a professional | `<TO SUPPLY>` | `<TO SUPPLY>` | Delete exclusively owned data; declined applications and associated declined listings otherwise purged 12 months after decline |
+| `ProfessionalApplication`, `ServiceListing` of a professional | No | Kept (ADR 0118) | Deleted; a `DirectoryListing` the member owned is released to no owner, not deleted (ADR 0118) |
 | `MemberPreferences` (`L2-064`, `L2-065`) | Yes | Kept | Deleted |
 | Account subscription (`L2-057`) | Yes (as preferences) | Unsubscribed | Address deleted (`L2-058` AC6) |
 | Google sign-in link (`L2-049`) | No | Kept for restore | Deleted |
@@ -72,11 +72,9 @@ The table lists every store of member data in the code today, then the stores th
 
 ### Open questions
 
-- **Deadline and daily cadence.** A daily run can finish an export after its 24-hour deadline
-  or erase an account after its 30-day threshold, even without an outage. For exports, ADR 0117
-  resolves it: the builder runs on every scheduler tick and a missed tick's requests stay due.
-  Erasure (journey 36) must still resolve its timing and recovery without shortening the
-  member's 30-day restoration period.
+- **Deadline and daily cadence.** Resolved: the archive builder (ADR 0117) and the erasure
+  (ADR 0118) both run on every scheduler tick, and a missed tick's work stays due, so an account
+  is erased within a minute of its 30 days and never sooner.
 - **Mocked states.** Sign-in for a deleting account with Restore (`docs/mocks/pages/sign-in/deleting.html`), the download page (`pages/download/`, `default` ready and `expired`), the `staff_account` refusal in the dialog (`dialogs/delete-account/staff-account.html`) and the wording of the deletion-requested, deletion-done and download-ready emails (`pages/email-deletion-requested/`, `email-deletion-done/`, `email-download-ready/`) are drawn.
 - **Audit by members.** `AuditBehavior` (ADR 0023) serves staff commands today; this design uses it for two member commands, with the member as actor, which ADR 0023 should record.
 
@@ -100,13 +98,13 @@ A member asks Christian Fitness for their data or deletes their account. The arc
 
 ### Containers
 
-The API records requests and deletions; its scheduler builds archives and erases accounts daily. The CLI can run the same services manually; archives sit on private storage that only the API serves.
+The API records requests and deletions; its scheduler builds archives and erases accounts on every tick. No CLI command runs either; archives sit on private storage that only the API serves.
 
 ![C4 container view: download and delete data](diagrams/c4-container.png)
 
 ### Components
 
-`DataController` sends one request per action. The scheduler or CLI runs `DataExportBuilder` and `AccountErasureService`; `ISessionRevocation` and `IChatChannel` end the member's sessions and chat connections at deletion.
+`DataExportsController` and `AccountController` send one request per action. The scheduler runs `BuildDataExportsCommand` and `EraseAccountsCommand`; `ISessionRevocation` and `IChatChannel` end the member's sessions and take their connections out of every chat at deletion.
 
 ![C4 component view: download and delete data](diagrams/c4-component.png)
 

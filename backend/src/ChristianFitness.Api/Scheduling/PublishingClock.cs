@@ -1,3 +1,4 @@
+using ChristianFitness.Application.Account;
 using ChristianFitness.Application.News;
 using ChristianFitness.Application.Newsletter;
 using ChristianFitness.Application.Preferences;
@@ -7,15 +8,15 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ChristianFitness.Api.Scheduling;
 
-/// <summary>What one tick did: whether this replica held the lease, how many stories it published, subscriptions it purged and data archives it built.</summary>
-public sealed record PublishingTick(bool Held, int Published, int Purged = 0, int Exported = 0);
+/// <summary>What one tick did: whether this replica held the lease, how many stories it published, subscriptions it purged, data archives it built and accounts it erased.</summary>
+public sealed record PublishingTick(bool Held, int Published, int Purged = 0, int Exported = 0, int Erased = 0);
 
 /// <summary>
 /// The API's one scheduler (ADR 0069, ADR 0104): every <see cref="Interval"/> of its
 /// <see cref="TimeProvider"/> it takes or renews the scheduler lease and, only while it holds it,
 /// runs each due job in a scope of its own: <see cref="PublishDueStoriesCommand"/>, then
 /// <see cref="PurgeNewsletterSubscriptionsCommand"/> (ADR 0110), then the newsletter's due issue,
-/// then <see cref="BuildDataExportsCommand"/> (ADR 0117). A
+/// then <see cref="BuildDataExportsCommand"/> (ADR 0117), then <see cref="EraseAccountsCommand"/> (ADR 0118). A
 /// replica that cannot take the lease skips the tick, and one that loses it starts no more work.
 /// The lease lasts <see cref="LeaseDuration"/> from the holder's last tick, so another replica takes
 /// over within a minute of the holder stopping. A failed tick is logged by the exception's type only
@@ -81,7 +82,10 @@ public sealed partial class PublishingClock : BackgroundService
             using var exportScope = _scopes.CreateScope();
             var exported = await exportScope.ServiceProvider.GetRequiredService<ISender>()
                 .Send(new BuildDataExportsCommand(), cancellationToken).ConfigureAwait(false);
-            return new PublishingTick(true, published, purged, exported);
+            using var eraseScope = _scopes.CreateScope();
+            var erased = await eraseScope.ServiceProvider.GetRequiredService<ISender>()
+                .Send(new EraseAccountsCommand(), cancellationToken).ConfigureAwait(false);
+            return new PublishingTick(true, published, purged, exported, erased);
         }
     }
 
@@ -131,6 +135,11 @@ public sealed partial class PublishingClock : BackgroundService
                 LogExported(_logger, tick.Exported);
             }
 
+            if (tick.Erased > 0)
+            {
+                LogErased(_logger, tick.Erased);
+            }
+
             Ticked?.Invoke(this, tick);
         }
     }
@@ -147,6 +156,10 @@ public sealed partial class PublishingClock : BackgroundService
     // The count only: never whose archive, nor what it holds (L2-066 AC10).
     [LoggerMessage(Level = LogLevel.Information, Message = "The publishing clock built {Count} data archives")]
     private static partial void LogExported(ILogger logger, int count);
+
+    // The count only: never whose account (ADR 0118).
+    [LoggerMessage(Level = LogLevel.Information, Message = "The publishing clock erased {Count} deleted accounts")]
+    private static partial void LogErased(ILogger logger, int count);
 }
 
 /// <summary>Registers the publishing clock as the API's hosted scheduler (ADR 0069).</summary>

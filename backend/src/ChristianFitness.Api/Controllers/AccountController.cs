@@ -42,6 +42,32 @@ public sealed class AccountController(ISender sender) : ControllerBase
         Created("/api/session", await sender.Send(command, cancellationToken).ConfigureAwait(false));
 
     /// <summary>
+    /// "Delete my account" (L2-066 AC6; ADR 0118): the member's own account, under the fallback
+    /// policy. Answers 204; the session has ended.
+    /// </summary>
+    [HttpPost("deletion")]
+    public async Task<IActionResult> Delete(DeleteAccountCommand command, CancellationToken cancellationToken)
+    {
+        await sender.Send(command, cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// "Restore my account" after a password sign-in was told the account is deleting (L2-066 AC8;
+    /// ADR 0118): the credentials again, then the member session. Anonymous: they have none.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("restore")]
+    public async Task<IActionResult> Restore(RestoreAccountCommand command, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(command, cancellationToken).ConfigureAwait(false));
+
+    /// <summary>"Restore my account" after a Google sign-in, with the Google identity it kept in <c>__Host-cf-google</c>.</summary>
+    [AllowAnonymous]
+    [HttpPost("restore/google")]
+    public async Task<IActionResult> RestoreWithGoogle(CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new RestoreGoogleAccountCommand(), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>
     /// Sends a reset link when the email has an account (L2-044; ADR 0010). The answer is 202 with
     /// no body either way, so it never says whether the email is registered.
     /// </summary>

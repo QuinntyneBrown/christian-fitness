@@ -80,6 +80,7 @@ public sealed class UnreachableDatabaseTests(UnreachableDatabaseTests.Factory fa
         public DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies => throw new InvalidOperationException(Secret);
 
         public DbSet<ChristianFitness.Domain.Members.DataExportRequest> DataExportRequests => throw new InvalidOperationException(Secret);
+        public DbSet<ChristianFitness.Domain.Members.AccountDeletionAttempt> AccountDeletionAttempts => throw new InvalidOperationException(Secret);
         public DbSet<ChristianFitness.Domain.Newsletter.IssueDelivery> IssueDeliveries => throw new InvalidOperationException(Secret);
         public DbSet<AuditEntry> AuditEntries => throw new InvalidOperationException(Secret);
 

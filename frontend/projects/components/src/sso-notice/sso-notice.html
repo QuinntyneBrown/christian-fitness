@@ -10,7 +10,10 @@
     </p>
   }
   <p class="sso-notice__account">
-    <cf-google-mark size="sm" /><span>{{ account() }}</span>
+    @if (!plain()) {
+      <cf-google-mark size="sm" />
+    }
+    <span>{{ account() }}</span>
   </p>
   <p class="sso-notice__text"><ng-content /></p>
   <div class="sso-notice__actions"><ng-content select="[slot=actions]" /></div>

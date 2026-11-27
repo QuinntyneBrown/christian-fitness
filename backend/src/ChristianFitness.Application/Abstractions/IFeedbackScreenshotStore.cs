@@ -12,4 +12,7 @@ public interface IFeedbackScreenshotStore
 
     /// <summary>The screenshot, or none when the key names nothing. The caller disposes the stream.</summary>
     Task<StoredImage?> OpenAsync(string key, CancellationToken cancellationToken);
+
+    /// <summary>Removes the screenshot with its erased member's note (ADR 0078, ADR 0118); a key that names nothing is a no-op.</summary>
+    Task DeleteAsync(string key, CancellationToken cancellationToken);
 }

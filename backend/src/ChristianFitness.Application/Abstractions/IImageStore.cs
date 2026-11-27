@@ -16,4 +16,7 @@ public interface IImageStore
 
     /// <summary>The image, or none when the key names nothing. The caller disposes the stream.</summary>
     Task<StoredImage?> OpenAsync(string key, CancellationToken cancellationToken);
+
+    /// <summary>Removes the image, such as an erased member's photo (ADR 0078, ADR 0118); a key that names nothing is a no-op.</summary>
+    Task DeleteAsync(string key, CancellationToken cancellationToken);
 }

@@ -29,12 +29,29 @@ public sealed record MarkDirectReadCommand(Guid OtherId) : IRequest;
 
 internal static class DirectChat
 {
-    /// <summary>The other member's name when a conversation with them is possible, else <c>null</c>.</summary>
-    public static Task<string?> OtherNameAsync(IAppDbContext db, Guid memberId, Guid otherId, CancellationToken cancellationToken) =>
-        db.Members.AsNoTracking()
-            .Where(m => m.Id == otherId && otherId != memberId && m.Status != MemberStatus.Suspended)
-            .Select(m => (string?)m.Name)
-            .SingleOrDefaultAsync(cancellationToken);
+    /// <summary>
+    /// The other member's name when a conversation with them is possible, else <c>null</c>: neither
+    /// a suspended member nor a deleting one can be written to, and a deleting one writes to nobody
+    /// (ADR 0118).
+    /// </summary>
+    public static async Task<string?> OtherNameAsync(IAppDbContext db, Guid memberId, Guid otherId, CancellationToken cancellationToken) =>
+        await db.Members.AsNoTracking().AnyAsync(m => m.Id == memberId && m.DeletionRequestedAt != null, cancellationToken).ConfigureAwait(false)
+            ? null
+            : await db.Members.AsNoTracking()
+                .Where(m => m.Id == otherId && otherId != memberId && m.Status != MemberStatus.Suspended && m.DeletionRequestedAt == null)
+                .Select(m => (string?)m.Name)
+                .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// Whether <paramref name="otherId"/> is a former member <paramref name="memberId"/> already has a
+    /// conversation with: deleting, or erased so the id names nobody. The conversation stays readable,
+    /// since what the caller sent is theirs (L2-066 AC7), but nothing more can be sent.
+    /// </summary>
+    public static async Task<bool> IsFormerPartnerAsync(IAppDbContext db, Guid memberId, Guid otherId, CancellationToken cancellationToken) =>
+        !await db.Members.AsNoTracking().AnyAsync(m => m.Id == otherId && m.DeletionRequestedAt == null, cancellationToken).ConfigureAwait(false)
+        && await db.DirectMessages.AsNoTracking()
+            .AnyAsync(m => (m.SenderId == memberId && m.RecipientId == otherId) || (m.SenderId == otherId && m.RecipientId == memberId), cancellationToken)
+            .ConfigureAwait(false);
 
     public static RefusalException Unavailable() => new(RefusalCodes.RecipientUnavailable, RefusalKind.Forbidden);
 
@@ -145,12 +162,14 @@ internal sealed class GetDirectHistoryHandler(IAppDbContext db, ICurrentMember c
         ArgumentNullException.ThrowIfNull(request);
         var me = current.Id;
         var other = request.OtherId;
-        if (await DirectChat.OtherNameAsync(db, me, other, cancellationToken).ConfigureAwait(false) is null)
+        // A former member's conversation is read as it stands (ADR 0118).
+        var former = await DirectChat.IsFormerPartnerAsync(db, me, other, cancellationToken).ConfigureAwait(false);
+        if (!former && await DirectChat.OtherNameAsync(db, me, other, cancellationToken).ConfigureAwait(false) is null)
         {
             throw DirectChat.Unavailable();
         }
 
-        if (!await DirectChat.MayStartAsync(db, me, other, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
+        if (!former && !await DirectChat.MayStartAsync(db, me, other, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
         {
             throw DirectChat.Restricted();
         }
@@ -176,12 +195,9 @@ internal sealed class GetDirectHistoryHandler(IAppDbContext db, ICurrentMember c
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         var hasMore = newest.Count > GetChatHistoryHandler.PageSize;
-        var names = await db.Members.AsNoTracking()
-            .Where(m => m.Id == me || m.Id == other)
-            .ToDictionaryAsync(m => m.Id, m => m.Name, cancellationToken)
-            .ConfigureAwait(false);
+        var names = await ChatAuthors.NamesAsync(db, [me, other], cancellationToken).ConfigureAwait(false);
         var page = newest.Take(GetChatHistoryHandler.PageSize).Reverse()
-            .Select(m => new ChatMessageDto(m.Id, other, m.SenderId, names[m.SenderId], m.Text, m.SentAt))
+            .Select(m => new ChatMessageDto(m.Id, other, m.SenderId, names[m.SenderId], ChatAuthors.TextOf(m.Text), m.SentAt))
             .ToList();
         return new ChatHistoryDto(page, hasMore, false);
     }

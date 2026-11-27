@@ -19,6 +19,8 @@ public sealed class CompleteGoogleSignInCommand : IRequest<SessionDto>;
 /// (L2-049 AC4);</item>
 /// <item>none found is refused <c>no_account</c>, 404, with the <c>account</c> the screen names,
 /// and the identity is kept for "Create my profile" (L2-004 AC9);</item>
+/// <item>a deleting account is refused <c>account_deleting</c>, 409, and the identity kept for
+/// Restore (L2-066 AC8; ADR 0118);</item>
 /// <item>a suspended member is refused <c>account_suspended</c>, 403, and the identity forgotten
 /// (L2-004 AC10);</item>
 /// <item>otherwise the identity is forgotten, the link saved and the member signed in.</item>
@@ -45,6 +47,12 @@ internal sealed class CompleteGoogleSignInHandler(
             {
                 Extensions = new Dictionary<string, object?> { ["account"] = identity.Email },
             };
+        if (member.IsDeleting && member.Status != MemberStatus.Suspended)
+        {
+            // The identity is kept: Restore proves the account with it (L2-066 AC8; ADR 0118).
+            throw Account.AccountDeleting.Refusal(member);
+        }
+
         await identities.ForgetAsync().ConfigureAwait(false);
         if (member.Status == MemberStatus.Suspended)
         {

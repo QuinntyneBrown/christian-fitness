@@ -6,8 +6,7 @@ title Containers — Download and delete data
 Person(member, "Member", "Signed-in member")
 System_Boundary(cf, "Christian Fitness") {
   Container(web, "Member web app", "Angular", "Your data section, DeleteAccountDialog, download page")
-  Container(api, "Christian Fitness API", "ASP.NET Core", "DataController, chat hub, sign-in, scheduled jobs")
-  Container(cli, "Christian Fitness CLI", ".NET console", "cf erase-accounts (manual)")
+  Container(api, "Christian Fitness API", "ASP.NET Core", "Data and account controllers, chat hub, sign-in, scheduled jobs (erasure every tick)")
   ContainerDb(db, "Christian Fitness database", "EF Core; PostgreSQL", "Members, DataExportRequests, sessions, messages")
   ContainerDb(files, "Archive store", "File share /data", "Private .zip archives, 7 days")
 }
@@ -16,8 +15,5 @@ Rel(member, web, "Uses", "HTTPS")
 Rel(web, api, "Calls", "JSON/HTTPS, cookie session")
 Rel(api, db, "Reads and writes", "EF Core")
 Rel(api, files, "Writes, expires and streams archives")
-Rel(api, mail, "Sends the link", "SMTP")
-Rel(cli, db, "Manually processes erasures", "EF Core")
-Rel(cli, files, "Deletes archives at erasure")
-Rel(cli, mail, "Sends the deletion-done email", "SMTP")
+Rel(api, mail, "Sends the link and the deletion emails", "SMTP")
 @enduml

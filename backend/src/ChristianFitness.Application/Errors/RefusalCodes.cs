@@ -6,6 +6,15 @@ public static class RefusalCodes
     /// <summary>A suspended member gave the right password, in either app (L2-004 AC4, L2-029 AC8).</summary>
     public const string AccountSuspended = "account_suspended";
 
+    /// <summary>A deleting account gave the right password or Google account: it can be restored (L2-066 AC8; ADR 0118).</summary>
+    public const string AccountDeleting = "account_deleting";
+
+    /// <summary>A staff account cannot be deleted from the member app; an Admin removes it (L2-066 AC9).</summary>
+    public const string StaffAccount = "staff_account";
+
+    /// <summary>A feedback reply to a member whose account is deleting (L2-074 AC12; ADR 0118).</summary>
+    public const string MemberDeleting = "member_deleting";
+
     /// <summary>The event has no place left (L2-011 AC2; ADR 0032).</summary>
     public const string EventFull = "event_full";
 

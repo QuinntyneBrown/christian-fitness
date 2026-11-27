@@ -10,4 +10,6 @@ internal sealed class FakeImageStore(params string[] keys) : IImageStore
     public Task SaveAsync(string key, ReadOnlyMemory<byte> content, CancellationToken cancellationToken) => Task.CompletedTask;
 
     public Task<StoredImage?> OpenAsync(string key, CancellationToken cancellationToken) => Task.FromResult<StoredImage?>(null);
+
+    public Task DeleteAsync(string key, CancellationToken cancellationToken) => Task.CompletedTask;
 }
