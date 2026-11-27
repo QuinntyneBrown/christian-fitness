@@ -1,6 +1,6 @@
 @if (visitor) {
   <cf-skip-link />
-  <cf-masthead />
+  <cf-masthead [sections]="sections" (navigate)="go($event)" />
 }
 <main id="main" class="member-profile-page">
   @if (state() === 'not-found') {

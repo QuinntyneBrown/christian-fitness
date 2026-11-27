@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PROFILE_SERVICE, type PublicProfileDto } from '@cf/api';
 import {
   Button,
@@ -10,13 +10,14 @@ import {
   ErrorPage,
   Footer,
   Masthead,
+  type MastheadSection,
   ProfileHero,
   Skeleton,
   SkeletonRegion,
   SkipLink,
   TagList,
 } from '@cf/components';
-import { firstNameOf, initialsOf, interestLabelsOf } from '@cf/domain';
+import { firstNameOf, initialsOf, interestLabelsOf, NEWS_SECTIONS } from '@cf/domain';
 import { switchMap, tap, type Observable } from 'rxjs';
 import { HttpProfileService } from '../../services/http-profile.service';
 
@@ -70,6 +71,13 @@ export default class MemberProfilePage {
   /** True for a visitor without a session: the masthead heads the page and Message is Join. */
   protected readonly visitor = inject(ActivatedRoute).snapshot.data['visitor'] === true;
   protected readonly state = signal<'loading' | 'loaded' | 'not-found' | 'failed'>('loading');
+  /** The masthead's news sections, none of them current (mock `profile/public`). */
+  protected readonly sections: MastheadSection[] = NEWS_SECTIONS.map((s) => ({
+    label: s.label,
+    href: s.href,
+    current: false,
+  }));
+  private readonly router = inject(Router);
   protected readonly member = signal<MemberView | null>(null);
 
   constructor() {
@@ -103,6 +111,10 @@ export default class MemberProfilePage {
             error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'failed',
           ),
       });
+  }
+
+  protected go(href: string): void {
+    void this.router.navigateByUrl(href);
   }
 
   private read(memberId: string): Observable<PublicProfileDto> {
