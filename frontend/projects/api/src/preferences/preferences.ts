@@ -43,11 +43,13 @@ export interface PreferencesValuesDto {
 }
 
 /**
- * `GET /api/preferences`: the member's name and their settings, and when they asked for their data
- * while that is within the last 24 hours (L2-066 AC3), else `null`.
+ * `GET /api/preferences`: the member's name, the account's email (which the Delete your account
+ * dialog names, ADR 0118) and their settings, and when they asked for their data while that is
+ * within the last 24 hours (L2-066 AC3), else `null`.
  */
 export interface PreferencesDto extends PreferencesValuesDto {
   name: string;
+  accountEmail: string;
   downloadRequestedAt: string | null;
 }
 

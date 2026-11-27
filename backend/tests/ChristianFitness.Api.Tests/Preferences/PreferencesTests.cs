@@ -76,7 +76,7 @@ public sealed class PreferencesTests(RegisterForEventFactory factory) : IClassFi
 
         var preferences = await Prefs.GetAsync(client, cookie);
 
-        Assert.Equal(["name", "email", "notifications"], preferences.EnumerateObject().Select(p => p.Name).Take(3));
+        Assert.Equal(["name", "accountEmail", "email", "notifications"], preferences.EnumerateObject().Select(p => p.Name).Take(4));
         Assert.Equal("Grace Thompson", preferences.GetProperty("name").GetString());
         Assert.Equal("""{"weekly":false,"eventAlerts":false,"trainingPlan":false,"devotion":false}""", preferences.GetProperty("email").GetRawText());
         Assert.Equal("""{"eventReminders":true,"messages":true,"followedListingDates":true,"eventChanges":true}""", preferences.GetProperty("notifications").GetRawText());

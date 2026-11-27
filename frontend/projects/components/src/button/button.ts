@@ -6,13 +6,16 @@ import { booleanAttribute, Component, input } from '@angular/core';
  * are the primary and secondary pair on bordeaux panels, `quiet` is the borderless, full-width
  * text action, and `link-quiet` the quiet link (`btn--link btn--link-quiet`) of a row action that
  * should not shout, such as "Cancel date". `neutral` is the near-black primary where bordeaux would
- * compete, such as the member Sign in submit under the Google button.
+ * compete, such as the member Sign in submit under the Google button. `danger-outline` is the
+ * secondary button in danger colours that starts something that cannot be taken back, such as
+ * Preferences' "Delete account" (the design system's `pref__delete`; ADR 0118).
  */
 export type ButtonVariant =
   | 'primary'
   | 'secondary'
   | 'ghost'
   | 'danger'
+  | 'danger-outline'
   | 'link'
   | 'neutral'
   | 'link-quiet'
@@ -69,7 +72,7 @@ export class Button {
   protected classes(): string {
     const size = this.size();
     const variant = this.variant();
-    return `btn ${variant === 'link-quiet' ? 'btn--link btn--link-quiet' : `btn--${variant}`}${size === 'default' ? '' : ` btn--${size}`}${
+    return `btn ${variant === 'link-quiet' ? 'btn--link btn--link-quiet' : variant === 'danger-outline' ? 'btn--secondary btn--danger-outline' : `btn--${variant}`}${size === 'default' ? '' : ` btn--${size}`}${
       this.block() ? ' btn--block' : ''
     }${this.grow() ? ' btn--grow' : ''}`;
   }

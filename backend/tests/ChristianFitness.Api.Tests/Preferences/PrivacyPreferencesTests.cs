@@ -22,7 +22,9 @@ public sealed class PrivacyPreferencesTests(RegisterForEventFactory factory) : I
 
         var preferences = await Prefs.GetAsync(client, cookie);
 
-        Assert.Equal(["name", "email", "notifications", "privacy", "suggestions", "downloadRequestedAt"], preferences.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["name", "accountEmail", "email", "notifications", "privacy", "suggestions", "downloadRequestedAt"], preferences.EnumerateObject().Select(p => p.Name));
+        // The account's address, which the Delete your account dialog names (L2-066 AC4; ADR 0118).
+        Assert.Equal("grace.privacy.new@example.org", preferences.GetProperty("accountEmail").GetString());
         Assert.Equal(
             """{"visibility":"members","showHomeChurch":false,"showOnAttendeeLists":true,"letAnyoneMessage":false}""",
             preferences.GetProperty("privacy").GetRawText());

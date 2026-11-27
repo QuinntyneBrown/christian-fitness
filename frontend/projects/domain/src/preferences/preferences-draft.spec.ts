@@ -111,10 +111,9 @@ describe('preferencesDiffer', () => {
     expect(preferencesDiffer(SAVED, draft)).toBe(differs);
   });
 
-  it('takes the values out of what the API answers, without the name', () => {
-    expect(valuesOf({ name: 'Grace Thompson', downloadRequestedAt: null, ...SAVED })).toEqual(
-      SAVED,
-    );
+  it('takes the values out of what the API answers, without the name or the address', () => {
+    const answer = { name: 'Grace Thompson', accountEmail: 'grace@example.org' };
+    expect(valuesOf({ ...answer, downloadRequestedAt: null, ...SAVED })).toEqual(SAVED);
   });
 });
 

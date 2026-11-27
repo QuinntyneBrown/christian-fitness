@@ -2,6 +2,8 @@ import type { ApiHandlers } from './api-handlers';
 
 export interface PreferencesFixture {
   name: string;
+  /** The account's address, which the Delete your account dialog names (ADR 0118). */
+  accountEmail: string;
   email: { weekly: boolean; eventAlerts: boolean; trainingPlan: boolean; devotion: boolean };
   notifications: {
     eventReminders: boolean;
@@ -26,6 +28,7 @@ export interface PreferencesFixture {
  */
 export const GRACE_PREFERENCES: PreferencesFixture = {
   name: 'Grace Thompson',
+  accountEmail: 'grace.thompson@gmail.com',
   email: { weekly: true, eventAlerts: true, trainingPlan: false, devotion: true },
   notifications: {
     eventReminders: true,
@@ -53,12 +56,12 @@ export const GRACE_PREFERENCES: PreferencesFixture = {
 export function answerPreferences(
   api: ApiHandlers,
   preferences: PreferencesFixture = GRACE_PREFERENCES,
-): Omit<PreferencesFixture, 'name'>[] {
-  const saves: Omit<PreferencesFixture, 'name'>[] = [];
+): Omit<PreferencesFixture, 'name' | 'accountEmail'>[] {
+  const saves: Omit<PreferencesFixture, 'name' | 'accountEmail'>[] = [];
   let current = preferences;
   api.on('GET', '/api/preferences', () => ({ json: current }));
   api.on('PUT', '/api/preferences', (request) => {
-    const body = request.postDataJSON() as Omit<PreferencesFixture, 'name'>;
+    const body = request.postDataJSON() as Omit<PreferencesFixture, 'name' | 'accountEmail'>;
     saves.push(body);
     current = { ...current, ...body };
     return { json: current };

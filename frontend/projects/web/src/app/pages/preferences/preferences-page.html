@@ -181,6 +181,15 @@
                     />
                   </cf-preference-row>
                 }
+                <cf-preference-row
+                  split
+                  legend="Delete your account"
+                  description="Erases your profile and sent message text after 30 days"
+                >
+                  <cf-button size="sm" variant="danger-outline" (click)="deleteAccount()"
+                    >Delete account</cf-button
+                  >
+                </cf-preference-row>
                 <cf-preference-row note
                   >Read how we handle your information in our
                   <cf-link href="/privacy">Privacy Policy</cf-link>.</cf-preference-row
