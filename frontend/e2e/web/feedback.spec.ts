@@ -207,15 +207,18 @@ test.describe('Member app, send feedback: sending', () => {
 
       await feedback.sendAndAwaitRequest();
 
-      expect(sent).toEqual([
-        {
-          kind: 'idea',
-          text: 'Could the series page show which week of the plan each session is?',
-          about: 'page:events/series/:id',
-          mayEmail: 'true',
-          screenshot: null,
-        },
-      ]);
+      // The browser has sent the request; the fixture's handler records it a moment later.
+      await expect
+        .poll(() => sent)
+        .toEqual([
+          {
+            kind: 'idea',
+            text: 'Could the series page show which week of the plan each session is?',
+            about: 'page:events/series/:id',
+            mayEmail: 'true',
+            screenshot: null,
+          },
+        ]);
       await expect(feedback.sendButton).toHaveText('Sending…');
       await expect(feedback.sendButton).toBeDisabled();
       await expect(feedback.sendButton).toHaveAttribute('aria-busy', 'true');
