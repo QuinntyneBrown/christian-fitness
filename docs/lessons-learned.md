@@ -5,7 +5,7 @@ added before it merges. Read this file before starting a journey and apply what 
 
 Each entry records what slowed the work, the new lessons it taught and how earlier lessons
 worked when applied. Newest entries go at the bottom.
-**% complete:** 79% (29 of 36 journeys; 89 of 113 days)
+**% complete:** 90% (33 of 36 journeys; 102 of 113 days)
 
 ## Slice 1.1: Frontend workspace
 
@@ -3542,3 +3542,165 @@ absolute }`), not `display: none`, so a later sentence is announced and an empty
   re-rendered with `C:\tools\plantuml.jar`.
 - Docker was not running, so the nginx `log_format` without the query string was reviewed, not run
   through `nginx -t`.
+
+## Journeys 28 and 29: Build and send the newsletter; read it on the web
+
+**What slowed it**
+
+- The session's container had no .NET SDK and its network refused the SDK's download host; an
+  environment that allows `dot.net` and `builds.dotnet.microsoft.com` had to be made first.
+- Its pre-installed Chromium is an older build than the project's Playwright expects. A local,
+  uncommitted config pointing `launchOptions.executablePath` at it ran the specs. The first "red"
+  run of the desk spec was the browser failing to start, not the missing route: read why a spec
+  is red before counting it.
+- The desk tests move the clock by days and a staff session ends after 30 idle minutes, so every
+  request after a jump answered 401. The tests sign in again after moving the clock.
+- A sent issue's audit query also matched the sign-in's own entry; it now filters by record type.
+- The web app's initial bundle grew twice from lazy code: a template's `@let` (0.22 kB) and the
+  first `NgTemplateOutlet` reaching two components the landing page shares (0.35 kB). Neither
+  string of the new feature was in `main`; removing the routes and rebuilding found it.
+- The mock words a story published 9 hours before 8:45 AM as "9 hours ago"; the shared age helper
+  says "Yesterday" once the Toronto day differs. The fixture's times were moved inside the day.
+- The table draws a `custom` cell's `sub` line itself, so the Issue cell showed its date twice.
+- A wildcard `rm` of the regenerated migration was refused by the session's safety check; a second
+  migration was added instead of regenerating the first.
+
+**New lessons**
+
+- A test that advances the clock past a session's idle timeout signs in again before its next
+  request; a 401 after a time jump is the fixture's, not the feature's.
+- A job that sends within a rate limit is proved by ticks at the same instant and a minute apart:
+  the first sends the limit, the second none, the third the rest.
+- When `main` grows and none of the feature's strings are in it, the growth is a runtime
+  instruction: take the new route out, rebuild, then put back one template feature at a time.
+  `@let` and a first `NgTemplateOutlet` both cost `main`; an `@if … as` and a repeated branch do not.
+- A rule guarded twice (only Sent issues are read, and only issues with captured content) cannot
+  be proved by breaking one guard; say so, or drop the second.
+- Keep one desk fixture answering every action of the screen and returning what was sent; each
+  spec then asserts the request bodies by exact value.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": five breaks of the send job, three of the web read, five of the store,
+  four of the desk page, four of the Newsletter page and one each of the test send and the
+  preview each failed their own test. The break that removed the Sent filter did not, for the
+  reason above.
+- "Read the initial total after each slice, against the base": admin reads 279.72 kB against
+  279.73 kB; web reads 279.05 kB, as on main.
+- "A new guard, default or call in a shared flow means running the whole suite": adding Newsletter
+  to the navigation failed six navigation specs, which were updated. Three other admin specs
+  (`create-series` host search, two `members` lists) fail in this container on their own and were
+  not touched by these journeys; they were not checked against main here.
+- "Re-rendering PlantUML is part of the slice" was not done: the container has no PlantUML. The
+  designs' diagrams still show the separate sender and the dropped open and click counting
+  (ADR 0112).
+- `EmailDeliveryTests`' unsubscribe-header test fails in this container before and after these
+  journeys; it reads a folded header from a fake SMTP server and was not changed.
+
+## Journey 31: Answer feedback
+
+**What slowed it**
+
+- The screenshot test asked for `Cache-Control: private, no-store`; the antiforgery layer writes
+  `no-cache, no-store` on the answer. The rule that matters, `no-store`, is what the test asserts.
+- One desk test from journey 28 failed once in the full parallel run: it read a field's error once,
+  straight after the click, though the refusal comes from the server. It polls now.
+- A break written as `if (true)` did not compile under the analysers; a break has to be code the
+  build accepts, or it proves nothing.
+- `L2-074` AC12 names an account that is deleting, which cannot exist before journey 36.
+
+**New lessons**
+
+- An assertion on what a server answer changes is a polling one (`expect.poll`, or a locator
+  assertion); only what a click changes on its own may be read once.
+- When a requirement names a state a later journey creates, build up to it, say so in the ADR and
+  carry the criterion into that journey rather than fake the state.
+- Assert a response header by the directive the rule needs, not by the whole value: other layers
+  add their own.
+- A screen that needs the staff role asks the session it already has a token for; no new endpoint.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": six backend breaks and five on the page each failed their own test.
+- "Read the initial total after each slice, against the base": admin stays at 279.72 kB.
+- "A new area in the navigation means running the whole suite": the six navigation specs were
+  updated again; 442 of 445 admin specs pass here, the other three being the `create-series` and
+  `members` specs that fail in this container without these journeys' code being involved.
+- "`@let` and a first `NgTemplateOutlet` cost `main`" (journeys 28 and 29): the new components use
+  `@if … as` and `@switch` only.
+
+## Journey 33: Set email and notification preferences
+
+**What slowed it**
+
+- The mock's notification switches are not the requirement's four. The requirement's words were
+  built and the difference recorded (ADR 0114).
+- "An issue goes only where the Weekly is on" passed every existing test with the rule removed: no
+  test had an address subscribed to an extra alone. One was added, and it took both of the rule's
+  guards out to see it fail.
+- The leave test first clicked the back link and met the browser's `beforeunload` question, whose
+  message is empty: links made by `cf-link` load a page. A move inside the app (the header's bell)
+  meets the route guard instead; the spec now proves both.
+- "Preferences saved" for about 2 seconds passed with the timer at 6: a locator assertion waits 5
+  seconds of its own, and an installed clock keeps running. The assertion is given 1 second.
+
+**New lessons**
+
+- After adding a column a rule depends on, look for a test whose data makes the rule matter; if
+  every row has the default, the rule is unproven.
+- A test of "gone after N seconds" gives its assertion less patience than the wrong timer would
+  need, or it proves only "gone eventually".
+- Know which links move inside the app before testing a leave guard: here only what the shell
+  routes (the header, the tab bar) does; a `cf-link` loads a page.
+- A column added to a table with rows needs its backfill in the migration when the default is not
+  what existing rows mean.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": five backend breaks and five on the page each failed a test, after the
+  two fixes above.
+- "Read the initial total after each slice, against the base": web reads 279.07 kB against
+  279.05 kB (ADR 0114 says why); admin is unchanged.
+- "`@let` and a first `NgTemplateOutlet` cost `main`": neither is used.
+- "A requirement's exact words beat the mock" decided the notification switches.
+- The whole web suite ran: 562 of 567 pass here. The five that fail (three of the feedback form's
+  multipart posts, two `legal-change` specs that trip on the dev server's blocked websocket) fail
+  alone in this container and touch nothing these journeys changed.
+
+## Journey 34: Set privacy and suggestion preferences (partly built)
+
+The settings, their enforcement in the API, the two sections of Preferences, the profile's note and
+the event editor's area choice are built. Attendee lists and a visitor's profile page are not
+(ADR 0115), so the journey is not ticked and the % complete is unchanged.
+
+**What slowed it**
+
+- A new default, messages from a member's groups only, failed eight tests of how messages travel.
+  They now switch the recipient's "Let anyone message me" on first; the rule has its own tests.
+- The design's listing exemption needs a context the hub does not carry. The rule built is one the
+  server can check: a listing's owner takes messages from anyone.
+- Home's rule lets an event matching no interest be suggested, which an earlier test forbade. It
+  now asserts the order instead.
+- Two breaks passed because a second guard covers the same case (a member opening their own
+  profile; an address with the Weekly off). Both guards were removed together to see red.
+- An edit script asserted a string Prettier had since rewrapped and stopped half way, twice. Each
+  half was reapplied after reading the file as it stood.
+
+**New lessons**
+
+- Changing a default is a change to a shared flow: run the whole suite and expect the tests that
+  relied on the old default, not only the new rule's.
+- When a design asks the server to trust a context the transport cannot carry, replace it with a
+  rule the server can verify from stored facts, and record the difference.
+- A rule that widens what a query answers (suggestions that match no interest) will contradict an
+  older test that asserted the narrower rule; read the older test before deciding it is wrong.
+
+**How earlier lessons worked**
+
+- "Break each rule alone": three settings breaks, four of visibility, five of messaging and three
+  of ranking failed their tests; the two double-guarded ones are named above.
+- "Take old text from the file as it is now (formatters rewrap)" was the lesson not applied in the
+  two edit scripts above.
+- "Read the initial total after each slice, against the base": web stays at 279.07 kB.
+- "A rule with a table of cases also gets a direct test": Home's order has one, a row per case.
+

@@ -37,6 +37,78 @@ public sealed class NewsletterEmails(IAppDbContext db, MemberAppAddress app, Org
         return WithFooter(subscription, ConfirmationSubject, text, now);
     }
 
+    /// <summary>
+    /// One subscriber's copy of an issue (L2-070 AC7, AC10): greeted by <paramref name="firstName"/>
+    /// or "Hi there", with every link straight to the member app, no tracking image and no redirect,
+    /// and a new Unsubscribe token added to the store for the caller's save.
+    /// </summary>
+    public EmailMessage Issue(NewsletterSubscription subscription, string? firstName, IssueEmailContent content, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+        ArgumentNullException.ThrowIfNull(content);
+        return WithFooter(subscription, content.Subject, Body(firstName, content), now);
+    }
+
+    /// <summary>The issue as it stands, to one address, with no Unsubscribe token: a test is not a subscription (L2-070 AC9).</summary>
+    public EmailMessage Test(string to, string? firstName, IssueEmailContent content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        return new EmailMessage(to, content.Subject, Body(firstName, content));
+    }
+
+    private string Body(string? firstName, IssueEmailContent content)
+    {
+        var text = new System.Text.StringBuilder();
+        text.Append("Hi ").Append(string.IsNullOrWhiteSpace(firstName) ? "there" : firstName).Append(",\n\n");
+        text.Append(content.EditorsNote).Append('\n');
+        if (content.Lead is { } lead)
+        {
+            text.Append("\nTHE BIG STORY\n\n");
+            AppendStory(text, lead);
+        }
+
+        if (content.Also.Count > 0)
+        {
+            text.Append("\nALSO THIS WEEK\n\n");
+            foreach (var story in content.Also)
+            {
+                AppendStory(text, story);
+            }
+        }
+
+        if (content.Events.Count > 0)
+        {
+            text.Append("\nEVENTS THIS WEEK\n\n");
+            foreach (var featured in content.Events)
+            {
+                text.Append(featured.Title).Append('\n').Append(featured.When).Append(" · ").Append(featured.Place).Append('\n')
+                    .Append(Link("e/" + featured.Id.ToString("D"))).Append("\n\n");
+            }
+        }
+
+        if (content.Verse.Length > 0)
+        {
+            text.Append("\nA VERSE TO CARRY\n\n").Append(content.Verse).Append('\n');
+            if (content.VerseReference.Length > 0)
+            {
+                text.Append(content.VerseReference).Append('\n');
+            }
+        }
+
+        return text.ToString().TrimEnd('\n');
+    }
+
+    private void AppendStory(System.Text.StringBuilder text, IssueEmailStory story)
+    {
+        text.Append(story.Headline).Append('\n').Append(Link("stories/" + story.Slug)).Append('\n');
+        if (story.Summary.Length > 0)
+        {
+            text.Append(story.Summary).Append('\n');
+        }
+
+        text.Append('\n');
+    }
+
     private EmailMessage WithFooter(NewsletterSubscription subscription, string subject, string text, DateTimeOffset now)
     {
         var (stored, token) = NewsletterUnsubscribeToken.Issue(subscription.Id, now);
@@ -60,3 +132,18 @@ public sealed class NewsletterEmails(IAppDbContext db, MemberAppAddress app, Org
     private string Link(string path) =>
         $"{app.BaseUrl.GetLeftPart(UriPartial.Authority)}{app.BaseUrl.AbsolutePath.TrimEnd('/')}/{path}";
 }
+
+/// <summary>What an issue's email says: the same for every recipient but the greeting and the footer.</summary>
+public sealed record IssueEmailContent(
+    string Subject,
+    string EditorsNote,
+    IssueEmailStory? Lead,
+    IReadOnlyList<IssueEmailStory> Also,
+    IReadOnlyList<IssueEmailEvent> Events,
+    string Verse,
+    string VerseReference);
+
+public sealed record IssueEmailStory(string Headline, string Summary, string Slug);
+
+/// <summary>A featured event, with its day and time in Toronto already in words.</summary>
+public sealed record IssueEmailEvent(Guid Id, string Title, string When, string Place);

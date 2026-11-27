@@ -69,6 +69,7 @@ test.describe('Admin app, an event host', () => {
       'Start time',
       'Place',
       'Area',
+      'Suggestion area',
       'Price',
       'Capacity',
       'Summary',

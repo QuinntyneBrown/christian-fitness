@@ -1,0 +1,88 @@
+<article class="issue">
+  <header class="issue__masthead">
+    <p class="issue__brand">
+      <cf-seal size="lockup" decorative light /><span>Christian Fitness</span>
+    </p>
+    <h1 class="issue__title">{{ issue().name }}</h1>
+    <p class="issue__date">{{ issue().date }}</p>
+  </header>
+  <div class="issue__body">
+    <section class="issue__section">
+      @if (issue().greeting; as greeting) {
+        <p class="issue__greeting">{{ greeting }}</p>
+      }
+      <p class="issue__text">{{ issue().editorsNote }}</p>
+    </section>
+    @if (issue().lead; as lead) {
+      <section class="issue__section" aria-labelledby="issue-lead">
+        <p class="story__section">{{ lead.section }}</p>
+        @if (lead.image; as image) {
+          <img class="issue__image" [src]="image" alt="" width="1376" height="768" />
+        }
+        <h2 class="issue__lead-title" id="issue-lead">{{ lead.title }}</h2>
+        @if (lead.summary) {
+          <p class="issue__text">{{ lead.summary }}</p>
+        }
+        <div class="issue__action">
+          <cf-button [href]="lead.href" (click)="follow($event, lead.href)"
+            >Read the story</cf-button
+          >
+        </div>
+      </section>
+    }
+    @if (issue().events.length > 0) {
+      <section class="issue__section" aria-labelledby="issue-calendar">
+        <h2 class="rule-title" id="issue-calendar">On the calendar</h2>
+        <ul class="list-divided">
+          @for (event of issue().events; track event.id) {
+            <li>
+              <cf-event-row
+                wrap
+                [month]="event.month"
+                [day]="event.day"
+                [heading]="event.title"
+                [meta]="event.meta"
+              />
+            </li>
+          }
+        </ul>
+        <a class="issue__more" [href]="eventsHref()" (click)="follow($event, eventsHref())"
+          >See every event</a
+        >
+      </section>
+    }
+    @if (issue().briefs.length > 0) {
+      <section class="issue__section" aria-labelledby="issue-briefs">
+        <h2 class="rule-title" id="issue-briefs">Worth your time</h2>
+        <cf-headline-list
+          plain
+          [level]="3"
+          [stories]="issue().briefs"
+          (navigate)="navigate.emit($event)"
+        />
+      </section>
+    }
+    @if (issue().verse) {
+      <section class="issue__verse" aria-label="Scripture">
+        <blockquote>
+          <p class="issue__quote">“{{ issue().verse }}”</p>
+          @if (issue().verseReference) {
+            <cite class="issue__cite">{{ issue().verseReference }}</cite>
+          }
+        </blockquote>
+      </section>
+    }
+  </div>
+  <footer class="issue__footer">
+    <p>
+      You’re getting this because you subscribed at www.christian.fitness. Know someone who’d like
+      it? Forward it on.
+    </p>
+    <p class="issue__links">
+      <a href="/subscribe" (click)="follow($event, '/subscribe')">Manage preferences</a>
+      <a href="/subscribe#rss" (click)="follow($event, '/subscribe#rss')">Follow by RSS</a>
+      <a href="/subscribe" (click)="follow($event, '/subscribe')">Unsubscribe</a>
+    </p>
+    <p>Christian Fitness · 2091 Hurontario Street, Mississauga, Ontario, L5A 4E6</p>
+  </footer>
+</article>

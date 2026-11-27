@@ -31,6 +31,9 @@ public enum StaffArea
     /// <summary>The Newsletter desk, <c>api/admin/newsletter</c> (L2-070 AC12): open to Moderators too.</summary>
     Newsletter,
 
+    /// <summary>The feedback inbox, <c>api/admin/feedback</c> (L2-074; ADR 0064): open to Moderators too.</summary>
+    Feedback,
+
     /// <summary>An admin endpoint in no area above yet: closed to Moderators until a slice names its area.</summary>
     Unlisted,
 }

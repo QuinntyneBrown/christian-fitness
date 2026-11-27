@@ -1,0 +1,40 @@
+// The design system's send card (docs/design-system/assets/components.css, "send-card"). The
+// projected button's top margin (`.send-card .btn`) is the actions row's, since a block never
+// styles another block.
+:host {
+  display: block;
+}
+
+.send-card {
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome);
+  padding: var(--space-6);
+}
+
+p {
+  margin: 0;
+}
+
+.send-card__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-highlight);
+}
+
+.send-card__date {
+  margin-top: var(--space-1);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-none);
+}
+
+.send-card__meta {
+  margin-top: var(--space-1);
+  color: var(--color-fg-on-chrome-muted);
+}
+
+.send-card__actions {
+  margin-top: var(--space-5);
+}

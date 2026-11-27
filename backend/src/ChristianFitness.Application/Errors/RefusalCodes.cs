@@ -30,6 +30,15 @@ public static class RefusalCodes
     /// <summary>The member holds no registration at the event, so their attendance cannot be recorded (ADR 0106).</summary>
     public const string NotRegistered = "not_registered";
 
+    /// <summary>
+    /// A feedback reply cannot reach its member: they did not allow email and, being suspended, get
+    /// no direct messages (L2-074 AC7; ADR 0113).
+    /// </summary>
+    public const string MemberUnreachable = "member_unreachable";
+
+    /// <summary>No issue of the newsletter has the number asked for (L2-070).</summary>
+    public const string IssueNotFound = "issue_not_found";
+
     /// <summary>The event asked for does not exist or is not published (L2-010 AC2; ADR 0031).</summary>
     public const string EventNotFound = "event_not_found";
 
@@ -113,6 +122,12 @@ public static class RefusalCodes
 
     /// <summary>A chat message is empty or longer than 2,000 characters (L2-016; ADR 0039).</summary>
     public const string MessageInvalid = "message_invalid";
+
+    /// <summary>
+    /// The member takes messages only from people in their groups, and the sender shares none
+    /// (L2-065 AC5; ADR 0115).
+    /// </summary>
+    public const string MessagesRestricted = "messages_restricted";
 
     /// <summary>The member a direct message goes to is unknown, suspended or the sender (L2-014; ADR 0043).</summary>
     public const string RecipientUnavailable = "recipient_unavailable";

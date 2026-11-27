@@ -1,0 +1,182 @@
+<div class="page-head page-head--wrap">
+  <div>
+    <h1 class="admin-title">Feedback</h1>
+    <p class="subtitle">Ideas, bugs, corrections and thanks from members. Everyone hears back.</p>
+  </div>
+</div>
+
+@switch (list().kind) {
+  @case ('loading') {
+    <cf-skeleton-region label="Loading feedback">
+      <div class="split split--inbox">
+        <div class="skeleton-stack">
+          @for (row of skeletonRows; track row) {
+            <cf-skeleton shape="tile" />
+          }
+        </div>
+        <cf-skeleton shape="tile" />
+      </div>
+    </cf-skeleton-region>
+  }
+  @case ('failed') {
+    <cf-empty-state
+      variant="error"
+      heading="Feedback didn't load"
+      text="We couldn't reach Christian Fitness. Check your connection and try again."
+    >
+      <cf-button slot="actions" size="sm" (click)="tryAgain()">Try again</cf-button>
+    </cf-empty-state>
+  }
+  @default {
+    @if (none()) {
+      <cf-empty-state
+        heading="No feedback yet"
+        text="Notes arrive here when a member uses Send feedback, or Send a correction on a story."
+      />
+    } @else {
+      <cf-tabs
+        label="Filter feedback"
+        [tabs]="tabs()"
+        [current]="currentTab()"
+        (navigate)="go($event)"
+      />
+      <div class="split split--inbox">
+        <nav aria-label="Feedback">
+          @if (rows().length === 0) {
+            <p class="feedback-list__empty">Nothing here.</p>
+          } @else {
+            <ul class="feedback-list">
+              @for (row of rows(); track row.id) {
+                <li>
+                  <cf-feedback-row
+                    [href]="row.href"
+                    [kind]="row.kind"
+                    [from]="row.from"
+                    [when]="row.when"
+                    [text]="row.text"
+                    [label]="row.label"
+                    [isNew]="row.isNew"
+                    [current]="row.id === chosenId()"
+                    (navigate)="go($event)"
+                  />
+                </li>
+              }
+            </ul>
+          }
+        </nav>
+        @if (note(); as note) {
+          @if (detail(); as view) {
+            <cf-card>
+              <form novalidate (submit)="send($event)">
+                <cf-feedback-detail
+                  [kind]="note.kind"
+                  [kindLabel]="view.kindLabel"
+                  [status]="note.status"
+                  [statusLabel]="view.statusLabel"
+                  [when]="view.when"
+                  [text]="note.text"
+                  [fromName]="note.sender.name"
+                  [fromEmail]="note.sender.email"
+                  [initials]="view.initials"
+                  [suspended]="note.sender.suspended"
+                  [sentFrom]="view.sentFrom"
+                  [device]="view.device"
+                >
+                  @if (view.screenshot; as src) {
+                    <p class="feedback__shot">
+                      <a [href]="src" target="_blank" rel="noopener"
+                        ><img [src]="src" [alt]="view.screenshotAlt" width="320" height="200"
+                      /></a>
+                    </p>
+                  }
+                  @if (view.storyHref; as href) {
+                    <p class="feedback__link">
+                      <cf-button variant="secondary" size="sm" [href]="href"
+                        >Open the story to correct it</cf-button
+                      >
+                    </p>
+                  }
+                  @if (note.replies.length > 0) {
+                    <section class="feedback-thread" aria-labelledby="thread-title">
+                      <h3 class="feedback-thread__title" id="thread-title">
+                        {{ note.replies.length === 1 ? 'Reply sent' : 'Replies sent' }}
+                      </h3>
+                      @for (reply of note.replies; track reply.sentAt) {
+                        <p class="feedback-thread__reply">{{ reply.text }}</p>
+                      }
+                    </section>
+                  }
+                  @if (failed(); as what) {
+                    <div class="feedback__alert">
+                      <cf-alert
+                        [heading]="
+                          what === 'reply'
+                            ? 'We couldn’t send your reply'
+                            : 'We couldn’t change the status'
+                        "
+                        [focusOnShow]="false"
+                        >{{
+                          what === 'reply'
+                            ? 'Nothing was changed. Your reply is still here.'
+                            : 'Nothing was changed. Try again in a moment.'
+                        }}</cf-alert
+                      >
+                    </div>
+                  }
+                  <div class="feedback-detail__reply">
+                    <cf-textarea
+                      fieldId="f-reply"
+                      name="reply"
+                      [label]="view.replyLabel"
+                      [rows]="4"
+                      [hint]="view.replyHint"
+                      [value]="draft()"
+                      [readonly]="busy() !== 'idle'"
+                      [error]="replyError()"
+                      (valueChange)="edit($event)"
+                    />
+                  </div>
+                  <div class="cluster">
+                    <cf-button type="submit" size="md" [busy]="busy() === 'replying'">{{
+                      busy() === 'replying' ? 'Sending…' : 'Send reply'
+                    }}</cf-button>
+                    @if (note.status === 'resolved') {
+                      <cf-button
+                        variant="secondary"
+                        size="md"
+                        [disabled]="busy() !== 'idle'"
+                        (click)="setResolved(false)"
+                        >Reopen</cf-button
+                      >
+                    } @else {
+                      <cf-button
+                        variant="secondary"
+                        size="md"
+                        [disabled]="busy() !== 'idle'"
+                        (click)="setResolved(true)"
+                        >Mark resolved</cf-button
+                      >
+                    }
+                  </div>
+                </cf-feedback-detail>
+              </form>
+            </cf-card>
+          }
+        } @else if (noteFailed()) {
+          <cf-empty-state
+            variant="error"
+            heading="This note didn't load"
+            text="Choose it again, or try another."
+          />
+        }
+      </div>
+    }
+  }
+}
+
+<cf-toast-region
+  admin
+  [toasts]="toastViews()"
+  (dismissed)="dismissToast($event)"
+  (paused)="toasts.pause($event)"
+/>

@@ -23,7 +23,12 @@
   } @else {
     @if (member(); as m) {
       <cf-profile-hero [name]="m.name" [initials]="m.initials" [homeChurch]="m.homeChurch">
-        <cf-button slot="action" [href]="'/messages/' + m.id">Message</cf-button>
+        @if (m.messagesNote; as note) {
+          <p slot="action" class="member-profile__restricted">{{ note }}</p>
+        }
+        @if (!m.messagesNote) {
+          <cf-button slot="action" [href]="'/messages/' + m.id">Message</cf-button>
+        }
       </cf-profile-hero>
       <cf-container page="default">
         <h2 class="display section-title">About</h2>

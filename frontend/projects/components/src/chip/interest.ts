@@ -15,6 +15,8 @@ import { booleanAttribute, Component, input, output } from '@angular/core';
 export class Interest {
   readonly pressed = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
+  /** Draws a check mark while pressed, so colour is not the only carrier (L2-065 AC6). */
+  readonly check = input(false, { transform: booleanAttribute });
 
   readonly pressedChange = output<boolean>();
 

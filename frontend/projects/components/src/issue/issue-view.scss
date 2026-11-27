@@ -1,0 +1,192 @@
+// The design system's issue (docs/design-system/assets/components.css, "issue", with the
+// "rule-title", "list-divided" and "story__section" it is drawn with). The reading width is the
+// design system's layout-measure, 42rem (L2-059 AC6).
+:host {
+  display: block;
+}
+
+p,
+h1,
+h2,
+blockquote,
+ul {
+  margin: 0;
+}
+
+.issue {
+  max-width: 42rem;
+  margin-inline: auto;
+  background: var(--color-bg-surface);
+  overflow-wrap: anywhere;
+}
+
+.issue__masthead {
+  background: var(--color-bg-brand);
+  color: var(--color-fg-on-brand);
+  padding: var(--space-7) var(--space-6) var(--space-6);
+}
+
+.issue__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-style: italic;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.issue__title {
+  margin-top: var(--space-6);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-display);
+
+  @media (min-width: 40rem) {
+    font-size: var(--font-size-6xl);
+  }
+}
+
+.issue__date {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-ui);
+  color: var(--color-fg-on-brand-strong);
+}
+
+.issue__body {
+  padding: var(--space-1) var(--space-6);
+}
+
+@media (min-width: 40rem) {
+  .issue__masthead,
+  .issue__body,
+  .issue__footer {
+    padding-inline: var(--space-10);
+  }
+}
+
+.issue__section {
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  padding-block: var(--space-7);
+}
+
+.issue__greeting {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.issue__text {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-line;
+}
+
+.story__section {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.issue__image {
+  margin-top: var(--space-3);
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.issue__lead-title {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+.issue__action {
+  margin-top: var(--space-5);
+}
+
+.rule-title {
+  border-bottom: var(--border-width-rule) solid var(--color-fg-default);
+  padding-bottom: var(--space-2);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.list-divided {
+  padding: 0;
+  list-style: none;
+
+  > li + li {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}
+
+.issue__more {
+  margin-top: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-comfortable);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.issue__verse {
+  padding-block: var(--space-10);
+  text-align: center;
+}
+
+.issue__quote {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-style: italic;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+}
+
+.issue__cite {
+  margin-top: var(--space-3);
+  display: block;
+  font-size: var(--font-size-ui);
+  font-style: normal;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-accent);
+}
+
+.issue__footer {
+  background: var(--color-bg-chrome);
+  color: var(--color-fg-on-chrome-muted);
+  padding: var(--space-7) var(--space-6);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.issue__links {
+  margin-block: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-on-chrome);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-comfortable);
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: var(--space-1);
+
+    &:focus-visible {
+      outline-color: var(--color-focus-ring-on-dark);
+    }
+  }
+}

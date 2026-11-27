@@ -37,14 +37,57 @@ internal static class DirectChat
             .SingleOrDefaultAsync(cancellationToken);
 
     public static RefusalException Unavailable() => new(RefusalCodes.RecipientUnavailable, RefusalKind.Forbidden);
+
+    public static RefusalException Restricted() => new(RefusalCodes.MessagesRestricted, RefusalKind.Forbidden);
+
+    /// <summary>
+    /// Whether <paramref name="memberId"/> may write to <paramref name="otherId"/> (L2-065 AC5, AC11;
+    /// ADR 0115): always when the other lets anyone message them, when the conversation is already
+    /// open, when the two share a group chat, or when the other owns a published listing, whose
+    /// Message action anyone may use; the Christian Fitness account's own conversation is read by
+    /// whoever it wrote to. A member with no preferences has the default: their groups only.
+    /// </summary>
+    public static async Task<bool> MayStartAsync(IAppDbContext db, Guid memberId, Guid otherId, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        if (otherId == SystemMembers.ChristianFitnessId)
+        {
+            return true;
+        }
+
+        var allowsAnyone = await db.MemberPreferences.AsNoTracking()
+            .Where(p => p.MemberId == otherId)
+            .Select(p => (bool?)p.LetAnyoneMessage)
+            .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false) ?? false;
+        if (allowsAnyone)
+        {
+            return true;
+        }
+
+        var open = await db.DirectMessages.AsNoTracking()
+            .AnyAsync(m => (m.SenderId == memberId && m.RecipientId == otherId) || (m.SenderId == otherId && m.RecipientId == memberId), cancellationToken)
+            .ConfigureAwait(false);
+        if (open || await GroupMembership.ShareAGroupAsync(db, memberId, otherId, now, cancellationToken).ConfigureAwait(false))
+        {
+            return true;
+        }
+
+        return await db.DirectoryListings.AsNoTracking()
+                .AnyAsync(l => l.MemberId == otherId && l.Status == Domain.Directory.ListingStatus.Published, cancellationToken).ConfigureAwait(false)
+            || await db.ServiceListings.AsNoTracking().AnyAsync(l => l.MemberId == otherId, cancellationToken).ConfigureAwait(false);
+    }
 }
 
-internal sealed class JoinDirectHandler(IAppDbContext db) : IRequestHandler<JoinDirectCommand, ChatAnswer>
+internal sealed class JoinDirectHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<JoinDirectCommand, ChatAnswer>
 {
     public async Task<ChatAnswer> Handle(JoinDirectCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         var name = await DirectChat.OtherNameAsync(db, request.MemberId, request.OtherId, cancellationToken).ConfigureAwait(false);
+        if (name is not null && !await DirectChat.MayStartAsync(db, request.MemberId, request.OtherId, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
+        {
+            return ChatAnswer.Refused(RefusalCodes.MessagesRestricted);
+        }
+
         return name is null
             ? ChatAnswer.Refused(RefusalCodes.RecipientUnavailable)
             : new ChatAnswer(null, name, request.MemberId) { System = request.OtherId == SystemMembers.ChristianFitnessId ? true : null };
@@ -68,6 +111,11 @@ internal sealed class SendDirectMessageHandler(IAppDbContext db, IChatChannel ch
             return ChatAnswer.Refused(RefusalCodes.SystemAccount);
         }
 
+        if (!await DirectChat.MayStartAsync(db, request.MemberId, request.OtherId, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
+        {
+            return ChatAnswer.Refused(RefusalCodes.MessagesRestricted);
+        }
+
         if (string.IsNullOrWhiteSpace(request.Text) || request.Text.Length > SendChatMessageHandler.MaxLength)
         {
             return ChatAnswer.Refused(RefusalCodes.MessageInvalid);
@@ -89,7 +137,7 @@ internal sealed class SendDirectMessageHandler(IAppDbContext db, IChatChannel ch
     }
 }
 
-internal sealed class GetDirectHistoryHandler(IAppDbContext db, ICurrentMember current)
+internal sealed class GetDirectHistoryHandler(IAppDbContext db, ICurrentMember current, TimeProvider time)
     : IRequestHandler<GetDirectHistoryQuery, ChatHistoryDto>
 {
     public async Task<ChatHistoryDto> Handle(GetDirectHistoryQuery request, CancellationToken cancellationToken)
@@ -100,6 +148,11 @@ internal sealed class GetDirectHistoryHandler(IAppDbContext db, ICurrentMember c
         if (await DirectChat.OtherNameAsync(db, me, other, cancellationToken).ConfigureAwait(false) is null)
         {
             throw DirectChat.Unavailable();
+        }
+
+        if (!await DirectChat.MayStartAsync(db, me, other, time.GetUtcNow(), cancellationToken).ConfigureAwait(false))
+        {
+            throw DirectChat.Restricted();
         }
 
         var messages = db.DirectMessages.AsNoTracking()

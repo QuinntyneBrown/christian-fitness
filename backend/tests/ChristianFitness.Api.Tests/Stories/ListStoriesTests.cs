@@ -141,7 +141,7 @@ public sealed class ListStoriesTests(StoriesFactory factory) : IClassFixture<Sto
         await factory.PutStoryAsync("Counted in review", StoryStatus.InReview);
 
         var after = await CountsAsync(client, cookie);
-        Assert.Equal(["suggestions", "storiesInReview"], AdminStories.Keys(after));
+        Assert.Equal(["suggestions", "storiesInReview", "newFeedback"], AdminStories.Keys(after));
         Assert.Equal(before.GetProperty("storiesInReview").GetInt32() + 1, after.GetProperty("storiesInReview").GetInt32());
         using var moderator = Browser.CreateClient(factory);
         var moderatorCookie = await AdminStories.SignInAsync(factory, moderator, "joel.stories.counts@example.org", StaffRoleName.Moderator);

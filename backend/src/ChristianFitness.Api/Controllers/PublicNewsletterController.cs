@@ -53,4 +53,14 @@ public sealed class PublicNewsletterController(ISender sender) : ControllerBase
         await sender.Send(new UnsubscribeCommand { Token = token ?? string.Empty }, cancellationToken).ConfigureAwait(false);
         return Ok();
     }
+
+    /// <summary>The latest sent issue as the web shows it, or 404 <c>not_found</c> (L2-059 AC1, AC4).</summary>
+    [HttpGet("issues/latest")]
+    public async Task<ActionResult<IssueDto>> LatestIssue(CancellationToken cancellationToken) =>
+        await sender.Send(new GetIssueQuery(null), cancellationToken).ConfigureAwait(false);
+
+    /// <summary>The sent issue with that number, or 404 <c>not_found</c> (L2-059 AC1, AC4).</summary>
+    [HttpGet("issues/{number:int}")]
+    public async Task<ActionResult<IssueDto>> Issue(int number, CancellationToken cancellationToken) =>
+        await sender.Send(new GetIssueQuery(number), cancellationToken).ConfigureAwait(false);
 }

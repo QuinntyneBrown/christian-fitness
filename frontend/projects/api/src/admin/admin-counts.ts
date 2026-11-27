@@ -6,6 +6,8 @@ export interface AdminCountsDto {
   suggestions: number;
   /** Stories waiting in review; none for a Moderator (L2-068 AC5; ADR 0097). */
   storiesInReview: number;
+  /** Feedback notes that are New, for both roles (L2-074 AC1). */
+  newFeedback: number;
 }
 
 /** `GET /api/admin/counts` (ADR 0079, ADR 0090): the work waiting behind the navigation's areas. */

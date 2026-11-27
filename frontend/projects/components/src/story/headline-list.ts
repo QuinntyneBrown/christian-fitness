@@ -20,6 +20,10 @@ const SKELETON_ROWS = [1, 2, 3, 4];
 export class HeadlineList {
   readonly stories = input<readonly NewsStoryView[]>([]);
   readonly loading = input(false, { transform: booleanAttribute });
+  /** No ink rule above (`headline-list--plain`): an issue's "Worth your time". */
+  readonly plain = input(false, { transform: booleanAttribute });
+  /** The titles' heading level: 2 on the front page, 3 under a section's own heading. */
+  readonly level = input<2 | 3>(2);
 
   /** A plain click on a title, with the story's address. */
   readonly navigate = output<string>();

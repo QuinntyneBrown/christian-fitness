@@ -20,6 +20,14 @@ const routes: Routes = [
     loadComponent: () => import('../pages/story-preview/story-preview-page'),
   },
   {
+    // The next issue as the web version will draw it, opened in a new tab outside the shell, for
+    // Admins and Moderators (journey 28; L2-070 AC9).
+    path: 'newsletter/preview',
+    title: titled('Issue preview'),
+    canActivate: [staffAuthGuard],
+    loadComponent: () => import('../pages/issue-preview/issue-preview-page'),
+  },
+  {
     path: '',
     canActivateChild: [staffAuthGuard],
     loadComponent: () => import('./admin-shell'),
@@ -59,6 +67,18 @@ const routes: Routes = [
         path: 'series',
         title: titled('Event series'),
         loadComponent: () => import('../pages/series/series-page'),
+      },
+      {
+        // The next issue of The Abundant Weekly, built and scheduled (journey 28; L2-070).
+        path: 'newsletter',
+        title: titled('Newsletter'),
+        loadComponent: () => import('../pages/newsletter-desk/newsletter-desk-page'),
+      },
+      {
+        // What members sent the team, read and answered (journey 31; L2-074), for both roles.
+        path: 'feedback',
+        title: titled('Feedback'),
+        loadComponent: () => import('../pages/feedback/feedback-page'),
       },
       {
         // A published event made into branded posts for four platforms (journey 32; ADR 0098).

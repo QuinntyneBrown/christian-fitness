@@ -91,4 +91,45 @@ public sealed class FeedbackNote
             SentAt = sentAt,
         };
     }
+
+    /// <summary>When staff last replied; empty until then (L2-074 AC5).</summary>
+    public DateTimeOffset? RepliedAt { get; private set; }
+
+    /// <summary>When staff marked it resolved; empty unless it is Resolved (L2-074 AC6).</summary>
+    public DateTimeOffset? ResolvedAt { get; private set; }
+
+    /// <summary>A reply has gone to the member: the note is Replied (L2-074 AC5).</summary>
+    public void MarkReplied(DateTimeOffset now)
+    {
+        Status = FeedbackStatus.Replied;
+        RepliedAt = now;
+        ResolvedAt = null;
+    }
+
+    /// <summary>Whether Mark resolved applies: to a note that is not Resolved (L2-074 AC6).</summary>
+    public bool CanResolve => Status != FeedbackStatus.Resolved;
+
+    /// <summary>Marks the note Resolved; one already Resolved throws.</summary>
+    public void Resolve(DateTimeOffset now)
+    {
+        if (!CanResolve)
+        {
+            throw new InvalidOperationException("The note is already resolved.");
+        }
+
+        Status = FeedbackStatus.Resolved;
+        ResolvedAt = now;
+    }
+
+    /// <summary>Reopen makes a Resolved note New again (L2-074 AC6); any other status throws.</summary>
+    public void Reopen()
+    {
+        if (CanResolve)
+        {
+            throw new InvalidOperationException("Only a resolved note is reopened.");
+        }
+
+        Status = FeedbackStatus.New;
+        ResolvedAt = null;
+    }
 }

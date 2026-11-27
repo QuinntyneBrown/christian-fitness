@@ -75,6 +75,8 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(_store));
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
+            services.RemoveAll<IBulkEmailSender>();
+            services.AddSingleton<IBulkEmailSender>(Emails);
             services.RemoveAll<IImageStore>();
             services.AddSingleton<IImageStore>(Images);
             services.RemoveAll<IFeedbackScreenshotStore>();

@@ -10,12 +10,14 @@ export interface AdminNavItem {
   key:
     | 'dashboard'
     | 'stories'
+    | 'newsletter'
     | 'events'
     | 'series'
     | 'community-pick'
     | 'listings'
     | 'services'
-    | 'members';
+    | 'members'
+    | 'feedback';
   label: string;
   href: string;
   /** The group's name ("Gather"); none for the Dashboard, which stands alone. */

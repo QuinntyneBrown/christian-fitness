@@ -16,6 +16,8 @@ export class WebMemberProfilePage {
   readonly sectionHeadings: Locator;
   /** The Message action under the name (slice 14.1): it opens the direct conversation. */
   readonly messageLink: Locator;
+  /** Said in place of Message when the member takes messages only from their groups (L2-065 AC5). */
+  readonly messagesNote: Locator;
   readonly error: Locator;
   readonly errorTitle: Locator;
 
@@ -28,6 +30,7 @@ export class WebMemberProfilePage {
     this.tags = this.main.locator('.tag-list .tag');
     this.sectionHeadings = this.main.getByRole('heading', { level: 2 });
     this.messageLink = this.main.getByRole('link', { name: 'Message' });
+    this.messagesNote = this.main.locator('.member-profile__restricted');
     this.error = this.main.locator('.error-state');
     this.errorTitle = this.error.getByRole('heading', { level: 2 });
   }

@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ChristianFitness.Api.Tests.Newsletter;
 
 /// <summary>The API with a clock at the mocks' today, stories to put in the store and events to feature.</summary>
-public sealed class NewsletterCandidatesFactory : StoriesFactory
+public class NewsletterCandidatesFactory : StoriesFactory
 {
     /// <summary>Puts an event in the store starting <paramref name="startsIn"/> from now, published unless <paramref name="status"/> says otherwise.</summary>
     internal async Task<Guid> AddEventAsync(string title, TimeSpan startsIn, EventStatus status = EventStatus.Published)

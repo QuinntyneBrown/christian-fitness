@@ -80,6 +80,11 @@
   }
 }
 
+.event-row__title--wrap {
+  white-space: normal;
+  line-height: var(--line-height-snug);
+}
+
 .event-row__meta {
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);

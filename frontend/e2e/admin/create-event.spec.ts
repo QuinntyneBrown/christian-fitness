@@ -74,6 +74,39 @@ function answerCreate(
 test.describe('Admin app, creating a draft event', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
+  // L2-065 AC7 (journey 34; ADR 0076, ADR 0115): staff choose one of the eight areas, or leave
+  // it GTA-wide, and the choice is sent with the event.
+  test('the suggestion area is GTA-wide until chosen, and the chosen area is sent', async ({
+    page,
+    api,
+  }) => {
+    const state = answerCreate(api);
+    const events = new AdminEventsPage(page);
+    const editor = new EventEditorDialog(page);
+    await events.open();
+    await events.openNewEvent();
+
+    await expect(editor.suggestionArea).toHaveValue('');
+    await expect(editor.suggestionArea.locator('option')).toHaveText([
+      'GTA-wide',
+      'Toronto East',
+      'Toronto West',
+      'Downtown Toronto',
+      'Scarborough',
+      'North York',
+      'Mississauga',
+      'Brampton',
+      'Durham',
+    ]);
+    await editor.fill(RETREAT);
+    await editor.suggestionArea.selectOption('scarborough');
+    await editor.saveDraft();
+
+    await expect
+      .poll(() => state.sent.map((sent) => sent.body))
+      .toEqual([{ ...RETREAT_REQUEST, suggestionArea: 'scarborough' }]);
+  });
+
   test('New event opens the drawer the default mock draws, focus on Title', async ({
     page,
     api,
@@ -96,6 +129,7 @@ test.describe('Admin app, creating a draft event', () => {
       'Start time',
       'Place',
       'Area',
+      'Suggestion area',
       'Price',
       'Capacity',
       'Summary',

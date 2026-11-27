@@ -74,6 +74,8 @@ export interface CreateEventRequestDto {
   imageKey?: string | null;
   /** The chosen host's listing, or none, which the API refuses with `host_required` (ADR 0089). */
   hostListingId: string | null;
+  /** The suggestion area, one of the eight a member chooses from; left out for GTA-wide (ADR 0076, ADR 0115). */
+  suggestionArea?: string;
 }
 
 /** `PUT /api/admin/events/{id}` sends the same fields as `POST` (ADR 0025). */
@@ -98,6 +100,8 @@ export interface AdminEventDetailDto {
   imageKey?: string | null;
   going: number;
   status: EventStatus;
+  /** The suggestion area, or none for GTA-wide (ADR 0076). */
+  suggestionArea?: string | null;
   /** The saved host (ADR 0089). */
   host: EventHostDto;
 }

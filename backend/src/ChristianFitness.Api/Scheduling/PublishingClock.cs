@@ -73,6 +73,9 @@ public sealed partial class PublishingClock : BackgroundService
             using var purgeScope = _scopes.CreateScope();
             var purged = await purgeScope.ServiceProvider.GetRequiredService<ISender>()
                 .Send(new PurgeNewsletterSubscriptionsCommand(), cancellationToken).ConfigureAwait(false);
+            using var issueScope = _scopes.CreateScope();
+            await issueScope.ServiceProvider.GetRequiredService<ISender>()
+                .Send(new SendDueIssueCommand(), cancellationToken).ConfigureAwait(false);
             return new PublishingTick(true, published, purged);
         }
     }

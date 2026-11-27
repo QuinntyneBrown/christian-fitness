@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import type {
   FeedsApi,
   FeedSummaryDto,
+  IssueDto,
+  IssuesApi,
   NewsletterApi,
   SubscribeRequest,
   SubscriptionConfirmedDto,
@@ -61,5 +63,20 @@ export class HttpFeedsService implements FeedsApi {
 
   list(): Observable<FeedSummaryDto[]> {
     return this.http.get<FeedSummaryDto[]>('/api/public/feeds');
+  }
+}
+
+/**
+ * {@link IssuesApi} over HTTP: `GET /api/public/newsletter/issues/latest` and `/{number}` (L2-059).
+ * A failure errors with an `ApiError`. It holds no state, and is provided on the Newsletter page.
+ */
+@Injectable()
+export class HttpIssuesService implements IssuesApi {
+  private readonly http = inject(HttpClient);
+
+  issue(number: number | null): Observable<IssueDto> {
+    return asApiError(
+      this.http.get<IssueDto>(`/api/public/newsletter/issues/${number ?? 'latest'}`),
+    );
   }
 }

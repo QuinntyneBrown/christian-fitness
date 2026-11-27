@@ -1,0 +1,56 @@
+// The design system's save bar (docs/design-system/assets/components.css, "save-bar"). Above the
+// tab bar on a phone, so it never covers it (L2-064 AC12).
+:host {
+  display: contents;
+}
+
+.save-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: calc(var(--layout-tabbar-height) + var(--space-4));
+  z-index: var(--z-toast);
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--space-4);
+  pointer-events: none;
+
+  @media (min-width: 48rem) {
+    bottom: var(--space-6);
+  }
+}
+
+.save-bar__inner {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-toast-bg);
+  color: var(--color-toast-fg);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  box-shadow: var(--shadow-4);
+}
+
+.save-bar__text {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.save-bar__text--done {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+}
+
+.icon {
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--color-toast-accent);
+}

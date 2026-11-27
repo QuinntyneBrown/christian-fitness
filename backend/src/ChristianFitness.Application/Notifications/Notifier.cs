@@ -11,7 +11,7 @@ namespace ChristianFitness.Application.Notifications;
 /// </summary>
 internal sealed class Notifier(IAppDbContext db, INotificationChannel channel, TimeProvider time) : INotifier
 {
-    public async Task<NotificationDto> NotifyAsync(NotificationRequest request, CancellationToken cancellationToken)
+    public async Task<NotificationDto?> NotifyAsync(NotificationRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         var title = request.Title?.Trim() ?? string.Empty;
@@ -40,6 +40,15 @@ internal sealed class Notifier(IAppDbContext db, INotificationChannel channel, T
         if (!known)
         {
             throw new ArgumentException("A notification is for a member.", nameof(request));
+        }
+
+        // A kind the member switched off is neither stored nor pushed (L2-064 AC10); with no row,
+        // every kind is on.
+        var preferences = await db.MemberPreferences.AsNoTracking()
+            .SingleOrDefaultAsync(p => p.MemberId == request.MemberId, cancellationToken).ConfigureAwait(false);
+        if (preferences is not null && !preferences.Allows(request.Kind))
+        {
+            return null;
         }
 
         var now = time.GetUtcNow();

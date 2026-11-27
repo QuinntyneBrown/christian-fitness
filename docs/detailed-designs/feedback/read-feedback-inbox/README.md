@@ -36,6 +36,10 @@ This feature covers the staff side: the Feedback screen of the admin console (mo
 - **`FeedbackNote`** — the entity of [send feedback](../send-feedback/README.md) gains a collection of reply texts, `Resolve()`, `Reopen()` and `MarkReplied(now)`, with `RepliedAt` and `ResolvedAt`.
 - **Telemetry and audit** — routes recorded as templates; no span, metric or log carries a note's text, a reply, a name or an address; the audit entry holds only the staff member's id, the action, `FeedbackNote` and the note's id (AC11, ADR 0023).
 
+### As built
+
+[ADR 0113](../../../adr/0113-feedback-inbox.md) records what the build settled: the list holds the newest 100 notes of a tab with no cursor yet, the excerpt is 120 characters and a reply at most 2,000; a suspended member who did not allow email cannot be replied to (`member_unreachable`); `member_deleting` (AC12) is built with Delete my account; the navigation's count comes from `GET /api/admin/counts` (`newFeedback`).
+
 ### Open questions
 
 - **Moderators.** Settled by ADR 0064 and `L2-019` AC1: a Moderator opens Feedback, reads, replies, resolves and reopens notes as an Admin does, and the Feedback link and its count show in their navigation (mock `admin-feedback/moderator.html`). Only "Open the story to correct it" stays Admin only, since Stories is (`L2-074` AC4): the button is not drawn for a Moderator, whose role the screen reads from the session through `canManage`.

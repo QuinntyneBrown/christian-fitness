@@ -1,0 +1,44 @@
+<main id="main" class="issue-preview-page">
+  <cf-banner
+    tone="warning"
+    icon="eye"
+    lead="This is a preview."
+    [text]="noticeText"
+    actionLabel="Close preview"
+    actionHref="/newsletter"
+  />
+  @switch (state()) {
+    @case ('loading') {
+      <cf-skeleton-region label="Loading preview" heading>
+        <div class="issue-preview-page__state issue-preview-page__state--loading">
+          <cf-skeleton shape="title-lg" />
+          <cf-skeleton width="40" />
+          <cf-skeleton shape="tile" />
+          <cf-skeleton width="90" />
+        </div>
+      </cf-skeleton-region>
+    }
+    @case ('failed') {
+      <div class="issue-preview-page__state">
+        <h1 class="visually-hidden">Issue preview</h1>
+        <cf-empty-state
+          variant="error"
+          heading="The preview didn't load"
+          text="We couldn't reach Christian Fitness. Check your connection and try again."
+        >
+          <cf-button slot="actions" size="sm" (click)="load()">Try again</cf-button>
+          <cf-button slot="actions" size="sm" variant="secondary" href="/newsletter"
+            >Back to Newsletter</cf-button
+          >
+        </cf-empty-state>
+      </div>
+    }
+    @default {
+      @if (words(); as words) {
+        <div class="issue-preview-page__issue">
+          <cf-issue-view [issue]="words" eventsHref="#" />
+        </div>
+      }
+    }
+  }
+</main>

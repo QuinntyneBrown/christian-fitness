@@ -41,10 +41,13 @@ public static class EmailServiceCollectionExtensions
         // Every newsletter email's footer names it (L2-058 AC4; ADR 0110).
         services.AddSingleton(new Organisation(string.IsNullOrWhiteSpace(postalAddress) ? DevelopmentPostalAddress : postalAddress));
         services.AddSingleton(new MemberAppAddress(new Uri(string.IsNullOrWhiteSpace(baseUrl) ? DevelopmentMemberAppBaseUrl : baseUrl, UriKind.Absolute)));
+        // The relay's limits for the newsletter's issues (ADR 0070): unset, no issue email is sent.
+        services.AddSingleton(new BulkEmailLimits(Limit(configuration, "Email:MaxPerMinute"), Limit(configuration, "Email:MaxPerDay")));
         if (string.IsNullOrWhiteSpace(host))
         {
             services.AddSingleton<RecordingEmailSender>();
             services.AddSingleton<IEmailSender>(provider => provider.GetRequiredService<RecordingEmailSender>());
+            services.AddSingleton<IBulkEmailSender>(provider => provider.GetRequiredService<RecordingEmailSender>());
             return services;
         }
 
@@ -58,9 +61,14 @@ public static class EmailServiceCollectionExtensions
             From = string.IsNullOrWhiteSpace(from) ? "Christian Fitness <hello@localhost>" : from,
         });
         services.AddSingleton<SmtpEmailTransport>();
+        services.AddSingleton<IBulkEmailSender>(provider => provider.GetRequiredService<SmtpEmailTransport>());
         services.AddSingleton<QueuedEmailSender>();
         services.AddSingleton<IEmailSender>(provider => provider.GetRequiredService<QueuedEmailSender>());
         services.AddHostedService<EmailDispatcher>();
         return services;
     }
+
+    /// <summary>A limit above zero, or none when the setting is missing or not such a number.</summary>
+    private static int? Limit(IConfiguration configuration, string key) =>
+        int.TryParse(configuration[key], System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var limit) && limit > 0 ? limit : null;
 }

@@ -1,0 +1,125 @@
+// The design system's feedback detail (docs/design-system/assets/components.css,
+// "feedback-detail" and "kind-tag"). The status badges and the avatar are the library's own.
+:host {
+  display: block;
+}
+
+p,
+dl,
+dd,
+h2 {
+  margin: 0;
+}
+
+.feedback-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.icon {
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kind-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-canvas);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+
+  .icon {
+    color: var(--color-fg-accent);
+  }
+}
+
+.feedback-detail__when {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.feedback-detail__text {
+  margin-top: var(--space-5);
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-relaxed);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.feedback-detail__facts {
+  margin-top: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+  border-block: var(--border-width-hairline) solid var(--color-border-default);
+  padding-block: var(--space-4);
+  font-size: var(--font-size-ui);
+
+  > * {
+    min-width: 0;
+  }
+
+  dt {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.feedback-detail__from {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  > div {
+    min-width: 0;
+  }
+}
+
+.feedback-detail__strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
+
+.feedback-detail__sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.feedback-detail__device {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+
+  .icon {
+    color: var(--color-fg-muted);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

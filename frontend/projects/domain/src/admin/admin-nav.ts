@@ -19,12 +19,14 @@ export interface AdminNavArea {
 const AREA_GROUPS: Record<AdminAreaKey, AdminAreaGroup | null> = {
   dashboard: null,
   stories: 'Publish',
+  newsletter: 'Publish',
   events: 'Gather',
   series: 'Gather',
   'community-pick': 'Gather',
   listings: 'Community',
   services: 'Community',
   members: 'Community',
+  feedback: 'Community',
 };
 
 /**
@@ -42,16 +44,23 @@ export function adminNavOf(role: StaffRoleName, counts: AdminCountsDto | null): 
         ? (counts?.suggestions ?? 0)
         : key === 'stories'
           ? (counts?.storiesInReview ?? 0)
-          : 0;
+          : key === 'feedback'
+            ? (counts?.newFeedback ?? 0)
+            : 0;
     if (waiting <= 0) return area;
+    const one = waiting === 1;
     const countLabel =
       key === 'stories'
-        ? waiting === 1
+        ? one
           ? '1 story to review'
           : `${waiting} stories to review`
-        : waiting === 1
-          ? '1 suggestion to check'
-          : `${waiting} suggestions to check`;
+        : key === 'feedback'
+          ? one
+            ? '1 new note'
+            : `${waiting} new notes`
+          : one
+            ? '1 suggestion to check'
+            : `${waiting} suggestions to check`;
     return { ...area, count: waiting, countLabel };
   });
 }

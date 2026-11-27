@@ -1,0 +1,19 @@
+<div class="save-bar" [attr.role]="role()">
+  <div class="save-bar__inner">
+    @if (done()) {
+      <p class="save-bar__text save-bar__text--done">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <path d="m9 12 2 2 4-4" /></svg
+        >{{ text() }}
+      </p>
+    } @else {
+      <p class="save-bar__text">{{ text() }}</p>
+    }
+    @if (action(); as word) {
+      <cf-button variant="inverse" size="sm" [busy]="busy()" (click)="save.emit()">{{
+        word
+      }}</cf-button>
+    }
+  </div>
+</div>

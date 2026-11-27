@@ -7,7 +7,7 @@ namespace ChristianFitness.Infrastructure.Email;
 /// <see cref="Capacity"/> messages in memory and sends none. Older messages are dropped, so it never
 /// grows without bound.
 /// </summary>
-public sealed class RecordingEmailSender : IEmailSender
+public sealed class RecordingEmailSender : IEmailSender, IBulkEmailSender
 {
     public const int Capacity = 50;
 

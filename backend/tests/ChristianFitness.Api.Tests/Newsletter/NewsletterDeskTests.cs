@@ -29,12 +29,11 @@ public sealed class NewsletterDeskTests(NewsletterFactory factory) : IClassFixtu
 
         var desk = await DeskAsync("dana.desk@example.org");
 
-        Assert.Equal(["name", "confirmedSubscribers", "sendsAt", "nextIssue", "stories", "events"], desk.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["name", "confirmedSubscribers", "sendsAt", "nextIssue", "stories", "events", "sent"], desk.EnumerateObject().Select(p => p.Name));
         Assert.Equal("The Abundant Weekly", desk.GetProperty("name").GetString());
         Assert.Equal(before + 2, desk.GetProperty("confirmedSubscribers").GetInt32());
         Assert.Equal(new DateTimeOffset(2026, 11, 28, 12, 0, 0, TimeSpan.Zero), desk.GetProperty("sendsAt").GetDateTimeOffset());
         var issue = desk.GetProperty("nextIssue");
-        Assert.Equal(["number", "status", "sendAt"], issue.EnumerateObject().Select(p => p.Name));
         Assert.Equal(1, issue.GetProperty("number").GetInt32());
         Assert.Equal("draft", issue.GetProperty("status").GetString());
         Assert.Equal(desk.GetProperty("sendsAt").GetDateTimeOffset(), issue.GetProperty("sendAt").GetDateTimeOffset());

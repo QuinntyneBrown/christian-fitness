@@ -76,6 +76,7 @@ public sealed class SystemAccountTests(RegisterForEventFactory factory) : IClass
         using var other = Browser.CreateClient(factory);
         await OwnProfileTests.JoinedAsync(other, JoinTests.Details("hope.system2@example.org") with { FullName = "Hope Adeyemi" });
         var hopeId = await InDbAsync(db => db.Members.Where(m => m.NormalizedEmail == "hope.system2@example.org").Select(m => m.Id).SingleAsync(TestContext.Current.CancellationToken));
+        await Messaging.AllowAnyoneAsync(factory, hopeId);
 
         var answer = await hub.InvokeAsync<SystemChatAnswerBody>("JoinDirect", hopeId, TestContext.Current.CancellationToken);
 

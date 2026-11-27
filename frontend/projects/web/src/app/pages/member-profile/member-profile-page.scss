@@ -38,3 +38,9 @@
   font-size: var(--font-size-lg);
   line-height: var(--line-height-relaxed);
 }
+
+// Said in place of Message (L2-065 AC5).
+.member-profile__restricted {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

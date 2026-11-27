@@ -103,6 +103,12 @@ public interface IAppDbContext
     /// <summary>The notes members sent the team; only staff read them (L2-063; ADR 0109).</summary>
     DbSet<ChristianFitness.Domain.Feedback.FeedbackNote> FeedbackNotes { get; }
 
+    /// <summary>What each member chose on Preferences; a member with no row has the defaults (L2-064).</summary>
+    DbSet<ChristianFitness.Domain.Members.MemberPreferences> MemberPreferences { get; }
+
+    /// <summary>The replies staff sent, kept with their notes (L2-074 AC5).</summary>
+    DbSet<ChristianFitness.Domain.Feedback.FeedbackReply> FeedbackReplies { get; }
+
     /// <summary>Each address's subscription to The Abundant Weekly (L2-057, L2-058; ADR 0110).</summary>
     DbSet<NewsletterSubscription> NewsletterSubscriptions { get; }
 
@@ -114,6 +120,9 @@ public interface IAppDbContext
 
     /// <summary>The numbered issues of The Abundant Weekly (L2-070).</summary>
     DbSet<NewsletterIssue> NewsletterIssues { get; }
+
+    /// <summary>The recipients of the issue being sent; none once it is Sent (L2-070 AC7; ADR 0070).</summary>
+    DbSet<IssueDelivery> IssueDeliveries { get; }
 
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);

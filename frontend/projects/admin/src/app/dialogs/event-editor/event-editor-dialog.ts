@@ -41,6 +41,7 @@ import {
   hostNoMatchesText,
   hostSearchTermOf,
   type EventFieldErrors,
+  SUGGESTION_AREAS,
   eventFieldErrorsOf,
   type EventFieldKey,
 } from '@cf/domain';
@@ -59,7 +60,7 @@ const IMAGE_TYPES = 'image/jpeg,image/png,image/webp';
 /** The editor's fields typed as text. */
 type TextFieldKey = Exclude<
   keyof EventEditorValues,
-  'category' | 'imageKey' | 'imageName' | 'hostListingId' | 'hostName'
+  'category' | 'imageKey' | 'imageName' | 'hostListingId' | 'hostName' | 'suggestionArea'
 >;
 
 /**
@@ -160,6 +161,13 @@ export class EventEditorDialog {
   protected set(field: TextFieldKey, value: string): void {
     this.values.update((values) => ({ ...values, [field]: value }));
     this.clearError(field);
+  }
+
+  /** The eight areas a member chooses from; the prompt, no choice, is GTA-wide (ADR 0076). */
+  protected readonly suggestionAreas = SUGGESTION_AREAS;
+
+  protected setSuggestionArea(value: string): void {
+    this.values.update((values) => ({ ...values, suggestionArea: value }));
   }
 
   protected setCategory(value: string): void {

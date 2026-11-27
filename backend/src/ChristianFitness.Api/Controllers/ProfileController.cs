@@ -1,6 +1,9 @@
 using ChristianFitness.Application.Profiles;
+using ChristianFitness.Api.Security;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ChristianFitness.Api.Controllers;
 
@@ -18,6 +21,16 @@ public sealed class ProfileController(ISender sender) : ControllerBase
     [HttpGet("/api/members/{memberId}/profile")]
     public async Task<IActionResult> GetPublic(string memberId, CancellationToken cancellationToken) =>
         Ok(await sender.Send(new GetPublicProfileQuery(memberId), cancellationToken).ConfigureAwait(false));
+
+    /// <summary>
+    /// An Anyone profile for a visitor (L2-065 AC3, AC12): name, bio and interests, under the
+    /// <c>public-reads</c> limit; anything else is the same 404.
+    /// </summary>
+    [AllowAnonymous]
+    [EnableRateLimiting(PublicReads.Policy)]
+    [HttpGet("/api/public/members/{memberId}")]
+    public async Task<IActionResult> GetAnonymous(string memberId, CancellationToken cancellationToken) =>
+        Ok(await sender.Send(new GetAnonymousProfileQuery(memberId), cancellationToken).ConfigureAwait(false));
 
     /// <summary>
     /// Saves a member's profile and answers it as saved (L2-006 AC2; ADR 0024). Only the session's

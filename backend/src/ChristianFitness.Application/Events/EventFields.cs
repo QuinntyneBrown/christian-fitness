@@ -37,6 +37,9 @@ public abstract class EventFields
     /// <summary>The directory listing that hosts the event, chosen in the Host picker (L2-022 AC11; ADR 0089).</summary>
     public Guid? HostListingId { get; init; }
 
+    /// <summary>The suggestion area (L2-065 AC7; ADR 0076): one of the eight areas, or none for GTA-wide.</summary>
+    public string? SuggestionArea { get; init; }
+
     /// <summary>The Toronto date, or none when it is missing or not a <see cref="DateFormat"/> date.</summary>
     public DateOnly? ParsedDate() =>
         DateOnly.TryParseExact(Date, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date : null;

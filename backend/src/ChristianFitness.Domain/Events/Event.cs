@@ -198,6 +198,14 @@ public sealed class Event
     public void HostedBy(Guid listingId) => HostListingId = listingId;
 
     /// <summary>
+    /// The suggestion area (L2-065 AC7; ADR 0076): one of the eight areas a member chooses from, or
+    /// none for GTA-wide, which every event is until staff choose. The free-text area stays for display.
+    /// </summary>
+    public string? SuggestionArea { get; private set; }
+
+    public void SuggestIn(string? area) => SuggestionArea = string.IsNullOrWhiteSpace(area) ? null : area;
+
+    /// <summary>
     /// Makes a draft visible to members (L2-023 AC3; ADR 0026). Only a draft can be published; the
     /// handler refuses any other status before it asks.
     /// </summary>

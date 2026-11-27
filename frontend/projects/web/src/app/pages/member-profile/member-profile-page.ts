@@ -11,7 +11,7 @@ import {
   SkeletonRegion,
   TagList,
 } from '@cf/components';
-import { initialsOf, interestLabelsOf } from '@cf/domain';
+import { firstNameOf, initialsOf, interestLabelsOf } from '@cf/domain';
 import { switchMap, tap } from 'rxjs';
 import { HttpProfileService } from '../../services/http-profile.service';
 
@@ -23,6 +23,8 @@ interface MemberView {
   homeChurch: string | null;
   bio: string | null;
   interests: string[];
+  /** Said in place of Message when the member takes messages only from their groups; none otherwise. */
+  messagesNote: string | null;
 }
 
 /**
@@ -64,6 +66,9 @@ export default class MemberProfilePage {
             homeChurch: profile.homeChurch ?? null,
             bio: profile.bio,
             interests: interestLabelsOf(profile.interests),
+            messagesNote: profile.messagesRestricted
+              ? `${firstNameOf(profile.name) ?? 'This member'} only takes messages from people in their groups.`
+              : null,
           });
           this.state.set('loaded');
         },

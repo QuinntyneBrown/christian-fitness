@@ -48,6 +48,10 @@ This feature covers the Privacy and Suggestions sections of the Preferences scre
 - **`GetHomeHandler`** (existing) suggests the three soonest published events of the categories the member's interests name (`InterestCategories.For`). It orders events by the rule of ADR 0076: (1) the member's area or GTA-wide, then within those (2) events of a followed listing, (3) events matching an interest, (4) the rest, ties by date. Events gain a suggestion area (the eight areas or GTA-wide) chosen in the event editor; the free-text `Event.Area` stays for display, and existing events are mapped by staff review, unmapped ones becoming GTA-wide.
 - **Landing page** — the landing page is for visitors and orders by date only; `L2-001` AC8 sends a signed-in member to Home, where the ordering applies (ADR 0076).
 
+### As built
+
+[ADR 0115](../../../adr/0115-privacy-and-suggestion-preferences.md) records the defaults chosen, the listing-owner rule that replaces per-request listing context, and what is not built yet: attendee lists, a visitor's profile page and the event editor's area choice.
+
 ### Open questions
 
 - ~~Area matching, landing order and interest list~~ — resolved by ADR 0076: events gain a suggestion area; the order is area, followed host, interest, then the rest; the landing page orders by date only; the interest list is the union, with `INTERESTS` in `@cf/api` as the single source.

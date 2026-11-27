@@ -22,6 +22,8 @@ export interface EventEditorValues {
   hostListingId: string | null;
   /** What the Host field shows: the chosen host's name, or what is being searched. */
   hostName: string;
+  /** The suggestion area's code, or blank for GTA-wide (ADR 0076). */
+  suggestionArea: string;
 }
 
 /** A new event: the first category, every other field blank. */
@@ -39,6 +41,7 @@ export const EMPTY_EVENT_EDITOR: EventEditorValues = {
   imageName: null,
   hostListingId: null,
   hostName: '',
+  suggestionArea: '',
 };
 
 /** Dollars, an optional thousands comma every three digits, and up to two decimals. */
@@ -84,6 +87,7 @@ export function eventDraftOf(values: EventEditorValues): CreateEventRequestDto {
     summary: values.summary,
     imageKey: values.imageKey,
     hostListingId: values.hostListingId,
+    ...(values.suggestionArea ? { suggestionArea: values.suggestionArea } : {}),
   };
 }
 
@@ -119,5 +123,6 @@ export function eventEditorValuesOf(event: AdminEventDetailDto): EventEditorValu
     imageName: event.imageKey ? KEPT_IMAGE_NAME : null,
     hostListingId: event.host.id,
     hostName: event.host.name,
+    suggestionArea: event.suggestionArea ?? '',
   };
 }

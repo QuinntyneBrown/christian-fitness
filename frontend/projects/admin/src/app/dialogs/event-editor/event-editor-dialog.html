@@ -98,6 +98,17 @@
     [readonly]="working()"
     (valueChange)="set('area', $event)"
   />
+  <cf-select
+    fieldId="f-suggestion-area"
+    label="Suggestion area"
+    name="suggestionArea"
+    prompt="GTA-wide"
+    hint="Members in this area see it first on Home"
+    [options]="suggestionAreas"
+    [value]="values().suggestionArea"
+    [disabled]="working()"
+    (valueChange)="setSuggestionArea($event)"
+  />
   <cf-form-layout layout="grid">
     <cf-text-field
       fieldId="f-price"

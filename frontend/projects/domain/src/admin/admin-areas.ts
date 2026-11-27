@@ -5,12 +5,14 @@ import { pathOf } from '../errors/server-error';
 export type AdminAreaKey =
   | 'dashboard'
   | 'stories'
+  | 'newsletter'
   | 'events'
   | 'series'
   | 'community-pick'
   | 'listings'
   | 'services'
-  | 'members';
+  | 'members'
+  | 'feedback';
 
 /** One area: its key, the navigation's label and the path it opens. */
 export interface AdminArea {
@@ -23,12 +25,14 @@ export interface AdminArea {
 export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/' },
   { key: 'stories', label: 'Stories', path: '/stories' },
+  { key: 'newsletter', label: 'Newsletter', path: '/newsletter' },
   { key: 'events', label: 'Events', path: '/events' },
   { key: 'series', label: 'Event series', path: '/series' },
   { key: 'community-pick', label: 'Community Pick', path: '/community-pick' },
   { key: 'listings', label: 'Listings', path: '/listings' },
   { key: 'services', label: 'Services', path: '/services' },
   { key: 'members', label: 'Members', path: '/members' },
+  { key: 'feedback', label: 'Feedback', path: '/feedback' },
 ];
 
 /**
@@ -56,13 +60,15 @@ export function adminPageIsFlush(url: string): boolean {
   return /^\/stories\/[^/]+$/.test(path) && path !== '/stories/bylines';
 }
 
-/** The areas a Moderator opens (L2-019 AC1; ADR 0020, ADR 0064, ADR 0091, ADR 0098): they moderate members, review listings, run event series and make Community Picks. */
+/** The areas a Moderator opens (L2-019 AC1; ADR 0020, ADR 0064, ADR 0091, ADR 0098; L2-070 AC12): they moderate members, review listings, run event series, make Community Picks and build the newsletter. */
 const MODERATOR_AREAS: readonly AdminAreaKey[] = [
   'dashboard',
+  'newsletter',
   'series',
   'community-pick',
   'listings',
   'members',
+  'feedback',
 ];
 
 /**

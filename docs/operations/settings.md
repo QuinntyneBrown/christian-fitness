@@ -46,8 +46,8 @@ features are deployed; values are not hard-coded.
 
 | Setting | Required | Purpose |
 | --- | --- | --- |
-| `Email__MaxPerMinute` | For the newsletter sender | The SMTP relay's sending limit per minute; the operator supplies the relay's limit. |
-| `Email__MaxPerDay` | For the newsletter sender | The SMTP relay's sending limit per day; the operator supplies the relay's limit. |
+| `Email__MaxPerMinute` | For the newsletter sender | The SMTP relay's sending limit per minute; the operator supplies the relay's limit. A whole number above 0. While this or `Email__MaxPerDay` is unset, a scheduled issue starts at its time but no issue email leaves; it goes out once both are set (L2-070 AC7; ADR 0070). |
+| `Email__MaxPerDay` | For the newsletter sender | The SMTP relay's sending limit in any 24 hours; the operator supplies the relay's limit. A whole number above 0. |
 
 The relay limits govern the newsletter sender's rate and capacity; neither has a default. The
 staff Google Workspace domain is `christian.fitness`; legal enquiries go to

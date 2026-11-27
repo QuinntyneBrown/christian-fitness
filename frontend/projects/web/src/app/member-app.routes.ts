@@ -1,5 +1,12 @@
 import type { Routes } from '@angular/router';
-import { eventLinkGuard, memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
+import {
+  eventLinkGuard,
+  type HoldsUnsavedChanges,
+  mayLeave,
+  memberAuthGuard,
+  redirectSignedInGuard,
+  signedOutGuard,
+} from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -62,6 +69,18 @@ const routes: Routes = [
     path: 'subscribe',
     title: titled('Subscribe'),
     loadComponent: () => import('./pages/subscribe/subscribe-page'),
+  },
+  {
+    // The latest sent issue of the newsletter, for anyone, outside the shell (journey 29; L2-059).
+    path: 'newsletter',
+    title: titled('The Abundant Weekly'),
+    loadComponent: () => import('./pages/newsletter/newsletter-page'),
+  },
+  {
+    // One sent issue by its number.
+    path: 'newsletter/:number',
+    title: titled('The Abundant Weekly'),
+    loadComponent: () => import('./pages/newsletter/newsletter-page'),
   },
   {
     // An event link from a Community Pick: a member goes on to the event, a visitor to Join and
@@ -179,6 +198,17 @@ const routes: Routes = [
         path: 'stories/:slug',
         title: titled('Story'),
         loadComponent: story,
+      },
+      {
+        // What the member is sent and notified of, saved together (journey 33; L2-064). Leaving
+        // with unsaved changes asks first.
+        path: 'preferences',
+        title: titled('Preferences'),
+        canDeactivate: [
+          (screen: HoldsUnsavedChanges) =>
+            mayLeave(screen, (question) => globalThis.confirm(question)),
+        ],
+        loadComponent: () => import('./pages/preferences/preferences-page'),
       },
       {
         // Send feedback, about the page in the address (L2-063; ADR 0109).
