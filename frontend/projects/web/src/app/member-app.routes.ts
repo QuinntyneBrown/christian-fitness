@@ -1,5 +1,12 @@
 import type { Routes } from '@angular/router';
-import { eventLinkGuard, memberAuthGuard, redirectSignedInGuard, signedOutGuard } from '@cf/domain';
+import {
+  eventLinkGuard,
+  type HoldsUnsavedChanges,
+  mayLeave,
+  memberAuthGuard,
+  redirectSignedInGuard,
+  signedOutGuard,
+} from '@cf/domain';
 
 /**
  * Every route is lazy (AGENTS.md, "Lazy loading and memory"; L2-035 AC2) and has a title, so the
@@ -191,6 +198,17 @@ const routes: Routes = [
         path: 'stories/:slug',
         title: titled('Story'),
         loadComponent: story,
+      },
+      {
+        // What the member is sent and notified of, saved together (journey 33; L2-064). Leaving
+        // with unsaved changes asks first.
+        path: 'preferences',
+        title: titled('Preferences'),
+        canDeactivate: [
+          (screen: HoldsUnsavedChanges) =>
+            mayLeave(screen, (question) => globalThis.confirm(question)),
+        ],
+        loadComponent: () => import('./pages/preferences/preferences-page'),
       },
       {
         // Send feedback, about the page in the address (L2-063; ADR 0109).

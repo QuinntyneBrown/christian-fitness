@@ -1,0 +1,35 @@
+// The design system's preference section (docs/design-system/assets/components.css, "pref"). The
+// hairline between two sections is the host's, since one section cannot see the next.
+:host {
+  display: block;
+
+  & + & {
+    border-top: var(--border-width-hairline) solid var(--color-border-default);
+  }
+
+  &:first-child .pref {
+    padding-top: 0;
+  }
+}
+
+.pref {
+  padding-block: var(--space-8);
+  scroll-margin-top: var(--layout-sticky-offset);
+}
+
+.pref__title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-3xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pref__sub {
+  margin: var(--space-1) 0 0;
+  color: var(--color-fg-muted);
+}
+
+.pref__rows {
+  margin-top: var(--space-2);
+}

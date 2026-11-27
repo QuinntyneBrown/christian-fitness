@@ -1,0 +1,7 @@
+<section class="pref" [id]="sectionId()" [attr.aria-labelledby]="sectionId() + '-title'">
+  <h2 class="pref__title" [id]="sectionId() + '-title'">{{ heading() }}</h2>
+  @if (sub(); as line) {
+    <p class="pref__sub">{{ line }}</p>
+  }
+  <div class="pref__rows"><ng-content /></div>
+</section>

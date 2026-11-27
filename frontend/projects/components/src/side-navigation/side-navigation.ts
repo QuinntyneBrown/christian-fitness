@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 @Component({
   selector: 'cf-side-navigation',
   templateUrl: './side-navigation.html',
@@ -8,4 +8,8 @@ export class SideNavigation {
   readonly route = input.required<string>();
   readonly entries = input.required<readonly { id: string; title: string }[]>();
   readonly numbered = input(true);
+  /** The navigation's name, also shown above the list unless `untitled`. */
+  readonly label = input('Contents');
+  /** No visible title above the list (Preferences' section list). */
+  readonly untitled = input(false, { transform: booleanAttribute });
 }

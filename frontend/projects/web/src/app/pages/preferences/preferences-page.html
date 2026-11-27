@@ -1,0 +1,107 @@
+<main id="main" class="preferences-page">
+  <cf-container page="default">
+    <cf-link variant="back" href="/profile">Profile</cf-link>
+    <h1 class="display page-title">Preferences</h1>
+    <p class="subtitle">{{ subtitle() }}</p>
+    @switch (state()) {
+      @case ('loading') {
+        <cf-skeleton-region label="Loading your preferences">
+          <div class="prefs">
+            <div></div>
+            <div class="prefs__sections">
+              @for (section of skeletonSections; track section) {
+                <div class="prefs__skeleton">
+                  <cf-skeleton shape="title" width="20" />
+                  @for (row of skeletonRows; track row) {
+                    <div class="prefs__skeleton-row">
+                      <cf-skeleton width="40" />
+                      <cf-skeleton shape="text-sm" width="80" />
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </cf-skeleton-region>
+      }
+      @case ('failed') {
+        <div class="prefs__state">
+          <cf-empty-state
+            variant="error"
+            heading="Your preferences didn't load"
+            text="We couldn't reach Christian Fitness. Check your connection and try again."
+          >
+            <cf-button slot="actions" size="sm" (click)="load()">Try again</cf-button>
+            <cf-button slot="actions" size="sm" variant="secondary" href="/profile"
+              >Back to profile</cf-button
+            >
+          </cf-empty-state>
+        </div>
+      }
+      @default {
+        @if (draft(); as draft) {
+          <form class="prefs" novalidate (submit)="$event.preventDefault(); save()">
+            <cf-side-navigation
+              route="/preferences"
+              label="Preference sections"
+              [entries]="sections"
+              [numbered]="false"
+              untitled
+            />
+            <div class="prefs__sections">
+              <cf-preference-section sectionId="email" heading="Email" [sub]="emailSummary()">
+                @for (item of emailSwitches; track item.key) {
+                  <cf-preference-row>
+                    <cf-switch
+                      [label]="item.label"
+                      [description]="item.description"
+                      [name]="item.name"
+                      [checked]="draft.email[item.key]"
+                      [disabled]="locked()"
+                      (checkedChange)="setEmail(item.key, $event)"
+                    />
+                  </cf-preference-row>
+                }
+                @if (offersTurnOff()) {
+                  <cf-preference-row action>
+                    <cf-button variant="link" [disabled]="locked()" (click)="turnOffAllEmail()"
+                      >Turn off all email</cf-button
+                    >
+                  </cf-preference-row>
+                }
+              </cf-preference-section>
+              <cf-preference-section
+                sectionId="notifications"
+                heading="Notifications"
+                sub="In the app, on the bell. Chat messages show as unread dots on Messages."
+              >
+                @for (item of notificationSwitches; track item.key) {
+                  <cf-preference-row>
+                    <cf-switch
+                      [label]="item.label"
+                      [description]="item.description"
+                      [name]="item.name"
+                      [checked]="draft.notifications[item.key]"
+                      [disabled]="locked()"
+                      (checkedChange)="setNotification(item.key, $event)"
+                    />
+                  </cf-preference-row>
+                }
+              </cf-preference-section>
+            </div>
+          </form>
+        }
+      }
+    }
+  </cf-container>
+</main>
+@if (bar(); as bar) {
+  <cf-save-bar
+    [text]="bar.text"
+    [action]="bar.action"
+    [busy]="bar.busy"
+    [role]="bar.role"
+    [done]="bar.done"
+    (save)="save()"
+  />
+}

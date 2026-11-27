@@ -38,5 +38,6 @@ export * from './legal/legal-notice';
 export * from './news/story-blocks';
 export * from './news/stories';
 export * from './news/newsletter';
+export * from './preferences/preferences';
 export * from './clipboard/clipboard';
 export * from './feedback/feedback';

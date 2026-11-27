@@ -1,0 +1,58 @@
+// Preferences (docs/design-system/assets/components.css: "page-title", "page-title--after-back",
+// "subtitle", "prefs", and the loading mock's skeleton rows). The section list's column, 12rem, is
+// the design system's size-column-side, which the app tokens do not carry.
+:host {
+  display: block;
+}
+
+.display {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.page-title {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-none);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.prefs {
+  margin-top: var(--space-8);
+  display: grid;
+  gap: var(--space-10);
+  // Room for the save bar, so it never hides the last row.
+  padding-bottom: var(--space-12);
+
+  > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: 12rem minmax(0, 1fr);
+  }
+}
+
+.prefs__state {
+  margin-top: var(--space-8);
+}
+
+.prefs__skeleton {
+  padding-block: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.prefs__skeleton-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
