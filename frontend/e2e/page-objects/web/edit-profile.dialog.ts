@@ -5,7 +5,6 @@ export interface EditProfileValues {
   name: string;
   homeChurch: string;
   city: string;
-  showHomeChurch: boolean;
   bio: string;
   goals: string;
   /** The labels of the pressed interests, in the order shown. */
@@ -25,11 +24,10 @@ export class WebEditProfileDialog {
   readonly name: Locator;
   readonly homeChurch: Locator;
   readonly city: Locator;
+  /** Any "Show my home church" control: there is none, as Preferences has it (L2-006 AC4). */
   readonly showHomeChurch: Locator;
   /** Home church and City, side by side from SM up. */
   readonly churchFields: Locator;
-  /** The `check` row of "Show my home church to other members". */
-  readonly showHomeChurchRow: Locator;
   readonly bio: Locator;
   readonly goals: Locator;
   readonly interestLegend: Locator;
@@ -52,9 +50,8 @@ export class WebEditProfileDialog {
     this.name = this.dialog.getByLabel('Full name');
     this.homeChurch = this.dialog.getByRole('textbox', { name: 'Home church (optional)' });
     this.city = this.dialog.getByRole('textbox', { name: 'City (optional)' });
-    this.showHomeChurch = this.dialog.getByLabel('Show my home church to other members');
+    this.showHomeChurch = this.dialog.getByLabel(/show my home church/i);
     this.churchFields = this.dialog.locator('.field-grid');
-    this.showHomeChurchRow = this.dialog.locator('.check');
     this.bio = this.dialog.getByLabel('About');
     this.goals = this.dialog.getByLabel('Goals this year');
     this.interestLegend = this.dialog.locator('.field__legend');
@@ -108,7 +105,6 @@ export class WebEditProfileDialog {
       name: await this.name.inputValue(),
       homeChurch: await this.homeChurch.inputValue(),
       city: await this.city.inputValue(),
-      showHomeChurch: await this.showHomeChurch.isChecked(),
       bio: await this.bio.inputValue(),
       goals: await this.goals.inputValue(),
       interests: (

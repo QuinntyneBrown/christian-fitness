@@ -31,8 +31,9 @@ const SAVED = {
   interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling', 'pickleball'],
 };
 
-// L2-006 AC1, AC2 and AC4 (ADR 0024): Edit profile opens a dialog with the current values, the
-// home church hidden until shown; a valid save shows the new values and closes the dialog.
+// L2-006 AC1, AC2 and AC4 (ADR 0024): Edit profile opens a dialog with the current values and no
+// "Show my home church", which is Preferences'; a valid save shows the new values and closes the
+// dialog.
 test.describe('Member app, edit my profile', () => {
   test('Edit profile opens a dialog with the current values, the home church hidden', async ({
     page,
@@ -53,7 +54,6 @@ test.describe('Member app, edit my profile', () => {
       name: 'Grace Thompson',
       homeChurch: 'Grace Fellowship, Scarborough',
       city: 'Toronto, ON',
-      showHomeChurch: false,
       bio: FULL_PROFILE.bio,
       goals: 'Half marathon in the fall\nStrength twice a week\nSleep before 11',
       interests: ['Running', 'Strength', 'Basketball', 'Nutrition'],
@@ -61,6 +61,8 @@ test.describe('Member app, edit my profile', () => {
     await expect(dialog.fieldHint('Home church')).toHaveText(
       'Hidden from other members unless you show it',
     );
+    // Whether it shows is Preferences' to choose, not this dialog's (L2-006 AC4, L2-065 AC10).
+    await expect(dialog.showHomeChurch).toHaveCount(0);
     // 300 less the 106 characters of the bio.
     await expect(dialog.fieldHint('About')).toHaveText('A sentence or two. 194 characters left.');
     await expect(dialog.fieldHint('Goals this year')).toHaveText('One per line, up to 5');
@@ -93,7 +95,6 @@ test.describe('Member app, edit my profile', () => {
       await profile.editButton.click();
       await dialog.name.fill('  Grace T. Thompson ');
       await dialog.city.fill('Scarborough, ON');
-      await dialog.showHomeChurch.check();
       await dialog.bio.fill('Mom of two. Training for my first half marathon.');
       // A blank line is not a goal; each line is trimmed.
       await dialog.goals.fill(
@@ -109,7 +110,6 @@ test.describe('Member app, edit my profile', () => {
           name: 'Grace T. Thompson',
           city: 'Scarborough, ON',
           homeChurch: 'Grace Fellowship, Scarborough',
-          showHomeChurch: true,
           bio: 'Mom of two. Training for my first half marathon.',
           goals: ['Half marathon in the fall', 'Sleep before 11', 'Run with the Sunrise 5K Crew'],
           interests: ['running', 'strength', 'basketball', 'nutrition', 'cycling', 'pickleball'],
@@ -156,7 +156,6 @@ test.describe('Member app, edit my profile', () => {
         name: 'Grace Thompson',
         city: null,
         homeChurch: null,
-        showHomeChurch: false,
         bio: null,
         goals: FULL_PROFILE.goals,
         interests: FULL_PROFILE.interests,
@@ -213,7 +212,6 @@ test.describe('Member app, edit my profile', () => {
       name: 'Grace Thompson',
       homeChurch: '',
       city: '',
-      showHomeChurch: false,
       bio: '',
       goals: '',
       interests: [],

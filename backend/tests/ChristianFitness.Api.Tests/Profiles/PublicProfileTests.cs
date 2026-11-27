@@ -38,8 +38,13 @@ public sealed class PublicProfileTests(ProfileApiFactory factory) : IClassFixtur
         var viewer = await OwnProfileTests.JoinedAsync(client, JoinTests.Details("viewer.shown@example.org"));
         var owner = await OwnProfileTests.JoinedAsync(client, JoinTests.Details("grace.shown@example.org"));
         var ownerId = await EditProfileTests.MemberIdAsync(client, owner);
-        using var saved = await EditProfileTests.PutAsync(client, $"/api/members/{ownerId}/profile", owner, new { name = "Grace Thompson", homeChurch = "Grace Fellowship, Scarborough", showHomeChurch = true, goals = Array.Empty<string>(), interests = new List<string> { "running" } });
+        using var saved = await EditProfileTests.PutAsync(client, $"/api/members/{ownerId}/profile", owner, new { name = "Grace Thompson", homeChurch = "Grace Fellowship, Scarborough", goals = Array.Empty<string>(), interests = new List<string> { "running" } });
         Assert.Equal(HttpStatusCode.OK, saved.StatusCode);
+        // "Show my home church" is Preferences' (L2-065 AC10).
+        var body = Preferences.Prefs.Body();
+        body["privacy"] = new { visibility = "members", showHomeChurch = true, showOnAttendeeLists = true, letAnyoneMessage = false };
+        using var shown = await Preferences.Prefs.SaveAsync(client, owner, body);
+        Assert.Equal(HttpStatusCode.OK, shown.StatusCode);
 
         using var response = await Browser.SendAsync(client, HttpMethod.Get, $"/api/members/{ownerId}/profile", viewer);
 

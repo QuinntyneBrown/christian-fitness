@@ -27,7 +27,7 @@ export interface OwnProfileDto {
   bio: string | null;
   /** Optional and sensitive: answered only to its owner. */
   homeChurch: string | null;
-  /** Whether other members may see the home church; false until the member shows it (L2-006 AC4). */
+  /** Whether other members may see the home church; false until the member shows it in Preferences (L2-065 AC10). */
   showHomeChurch: boolean;
   goals: string[];
   /** Interest keys, as in `INTERESTS`. */
@@ -66,7 +66,6 @@ export interface UpdateProfileDto {
   name: string;
   city: string | null;
   homeChurch: string | null;
-  showHomeChurch: boolean;
   bio: string | null;
   goals: string[];
   /** Interest keys, as in `INTERESTS`. */

@@ -72,7 +72,6 @@ test.describe('Member app, edit my profile: the dialog names each field to fix',
       name: '',
       homeChurch: 'Grace Fellowship, Scarborough',
       city: 'Toronto, ON',
-      showHomeChurch: false,
       bio: FULL_PROFILE.bio,
       goals: FULL_PROFILE.goals.join('\n'),
       interests: ['Running', 'Strength', 'Basketball', 'Nutrition'],
@@ -192,7 +191,6 @@ test.describe('Member app, edit my profile: a save that does not go through', ()
     await profile.open();
     await profile.editButton.click();
     await dialog.name.fill('Grace T. Thompson');
-    await dialog.showHomeChurch.check();
     await dialog.interest('Cycling').click();
     await dialog.saveAndAwaitAnswer();
 
@@ -204,7 +202,6 @@ test.describe('Member app, edit my profile: a save that does not go through', ()
       name: 'Grace T. Thompson',
       homeChurch: 'Grace Fellowship, Scarborough',
       city: 'Toronto, ON',
-      showHomeChurch: true,
       bio: FULL_PROFILE.bio,
       goals: FULL_PROFILE.goals.join('\n'),
       interests: ['Running', 'Strength', 'Basketball', 'Nutrition', 'Cycling'],
@@ -241,7 +238,6 @@ test.describe('Member app, edit my profile: a save that does not go through', ()
     await expect(dialog.name).toHaveAttribute('readonly', '');
     await expect(dialog.bio).toHaveAttribute('readonly', '');
     await expect(dialog.goals).toHaveAttribute('readonly', '');
-    await expect(dialog.showHomeChurch).toBeDisabled();
     await expect(dialog.interest('Cycling')).toBeDisabled();
     await dialog.closeButton.click();
     await dialog.pressEscape();

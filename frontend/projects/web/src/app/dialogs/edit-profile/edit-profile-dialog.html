@@ -48,13 +48,6 @@
           (valueChange)="edit('city', $event)"
         />
       </cf-form-layout>
-      <cf-checkbox
-        label="Show my home church to other members"
-        name="showChurch"
-        [checked]="values().showHomeChurch"
-        [disabled]="saving()"
-        (checkedChange)="show($event)"
-      />
       <cf-textarea
         fieldId="f-bio"
         label="About"

@@ -23,7 +23,7 @@ internal sealed class UpdateProfileHandler(IAppDbContext db, ICurrentMember curr
         }
 
         var member = await db.Members.SingleAsync(m => m.Id == id, cancellationToken).ConfigureAwait(false);
-        member.EditProfile(request.Name, request.City, request.HomeChurch, request.ShowHomeChurch, request.Bio, request.Goals, request.Interests);
+        member.EditProfile(request.Name, request.City, request.HomeChurch, request.Bio, request.Goals, request.Interests);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         var upcoming = await registrations.UpcomingForAsync(id, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
         return OwnProfileDto.Of(member, upcoming);

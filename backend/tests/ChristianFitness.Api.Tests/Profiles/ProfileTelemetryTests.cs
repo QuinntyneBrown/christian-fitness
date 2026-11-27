@@ -62,7 +62,6 @@ public sealed class ProfileTelemetryTests(TelemetryTests.Factory factory) : ICla
                 name = "Grace Thompson",
                 city = "Scarborough",
                 homeChurch = "Grace Fellowship, Scarborough",
-                showHomeChurch = true,
                 bio = "Recovering couch-to-5K runner.",
                 goals = new List<string> { "Half marathon in the fall" },
                 interests = new List<string> { "running" },
