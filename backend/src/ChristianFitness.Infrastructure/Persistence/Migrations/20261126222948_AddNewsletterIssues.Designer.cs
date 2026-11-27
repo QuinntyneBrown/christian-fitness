@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChristianFitness.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261126231304_AddNewsletterIssues")]
+    [Migration("20261126222948_AddNewsletterIssues")]
     partial class AddNewsletterIssues
     {
         /// <inheritdoc />
@@ -1084,93 +1084,21 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.ToTable("StoryReadTallies", (string)null);
                 });
 
-            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.IssueDelivery", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Attempts")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("IssueId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SentAt");
-
-                    b.HasIndex("SubscriptionId");
-
-                    b.HasIndex("IssueId", "SubscriptionId")
-                        .IsUnique();
-
-                    b.ToTable("IssueDeliveries", (string)null);
-                });
-
             modelBuilder.Entity("ChristianFitness.Domain.Newsletter.NewsletterIssue", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.PrimitiveCollection<Guid[]>("AlsoStoryIds")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
-                    b.Property<string>("EditorsNote")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.PrimitiveCollection<Guid[]>("EventIds")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
-                    b.Property<Guid?>("LeadStoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("MissedSend")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Number")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RecipientCount")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("ScheduledById")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTimeOffset>("SendAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("SentAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Verse")
-                        .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("character varying(400)");
-
-                    b.Property<string>("VerseReference")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("character varying(60)");
 
                     b.HasKey("Id");
 
@@ -1699,21 +1627,6 @@ namespace ChristianFitness.Infrastructure.Persistence.Migrations
                     b.HasOne("ChristianFitness.Domain.News.Story", null)
                         .WithMany()
                         .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ChristianFitness.Domain.Newsletter.IssueDelivery", b =>
-                {
-                    b.HasOne("ChristianFitness.Domain.Newsletter.NewsletterIssue", null)
-                        .WithMany()
-                        .HasForeignKey("IssueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ChristianFitness.Domain.Newsletter.NewsletterSubscription", null)
-                        .WithMany()
-                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
