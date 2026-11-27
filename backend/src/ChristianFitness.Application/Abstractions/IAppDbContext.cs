@@ -127,6 +127,9 @@ public interface IAppDbContext
     /// <summary>The recipients of the issue being sent; none once it is Sent (L2-070 AC7; ADR 0070).</summary>
     DbSet<IssueDelivery> IssueDeliveries { get; }
 
+    /// <summary>Members' requests for a copy of their data, and their archives' keys (L2-066 AC1 to AC3; ADR 0117).</summary>
+    DbSet<ChristianFitness.Domain.Members.DataExportRequest> DataExportRequests { get; }
+
     /// <summary>Whether the database answers; the readiness check asks this.</summary>
     Task<bool> CanConnectAsync(CancellationToken cancellationToken);
 

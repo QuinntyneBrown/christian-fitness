@@ -15,7 +15,8 @@ public sealed record PreferencesDto(
     EmailPreferencesDto Email,
     NotificationPreferencesDto Notifications,
     PrivacyPreferencesDto Privacy,
-    SuggestionPreferencesDto Suggestions);
+    SuggestionPreferencesDto Suggestions,
+    DateTimeOffset? DownloadRequestedAt);
 
 /// <summary>
 /// Who sees the member (L2-065 AC1, AC4, AC5, AC10): <c>anyone</c>, <c>members</c> or <c>groups</c>;
@@ -88,7 +89,7 @@ internal sealed class SavePreferencesValidator : AbstractValidator<SavePreferenc
 
 internal static class PreferencesReader
 {
-    public static async Task<PreferencesDto> ReadAsync(IAppDbContext db, Guid memberId, CancellationToken cancellationToken)
+    public static async Task<PreferencesDto> ReadAsync(IAppDbContext db, Guid memberId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var member = await db.Members.AsNoTracking()
             .Where(m => m.Id == memberId)
@@ -101,19 +102,22 @@ internal static class PreferencesReader
             .SingleOrDefaultAsync(s => s.Email == address, cancellationToken).ConfigureAwait(false);
         // Only a Subscribed address gets email: Pending and Unsubscribed read as every switch off (AC9).
         var on = subscription is { Status: SubscriptionStatus.Subscribed };
+        // A download asked for in the last 24 hours shows as asked for, in place of the button (L2-066 AC3).
+        var download = await DataExportRequests.RecentAsync(db, memberId, now, cancellationToken).ConfigureAwait(false);
         return new PreferencesDto(
             member.Name,
             new EmailPreferencesDto(on && subscription!.Weekly, on && subscription!.EventAlerts, on && subscription!.TrainingPlan, on && subscription!.Devotion),
             new NotificationPreferencesDto(preferences.EventReminders, preferences.Messages, preferences.FollowedListingDates, preferences.EventChanges),
             new PrivacyPreferencesDto(PreferenceRules.Of(preferences.Visibility), member.ShowHomeChurch, preferences.ShowOnAttendeeLists, preferences.LetAnyoneMessage),
-            new SuggestionPreferencesDto(preferences.Area, member.Interests));
+            new SuggestionPreferencesDto(preferences.Area, member.Interests),
+            download?.RequestedAt);
     }
 }
 
-internal sealed class GetPreferencesHandler(IAppDbContext db, ICurrentMember current) : IRequestHandler<GetPreferencesQuery, PreferencesDto>
+internal sealed class GetPreferencesHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<GetPreferencesQuery, PreferencesDto>
 {
     public Task<PreferencesDto> Handle(GetPreferencesQuery request, CancellationToken cancellationToken) =>
-        PreferencesReader.ReadAsync(db, current.Id, cancellationToken);
+        PreferencesReader.ReadAsync(db, current.Id, time.GetUtcNow(), cancellationToken);
 }
 
 internal sealed class SavePreferencesHandler(IAppDbContext db, ICurrentMember current, TimeProvider time) : IRequestHandler<SavePreferencesCommand, PreferencesDto>
@@ -168,6 +172,6 @@ internal sealed class SavePreferencesHandler(IAppDbContext db, ICurrentMember cu
 
         // One save: every changed setting is kept together or none is (L2-064 AC6).
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return await PreferencesReader.ReadAsync(db, current.Id, cancellationToken).ConfigureAwait(false);
+        return await PreferencesReader.ReadAsync(db, current.Id, now, cancellationToken).ConfigureAwait(false);
     }
 }

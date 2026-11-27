@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import {
+  DATA_SERVICE,
   type EmailPreferencesDto,
   type InterestKey,
   INTERESTS,
@@ -14,6 +15,7 @@ import {
   Button,
   Container,
   EmptyState,
+  InlineMessage,
   Interest,
   InterestList,
   Link,
@@ -45,6 +47,7 @@ import {
   VISIBILITY_OPTIONS,
 } from '@cf/domain';
 import type { Subscription } from 'rxjs';
+import { HttpDataService } from '../../services/http-data.service';
 import { HttpPreferencesService } from '../../services/http-preferences.service';
 
 /**
@@ -61,6 +64,7 @@ import { HttpPreferencesService } from '../../services/http-preferences.service'
     Button,
     Container,
     EmptyState,
+    InlineMessage,
     Interest,
     InterestList,
     Link,
@@ -74,12 +78,17 @@ import { HttpPreferencesService } from '../../services/http-preferences.service'
     SkeletonRegion,
     Switch,
   ],
-  providers: [{ provide: PREFERENCES_SERVICE, useClass: HttpPreferencesService }],
+  providers: [
+    { provide: PREFERENCES_SERVICE, useClass: HttpPreferencesService },
+    { provide: DATA_SERVICE, useClass: HttpDataService },
+  ],
   templateUrl: './preferences-page.html',
   styleUrl: './preferences-page.scss',
 })
 export default class PreferencesPage implements HoldsUnsavedChanges {
   private readonly api = inject(PREFERENCES_SERVICE);
+  private readonly data = inject(DATA_SERVICE);
+  private downloadRequest: Subscription | undefined;
   private readonly window = inject(DOCUMENT).defaultView;
   private request: Subscription | undefined;
   private savedTimer: ReturnType<typeof setTimeout> | undefined;
@@ -95,7 +104,9 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
     { id: 'notifications', title: 'Notifications' },
     { id: 'privacy', title: 'Privacy' },
     { id: 'suggestions', title: 'Suggestions' },
+    { id: 'account', title: 'Your data' },
   ];
+  protected readonly downloadRequested = "Requested. We'll email you a link within 24 hours.";
   protected readonly skeletonSections = [0, 1];
   protected readonly skeletonRows = [0, 1, 2];
 
@@ -104,6 +115,12 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
   private readonly saved = signal<PreferencesValuesDto | null>(null);
   protected readonly draft = signal<PreferencesValuesDto | null>(null);
   private readonly phase = signal<SavePhase>('clean');
+  /**
+   * Your data's download (L2-066 AC1, AC3): not asked, being asked, asked in the last 24 hours (the
+   * confirmation stands in place of the button), or the request got no answer. It is no setting,
+   * so it never waits for Save.
+   */
+  protected readonly download = signal<'ask' | 'asking' | 'asked' | 'failed'>('ask');
 
   private readonly dirty = computed(() => {
     const saved = this.saved();
@@ -136,6 +153,7 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
     inject(DestroyRef).onDestroy(() => {
       this.window?.removeEventListener('beforeunload', this.beforeUnload);
       this.request?.unsubscribe();
+      this.downloadRequest?.unsubscribe();
       clearTimeout(this.savedTimer);
     });
     this.load();
@@ -153,6 +171,7 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
         this.name.set(preferences.name);
         this.saved.set(valuesOf(preferences));
         this.draft.set(valuesOf(preferences));
+        this.download.set(preferences.downloadRequestedAt ? 'asked' : 'ask');
         this.state.set('loaded');
       },
       error: () => this.state.set('failed'),
@@ -211,6 +230,17 @@ export default class PreferencesPage implements HoldsUnsavedChanges {
         this.savedTimer = setTimeout(() => this.phase.set('clean'), SAVED_MS);
       },
       error: () => this.phase.set('failed'),
+    });
+  }
+
+  /** Request download, or Try again after it got no answer (L2-066 AC1). */
+  protected requestDownload(): void {
+    if (this.download() === 'asking' || this.download() === 'asked') return;
+    this.download.set('asking');
+    this.downloadRequest?.unsubscribe();
+    this.downloadRequest = this.data.requestDownload().subscribe({
+      next: () => this.download.set('asked'),
+      error: () => this.download.set('failed'),
     });
   }
 

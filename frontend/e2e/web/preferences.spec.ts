@@ -27,6 +27,7 @@ test.describe('Member app, Preferences: email and notifications', () => {
         'Notifications',
         'Privacy',
         'Suggestions',
+        'Your data',
       ]);
       await expect(preferences.sectionLinks.first()).toHaveAttribute('href', '/preferences#email');
       await expect(preferences.emailSummary).toHaveText('3 of 4 emails on.');
