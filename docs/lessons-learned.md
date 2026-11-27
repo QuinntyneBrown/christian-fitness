@@ -3839,6 +3839,9 @@ the email can join again (ADR 0118). Replies to a deleting member's feedback are
   input of the existing component, not a new one.
 - The worktree guard again refused heredocs and compound git commands; edits went through one
   scratchpad script that asserts every match in every file before writing any.
+- The full suite against `ng serve` failed `legal-change` and admin `add-session` on the dev
+  server's own websocket being blocked; against the built apps (`CF_SERVE_BUILT=1`, as CI runs)
+  they pass. `feedback` (3), admin `create-series` and `members` fail as on main; none was touched.
 
 **New lessons**
 
