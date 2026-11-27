@@ -36,7 +36,7 @@ class DeleteAccountCommand <<IAuditableCommand>> {
   +string Confirm
   AuditAction = "account.deletion_requested"
 }
-class DeleteAccountValidator
+class AccountDeletionAttempt
 class DeleteAccountHandler {
   +Handle(command): Task
 }
@@ -47,8 +47,8 @@ class GetDataExportArchiveQuery {
 class DataExportBuilder {
   +RunAsync(ct): Task
 }
-class AccountErasureService {
-  +RunAsync(ct): Task
+class EraseAccountsHandler {
+  +Handle(EraseAccountsCommand, ct): Task<int>
 }
 interface IArchiveStore {
   +SaveAsync(key, zip): Task
@@ -60,7 +60,7 @@ interface ISessionRevocation {
 }
 interface IChatChannel {
   +LeaveAsync(memberId, eventId): Task
-  +DisconnectMemberAsync(memberId): Task
+  +LeaveAllAsync(memberId): Task
 }
 interface IEmailSender {
   +SendAsync(EmailMessage): Task
@@ -79,15 +79,15 @@ interface DataApi {
 class DeleteAccountDialog
 Member "1" -- "0..*" DataExportRequest
 DeleteAccountHandler ..> DeleteAccountCommand : handles
-DeleteAccountValidator ..> DeleteAccountCommand : "confirm == delete"
+DeleteAccountHandler --> AccountDeletionAttempt : "5 an hour; Confirms(word)"
 DeleteAccountHandler --> Member : RequestDeletion
 DeleteAccountHandler ..> ISessionRevocation
 DeleteAccountHandler ..> IChatChannel
 DataExportBuilder --> DataExportRequest : ReadyAt, ArchiveKey
 DataExportBuilder ..> IArchiveStore
 DataExportBuilder ..> IEmailSender
-AccountErasureService --> Member : deletes after 30 days
-AccountErasureService ..> IArchiveStore
+EraseAccountsHandler --> Member : deletes after 30 days
+EraseAccountsHandler ..> IArchiveStore
 RequestDataExportCommand ..> AuditEntry : recorded
 DeleteAccountCommand ..> AuditEntry : recorded
 DeleteAccountDialog ..> DataApi : DATA_SERVICE

@@ -10,12 +10,12 @@ box "Frontend — Member web app" #E0F2FE
   participant "SignInPage" as page
 end box
 box "Backend — Christian Fitness API" #D1FADF
-  participant "SessionController / DataController" as ctrl
+  participant "SessionController / AccountController" as ctrl
 end box
 box "Backend — Christian Fitness Application and Domain" #ECFDF3
   participant "SignInHandler" as signin
   participant "RestoreAccountHandler" as restore
-  participant "AccountErasureService" as erase
+  participant "EraseAccountsHandler" as erase
 end box
 box "Backend — Christian Fitness Infrastructure" #FFF4E5
   participant "PublishingClock" as clock
@@ -29,22 +29,22 @@ signin -> db : Member by email; credentials checked
 alt deleting (DeletionRequestedAt within 30 days)
   signin --> ctrl : 409 account_deleting, no session
   ctrl --> page : ProblemDetails
-  page --> actor : Account is being deleted; Restore (L2-066 AC8; mock TO SUPPLY)
+  page --> actor : "Your account is set to be deleted on …"; Restore (L2-066 AC8; mock sign-in/deleting)
   actor -> page : Restore
-  page -> ctrl : POST /api/account/restore with credentials
+  page -> ctrl : POST /api/account/restore with credentials (or /restore/google)
   ctrl -> restore : Send RestoreAccountCommand
   restore -> db : Re-check credentials; clear DeletionRequestedAt; sign in
   restore --> ctrl : SessionDto
   ctrl --> page : 200; Home
 end
-== Daily scheduled run ==
+== Every scheduler tick (30 seconds) ==
 clock -> db : Take lease on TimeProvider tick
-clock -> erase : Run daily erasure job when due
+clock -> erase : Send EraseAccountsCommand (at most 10 a tick)
 erase -> db : Members with DeletionRequestedAt 30 days or more ago
 loop each due member
   erase -> db : Erase text of sent messages; delete registrations, preferences, follows, suggestions, feedback, exports
   erase -> files : Delete archives and feedback screenshots
   erase -> db : Delete Member row (cascades sessions, resets); keep audit entries (ids only)
 end
-note over erase : After erasure the email can join as new (AC8); erasure form needs an ADR
+note over erase : After erasure the email can join as new (AC8); ADR 0118 fixes the erasure form
 @enduml
